@@ -13,7 +13,7 @@
 
 "mucolnames"<- function(template="labed_template", dir=options()$templatedir)
 {
-  command _ paste( "awk '/^#/{print $1}' ", dir, "/", template, 
+  command <- paste( "awk '/^#/{print $1}' ", dir, "/", template, 
 	     " | sed -e 's/#//'", sep="" )
   unix(command)
 }

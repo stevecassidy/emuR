@@ -15,7 +15,7 @@
 function(utterance, duplicates = FALSE, extn = options()$extensions)
 {
   # if they gave us an utterance list, take the first one.
-  if(length(utterance) > 1) utterance _ utterance[1]
+  if(length(utterance) > 1) utterance <- utterance[1]
   ntracks <- 0
   r <- .C("myntracks",
 	  as.character(utterance),

@@ -29,7 +29,7 @@
 
 "[.segs"<- function(segs,i,j)
 {
-  x _ NextMethod("[", drop=F)
+  x <- NextMethod("[", drop=F)
   if(is.matrix(x) & ncol(x)==3){
     class(x) <- "segs"
     attr(x,"level") <- attr(segs,"level") 

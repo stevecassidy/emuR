@@ -16,8 +16,8 @@ function(directory = options()$dbdefault,
 	 extn = options()$labextn, pattern = "*")
 {
   filename <- paste(directory, "/", pattern, ".", extn, sep = "")
-  cmd _ paste(sep = "", "ls ", filename, 
-	      "| sed -e 's/\\(.*\\)\\.", extn, "/\\1/'")
+  cmd <- paste(sep = "", "ls ", filename, 
+               "| sed -e 's/\\(.*\\)\\.", extn, "/\\1/'")
   invisible(unix(cmd))
 }
 

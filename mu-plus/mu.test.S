@@ -114,7 +114,7 @@ mu.test <- function(){
   cat( "Now, an uttplot of F0 for the first utterance\n")
   cat( "You will be able to play segments of the speech file using the mouse...\n\n" )
   ## work out how many segments in the first utterance...
-  nn _ sum(utt(segs)==as.character(utt(segs[1,])))
+  nn <- sum(utt(segs)==as.character(utt(segs[1,])))
   uttplot( segs[1:nn,], "fm[1:3]", talk=T )
 
   cat("Hope you enjoyed that!\n")
@@ -136,8 +136,8 @@ mu.test <- function(){
 
   cat("Now I'll try a canonical discriminant analysis of that data\n")
   cat("Using the cda program.\n")
-  labs _ label(segs)
-  dat.dis _ discrim( dat$bark, labs, dims=2, verbose=T)
+  labs <- label(segs)
+  dat.dis <- discrim( dat$bark, labs, dims=2, verbose=T)
 
   if( nrow(dat.dis$data) == nrow(dat$bark) )
     cat("Looks ok. Let's try a plot\n")

@@ -92,7 +92,7 @@ function(segs, npoints = 256, shift = npoints/2, nslices, centering=F,
   ## work out new ftime matrix
   durs <- mudur(segs)
   period <- durs/indexvec
-  ftime _ cbind( mustart(segs)+period/2, muend(segs)-period/2 )
+  ftime <- cbind( mustart(segs)+period/2, muend(segs)-period/2 )
 
   ## read the data for each segment from the corresponding file
   for(j in 1:length(right)) {

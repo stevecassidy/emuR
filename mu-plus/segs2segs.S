@@ -17,9 +17,9 @@
   # replace : with / and add prefix unless uselastonly is T in which 
   # case we use only the last part of the utterance name
 
-  newutts _ utt(segs)
+  newutts <- utt(segs)
   for( i in 1:nrow(segs)){
-    bits _ splitstring(utt(segs)[i], ":")
+    bits <- splitstring(utt(segs)[i], ":")
     newutts[i] <- paste(prefix, paste( bits, collapse="/"), sep="/" )
   }
   as.segs(cbind(mustart(segs), muend(segs), newutts), label(segs), 
