@@ -40,10 +40,10 @@ R: $(SFILES)  emu/INDEX description version-info
 	cp $(SFILES) emu/R/
 	cp man/*.Rd emu/man
 #	R CMD check emu
-	R CMD build --binary emu
+	R CMD build emu
 	tar xzf emu_$(VERSION)*.tar.gz
-	zip -r emu_R_$(VERSION).zip emu
-	tar czf emu_R_$(VERSION).tar.gz emu
+	zip -r emu_$(VERSION).zip emu
+	tar czf emu_$(VERSION).tar.gz emu
 
 version-info:
 	sed -e 's/\(emu\.version<-\)"[0-9.]*"/\1"$(VERSION)"/' src/AAoptions.S > tmp
