@@ -19,21 +19,21 @@
   on.exit(par(new=F))
 
   if(missing(labs)) {
-    legn _ F
+    legn <- F
     labs <- rep(".", length(vec))
   }
 
-  len _ length(unique(labs))
+  len <- length(unique(labs))
   
   ## calculate the density, angle and colour vectors
-  dens _ rep(30, len)  
+  dens <- rep(30, len)  
 
   if(colour){
-    col _ 1:len
-    angle _ rep(45, len)
+    col <- 1:len
+    angle <- rep(45, len)
   }
   else{
-    col _ rep(1, len)
+    col <- rep(1, len)
     angle <- seq(45, 180, length = len)
   }
 
@@ -67,7 +67,7 @@
     par(new = T)
   }
   if(legn!=F){
-    legn _ mu.legend(legn, xlim, ylim)
+    legn <- mu.legend(legn, xlim, ylim)
     legend(legn$x, legn$y, legend = lableg$lab, 
 	   col = lableg$col)
   }

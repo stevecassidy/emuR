@@ -62,7 +62,7 @@ if (emu.platform("Windows")) {
 
 
 ## this will get changed by the Makefile
-emu.version<-"1.5.1"
+emu.version<-"1.5.2"
 
 "emu.init" <- function() {
 

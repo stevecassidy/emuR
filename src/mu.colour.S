@@ -27,10 +27,10 @@
   ## it should be a set of pairs {label, number} and number
   ## will be assigned to label in the resulting list
   
-  len _ length(labs)
+  len <- length(labs)
 
   if( length(col)==2*length(unique(labs)) ) {
-    colours _ 1:length(labs)
+    colours <- 1:length(labs)
     n <- 1
     while( n <= length(unique(labs)) ) {
       lab <- col[2*n-1]
@@ -67,15 +67,15 @@
     else 
       linetype <- rep(1, len)
   }
-  foo _ NULL
-  foo$colour _ col
-  foo$linetype  _ linetype
+  foo <- NULL
+  foo$colour <- col
+  foo$linetype  <- linetype
   ## obtain unique elements for the purpose of creating a legend
-  p1 _ paste(labs, col, linetype)
-  p1.temp _ duplicated(p1)
-  foo$legend$lab _ labs[!p1.temp]
-  foo$legend$col _ foo$colour[!p1.temp]
-  foo$legend$lty _ foo$linetype[!p1.temp]
+  p1 <- paste(labs, col, linetype)
+  p1.temp <- duplicated(p1)
+  foo$legend$lab <- labs[!p1.temp]
+  foo$legend$col <- foo$colour[!p1.temp]
+  foo$legend$lty <- foo$linetype[!p1.temp]
   return(foo)
 }
 

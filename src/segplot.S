@@ -22,17 +22,17 @@
   ## written by Jonathan Harrington, 1992
   if(!is.null(addlines)){
     if(is.matrix(addlines))
-      lval.a _ nrow(addlines)
+      lval.a <- nrow(addlines)
     else
-      lval.a _ length(addlines)
+      lval.a <- length(addlines)
     if(is.matrix(segs))
-      lval.s _ nrow(segs)
+      lval.s <- nrow(segs)
     else
-      lval.s _ 1
+      lval.s <- 1
     if(lval.a!=lval.s)
       stop("number of entries in the segment list and addlines do not match")
   }
-#  oldpar_par()
+#  oldpar<-par()
 #  on.exit(par(oldpar))
   oldsegs <- segs
   if(missing(labels)) labels <- label(segs)
@@ -55,14 +55,14 @@
   }
   
   if(!is.null(differ))
-    values _ ddiff(values, differ)
+    values <- ddiff(values, differ)
   if(smoothing)
-    values _ dsmooth(values)
+    values <- dsmooth(values)
   if(!is.matrix(values$data)) values$data <- cbind(values$data)
 
   if(zeros) {
-    ## this assumes that there is a prob_voice track, eg from ESPS
-    pvoice <- emu.track(segs, "prob_voice")$data
+    ## this assumes that there is a prob<-voice track, eg from ESPS
+    pvoice <- emu.track(segs, "prob<-voice")$data
     temp <- pvoice > pdat
     values$data[!temp,  ] <- NA
   }
@@ -71,23 +71,23 @@
 
   ## work out a sensible mfrow default
   if(missing(mfrow)){
-    nsegs _ nrow(segs)
-    foo _ ceiling(sqrt(nsegs))
-    bar _ ceiling(nsegs/foo)
-    mfrow _ c(foo, bar)
+    nsegs <- nrow(segs)
+    foo <- ceiling(sqrt(nsegs))
+    bar <- ceiling(nsegs/foo)
+    mfrow <- c(foo, bar)
     
   }
   par(mfrow = mfrow)
   if(!colour)
-    labcol _ 1
+    labcol <- 1
   else
-    labcol _ 7
-  tempf _ c(1: ncol(values$data))
-  col.lty _ mu.colour(tempf, colour, linetype)
+    labcol <- 7
+  tempf <- c(1: ncol(values$data))
+  col.lty <- mu.colour(tempf, colour, linetype)
   if(colour)
-    col.lty$colour _ col.lty$colour+1
-  colour _ col.lty$colour
-  lty _ col.lty$linetype
+    col.lty$colour <- col.lty$colour+1
+  colour <- col.lty$colour
+  lty <- col.lty$linetype
 
   for(j in 1:nrow(segs)) {
     midtimes <- (mustart(oldsegs[j,  ]) + muend(oldsegs[j,  ]))/2
@@ -112,7 +112,7 @@
     abline(v = boundtimes, lty = 2, col = labcol)
     if(!is.null(addlines)){
       if(!is.matrix(addlines))
-	addlines _ cbind(addlines)
+	addlines <- cbind(addlines)
       for(i in 1:ncol(addlines)){
 	abline(v=addlines[j,i], col=labcol)
       }}

@@ -60,11 +60,13 @@ emu.system <- function(cmd) {
 ## tempfile is fine unless we're on windows where v3.3 can't grok
 ## long filenames, we need to ensure that when we add .dat and .tim
 ## on the end we still end up with an 8.3 filename	
+## It seems that under R there's no such problem so we'll
+## modify this to check for R as well as windows
 
 emu.tempfile <- function(prefix) {
-  if( emu.platform("Windows") ){
-    tmp _ splitstring(tempfile(""), ".")
-    tmp _ paste(tmp[1],tmp[2], sep="x")
+  if( !is.R() && emu.platform("Windows") ){
+    tmp <- splitstring(tempfile(""), ".")
+    tmp <- paste(tmp[1],tmp[2], sep="x")
     return(tmp)
   } else {
     return(tempfile(prefix))

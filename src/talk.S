@@ -20,7 +20,7 @@
 # example: mu.sub37a
 # written by Jonathan Harrington, 1992
   
-  samrate _ utt.dat$samrate
+  samrate <- utt.dat$samrate
 
   cat("Use left mouse button to define left and right boundaries\n")
   cat("To quit, click on the middle mouse button\n")

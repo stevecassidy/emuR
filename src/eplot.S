@@ -41,7 +41,7 @@
   col.lty <- mu.colour(labs, colour, linetype)
   lty <- col.lty$linetype
   uniqlabels <- unique(labs)
-  emat <- nums _ cen _ k _ l _ NULL
+  emat <- nums <- cen <- k <- l <- NULL
 
   for(j in uniqlabels) {
     temp <- labs == j

@@ -15,7 +15,7 @@
 ## Methods that define operations on the class "trackdata"
 ## see also track and frames
 
-"print.trackdata"<- function(dataset,...)
+"print.trackdata"<- function(x, ...)
 {
   if(is.null(dataset$trackname)) 
     cat("trackdata from unknown track.\n")
@@ -23,11 +23,11 @@
     cat("trackdata from track:", dataset$trackname,"\n")
 
   cat("index:\n")
-  print(dataset$index)
+  print(dataset$index, ...)
   cat("ftime:\n")
-  print(dataset$ftime)
+  print(dataset$ftime, ...)
   cat("data:\n")
-  print(dataset$data)
+  print(dataset$data, ...)
 }
 
 "[.trackdata"<- function(dataset, i, j, ...)
@@ -74,20 +74,20 @@
   return(dataset)
 }
 
-"summary.trackdata" <- function(dataset, ...)
+"summary.trackdata" <- function(object, ...)
 {
-  if( is.matrix(dataset$data)){
-    dimens <- ncol(dataset$data)
-    len <- nrow(dataset$data)
+  if( is.matrix(object$data)){
+    dimens <- ncol(object$data)
+    len <- nrow(object$data)
   }
   else {
     dimens <- 1
-    len <- length(dataset$data)
+    len <- length(object$data)
   }
-  cat("Emu track data from", nrow(dataset$index), "segments\n\n")
+  cat("Emu track data from", nrow(object$index), "segments\n\n")
   cat("Data is ", dimens, "dimensional from track", 
-      dataset$trackname,"\n")
-  cat("Mean data length is ", len/nrow(dataset$index), " samples\n")
+      object$trackname,"\n")
+  cat("Mean data length is ", len/nrow(object$index), " samples\n")
   invisible()
 }
 

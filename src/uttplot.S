@@ -30,7 +30,7 @@
   if(!missing(data)) values$data <- data
   if(!is.null(differ)) {
     values <- ddiff(values, differ, smoothing=F)
-    smoothing _ T
+    smoothing <- T
   }
   if(!is.matrix(values$data)) values$data <- cbind(values$data)
   if(smoothing) values$data <- apply(values$data, 2, smooth)
@@ -42,16 +42,16 @@
   ## colours for label boundaries in white if colour is T
   if(missing(labcol)) {
     if(!colour)
-      labcol _ 1
+      labcol <- 1
     else
-      labcol _ 7
+      labcol <- 7
   }
 
   timevals <- seq(left.time, right.time, length = nrow(values$data))
   if(zeros) {
-    pvoice <- emu.track(segs, "prob_voice")
+    pvoice <- emu.track(segs, "prob<-voice")
     temp <- pvoice$data > pdat
-    # sometimes prob_voice isn't of the same length of the data, usually only 
+    # sometimes prob<-voice isn't of the same length of the data, usually only 
     # by one point so we just truncate it if needs be
     if( length(temp) > length(values$data[,1]) )
       temp <- temp[1:(length(values$data[,1]))]
@@ -63,14 +63,14 @@
   if(is.null(ylim)) ylim <- range(values$data, na.rm = T)
   
   ## save old par settings to restore later
-  oldpar _ par()
+  oldpar <- par()
 #  on.exit(par(oldpar))
   par(...)
   
-  col.lty _ mu.colour(1: ncol(values$data), colour, linetype, defcolour)
-  if(colour) col.lty$colour _ col.lty$colour+1
-  colour _ col.lty$colour
-  lty _ col.lty$linetype
+  col.lty <- mu.colour(1: ncol(values$data), colour, linetype, defcolour)
+  if(colour) col.lty$colour <- col.lty$colour+1
+  colour <- col.lty$colour
+  lty <- col.lty$linetype
 
   for(j in 1:ncol(values$data)) {
     plot(timevals, values$data[, j], ylim = ylim, xlim = xlim, 

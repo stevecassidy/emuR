@@ -22,7 +22,7 @@
   makespec <- paste(emu.options("bindir"), "makespec", 
 	            sep=emu.options("dirsep"))
 
-  tmpfile _ emu.tempfile("spec")
+  tmpfile <- emu.tempfile("spec")
   template <- attributes(segs)$database
   uttname <- utt(segs[1,])
   start <- mustart(segs)[1]
@@ -42,10 +42,10 @@
 
   ## there is a bug giving a fake line at the top of the sgram and
   ## an artifact at the bottom, cut them off here
-  spec _ spec[,6:sgram.width-1]
+  spec <- spec[,6:sgram.width-1]
   # and modify the frange accordingly
-  tmp _ frange[2]-frange[1]
-  frange _ c( frange[1]+(6/sgram.width)*tmp, frange[2]-(1/sgram.width)*tmp )
+  tmp <- frange[2]-frange[1]
+  frange <- c( frange[1]+(6/sgram.width)*tmp, frange[2]-(1/sgram.width)*tmp )
 
 
   if( psfile != ""){
@@ -56,10 +56,10 @@
   }
 
   ## set bottom margin to zero on the gui plot
-  oldmai _ par("mai")
+  oldmai <- par("mai")
   exitscript <- paste( exitscript, "par(mai=", oldmai , ");", sep="")
-  mai _ oldmai
-  mai[1] _ 0
+  mai <- oldmai
+  mai[1] <- 0
   par(mai=mai)
 
   ## this needs to come here since the par() call above needs to happen
@@ -75,9 +75,9 @@
     uttplot(segs, "rms", xlab="", colour=F, axes=F)
     box()
 
-    mai _ oldmai
-    mai[1] _ 0
-    mai[3] _ 0
+    mai <- oldmai
+    mai[1] <- 0
+    mai[3] <- 0
     par(mai=mai)
     fig <- c(0,1,0.3,0.8)
     formdolabels <- F
@@ -99,8 +99,8 @@
   axis(2)
   box()
   par(new=T)
-  mai _ oldmai
-  mai[3] _ 0
+  mai <- oldmai
+  mai[3] <- 0
   par(mai=mai)
   par(fig=c(0,1,0,0.3))
   uttplot(segs, track, colour=F, dolabels=F,axes=F,...)

@@ -190,7 +190,9 @@ structure(.Data = c(10, 100, 200, 300, 395, 510, 630, 765, 920, 1075, 1265,
 
 if( is.R() ) {
 
-  splitstring <- strsplit
+  splitstring <- function(str, char)  {
+    return(strsplit(str, char)[[1]])
+  }
 
 } else {
 

@@ -113,7 +113,7 @@
     best <- apply(probs, 1, min)
   }
   
-  result _ rep("", length(best))
+  result <- rep("", length(best))
   for(lab in 1:length(train$label)) {
     tmp <- probs[, lab] == best
     result[tmp] <- train$label[lab]
@@ -179,8 +179,8 @@ bayesplot <- function(data, train, N = 10, ellipse = F,
     mat$cov   <- sumcovvals
     mat$invcov <- sumcovvals.inv
   }  else { # the one dimensional case
-    mat _ NULL
-    mat$means _ NULL
+    mat <- NULL
+    mat$means <- NULL
     mat$cov <- NULL
     for(j in unique(lab)) {
       cat("data for ", j, " \n" )
@@ -188,7 +188,7 @@ bayesplot <- function(data, train, N = 10, ellipse = F,
       mat$means <- c(mat$means, mean(x[temp]))
       mat$cov <- c(mat$cov, sqrt(var(x[temp])))
     }
-    mat$label _ unique(lab)
+    mat$label <- unique(lab)
     mat$invcov <- 1/mat$cov   # in fact this won't be used in the 1d case
   }
   mat

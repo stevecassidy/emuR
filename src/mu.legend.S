@@ -13,8 +13,8 @@
 
 "mu.legend"<- function(legn, xlim, ylim)
 {
-  fudge.x _ (xlim[2]-xlim[1])/5
-  fudge.y _ (ylim[2]-ylim[1])/5
+  fudge.x <- (xlim[2]-xlim[1])/5
+  fudge.y <- (ylim[2]-ylim[1])/5
   if(legn=="tl")
     return(list(x=xlim[1], y=ylim[2]))
   if(legn=="tr")

@@ -18,11 +18,11 @@
   ## values: a vector of parameter values
   ## labs: parallel labels
   if(is.null(labs)){
-    plot.lab _ F
-    labs _ rep(1, length(values))}
-  col.lty _ mu.colour(unique(labs), colour, linetype)
-  colour _ col.lty$colour
-  lty _ col.lty$linetype
+    plot.lab <- F
+    labs <- rep(1, length(values))}
+  col.lty <- mu.colour(unique(labs), colour, linetype)
+  colour <- col.lty$colour
+  lty <- col.lty$linetype
 
   vals.norm <- NULL
   newlab <- NULL

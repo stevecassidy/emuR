@@ -35,7 +35,9 @@
     } else {
       foo <- splitstring( lines[i], ":" )
       if( foo[1] == "database" ) database <- paste(foo[-1], sep=":")
-      if( foo[1] == "query" ) query <- paste(foo[-1], sep=":")
+      if( foo[1] == "query" ) {
+        query <- paste(foo[-1], sep=":")
+      }
       if( foo[1] == "type" ) type <- paste(foo[-1], sep=":")
       i <- i + 1
     }
@@ -120,7 +122,7 @@ is.seglist <- function(object) {
     stop( "not an emu segment list" )
 }
 
-"print.emusegs" <-  function(x) 
+"print.emusegs" <-  function(x, ...) 
 {
   cat(attributes(x)$type, " list from database: ", attributes(x)$database, "\n")
   cat("query was: ", attributes(x)$query, "\n" )
@@ -129,7 +131,7 @@ is.seglist <- function(object) {
   } else {
     class(x) <- "data.frame"
   }
-  print.data.frame(x)
+  print.data.frame(x, ...)
 }
 
 "[.emusegs"<- function(segs,i,j)
@@ -149,13 +151,13 @@ setMethod("[", "emusegs",
           )
 }
 
-"summary.emusegs" <- function(x, ...)
+"summary.emusegs" <- function(object, ...)
 {
-  cat(attributes(x)$type, " list from database: ", attributes(x)$database, "\n")
-  cat("query was: ", attributes(x)$query, "\n" )
-  cat(" with", length(x$start), "segments\n\n")
+  cat(attributes(object)$type, " list from database: ", attributes(object)$database, "\n")
+  cat("query was: ", attributes(object)$query, "\n" )
+  cat(" with", length(object$start), "segments\n\n")
   cat("Segment distribution:\n")
-  print(table(x$label))
+  print(table(object$label))
   invisible()
 }
 

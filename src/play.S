@@ -17,10 +17,10 @@
 
 "play"<- function(playdata, rate )
 {
-  datarange _ range(playdata)
+  datarange <- range(playdata)
 
   ## scale to 8 bits
-  playdata _ 256*(playdata - datarange[1])/(datarange[2] - datarange[1])
+  playdata <- 256*(playdata - datarange[1])/(datarange[2] - datarange[1])
   
   invisible(.C("xlplay",
                as.integer(playdata),

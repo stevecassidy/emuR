@@ -16,8 +16,8 @@
 {
   ## returns the element in the frames data list
   ## that is referenced by segnum and time
-  ftime _ trackdata$ftime
-  indx _ trackdata$index
+  ftime <- trackdata$ftime
+  indx <- trackdata$index
 
   if(!is.matrix(ftime)) ftime <- rbind(ftime)
   if(!is.matrix(indx)) indx <- rbind(indx)

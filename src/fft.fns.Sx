@@ -266,7 +266,7 @@
   ## returns: $mspec an averaged spectrum, per label-type in labs
   ## returns: $lab: the label corresponding to the row of mspec
   mat <- NULL
-  fftdata _ 10^(fftdata/20)
+  fftdata <- 10^(fftdata/20)
 
   for(j in unique(labs)) {
     temp <- labs == j
@@ -276,7 +276,7 @@
     mat$lab <- c(mat$lab, j)
   }
 
-  mat$mspec _ 20 * log(mat$mspec, base=10)
+  mat$mspec <- 20 * log(mat$mspec, base=10)
   mat
 }
 

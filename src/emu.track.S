@@ -142,12 +142,18 @@ read.trackdata <- function( filename, trackname="data" ) {
   times <- data[,2]
   data <- data[,c(-1,-2)]
 
-  ## get the start/end positions of each segment
-  index <- cumsum(aggregate( data, by=list(segnum=segnumbers), FUN=length)[,2])
-  index <- cbind( start=c(1,index[1:(length(index)-1)]+1), end=index )
+  ## first check for the case of just one segment
+  if (length( unique(segnumbers)) == 1)  {
+    ## get the start/end positions and times of the segment
+    index <- cbind(start=1, end=length(segnumbers))
+    ftime <- cbind( start=times[1], end=times[length(times)] )
+  } else {
+    ## get the start/end positions and times of each segment
+    index <- cumsum(aggregate( data, by=list(segnum=segnumbers), FUN=length)[,2])
+    index <- cbind( start=c(1,index[1:(length(index)-1)]+1), end=index )
 
-  ## the start and end times of each segment
-  ftime <- cbind( start=times[index[,1]], end=times[index[,2]] )
+    ftime <- cbind( start=times[index[,1]], end=times[index[,2]] )
+  }
 
   return( as.trackdata( data, index, ftime, trackname ) )
 }
