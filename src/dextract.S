@@ -38,7 +38,6 @@ dextract <- function(dataset, start, end) {
   }
 }
 
-
 dextract.sub <- function(data, ftime, start, end) {
   if(is.matrix(data)) {
     len <- nrow(data)
@@ -52,9 +51,8 @@ dextract.sub <- function(data, ftime, start, end) {
     end <- ceiling(end * len)
     data <- data[start:end]
   }
-  interval <- (ftime[2] - ftime[1])/len	## new start
-  ftime[1] <- ftime[1] + interval * start	## new end
-  ftime[2] <- ftime[2] + interval * end
+  times <- seq(ftime[1], ftime[2], length=len)
+  ftime <- times[c(start,end)]
   list(data = data, ftime = ftime)
 }
 

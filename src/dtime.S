@@ -117,15 +117,15 @@ dtime <- function(dataset, times, single = T, average = T) {
 
       lval <- nrow(trackdata$index)
       for(j in 1:lval) {
-        tdat <- dcut.sub(trackdata[j], left.time[j], 
-                         right.time[j])
+        tdat <- dcut.sub(trackdata[j], left.time[j], right.time[j])
         if(j == 1)
           omat <- tdat
-        else omat <- bind(omat, tdat)
+        else
+          omat <- bind(omat, tdat)
       }
     }
   }
-  omat
+  return(omat)
 }
 
 "dcut.sub" <- function(trackdata, left.time, right.time)

@@ -37,7 +37,7 @@ spectral.tilt(dataset, lsweight = F, plotduring = T, window = 12, frameShift = 5
 
 \value{
   Returns a list of:
-  \item{primary}{returns the tilt values from each FFT window
+  \item{primary}{returns the tilt values from each FFT window}
   \item{secondary}{returns the secondary tilt value, which is the slope
     value from a regression on the primary tilt values for each token} 
 }
@@ -53,7 +53,8 @@ spectral.tilt(dataset, lsweight = F, plotduring = T, window = 12, frameShift = 5
 \seealso{\code{\link{spectral.tilt}}}
 
 \examples{
-segs_emu.query("demo", "*", "[Phonetic=H -> Phonetic=i]")
+library(emu)
+segs <- emu.query("demo", "*", "[Phonetic=H -> Phonetic=i]")
 
 # Take 1st 50 ms only
 segs[,3] <- segs[,2]+30
