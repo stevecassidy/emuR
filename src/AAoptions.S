@@ -37,7 +37,7 @@ if (version$platform == "Windows" ||
 
 
 ## this will get changed by the Makefile
-emu.version<-"1.5"
+emu.version<-"1.5.1"
 
 "emu.init" <- function() {
 
