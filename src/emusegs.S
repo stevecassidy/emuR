@@ -16,12 +16,20 @@
 "read.segs"<- function(file)
 {
   ## scan the lines of the file into a vector
-  lines <- scan(file, what = "", sep="\n")
+
+  ## R 1.4 introduced comment.char="#" arg to scan, grrr
+  if( is.R() && as.numeric(version$minor) > 3.0 ) {
+    ## in R, we need to avoid skipping the # as a comment line
+    lines <- scan(file, what = "", sep="\n", comment.char="")
+  } else {
+    lines <- scan(file, what = "", sep="\n")
+  }
+
   # first three lines are header followed by a hash line
   inheader <- 1
   i <- 1
   labels <- start <- end <- utts <- NULL
-  while( inheader) {
+  while( i < length(lines) && inheader) {
     if( lines[i] == "#" ) {
       inheader <- 0
     } else {
@@ -32,6 +40,11 @@
       i <- i + 1
     }
   }
+
+  if (inheader) {
+    stop( "End of header (#) not found in segment file" )
+  }
+
   ## now slurp the body of the segment list
   mat <- matscan( file, 4, what="", sk=i )
   

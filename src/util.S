@@ -76,6 +76,8 @@ emu.platform <- function(what) {
   if( is.R() ) {
     if( version$platform == "Windows" || version$os == "Win32" ) {
       return(what == "Windows")
+    } else if ( version$os == "MacOS" ) {
+      return(what == "MacOS")
     } else {
       return(what == "Unix")
     }

@@ -37,49 +37,60 @@ if (version$platform == "Windows" ||
 
 
 ## this will get changed by the Makefile
-emu.version<-"1.4"
+emu.version<-"1.5"
 
 "emu.init" <- function() {
 
-  if (emu.platform("Windows")) {
+  if (emu.platform("MacOS")) {
+    dirsep <- ":"
+    gettrack <- ""
+  } else if (emu.platform("Windows")) {
     dirsep <- "\\"
     gettrack <- "gettrack.exe"
   } else {
     dirsep <- "/"
     gettrack <- "gettrack"
   }
-  bindir <- paste(emu.directory, "bin", sep=dirsep)                   
 
-  ## test emu.directory to find one of the executables, query if
-  ## it isn't found
-  crashout <- FALSE
-  modified <- FALSE
-  while( !crashout  &&
-        !file.exists( paste( bindir, gettrack, sep=dirsep ) ) ) {
+  if (emu.platform("MacOS")) {
+    bindir <- ""
+  } else {
+    bindir <- paste(emu.directory, "bin", sep=dirsep)                   
 
-    cat( "Configuration error: emu.directory (", emu.directory, ") doesn't\n" )
-    cat( "correspond to an Emu installation.\n" )
-    cat( "Please enter the directory in which Emu is installed\n" )
-    cat( "on your system, eg. C:\\Program Files\\Emu on Windows \n" )
-    cat( "or /usr/local on Unix.\n\n" )
-    cat( "Enter nothing and press return to exit this configuration loop.\n\n")
+    ## test emu.directory to find one of the executables, query if
+    ## it isn't found
+    crashout <- FALSE
+    modified <- FALSE
 
-    ## we assign to the global namespace to make sure this is retained
-    emu.directory <<-  readline( "Emu Directory: " )
-    modified <- TRUE
-    if( emu.directory == "" ) {
-      crashout <- TRUE
-    } else {
-      bindir <- paste(emu.directory, "bin", sep=dirsep)
+    while( !crashout  &&
+          !file.exists( paste( bindir, gettrack, sep=dirsep ) ) ) {
+
+      cat( "Configuration error: emu.directory (", emu.directory, ") doesn't\n" )
+      cat( "correspond to an Emu installation.\n" )
+      cat( "Please enter the directory in which Emu is installed\n" )
+      cat( "on your system, eg. C:\\Program Files\\Emu on Windows \n" )
+      cat( "or /usr/local on Unix.\n\n" )
+      cat( "Enter nothing and press return to exit this configuration loop.\n\n")
+
+      ## we assign to the global namespace to make sure this is retained
+      emu.directory <<-  readline( "Emu Directory: " )
+      modified <- TRUE
+      if( emu.directory == "" ) {
+        crashout <- TRUE
+      } else {
+        bindir <- paste(emu.directory, "bin", sep=dirsep)
+      }
     }
-  }
-  if( crashout ) { return( FALSE ) }
+    
+    if( crashout ) { return( FALSE ) }
 
-  if( modified && is.R() ) {
-    cat( "\nYou can avoid this dialog by modifying the variable\n",
-        "emu.directory in the emu library source file which can be found in\n",
-        "the emu/R subdirectory of the R installation (", .lib.loc, ").\n"
-        )
+    if( modified && is.R() ) {
+      cat( "\nYou can avoid this dialog by modifying the variable\n",
+          "emu.directory in the emu library source file which can be found in\n",
+          "the emu/R subdirectory of the R installation (", .lib.loc, ").\n"
+          )
+    }
+
   }
 
   if( is.R() ) {
@@ -1589,20 +1600,23 @@ dtime <- function(dataset, times, single = T, average = T) {
 "emu.track"<- function( seglist, trackname, cut=NULL, 
 		       template=attr(seglist, "database")) 
 {
+  if(emu.platform("MacOS")) {
+    stop("emu.track is currently not implemented for MacOS. Use read.trackdata to read in data saved from the query tool.")
+  }
+  
   if( !inherits(seglist,"emusegs") ) 
     stop( "emu.track only works for emu segment/event lists" ) 
 
   if( is.null(template) ) 
     stop( "no template supplied and no default in segment list" )
 
-  nseg _ nrow(seglist)
+  nseg <- nrow(seglist)
 
   segfile <- emu.tempfile( "emu.track" )
-  resultbase <- emu.tempfile( "emu.track" )
+  resultfile <- emu.tempfile( "emu.track" )
   
   on.exit( unlink( segfile ), add=TRUE )
-  on.exit( unlink( paste( resultbase, ".dat", sep="") ), add=TRUE ) 
-  on.exit( unlink( paste( resultbase, ".tim", sep="") ), add=TRUE ) 
+  on.exit( unlink( resultfile ), add=TRUE ) 
   
   museg.write( seglist, segfile )
   
@@ -1611,29 +1625,43 @@ dtime <- function(dataset, times, single = T, average = T) {
   } else {
     cut <- ""
   }
+
+  ## change to the template directory to make relative paths work
+  currentwd <- getwd()
+  ## this is a simple test to see whether template is a
+  ## filename or just a database name
+  if ( dirname(template) != "." ) {
+    setwd(dirname(template))
+  } else {
+    setwd(dirname(emu.options("bindir")))
+  }
   
   command <- emu.command.name( emu.options("gettrack"),
                               cut,
-                              segfile, trackname, resultbase )
+                              segfile, trackname, resultfile )
 
-#  cat( "Command: ", command, "\n" )
-  opstat _ emu.system( command )
+  opstat <- emu.system( command )
 
-#  if( opstat != 0 ) stop("problem with get_track command")
+  ## return to the original wd
+  setwd(currentwd)
+
+  if (!file.exists(resultfile) ) {
+    ## give a suitable error message
+    stop(paste("file ", resultfile, " don't exist in emu.track", sep=""))
+  } 
 
   type <- attr(seglist, "type" )
-
 
   ## now read in the time/index data and the data 
   if(type == "event" || cut != "" ) {
     ## just read in the data and return it as a matrix
-    as.matrix(read.table( paste( resultbase, "dat", sep=".") ))
+    as.matrix(read.table( resultfile ))
   } else {
-    data <- read.trackdata( resultbase ) 
+    data <- read.trackdata( resultfile, trackname ) 
 
     ## a bit of validation
-    if( nrow(data$index) != nseg )
-      stop( "error in emu.track: not enough data was read" )
+    if( nrow(data$ftime) != nseg )
+      stop( "error in emu.track: mismatch between number of segments and number of data items read" )
     return( data )
   }
 }
@@ -1641,11 +1669,55 @@ dtime <- function(dataset, times, single = T, average = T) {
 ## read.trackdata
 ##  read data from two files into a trackdata object, the files
 ##  contain the data and time components of the object, they're
-##  produced by get_track and friends
-"read.trackdata" <- function( basename, trackname="data" ) {
+##  produced by gettrack and friends
+##
+##  Emu 1.7 introduces a new format for this data which can be stored
+##  in one file. Try to be backward compatible by first looking
+##  for one file as named and if not present falling back to the
+##  two file version, now called read.trackdata.twofile
+## 
+## The new format is:
+## segno time data data data
+## segno time data data data
+read.trackdata <- function( filename, trackname="data" ) {
 
-  data _ read.table( paste( basename, "dat", sep=".") )
-  index _ read.table( paste( basename, "tim", sep=".") )
+  if (!file.exists( filename ) ) {
+    ## try the twofile version
+    return( read.trackdata.twofile( filename, trackname ) )
+  }
+
+  ## otherwise we'll read the new file format
+  data <- read.table( filename )
+
+  ## now convert this to trackdata
+  segnumbers <- data[,1]
+  times <- data[,2]
+  data <- data[,c(-1,-2)]
+
+  ## get the start/end positions of each segment
+  index <- cumsum(aggregate( data, by=list(segnum=segnumbers), FUN=length)[,2])
+  index <- cbind( start=c(1,index[1:(length(index)-1)]+1), end=index )
+
+  ## the start and end times of each segment
+  ftime <- cbind( start=times[index[,1]], end=times[index[,2]] )
+
+  return( as.trackdata( data, index, ftime, trackname ) )
+}
+
+
+
+"read.trackdata.twofile" <- function( basename, trackname="data" ) {
+
+  datname <- paste( basename, "dat", sep=".")
+  timname <- paste( basename, "tim", sep=".")
+  
+  if (!file.exists(datname) || !file.exists(timname) ) {
+    ## give a suitable error message
+    stop(paste("Can't find data file ", basename, " or ", basename, ".dat/", basename, ".tim in read.trackdata", sep=""))
+  } 
+
+  data <- read.table( datname )
+  index <- read.table( timname )
  
   # the number of segments is the number of rows in the index file
   nseg <- nrow( index )
@@ -1661,7 +1733,7 @@ dtime <- function(dataset, times, single = T, average = T) {
   
   if (nseg == 1) {
     return( as.trackdata(as.matrix(data),
-                        as.matrix(c(1,index[1,1])),
+                        matrix(c(1,index[1,1]), nrow=1),
                         as.matrix(index[1,2:3]), 
                         trackname) )
   } else {
@@ -1677,20 +1749,36 @@ dtime <- function(dataset, times, single = T, average = T) {
 "emu.query" <- function(template, pattern=NULL, query="" )
 {
 
+  if(emu.platform("MacOS")) {
+    stop("emu.query is currently not implemented for MacOS. Use read.segs to read in segment lists saved from the query tool.")
+  }
+
   segfile <- emu.tempfile( "emu.query" )
 	
   on.exit( unlink( segfile ) )
 
-  if( missing(pattern) ) {
-    command <- emu.command.name( "hquery", "stdout", template, ">", segfile )
+  command <- emu.command.name( "emuquery", "-o", segfile, template,
+                              emu.inquotes( pattern ),
+                              emu.inquotes( query ) )
+
+  ## change to the template directory to make relative paths work
+  currentwd <- getwd()
+  ## this is a simple test to see whether template is a
+  ## filename or just a database name
+  if ( dirname(template) != "." ) {
+    setwd(dirname(template))
   } else {
-    command <- emu.command.name( "emuquery", "-o", segfile, template,
-                                emu.inquotes( pattern ),
-                                emu.inquotes( query ) )
+    setwd(dirname(emu.options("bindir")))
   }
 
-#  cat( command, "\n" )
   emu.system( command )
+
+  setwd(currentwd)
+
+  if (!file.exists(segfile) ) {
+    ## give a suitable error message
+    stop(paste("Can't find the query results in emu.query: there may have been a problem with the query command.", sep=""))
+  } 
 
   result <- read.segs( segfile )
 
@@ -1708,7 +1796,7 @@ dtime <- function(dataset, times, single = T, average = T) {
 
   on.exit( unlink( segfile ) )
 
-  resultfile <- emu.tempfile( "emu_requery" )
+  resultfile <- emu.tempfile( "emurequery" )
   on.exit( unlink( resultfile ) )
 
   options <- ""
@@ -1719,12 +1807,23 @@ dtime <- function(dataset, times, single = T, average = T) {
   if (longerok != 0)
     options <- paste( options, "-l" )
 
-  command <- emu.command.name( "emu_requery", "-o", resultfile, options,
+  command <- emu.command.name( "emurequery", "-o", resultfile, options,
                               segfile, level, targetlevel )
 
-  cat( command, "\n" )
+  ## change to the template directory to make relative paths work
+  currentwd <- getwd()
+  ## this is a simple test to see whether template is a
+  ## filename or just a database name
+  if ( dirname(template) != "." ) {
+    setwd(dirname(template))
+  } else {
+    setwd(dirname(emu.options("bindir")))
+  }
+
   emu.system( command )
   
+  setwd(currentwd)
+
   if (justlabels) 
     result <- scan( resultfile, what="" )
   else {
@@ -1758,12 +1857,19 @@ dtime <- function(dataset, times, single = T, average = T) {
 "read.segs"<- function(file)
 {
   ## scan the lines of the file into a vector
-  lines <- scan(file, what = "", sep="\n")
+
+  if( is.R() ) {
+    ## in R, we need to avoid skipping the # as a comment line
+    lines <- scan(file, what = "", sep="\n", comment.char="")
+  } else {
+    lines <- scan(file, what = "", sep="\n")
+  }
+
   # first three lines are header followed by a hash line
   inheader <- 1
   i <- 1
   labels <- start <- end <- utts <- NULL
-  while( inheader) {
+  while( i < length(lines) && inheader) {
     if( lines[i] == "#" ) {
       inheader <- 0
     } else {
@@ -1774,6 +1880,11 @@ dtime <- function(dataset, times, single = T, average = T) {
       i <- i + 1
     }
   }
+
+  if (inheader) {
+    stop( "End of header (#) not found in segment file" )
+  }
+
   ## now slurp the body of the segment list
   mat <- matscan( file, 4, what="", sk=i )
   
@@ -3839,7 +3950,26 @@ if( !exists("is.R") ) {
     exists("version") && !is.null(vl <- version$language) && vl == "R"
   }
 
+  ## file.exists is terribly useful
+  ## here's a crude version using ls/dir
+
+  if( !exists("file.exists") ) {
+    "file.exists" <- function(file) {
+      if (emu.platform("Windows")) {
+        r <- emu.system(paste("dir", file))
+      } else if (emu.platform("Unix")) {
+        r <- emu.system(paste("ls", file))
+      }
+      
+      if (length(r) == 0) {
+        return(F)
+      } else {
+        return(T)
+      }
+    }
+  }
 }
+
 
 
 # system calls are different on each arch. and between S and R
@@ -3875,6 +4005,8 @@ emu.platform <- function(what) {
   if( is.R() ) {
     if( version$platform == "Windows" || version$os == "Win32" ) {
       return(what == "Windows")
+    } else if ( version$os == "MacOS" ) {
+      return(what == "MacOS")
     } else {
       return(what == "Unix")
     }

@@ -37,6 +37,10 @@
 "emu.track"<- function( seglist, trackname, cut=NULL, 
 		       template=attr(seglist, "database")) 
 {
+  if(emu.platform("MacOS")) {
+    stop("emu.track is currently not implemented for MacOS. Use read.trackdata to read in data saved from the query tool.")
+  }
+  
   if( !inherits(seglist,"emusegs") ) 
     stop( "emu.track only works for emu segment/event lists" ) 
 
@@ -58,12 +62,25 @@
   } else {
     cut <- ""
   }
+
+  ## change to the template directory to make relative paths work
+  currentwd <- getwd()
+  ## this is a simple test to see whether template is a
+  ## filename or just a database name
+  if ( dirname(template) != "." ) {
+    setwd(dirname(template))
+  } else {
+    setwd(dirname(emu.options("bindir")))
+  }
   
   command <- emu.command.name( emu.options("gettrack"),
                               cut,
-                              segfile, trackname, resultbase )
+                              segfile, trackname, resultfile )
 
   opstat <- emu.system( command )
+
+  ## return to the original wd
+  setwd(currentwd)
 
   if (!file.exists(resultfile) ) {
     ## give a suitable error message
@@ -133,7 +150,7 @@ read.trackdata <- function( filename, trackname="data" ) {
   
   if (!file.exists(datname) || !file.exists(timname) ) {
     ## give a suitable error message
-    stop(paste("file ", basename, ".dat or ", basename, ".tim don't exist in read.trackdata", sep=""))
+    stop(paste("Can't find data file ", basename, " or ", basename, ".dat/", basename, ".tim in read.trackdata", sep=""))
   } 
 
   data <- read.table( datname )
@@ -169,20 +186,36 @@ read.trackdata <- function( filename, trackname="data" ) {
 "emu.query" <- function(template, pattern=NULL, query="" )
 {
 
+  if(emu.platform("MacOS")) {
+    stop("emu.query is currently not implemented for MacOS. Use read.segs to read in segment lists saved from the query tool.")
+  }
+
   segfile <- emu.tempfile( "emu.query" )
 	
   on.exit( unlink( segfile ) )
 
-  if( missing(pattern) ) {
-    command <- emu.command.name( "hquery", "stdout", template, ">", segfile )
+  command <- emu.command.name( "emuquery", "-o", segfile, template,
+                              emu.inquotes( pattern ),
+                              emu.inquotes( query ) )
+
+  ## change to the template directory to make relative paths work
+  currentwd <- getwd()
+  ## this is a simple test to see whether template is a
+  ## filename or just a database name
+  if ( dirname(template) != "." ) {
+    setwd(dirname(template))
   } else {
-    command <- emu.command.name( "emuquery", "-o", segfile, template,
-                                emu.inquotes( pattern ),
-                                emu.inquotes( query ) )
+    setwd(dirname(emu.options("bindir")))
   }
 
-#  cat( command, "\n" )
   emu.system( command )
+
+  setwd(currentwd)
+
+  if (!file.exists(segfile) ) {
+    ## give a suitable error message
+    stop(paste("Can't find the query results in emu.query: there may have been a problem with the query command.", sep=""))
+  } 
 
   result <- read.segs( segfile )
 
@@ -214,9 +247,20 @@ read.trackdata <- function( filename, trackname="data" ) {
   command <- emu.command.name( "emurequery", "-o", resultfile, options,
                               segfile, level, targetlevel )
 
-  cat( command, "\n" )
+  ## change to the template directory to make relative paths work
+  currentwd <- getwd()
+  ## this is a simple test to see whether template is a
+  ## filename or just a database name
+  if ( dirname(template) != "." ) {
+    setwd(dirname(template))
+  } else {
+    setwd(dirname(emu.options("bindir")))
+  }
+
   emu.system( command )
   
+  setwd(currentwd)
+
   if (justlabels) 
     result <- scan( resultfile, what="" )
   else {

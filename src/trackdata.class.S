@@ -30,9 +30,13 @@
   print(dataset$data)
 }
 
-"[.trackdata"<- function(dataset, i=1:nrow(dataset$index), j, ...)
+"[.trackdata"<- function(dataset, i, j, ...)
 {
   ## dataset[i] gets the data for the i'th segment as a trackdata object
+
+  if (missing(i)) {
+    i <- 1:nrow(dataset$index)
+  }
 
   ftime <- dataset$ftime[i, ,drop=F]
 
