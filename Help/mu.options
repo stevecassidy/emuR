@@ -1,0 +1,36 @@
+\" -*-nroff-*-
+.BG
+.FN mu.options
+.TL
+Set up the mu+ options
+.CS
+mu.options(default=F, ...)
+.OA
+.AG default
+If T, the default values of all options will be set if they are not
+explicitly specified. 
+.AG muhome
+A pathname. Records the place where mu+ is installed. 
+.AG dbdefault
+A pathname. The default database directory for `mkdb'.
+.AG templatedir
+A pathname. The location of the `labed_template' and associated files. 
+.AG internalspeaker
+If T, the internal speaker will be used by default for speech playback.
+If F, the external speaker or headphones will be used. 
+.RT
+None.
+.DT
+This function can be used to set up the default values for these
+options or set new values.  These options are stored using the Splus
+`options' function, consequently their values may be queried or set
+using `options'.  
+.SA
+options, mu.extensions, .First.mu
+.EX
+# set the default database directory
+mu.options(dbdefault="/dbase/english")
+# find the value of the muhome option
+options("muhome")
+.KW mu
+.WR

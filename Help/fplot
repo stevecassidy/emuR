@@ -1,0 +1,72 @@
+.BG
+.FN fplot
+.TL
+A function for plotting spectra
+.CS
+fplot(fftdata, labs=NULL, which=NULL, colour=T, linetype=F,
+      samfreq=20000, nyq=samfreq/2, xlab="Frequency (Hz)", 
+      ylab="Intensity (dB)", low=0, high=nyq, dbrange=NULL, 
+      axes=T, main="", average=F, smoothing=F, points=20, 
+      coeff=F, type="l", super=F, legn="tl", cex=1)
+.RA
+.AG fftdata
+FFT spectral values as returned from `muspec' with `dbspec=T' (the default) or `muslice'.
+.OA
+.AG labs
+A vector of labels parallel to `fftdata'.
+.AG which
+Select one of the label-types for plotting.
+.AG colour
+If colour is TRUE, the spectra and labels will be plotted in different colours.
+.AG linetype
+If linetype is TRUE, the spectra will be plotted with different linetypes. This
+is useful for plots that will be printed.
+.AG samfreq
+Determines the x-axis range, nyquest frequency and the default high frequency range.
+.AG nyq
+The upper limit of the spectrum (the nyquist frequency).
+.AG xlab, ylab
+Titles for the x and y axes.
+.AG low, high
+To specify a low and high frequncy range. (Default range is 0-10000 Hz)
+.AG dbrange
+Specify a range for the y-axis in db.
+.AG axes
+If TRUE axes are drawn on the plot.
+.AG main
+A main axis title for the plot.
+.AG average
+If TRUE, will compute the average spectra for each different label-type.
+.AG smoothing
+If TRUE, will compute cepstrally smoothed spectra (default to 20 cepstral
+coefficients), then plot the corresponding smoothed spectra.
+.AG points
+Value of the cepstral coefficient, roughly 20 for a sampling rate of 20kHz.
+.AG coeff
+If TRUE, the values of the cepstral coefficients will be returned.
+.AG type
+The way the points/lines are represented. See Splus `plot'. Default is `"l"', a
+line plot.
+.AG super
+Superimpose FFTs that occur in successive rows of fftdata on the same plot.
+.AG legn
+The position to draw the legend, one of `"tl"' (top-left), `"tr"' 
+(top-right), `"bl"' (bottom-left), `"br"' (bottom-right) or `"loc"'
+(for locator) which requires you to position the lengend with the mouse.
+.AG cex
+The `cex' parameter passed to `par' to control text size on the plot. 
+.RT
+If `coeff=T', values of cepstral coefficients will be returned.
+.SE
+Spectral plots are generated.
+.SA
+muslice, muspec
+.EX
+# e.g. Extract and plot the cepstrally smoothed average spectral values of the
+# [T] and [S] segments centered at the midpoint from the demo.utts database.
+> segs _ phon(demo.utts, "Phonetic='T/S'", find="Phonetic")
+> mvals _ muspec(segs, centering=T, offset=0.5)
+> labs _ label(segs)
+> fplot(mvals$spec, labs, average=T, smoothing=T)
+.KW mu
+.WR

@@ -1,0 +1,86 @@
+\" -*-nroff-*-
+.BG
+.FN steady
+.TL
+Find the steady-state portion of a parameter
+.CS
+steady(values, percent=25, mean=T, smoothing=F)
+.RA
+.AG values
+  A set of parameter tracks as returned by track().  The values would
+normally correspond to formant data.
+.OA
+.AG percent
+The size of the portion to search for. If percent is 25 (the default)
+the returned values correspond to a portion of each segment of that
+size (relative to the segment duration) which is the most steady state. 
+.AG mean
+If mean is TRUE, the mean for each parameter (formant) accross the
+steady state portion will be returned for each segment. 
+.AG smoothing
+If smoothing is TRUE the data will be smoothed before the steady-state
+portion is searched for. 
+.RT
+The return value is a copy of the original `values' argument with the
+additional components: 
+.RC  steady
+specifies the start and end indexes of the steady-state portion of each
+segment,
+.RC time
+specifies the position of the midpoint of the steady state portion as a
+proportion of the duration of each segment.
+.RC mean 
+If the mean argument is `TRUE' this component specifies the means of
+each parameter accross the steady state portion of each segment.
+
+.DT
+The algorithm searches for the portion of the signal with the smallest
+summed inter-euclidean distance (the euclidean distances between
+successive points) for all segments of the parameter track of the
+required size.  Thus, if the signal consists of three formants, the three
+dimensional euclidean distance is calculated between successive
+samples. The distances are then summed over samples 1..n, 2..n+1 etc
+where n is the required width.  The smallest such sum is taken as the
+most steady-state portion of the signal.
+
+.SA
+track, segplot
+.EX
+> segs
+      start       end                           utt 
+E "12489.4" "12586.9" "/home/dbase/dbase1/msadb001"
+@ "12916.9" "12982.2" "/home/dbase/dbase1/msadb001"
+E "13155.2" "13240.4" "/home/dbase/dbase1/msadb001"
+
+# First we extract the first three formants for our segment list:
+
+> data _ track(segs, "fm[1..3]")
+
+# Now we find the steady state portion:
+> st _ steady(data, mean=T)
+
+# The $steady component shows the start and end indexes of the steady
+# state portion for each segment: 
+
+> st$steady
+    [,1] [,2] 
+vec   12   16
+vec   30   32
+vec   36   39
+
+# The $time component shows the offset of the midpoint of the steady
+# state portion, as a proportion of the total duration:
+> st$time
+       vec       vec     vec 
+ 0.6842105 0.8333333 0.21875
+
+# The $mean component shows the mean of each parameter accross the steady
+# state portion: 
+> st$mean
+             [,1]     [,2]     [,3] 
+meanvals 442.4348 1812.773 2565.309
+meanvals 355.2347 1973.285 2218.056
+meanvals 465.2812 1704.117 2396.117
+
+.KW mu
+.WR

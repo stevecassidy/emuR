@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <LINK REL=STYLESHEET TYPE="text/css" SRC="style.css">
+    <title>Emu/Splus Help</title>
+  </head>
+
+  <body>
+    <h1>Emu/Splus Help</h1>
+
+    <hr>
+
+    <p>These help pages document the Splus functions provided with the
+      Emu/Splus package.  Some functions are not documented, they are
+      listed at the end of this page. </p>
+
+<table width=90%>
+<tr><td><a href=Slope.test.html></a></td><td></td></tr>
+<tr><td><a href=as.trackdata.html>as.trackdata</a></td><td>             Create an Emu trackdata object</td></tr>
+<tr><td><a href=dextract.lab.html>dextract.lab</a></td><td>             Extract data from a trackdata</td></tr>
+<tr><td><a href=dplot.html>dplot</a></td><td>                    Plot Emu Trackdata</td></tr>
+<tr><td><a href=dsmooth.html>dsmooth</a></td><td>                  Smooth the data in a trackdata object.</td></tr>
+<tr><td><a href=ellipse.html>ellipse</a></td><td>                  Calculate ellipse coordinates</td></tr>
+<tr><td><a href=emu.query.html>emu.query</a></td><td>                Query an Emu Database</td></tr>
+<tr><td><a href=emu.track.html>emu.track</a></td><td>                Retrieve Numerical Data</td></tr>
+<tr><td><a href=eplot.html>eplot</a></td><td>                    Ellipse plot</td></tr>
+<tr><td><a href=euclidean.html>euclidean</a></td><td>                Find the inter-euclidean distance for a data matrix</td></tr>
+<tr><td><a href=expand.labels.html>expand.labels</a></td><td>            Label each data sample</td></tr>
+<tr><td><a href=frames.time.html>frames.time</a></td><td>              Find the time and position of a data element.</td></tr>
+<tr><td><a href=get.time.element.html>get.time.element</a></td><td>         Get data for a given time</td></tr>
+<tr><td><a href=hamming.html>hamming</a></td><td>                  Generate a Hamming window</td></tr>
+<tr><td><a href=hplot.html>hplot</a></td><td>                    Plot superimposed histograms</td></tr>
+<tr><td><a href=is.segs.html>is.segs</a></td><td>                  Test whether an object is a segment list</td></tr>
+<tr><td><a href=label.convert.html>label.convert</a></td><td>            Translate labels in a label vector</td></tr>
+<tr><td><a href=label.num.html>label.num</a></td><td>                Convert labels to integers</td></tr>
+<tr><td><a href=linear.html>linear</a></td><td>                   Perform linear time normalisation on trackdata.</td></tr>
+<tr><td><a href=mahal.html>mahal</a></td><td>                    Classify using Mahalanobis distance</td></tr>
+<tr><td><a href=mahal.dist.html>mahal.dist</a></td><td>               Calculate mahalanobis distances</td></tr>
+<tr><td><a href=matscan.html>matscan</a></td><td>                  Read matrix data from a file</td></tr>
+<tr><td><a href=mel.html>mel</a></td><td>                      Convert Hz to the mel scale</td></tr>
+<tr><td><a href=muclass.html>muclass</a></td><td>                  Find common elements in vectors</td></tr>
+<tr><td><a href=mudur.html>mudur</a></td><td>                    Extract times and durations from an Emu segment list</td></tr>
+<tr><td><a href=museg.write.html>museg.write</a></td><td>              Write an Emu segment list to a file</td></tr>
+<tr><td><a href=norm.html>norm</a></td><td>                     Normalise speech data</td></tr>
+<tr><td><a href=nplot.html>nplot</a></td><td>                    Plot normal data curve</td></tr>
+<tr><td><a href=percent.html>percent</a></td><td>                  Converts a confusion matrix to a percentage matrix</td></tr>
+<tr><td><a href=perform.html>perform</a></td><td>                  Performance (hit rate) of a confusion matrix</td></tr>
+<tr><td><a href=radians.html>radians</a></td><td>                  Converts degrees to radians</td></tr>
+<tr><td><a href=randomise.segs.html>randomise.segs</a></td><td>           Randomise or Reverse items in a segment list</td></tr>
+<tr><td><a href=segplot.html>segplot</a></td><td>                  Segment plot</td></tr>
+<tr><td><a href=slen.html>slen</a></td><td>                     Number of Emu Segments</td></tr>
+<tr><td><a href=sortmatrix.html>sortmatrix</a></td><td>               Sort matrix by label</td></tr>
+<tr><td><a href=splitmat.html>splitmat</a></td><td>                 Split data according to a set of labels</td></tr>
+<tr><td><a href=splitstring.html>splitstring</a></td><td>              Split a string into words.</td></tr>
+<tr><td><a href=steady.html>steady</a></td><td>                   Find the steady-state portion of a parameter</td></tr>
+<tr><td><a href=train.html>train</a></td><td>                    Train a Gaussian Model</td></tr>
+<tr><td><a href=utt.html>utt</a></td><td>                      Return the utterances portion of a segment list</td></tr>
+<tr><td><a href=uttnum.html>uttnum</a></td><td>                   Find an utterance in Utterances</td></tr>
+<tr><td><a href=uttplot.html>uttplot</a></td><td>                  Plot a parameter for an utterance</td></tr>
+</table>
+<p>The following functions are not yet documented:</p>
+<p>
+bark                      
+bayes.lab                 
+bayesplot                 
+bind.emusegs              
+bind.trackdata            
+cep.db                    
+cepstrum                  
+cepstrum.complex          
+classify                  
+closest                   
+confusion                 
+dapply                    
+dapply.lab                
+ddiff                     
+dextract                  
+dextract.lab              
+drecord                   
+dshift                    
+dtime                     
+emu.options               
+emu.requery               
+emusegs.database          
+emusegs.query             
+emusegs.type              
+fft.complex               
+fft.extract               
+fft.mod                   
+fft.ratio                 
+fplot.mean                
+label                     
+linear.av                 
+locus                     
+make.seglist              
+modify.seglist            
+read.segs                 
+segdiff                   
+spectplot                 
+steady.plot               
+steady.time               
+waves.lab                 
+</p>
+
+
+    <hr>
+    <address><a href="mailto:steve.cassidy@mq.edu.au">Steve Cassidy</a></address>
+  </body>
+</html>

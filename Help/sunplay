@@ -1,0 +1,15 @@
+.BG
+.FN sunplay
+.TL
+Play a SUN format .au audio file
+.CS
+sunplay(filename, internalspkr=F)
+.RA
+.AG filename
+Audio file in SUN .au format.
+.OA
+.AG internalspkr
+If TRUE play uses the internal speaker,
+If FALSE (Default), the external speaker is used.
+.KW mu
+.WR

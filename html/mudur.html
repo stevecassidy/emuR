@@ -1,0 +1,57 @@
+<HTML><HEAD><TITLE>R: Extract times and durations from an Emu segment list</TITLE>
+<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+
+
+<h2>Extract times and durations from an Emu segment list</h2>
+
+
+<h3>Usage</h3>
+
+<PRE>mustart(segs)</PRE>
+
+
+<h3>Arguments</h3>
+
+<TABLE>
+<TR VALIGN="TOP"><TD><CODE>segs</CODE></TD>
+<TD>
+An Emu segment list.</TD></TR>
+</TABLE>
+<P>
+</P>
+
+<h3>Value</h3>
+
+<P>
+A vector containing one element per segment in the segment list.
+<CODE>mustart</CODE> <CODE>muend</CODE> extract the start and end times of each
+segment in a segment list.  <CODE>mudur</CODE> extracts the duration of each
+segment.</P>
+
+<h3>References</h3>
+
+<p>
+See the Emu documentation at:
+<A HREF="http://www.shlrc.mq.edu.au/emu">http://www.shlrc.mq.edu.au/emu</A>
+
+<h3>See Also</h3>
+
+<p>
+<CODE><A HREF="emu.query.html">emu.query</A></CODE>
+
+<h3>Examples</h3>
+
+<PRE>
+## assumes a database called demo is available on your system and that
+## the Emu system is installed. 
+
+# find all Phonetic vowels in the database
+segs &lt;- emu.query("demo", "*", "Phonetic=vowel")
+
+# plot a histogram of segment durations
+durations &lt;- mudur( segs )
+hplot( durations, label(segs )
+
+</PRE>
+
+</BODY></HTML>

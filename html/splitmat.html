@@ -1,0 +1,67 @@
+<HTML><HEAD><TITLE>R: Split data according to a set of labels</TITLE>
+<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+
+
+<h2>Split data according to a set of labels</h2>
+
+
+<h3>Usage</h3>
+
+<PRE>
+splitmat(data, labs, filename="file", labelfile=T)
+</PRE>
+
+
+<h3>Arguments</h3>
+
+<TABLE>
+<TR VALIGN="TOP"><TD><CODE>data</CODE></TD>
+<TD>
+A vector or matrix of data.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>labs</CODE></TD>
+<TD>
+A label file parallel to <CODE>data</CODE>.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>filename</CODE></TD>
+<TD>
+the object name prefix for the new objects being created, ".n" is
+appended to this where n is an integer between 1 and the number of
+unique labels in <CODE>labs</CODE>.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>labelfile</CODE></TD>
+<TD>
+If TRUE, a label vector is created for each new object called "l.file.n".
+</TD></TR>
+</TABLE>
+<P>
+</P>
+
+<h3>Value</h3>
+
+<P>
+A matrix of object names and the corresponding label.</P>
+
+<h3>See Also</h3>
+
+<p>
+<CODE><A HREF="emu.track.html">emu.track</A></CODE>, <CODE><A HREF="emu.query.html">emu.query</A></CODE>
+
+<h3>Examples</h3>
+
+<PRE>
+## assumes a database called demo is available on your system and that
+## the Emu system is installed. 
+
+segs &lt;- emu.query( "demo", "*", "Phonetic=S|T" )
+# get a data matrix of formant data at the end of the segment
+data &lt;- emu.track( segs, "fm", cut=1 )
+
+# create segment lists segs.1 and segs.2 for each label type S and T
+splitmat(segs, label(segs), "segs", labelfile=T)
+
+# create two data matrices for each label type
+splitmat(data, label(segs), "data", labelfile=T)
+</PRE>
+
+</BODY></HTML>

@@ -1,0 +1,20 @@
+.BG
+.FN mustart
+.TL
+Extract times and durations from a MU+ segment list
+.CS
+mustart(segs)
+muend(segs)
+mudur(segs)
+.RA
+.AG segs
+A MU+ segment list.
+.RT
+A vector containing one element per segment in the segment list.  
+`mustart()' and `muend()' extract the start and end times of each
+segment in a  segment list.  `mudur()' extracts the duration of each segment.
+
+.SA
+phon, mkdb
+.KW mu
+.WR

@@ -1,0 +1,15 @@
+.BG
+.FN radians
+.TL
+Converts degrees to radians
+.CS
+radians(degrees)
+.RA
+.AG degrees
+Angular measurement for conversion.
+.RT
+Angular measurement in radians.
+.DT
+There are 360 degrees or 2 * PI radians in one full rotation.
+.KW mu
+.WR

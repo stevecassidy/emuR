@@ -1,0 +1,24 @@
+\" -*-nroff-*-
+.BG
+.FN frames.time
+.TL
+Find the time and position of a data element.
+.CS
+frames.time(dataset, datanum)
+.RA
+.AG dataset
+A dataset returned by `track' or `frames'.
+.AG datanum
+An integer, an index into the `data' component of `dataset'. 
+.RT
+The segment number which contains the element `datanum' of `dataset$data'.
+.DT
+The dataset returned from `track' or `frames' consists of a matrix of
+data (the `data' component) and two index components (`index' and
+`ftime'). The data for all segments is concatenated together in
+`$data'.  This function can be used to find out which segment a
+particular row of `$data' corresponds to. 
+.SA
+track, frames
+.KW mu
+.WR

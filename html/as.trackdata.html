@@ -1,0 +1,88 @@
+<HTML><HEAD><TITLE>R: Create an Emu trackdata object</TITLE>
+<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+
+
+<h2>Create an Emu trackdata object</h2>
+
+
+<h3>Description</h3>
+
+<p>
+Create an Emu trackdata object from a raw data matrix.
+
+<h3>Usage</h3>
+
+<PRE>
+  as.trackdata(data, index, ftime, trackname="")
+</PRE>
+
+
+<h3>Arguments</h3>
+
+<TABLE>
+<TR VALIGN="TOP"><TD><CODE>data</CODE></TD>
+<TD>
+A two dimensional matrix of numerical data. </TD></TR>
+<TR VALIGN="TOP"><TD><CODE>index</CODE></TD>
+<TD>
+Segment index, one row per segment, two columns give the
+start and end rows in the <CODE>data</CODE> matrix for each segment.  </TD></TR>
+<TR VALIGN="TOP"><TD><CODE>ftime</CODE></TD>
+<TD>
+A two column matrix with one row per segment, gives the
+start and end times in milliseconds for each segment. </TD></TR>
+<TR VALIGN="TOP"><TD><CODE>trackname</CODE></TD>
+<TD>
+The name of the track. </TD></TR>
+</TABLE>
+<P>
+</P>
+
+<h3>Details</h3>
+
+<p>
+Emu trackdata objects contain possibly multi-column numerical data
+corresponding to a set of segments from a database.  Data for each
+segment takes up a number of rows in the main <CODE>data</CODE> matrix, the 
+start and end rows are stored in the <CODE>index</CODE> component.  The
+<CODE>ftime</CODE> component contains the start and end times of the
+segment data.
+<P>
+Trackdata objects are returned by the <CODE><A HREF="emu.track.html">emu.track</A></CODE> function.
+
+<h3>Value</h3>
+
+<P>
+The components are bound into a trackdata object.</P>
+
+<h3>See Also</h3>
+
+<p>
+<CODE><A HREF="emu.track.html">emu.track</A></CODE> <CODE><A HREF="dplot.html">dplot</A></CODE>
+
+<h3>Examples</h3>
+
+<PRE>
+
+# make a trackdata object of two data segments
+data1 &lt;- matrix( 1:10, ncol=2 )
+data2 &lt;- matrix( 11:20, ncol=2 )
+
+nd1 &lt;- nrow(data1)
+nd2 &lt;- nrow(data2)
+index &lt;- rbind( c( 1, nd1 ), c(nd1+1,nd1+nd2) )
+
+times &lt;- rbind( c( 100.0, 110.0 ), c( 200.0, 210.0 ) )
+
+tdata &lt;- as.trackdata( rbind( data1, data2 ), index, times, trackname="fake")
+
+# describe the data
+summary(tdata)
+# get the data for the first segment
+tdata[1]
+# and the second
+tdata[2]
+
+</PRE>
+
+</BODY></HTML>

@@ -1,0 +1,47 @@
+<HTML><HEAD><TITLE>R: Find an utterance in Utterances</TITLE>
+<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+
+
+<h2>Find an utterance in Utterances</h2>
+
+
+<h3>Usage</h3>
+
+<PRE>
+uttnum(utt, str)
+</PRE>
+
+
+<h3>Arguments</h3>
+
+<TABLE>
+<TR VALIGN="TOP"><TD><CODE>utt</CODE></TD>
+<TD>
+A mu+ utterance vector.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>str</CODE></TD>
+<TD>
+The full name of the utterance. 
+</TD></TR>
+</TABLE>
+<P>
+</P>
+
+<h3>Value</h3>
+
+<P>
+An integer, corresponding to the index of the utterance in the
+Utterances vector.</P>
+
+<h3>See Also</h3>
+
+<p>
+mkdb
+
+<h3>Examples</h3>
+
+<PRE>
+ uttnum(my.utts, "/mu/mu/MUDEMO/msajc001")
+</PRE>
+
+</BODY></HTML>

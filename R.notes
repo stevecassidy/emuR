@@ -1,0 +1,3 @@
+1. axis first arg is which in R, side in S+
+2. [.emusegs needed to reset attributes and class, same in S+? 
+3. image in S accepts one unnamed arg as z, in R it needs naming

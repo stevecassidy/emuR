@@ -1,0 +1,52 @@
+<HTML><HEAD><TITLE>R: Find the inter-euclidean distance for a data matrix</TITLE>
+<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+
+
+<h2>Find the inter-euclidean distance for a data matrix</h2>
+
+
+<h3>Usage</h3>
+
+<PRE>
+euclidean(data, m=1, n=ncol(data))
+</PRE>
+
+
+<h3>Arguments</h3>
+
+<TABLE>
+<TR VALIGN="TOP"><TD><CODE>data</CODE></TD>
+<TD>
+A vector or matrix of numerical data. 
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>m</CODE></TD>
+<TD>
+The first column of data to be used in the distance calculation.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>n</CODE></TD>
+<TD>
+The last column of data to be used in the distance calculation.
+</TD></TR>
+</TABLE>
+<P>
+</P>
+
+<h3>Value</h3>
+
+<P>
+Calculates the euclidean distance between successive rows of the matrix
+based on  columns m:n.</P>
+
+<h3>See Also</h3>
+
+<p>
+steady
+
+<h3>Examples</h3>
+
+<PRE>
+&gt; euclidean(cbind(c(1,2,3,4), c(2,3,2,2)))
+[1] 1.414214 1.414214 1.000000
+</PRE>
+
+</BODY></HTML>

@@ -1,0 +1,15 @@
+.BG
+.FN utt
+.TL
+Return the utterances portion of a segment list
+.CS
+utt(segs)
+.RA
+.AG segs
+A mu+ segment list.
+.RT
+A vector of the utterance names for each segment.
+.SA
+mustart, muend, mudur, label
+.KW mu
+.WR

@@ -1,0 +1,15 @@
+.BG
+.FN slen
+.TL
+Number of Segments
+.CS
+slen(x)
+.RA
+.AG x
+A mu+ segment list.
+.RT
+The number of segments in that segment list.
+.SA
+phon
+.KW mu
+.WR

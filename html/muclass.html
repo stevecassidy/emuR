@@ -1,0 +1,48 @@
+<HTML><HEAD><TITLE>R: Find common elements in vectors</TITLE>
+<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+
+
+<h2>Find common elements in vectors</h2>
+
+
+<h3>Usage</h3>
+
+<PRE>
+muclass(labels, class)
+</PRE>
+
+
+<h3>Arguments</h3>
+
+<TABLE>
+<TR VALIGN="TOP"><TD><CODE>labels</CODE></TD>
+<TD>
+A vector of labels. 
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>class</CODE></TD>
+<TD>
+A label or vector of labels. 
+</TD></TR>
+</TABLE>
+<P>
+</P>
+
+<h3>Value</h3>
+
+<P>
+A logical vector which is T for each element in <CODE>labels</CODE> which matches
+<CODE>class</CODE> or an element of <CODE>class</CODE>.</P>
+
+<h3>See Also</h3>
+
+<p>
+match
+
+<h3>Examples</h3>
+
+<PRE>
+muclass(c("a", "b", "c"), c("a", "c"))
+[1] T F T
+</PRE>
+
+</BODY></HTML>

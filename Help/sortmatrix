@@ -1,0 +1,17 @@
+.BG
+.FN sortmatrix
+.TL
+Sort matrix by label
+.CS
+sortmatrix(mat, labs=dimnames(mat)[[2]])
+.RA
+.AG mat
+A mu+ sement matrix.
+.AG labs
+A label vector which has the same number of columns as `mat'.
+.RT
+Returns a sorted matrix by label, created from `mat'.
+.SA
+label, phon
+.KW mu
+.WR

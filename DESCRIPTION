@@ -1,0 +1,11 @@
+Package: emu
+Version: 1.1
+Priority: contrib
+Title: Interface to the Emu Speech Database System
+Author: Steve Cassidy and others, SHLRC, Macquarie University <steve.cassidy@mq.edu.au>
+Description: Provides an interface to the Emu speech database system and
+	many special purpose functions for display and analysis of speech 
+	data. 
+License: GPL Version 2 or later.
+URL: http://www.shlrc.mq.edu.au/emu/
+

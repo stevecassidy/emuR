@@ -1,0 +1,82 @@
+\name{dtime}
+\alias{dtime}
+%- Also NEED an `\alias' for EACH other topic documented here.
+\title{ ~~function to do ... ~~}
+\description{
+ ~~ A concise (1-5 lines) description of what the function does. ~~
+}
+\usage{
+dtime(dataset, times, single=F, method="average")
+}
+%- maybe also `usage' for other objects documented here.
+\arguments{
+ \item{dataset}{ ~~Describe \code{dataset} here~~ }
+ \item{times}{ ~~Describe \code{times} here~~ }
+ \item{single}{ ~~Describe \code{single} here~~ }
+ \item{method}{ ~~Describe \code{method} here~~ }
+}
+\details{
+ ~~ If necessary, more details than the __description__  above ~~
+}
+\value{
+  ~Describe the value returned
+  If it is a LIST, use
+  \item{comp1 }{Description of `comp1'}
+  \item{comp2 }{Description of `comp2'}
+  ...
+}
+\references{ ~put references to the literature/web site here ~ }
+\author{ ~~who you are~~ }
+\note{ ~~further notes~~ }
+
+ ~Make other sections like WARNING with \section{WARNING }{....} ~
+
+\seealso{ ~~objects to SEE ALSO as \code{\link{~~fun~~}}, ~~~ }
+
+\examples{
+##---- Should be DIRECTLY executable !! ----
+##-- ==>  Define data, use random,
+##--	     or do  help(data=index)  for the standard data sets.
+
+## The function is currently defined as
+function (dataset, times, single = F, method = "average") 
+{
+    if (!is.matrix(dataset$data)) 
+        dataset$data <- cbind(dataset$data)
+    if (!is.matrix(dataset$index)) {
+        dataset$index <- rbind(dataset$index)
+        dataset$ftime <- rbind(dataset$ftime)
+    }
+    mat <- NULL
+    for (j in 1:length(times)) {
+        left <- dataset$index[j, 1]
+        right <- dataset$index[j, 2]
+        dat <- dataset$data[left:right, ]
+        if (!is.matrix(dat)) 
+            dat <- cbind(dat)
+        lval <- right - left + 1
+        left.time <- dataset$ftime[j, 1]
+        right.time <- dataset$ftime[j, 2]
+        seq.times <- seq(left.time, right.time, length = lval)
+        cval <- closest(seq.times, times[j])
+        if (single) {
+            if (length(cval) > 1) {
+                if (method == "average") {
+                  cval <- mean(cval)
+                }
+                else {
+                  cval <- cval[1]
+                }
+            }
+        }
+        mat <- rbind(mat, dat[cval, ])
+    }
+    if (ncol(mat) == 1) {
+        c(mat)
+    }
+    else {
+        mat
+    }
+  }
+}
+\keyword{ ~keyword }%-- one or more ...

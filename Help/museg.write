@@ -1,0 +1,21 @@
+\" -*-nroff-*-
+.BG
+.FN museg.write
+.TL
+Write a MU+ segment list to a file.
+.CS
+museg.write(SegList, File)
+.RA
+.AG SegList
+A MU+ segment list, as returned by `phon'.
+.AG File
+The name of a file to write the segment list into. 
+.RT
+None.
+.SE
+The segment list is written to a file in a format suitable for input to
+the `muspec' program. 
+.SA
+phon, muspec
+.KW mu
+.WR

@@ -1,0 +1,40 @@
+<HTML><HEAD><TITLE>R: Plot a parameter for an utterance</TITLE>
+<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+
+
+<h2>Plot a parameter for an utterance</h2>
+
+
+<h3>Usage</h3>
+
+<PRE>
+function(segs, param, data, labtype, colour = T, linetype = F, xlim = NULL, 
+        ylim = NULL, xlab = "time (ms)", ylab = "", main = "",
+        zeros = F, pdat = 0.5, boundplot = T, labels = NULL,
+        labeltimes = NULL, labcentre = F, differ = NULL, smoothing = F,
+        flipped = F, axes = T label = F, ...)
+</PRE>
+
+
+<h3>Side Effects</h3>
+
+<P>
+A plot of the requested parameter track is generated.  Segment
+boundaries are drawn and labelled according to the options specified.
+If <CODE>talk</CODE> is TRUE, parts of the utterance can be played back using the
+left mouse button to define the boundaries of the section to be played.
+The middle mouse button quits this interaction.</P>
+
+<h3>Note</h3>
+
+<p>
+This function will also accept any of the standard graphical parameters
+which can be passed to <CODE>par()</CODE>, for example <CODE>cex</CODE> which specifies the
+size of characters to be used.
+
+<h3>See Also</h3>
+
+<p>
+<CODE><A HREF="emu.track.html">emu.track</A></CODE> <CODE><A HREF="emu.query.html">emu.query</A></CODE> <CODE><A HREF="dplot.html">dplot</A></CODE>
+<CODE><A HREF="segplot.html">segplot</A></CODE>
+</BODY></HTML>

@@ -1,0 +1,22 @@
+\" -*-nroff-*-
+.BG
+.FN uttnum
+.TL
+Find an utterance in Utterances
+.CS
+uttnum(utt, str)
+.RA
+.AG utt
+A mu+ utterance vector.
+.AG str
+The full name of the utterance. 
+.RT
+An integer, corresponding to the index of the utterance in the
+Utterances vector.  
+.SA
+mkdb
+.EX
+ uttnum(my.utts, "/mu/mu/MUDEMO/msajc001")
+.KW mu
+.WR
+

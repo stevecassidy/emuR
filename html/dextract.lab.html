@@ -1,0 +1,71 @@
+<HTML><HEAD><TITLE>R: Extract data from a trackdata</TITLE>
+<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+
+
+<h2>Extract data from a trackdata</h2>
+
+
+<h3>Usage</h3>
+
+<PRE>
+dextract.lab(trackdata, labs, labtype=unique(labs))
+</PRE>
+
+
+<h3>Arguments</h3>
+
+<TABLE>
+<TR VALIGN="TOP"><TD><CODE>trackdata</CODE></TD>
+<TD>
+A trackdata object returned from <CODE>track</CODE>.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>labs</CODE></TD>
+<TD>
+A vector of labels parallel to <CODE>trackdata$index</CODE>, i.e. one for each
+segment in the trackdata. 
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>labtype</CODE></TD>
+<TD>
+A vector of labels for which data is to be extracted.
+</TD></TR>
+</TABLE>
+<P>
+</P>
+
+<h3>Value</h3>
+
+A trackdata object which is a subset of <CODE>trackdata</CODE> containing only the
+data for those labels in <CODE>labtype</CODE>.  The result has the same components
+as the input <CODE>trackdata</CODE>:
+<P>
+<TABLE>
+<TR VALIGN="TOP"><TD><CODE>data</CODE></TD>
+<TD>
+A vector or matrix of numerical data.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>index</CODE></TD>
+<TD>
+A two column matrix giving the start and end indeces into the data
+vector for each segment.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>ftime</CODE></TD>
+<TD>
+A two column matrix giving the start and end times for each segment.
+</TD></TR>
+</TABLE>
+<P>
+</P>
+
+<h3>See Also</h3>
+
+<p>
+track, dextract, get.time.element, frames.time
+
+<h3>Examples</h3>
+
+<PRE>
+# extract only the data for i: and I vowels
+i.data _ dextract.lab(voweldata, vowellabs, c("i:", "I"))
+</PRE>
+
+</BODY></HTML>

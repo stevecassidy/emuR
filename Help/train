@@ -1,0 +1,38 @@
+\" -*-nroff-*-
+.BG
+.FN train
+.TL
+Train a Gaussian Model
+.CS
+train(x, lab)
+.RA
+.AG x
+A data vector or matrix.
+.AG lab
+A vector of labels parallel to `x'. 
+.RT
+A structure with the following components: 
+.RC label
+The unique labels in `lab'.
+.RC means
+The means for each dimension per unique label. 
+.RC cov
+The combined covariance matrixes for each unique label. The
+matrixes are joined with `rbind'.  If the input data is
+one-dimensional, this is just the standard deviation of the data. 
+.RC invcov
+The combined inverse covariance matrixes for each unique label. The
+matrixes are joined with `rbind'.  If the input data is
+one-dimensional, this is just the reciprocal of the standard deviation
+of the data.
+.DT
+This function is used to train a gaussian model on a data set. The
+result can be passed to either the `mahal' or `bayes.lab' functions to
+classify either the training set (`x') or a test set with the same
+number of dimensions.  Train simply finds the mean and inverse
+covariance matrix/standard deviation for the data corresponding to each
+unique label in labs.
+.SA
+mahal, bayes.lab, mahalplot, bayes.plot
+.KW mu
+.WR

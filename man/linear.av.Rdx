@@ -1,0 +1,68 @@
+\name{linear.av}
+\alias{linear.av}
+%- Also NEED an `\alias' for EACH other topic documented here.
+\title{ ~~function to do ... ~~}
+\description{
+ ~~ A concise (1-5 lines) description of what the function does. ~~
+}
+\usage{
+linear.av(dataset, labs)
+}
+%- maybe also `usage' for other objects documented here.
+\arguments{
+ \item{dataset}{ ~~Describe \code{dataset} here~~ }
+ \item{labs}{ ~~Describe \code{labs} here~~ }
+}
+\details{
+ ~~ If necessary, more details than the __description__  above ~~
+}
+\value{
+  ~Describe the value returned
+  If it is a LIST, use
+  \item{comp1 }{Description of `comp1'}
+  \item{comp2 }{Description of `comp2'}
+  ...
+}
+\references{ ~put references to the literature/web site here ~ }
+\author{ ~~who you are~~ }
+\note{ ~~further notes~~ }
+
+ ~Make other sections like WARNING with \section{WARNING }{....} ~
+
+\seealso{ ~~objects to SEE ALSO as \code{\link{~~fun~~}}, ~~~ }
+
+\examples{
+##---- Should be DIRECTLY executable !! ----
+##-- ==>  Define data, use random,
+##--	     or do  help(data=index)  for the standard data sets.
+
+## The function is currently defined as
+function (dataset, labs) 
+{
+    finmat <- NULL
+    mat <- NULL
+    if (!is.matrix(dataset$data)) 
+        dataset$data <- cbind(dataset$data)
+    for (j in 1:ncol(dataset$data)) {
+        vec <- matrix(c(dataset$data[, j]), nrow(dataset$index), 
+            byrow = T)
+        outmat <- NULL
+        for (k in unique(labs)) {
+            temp <- labs == k
+            labvec <- vec[temp, ]
+            outval <- apply(labvec, 2, mean)
+            outmat <- c(outmat, outval)
+        }
+        mat <- cbind(mat, outmat)
+    }
+    tnum <- nrow(mat)
+    tlab <- length(unique(labs))
+    rightin <- seq(tnum/tlab, tnum, length = tlab)
+    leftin <- rightin - (tnum/tlab) + 1
+    finmat$data <- mat
+    finmat$index <- cbind(leftin, rightin)
+    finmat$lab <- unique(labs)
+    finmat
+  }
+}
+\keyword{ ~keyword }%-- one or more ...

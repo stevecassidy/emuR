@@ -1,0 +1,42 @@
+<HTML><HEAD><TITLE>R: Smooth the data in a trackdata object.</TITLE>
+<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+
+
+<h2>Smooth the data in a trackdata object.</h2>
+
+
+<h3>Usage</h3>
+
+<PRE>
+dsmooth(dataset)
+</PRE>
+
+
+<h3>Arguments</h3>
+
+<TABLE>
+<TR VALIGN="TOP"><TD><CODE>dataset</CODE></TD>
+<TD>
+A trackdata object as returned from <CODE>track</CODE>.
+</TD></TR>
+</TABLE>
+<P>
+</P>
+
+<h3>Details</h3>
+
+<p>
+This function uses the <CODE>dapply</CODE> function to apply <CODE>smooth</CODE> to the data
+for each segment.
+
+<h3>Value</h3>
+
+<P>
+The result of applying the <CODE>smooth</CODE> function to each column of the data
+for each segment in the trackdata object.</P>
+
+<h3>See Also</h3>
+
+<p>
+smooth, dapply
+</BODY></HTML>

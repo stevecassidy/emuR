@@ -1,0 +1,20 @@
+.BG
+.FN rate
+.TL
+Find the sample rate of a track file.
+.CS
+rate(utterance, track="samples", extn=options("extensions"))
+.RA
+.AG utterance
+The utterance you wish find the sample rate for.
+.OA
+.AG track
+The parameter track you want to know about. 
+.AG extn
+The file extensions to look for the track in.
+.RT
+Returns the sample rate of the specified track in Hz. 
+.SA
+track, frames, play
+.KW mu
+.WR

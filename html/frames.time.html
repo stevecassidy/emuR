@@ -1,0 +1,48 @@
+<HTML><HEAD><TITLE>R: Find the time and position of a data element.</TITLE>
+<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+
+
+<h2>Find the time and position of a data element.</h2>
+
+
+<h3>Usage</h3>
+
+<PRE>
+frames.time(dataset, datanum)
+</PRE>
+
+
+<h3>Arguments</h3>
+
+<TABLE>
+<TR VALIGN="TOP"><TD><CODE>dataset</CODE></TD>
+<TD>
+A dataset returned by <CODE>track</CODE> or <CODE>frames</CODE>.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>datanum</CODE></TD>
+<TD>
+An integer, an index into the <CODE>data</CODE> component of <CODE>dataset</CODE>. 
+</TD></TR>
+</TABLE>
+<P>
+</P>
+
+<h3>Details</h3>
+
+<p>
+The dataset returned from <CODE>track</CODE> or <CODE>frames</CODE> consists of a matrix of
+data (the <CODE>data</CODE> component) and two index components (<CODE>index</CODE> and
+<CODE>ftime</CODE>). The data for all segments is concatenated together in
+<CODE>$data</CODE>.  This function can be used to find out which segment a
+particular row of <CODE>$data</CODE> corresponds to.
+
+<h3>Value</h3>
+
+<P>
+The segment number which contains the element <CODE>datanum</CODE> of <CODE>dataset$data</CODE>.</P>
+
+<h3>See Also</h3>
+
+<p>
+track, frames
+</BODY></HTML>

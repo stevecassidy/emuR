@@ -1,0 +1,17 @@
+\" -*-nroff-*-
+.BG
+.FN hamming
+.TL
+Generate a Hamming window
+.CS
+hamming(pts=512)
+.OA
+.AG pts
+The width of the window.
+.RT
+A vector which represents a Hamming window of width `pts', with
+elements between 0 and 1. A signal vector should be multiplied by this
+vector to apply the hamming window. 
+.EX
+.KW mu
+.WR

@@ -1,0 +1,60 @@
+<HTML><HEAD><TITLE>R: Randomise or Reverse items in a segment list</TITLE>
+<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+
+
+<h2>Randomise or Reverse items in a segment list</h2>
+
+
+<h3>Usage</h3>
+
+<PRE>
+randomise.segs(segs,  rand=T, bwd=F)
+</PRE>
+
+
+<h3>Arguments</h3>
+
+<TABLE>
+<TR VALIGN="TOP"><TD><CODE>segs</CODE></TD>
+<TD>
+An Emu segment list.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>bwd</CODE></TD>
+<TD>
+If T, reverse the order of the segment list.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>rand</CODE></TD>
+<TD>
+If T, randomise the order of the segment lists (default).
+</TD></TR>
+</TABLE>
+<P>
+</P>
+
+<h3>Value</h3>
+
+<P>
+A segment list containing the original elements in random or reversed
+order. This is useful if the segment list is to be used as the source
+for a set of stimuli in a perception experiment.</P>
+
+<h3>See Also</h3>
+
+<p>
+<CODE><A HREF="emu.query.html">emu.query</A></CODE>
+
+<h3>Examples</h3>
+
+<PRE>
+## assumes a database called demo is available on your system and that
+## the Emu system is installed. 
+
+# find all Phonetic vowels in the database
+segs &lt;- emu.query("demo", "*", "Phonetic=vowel")
+
+# randomise the segment list
+rsegs &lt;- randomise.segs( segs )
+
+</PRE>
+
+</BODY></HTML>

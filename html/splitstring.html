@@ -1,0 +1,43 @@
+<HTML><HEAD><TITLE>R: Split a string into words.</TITLE>
+<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+
+
+<h2>Split a string into words.</h2>
+
+
+<h3>Usage</h3>
+
+<PRE>
+splitstring(str,char)
+</PRE>
+
+
+<h3>Arguments</h3>
+
+<TABLE>
+<TR VALIGN="TOP"><TD><CODE>str</CODE></TD>
+<TD>
+A string.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>char</CODE></TD>
+<TD>
+A character to split on
+</TD></TR>
+</TABLE>
+<P>
+</P>
+
+<h3>Value</h3>
+
+<P>
+A vector of strings.  The original <CODE>str</CODE> is split at ever occurrence of
+<CODE>char</CODE> to generate a vector of strings.</P>
+
+<h3>Examples</h3>
+
+<PRE>
+&gt; splitstring("/home/recog/steve/foo", "/")
+[1] "home" "recog" "steve" "foo"
+</PRE>
+
+</BODY></HTML>

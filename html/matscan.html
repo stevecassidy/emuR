@@ -1,0 +1,57 @@
+<HTML><HEAD><TITLE>R: Read matrix data from a file</TITLE>
+<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+
+
+<h2>Read matrix data from a file</h2>
+
+
+<h3>Usage</h3>
+
+<PRE>
+matscan(file, num.cols=count.fields(file)[1], what=0, sk=0)
+</PRE>
+
+
+<h3>Arguments</h3>
+
+<TABLE>
+<TR VALIGN="TOP"><TD><CODE>file</CODE></TD>
+<TD>
+A filename.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>num.cols</CODE></TD>
+<TD>
+The number of columns of data in the file.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>what</CODE></TD>
+<TD>
+A template for the data elements in the file, it should be a number for
+numeric data (the default) or a string for string data. Note that an
+Splus matrix can only hold one type of data (string or numeric), for
+mixed types use data tables and the <CODE>read.table</CODE> function.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>sk</CODE></TD>
+<TD>
+The number of leading lines of the file to skip.
+</TD></TR>
+</TABLE>
+<P>
+</P>
+
+<h3>Details</h3>
+
+<p>
+This function has been partially superceeded by the introduction of
+data frames and the read.table function.  It is still useful however
+for reading data into Splus matrix objects.
+
+<h3>Value</h3>
+
+<P>
+A matrix corresponding to the data in <CODE>file</CODE>.</P>
+
+<h3>See Also</h3>
+
+<p>
+read.table
+</BODY></HTML>

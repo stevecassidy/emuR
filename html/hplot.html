@@ -1,0 +1,78 @@
+<HTML><HEAD><TITLE>R: Plot superimposed histograms</TITLE>
+<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+
+
+<h2>Plot superimposed histograms</h2>
+
+
+<h3>Usage</h3>
+
+<PRE>
+hplot(vec, labs, xlab = "", ylab = "", main = "", 
+         colour = T, xlim = NULL, axes = T, legn="tl")
+</PRE>
+
+
+<h3>Arguments</h3>
+
+<TABLE>
+<TR VALIGN="TOP"><TD><CODE>vec</CODE></TD>
+<TD>
+A vector of numerical data.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>labs</CODE></TD>
+<TD>
+A vector of labels parallel to <CODE>vec</CODE>.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>xlab</CODE></TD>
+<TD>
+An x-axis label. 
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>ylab</CODE></TD>
+<TD>
+A y-axis label.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>main</CODE></TD>
+<TD>
+A main title for the plot.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>colour</CODE></TD>
+<TD>
+If colour is TRUE, different colours will be used for each unique
+label. If it is FALSE, different shading patterns will be used. 
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>xlim</CODE></TD>
+<TD>
+The range of the x-axis.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>axes</CODE></TD>
+<TD>
+If FALSE, no axes will be plotted. 
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>legn</CODE></TD>
+<TD>
+Where to put the legend. If <CODE>FALSE</CODE> no legend will be drawn, otherwise
+this can be one of <CODE>"tl"</CODE>, <CODE>"br"</CODE>, <CODE>"bl"</CODE> or <CODE>"tr"</CODE> (for top-left, bottom-right
+etc.) or <CODE>"loc"</CODE> (for locator) which requres you to position the legend
+with the mouse. 
+</TD></TR>
+</TABLE>
+<P>
+</P>
+
+<h3>Value</h3>
+
+<P>
+None.</P>
+
+<h3>Side Effects</h3>
+
+<P>
+Generates  multiple  overlaid histograms, one for each unique label in
+<CODE>labs</CODE>.</P>
+
+<h3>See Also</h3>
+
+<p>
+nplot, eplot
+</BODY></HTML>

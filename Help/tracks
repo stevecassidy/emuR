@@ -1,0 +1,25 @@
+\" -*-nroff-*-
+.BG
+.FN tracks
+.TL
+Find the available tracks
+.CS
+tracks(utterance, duplicates=FALSE, extn=options("extensions"))
+.OA
+.AG utterance
+An utterance name or an utterance vector.  If a vector is provided, the
+first element is taken as the utterance to be examined. 
+.AG duplicates
+If duplicates is TRUE, duplicate entries will not be removed from the
+result. The default behaviour is to remove duplicates. 
+.AG extn
+A set of file extensions in which to look for parameter tracks. 
+.RT
+A vector of parameter names corresponding to the parameters that may be
+extracted from the current utterance. 
+.SA
+track, frames
+.EX
+tracks("/mu/mu/MUDEMO/msajc001", extn=Extns.SSFF )
+.KW mu
+.WR

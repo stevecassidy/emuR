@@ -1,0 +1,74 @@
+<HTML><HEAD><TITLE>R: Train a Gaussian Model</TITLE>
+<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+
+
+<h2>Train a Gaussian Model</h2>
+
+
+<h3>Usage</h3>
+
+<PRE>
+train(x, lab)
+</PRE>
+
+
+<h3>Arguments</h3>
+
+<TABLE>
+<TR VALIGN="TOP"><TD><CODE>x</CODE></TD>
+<TD>
+A data vector or matrix.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>lab</CODE></TD>
+<TD>
+A vector of labels parallel to <CODE>x</CODE>. 
+</TD></TR>
+</TABLE>
+<P>
+</P>
+
+<h3>Details</h3>
+
+<p>
+This function is used to train a gaussian model on a data set. The
+result can be passed to either the <CODE>mahal</CODE> or <CODE>bayes.lab</CODE> functions to
+classify either the training set (<CODE>x</CODE>) or a test set with the same
+number of dimensions.  Train simply finds the mean and inverse
+covariance matrix/standard deviation for the data corresponding to each
+unique label in labs.
+
+<h3>Value</h3>
+
+A structure with the following components: 
+<P>
+<TABLE>
+<TR VALIGN="TOP"><TD><CODE>label</CODE></TD>
+<TD>
+The unique labels in <CODE>lab</CODE>.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>means</CODE></TD>
+<TD>
+The means for each dimension per unique label. 
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>cov</CODE></TD>
+<TD>
+The combined covariance matrixes for each unique label. The
+matrixes are joined with <CODE>rbind</CODE>.  If the input data is
+one-dimensional, this is just the standard deviation of the data. 
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>invcov</CODE></TD>
+<TD>
+The combined inverse covariance matrixes for each unique label. The
+matrixes are joined with <CODE>rbind</CODE>.  If the input data is
+one-dimensional, this is just the reciprocal of the standard deviation
+of the data.
+</TD></TR>
+</TABLE>
+<P>
+</P>
+
+<h3>See Also</h3>
+
+<p>
+mahal, bayes.lab, mahalplot, bayes.plot
+</BODY></HTML>

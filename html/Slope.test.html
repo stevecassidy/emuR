@@ -1,0 +1,87 @@
+<HTML><HEAD><TITLE>R: </TITLE>
+<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+
+
+<h2></h2>
+
+
+<h3>Description</h3>
+
+<p>
+tests whether the difference between two or more regression lines
+is significant
+
+<h3>Usage</h3>
+
+<PRE>
+slope.test(...)
+</PRE>
+
+
+<h3>Arguments</h3>
+
+<TABLE>
+<TR VALIGN="TOP"><TD><CODE>...</CODE></TD>
+<TD>
+this function takes any number of two column matrices.
+The first column is the y-data (in the case of locus equations, this
+is the vowel onset) and the second column is the x-data (in the case of
+locus equations, vowel target). 
+</TD></TR>
+</TABLE>
+<P>
+</P>
+
+<h3>Value</h3>
+
+The return value consists of the following componenets:
+<P>
+<TABLE>
+<TR VALIGN="TOP"><TD><CODE>separate</CODE></TD>
+<TD>
+slope, intercept, r-squared, F-ratio, "d(egrees of) f(reedom)"
+and "prob(ability that) line fits data" for the separate data matrices entered.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>combined</CODE></TD>
+<TD>
+F-ratio, "d(egrees of) f(reedom)", and "Probability of 
+them being DIFFERENT" for the slope and for the intercept of the combined
+data. 
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>x</CODE></TD>
+<TD>
+the combined x-data for all the matrices. 
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>y</CODE></TD>
+<TD>
+the combined y-data for all the matrices. 
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>mat</CODE></TD>
+<TD>
+the category vectors for the combined data 
+(consists of 1, 0 and -1). 
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>numrows</CODE></TD>
+<TD>
+the number of rows in each matrix. 
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>numcats</CODE></TD>
+<TD>
+the sum number of matrices entered. 
+<P>
+</TD></TR>
+</TABLE>
+<P>
+</P>
+
+<h3>References</h3>
+
+<p>
+see E. Pedhazur, Multiple Regression in Behavioral Research
+p.436-450, 496-507.
+
+<h3>See Also</h3>
+
+<p>
+lm(), summary.lm(), pf()
+</BODY></HTML>

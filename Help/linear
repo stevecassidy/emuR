@@ -1,0 +1,22 @@
+\" -*-nroff-*-
+.BG
+.FN linear
+.TL
+Perform linear time normalisation on trackdata.
+.CS
+linear(dataset, n=20)
+.RA
+.AG dataset
+A trackdata object as returned by `track'.
+.OA
+.AG n
+The number of points (samples) required for each segment.
+.RT
+A new trackdata object where the data for each segment has the same
+number (`n') of samples.  
+.DT
+The data for each segment is normaised using the `approx' function. 
+.SA
+approx
+.KW mu
+.WR

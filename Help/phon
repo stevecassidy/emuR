@@ -1,0 +1,149 @@
+\" -*-nroff-*-
+.BG
+.FN phon
+.TL
+Generate a segment list
+.CS
+phon(utterances, query=paste(find, "!=''"), find="Phoneme", 
+     ret="?", extn=options()$labextn,
+     dirc = paste(getenv("SHOME"), "/library/mu/ttsfiles", sep=""))
+.RA
+.AG utterances
+A mu+ utterance vector. 
+.OA
+.AG query
+The specification of segments to be found. See later for the details of
+the syntax of this argument.
+.AG find
+The level in the utterance hierarchy at which the search will take
+place. That is the level of the segments who's properties you are
+specifying in `query'.
+.AG ret
+The type of segment you wish to be returned. This will normally be the
+same as the level specified in `find' but may specify a higher level in
+the utterance hierarchy.
+.AG extn
+The file extension of the label files in the database. 
+.AG dirc
+The directory where the labed template file and other system files are
+stored. Defaults to the directory `ttsfiles' in the Splus library
+directory where Mu+ is installed.  
+.RT
+A mu+ segment list (an object of class "segs") corresponding to those
+segments matching the query.
+.DT
+This function is the central part of the mu+ system, it generates
+segment lists where each segment matches the query specified as the
+first argument.  This documentation provides a brief description of the
+syntax of `phon' queries and the other options to the function. Further
+information, including a tutorial, can be found in other parts of the
+mu+ documentation. 
+.SH "Query Syntax"
+Queries in `phon' consist of a set of conditions which must hold for
+the segments we are interested in.  The conditions consist of a level
+name (corresponding to a column heading in LABED), a comparator and a
+value. For example: 
+.Cs
+"Phonetic='A'"
+.Ce
+constrains the segments to have the Phonetic label 'A'.  In addition,
+it is possible to refer to labels to the left and right of the current
+label using the syntax:
+.Cs
+"Phonetic[1]='A'"
+.Ce
+which would match segments which are followed by an 'A' Phonetic label,
+and: 
+.Cs
+"Phonetic[-1]='A'"
+.Ce
+which matches segments preceeded by an 'A' Phonetic label. These
+patterns would normally be used in conjuction with other patterns as
+shown below. 
+.PP
+Legal comparators for boolean conditions are equal (=) and not equal
+(!=).
+.PP
+The value part of the condition (the right hand side of the expression)
+can be either a literal value or a disjuction. The pattern 'A/B/C' will
+constrain the value to be either 'A' or 'B' or 'C'.  Thus the query:
+.Cs
+"Phonetic='A/E/I/O/U/V'"
+.Ce
+might be used to generate a segment list of these six vowels.  
+.PP
+Simple expressions like these may be joined with `and' or `or' into
+more complex conditions. For example, to find the above six vowels only
+in strong syllables we write: 
+.Cs
+"Phonetic='A/E/I/O/U/V' and Syllable=S"
+.Ce
+If both `and' and `or' are used in a query, `and' binds more tightly
+than `or'.  So, for example, 
+.Cs
+"Phonetic='A' or Phonetic='E' and Syllable=S"
+.Ce
+would be read as:
+.Cs
+"Phonetic='A' or (Phonetic='E' and Syllable=S)"
+.Ce
+To force the alternative interpretation, explicit brackets can be used: 
+.Cs
+"(Phonetic='A' or Phonetic='E') and Syllable=S"
+.Ce
+.SH "Find and Return Types"
+
+When `phon' searches the database it examines objects at a particular
+level of the utterance hierarchy specified by the `find' argument.  The
+condition specified in the `query' refers to objects at this level.
+So, for example, if you are searching for all strong Syllable level
+segments the `find' argument will be `"Syllable"' and the condition: 
+.Cs
+"Syllable='S'"
+.Ce
+It is also valid to specify conditions on levels 
+.I
+above
+the find level, for example: 
+.Cs
+"Syllable='S' and Word='C'"
+.Ce
+will find strong syllables in content words. Note that you may not
+specify conditions below the find level.  
+.PP
+For some searches you may wish to return an object higher in the
+hierarchy than the find level, for example if you want all Word
+segments containing strong Syllables.  Since it is not possible to
+specify `"Syllable='S'"' when the find level is `"Word"' you must make
+the find level `"Syllable"' and the `return' level `"Word"' (using the
+`return' argument). For example:
+.Cs
+phon("Syllable='S'", find="Syllable", return="Word")
+.Ce
+.SH Positional Conditions
+You may also specify conditions involvind the position of segments in
+the hierarchy using the `Start', `Medial' and `End' conditions.  To
+find all phonemes at the start of syllables use: 
+.Cs
+phon("Start(Syllable,Phoneme)=T", find="Phoneme")
+.Ce
+Where `Start(x,y)' means that element `y' is at the start of an element
+of type `x'.  Similarly `End(x,y)' is used to find elements at the end
+of other segments and `Medial(x,y)' to find elements which are neither
+at the start or end of the other segment.  So to find all non-Syllable-medial i:
+phonemes we use the query: 
+.Cs
+phon("Phoneme='i:' and Medial(Syllable,Phoneme)=F", find="Phoneme")
+.Ce
+.SH Numerical Conditions
+The condition `Num(x,y)' can be used to find segments with a specific
+number of sub-segments, such as three-syllable words or syllables with
+two phonemes.  For example, `Num(Word,Syllable)=2'  will find all
+`Word' level segments which dominate exactly two `Syllable' segments.
+In this case the comparitors can be any of =, !=, >, >=, <, <=.
+.PP
+Further examples of the use of phon are given in the user manual. 
+.SA
+mkdb, track, frames
+.KW mu
+.WR

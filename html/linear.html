@@ -1,0 +1,45 @@
+<HTML><HEAD><TITLE>R: Perform linear time normalisation on trackdata.</TITLE>
+<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+
+
+<h2>Perform linear time normalisation on trackdata.</h2>
+
+
+<h3>Usage</h3>
+
+<PRE>
+linear(dataset, n=20)
+</PRE>
+
+
+<h3>Arguments</h3>
+
+<TABLE>
+<TR VALIGN="TOP"><TD><CODE>dataset</CODE></TD>
+<TD>
+A trackdata object as returned by <CODE>track</CODE>.
+</TD></TR>
+<TR VALIGN="TOP"><TD><CODE>n</CODE></TD>
+<TD>
+The number of points (samples) required for each segment.
+</TD></TR>
+</TABLE>
+<P>
+</P>
+
+<h3>Details</h3>
+
+<p>
+The data for each segment is normaised using the <CODE>approx</CODE> function.
+
+<h3>Value</h3>
+
+<P>
+A new trackdata object where the data for each segment has the same
+number (<CODE>n</CODE>) of samples.</P>
+
+<h3>See Also</h3>
+
+<p>
+approx
+</BODY></HTML>
