@@ -63,24 +63,27 @@
     cut <- ""
   }
 
-  ## change to the template directory to make relative paths work
-  currentwd <- getwd()
-  ## this is a simple test to see whether template is a
-  ## filename or just a database name
-  if ( dirname(template) != "." ) {
-    setwd(dirname(template))
-  } else {
-    setwd(dirname(emu.options("bindir")))
+  if (is.R()) {
+    ## change to the template directory to make relative paths work
+    currentwd <- getwd()
+    ## this is a simple test to see whether template is a
+    ## filename or just a database name
+    if ( dirname(template) != "." ) {
+      setwd(dirname(template))
+    } else {
+      setwd(dirname(emu.options("bindir")))
+    }
   }
-  
   command <- emu.command.name( emu.options("gettrack"),
                               cut,
                               segfile, trackname, resultfile )
 
   opstat <- emu.system( command )
 
-  ## return to the original wd
-  setwd(currentwd)
+  if (is.R()) {
+    ## return to the original wd
+    setwd(currentwd)
+  }
 
   if (!file.exists(resultfile) ) {
     ## give a suitable error message
@@ -198,19 +201,22 @@ read.trackdata <- function( filename, trackname="data" ) {
                               emu.inquotes( pattern ),
                               emu.inquotes( query ) )
 
-  ## change to the template directory to make relative paths work
-  currentwd <- getwd()
-  ## this is a simple test to see whether template is a
-  ## filename or just a database name
-  if ( dirname(template) != "." ) {
-    setwd(dirname(template))
-  } else {
-    setwd(dirname(emu.options("bindir")))
+  if (is.R()) {
+    ## change to the template directory to make relative paths work
+    currentwd <- getwd()
+    ## this is a simple test to see whether template is a
+    ## filename or just a database name
+    if ( dirname(template) != "." ) {
+      setwd(dirname(template))
+    } else {
+      setwd(dirname(emu.options("bindir")))
+    }
   }
-
-  emu.system( command )
-
-  setwd(currentwd)
+    emu.system( command )
+    
+  if (is.R()) {
+    setwd(currentwd)
+  }
 
   if (!file.exists(segfile) ) {
     ## give a suitable error message
@@ -247,20 +253,31 @@ read.trackdata <- function( filename, trackname="data" ) {
   command <- emu.command.name( "emurequery", "-o", resultfile, options,
                               segfile, level, targetlevel )
 
-  ## change to the template directory to make relative paths work
-  currentwd <- getwd()
-  ## this is a simple test to see whether template is a
-  ## filename or just a database name
-  if ( dirname(template) != "." ) {
-    setwd(dirname(template))
-  } else {
-    setwd(dirname(emu.options("bindir")))
+  if (is.R()) {
+    template <- emusegs.database(segs)
+    ## change to the template directory to make relative paths work
+    currentwd <- getwd()
+    ## this is a simple test to see whether template is a
+    ## filename or just a database name
+    if ( dirname(template) != "." ) {
+      setwd(dirname(template))
+    } else {
+      setwd(dirname(emu.options("bindir")))
+    }
   }
-
+  
   emu.system( command )
   
-  setwd(currentwd)
+  if (is.R()) {
+    setwd(currentwd)
+  }
 
+    if (!file.exists(resultfile) ) {
+    ## give a suitable error message
+    stop(paste("Can't find the requery results in emu.requery: there may have been a problem with the query command.", sep=""))
+  } 
+
+  
   if (justlabels) 
     result <- scan( resultfile, what="" )
   else {

@@ -24,17 +24,19 @@
 "confusion"<- function(labx, laby, perc = F)
 {
 	mat <- NULL
-	px <- sort(unique(labx))
-	py <- sort(unique(laby))
-	numx <- match(labx, px)
-	numy <- match(laby, py)
-	mat <- matrix(0, length(px), length(py))
+        ## find labels for both axes
+        labels <- sort(unique(c(labx,laby)))
+
+	numx <- match(labx, labels)
+	numy <- match(laby, labels)
+
+	mat <- matrix(0, length(labels), length(labels))
 
 	for(j in 1:length(labx)) {
 	  mat[numx[j], numy[j]] <- mat[numx[j], numy[j]] + 1
 	}
 
-	dimnames(mat) <- list(px, py)
+	dimnames(mat) <- list(labels, labels)
 	if(perc) mat <- percent(mat)
 	mat
 }
@@ -44,7 +46,12 @@
   total <- percent.sub(data)
   mat <- NULL
   for(j in 1:nrow(data)) {
-    temp1 <- round(data[j,  ]/total[j] * 100, dig = 1)
+    # avoid dividing by zero
+    if (total[j] != 0) {
+      temp1 <- round(data[j,  ]/total[j] * 100, dig = 1)
+    } else {
+      temp1 <- data[j,]
+    }
     mat <- rbind(mat, temp1)
   }
   dimnames(mat) <- list(dimnames(data)[[1]], dimnames(data)[[2]])

@@ -5,9 +5,10 @@
 \title{
 Extract times and durations from an Emu segment list
 }
-\usage{mustart(segs)}
-\usage{muend(segs)}
-\usage{mudur(segs)}
+\usage{
+mustart(segs)
+muend(segs)}
+mudur(segs)}
 
 \arguments{
   \item{segs}{An Emu segment list.}
