@@ -1,5 +1,5 @@
 
-VERSION = 1.6
+VERSION = 1.7
 
 ## Splus source files, note that options.S MUST come first as it has the 
 ## configurable settings in it. 

@@ -12,7 +12,8 @@ train(x, lab)
 A data vector or matrix.
 }
 \item{lab}{
-A vector of labels parallel to \code{x}. 
+A vector of labels parallel to \code{x}. If missing, all data is
+assumed to be from the same class.
 }}
 \value{
 A structure with the following components: 

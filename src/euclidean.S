@@ -12,6 +12,8 @@
 #############################################################################
 
 
+library(mva)
+
 "euclidean"<- function(data, m = 1, n = ncol(data))
 {
   ## returns  a vector of Euclidean distances between adjacent

@@ -69,6 +69,8 @@
     invcov <- train$invcov[tmp:tmp1,  ]
     if ( metric == "bayes" ) {
       probs[, lab] <- bayesian.metric(data, train$means[lab,  ], cov, invcov)
+    } else if ( metric == "euclidean" ) {
+      probs[, lab] <- euclidean.metric(data, train$means[lab,  ])
     } else if ( metric == "mahal" ) {
       probs[, lab] <- mahalanobis.metric(data, train$means[lab,  ], invcov)
     }            
@@ -76,6 +78,12 @@
   dimnames(probs) <- list(labels, train$label)
   probs
 }
+
+"euclidean.metric" <- function( data, mean )
+{
+  return 
+}
+
 
 "bayesian.metric" <- 
   function( data, mean, cov, invcov )
@@ -151,7 +159,7 @@ bayesplot <- function(data, train, N = 10, ellipse = F,
   }
 }
 
-"train"<- function(x, lab)
+"train"<- function(x, lab=rep("x",nrow(x)))
 {
   mat <- NULL
   if(is.matrix(x)){

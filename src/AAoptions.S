@@ -62,7 +62,7 @@ if (emu.platform("Windows")) {
 
 
 ## this will get changed by the Makefile
-emu.version<-"1.6"
+emu.version<-"1.7"
 
 "emu.init" <- function() {
 
@@ -149,6 +149,8 @@ the variable 'version'.")
   if( is.R() ) {
     ## eda is needed for smooth, used in dsmooth
     library("eda")
+    ## mva is needed by euclidean
+    library("mva")
   }
 
   invisible()
