@@ -1,8 +1,6 @@
-\" -*-nroff-*-
 \name{dextract.lab}
-\alias{dextract.lab}
 \title{
-Extract data from a trackdata
+Extract a subset of data from a trackdata object
 }
 \usage{
 dextract.lab(trackdata, labs, labtype=unique(labs))
@@ -38,7 +36,14 @@ track, dextract, get.time.element, frames.time
 }
 \examples{
 # extract only the data for i: and I vowels
-i.data _ dextract.lab(voweldata, vowellabs, c("i:", "I"))
+library(emu)
+# get some vowel segments and the corresponding formant data
+vsegs <- emu.query("demo", "*", "Phonetic=vowel")
+vdata <- emu.track(vsegs, "fm")
+# extract just the data for the e: and E vowels
+i.data <- dextract.lab(vdata, label(vsegs), c("e:", "E"))
+# generate a plot of the data
+dplot(i.data, main="e: and E vowels", average=T, normalise=T)
 }
 \keyword{mu}
 % Converted by Sd2Rd version 0.3-3.

@@ -1,12 +1,11 @@
 \name{Slope.test}
-\alias{Slope.test}
 \title{Slope Test}
 \description{
 Tests whether the difference between two or more regression lines is
 significant 
 }
 \usage{
-slope.test(\dots)
+Slope.test(\dots)
 }
 \arguments{
 \item{...}{

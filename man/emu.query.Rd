@@ -36,7 +36,7 @@ speech data corresponding to each token.
   your computer. See the Emu web site for details.  }
 
 \seealso{ \code{\link{emu.track}}, \code{\link{mudur}},
-  \code{\link{mustart}, \code{\link{muend}}, \code{\link{uttplot}}}
+  \code{\link{mustart}}, \code{\link{muend}}, \code{\link{uttplot}}}
 
 \examples{
 

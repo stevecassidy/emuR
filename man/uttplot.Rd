@@ -85,6 +85,7 @@ these labels given the segment list \code{segs}.
 \item{label}{
   If TRUE, labels can be added to the plot interactively. 
 }
+}
 
 \section{Side Effects}{
 A plot of the requested parameter track is generated.  Segment

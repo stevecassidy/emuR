@@ -1,5 +1,5 @@
 
-VERSION = 1.5.1
+VERSION = 1.5.2
 
 ## Splus source files, note that options.S MUST come first as it has the 
 ## configurable settings in it. 
@@ -39,6 +39,7 @@ R: $(SFILES)  emu/INDEX description version-info
 	rm -f emu/R/* emu/man/*
 	cp $(SFILES) emu/R/
 	cp man/*.Rd emu/man
+#	R CMD check emu
 	R CMD build --binary emu
 	tar xzf emu_$(VERSION)*.tar.gz
 	zip -r emu_R_$(VERSION).zip emu

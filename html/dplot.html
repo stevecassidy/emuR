@@ -18,7 +18,7 @@ normalised or averaged.
 <h3>Usage</h3>
 
 <pre>
-function(dataset, labs = NULL, offset = 0, ref.time = NULL,
+dplot(dataset, labs = NULL, offset = 0, ref.time = NULL,
          average = F, main = "", xlab = "time (ms)", ylab = "",
          xlim = NULL, ylim = NULL, cex = 0.5, linetype = F,
          normalise = F, colour = T, legn = "tl", axes = T, 
@@ -138,6 +138,7 @@ See the Emu documentation at:
 ## assumes a database called demo is available on your system and that
 ## the Emu system is installed. 
 
+library(emu)
 # find all Phonetic vowels in the database
 segs &lt;- emu.query("demo", "*", "Phonetic=A|E|I|O|U|V")
 
@@ -147,5 +148,9 @@ data.all &lt;- emu.track( segs, "fm" )
 dplot( data.all, label(segs), offset=0.5, normalise=T, main="Formant data for vowels")
 
 </pre>
+
+
+
+<hr><div align="center"><a href="00Index.html">[Package Contents]</a></div>
 
 </body></html>

@@ -17,13 +17,18 @@
 ## "C:\\My Programs\\Emu" (note that you must always double the slashes
 ## for Splus).
 
+
+
 if (version$platform == "Windows" ||
-    version$platform == "WIN386" ||
+    version$platform == "WIN386"  ||
+    version$os == "mingw32"       ||
     version$os == "Win32") {
 
-  ## change this value for windows
   emu.directory <- "C:\\Program Files\\Emu"
 
+} else if ( version$os == "MacOS" ) {
+  ## macos can't exec so it doesn't really matter
+  emu.directory <- ""
 } else {
 
   ## change this value for unix
@@ -51,9 +56,9 @@ emu.version<-"1.5.1"
     dirsep <- "/"
     gettrack <- "gettrack"
   } else {
-    stop("Panic! I can't work out what platform I'm running on!
-Please report this as  a bug at http://sf.net/projects/emu including
-details of the operating system you are running on and the value of
+    stop("Panic! I can't work out what platform I'm running on!\
+Please report this as  a bug at http://sf.net/projects/emu including\
+details of the operating system you are running on and the value of\
 the variable 'version'.")
   }
 

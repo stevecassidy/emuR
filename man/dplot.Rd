@@ -7,7 +7,7 @@
 	normalised or averaged.  
 }
 \usage{
-function(dataset, labs = NULL, offset = 0, ref.time = NULL,
+dplot(dataset, labs = NULL, offset = 0, ref.time = NULL,
          average = F, main = "", xlab = "time (ms)", ylab = "",
          xlim = NULL, ylim = NULL, cex = 0.5, linetype = F,
          normalise = F, colour = T, legn = "tl", axes = T, 
@@ -71,6 +71,7 @@ function(dataset, labs = NULL, offset = 0, ref.time = NULL,
 ## assumes a database called demo is available on your system and that
 ## the Emu system is installed. 
 
+library(emu)
 # find all Phonetic vowels in the database
 segs <- emu.query("demo", "*", "Phonetic=A|E|I|O|U|V")
 

@@ -33,30 +33,37 @@
   t4 <- "separator ;"
   t5 <- "nfields 1"
   t6 <- "#"
-  template <- rbind(t1, t2, t3, t4, t5, t6)
+  header <- rbind(t1, t2, t3, t4, t5, t6)
   utts <- utt(segs)
-  for(j in unique(utts)) {
-    temp <- utts == j
-    xsegs <- segs[temp,  ]
-    if(is.matrix(xsegs))
-      xsegs <- xsegs[sort.list(as.numeric(xsegs[, 1])),  ]
-    xlabs <- label(xsegs)
-    initlab <- "H#"
-    inittime <- as.numeric(xsegs[1])/1000
-    initval <- cbind(format(round(inittime, 6)), 125, initlab)
+
+  for(utt in unique(utts)) {
+
+    temp <- utts == utt
+    utt.segs <- segs[temp,  ]
+    
+    ## sort the segments on their start times
+    if(is.matrix(utt.segs))
+      utt.segs <- utt.segs[sort.list(as.numeric(mustart(utt.segs))),  ]
+
+    ## work out where to write this utterance
+    ## this should involve asking Emu where files
+    ## with this extension should live
     if(!is.null(dir)) {
-      uttnum <- splitstring(j,"/")
-      uttnum <- uttnum[length(uttnum)]
-      uttid <- paste(dir, "/", uttnum, extn, sep = "")
+      filename <- paste(dir, "/", utt, extn, sep = "")
+    } else {
+      filename <- paste(utt, extn, sep = "")
     }
-    else 
-      uttid <- paste(j, extn, sep = "")
-    times <- muend(xsegs)/1000
-    colcode <- rep(125, length(xlabs))
-    mat <- cbind(format(round(times, 6)), colcode, xlabs)
-    mat <- rbind(initval, mat)
-    write(t(template), uttid)
-    write(t(mat), uttid, 3, append = T)
+    
+    utt.labs <- c("H#", label(utt.segs))
+    times <- c(mustart(utt.segs)[1], muend(utt.segs))/1000
+    colcode <- rep(125, length(utt.labs))
+
+    mat <- cbind(format(round(times, 6)), colcode, utt.labs)
+
+    cat("Writing to ", filename, "\n" )
+
+    write(t(header), filename)
+    write(t(mat), filename, 3, append = T)
   }
 }
 

@@ -17,7 +17,7 @@ time-series data from the database.
 <h3>Usage</h3>
 
 <pre>
-emu.track(seglist, trackname, cut=NULL, template=attr(seglist, "database"))
+emu.track(seglist, trackname, cut=NULL, npoints=NULL, template=attr(seglist, "database"))
 </pre>
 
 
@@ -36,6 +36,12 @@ string. This must be a track name defined in the database template. </td></tr>
 An optional cut time for segment data, ranges between 0
 and 1, a value of 0.5 will extract data only at the segment
 midpoint. </td></tr>
+<tr valign="top"><td><code>npoints</code></td>
+<td>
+An optional number of points to retrieve for each
+segment or event. For segments this requires a cut= argument and
+data is extracted around the cut time. For events data is extracted
+around the event time.</td></tr>
 <tr valign="top"><td><code>template</code></td>
 <td>
 The database to retrieve the data from, this should
@@ -77,7 +83,12 @@ track. This array can be treated like any other array in Splus.
 If the input segment list is in fact an event list (ie. is
 derived from an annotation level defined as events in the database
 template) then the result of <code>emu.track</code> is the
-same as if the cut argument was specified.</p>
+same as if the cut argument was specified.
+<br>
+If the <code>npoints</code> argument is specified, it defines the number of
+points that will be returned for each segment or event.  The
+<code>cut</code> argument is required if the input is a segment list (as
+opposed to an event list).</p>
 
 <h3>Note</h3>
 
@@ -127,5 +138,9 @@ data.all &lt;- emu.track( segs, "fm" )
 summary(data.all)
 
 </pre>
+
+
+
+<hr><div align="center"><a href="00Index.html">[Package Contents]</a></div>
 
 </body></html>

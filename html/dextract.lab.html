@@ -1,9 +1,9 @@
-<html><head><title>R: Extract data from a trackdata</title>
+<html><head><title>R: Extract a subset of data from a trackdata object</title>
 <link rel="stylesheet" type="text/css" href="../../R.css">
 </head><body>
 
 
-<h2>Extract data from a trackdata</h2>
+<h2>Extract a subset of data from a trackdata object</h2>
 
 
 <h3>Usage</h3>
@@ -65,7 +65,18 @@ track, dextract, get.time.element, frames.time
 
 <pre>
 # extract only the data for i: and I vowels
-i.data _ dextract.lab(voweldata, vowellabs, c("i:", "I"))
+library(emu)
+# get some vowel segments and the corresponding formant data
+vsegs &lt;- emu.query("demo", "*", "Phonetic=vowel")
+vdata &lt;- emu.track(vsegs, "fm")
+# extract just the data for the e: and E vowels
+i.data &lt;- dextract.lab(vdata, label(vsegs), c("e:", "E"))
+# generate a plot of the data
+dplot(i.data, main="e: and E vowels", average=T, normalise=T)
 </pre>
+
+
+
+<hr><div align="center"><a href="00Index.html">[Package Contents]</a></div>
 
 </body></html>
