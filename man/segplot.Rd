@@ -3,6 +3,10 @@
 \title{
 Segment plot
 }
+\description{
+Generate a plot of a track for each segment in a segment list,
+multiple plots are  arranged on a page  in a grid.
+}
 \usage{
 segplot(segs, param, labels, ylim, ylab = "", main = "", zeros = F, 
 	 pdat = 0.5, onset = 0, offset = 0, col = T, linetype = F
@@ -82,10 +86,10 @@ segplot(segs, param, labels, ylim, ylab = "", main = "", zeros = F,
 ## the Emu system is installed. 
 
 # find all Phonetic vowels in the database
-segs <- emu.query("demo", "*", "Phonetic=E")
+#segs <- emu.query("demo", "*", "Phonetic=E")
 
-segplot( segs[1:10,], "F0" )
+#segplot( segs[1:10,], "F0" )
 
 }
-\keyword{emu}
+\keyword{misc}
 

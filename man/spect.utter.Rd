@@ -67,5 +67,5 @@ nplot(result$secondary, labs)
 
 }
 
-\keyword{spectral tilt}
-\keyword{emu}
+\keyword{misc}
+

@@ -23,5 +23,5 @@ for input to \code{gettrack} or other Emu utility programs.
 \seealso{
   \code{\link{emu.query}}
 }
-\keyword{emu segment list}
+\keyword{misc}
 

@@ -1,57 +1,51 @@
 \name{dextract}
 \alias{dextract}
-%- Also NEED an `\alias' for EACH other topic documented here.
-\title{ ~~function to do ... ~~}
-\description{
- ~~ A concise (1-5 lines) description of what the function does. ~~
-}
+\title{  }
+
+\description{ A function that cuts up trackdata either at a proportional
+ time or proportionally between two times. It is a subsidiary function
+ of dplot() }
+
 \usage{
 dextract(dataset, start, end)
 }
-%- maybe also `usage' for other objects documented here.
+
 \arguments{
- \item{dataset}{ ~~Describe \code{dataset} here~~ }
- \item{start}{ ~~Describe \code{start} here~~ }
- \item{end}{ ~~Describe \code{end} here~~ }
-}
-\details{
- ~~ If necessary, more details than the __description__  above ~~
+ \item{dataset}{A trackdata object}
+
+ \item{start}{ A single valued numeric vector corresponding to a
+ proportional time between zero (the onset of the trackdata) and one
+ (the offset of the trackdata).}
+
+ \item{end}{ As start, but optional}
 }
 \value{
-  ~Describe the value returned
-  If it is a LIST, use
-  \item{comp1 }{Description of `comp1'}
-  \item{comp2 }{Description of `comp2'}
+  If both start and end are specified, a trackdata object
+is returned, otherwise a vector if the original trackdata
+is one-dimensional and the end argument
+is not used, or a matrix if the original trackdata
+has more than one dimension and the end argument is not used}
   ...
 }
-\references{ ~put references to the literature/web site here ~ }
-\author{ ~~who you are~~ }
-\note{ ~~further notes~~ }
+\author{ Jonathan Harrington}
 
- ~Make other sections like WARNING with \section{WARNING }{....} ~
-
-\seealso{ ~~objects to SEE ALSO as \code{\link{~~fun~~}}, ~~~ }
+\seealso{\code{dcut}}
 
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	     or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-function (dataset, start, end) 
-{
-    if (missing(end)) {
-        leftin <- dataset$index[, 1]
-        rightin <- dataset$index[, 2]
-        scalein <- round((rightin - leftin) * start)
-        outin <- leftin + scalein
-        if (is.matrix(dataset$data)) 
-            return(dataset$data[outin, ])
-        else return(dataset$data[outin])
-    }
-    else {
-        dapply(dataset, dextract.sub, start, end)
-    }
-  }
-}
+library(emu)
+# find all Phonetic vowels in the database
+segs = emu.query("demo", "*", "Phonetic=A|E|I|O|U|V")
+# get the formants
+form = emu.track(segs, "fm")
+# get the formants at the midpoint: f50 is a matrix
+# same as dcut(form, .5, prop=T)
+f50 = dextract(form, 0.5)
+# get the formants between the 25% and 75% time points
+# fcut is a trackdata object
+# same as dcut(form, .25, .75, prop=T)
+fcut = dextract(form, 0.25, 0.75)
+# get  F0 at the midpoint. fzero50 is a vector
+# same as dcut(fzero, .5, prop=T)
+fzero = emu.track(segs, "F0")
+fzero50 = dextract(fzero, 0.5)
 \keyword{ ~keyword }%-- one or more ...

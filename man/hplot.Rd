@@ -50,5 +50,5 @@ Generates  multiple  overlaid histograms, one for each unique label in
 \seealso{
 nplot, eplot
 }
-\keyword{mu}
+\keyword{misc}
 % Converted by Sd2Rd version 0.3-3.

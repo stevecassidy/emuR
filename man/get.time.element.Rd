@@ -43,5 +43,5 @@ E "13155.2" "13240.4" "/home/dbase/dbase1/msadb001"
 > get.time.element(13197.8, data )
 [1] 47
 }
-\keyword{mu}
+\keyword{misc}
 % Converted by Sd2Rd version 0.3-3.

@@ -28,5 +28,5 @@ steady
 > euclidean(cbind(c(1,2,3,4), c(2,3,2,2)))
 [1] 1.414214 1.414214 1.000000
 }
-\keyword{mu}
+\keyword{misc}
 % Converted by Sd2Rd version 0.3-3.

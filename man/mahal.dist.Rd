@@ -29,5 +29,5 @@ the closest centroid to each data point.
 \seealso{
 train, mahal, bayes.lab, bayes.dist
 }
-\keyword{mu}
+\keyword{misc}
 % Converted by Sd2Rd version 0.3-3.

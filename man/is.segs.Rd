@@ -16,5 +16,5 @@ TRUE if \code{x} is a Emu segment list.
 \seealso{
 as.segs
 }
-\keyword{emu}
+\keyword{misc}
 

@@ -25,5 +25,5 @@ match
 muclass(c("a", "b", "c"), c("a", "c"))
 [1] T F T
 }
-\keyword{mu}
+\keyword{misc}
 % Converted by Sd2Rd version 0.3-3.

@@ -3,6 +3,10 @@
 \title{
 Extract a subset of data from a trackdata object
 }
+\description{
+Extract a subset of data from a trackdata object according to the 
+label in the parallel label vector.
+}
 \usage{
 dextract.lab(trackdata, labs, labtype=unique(labs))
 }
@@ -36,15 +40,9 @@ A two column matrix giving the start and end times for each segment.
 track, dextract, get.time.element, frames.time
 }
 \examples{
-# extract only the data for i: and I vowels
-library(emu)
-# get some vowel segments and the corresponding formant data
-vsegs <- emu.query("demo", "*", "Phonetic=vowel")
-vdata <- emu.track(vsegs, "fm")
-# extract just the data for the e: and E vowels
-i.data <- dextract.lab(vdata, label(vsegs), c("e:", "E"))
-# generate a plot of the data
-dplot(i.data, main="e: and E vowels", average=T, normalise=T)
+data(emu.voweldata)
+# get just the data for the e: and E vowels
+eE.data <- dextract.lab(vdata, label(vsegs), c("e:", "E"))
 }
-\keyword{mu}
-% Converted by Sd2Rd version 0.3-3.
+\keyword{misc}
+

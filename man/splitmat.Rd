@@ -41,5 +41,5 @@ splitmat(segs, label(segs), "segs", labelfile=T)
 # create two data matrices for each label type
 splitmat(data, label(segs), "data", labelfile=T)
 }
-\keyword{emu}
+\keyword{misc}
 

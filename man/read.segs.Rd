@@ -42,4 +42,4 @@ segs <- read.segs("seglist.txt")
 unlink("seglist.txt")
 
 }
-\keyword{ emu }
+\keyword{misc}

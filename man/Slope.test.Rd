@@ -52,7 +52,7 @@ p.436-450, 496-507.
 \seealso{
 lm(), summary.lm(), pf()
 }
-\keyword{~keyword}
+\keyword{misc}
 % Converted by Sd2Rd version 0.3-3.
 
 

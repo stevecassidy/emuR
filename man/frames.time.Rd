@@ -27,5 +27,5 @@ particular row of \code{$data} corresponds to.
 \seealso{
 track, frames
 }
-\keyword{mu}
+\keyword{misc}
 % Converted by Sd2Rd version 0.3-3.

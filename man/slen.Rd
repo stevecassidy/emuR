@@ -15,5 +15,5 @@ The number of segments in that segment list.
 \seealso{
 \code{\link{emu.query}}
 }
-\keyword{emu segment list}
+\keyword{misc}
 

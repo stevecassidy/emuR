@@ -37,5 +37,5 @@ durations <- mudur( segs )
 hplot( durations, label(segs )
 
 }
-\keyword{emu segments}
+\keyword{misc}
 

@@ -31,5 +31,5 @@ segs <- emu.query("demo",  "*", "Phonetic=vowel")
 fm <- emu.track(segs, "fm")
 dcs <- applyDCT(fm, 3, 1)
 }
-\keyword{ ~kwd1 }% at least one, from doc/KEYWORDS
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{misc}% at least one, from doc/KEYWORDS
+\keyword{misc}% __ONLY ONE__ keyword per line

@@ -44,5 +44,5 @@ by the formant range.
 \seealso{
 track
 }
-\keyword{mu}
+\keyword{misc}
 % Converted by Sd2Rd version 0.3-3.

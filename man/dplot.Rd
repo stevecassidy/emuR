@@ -81,4 +81,4 @@ data.all <- emu.track( segs, "fm" )
 dplot( data.all, label(segs), offset=0.5, normalise=T, main="Formant data for vowels")
 
 }
-\keyword{ emu plot trackdata }
+\keyword{misc}

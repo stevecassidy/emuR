@@ -50,4 +50,4 @@ newsegs <-  modify.seglist( segs, database="notdemo" )
 
 }
 
-\keyword{ emu }
+\keyword{misc}

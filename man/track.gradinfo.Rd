@@ -64,6 +64,6 @@ text(info.fm$duration, info.fm$delta1, labels=label(segs))
 ## You need to eyeball the data to work out which columns to select
 delta.fm <- info.fm[,10:13]
 }
-\keyword{ emu }
+\keyword{misc}
 
 

@@ -1,3 +1,4 @@
+R = /Applications/StartR.app/RAqua.app/Contents/bin/R
 
 VERSION = 1.7
 
@@ -32,15 +33,26 @@ Sbin: Ssource version-info
 	rm -rf .Data/*
 	Splus < Ssource
 
-R: $(SFILES)  emu/INDEX description version-info 
-	rm -f emu_$(VERSION)*.tar.gz	
+emudir:  version-info 
+	rm -rf emu
+	mkdir  emu
+	sed -e 's/Version: [0-9.]*/Version: $(VERSION)/' DESCRIPTION > emu/DESCRIPTION
 	mkdir -p emu/R
 	mkdir -p emu/man 
+	mkdir -p emu/data
 	rm -f emu/R/* emu/man/*
 	cp $(SFILES) emu/R/
 	cp man/*.Rd emu/man
-#	R CMD check emu
-	R CMD build emu
+	cp  data/* emu/data
+
+check:	emudir
+	$(R) CMD check emu
+
+R: $(SFILES) emudir 
+	$(R) CMD build emu
+
+
+blah:
 	tar xzf emu_$(VERSION)*.tar.gz
 	zip -r emu_$(VERSION).zip emu
 	tar czf emu_$(VERSION).tar.gz emu
@@ -49,17 +61,15 @@ version-info:
 	sed -e 's/\(emu\.version<-\)"[0-9.]*"/\1"$(VERSION)"/' src/AAoptions.S > tmp
 	mv tmp src/AAoptions.S
 
-description:
-	sed -e 's/Version: [0-9.]*/Version: $(VERSION)/' DESCRIPTION > emu/DESCRIPTION
 
 
-emu/INDEX: $(RDFILES)
-	mkdir -p emu
-	rm -f emu/INDEX
-	R CMD Rdindex $(RDFILES) > emu/INDEX
+# emu/INDEX: $(RDFILES)
+# 	mkdir -p emu
+# 	rm -f emu/INDEX
+# 	$(R) CMD Rdindex $(RDFILES) > emu/INDEX
 
 emu-R.pdf: $(RDFILES)
-	R CMD Rd2dvi --pdf --title="Emu/R Documentation" --output=emu-R.pdf  $(RDFILES)
+	$(R) CMD Rd2dvi --pdf --title="Emu/R Documentation" --output=emu-R.pdf  $(RDFILES)
 
 ## make standalone html help for distribution with Splus, these files
 ## really need fixing up a bit so that links work properly
@@ -75,13 +85,13 @@ html-help: $(RDFILES)
 	echo "<table width=90%>" >> html/index.html
 	for f in $(RDFILES); do \
 	  echo $$f; \
-	  R CMD Rdconv --type=html $$f | sed -e 's/..\/..\/R.css/style.css/' | sed -e 's/00Index.html/index.html/' > html/`basename $$f | sed -e 's/Rd//'`html;\
-	  R CMD Rdindex -r 300 $$f | sed -e "s/\([a-zA-Z.-]*\)\(.*\)/<tr><td><a href=`basename $$f | sed -e 's/Rd//'`html>\1<\/a><\/td><td>\2<\/td><\/tr>/" >> html/index.html; \
+	  $(R) CMD Rdconv --type=html $$f | sed -e 's/..\/..\/R.css/style.css/' | sed -e 's/00Index.html/index.html/' > html/`basename $$f | sed -e 's/Rd//'`html;\
+	  $(R) CMD Rdindex -r 300 $$f | sed -e "s/\([a-zA-Z.-]*\)\(.*\)/<tr><td><a href=`basename $$f | sed -e 's/Rd//'`html>\1<\/a><\/td><td>\2<\/td><\/tr>/" >> html/index.html; \
 	done;
 	echo "</table>" >> html/index.html
 	echo "<p>The following functions are not yet documented:</p>" >> html/index.html
 	echo "<p>" >> html/index.html
-	 R CMD Rdindex man/*.Rdx | sed -e 's/~~.*~~/ /'  >> html/index.html
+	$(R) CMD Rdindex man/*.Rdx | sed -e 's/~~.*~~/ /'  >> html/index.html
 	echo "</p>" >> html/index.html
 	cat index.html.tail >> html/index.html
 	for f in html/*.html; do\

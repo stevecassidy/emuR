@@ -1,6 +1,5 @@
 \name{confusion}
 \alias{confusion}
-%- Also NEED an `\alias' for EACH other topic documented here.
 \title{ Calculate a confusion matrix }
 \description{
   Given two vectors of labels, one reference vector and one
@@ -36,4 +35,4 @@ confusion(a,b)
 confusion(a,b,perc=T)
 
 }
-\keyword{ emu }%-- one or more ...
+\keyword{misc}

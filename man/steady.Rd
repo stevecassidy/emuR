@@ -104,5 +104,5 @@ meanvals 465.2812 1704.117 2396.117
 
 
 }
-\keyword{mu}
+\keyword{misc}
 % Converted by Sd2Rd version 0.3-3.

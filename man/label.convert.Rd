@@ -48,5 +48,5 @@ newsegs <- label.convert(segs, c("A", "E", "I"), c("a", "e", "i"))
 ## any character followed by a colon with "long"
 sub(".:", "long", label(segs) )
 
-\keyword{emu}
+\keyword{misc}
 

@@ -31,5 +31,5 @@ where Hz is the frequency in Hz.
 \seealso{
 bark
 }
-\keyword{mu}
+\keyword{misc}
 % Converted by Sd2Rd version 0.3-3.

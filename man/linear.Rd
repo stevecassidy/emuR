@@ -24,5 +24,5 @@ The data for each segment is normaised using the \code{approx} function.
 \seealso{
 approx
 }
-\keyword{mu}
+\keyword{misc}
 % Converted by Sd2Rd version 0.3-3.

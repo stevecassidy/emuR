@@ -53,5 +53,5 @@ eplot( data[,1:2], label( segs ), dopoints=T )
 
 
 }
-\keyword{ emu database query }
+\keyword{misc}
 

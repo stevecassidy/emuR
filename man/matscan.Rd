@@ -34,5 +34,5 @@ for reading data into Splus matrix objects.
 \seealso{
 read.table
 }
-\keyword{mu}
+\keyword{misc}
 % Converted by Sd2Rd version 0.3-3.

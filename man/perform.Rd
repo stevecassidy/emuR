@@ -17,5 +17,5 @@ percentage of correct, and incorrect matches.
 \seealso{
 confusion
 }
-\keyword{mu}
+\keyword{misc}
 % Converted by Sd2Rd version 0.3-3.

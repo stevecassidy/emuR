@@ -56,4 +56,4 @@ DCT(DCT(1:10,F),T)
 DCT(1:10,F)
 
 }
-\keyword{ ts }% at least one, from doc/KEYWORDS
+\keyword{misc}% at least one, from doc/KEYWORDS

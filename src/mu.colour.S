@@ -43,12 +43,12 @@
     if(length(col)!=length(labs)) 
       stop("length of colour vector differs from that of labels")
   } else if(!is.logical(col)){
-    col <- codes(as.factor(col))
+    col <- 1:length(unique(col))
     if(length(col)!=length(labs)) 
       stop("length of colour vector differs from that of labels")
   } else {
     if(col)
-      col <- codes(as.factor(labs))
+      col <- 1:length(unique(labs))
     else col <- rep(defaultcolour, len)
   }
 
@@ -56,14 +56,14 @@
     if( length(linetype) == 1)
       linetype <- rep(linetype, len)
     else
-      linetype <- codes(as.factor(linetype))
+      linetype <- 1:length(unique(linetype))
     
     if(length(linetype)!=length(labs)) 
       stop("length of linetype vector differs from that of labels")
   }
   else {
     if(linetype)
-      linetype <- codes(as.factor(labs))
+      linetype <- 1:length(unique(labs))
     else 
       linetype <- rep(1, len)
   }

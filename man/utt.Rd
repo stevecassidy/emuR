@@ -16,5 +16,5 @@ A vector of the utterance names for each segment.
 \seealso{
 mustart, muend, mudur, label
 }
-\keyword{mu}
+\keyword{misc}
 % Converted by Sd2Rd version 0.3-3.

@@ -46,5 +46,5 @@ unique label in labs.
 \seealso{
 mahal, bayes.lab, mahalplot, bayes.plot
 }
-\keyword{mu}
+\keyword{misc}
 % Converted by Sd2Rd version 0.3-3.

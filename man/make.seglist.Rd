@@ -64,5 +64,5 @@ emusegs.query(segs) == "Fake Query"
 mudur(segs) == c(1,1,1)
 
 }
-\keyword{ emu }
+\keyword{misc}
 

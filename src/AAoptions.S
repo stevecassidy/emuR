@@ -21,7 +21,9 @@ emu.platform <- function(what) {
        version$os == "Win32" ||
        version$os == "mingw32") {
       return(what == "Windows")
-    } else if ( version$os == "MacOS" ) {
+    } else if (
+	version$os == "MacOS" ||
+	substr(version$os,0,6) == "darwin" ) {
       return(what == "MacOS")
     } else {
       return(what == "Unix")
@@ -46,7 +48,7 @@ if (emu.platform("Windows")) {
 
   emu.directory <- "C:\\Program Files\\Emu"
 
-} else if ( version$os == "MacOS" ) {
+} else if ( emu.platform("MacOS") ) {
   ## macos can't exec so it doesn't really matter
   emu.directory <- ""
 } else {
@@ -66,15 +68,20 @@ emu.version<-"1.7"
 
 "emu.init" <- function() {
 
+  cat("emu.init thinks that emu.directory is ", emu.directory, "\n")
+	
   if (emu.platform("MacOS")) {
     dirsep <- ":"
     gettrack <- ""
+    cat("MacOS\n")
   } else if (emu.platform("Windows")) {
     dirsep <- "\\"
     gettrack <- "gettrack.exe"
+    cat("Windows\n")
   } else if (emu.platform("Unix")) {
     dirsep <- "/"
     gettrack <- "gettrack"
+    cat("Unix\n")
   } else {
     stop("Panic! I can't work out what platform I'm running on!\
 Please report this as  a bug at http://sf.net/projects/emu including\

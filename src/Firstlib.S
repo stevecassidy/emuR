@@ -18,16 +18,18 @@
   ## setup defaults 
   emu.init()
 
-  cat("\nEMU Speech Database system \n",
-      "Version ", emu.options("version"),
-      "(C) SHLRC, Macquarie University, 1998\n\n")
+  if (interactive()) {
+     cat("\nEMU Speech Database system \n",
+         "Version ", emu.options("version"),
+         "(C) SHLRC, Macquarie University, 1998\n\n")
+  }
   
   ## call user's .First.emu if present
 
   if( exists(".First.emu") )
     do.call(".First.emu", list(paste(thisdir, sectname, sep="/")))
   
-  invisible()
+  invisible(TRUE)
 }
 
 

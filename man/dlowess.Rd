@@ -46,5 +46,4 @@ dplot(foo.track[1:10,])
 dplot(dfoo.track[1:10,])
 }
 
-\keyword{ lowess }
-\keyword{ smooth }
+\keyword{misc}

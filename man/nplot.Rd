@@ -54,6 +54,6 @@ for each data set is then plotted.
 \seealso{
 hplot, dnorm
 }
-\keyword{mu}
-\keyword{plot}
+\keyword{misc}
+\keyword{misc}
 % Converted by Sd2Rd version 0.3-3.

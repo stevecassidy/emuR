@@ -24,5 +24,5 @@ A vector of strings.  The original \code{str} is split at ever occurrence of
 > splitstring("/home/recog/steve/foo", "/")
 [1] "home" "recog" "steve" "foo"
 }
-\keyword{mu}
+\keyword{misc}
 % Converted by Sd2Rd version 0.3-3.

@@ -101,4 +101,4 @@ prelabs <- emu.requery(segs, level="Phonetic", sequence=-1, justlabels=T)
 
 
 }
-\keyword{ emu }
+\keyword{misc}

@@ -35,4 +35,4 @@ segs <- emu.query("demo", "*", "Phonetic=vowel")
 rsegs <- randomise.segs( segs )
 
 }
-\keyword{emu segment list random reverse}
+\keyword{misc}

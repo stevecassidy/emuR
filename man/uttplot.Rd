@@ -103,4 +103,4 @@ size of characters to be used.
 \code{\link{emu.track}} \code{\link{emu.query}} \code{\link{dplot}}
 \code{\link{segplot}} 
 }
-\keyword{emu plot}
+\keyword{misc}
