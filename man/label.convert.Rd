@@ -4,26 +4,49 @@
 Translate labels in a label vector
 }
 \usage{
-label.convert(labels, l1, l2)
+  label.convert(source, match, replace)
 }
 \arguments{
-\item{labels}{
-A vector of labels. a
+  \item{source}{
+    An Emu segment list or a vector of character labels
+  }
+  \item{match}{
+    A label or vector of labels to match in source 
+  }
+  \item{replace}{
+    A label or vector of labels of the same length as \code{match} or
+    a single character string.
+  }
 }
-\item{l1}{
-The label to be replaced.
-}
-\item{l2}{
-The substitute label. 
-}}
 \value{
-The \code{labels} vector with all instances of \code{l1} replaced by \code{l2}.
+  A new Emu segment list or vector of labels (ie. the same kind of
+  object as was passed in as \code{source}) with occurences of the
+  labels in \code{match} replaced by the corresponding label in
+  \code{replace}.  In the special case that \code{replace} is a single
+  character string, any label in \code{match} is replaced by
+  \code{replace}. 
+
+  Note that you can achieve some more complicated mappings with the R
+  builtin function \code{\link{sub}}.
 }
+\seealso{\code{\link{emu.query}}, \code{\link{sub}}}
 \examples{
-> label.convert(c("A", "E", "I", "A"), "A", "V")
-[1] "V" "E" "I" "V"
 
+labs <- c("A", "E", "p", "I", "k", "A")
+## lowercase some labels
+label.convert(labs, c("A", "E", "I"), c("a", "e", "i"))
+## special case, map all these to vv
+label.convert(labs, c("A", "E", "I"), "vv")
 
+## the same operations can be performed on segment lists
+library(emu)
+segs <- emu.query("demo", "*", "Phonetic=vowel")
+newsegs <- label.convert(segs, c("A", "E", "I"), c("a", "e", "i"))
 }
-\keyword{mu}
-% Converted by Sd2Rd version 0.3-3.
+
+## Example of using sub, replace any label consisting of
+## any character followed by a colon with "long"
+sub(".:", "long", label(segs) )
+
+\keyword{emu}
+

@@ -55,6 +55,8 @@ ddiff.sub <- function(data, ftime, n)
   list(data = data, ftime = ftime)
 }
 
+
+
 # Local Variables:
 # mode:S
 # S-temp-buffer-p:t

@@ -64,12 +64,39 @@ structure(.Data = c(10, 100, 200, 300, 395, 510, 630, 765, 920, 1075, 1265,
   as.numeric(labs)
 }
 
-"label.convert" <- function(labelfile, l1, l2)
+
+## label.convert --
+##  map one set of labels to another in a segment
+##  list or label vector
+##
+"label.convert" <- function(segs.or.labels, match, replace)
 {
-  ## convert l1 to l2 in labelfile
-  temp <- muclass(labelfile, l1)
-  labelfile[temp] <- l2
-  labelfile
+  if (is.seglist( segs.or.labels ) ) {
+    labs <- label(segs.or.labels)
+  } else {
+    labs <- segs.or.labels
+  }
+  if( length(match) != length(replace) ) {
+    ## this is only ok if length(replace) == 1 so that we
+    ## replace anything in match with replace
+    if( length(replace) != 1 ) {
+      stop("Lengths of match and replace vectors differ in label.convert")
+    } 
+  }
+
+  if (length(replace) == 1) {
+    temp <- muclass(labs, match)
+    labs[temp] <- replace
+  } else {
+    for( i in 1:length(match) ) {
+      labs[labs==match[i]] <- replace[i]
+    }
+  }
+  if (is.seglist(segs.or.labels)) {
+    return( modify.seglist(segs.or.labels, label=labs))
+  } else {
+    return( labs )
+  }
 }
 
 
@@ -90,7 +117,7 @@ structure(.Data = c(10, 100, 200, 300, 395, 510, 630, 765, 920, 1075, 1265,
 
 "muclass"<- function(labels, class)
 {
-	!(is.na(match(labels, class)))
+  !(is.na(match(labels, class)))
 }
 
 "randomise.segs" <-  function( segs, rand = T, bwd=F )
@@ -104,17 +131,15 @@ structure(.Data = c(10, 100, 200, 300, 395, 510, 630, 765, 920, 1075, 1265,
   }
 }
 
-
-
 "radians"<- function(degrees) (degrees * 2 * pi)/360
 
 "sortmatrix" <- function(mat, labs = dimnames(mat)[[2]])
 {
-# labs can also be a vector of labels, which has
-# the same number of columns as mat; e.g.
-# if labs is "p" "t" "k", then mat
-# will be sorted with these three labels in the first
-# three columns
+  ## labs can also be a vector of labels, which has
+  ## the same number of columns as mat; e.g.
+  ## if labs is "p" "t" "k", then mat
+  ## will be sorted with these three labels in the first
+  ## three columns
 	b1 <- labs
 	b2 <- dimnames(mat)[[1]]
 	c1 <- match(b2, b1)
@@ -163,8 +188,13 @@ structure(.Data = c(10, 100, 200, 300, 395, 510, 630, 765, 920, 1075, 1265,
 }
 
 
-"splitstring"<- function(str,char)
-{
+if( is.R() ) {
+
+  splitstring <- strsplit
+
+} else {
+
+splitstring <- function(str,char) {
   if(str == "")
     mat <- c(str)
   else {
@@ -197,11 +227,13 @@ structure(.Data = c(10, 100, 200, 300, 395, 510, 630, 765, 920, 1075, 1265,
   mat
 }
 
+}
+
 "uttnum"<- function(utt, str)
 {
-	temp <- muclass(utt, str)
-	nums <- c(1:length(utt))
-	nums[temp]
+  temp <- muclass(utt, str)
+  nums <- c(1:length(utt))
+  nums[temp]
 }
 
 # Local Variables:

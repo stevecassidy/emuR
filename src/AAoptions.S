@@ -11,18 +11,38 @@
 #									    #
 #############################################################################
 
+
+
+## we need a canonical way of working out what platform we're running
+## on, R and S differ and even versions of R have different os settings...
+emu.platform <- function(what) {
+  if( is.R() ) {
+    if(version$platform == "Windows" ||
+       version$os == "Win32" ||
+       version$os == "mingw32") {
+      return(what == "Windows")
+    } else if ( version$os == "MacOS" ) {
+      return(what == "MacOS")
+    } else {
+      return(what == "Unix")
+    }
+  } else {
+    if( version$platform == "WIN386" ) {
+      return(what == "Windows")
+    } else {
+      return(what == "Unix")
+    }
+  }
+}
+
+
 ## Modify the value of emu.directory to match your Emu installation, for
 ## example if you have Emu installed on your Windows machine under
 ## C:\My Programs\Emu then change the value of 'emu.directory' below to
 ## "C:\\My Programs\\Emu" (note that you must always double the slashes
 ## for Splus).
 
-
-
-if (version$platform == "Windows" ||
-    version$platform == "WIN386"  ||
-    version$os == "mingw32"       ||
-    version$os == "Win32") {
+if (emu.platform("Windows")) {
 
   emu.directory <- "C:\\Program Files\\Emu"
 

@@ -48,8 +48,8 @@
   ## now slurp the body of the segment list
   mat <- matscan( file, 4, what="", sk=i )
   
-  segs _ make.seglist(mat[,1], mat[,2], mat[,3], mat[,4], 
-		      query, type, database )
+  segs <- make.seglist(mat[,1], mat[,2], mat[,3], mat[,4], 
+                     query, type, database )
 
   segs
 }
@@ -58,7 +58,7 @@ if( version$major >= 5 ) {
   setOldClass(c("emusegs", "data.frame"))
 }
 
-"make.seglist"<- function(labels, start, end, utts, query, type, database)
+make.seglist <- function(labels, start, end, utts, query, type, database)
 {
   seglist <- data.frame(labels=I(as.character(labels)),
 			start=as.numeric(start), 
@@ -78,6 +78,10 @@ if( version$major >= 5 ) {
   seglist
 }
 
+is.seglist <- function(object) {
+  return( inherits(object, "emusegs") )
+}
+
 ## modify a segment list by changing one or more of the fields
 "modify.seglist" <- function( segs,
                              labels=label(segs),
@@ -94,7 +98,7 @@ if( version$major >= 5 ) {
 
 "emusegs.database" <- function(sl) 
 { 
-  if(inherits(sl,"emusegs"))
+  if(is.seglist(sl))
     attr(sl, "database")
   else 
     stop( "not an emu segment list" )
@@ -102,7 +106,7 @@ if( version$major >= 5 ) {
 
 "emusegs.type" <- function(sl) 
 { 
-  if(inherits(sl,"emusegs"))
+  if(is.seglist(sl))
     attr(sl, "type")
   else 
     stop( "not an emu segment list" )
@@ -110,7 +114,7 @@ if( version$major >= 5 ) {
 
 "emusegs.query" <- function(sl) 
 { 
-  if(inherits(sl,"emusegs"))
+  if(is.seglist(sl))
     attr(sl, "query")
   else 
     stop( "not an emu segment list" )

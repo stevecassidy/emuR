@@ -33,7 +33,7 @@
     trackdata$index <- rbind(trackdata$index)
   }
 
-  mat _ trackdata$data
+  mat <- trackdata$data
   
   thisrow <- 1
   newindex <- trackdata$index
@@ -50,7 +50,8 @@
     } else {
       newdata <- c(newdata, tmp$data)
     }
-
+    
+    
     newftime[j,] <- tmp$ftime
 
     if(is.matrix(tmp$data))
@@ -78,17 +79,19 @@
   ## the diff'd data and a new ftime pair
 
   if(is.matrix(data))
-    datalength _ nrow(data)
+    datalength <- nrow(data)
   else
-    datalength _ length(data)
+    datalength <- length(data)
 
-  newdata _ apply( data, 2, diff, n )
-  samp _ (ftime[2]-ftime[1])/datalength
-  newftime _ c(ftime[1]+(n*samp/2), ftime[2]-(n*samp/2))
+  newdata <- apply( data, 2, diff, n )
+  samp <- (ftime[2]-ftime[1])/datalength
+  newftime <- c(ftime[1]+(n*samp/2), ftime[2]-(n*samp/2))
   return( list(data=newdata, ftime=newftime) )
 }
 
-
+ddiff <- function( trackdata, n=1 ) {
+  return( dapply( trackdata, segdiff, n) )
+}
 
 
 "dapply.lab"<- function(data, labs, fun)

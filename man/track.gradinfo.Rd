@@ -1,0 +1,69 @@
+\name{track.gradinfo}
+\alias{track.gradinfo}
+\title{ Calculate gradient summary information for trackdata }
+\description{
+  Calculates a number of summary measures for a trackdata object:
+  duration, start and end data points, delta values and slope. 
+}
+\usage{
+   track.gradinfo(trackdata)
+}
+\arguments{
+  \item{trackdata}{ An Emu trackdata object as returned by
+    \code{\link{emu.track}} }
+}
+\details{
+  \code{track.gradinfo} calculates a number of summary measure for the
+  segments within a trackdata object.  These are useful for data such as
+  kinematic measures where segments might correspond to articulatory
+  movements etc.
+
+  Measures returned are: duration, start and end data values (ie. the
+  first and last rows of data for each segment), delta (the difference
+  between the first and last rows of data) and slope (delta divided by
+  the duration).
+
+}
+\value{
+  A data frame with one row per segment and columns:
+  \item{duration}{Segment}
+  \item{startN }{The starting value for each segment (start1 is the
+    starting value for the first column)  }
+  \item{endN }{The ending value for each segment }
+  \item{deltaN }{The delta value for each segment}
+  \item{slopeN }{The slope value for each segment}
+
+  Since the result is a data frame, the columns can be referred to by
+  name (\code{result$duration}) or as matrix columns (\code{result[,1]}).
+}
+\author{ Steve Cassidy }
+\seealso{ \code{\link{emu.track}}, \code{\link{dapply}} }
+
+\examples{
+library(emu)
+segs <- emu.query("demo","*","Phonetic=vowel")
+## fm has 4 columns
+data.fm <- emu.track(segs, "fm")
+## F0 has one
+data.F0 <- emu.track(segs, "F0")
+## info.fm will have duration, 4xstart, 4xend, 4xdelta, 4xslope
+info.fm <- track.gradinfo(data.fm)
+## this should be true
+ncol(info.fm) == 1+4+4+4+4
+
+## info.F0 will have one of each
+info.F0 <- track.gradinfo(data.F0)
+## this should be true
+ncol(info.F0) == 1+1+1+1+1
+
+## plot the durations vs delta of the first formant
+plot(info.F0$duration, info.fm$delta1, type="n", xlab="Duration", ylab="Delta")
+text(info.fm$duration, info.fm$delta1, labels=label(segs))
+
+## extract just the delta values from the formant info
+## You need to eyeball the data to work out which columns to select
+delta.fm <- info.fm[,10:13]
+}
+\keyword{ emu }
+
+
