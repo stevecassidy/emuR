@@ -1,0 +1,10 @@
+database:demo
+query:Phonetic=vowel
+type:segment
+#
+@:	3059.65 3343.65 msdjc001
+e:	5958.55 6244.55 msdjc002
+@u	8984.75 9288.75 msdjc003
+A	11880.75 12184.75 msdjc004
+E	17188.35 17366.35 msdjc005
+ei	20315.25 20655.25 msdjc006
