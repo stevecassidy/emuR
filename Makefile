@@ -1,5 +1,5 @@
 
-VERSION = 1.5.2
+VERSION = 1.6
 
 ## Splus source files, note that options.S MUST come first as it has the 
 ## configurable settings in it. 
@@ -75,7 +75,7 @@ html-help: $(RDFILES)
 	echo "<table width=90%>" >> html/index.html
 	for f in $(RDFILES); do \
 	  echo $$f; \
-	  R CMD Rdconv --type=html $$f > html/`basename $$f | sed -e 's/Rd//'`html;\
+	  R CMD Rdconv --type=html $$f | sed -e 's/..\/..\/R.css/style.css/' | sed -e 's/00Index.html/index.html/' > html/`basename $$f | sed -e 's/Rd//'`html;\
 	  R CMD Rdindex -r 300 $$f | sed -e "s/\([a-zA-Z.-]*\)\(.*\)/<tr><td><a href=`basename $$f | sed -e 's/Rd//'`html>\1<\/a><\/td><td>\2<\/td><\/tr>/" >> html/index.html; \
 	done;
 	echo "</table>" >> html/index.html

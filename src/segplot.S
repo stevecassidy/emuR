@@ -61,8 +61,8 @@
   if(!is.matrix(values$data)) values$data <- cbind(values$data)
 
   if(zeros) {
-    ## this assumes that there is a prob<-voice track, eg from ESPS
-    pvoice <- emu.track(segs, "prob<-voice")$data
+    ## this assumes that there is a prob_voice track, eg from ESPS
+    pvoice <- emu.track(segs, "prob_voice")$data
     temp <- pvoice > pdat
     values$data[!temp,  ] <- NA
   }

@@ -110,6 +110,7 @@
     ## a bit of validation
     if( nrow(data$ftime) != nseg )
       stop( "error in emu.track: mismatch between number of segments and number of data items read" )
+
     return( data )
   }
 }

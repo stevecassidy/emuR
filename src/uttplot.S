@@ -15,10 +15,11 @@
 "uttplot"<- function(segs, param, data, labtype, colour=T, linetype=F,
                      defcolour = 1, xlim = NULL, ylim = NULL,
                      xlab = "time (ms)",  ylab = "", 
-                     main = "", zeros = F, pdat = 0.5, labcol=7,
+                     main = "", zeros = F, masktrack = "prob_voice",
+                     pdat = 0.5, labcol=7,
                      labels = NULL, labeltimes = NULL, labcentre = F,
                      dolabels=T, differ = NULL, smoothing = F, flipped = F, 
-                     axes = T, ...)
+                     axes = T, type = "l", ...)
 {
   ## written by Jonathan Harrington, 18.9.92
   uttid <- unique(utt(segs))
@@ -49,9 +50,9 @@
 
   timevals <- seq(left.time, right.time, length = nrow(values$data))
   if(zeros) {
-    pvoice <- emu.track(segs, "prob<-voice")
-    temp <- pvoice$data > pdat
-    # sometimes prob<-voice isn't of the same length of the data, usually only 
+    pvoice <- emu.track(segs, masktrack)
+    temp <- pvoice$data < pdat
+    # sometimes prob_voice isn't of the same length of the data, usually only 
     # by one point so we just truncate it if needs be
     if( length(temp) > length(values$data[,1]) )
       temp <- temp[1:(length(values$data[,1]))]
@@ -75,7 +76,7 @@
   for(j in 1:ncol(values$data)) {
     plot(timevals, values$data[, j], ylim = ylim, xlim = xlim, 
 	 xlab = "", ylab = "", main = "", axes = F, col = colour[j], 
-	 type = "l", lty=lty[j])
+	 type = type, lty=lty[j])
         par(new = T)
   }
   if(!missing(labtype)) {
