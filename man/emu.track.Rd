@@ -6,16 +6,20 @@
   time-series data from the database. 
 }
 \usage{
-emu.track(seglist, trackname, cut=NULL, template=attr(seglist, "database"))
+emu.track(seglist, trackname, cut=NULL, npoints=NULL, template=attr(seglist, "database"))
 }
 
 \arguments{
- \item{seglist}{ An Emu segment list. }
- \item{trackname}{ The name of the data track to retrieve, a
-   string. This must be a track name defined in the database template. }
- \item{cut}{ An optional cut time for segment data, ranges between 0
-	and 1, a value of 0.5 will extract data only at the segment
-	midpoint. }
+  \item{seglist}{ An Emu segment list. }
+  \item{trackname}{ The name of the data track to retrieve, a
+    string. This must be a track name defined in the database template. }
+  \item{cut}{ An optional cut time for segment data, ranges between 0
+    and 1, a value of 0.5 will extract data only at the segment
+    midpoint. }
+  \item{npoints}{An optional number of points to retrieve for each
+    segment or event. For segments this requires a cut= argument and
+    data is extracted around the cut time. For events data is extracted
+    around the event time.}
  \item{template}{ The database to retrieve the data from, this should
    not normally be set. }
 }
@@ -52,8 +56,12 @@ emu.track(seglist, trackname, cut=NULL, template=attr(seglist, "database"))
   template) then the result of \code{emu.track} is the
   same as if the cut argument was specified.
 
-
+  If the \code{npoints} argument is specified, it defines the number of
+  points that will be returned for each segment or event.  The
+  \code{cut} argument is required if the input is a segment list (as
+  opposed to an event list).
 }
+
 \references{ See the Emu documentation at:
   \url{http://www.shlrc.mq.edu.au/emu} }
 \author{ Steve Cassidy <Steve.Cassidy@mq.edu.au> }
