@@ -1858,7 +1858,8 @@ read.trackdata <- function( filename, trackname="data" ) {
 {
   ## scan the lines of the file into a vector
 
-  if( is.R() ) {
+  ## R 1.4 introduced comment.char="#" arg to scan, grrr
+  if( is.R() && as.numeric(version$minor) > 3.0 ) {
     ## in R, we need to avoid skipping the # as a comment line
     lines <- scan(file, what = "", sep="\n", comment.char="")
   } else {
@@ -3851,9 +3852,13 @@ structure(.Data = c(10, 100, 200, 300, 395, 510, 630, 765, 920, 1075, 1265,
   print(dataset$data)
 }
 
-"[.trackdata"<- function(dataset, i=1:nrow(dataset$index), j, ...)
+"[.trackdata"<- function(dataset, i, j, ...)
 {
   ## dataset[i] gets the data for the i'th segment as a trackdata object
+
+  if (missing(i)) {
+    i <- 1:nrow(dataset$index)
+  }
 
   ftime <- dataset$ftime[i, ,drop=F]
 
