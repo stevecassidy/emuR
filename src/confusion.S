@@ -12,6 +12,15 @@
 #############################################################################
 
 
+
+#############################################################################
+# confusion --
+#    generate a confusion matrix from two sets of labels
+#
+# Returns:
+#    a square confusion matrix
+#
+#############################################################################
 "confusion"<- function(labx, laby, perc = F)
 {
 	mat <- NULL
@@ -26,8 +35,7 @@
 	}
 
 	dimnames(mat) <- list(px, py)
-	if(perc)
-		mat <- percent(mat)
+	if(perc) mat <- percent(mat)
 	mat
 }
 

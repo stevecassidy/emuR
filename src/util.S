@@ -21,6 +21,21 @@ if( !exists("is.R") ) {
     exists("version") && !is.null(vl <- version$language) && vl == "R"
   }
 
+  ## file.exists is terribly useful
+  ## here's a crude version using ls/dir
+  file.exists <- function(file) {
+   if (emu.platform("Windows")) {
+     r <- emu.system(paste("dir", file))
+   } else if (emu.platform("Unix")) {
+     r <- emu.system(paste("ls", file))
+   }
+
+   if (length(r) == 0) {
+     return(F)
+   } else {
+     return(T)
+   }
+ }
 }
 
 

@@ -36,10 +36,13 @@
     vals.norm <- rbind(vals.norm, dat1[sort.list(dat1[, 1]),  ])
     newlab <- c(newlab, rep(j, sum(temp)))
   }
+  
   if(is.null(xlim))
     xrange <- range(vals.norm[, 1])
   else xrange <- xlim
+
   yrange <- range(vals.norm[, 2])
+
   k <- 1
   for(j in unique(newlab)) {
     temp <- muclass(newlab, j)

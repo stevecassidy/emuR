@@ -43,14 +43,13 @@
   if( is.null(template) ) 
     stop( "no template supplied and no default in segment list" )
 
-  nseg _ nrow(seglist)
+  nseg <- nrow(seglist)
 
   segfile <- emu.tempfile( "emu.track" )
-  resultbase <- emu.tempfile( "emu.track" )
+  resultfile <- emu.tempfile( "emu.track" )
   
   on.exit( unlink( segfile ), add=TRUE )
-  on.exit( unlink( paste( resultbase, ".dat", sep="") ), add=TRUE ) 
-  on.exit( unlink( paste( resultbase, ".tim", sep="") ), add=TRUE ) 
+  on.exit( unlink( resultfile ), add=TRUE ) 
   
   museg.write( seglist, segfile )
   
@@ -64,24 +63,25 @@
                               cut,
                               segfile, trackname, resultbase )
 
-#  cat( "Command: ", command, "\n" )
-  opstat _ emu.system( command )
+  opstat <- emu.system( command )
 
-#  if( opstat != 0 ) stop("problem with get_track command")
+  if (!file.exists(resultfile) ) {
+    ## give a suitable error message
+    stop(paste("file ", resultfile, " don't exist in emu.track", sep=""))
+  } 
 
   type <- attr(seglist, "type" )
-
 
   ## now read in the time/index data and the data 
   if(type == "event" || cut != "" ) {
     ## just read in the data and return it as a matrix
-    as.matrix(read.table( paste( resultbase, "dat", sep=".") ))
+    as.matrix(read.table( resultfile ))
   } else {
-    data <- read.trackdata( resultbase ) 
+    data <- read.trackdata( resultfile, trackname ) 
 
     ## a bit of validation
-    if( nrow(data$index) != nseg )
-      stop( "error in emu.track: not enough data was read" )
+    if( nrow(data$ftime) != nseg )
+      stop( "error in emu.track: mismatch between number of segments and number of data items read" )
     return( data )
   }
 }
@@ -89,11 +89,55 @@
 ## read.trackdata
 ##  read data from two files into a trackdata object, the files
 ##  contain the data and time components of the object, they're
-##  produced by get_track and friends
-"read.trackdata" <- function( basename, trackname="data" ) {
+##  produced by gettrack and friends
+##
+##  Emu 1.7 introduces a new format for this data which can be stored
+##  in one file. Try to be backward compatible by first looking
+##  for one file as named and if not present falling back to the
+##  two file version, now called read.trackdata.twofile
+## 
+## The new format is:
+## segno time data data data
+## segno time data data data
+read.trackdata <- function( filename, trackname="data" ) {
 
-  data _ read.table( paste( basename, "dat", sep=".") )
-  index _ read.table( paste( basename, "tim", sep=".") )
+  if (!file.exists( filename ) ) {
+    ## try the twofile version
+    return( read.trackdata.twofile( filename, trackname ) )
+  }
+
+  ## otherwise we'll read the new file format
+  data <- read.table( filename )
+
+  ## now convert this to trackdata
+  segnumbers <- data[,1]
+  times <- data[,2]
+  data <- data[,c(-1,-2)]
+
+  ## get the start/end positions of each segment
+  index <- cumsum(aggregate( data, by=list(segnum=segnumbers), FUN=length)[,2])
+  index <- cbind( start=c(1,index[1:(length(index)-1)]+1), end=index )
+
+  ## the start and end times of each segment
+  ftime <- cbind( start=times[index[,1]], end=times[index[,2]] )
+
+  return( as.trackdata( data, index, ftime, trackname ) )
+}
+
+
+
+"read.trackdata.twofile" <- function( basename, trackname="data" ) {
+
+  datname <- paste( basename, "dat", sep=".")
+  timname <- paste( basename, "tim", sep=".")
+  
+  if (!file.exists(datname) || !file.exists(timname) ) {
+    ## give a suitable error message
+    stop(paste("file ", basename, ".dat or ", basename, ".tim don't exist in read.trackdata", sep=""))
+  } 
+
+  data <- read.table( datname )
+  index <- read.table( timname )
  
   # the number of segments is the number of rows in the index file
   nseg <- nrow( index )
@@ -109,7 +153,7 @@
   
   if (nseg == 1) {
     return( as.trackdata(as.matrix(data),
-                        as.matrix(c(1,index[1,1])),
+                        matrix(c(1,index[1,1]), nrow=1),
                         as.matrix(index[1,2:3]), 
                         trackname) )
   } else {
@@ -156,7 +200,7 @@
 
   on.exit( unlink( segfile ) )
 
-  resultfile <- emu.tempfile( "emu_requery" )
+  resultfile <- emu.tempfile( "emurequery" )
   on.exit( unlink( resultfile ) )
 
   options <- ""
@@ -167,7 +211,7 @@
   if (longerok != 0)
     options <- paste( options, "-l" )
 
-  command <- emu.command.name( "emu_requery", "-o", resultfile, options,
+  command <- emu.command.name( "emurequery", "-o", resultfile, options,
                               segfile, level, targetlevel )
 
   cat( command, "\n" )

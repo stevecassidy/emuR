@@ -13,11 +13,11 @@ RDFILES = man/*.Rd
 
 all: R S
 
-Ssource: $(SFILES) 
+Ssource: $(SFILES) version-info
 	rm -f Ssource
 	cat $(SFILES) > Ssource
 
-S:	Ssource html-help version-info
+S:	Ssource html-help 
 	mkdir emu-S
 	cp Ssource emu-S
 	cp INSTALL.Splus emu-S/INSTALL.txt

@@ -54,6 +54,7 @@ emu.version<-"1.4"
   ## it isn't found
   crashout <- FALSE
   modified <- FALSE
+
   while( !crashout  &&
         !file.exists( paste( bindir, gettrack, sep=dirsep ) ) ) {
 
@@ -73,6 +74,8 @@ emu.version<-"1.4"
       bindir <- paste(emu.directory, "bin", sep=dirsep)
     }
   }
+
+  
   if( crashout ) { return( FALSE ) }
 
   if( modified && is.R() ) {
