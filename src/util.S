@@ -23,20 +23,24 @@ if( !exists("is.R") ) {
 
   ## file.exists is terribly useful
   ## here's a crude version using ls/dir
-  file.exists <- function(file) {
-   if (emu.platform("Windows")) {
-     r <- emu.system(paste("dir", file))
-   } else if (emu.platform("Unix")) {
-     r <- emu.system(paste("ls", file))
-   }
 
-   if (length(r) == 0) {
-     return(F)
-   } else {
-     return(T)
-   }
- }
+  if( !exists("file.exists") ) {
+    "file.exists" <- function(file) {
+      if (emu.platform("Windows")) {
+        r <- emu.system(paste("dir", file))
+      } else if (emu.platform("Unix")) {
+        r <- emu.system(paste("ls", file))
+      }
+      
+      if (length(r) == 0) {
+        return(F)
+      } else {
+        return(T)
+      }
+    }
+  }
 }
+
 
 
 # system calls are different on each arch. and between S and R
