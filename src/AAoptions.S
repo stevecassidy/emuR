@@ -47,9 +47,14 @@ emu.version<-"1.5.1"
   } else if (emu.platform("Windows")) {
     dirsep <- "\\"
     gettrack <- "gettrack.exe"
-  } else {
+  } else if (emu.platform("Unix")) {
     dirsep <- "/"
     gettrack <- "gettrack"
+  } else {
+    stop("Panic! I can't work out what platform I'm running on!
+Please report this as  a bug at http://sf.net/projects/emu including
+details of the operating system you are running on and the value of
+the variable 'version'.")
   }
 
   if (emu.platform("MacOS")) {

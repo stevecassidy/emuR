@@ -72,9 +72,13 @@ emu.tempfile <- function(prefix) {
 }
 
 
+## we need a canonical way of working out what platform we're running
+## on, R and S differ and even versions of R have different os settings...
 emu.platform <- function(what) {
   if( is.R() ) {
-    if( version$platform == "Windows" || version$os == "Win32" ) {
+    if(version$platform == "Windows" ||
+       version$os == "Win32" ||
+       version$os == "mingw32") {
       return(what == "Windows")
     } else if ( version$os == "MacOS" ) {
       return(what == "MacOS")
