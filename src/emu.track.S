@@ -95,7 +95,7 @@
 
   if (!file.exists(resultfile) ) {
     ## give a suitable error message
-    stop(paste("file ", resultfile, " don't exist in emu.track", sep=""))
+    stop(paste("file ", resultfile, " doesn't exist in emu.track", sep=""))
   } 
 
   type <- attr(seglist, "type" )
