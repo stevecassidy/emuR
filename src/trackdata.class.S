@@ -17,17 +17,17 @@
 
 "print.trackdata"<- function(x, ...)
 {
-  if(is.null(dataset$trackname)) 
+  if(is.null(x$trackname)) 
     cat("trackdata from unknown track.\n")
   else
-    cat("trackdata from track:", dataset$trackname,"\n")
+    cat("trackdata from track:", x$trackname,"\n")
 
   cat("index:\n")
-  print(dataset$index, ...)
+  print(x$index, ...)
   cat("ftime:\n")
-  print(dataset$ftime, ...)
+  print(x$ftime, ...)
   cat("data:\n")
-  print(dataset$data, ...)
+  print(x$data, ...)
 }
 
 "[.trackdata"<- function(dataset, i, j, ...)
