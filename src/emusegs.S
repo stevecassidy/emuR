@@ -11,8 +11,6 @@
 #									    #
 #############################################################################
 
-
-
 "read.segs"<- function(file)
 {
   ## scan the lines of the file into a vector
@@ -25,6 +23,13 @@
     lines <- scan(file, what = "", sep="\n")
   }
 
+  ## next four lines added by JMH 19.10.03
+  ## replace empty initial field (no label name) by asterisk
+  for(j in 1:length(lines)){
+   if(substring(lines[j], 1, 1)=="\t")
+   lines[j] <- paste("*", lines[j], sep="")
+  }
+	
   # first three lines are header followed by a hash line
   inheader <- 1
   i <- 1
@@ -48,11 +53,16 @@
   }
 
   ## now slurp the body of the segment list
-  mat <- matscan( file, 4, what="", sk=i )
+  ## Next line taken out and following 5 added by JMH 19.10.03
+  # mat <- matscan(file, 4, what = "", sk = i)
+  mat <- NULL
+  for(j in (i+1) : length(lines) ){
+    vec <- strsplit(lines[j], "\t")
+    mat <- rbind(mat, unlist(vec))
+  }
   
   segs <- make.seglist(mat[,1], mat[,2], mat[,3], mat[,4], 
-                     query, type, database )
-
+                       query, type, database)
   segs
 }
 
