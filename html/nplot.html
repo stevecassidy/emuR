@@ -1,5 +1,6 @@
-<HTML><HEAD><TITLE>R: Plot normal data curve</TITLE>
-<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+<html><head><title>R: Plot normal data curve</title>
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
 
 
 <h2>Plot normal data curve</h2>
@@ -7,77 +8,81 @@
 
 <h3>Usage</h3>
 
-<PRE>
+<pre>
 nplot(values, labs, xlab="", ylab="probability density", 
       main="", colour=T, linetype=F, plot.lab=T, 
       xlim, logprob=F)
-</PRE>
+</pre>
 
 
 <h3>Arguments</h3>
 
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>values</CODE></TD>
-<TD>
+<table summary="R argblock">
+<tr valign="top"><td><code>values</code></td>
+<td>
 A vector of numeric values. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>labs</CODE></TD>
-<TD>
-A vector of label, parallel to <CODE>values</CODE>. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>xlab</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>labs</code></td>
+<td>
+A vector of label, parallel to <code>values</code>. 
+</td></tr>
+<tr valign="top"><td><code>xlab</code></td>
+<td>
 An y-axis label
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>ylab</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>ylab</code></td>
+<td>
 A y-axis label
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>main</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>main</code></td>
+<td>
 A main title for the plot. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>colour</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>colour</code></td>
+<td>
 If colour is TRUE, the curves and labels will be plotted in different
 colours. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>linetype</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>linetype</code></td>
+<td>
 If linetype is TRUE, the curves will be plotted with different
 linetypes.  This is useful for plots that will be printed. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>plot.lab</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>plot.lab</code></td>
+<td>
 If plot.lab is TRUE, labels will be plotted above each normal curve.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>xlim</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>xlim</code></td>
+<td>
 A vector of the minimum and maximum values to plot on the x-axis. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>logprob</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>logprob</code></td>
+<td>
 If TRUE, the log-normal curve will be plotted. 
-</TD></TR>
-</TABLE>
-<P>
-</P>
+</td></tr>
+</table>
 
 <h3>Details</h3>
 
 <p>
-The data is split according to the unique labels in <CODE>labs</CODE> and the mean
+The data is split according to the unique labels in <code>labs</code> and the mean
 and variance of each data set is calculated. The probability density
 for each data set is then plotted.
+</p>
+
 
 <h3>Side Effects</h3>
 
-<P>
+<p>
 Generates a plot on the current device which shows the distribution of
-the data in <CODE>values</CODE> for each unique label in <CODE>labs</CODE>.</P>
+the data in <code>values</code> for each unique label in <code>labs</code>.
+</p>
+
 
 <h3>See Also</h3>
 
 <p>
 hplot, dnorm
-</BODY></HTML>
+</p>
+
+</body></html>

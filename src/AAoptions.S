@@ -18,7 +18,8 @@
 ## for Splus).
 
 if (version$platform == "Windows" ||
-    version$platform == "WIN386" ) {
+    version$platform == "WIN386" ||
+    version$os == "Win32") {
 
   ## change this value for windows
   emu.directory <- "C:\\Program Files\\Emu"
@@ -36,7 +37,7 @@ if (version$platform == "Windows" ||
 
 
 ## this will get changed by the Makefile
-emu.version<-"1.3"
+emu.version<-"1.4"
 
 "emu.init" <- function() {
 
@@ -102,11 +103,17 @@ emu.version<-"1.3"
                 ),
            frame=0)
   }
+
+  
+  if( is.R() ) {
+    ## eda is needed for smooth, used in dsmooth
+    library("eda")
+  }
+
   invisible()
 }
 
 "emu.options" <- function( option ) {
     emu[[option]]
 }
-
 

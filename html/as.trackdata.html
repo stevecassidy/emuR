@@ -1,5 +1,6 @@
-<HTML><HEAD><TITLE>R: Create an Emu trackdata object</TITLE>
-<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+<html><head><title>R: Create an Emu trackdata object</title>
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
 
 
 <h2>Create an Emu trackdata object</h2>
@@ -9,60 +10,65 @@
 
 <p>
 Create an Emu trackdata object from a raw data matrix.
+</p>
+
 
 <h3>Usage</h3>
 
-<PRE>
+<pre>
   as.trackdata(data, index, ftime, trackname="")
-</PRE>
+</pre>
 
 
 <h3>Arguments</h3>
 
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>data</CODE></TD>
-<TD>
-A two dimensional matrix of numerical data. </TD></TR>
-<TR VALIGN="TOP"><TD><CODE>index</CODE></TD>
-<TD>
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+A two dimensional matrix of numerical data. </td></tr>
+<tr valign="top"><td><code>index</code></td>
+<td>
 Segment index, one row per segment, two columns give the
-start and end rows in the <CODE>data</CODE> matrix for each segment.  </TD></TR>
-<TR VALIGN="TOP"><TD><CODE>ftime</CODE></TD>
-<TD>
+start and end rows in the <code>data</code> matrix for each segment.  </td></tr>
+<tr valign="top"><td><code>ftime</code></td>
+<td>
 A two column matrix with one row per segment, gives the
-start and end times in milliseconds for each segment. </TD></TR>
-<TR VALIGN="TOP"><TD><CODE>trackname</CODE></TD>
-<TD>
-The name of the track. </TD></TR>
-</TABLE>
-<P>
-</P>
+start and end times in milliseconds for each segment. </td></tr>
+<tr valign="top"><td><code>trackname</code></td>
+<td>
+The name of the track. </td></tr>
+</table>
 
 <h3>Details</h3>
 
 <p>
 Emu trackdata objects contain possibly multi-column numerical data
 corresponding to a set of segments from a database.  Data for each
-segment takes up a number of rows in the main <CODE>data</CODE> matrix, the 
-start and end rows are stored in the <CODE>index</CODE> component.  The
-<CODE>ftime</CODE> component contains the start and end times of the
+segment takes up a number of rows in the main <code>data</code> matrix, the 
+start and end rows are stored in the <code>index</code> component.  The
+<code>ftime</code> component contains the start and end times of the
 segment data.
-<P>
-Trackdata objects are returned by the <CODE><A HREF="emu.track.html">emu.track</A></CODE> function.
+</p>
+<p>
+Trackdata objects are returned by the <code><a href="emu.track.html">emu.track</a></code> function.
+</p>
+
 
 <h3>Value</h3>
 
-<P>
-The components are bound into a trackdata object.</P>
+<p>
+The components are bound into a trackdata object.</p>
 
 <h3>See Also</h3>
 
 <p>
-<CODE><A HREF="emu.track.html">emu.track</A></CODE> <CODE><A HREF="dplot.html">dplot</A></CODE>
+<code><a href="emu.track.html">emu.track</a></code> <code><a href="dplot.html">dplot</a></code>
+</p>
+
 
 <h3>Examples</h3>
 
-<PRE>
+<pre>
 
 # make a trackdata object of two data segments
 data1 &lt;- matrix( 1:10, ncol=2 )
@@ -83,6 +89,6 @@ tdata[1]
 # and the second
 tdata[2]
 
-</PRE>
+</pre>
 
-</BODY></HTML>
+</body></html>

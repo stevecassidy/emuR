@@ -1,42 +1,53 @@
-<HTML><HEAD><TITLE>R: Smooth the data in a trackdata object.</TITLE>
-<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+<html><head><title>R: Smooth the data in a trackdata object.</title>
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
 
 
 <h2>Smooth the data in a trackdata object.</h2>
 
 
+<h3>Description</h3>
+
+<p>
+Smooths each dataset in a trackdata object using a running
+mean smoother.
+</p>
+
+
 <h3>Usage</h3>
 
-<PRE>
+<pre>
 dsmooth(dataset)
-</PRE>
+</pre>
 
 
 <h3>Arguments</h3>
 
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>dataset</CODE></TD>
-<TD>
-A trackdata object as returned from <CODE>track</CODE>.
-</TD></TR>
-</TABLE>
-<P>
-</P>
+<table summary="R argblock">
+<tr valign="top"><td><code>dataset</code></td>
+<td>
+A trackdata object as returned from <code>track</code>.
+</td></tr>
+</table>
 
 <h3>Details</h3>
 
 <p>
-This function uses the <CODE>dapply</CODE> function to apply <CODE>smooth</CODE> to the data
+This function uses the <code>dapply</code> function to apply <code>smooth</code> to the data
 for each segment.
+</p>
+
 
 <h3>Value</h3>
 
-<P>
-The result of applying the <CODE>smooth</CODE> function to each column of the data
-for each segment in the trackdata object.</P>
+<p>
+The result of applying the <code>smooth</code> function to each column of the data
+for each segment in the trackdata object.</p>
 
 <h3>See Also</h3>
 
 <p>
 smooth, dapply
-</BODY></HTML>
+</p>
+
+</body></html>

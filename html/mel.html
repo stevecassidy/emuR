@@ -1,5 +1,6 @@
-<HTML><HEAD><TITLE>R: Convert Hz to the mel scale</TITLE>
-<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+<html><head><title>R: Convert Hz to the mel scale</title>
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
 
 
 <h2>Convert Hz to the mel scale</h2>
@@ -7,43 +8,47 @@
 
 <h3>Usage</h3>
 
-<PRE>
+<pre>
 mel(x)
-</PRE>
+</pre>
 
 
 <h3>Arguments</h3>
 
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>x</CODE></TD>
-<TD>
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
 The frequency in Hz.
-</TD></TR>
-</TABLE>
-<P>
-</P>
+</td></tr>
+</table>
 
 <h3>Details</h3>
 
 <p>
 The mel scale frequency is calculated according to the formula: 
-<P>
+</p>
+<p>
 mel =   1/log(2) * (log(1 + (Hz/1000))) * 1000
-<P>
+</p>
+<p>
 where Hz is the frequency in Hz.
+</p>
+
 
 <h3>Value</h3>
 
-<P>
-The corresponding frequency on the mel scale.</P>
+<p>
+The corresponding frequency on the mel scale.</p>
 
 <h3>References</h3>
 
-<p>
+
 
 
 <h3>See Also</h3>
 
 <p>
 bark
-</BODY></HTML>
+</p>
+
+</body></html>

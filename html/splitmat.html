@@ -1,5 +1,6 @@
-<HTML><HEAD><TITLE>R: Split data according to a set of labels</TITLE>
-<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+<html><head><title>R: Split data according to a set of labels</title>
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
 
 
 <h2>Split data according to a set of labels</h2>
@@ -7,49 +8,49 @@
 
 <h3>Usage</h3>
 
-<PRE>
+<pre>
 splitmat(data, labs, filename="file", labelfile=T)
-</PRE>
+</pre>
 
 
 <h3>Arguments</h3>
 
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>data</CODE></TD>
-<TD>
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
 A vector or matrix of data.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>labs</CODE></TD>
-<TD>
-A label file parallel to <CODE>data</CODE>.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>filename</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>labs</code></td>
+<td>
+A label file parallel to <code>data</code>.
+</td></tr>
+<tr valign="top"><td><code>filename</code></td>
+<td>
 the object name prefix for the new objects being created, ".n" is
 appended to this where n is an integer between 1 and the number of
-unique labels in <CODE>labs</CODE>.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>labelfile</CODE></TD>
-<TD>
+unique labels in <code>labs</code>.
+</td></tr>
+<tr valign="top"><td><code>labelfile</code></td>
+<td>
 If TRUE, a label vector is created for each new object called "l.file.n".
-</TD></TR>
-</TABLE>
-<P>
-</P>
+</td></tr>
+</table>
 
 <h3>Value</h3>
 
-<P>
-A matrix of object names and the corresponding label.</P>
+<p>
+A matrix of object names and the corresponding label.</p>
 
 <h3>See Also</h3>
 
 <p>
-<CODE><A HREF="emu.track.html">emu.track</A></CODE>, <CODE><A HREF="emu.query.html">emu.query</A></CODE>
+<code><a href="emu.track.html">emu.track</a></code>, <code><a href="emu.query.html">emu.query</a></code>
+</p>
+
 
 <h3>Examples</h3>
 
-<PRE>
+<pre>
 ## assumes a database called demo is available on your system and that
 ## the Emu system is installed. 
 
@@ -62,6 +63,6 @@ splitmat(segs, label(segs), "segs", labelfile=T)
 
 # create two data matrices for each label type
 splitmat(data, label(segs), "data", labelfile=T)
-</PRE>
+</pre>
 
-</BODY></HTML>
+</body></html>

@@ -1,5 +1,6 @@
-<HTML><HEAD><TITLE>R: Normalise speech data</TITLE>
-<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+<html><head><title>R: Normalise speech data</title>
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
 
 
 <h2>Normalise speech data</h2>
@@ -7,61 +8,63 @@
 
 <h3>Usage</h3>
 
-<PRE>
+<pre>
 norm(data, speakerlabs, type="gerst", rescale=F)
-</PRE>
+</pre>
 
 
 <h3>Arguments</h3>
 
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>data</CODE></TD>
-<TD>
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
 A matrix of data. Can be either an n-columned matrix or a trackdata
-object as returned by <CODE>track</CODE>.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>speakerlabs</CODE></TD>
-<TD>
+object as returned by <code>track</code>.
+</td></tr>
+<tr valign="top"><td><code>speakerlabs</code></td>
+<td>
 A parallel vector of speaker labels.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>type</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
 The type of extrinsic normalisation to be performed on data. type can
-be <CODE>"nearey"</CODE>, <CODE>"cen"</CODE>, <CODE>"lob"</CODE>, <CODE>"gerst"</CODE> (default), for normalisation
+be <code>"nearey"</code>, <code>"cen"</code>, <code>"lob"</code>, <code>"gerst"</code> (default), for normalisation
 according to Nearey, centroid method, Lobanov, or Gerstman.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>rescale</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>rescale</code></td>
+<td>
 Currently only works for Lobanov normalisation. The normalised values are
 multiplied by the standard deviation and then the mean is added, where the
 standard deviation and mean are across all original speakers' unnormalised
 data.
-</TD></TR>
-</TABLE>
-<P>
-</P>
+</td></tr>
+</table>
 
 <h3>Details</h3>
 
 <p>
 Types of normalisation:
-<CODE>"nearey"</CODE>, Nearey : Find the log of each data element and subtract
+<code>"nearey"</code>, Nearey : Find the log of each data element and subtract
 from each the mean of the logarithmic data. 
-<CODE>"cen"</CODE>, centroid: Find the mean of the data column and subtract it from each
+<code>"cen"</code>, centroid: Find the mean of the data column and subtract it from each
 data element in that column. 
-<CODE>"lob"</CODE>, Lobanov: Find the mean and standard deviation of the data. Subtract
+<code>"lob"</code>, Lobanov: Find the mean and standard deviation of the data. Subtract
 the mean from each data element and devide each result by the standard
 deviation. 
 "gerst", Gerstman: Subtract from the data the minimun formant value then devide
 by the formant range.
+</p>
+
 
 <h3>Value</h3>
 
-<P>
-Normalised values of data are retuned, having the same structure as data.</P>
+<p>
+Normalised values of data are retuned, having the same structure as data.</p>
 
 <h3>See Also</h3>
 
 <p>
 track
-</BODY></HTML>
+</p>
+
+</body></html>

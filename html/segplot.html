@@ -1,5 +1,6 @@
-<HTML><HEAD><TITLE>R: Segment plot</TITLE>
-<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+<html><head><title>R: Segment plot</title>
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
 
 
 <h2>Segment plot</h2>
@@ -7,112 +8,114 @@
 
 <h3>Usage</h3>
 
-<PRE>
+<pre>
 segplot(segs, param, labels, ylim, ylab = "", main = "", zeros = F, 
          pdat = 0.5, onset = 0, offset = 0, col = T, linetype = F
          smoothing = F, mfrow, addlines, differ )
-</PRE>
+</pre>
 
 
 <h3>Arguments</h3>
 
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>segs</CODE></TD>
-<TD>
-An emu segment list.</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>param</CODE></TD>
-<TD>
-One of the valid parameter tracks for the database.</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>ylim</CODE></TD>
-<TD>
-Limit the y-axis range for all plots.</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>labels</CODE></TD>
-<TD>
+<table summary="R argblock">
+<tr valign="top"><td><code>segs</code></td>
+<td>
+An emu segment list.</td></tr>
+<tr valign="top"><td><code>param</code></td>
+<td>
+One of the valid parameter tracks for the database.</td></tr>
+<tr valign="top"><td><code>ylim</code></td>
+<td>
+Limit the y-axis range for all plots.</td></tr>
+<tr valign="top"><td><code>labels</code></td>
+<td>
 A vector of labels to be used as the main title of each plot. If this
 is not provided the segment labels will be used. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>ylab</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>ylab</code></td>
+<td>
 A label for every y-axis.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>main</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>main</code></td>
+<td>
 A main title for the plot.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>zeros</CODE></TD>
-<TD>
-If TRUE and there is a <CODE>prob\_voice</CODE> track, the regions
-with probability of voicing less than <CODE>pdat</CODE> will not be plotted.  
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>pdat</CODE></TD>
-<TD>
-The probability of voicing threshold for <CODE>zeros</CODE>. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>onset</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>zeros</code></td>
+<td>
+If TRUE and there is a <code>prob\_voice</code> track, the regions
+with probability of voicing less than <code>pdat</code> will not be plotted.  
+</td></tr>
+<tr valign="top"><td><code>pdat</code></td>
+<td>
+The probability of voicing threshold for <code>zeros</code>. 
+</td></tr>
+<tr valign="top"><td><code>onset</code></td>
+<td>
 The plot for each segment will start this much to the left of the
 start of the segment. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>offset</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>offset</code></td>
+<td>
 The plot for each segment will end this much to the right of the end
 of the segment.  
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>colour</CODE></TD>
-<TD>
-If <CODE>TRUE</CODE>, different colours will be used in the plot.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>linetype</CODE></TD>
-<TD>
-If <CODE>TRUE</CODE> different linetypes will be used in the plot. Useful for
+</td></tr>
+<tr valign="top"><td><code>colour</code></td>
+<td>
+If <code>TRUE</code>, different colours will be used in the plot.
+</td></tr>
+<tr valign="top"><td><code>linetype</code></td>
+<td>
+If <code>TRUE</code> different linetypes will be used in the plot. Useful for
 printing. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>smoothing</CODE></TD>
-<TD>
-If smoothing is TRUE, a non-linear smoother (<CODE>smooth()</CODE>) is
+</td></tr>
+<tr valign="top"><td><code>smoothing</code></td>
+<td>
+If smoothing is TRUE, a non-linear smoother (<code>smooth()</code>) is
 applied to the data. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>mfrow</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>mfrow</code></td>
+<td>
 Partitions the plot into sub-plots, eg if there are six segments in
-the segment list, mfrow might be set to c(2,3).  If the <CODE>mfrow</CODE>
+the segment list, mfrow might be set to c(2,3).  If the <code>mfrow</code>
 parameter is not supplied, the program estimates a reasonable layout
 for the plots.  
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>addlines</CODE></TD>
-<TD>
-A matrix or vector of time values.  If <CODE>addlines</CODE> is a vector of
-time values, then a vertical line is drawn on plot <CODE>j</CODE> at the
-time given in <CODE>addlines[j]</CODE>. If <CODE>addlines</CODE> is a matrix, then
-a series of vertical lines are drawn on plot <CODE>j</CODE>, for the times
-given in <CODE>addlines[j,i]</CODE> for each column <CODE>i</CODE>.</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>differ</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>addlines</code></td>
+<td>
+A matrix or vector of time values.  If <code>addlines</code> is a vector of
+time values, then a vertical line is drawn on plot <code>j</code> at the
+time given in <code>addlines[j]</code>. If <code>addlines</code> is a matrix, then
+a series of vertical lines are drawn on plot <code>j</code>, for the times
+given in <code>addlines[j,i]</code> for each column <code>i</code>.</td></tr>
+<tr valign="top"><td><code>differ</code></td>
+<td>
 An integer, carries out nth order differentiation where n is the value
-of <CODE>differ</CODE>. Defaults to no differentiation. 
-</TD></TR>
-</TABLE>
-<P>
-</P>
+of <code>differ</code>. Defaults to no differentiation. 
+</td></tr>
+</table>
 
 <h3>Side Effects</h3>
 
-<P>
+<p>
 If overlay is FALSE, one subplot is made per segment and the subplots
 are arranged in rows, each labelled with the   segment label. If
 overlay is TRUE, one large plot is made and the data   for all
 segments is overlaid.  In this case the x-axis is not labelled 
-since each segment will have a different start time and duration.</P>
+since each segment will have a different start time and duration.
+</p>
+
 
 <h3>See Also</h3>
 
 <p>
-<CODE><A HREF="emu.query.html">emu.query</A></CODE>, <CODE><A HREF="emu.track.html">emu.track</A></CODE>, <CODE><A HREF="uttplot.html">uttplot</A></CODE>,
-<CODE><A HREF="dplot.html">dplot</A></CODE>
+<code><a href="emu.query.html">emu.query</a></code>, <code><a href="emu.track.html">emu.track</a></code>, <code><a href="uttplot.html">uttplot</a></code>,
+<code><a href="dplot.html">dplot</a></code>
+</p>
+
 
 <h3>Examples</h3>
 
-<PRE>
+<pre>
 
 ## assumes a database called demo is available on your system and that
 ## the Emu system is installed. 
@@ -122,6 +125,6 @@ segs &lt;- emu.query("demo", "*", "Phonetic=E")
 
 segplot( segs[1:10,], "F0" )
 
-</PRE>
+</pre>
 
-</BODY></HTML>
+</body></html>

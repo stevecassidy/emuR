@@ -55,7 +55,7 @@ emu.tempfile <- function(prefix) {
 
 emu.platform <- function(what) {
   if( is.R() ) {
-    if( version$platform == "Windows" ) {
+    if( version$platform == "Windows" || version$os == "Win32" ) {
       return(what == "Windows")
     } else {
       return(what == "Unix")

@@ -1,5 +1,6 @@
-<HTML><HEAD><TITLE>R: Retrieve Numerical Data</TITLE>
-<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+<html><head><title>R: Retrieve Numerical Data</title>
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
 
 
 <h2>Retrieve Numerical Data</h2>
@@ -10,71 +11,73 @@
 <p>
 Takes the result of a database query and retrieves corresponding
 time-series data from the database.
+</p>
+
 
 <h3>Usage</h3>
 
-<PRE>
+<pre>
 emu.track(seglist, trackname, cut=NULL, template=attr(seglist, "database"))
-</PRE>
+</pre>
 
 
 <h3>Arguments</h3>
 
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>seglist</CODE></TD>
-<TD>
-An Emu segment list. </TD></TR>
-<TR VALIGN="TOP"><TD><CODE>trackname</CODE></TD>
-<TD>
+<table summary="R argblock">
+<tr valign="top"><td><code>seglist</code></td>
+<td>
+An Emu segment list. </td></tr>
+<tr valign="top"><td><code>trackname</code></td>
+<td>
 The name of the data track to retrieve, a
-string. This must be a track name defined in the database template. </TD></TR>
-<TR VALIGN="TOP"><TD><CODE>cut</CODE></TD>
-<TD>
+string. This must be a track name defined in the database template. </td></tr>
+<tr valign="top"><td><code>cut</code></td>
+<td>
 An optional cut time for segment data, ranges between 0
 and 1, a value of 0.5 will extract data only at the segment
-midpoint. </TD></TR>
-<TR VALIGN="TOP"><TD><CODE>template</CODE></TD>
-<TD>
+midpoint. </td></tr>
+<tr valign="top"><td><code>template</code></td>
+<td>
 The database to retrieve the data from, this should
-not normally be set. </TD></TR>
-</TABLE>
-<P>
-</P>
+not normally be set. </td></tr>
+</table>
 
 <h3>Details</h3>
 
 <p>
-<CODE>emu.track</CODE> takes a segment list as input
+<code>emu.track</code> takes a segment list as input
 and retrieves associated numerical data from the corresponding
 database.  The segment list will usually be the result of a call
-to <CODE><A HREF="emu.query.html">emu.query</A></CODE> but could be constructed with the
-<CODE><A HREF="make.seglist.html">make.seglist</A></CODE> function. The result is either a
+to <code><a href="emu.query.html">emu.query</a></code> but could be constructed with the
+<code><a href="make.seglist.html">make.seglist</a></code> function. The result is either a
 two dimensional array of data or an object of class
-<CODE>trackdata</CODE> which may contain multi-column data
+<code>trackdata</code> which may contain multi-column data
 from many tokens.
+</p>
+
 
 <h3>Value</h3>
 
-<P>
+<p>
 If only two arguments are supplied the entire data track is
 retrieved for each segment in the segment list. The amount of data
 returned will depend on the sample rate and number of columns in
 the track requested. The returned data is packaged up as a
 trackdata object.
-<P>
-The optional <CODE>cut</CODE> argument specifies a cut
+<br>
+The optional <code>cut</code> argument specifies a cut
 point as a fraction of the duration of each segment in the segment
 list.  If this is specified the data at this single cutpoint will
 be extracted rather than that for the entire track.  The result of
-<CODE>emu.track</CODE> with the cut arguement is a two
+<code>emu.track</code> with the cut arguement is a two
 dimensional array of data with one row per segment in the original
 segment list and one column per column in the requested
 track. This array can be treated like any other array in Splus.
-<P>
+<br>
 If the input segment list is in fact an event list (ie. is
 derived from an annotation level defined as events in the database
-template) then the result of <CODE>emu.track</CODE> is the
-same as if the cut argument was specified.</P>
+template) then the result of <code>emu.track</code> is the
+same as if the cut argument was specified.</p>
 
 <h3>Note</h3>
 
@@ -82,26 +85,34 @@ same as if the cut argument was specified.</P>
 This function calls an external program which is part of the Emu
 speech database system and so requires this system to be installed on
 your computer. See the Emu web site for details.
+</p>
+
 
 <h3>Author(s)</h3>
 
 <p>
 Steve Cassidy &lt;Steve.Cassidy@mq.edu.au&gt;
+</p>
+
 
 <h3>References</h3>
 
 <p>
 See the Emu documentation at:
-<A HREF="http://www.shlrc.mq.edu.au/emu">http://www.shlrc.mq.edu.au/emu</A>
+<a href="http://www.shlrc.mq.edu.au/emu">http://www.shlrc.mq.edu.au/emu</a>
+</p>
+
 
 <h3>See Also</h3>
 
 <p>
-<CODE><A HREF="dplot.html">dplot</A></CODE> <CODE><A HREF="segplot.html">segplot</A></CODE> <CODE><A HREF="dapply.html">dapply</A></CODE>
+<code><a href="dplot.html">dplot</a></code> <code><a href="segplot.html">segplot</a></code> <code><a href="dapply.html">dapply</a></code>
+</p>
+
 
 <h3>Examples</h3>
 
-<PRE>
+<pre>
 
 ## assumes a database called demo is available on your system and that
 ## the Emu system is installed. 
@@ -115,6 +126,6 @@ data.mid &lt;- emu.track( segs, "fm", cut=0.5 )
 data.all &lt;- emu.track( segs, "fm" )
 summary(data.all)
 
-</PRE>
+</pre>
 
-</BODY></HTML>
+</body></html>

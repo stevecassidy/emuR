@@ -1,5 +1,6 @@
-<HTML><HEAD><TITLE>R: Randomise or Reverse items in a segment list</TITLE>
-<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+<html><head><title>R: Randomise or Reverse items in a segment list</title>
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
 
 
 <h2>Randomise or Reverse items in a segment list</h2>
@@ -7,45 +8,45 @@
 
 <h3>Usage</h3>
 
-<PRE>
+<pre>
 randomise.segs(segs,  rand=T, bwd=F)
-</PRE>
+</pre>
 
 
 <h3>Arguments</h3>
 
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>segs</CODE></TD>
-<TD>
+<table summary="R argblock">
+<tr valign="top"><td><code>segs</code></td>
+<td>
 An Emu segment list.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>bwd</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>bwd</code></td>
+<td>
 If T, reverse the order of the segment list.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>rand</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>rand</code></td>
+<td>
 If T, randomise the order of the segment lists (default).
-</TD></TR>
-</TABLE>
-<P>
-</P>
+</td></tr>
+</table>
 
 <h3>Value</h3>
 
-<P>
+<p>
 A segment list containing the original elements in random or reversed
 order. This is useful if the segment list is to be used as the source
-for a set of stimuli in a perception experiment.</P>
+for a set of stimuli in a perception experiment.</p>
 
 <h3>See Also</h3>
 
 <p>
-<CODE><A HREF="emu.query.html">emu.query</A></CODE>
+<code><a href="emu.query.html">emu.query</a></code>
+</p>
+
 
 <h3>Examples</h3>
 
-<PRE>
+<pre>
 ## assumes a database called demo is available on your system and that
 ## the Emu system is installed. 
 
@@ -55,6 +56,6 @@ segs &lt;- emu.query("demo", "*", "Phonetic=vowel")
 # randomise the segment list
 rsegs &lt;- randomise.segs( segs )
 
-</PRE>
+</pre>
 
-</BODY></HTML>
+</body></html>

@@ -1,5 +1,6 @@
-<HTML><HEAD><TITLE>R: Plot a parameter for an utterance</TITLE>
-<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+<html><head><title>R: Plot a parameter for an utterance</title>
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
 
 
 <h2>Plot a parameter for an utterance</h2>
@@ -7,34 +8,40 @@
 
 <h3>Usage</h3>
 
-<PRE>
+<pre>
 function(segs, param, data, labtype, colour = T, linetype = F, xlim = NULL, 
         ylim = NULL, xlab = "time (ms)", ylab = "", main = "",
         zeros = F, pdat = 0.5, boundplot = T, labels = NULL,
         labeltimes = NULL, labcentre = F, differ = NULL, smoothing = F,
         flipped = F, axes = T label = F, ...)
-</PRE>
+</pre>
 
 
 <h3>Side Effects</h3>
 
-<P>
+<p>
 A plot of the requested parameter track is generated.  Segment
 boundaries are drawn and labelled according to the options specified.
-If <CODE>talk</CODE> is TRUE, parts of the utterance can be played back using the
+If <code>talk</code> is TRUE, parts of the utterance can be played back using the
 left mouse button to define the boundaries of the section to be played.
-The middle mouse button quits this interaction.</P>
+The middle mouse button quits this interaction.
+</p>
+
 
 <h3>Note</h3>
 
 <p>
 This function will also accept any of the standard graphical parameters
-which can be passed to <CODE>par()</CODE>, for example <CODE>cex</CODE> which specifies the
+which can be passed to <code>par()</code>, for example <code>cex</code> which specifies the
 size of characters to be used.
+</p>
+
 
 <h3>See Also</h3>
 
 <p>
-<CODE><A HREF="emu.track.html">emu.track</A></CODE> <CODE><A HREF="emu.query.html">emu.query</A></CODE> <CODE><A HREF="dplot.html">dplot</A></CODE>
-<CODE><A HREF="segplot.html">segplot</A></CODE>
-</BODY></HTML>
+<code><a href="emu.track.html">emu.track</a></code> <code><a href="emu.query.html">emu.query</a></code> <code><a href="dplot.html">dplot</a></code>
+<code><a href="segplot.html">segplot</a></code>
+</p>
+
+</body></html>

@@ -1,5 +1,6 @@
-<HTML><HEAD><TITLE>R: Find the steady-state portion of a parameter</TITLE>
-<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+<html><head><title>R: Find the steady-state portion of a parameter</title>
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
 
 
 <h2>Find the steady-state portion of a parameter</h2>
@@ -7,38 +8,36 @@
 
 <h3>Usage</h3>
 
-<PRE>
+<pre>
 steady(values, percent=25, mean=T, smoothing=F)
-</PRE>
+</pre>
 
 
 <h3>Arguments</h3>
 
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>values</CODE></TD>
-<TD>
+<table summary="R argblock">
+<tr valign="top"><td><code>values</code></td>
+<td>
 A set of parameter tracks as returned by track().  The values would
 normally correspond to formant data.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>percent</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>percent</code></td>
+<td>
 The size of the portion to search for. If percent is 25 (the default)
 the returned values correspond to a portion of each segment of that
 size (relative to the segment duration) which is the most steady state. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>mean</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>mean</code></td>
+<td>
 If mean is TRUE, the mean for each parameter (formant) accross the
 steady state portion will be returned for each segment. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>smoothing</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>smoothing</code></td>
+<td>
 If smoothing is TRUE the data will be smoothed before the steady-state
 portion is searched for. 
-</TD></TR>
-</TABLE>
-<P>
-</P>
+</td></tr>
+</table>
 
 <h3>Details</h3>
 
@@ -51,41 +50,44 @@ dimensional euclidean distance is calculated between successive
 samples. The distances are then summed over samples 1..n, 2..n+1 etc
 where n is the required width.  The smallest such sum is taken as the
 most steady-state portion of the signal.
+</p>
+
 
 <h3>Value</h3>
 
-The return value is a copy of the original <CODE>values</CODE> argument with the
+<p>
+The return value is a copy of the original <code>values</code> argument with the
 additional components: 
-<P>
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>steady</CODE></TD>
-<TD>
+</p>
+<table summary="R argblock">
+<tr valign="top"><td><code>steady</code></td>
+<td>
 specifies the start and end indexes of the steady-state portion of each
 segment,
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>time</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>time</code></td>
+<td>
 specifies the position of the midpoint of the steady state portion as a
 proportion of the duration of each segment.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>mean</CODE></TD>
-<TD>
-If the mean argument is <CODE>TRUE</CODE> this component specifies the means of
+</td></tr>
+<tr valign="top"><td><code>mean</code></td>
+<td>
+If the mean argument is <code>TRUE</code> this component specifies the means of
 each parameter accross the steady state portion of each segment.
-<P>
-</TD></TR>
-</TABLE>
-<P>
-</P>
+<br>
+</td></tr>
+</table>
 
 <h3>See Also</h3>
 
 <p>
 track, segplot
+</p>
+
 
 <h3>Examples</h3>
 
-<PRE>
+<pre>
 &gt; segs
       start       end                           utt 
 E "12489.4" "12586.9" "/home/dbase/dbase1/msadb001"
@@ -122,6 +124,6 @@ meanvals 442.4348 1812.773 2565.309
 meanvals 355.2347 1973.285 2218.056
 meanvals 465.2812 1704.117 2396.117
 
-</PRE>
+</pre>
 
-</BODY></HTML>
+</body></html>

@@ -1,5 +1,6 @@
-<HTML><HEAD><TITLE>R: Perform linear time normalisation on trackdata.</TITLE>
-<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+<html><head><title>R: Perform linear time normalisation on trackdata.</title>
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
 
 
 <h2>Perform linear time normalisation on trackdata.</h2>
@@ -7,39 +8,41 @@
 
 <h3>Usage</h3>
 
-<PRE>
+<pre>
 linear(dataset, n=20)
-</PRE>
+</pre>
 
 
 <h3>Arguments</h3>
 
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>dataset</CODE></TD>
-<TD>
-A trackdata object as returned by <CODE>track</CODE>.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>n</CODE></TD>
-<TD>
+<table summary="R argblock">
+<tr valign="top"><td><code>dataset</code></td>
+<td>
+A trackdata object as returned by <code>track</code>.
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
 The number of points (samples) required for each segment.
-</TD></TR>
-</TABLE>
-<P>
-</P>
+</td></tr>
+</table>
 
 <h3>Details</h3>
 
 <p>
-The data for each segment is normaised using the <CODE>approx</CODE> function.
+The data for each segment is normaised using the <code>approx</code> function.
+</p>
+
 
 <h3>Value</h3>
 
-<P>
+<p>
 A new trackdata object where the data for each segment has the same
-number (<CODE>n</CODE>) of samples.</P>
+number (<code>n</code>) of samples.</p>
 
 <h3>See Also</h3>
 
 <p>
 approx
-</BODY></HTML>
+</p>
+
+</body></html>

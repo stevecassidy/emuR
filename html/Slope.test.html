@@ -1,87 +1,91 @@
-<HTML><HEAD><TITLE>R: </TITLE>
-<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+<html><head><title>R: Slope Test</title>
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
 
 
-<h2></h2>
+<h2>Slope Test</h2>
 
 
 <h3>Description</h3>
 
 <p>
-tests whether the difference between two or more regression lines
-is significant
+Tests whether the difference between two or more regression lines is
+significant
+</p>
+
 
 <h3>Usage</h3>
 
-<PRE>
+<pre>
 slope.test(...)
-</PRE>
+</pre>
 
 
 <h3>Arguments</h3>
 
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>...</CODE></TD>
-<TD>
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
 this function takes any number of two column matrices.
 The first column is the y-data (in the case of locus equations, this
 is the vowel onset) and the second column is the x-data (in the case of
 locus equations, vowel target). 
-</TD></TR>
-</TABLE>
-<P>
-</P>
+</td></tr>
+</table>
 
 <h3>Value</h3>
 
+<p>
 The return value consists of the following componenets:
-<P>
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>separate</CODE></TD>
-<TD>
+</p>
+<table summary="R argblock">
+<tr valign="top"><td><code>separate</code></td>
+<td>
 slope, intercept, r-squared, F-ratio, "d(egrees of) f(reedom)"
 and "prob(ability that) line fits data" for the separate data matrices entered.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>combined</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>combined</code></td>
+<td>
 F-ratio, "d(egrees of) f(reedom)", and "Probability of 
 them being DIFFERENT" for the slope and for the intercept of the combined
 data. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>x</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
 the combined x-data for all the matrices. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>y</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>y</code></td>
+<td>
 the combined y-data for all the matrices. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>mat</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>mat</code></td>
+<td>
 the category vectors for the combined data 
 (consists of 1, 0 and -1). 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>numrows</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>numrows</code></td>
+<td>
 the number of rows in each matrix. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>numcats</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>numcats</code></td>
+<td>
 the sum number of matrices entered. 
-<P>
-</TD></TR>
-</TABLE>
-<P>
-</P>
+<br>
+</td></tr>
+</table>
 
 <h3>References</h3>
 
 <p>
 see E. Pedhazur, Multiple Regression in Behavioral Research
 p.436-450, 496-507.
+</p>
+
 
 <h3>See Also</h3>
 
 <p>
 lm(), summary.lm(), pf()
-</BODY></HTML>
+</p>
+
+</body></html>

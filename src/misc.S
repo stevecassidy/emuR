@@ -35,6 +35,7 @@ structure(.Data = c(10, 100, 200, 300, 395, 510, 630, 765, 920, 1075, 1265,
 
 
 
+## return the index of the value in vec which is closest to val
 "closest" <- function(vec, val)
 {
 	newval <- min(abs((vec - val)))

@@ -1,5 +1,6 @@
-<HTML><HEAD><TITLE>R: Find the inter-euclidean distance for a data matrix</TITLE>
-<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+<html><head><title>R: Find the inter-euclidean distance for a data matrix</title>
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
 
 
 <h2>Find the inter-euclidean distance for a data matrix</h2>
@@ -7,46 +8,46 @@
 
 <h3>Usage</h3>
 
-<PRE>
+<pre>
 euclidean(data, m=1, n=ncol(data))
-</PRE>
+</pre>
 
 
 <h3>Arguments</h3>
 
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>data</CODE></TD>
-<TD>
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
 A vector or matrix of numerical data. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>m</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>m</code></td>
+<td>
 The first column of data to be used in the distance calculation.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>n</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
 The last column of data to be used in the distance calculation.
-</TD></TR>
-</TABLE>
-<P>
-</P>
+</td></tr>
+</table>
 
 <h3>Value</h3>
 
-<P>
+<p>
 Calculates the euclidean distance between successive rows of the matrix
-based on  columns m:n.</P>
+based on  columns m:n.</p>
 
 <h3>See Also</h3>
 
 <p>
 steady
+</p>
+
 
 <h3>Examples</h3>
 
-<PRE>
+<pre>
 &gt; euclidean(cbind(c(1,2,3,4), c(2,3,2,2)))
 [1] 1.414214 1.414214 1.000000
-</PRE>
+</pre>
 
-</BODY></HTML>
+</body></html>

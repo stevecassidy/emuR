@@ -1,5 +1,6 @@
-<HTML><HEAD><TITLE>R: Split a string into words.</TITLE>
-<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+<html><head><title>R: Split a string into words.</title>
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
 
 
 <h2>Split a string into words.</h2>
@@ -7,37 +8,35 @@
 
 <h3>Usage</h3>
 
-<PRE>
+<pre>
 splitstring(str,char)
-</PRE>
+</pre>
 
 
 <h3>Arguments</h3>
 
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>str</CODE></TD>
-<TD>
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
 A string.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>char</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>char</code></td>
+<td>
 A character to split on
-</TD></TR>
-</TABLE>
-<P>
-</P>
+</td></tr>
+</table>
 
 <h3>Value</h3>
 
-<P>
-A vector of strings.  The original <CODE>str</CODE> is split at ever occurrence of
-<CODE>char</CODE> to generate a vector of strings.</P>
+<p>
+A vector of strings.  The original <code>str</code> is split at ever occurrence of
+<code>char</code> to generate a vector of strings.</p>
 
 <h3>Examples</h3>
 
-<PRE>
+<pre>
 &gt; splitstring("/home/recog/steve/foo", "/")
 [1] "home" "recog" "steve" "foo"
-</PRE>
+</pre>
 
-</BODY></HTML>
+</body></html>

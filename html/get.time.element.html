@@ -1,5 +1,6 @@
-<HTML><HEAD><TITLE>R: Get data for a given time</TITLE>
-<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+<html><head><title>R: Get data for a given time</title>
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
 
 
 <h2>Get data for a given time</h2>
@@ -7,39 +8,39 @@
 
 <h3>Usage</h3>
 
-<PRE>
+<pre>
 get.time.element(time, trackdata)
-</PRE>
+</pre>
 
 
 <h3>Arguments</h3>
 
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>time</CODE></TD>
-<TD>
+<table summary="R argblock">
+<tr valign="top"><td><code>time</code></td>
+<td>
 A time in milliseconds
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>trackdata</CODE></TD>
-<TD>
-A trackdata object as returned by <CODE>track</CODE>.
-</TD></TR>
-</TABLE>
-<P>
-</P>
+</td></tr>
+<tr valign="top"><td><code>trackdata</code></td>
+<td>
+A trackdata object as returned by <code>track</code>.
+</td></tr>
+</table>
 
 <h3>Value</h3>
 
-<P>
-The element number of <CODE>trackdata$data</CODE> corresponding to <CODE>time</CODE></P>
+<p>
+The element number of <code>trackdata$data</code> corresponding to <code>time</code></p>
 
 <h3>See Also</h3>
 
 <p>
 track, frames
+</p>
+
 
 <h3>Examples</h3>
 
-<PRE>
+<pre>
 # Given a segment list: 
 &gt; segs
       start       end                           utt 
@@ -58,6 +59,6 @@ E "13155.2" "13240.4" "/home/dbase/dbase1/msadb001"
 # and to the midpoint of the last "E" segment: 
 &gt; get.time.element(13197.8, data )
 [1] 47
-</PRE>
+</pre>
 
-</BODY></HTML>
+</body></html>

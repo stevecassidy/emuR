@@ -7,7 +7,11 @@
 	normalised or averaged.  
 }
 \usage{
-dplot(dataset, labs=NULL, offset=0, ref.time=NULL, average=F, main="", xlab="time (ms)", ylab="", xlim=NULL, ylim=NULL, cex=0.5, linetype=F, normalise=F, colour=T, legn="tl", axes=T, amp=F)
+function(dataset, labs = NULL, offset = 0, ref.time = NULL,
+         average = F, main = "", xlab = "time (ms)", ylab = "",
+         xlim = NULL, ylim = NULL, cex = 0.5, linetype = F,
+         normalise = F, colour = T, legn = "tl", axes = T, 
+         amp = F, n = 20)
 }
 \arguments{
   \item{dataset}{ An Emu trackdata object.}

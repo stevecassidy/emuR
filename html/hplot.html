@@ -1,5 +1,6 @@
-<HTML><HEAD><TITLE>R: Plot superimposed histograms</TITLE>
-<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+<html><head><title>R: Plot superimposed histograms</title>
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
 
 
 <h2>Plot superimposed histograms</h2>
@@ -7,72 +8,74 @@
 
 <h3>Usage</h3>
 
-<PRE>
+<pre>
 hplot(vec, labs, xlab = "", ylab = "", main = "", 
          colour = T, xlim = NULL, axes = T, legn="tl")
-</PRE>
+</pre>
 
 
 <h3>Arguments</h3>
 
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>vec</CODE></TD>
-<TD>
+<table summary="R argblock">
+<tr valign="top"><td><code>vec</code></td>
+<td>
 A vector of numerical data.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>labs</CODE></TD>
-<TD>
-A vector of labels parallel to <CODE>vec</CODE>.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>xlab</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>labs</code></td>
+<td>
+A vector of labels parallel to <code>vec</code>.
+</td></tr>
+<tr valign="top"><td><code>xlab</code></td>
+<td>
 An x-axis label. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>ylab</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>ylab</code></td>
+<td>
 A y-axis label.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>main</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>main</code></td>
+<td>
 A main title for the plot.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>colour</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>colour</code></td>
+<td>
 If colour is TRUE, different colours will be used for each unique
 label. If it is FALSE, different shading patterns will be used. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>xlim</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>xlim</code></td>
+<td>
 The range of the x-axis.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>axes</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>axes</code></td>
+<td>
 If FALSE, no axes will be plotted. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>legn</CODE></TD>
-<TD>
-Where to put the legend. If <CODE>FALSE</CODE> no legend will be drawn, otherwise
-this can be one of <CODE>"tl"</CODE>, <CODE>"br"</CODE>, <CODE>"bl"</CODE> or <CODE>"tr"</CODE> (for top-left, bottom-right
-etc.) or <CODE>"loc"</CODE> (for locator) which requres you to position the legend
+</td></tr>
+<tr valign="top"><td><code>legn</code></td>
+<td>
+Where to put the legend. If <code>FALSE</code> no legend will be drawn, otherwise
+this can be one of <code>"tl"</code>, <code>"br"</code>, <code>"bl"</code> or <code>"tr"</code> (for top-left, bottom-right
+etc.) or <code>"loc"</code> (for locator) which requres you to position the legend
 with the mouse. 
-</TD></TR>
-</TABLE>
-<P>
-</P>
+</td></tr>
+</table>
 
 <h3>Value</h3>
 
-<P>
-None.</P>
+<p>
+None.</p>
 
 <h3>Side Effects</h3>
 
-<P>
+<p>
 Generates  multiple  overlaid histograms, one for each unique label in
-<CODE>labs</CODE>.</P>
+<code>labs</code>.
+</p>
+
 
 <h3>See Also</h3>
 
 <p>
 nplot, eplot
-</BODY></HTML>
+</p>
+
+</body></html>

@@ -1,8 +1,7 @@
 \name{ellipse}
 \alias{ellipse}
-\title{
-Calculate ellipse coordinates
-}
+\title{Calculate ellipse coordinates}
+\description{Calculates ellipse coordinates for eplot}
 \usage{
 ellipse(x, y, rx, ry, orient, incr=360/100)
 }

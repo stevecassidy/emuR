@@ -1,9 +1,10 @@
-\" -*-nroff-*-
 \name{dsmooth}
 \alias{dsmooth}
 \title{
 Smooth the data in a trackdata object.
 }
+\description{Smooths each dataset in a trackdata object using a running
+  mean smoother.}
 \usage{
 dsmooth(dataset)
 }

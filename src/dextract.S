@@ -11,44 +11,51 @@
 #									    #
 #############################################################################
 
+dextract <- function(dataset, start, end) {
+  if((start < 0) | (start > 1)) {
+    stop("proportional duration must be between 0 and 1")
+  }
+  if(!missing(end)) {
+    if((end < 0) | (end > 1)) {
+      stop("proportional duration must be between 0 and 1")
+    }
+    if(start > end) {
+      stop("proportional start must be less than proportional end")
+    }
+  }
 
-"dextract" <- function(dataset, start, end)
-{
-  if(missing(end)){
+  if(missing(end)) {
     leftin <- dataset$index[, 1]
     rightin <- dataset$index[, 2]
     scalein <- round((rightin - leftin) * start)
     outin <- leftin + scalein
-
     if(is.matrix(dataset$data))
-      return(dataset$data[outin, ])
-    else 
-      return(dataset$data[outin])
+      return(dataset$data[outin,  ])
+    else return(dataset$data[outin])
   }
   else {
     dapply(dataset, dextract.sub, start, end)
   }
 }
 
-"dextract.sub" <- function(data, ftime, start, end)
-{
-  if(is.matrix(data)){
+
+dextract.sub <- function(data, ftime, start, end) {
+  if(is.matrix(data)) {
     len <- nrow(data)
     start <- floor(start * len)
     end <- ceiling(end * len)
-    data <- data[start:end,]
-  } else {
+    data <- data[start:end,  ]
+  }
+  else {
     len <- length(data)
     start <- floor(start * len)
     end <- ceiling(end * len)
     data <- data[start:end]
   }
-  interval <- (ftime[2]-ftime[1])/len
-  ## new start
-  ftime[1] <- ftime[1] + interval*start
-  ## new end
-  ftime[2] <- ftime[2] + interval*end
-  list(data=data, ftime=ftime)
+  interval <- (ftime[2] - ftime[1])/len	## new start
+  ftime[1] <- ftime[1] + interval * start	## new end
+  ftime[2] <- ftime[2] + interval * end
+  list(data = data, ftime = ftime)
 }
 
 

@@ -1,5 +1,5 @@
 
-VERSION = 1.3
+VERSION = 1.4
 
 ## Splus source files, note that options.S MUST come first as it has the 
 ## configurable settings in it. 
@@ -32,15 +32,15 @@ Sbin: Ssource version-info
 	rm -rf .Data/*
 	Splus < Ssource
 
-R: $(SFILES)  emu/INDEX description version-info html-help
+R: $(SFILES)  emu/INDEX description version-info 
+	rm -f emu_$(VERSION)*.tar.gz	
 	mkdir -p emu/R
 	mkdir -p emu/man 
 	rm -f emu/R/* emu/man/*
-	cat $(SFILES) > emu/R/emu
+	cp $(SFILES) emu/R/
 	cp man/*.Rd emu/man
-	rm -rf emu/html
-	cp -R html emu/html
-	rm -f emu_R_$(VERSION).zip emu_R_$(VERSION).tar.gz
+	R CMD build --binary emu
+	tar xzf emu_$(VERSION)*.tar.gz
 	zip -r emu_R_$(VERSION).zip emu
 	tar czf emu_R_$(VERSION).tar.gz emu
 

@@ -12,7 +12,6 @@
 #############################################################################
 
 
-
 "dsmooth"<- function(dataset)
 {
   ## dataset: a list, as returned by track
@@ -20,17 +19,17 @@
   dapply(dataset, dsmooth.sub)
 }
 
+
 "dsmooth.sub" <- function(data, ftime)
 {
   if(is.matrix(data)){
     if(nrow(data)>5)
       data <- apply(data, 2, smooth)
-  }
-  else {
+  } else {
     if(length(data)>5)
       data <- smooth(data)
   }
-  list(data=data, ftime=ftime)
+  return( list(data=data, ftime=ftime) )
 }
 
 

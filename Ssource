@@ -18,7 +18,8 @@
 ## for Splus).
 
 if (version$platform == "Windows" ||
-    version$platform == "WIN386" ) {
+    version$platform == "WIN386" ||
+    version$os == "Win32") {
 
   ## change this value for windows
   emu.directory <- "C:\\Program Files\\Emu"
@@ -102,13 +103,19 @@ emu.version<-"1.3"
                 ),
            frame=0)
   }
+
+  
+  if( is.R() ) {
+    ## eda is needed for smooth, used in dsmooth
+    library("eda")
+  }
+
   invisible()
 }
 
 "emu.options" <- function( option ) {
     emu[[option]]
 }
-
 
 #############################################################################
 #                                                                           #
@@ -798,44 +805,51 @@ ddiff.sub <- function(data, ftime, n)
 #									    #
 #############################################################################
 
+dextract <- function(dataset, start, end) {
+  if((start < 0) | (start > 1)) {
+    stop("proportional duration must be between 0 and 1")
+  }
+  if(!missing(end)) {
+    if((end < 0) | (end > 1)) {
+      stop("proportional duration must be between 0 and 1")
+    }
+    if(start > end) {
+      stop("proportional start must be less than proportional end")
+    }
+  }
 
-"dextract" <- function(dataset, start, end)
-{
-  if(missing(end)){
+  if(missing(end)) {
     leftin <- dataset$index[, 1]
     rightin <- dataset$index[, 2]
     scalein <- round((rightin - leftin) * start)
     outin <- leftin + scalein
-
     if(is.matrix(dataset$data))
-      return(dataset$data[outin, ])
-    else 
-      return(dataset$data[outin])
+      return(dataset$data[outin,  ])
+    else return(dataset$data[outin])
   }
   else {
     dapply(dataset, dextract.sub, start, end)
   }
 }
 
-"dextract.sub" <- function(data, ftime, start, end)
-{
-  if(is.matrix(data)){
+
+dextract.sub <- function(data, ftime, start, end) {
+  if(is.matrix(data)) {
     len <- nrow(data)
     start <- floor(start * len)
     end <- ceiling(end * len)
-    data <- data[start:end,]
-  } else {
+    data <- data[start:end,  ]
+  }
+  else {
     len <- length(data)
     start <- floor(start * len)
     end <- ceiling(end * len)
     data <- data[start:end]
   }
-  interval <- (ftime[2]-ftime[1])/len
-  ## new start
-  ftime[1] <- ftime[1] + interval*start
-  ## new end
-  ftime[2] <- ftime[2] + interval*end
-  list(data=data, ftime=ftime)
+  interval <- (ftime[2] - ftime[1])/len	## new start
+  ftime[1] <- ftime[1] + interval * start	## new end
+  ftime[2] <- ftime[2] + interval * end
+  list(data = data, ftime = ftime)
 }
 
 
@@ -988,24 +1002,29 @@ ddiff.sub <- function(data, ftime, n)
 #############################################################################
 
 
-"dplot" <- function(dataset, labs = NULL, offset = 0, ref.time = NULL,
-                    average = F, main = "", xlab = "time (ms)",
-                    ylab = "", xlim = NULL, ylim = NULL, 
-                    cex = 0.5, linetype = F, normalise = F, colour = T,
-                    legn = "tl", axes = T, amp = F)
+"dplot"<-
+function(dataset, labs = NULL, offset = 0, ref.time = NULL,
+         average = F, main = "", xlab = "time (ms)", ylab = "",
+         xlim = NULL, ylim = NULL, cex = 0.5, linetype = F,
+         normalise = F, colour = T, legn = "tl", axes = T, 
+         amp = F, n = 20)
 {
-  ## this function is used to plot multiple signal files on the same plot, 
-  ## i.e. when the $data object returned from track has more than one 
-  ## dimension
+  pout <- NULL
+
   if(amp) {
+    if( is.null(ref.time) )
+      stop( "ref.time must be supplied if amp=T" )
     timevals <- dtime(dataset, ref.time)
     dataset <- dshift(dataset, timevals)
   }
+
   if(is.logical(legn)) {
-    if(!legn)
-      legn <- ""
+    if(!legn) legn <- ""
   }
+
   if(is.matrix(dataset$data)) {
+    pout <- as.list(NULL)
+    pout$data <- as.list(NULL)
     mat <- NULL
     if(is.null(ylim))
       ylim <- range(dataset$data)
@@ -1018,31 +1037,51 @@ ddiff.sub <- function(data, ftime, n)
     for(j in 1:ncol(dataset$data)) {
       mat <- dataset
       mat$data <- mat$data[, j]
-      prmat <- dplot.sub(mat, labs = labs, offset = offset, 
-			 ref.time = ref.time, average = average, main = 
-			 main[j], xlab = xlab[j], ylab = ylab[j], xlim
-			 = xlim, ylim = ylim, cex = cex, linetype = 
-			 linetype, normalise = normalise, colour = 
-			 colour, legn = legn[j], axes = axes[j])
+      if(!normalise)
+        vals <- dplot.time(mat, labs = labs, offset = offset,
+                           ref.time = ref.time, average = average,
+                           main = main[j], xlab = xlab[j], ylab = ylab[j],
+                           xlim = xlim, ylim = ylim, cex = cex,
+                           linetype = linetype, colour = colour, 
+                           legn = legn[j], axes = axes[j])
+      else
+        vals <- dplot.norm(mat, labs = labs, average = average,
+                           main = main[j], xlab = xlab[j], ylab = ylab[j],
+                           xlim = xlim, ylim = ylim, cex = cex,
+                           linetype = linetype, colour = colour,
+                           legn = legn[j], axes = axes[j], n = n)
+      
       par(new = T)
+      pout$data[[j]] <- vals$data
+      if(j == ncol(dataset$data)) {
+        pout$time <- vals$time
+        pout$labs <- vals$labs
+      }
     }
   } else {
-    prmat <- dplot.sub(dataset, labs = labs, offset = offset, 
-		       ref.time = ref.time, average = average, main = main, 
-		       xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim, 
-		       cex = cex, linetype = linetype, normalise = normalise, 
-		       colour = colour, legn = legn, axes = axes)
+    if(!normalise)
+      pout <- dplot.time(dataset, labs = labs, offset = offset,
+                         ref.time = ref.time, average = average, 
+                         main = main, xlab = xlab, ylab = ylab,
+                         xlim = xlim, ylim = ylim, cex = cex,
+                         linetype = linetype, colour = colour, legn = legn,
+                         axes = axes)
+    else
+      pout <- dplot.norm(dataset, labs = labs, average = average,
+                         main = main, xlab = xlab, ylab = ylab,
+                         xlim = xlim, ylim = ylim, cex = cex,
+                         linetype = linetype, colour = colour,
+                         legn = legn, axes = axes, n = n)
   }
   par(new = F)
-  invisible(prmat)
+  invisible(pout)
 }
 
-
-"dplot.sub"<-  function(dataset, labs = NULL, offset = 0, ref.time = NULL, 
-			average = F, main = "", xlab = "time (ms)", ylab = "", 
-			xlim = NULL, ylim = NULL, 
-			cex = 0.5, linetype = F, normalise = F, colour = T, 
-			legn = "tl", axes = T )
+"dplot.time"<- function(dataset, labs = NULL, offset = 0, ref.time = NULL,
+                        average = F, main = "", xlab = "time (ms)", ylab = "",
+                        xlim = NULL, ylim = NULL, cex = 0.5,
+                        linetype = F, colour = T, legn = "tl",
+                        axes = T)
 {
   ## dataset: as returned from track()
   ## labs: parallel labels
@@ -1050,13 +1089,13 @@ ddiff.sub <- function(data, ftime, n)
   ## average: should averaging be done?
   ## dplot.sub() can only be applied to single parameter tracks i.e.
   ## $data is one-dimensional
-  prmat1 <- NULL
-  if(is.null(labs)) legn <- ""
+  ## ovec: a list for storing the values if printmatrix is T
+  ovec <- as.list(NULL)
+  if(is.null(labs))
+    legn <- ""
 
-  ## find sample rate, assuming times in milliseconds
-  samrate <- 1000 * (dataset$index[1, 2] - dataset$index[1, 1]) /
-    (dataset$ftime[1, 2] - dataset$ftime[1, 1]) 
-
+  samrate <- 1000/((dataset$ftime[1, 2] - dataset$ftime[1, 1])/
+                   (dataset$index[1, 2] - dataset$index[1, 1]))
 
   if((offset < 0) | (offset > 1))
     stop("offset must be between 0 and 1")
@@ -1068,18 +1107,12 @@ ddiff.sub <- function(data, ftime, n)
   colour <- col.lty$colour
   linetype <- col.lty$linetype
 
-  if(normalise) {
-    normvals <- linear(dataset)
-    dataset$data <- normvals$data
-    dataset$index <- normvals$index
-  }
-
   if(is.null(ref.time))
-    ref.time <- dataset$ftime[, 1] + 
-      ((dataset$ftime[, 2] - dataset$ftime[, 1]) * offset)
+    ref.time <- dataset$ftime[, 1] +
+                ((dataset$ftime[, 2] - dataset$ftime[, 1]) * offset)
 
   maxlen <- 2 * (max(dataset$index[, 2] - dataset$index[, 1] + 1))
-  pointval <<- round(maxlen/2)
+  pointval <- round(maxlen/2)
   mat.na <- matrix(NA, nrow(dataset$index), maxlen)
 
   for(j in 1:nrow(dataset$index)) {
@@ -1088,7 +1121,8 @@ ddiff.sub <- function(data, ftime, n)
     length.index <- right - left + 1
     times <- dataset$ftime[j,  ]
     refn <- ref.time[j]
-    inval <- closest(seq(times[1], times[2], length = length.index), refn)
+    inval <- closest(seq(times[1], times[2], length = length.index),
+                     refn)
     inval <- inval[1]
     left.na <- pointval - inval + 1
     right.na <- left.na + length.index - 1
@@ -1099,97 +1133,176 @@ ddiff.sub <- function(data, ftime, n)
   natemp <- is.na(z)
   nums <- c(1:length(natemp))
   nonums <- nums[!natemp]
+  interval <- 1000/samrate
+
   if(is.null(xlim))
     xlim <- c(nonums[1], nonums[length(nonums)])
-    else {
-      interval <- 1000/samrate
-      xlim <- c(pointval + xlim[1]/interval, pointval + xlim[2]/interval)
-    }
+  else xlim <- c(pointval + xlim[1]/interval, pointval + xlim[2]/interval
+                 )
+  time1 <- (1 - pointval) * interval
+  time2 <- (ncol(mat.na) - pointval) * interval
+  xtime <- seq(time1, time2, length = ncol(mat.na))
+  xtimelim <- (xlim - pointval) * interval
+
   if(is.null(ylim))
     ylim <- range(mat.na, na.rm = T)
-  left.tick <- xlim[1] - pointval
-  right.tick <- xlim[2] - pointval
 
   if(!average) {
     for(j in 1:nrow(mat.na)) {
-      plot(mat.na[j,  ], 
-	   xlim = xlim, ylim = ylim, 
-	   xlab = "", ylab = "", 
-	   axes = F, 
-	   type = "l", 
-	   col = colour[j], lty = linetype[j])
+      plot(xtime, mat.na[j,  ], xlim = xtimelim, ylim = ylim, 
+           xlab = "", ylab = "", axes = F, type = "l", col
+           = colour[j], lty = linetype[j])
       par(new = T)
     }
-    prmat1$vals <- mat.na
-  } else { 
-    ## we average
+    ovec$data <- mat.na
+    ovec$time <- xtime
+    ovec$labs <- labs
+  }
+  else {
     if(!is.null(labs)) {
       outmat <- NULL
       outlabs <- NULL
       for(j in unique(labs)) {
-	temp <- labs == j
-	vals <- mat.na[temp,  ]
-	mvals <- apply(vals, 2, mean, na.rm = T)
-	outmat <- rbind(outmat, mvals)
-	outlabs <- c(outlabs, j)
+        temp <- labs == j
+        vals <- mat.na[temp,  ]
+        ## take the mean only if there are more than one
+        if( is.matrix(vals) ) {
+          mvals <- apply(vals, 2, mean, na.rm = T)
+        } else {
+          mvals <- vals
+        }
+        outmat <- rbind(outmat, mvals)
+        outlabs <- c(outlabs, j)
       }
-    } else {
+    }
+    else {
       outmat <- apply(mat.na, 2, mean, na.rm = T)
       outmat <- rbind(outmat)
       outlabs <- 1
     }
-
     col.code <- match(col.lty$legend$lab, unique(labs))
     colour <- col.lty$legend$col
     linetype <- col.lty$legend$lty
-
     for(j in 1:nrow(outmat)) {
-      plot(outmat[j,  ], xlim = xlim, ylim = ylim, xlab = "", ylab = "", axes = F, 
-	   type = "l", col = colour[col.code[j]], lty = linetype[col.code[j]])
+      plot(xtime, outmat[j,  ], xlim = xtimelim, ylim = ylim, 
+           xlab = "", ylab = "", axes = F, type = "l", col
+           = colour[col.code[j]], lty = linetype[col.code[
+                                    j]])
       par(new = T)
     }
-    prmat1$vals <- outmat
+    ovec$data <- outmat
+    ovec$time <- xtime
+    ovec$labs <- outlabs
   }
 
   if(axes) {
-    if(!normalise)
-      axis(side = 1, 
-	   at = seq(xlim[1], xlim[2], by = round(( xlim[2] - xlim[1])/10)), 
-	   labels = (( seq(left.tick, 
-			   right.tick, 
-			   by = round((right.tick - left.tick)/10))
-		      * 1000)
-		     / samrate),
-	   cex = cex)
-      else {
-	axis(side = 1, at = seq(xlim[1], xlim[2], length = 11), 
-	     labels = seq(0, 1, length = 11), cex = cex)
-	xlab <- "normalised time"
-      }
+    axis(side = 1, cex = cex)
     axis(side = 2, cex = cex)
     box()
   }
-
   title(main = main, xlab = xlab, ylab = ylab, cex = cex)
 
   if(legn != "") {
     legn <- mu.legend(legn, xlim, ylim)
-    legend(legn$x, legn$y, 
-	   col.lty$legend$lab, 
-	   col = col.lty$legend$col, 
-	   lty = col.lty$legend$lty, 
-	   cex = cex)
+    legend(legn$x, legn$y, col.lty$legend$lab, col = col.lty$legend$
+           col, lty = col.lty$legend$lty, cex = cex)
   }
 
-  prmat1$ref <- pointval
-  invisible(prmat1)
+  invisible(ovec)
 }
 
 
-# Local Variables:
-# mode:S
-# S-temp-buffer-p:t
-# End:
+
+"dplot.norm"<- function(dataset, labs = NULL, average = F,
+                        main = "", xlab = "time (ms)", ylab = "",
+                        xlim = NULL, ylim = NULL, cex = 0.5,
+                        linetype = F, colour = T,
+                        legn = "tl", axes = T, n = 20)
+{
+  ovec <- NULL
+  if(is.null(ylim))
+    ylim <- range(dataset$data)
+  if(is.null(xlim))
+    xlim <- c(0, 1)
+  if(is.null(labs)) {
+    legn <- ""
+    labs <- rep(1, nrow(dataset$index))
+  }
+
+  col.lty <- mu.colour(labs, colour, linetype)
+  colour <- col.lty$colour
+  linetype <- col.lty$linetype
+
+  mat.na <- linear(dataset, n)
+  mat.na$ftime <- dataset$ftime
+  class(mat.na) <- "trackdata"
+
+  xvec <- seq(0, 1, length = n)
+  lval <- nrow(dataset$index)
+
+  if(!average) {
+    for(j in 1:lval) {
+      plot(xvec, mat.na[j]$data, xlim = xlim, ylim = ylim, 
+           xlab = "", ylab = "", axes = F, type = "l", col
+           = colour[j], lty = linetype[j])
+      par(new = T)
+    }
+    ovec$data <- mat.na
+    ovec$time <- xvec
+    ovec$labs <- labs
+  }
+  else {
+    if(!is.null(labs)) {
+      outmat <- NULL
+      outlabs <- NULL
+      for(j in unique(labs)) {
+        temp <- labs == j
+        vals <- mat.na[temp]$data
+        vals <- matrix(vals, ncol = n, byrow = T)
+        ## take the mean only if there are more than one
+        if( is.matrix(vals) ) {
+          mvals <- apply(vals, 2, mean)
+        } else {
+          mvals <- vals
+        }
+        outmat <- rbind(outmat, mvals)
+        outlabs <- c(outlabs, j)
+      }
+    } else {
+      outmat <- apply(matrix(mat.na, ncol = 20, byrow = T), 2,
+                      mean)
+      outmat <- rbind(outmat)
+      outlabs <- 1
+    }
+    col.code <- match(col.lty$legend$lab, unique(labs))
+    colour <- col.lty$legend$col
+    linetype <- col.lty$legend$lty
+    for(j in 1:nrow(outmat)) {
+      plot(xvec, outmat[j,  ], xlim = xlim, ylim = ylim, xlab
+           = "", ylab = "", axes = F, type = "l", col = 
+           colour[col.code[j]], lty = linetype[col.code[j]
+                                  ])
+      par(new = T)
+    }
+    ovec$data <- outmat
+    ovec$time <- xvec
+    ovec$labs <- labs
+  }
+  if(axes) {
+    axis(side = 1, cex = cex)
+    axis(side = 2, cex = cex)
+    box()
+  }
+  
+  title(main = main, xlab = xlab, ylab = ylab, cex = cex)
+
+  if(legn != "") {
+    legn <- mu.legend(legn, xlim, ylim)
+    legend(legn$x, legn$y, col.lty$legend$lab, col = col.lty$legend$
+           col, lty = col.lty$legend$lty, cex = cex)
+  }
+  invisible(ovec)
+}
 #############################################################################
 #                                                                           #
 #   copyright            : (C) 2000 SHLRC, Macquarie University             #
@@ -1236,7 +1349,6 @@ ddiff.sub <- function(data, ftime, n)
 #############################################################################
 
 
-
 "dsmooth"<- function(dataset)
 {
   ## dataset: a list, as returned by track
@@ -1244,17 +1356,17 @@ ddiff.sub <- function(data, ftime, n)
   dapply(dataset, dsmooth.sub)
 }
 
+
 "dsmooth.sub" <- function(data, ftime)
 {
   if(is.matrix(data)){
     if(nrow(data)>5)
       data <- apply(data, 2, smooth)
-  }
-  else {
+  } else {
     if(length(data)>5)
       data <- smooth(data)
   }
-  list(data=data, ftime=ftime)
+  return( list(data=data, ftime=ftime) )
 }
 
 
@@ -1275,35 +1387,18 @@ ddiff.sub <- function(data, ftime, n)
 #									    #
 #############################################################################
 
-"dcut" <- function( dataset, cut=0.5 )
-{
-  ## work out the cut time
-  times <- dataset$ftime[,1] + (dataset$ftime[,2] - dataset$ftime[,1])*cut
 
-  dtime( dataset, times, single=T, method="first" )
-}
+dtime <- function(dataset, times, single = T, average = T) {
+  if(!is.matrix(dataset$data))
+    dataset$data <- cbind(dataset$data)
 
-
-
-"dtime"<- function(dataset, times, single = F, method = "average")
-{
-  ## extracts the data values at the corresponding times in ms
-  ## single: if T, then always return only
-  ## one value - sometimes, two time values are
-  ## returned in times[n] is equitemporal between
-  ## dataset$ftime[n,1] and dataset$ftime[n,2]
-  ## method: only applies if single=T; if
-  ## times[n] is equitemporal between
-  ## dataset$ftime[n,1] and dataset$ftime[n,2], then
-  ## the two returned values are averaged if
-  ## method = "average"; otherwise the first
-  ## of the two values is taken
-  if(!is.matrix(dataset$data)) dataset$data <- cbind(dataset$data)
   if(!is.matrix(dataset$index)) {
     dataset$index <- rbind(dataset$index)
     dataset$ftime <- rbind(dataset$ftime)
   }
+
   mat <- NULL
+
   for(j in 1:length(times)) {
     left <- dataset$index[j, 1]
     right <- dataset$index[j, 2]
@@ -1317,21 +1412,131 @@ ddiff.sub <- function(data, ftime, n)
     cval <- closest(seq.times, times[j])
     if(single) {
       if(length(cval) > 1) {
-	if(method == "average") {
-	  cval <- mean(cval)
-	} else {
-	  cval <- cval[1]
-	}
+        if(average) {
+          cval <- mean(cval)
+        }
+        else {
+          cval <- cval[1]
+        }
       }
     }
     mat <- rbind(mat, dat[cval,  ])
   }
+
   if(ncol(mat) == 1) {
     c(mat)
-  } else { 
+  }
+  else {
     mat
   }
 }
+
+
+
+"dcut"<- function(trackdata, left.time, right.time, single = T,
+                  average = T, prop = F)
+{
+  ## trackdata: an object of class trackdata
+  ## left.time: a vector of times which must be greater
+  ## than trackdata$ftime[,1]
+  ## right.time: a vector of times which must be less
+  ## than trackdata$ftime[,2]
+  ## if right.time is missing, then a vector or
+  ## matrix of values are returned at left.time
+  ## single: only applies if right.time is missing
+  ## sometimes two values might be equitemporal
+  ## between a left.time value, so if single is T
+  ## only one of these is returned (see method below)
+  ## average: only applies if right.time is missing and
+  ## if single is T. If average is T and two
+  ## values are equitemporal between a left.time value, 
+  ## then the values are averaged; otherwise the first
+  ## value is taken
+  ## prop: if prop is T then left.time and right.time
+  ## must be single valued vectors between 0 and 1
+  ## For example, if prop = T and left.time is 0.25
+  ## and right.time is 0.7, then trackdata is returned
+  ## from time points corresponding to 25% of the duration
+  ## into the trackdata to 70% of the duration into the
+  ## trackdata. If right.time is missing and prop=T, then
+  ## a vector or matrix is returned at a 
+  ## time corresponding to 100 * left.time %. For example, 
+  ## dcut(trackdata, 0.5, prop=T) extracts the values
+  ## at the 50% time point
+  ## 
+  ##
+
+  if(prop) {
+    if(missing(right.time))
+      omat <- dextract(trackdata, left.time)
+    else
+      omat <- dextract(trackdata, left.time, right.time)
+  } else {
+    if(missing(right.time))
+      omat <- dtime(trackdata, left.time, single = single, 
+                    average = average)
+    else {
+      if(length(left.time) != nrow(trackdata$ftime)) {
+        stop( "different number of elements in left.time and $ftime")
+      }
+      if(length(right.time) != nrow(trackdata$ftime)) {
+        stop("different number of elements in right.time and $ftime")
+      }
+      if(any(left.time < trackdata$ftime[, 1])) 
+        stop("some left.time values are less than $ftime[,1]")
+
+      if(any(right.time > trackdata$ftime[, 2])) 
+        stop("some right.time values are greater than $ftime[,2]")
+
+      if( any( right.time <= left.time ) ) 
+        stop("some right.time values are before the corresponding left.time")
+
+      lval <- nrow(trackdata$index)
+      for(j in 1:lval) {
+        tdat <- dcut.sub(trackdata[j], left.time[j], 
+                         right.time[j])
+        if(j == 1)
+          omat <- tdat
+        else omat <- bind(omat, tdat)
+      }
+    }
+  }
+  omat
+}
+
+"dcut.sub" <- function(trackdata, left.time, right.time)
+{
+  vals <- trackdata$data
+  left <- trackdata$ftime[1]
+  right <- trackdata$ftime[2]
+
+  if(is.matrix(vals))
+    N <- nrow(vals)
+  else
+    N <- length(vals)
+  
+  times <- seq(left, right, length = N)
+  first <- closest(times, left.time)
+
+  if(length(first) > 1)
+    first <- round(mean(first))
+
+  second <- closest(times, right.time)
+
+  if(length(second) > 1)
+    second <- round(mean(second))
+
+  if(is.matrix(vals))
+    trackdata$data <- vals[first:second,  ]
+  else
+    trackdata$data <- cbind(vals[first:second]
+                               )
+  trackdata$ftime <- cbind(times[first], times[second])
+  trackdata$index <- cbind(1, length(first:second))
+  
+  as.trackdata(trackdata$data, trackdata$index, trackdata$ftime)
+}
+
 
 # Local Variables:
 # mode:S
@@ -2063,7 +2268,7 @@ slen <- function(segs)
     temp <- labs == j
     vals <- vec[temp]
     hist(vals, xlab = "", ylab = "", main = "", col = col[k], xlim = 
-	 xlim, ylim = ylim, axes = F, angle = angle[k], density=dens[k])
+	 xlim, ylim = ylim)
     lableg$lab <- c(lableg$lab, j)
     lableg$col <- c(lableg$col, col)
     lableg$angle <- c(lableg$angle, angle[k])
@@ -2073,9 +2278,9 @@ slen <- function(segs)
   if(legn!=F){
     legn _ mu.legend(legn, xlim, ylim)
     legend(legn$x, legn$y, legend = lableg$lab, 
-	   density = dens, angle = lableg$angle, col = lableg$col)
+	   col = lableg$col)
   }
-  title(main = main, xlab = xlab, ylab = ylab, col = 1, axes = axes)
+  title(main = main, xlab = xlab, ylab = ylab, col = 1)
 }
 
 
@@ -2218,7 +2423,7 @@ slen <- function(segs)
 		plot(midvals, onsetvals, type = "n", col = col, ylab = "", xlab
 			 = "", xlim = xlim, ylim = ylim)
 	regr <- lsfit(midvals, onsetvals)
-	mat <- rbind(cbind(1, -1), cbind(1, .Uminus(regr$coef[2])))
+	mat <- rbind(cbind(1, -1), cbind(1, -regr$coef[2]))
 	vec <- c(0, regr$coef[1])
 	regr$solve <- ((solve(mat) %*% vec)[1])
 	if(plot.graph) {
@@ -2280,6 +2485,7 @@ structure(.Data = c(10, 100, 200, 300, 395, 510, 630, 765, 920, 1075, 1265,
 
 
 
+## return the index of the value in vec which is closest to val
 "closest" <- function(vec, val)
 {
 	newval <- min(abs((vec - val)))
@@ -3656,7 +3862,7 @@ emu.tempfile <- function(prefix) {
 
 emu.platform <- function(what) {
   if( is.R() ) {
-    if( version$platform == "Windows" ) {
+    if( version$platform == "Windows" || version$os == "Win32" ) {
       return(what == "Windows")
     } else {
       return(what == "Unix")
@@ -3689,7 +3895,7 @@ emu.platform <- function(what) {
 "uttplot"<- function(segs, param, data, labtype, colour=T, linetype=F,
                      defcolour = 1, xlim = NULL, ylim = NULL,
                      xlab = "time (ms)",  ylab = "", 
-                     main = "", zeros = F, pdat = 0.5, boundplot = T, 
+                     main = "", zeros = F, pdat = 0.5, labcol=7,
                      labels = NULL, labeltimes = NULL, labcentre = F,
                      dolabels=T, differ = NULL, smoothing = F, flipped = F, 
                      axes = T, ...)
@@ -3699,13 +3905,7 @@ emu.platform <- function(what) {
 
   nsegs <- nrow(segs)
 
-#  if(talk){
-#    utt.dat <- emu.track(segs, "samples")
-#  }
-#  if((talk) & (param == "samples")) 
-#    values <- utt.dat
-#  else 
-    values <- emu.track(segs, param)
+  values <- emu.track(segs, param)
 
   if(!missing(data)) values$data <- data
   if(!is.null(differ)) {
@@ -3716,15 +3916,16 @@ emu.platform <- function(what) {
   if(smoothing) values$data <- apply(values$data, 2, smooth)
   if(flipped) values$data <- .Uminus(values$data)
 
-
   left.time <- values$ftime[1, 1]
   right.time <- values$ftime[nsegs, 2]
 
   ## colours for label boundaries in white if colour is T
-  if(!colour)
-    labcol _ 1
-  else
-    labcol _ 7
+  if(missing(labcol)) {
+    if(!colour)
+      labcol _ 1
+    else
+      labcol _ 7
+  }
 
   timevals <- seq(left.time, right.time, length = nrow(values$data))
   if(zeros) {
@@ -3767,44 +3968,49 @@ emu.platform <- function(what) {
     temp <- (startvals < lefttime) | (endvals > righttime)
     segs <- segs[!temp,  ]
   }
-  if(boundplot) {
-    if(!is.null(segs)) {
-      if(!is.null(labeltimes))
-	boundtimes <- labeltimes
-      else {
-	midtimes <- (mustart(segs) + muend(segs))/2
-	boundtimes <- c(mustart(segs), muend(segs[nrow(segs),  ]))
-      }
-      abline(v = boundtimes, lty = 2, col = labcol)
-      if(dolabels) {
-	if(!is.null(labels)) {
-	  labs <- labels
-	  if(labcentre) {
-	    midmat <- NULL
-	    for(j in 1:(length(boundtimes) - 1)) {
-	      midval <- (boundtimes[j] + boundtimes[j + 1])/2
-	      midmat <- c(midmat, midval)
-	    }
-	    boundtimes <- midmat
-	  }
-	  for( i in 1:length(labs) )
-	    mtext(labs[i], side = 3, line = 1, at = boundtimes[i], col = labcol)
-	}
-	else {
-	  labs <- segs$labels
-	  for( i in 1:length(labs) )
-	    mtext(labs[i], side = 3, line = 1, at = midtimes[i], col = labcol)
-	}
-      } 
-    }
+  if(!is.null(labeltimes)) {
+    ## draw the labels given 
+    uttplot.drawlabels( labels, labeltimes, boundtimes, colour=labcol,
+                       line=1, dolabels=dolabels  )
   }
-#  if(talk) utt.talk(utt.dat, internalspeaker=ispk)
+  if(!is.null(segs)) {
+    ## draw the labelsn from the segment list
+    uttplot.drawsegs( segs, colour=labcol, line=1, dolabels=dolabels )
+  }
   if(axes){
     axis(1)
     axis(2)
     box()
   }
   title(main = main, ylab = ylab, xlab = xlab)
+}
+
+
+uttplot.drawsegs <- function(segs, colour=1, dolabels=T, line=0) {
+
+  ## work out where to draw the lines
+  if( attributes(segs)$type == "event" ) {
+    labeltimes <- mustart(segs)
+    boundtimes <- labeltimes
+  } else {
+    labeltimes <- (mustart(segs) + muend(segs))/2
+    boundtimes <- c(mustart(segs[1,]), muend(segs))
+  }
+
+  uttplot.drawlabels( label(segs), labeltimes, boundtimes, colour,
+                     dolabels, line )
+}
+
+
+
+uttplot.drawlabels <- function( labels, labeltimes, boundtimes,
+                               colour=1, dolabels=T, line=0) {
+  abline(v = boundtimes, lty = 2, col = colour)
+  if(dolabels) {
+    for( i in 1:length(labels)  ) {
+      mtext(labels[i], side = 3, line = line, at = labeltimes[i], col = colour)
+    } 
+  } 
 }
 
 

@@ -1,5 +1,6 @@
-<HTML><HEAD><TITLE>R: Ellipse plot</TITLE>
-<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+<html><head><title>R: Ellipse plot</title>
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
 
 
 <h2>Ellipse plot</h2>
@@ -7,122 +8,124 @@
 
 <h3>Usage</h3>
 
-<PRE>
+<pre>
 function(data, labs, chars, formant = F, scaling = "linear", 
          nsdev = 2.447747, dopoints = F, classify = F, 
          doellipse=F, centroid = F, main="", xlab="", ylab="", axes = T,
          xlim, ylim, colour, linetype, ...)
-</PRE>
+</pre>
 
 
 <h3>Arguments</h3>
 
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>data</CODE></TD>
-<TD>
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
 A two-columned matrix of data
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>labs</CODE></TD>
-<TD>
-A vector of labels, parallel to <CODE>data</CODE>.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>chars</CODE></TD>
-<TD>
-A vector of labels, parallel to <CODE>data</CODE>. If this argument is specified
-these labels will be plotted rather than the labels in <CODE>labs</CODE>.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>formant</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>labs</code></td>
+<td>
+A vector of labels, parallel to <code>data</code>.
+</td></tr>
+<tr valign="top"><td><code>chars</code></td>
+<td>
+A vector of labels, parallel to <code>data</code>. If this argument is specified
+these labels will be plotted rather than the labels in <code>labs</code>.
+</td></tr>
+<tr valign="top"><td><code>formant</code></td>
+<td>
 If TRUE, then the data is negated so that, for formant data, the plot
 is made in the -F2/-F1 plane.  This gives a similar layout to the
 common vowel quadrilateral.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>scaling</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>scaling</code></td>
+<td>
 Either "mel" or "bark" for mel or bark scaling of the data. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>nsdev</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>nsdev</code></td>
+<td>
 Defines the length of the major and minor axes of the ellipses in terms
 of the standard deviation of the data. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>dopoints</CODE></TD>
-<TD>
-If TRUE, character labels (from <CODE>labs</CODE> or <CODE>chars</CODE>) are plotted for each
+</td></tr>
+<tr valign="top"><td><code>dopoints</code></td>
+<td>
+If TRUE, character labels (from <code>labs</code> or <code>chars</code>) are plotted for each
 data point.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>doellipse</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>doellipse</code></td>
+<td>
 If T, ellipses are drawn on the plot. If F, no ellipses are drawn and, if
 'dopoints' is also F, 'centroids' is set to T. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>centroid</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>centroid</code></td>
+<td>
 If T, a single character label is plotted at the center of each ellipse.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>classify</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>classify</code></td>
+<td>
 If classify is TRUE, a gaussian (mahalanobis distance) classification
 is carried out on the data and the confusion matrix is returned.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>main</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>main</code></td>
+<td>
 A main title for the plot.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>xlab,</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>xlab,</code></td>
+<td>
 Titles for the x and y axes.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>axes</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>axes</code></td>
+<td>
 If TRUE axes are drawn on the plot.
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>xlim,</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>xlim,</code></td>
+<td>
 The bounds of the plot on the x and y axes, each should be a two
 element vector giving the minimum and maximum values to plot. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>colour</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>colour</code></td>
+<td>
 If colour is TRUE, the ellipses and labels will be plotted in different
 colours. 
-</TD></TR>
-<TR VALIGN="TOP"><TD><CODE>linetype</CODE></TD>
-<TD>
+</td></tr>
+<tr valign="top"><td><code>linetype</code></td>
+<td>
 If linetype is TRUE, the ellipses will be plotted with different
 linetypes.  This is useful for plots that will be printed. 
-<P>
+<br>
 This function will also accept any of the standard graphical parameters
-which can be passed to <CODE>par()</CODE>, for example <CODE>cex</CODE> which specifies the
+which can be passed to <code>par()</code>, for example <code>cex</code> which specifies the
 size of characters to be used.  
-<P>
-</TD></TR>
-</TABLE>
-<P>
-</P>
+<br>
+</td></tr>
+</table>
 
 <h3>Value</h3>
 
-<P>
-A confusion matrix, if the classify argument is TRUE, otherwise NULL.</P>
+<p>
+A confusion matrix, if the classify argument is TRUE, otherwise NULL.</p>
 
 <h3>Side Effects</h3>
 
-<P>
+<p>
 A plot is generated consisting of an ellipse defining the distribution
 of each class within the given labels.  The mean and covariance of each
 class is estimated from the data and plotted. Labels may be plotted for
-each data point or at the class mean for each class.</P>
+each data point or at the class mean for each class.
+</p>
+
 
 <h3>See Also</h3>
 
 <p>
 train(), mahal()
+</p>
+
 
 <h3>Examples</h3>
 
-<PRE>
+<pre>
 eplot(formantdata, vowellabs, centroids=T)
-</PRE>
+</pre>
 
-</BODY></HTML>
+</body></html>

@@ -1,6 +1,9 @@
+\name{Slope.test}
+\alias{Slope.test}
+\title{Slope Test}
 \description{
-tests whether the difference between two or more regression lines
-is significant
+Tests whether the difference between two or more regression lines is
+significant 
 }
 \usage{
 slope.test(\dots)

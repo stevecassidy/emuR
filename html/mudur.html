@@ -1,5 +1,6 @@
-<HTML><HEAD><TITLE>R: Extract times and durations from an Emu segment list</TITLE>
-<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+<html><head><title>R: Extract times and durations from an Emu segment list</title>
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
 
 
 <h2>Extract times and durations from an Emu segment list</h2>
@@ -7,41 +8,43 @@
 
 <h3>Usage</h3>
 
-<PRE>mustart(segs)</PRE>
+<pre>mustart(segs)</pre>
 
 
 <h3>Arguments</h3>
 
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>segs</CODE></TD>
-<TD>
-An Emu segment list.</TD></TR>
-</TABLE>
-<P>
-</P>
+<table summary="R argblock">
+<tr valign="top"><td><code>segs</code></td>
+<td>
+An Emu segment list.</td></tr>
+</table>
 
 <h3>Value</h3>
 
-<P>
+<p>
 A vector containing one element per segment in the segment list.
-<CODE>mustart</CODE> <CODE>muend</CODE> extract the start and end times of each
-segment in a segment list.  <CODE>mudur</CODE> extracts the duration of each
-segment.</P>
+<code>mustart</code> <code>muend</code> extract the start and end times of each
+segment in a segment list.  <code>mudur</code> extracts the duration of each
+segment.</p>
 
 <h3>References</h3>
 
 <p>
 See the Emu documentation at:
-<A HREF="http://www.shlrc.mq.edu.au/emu">http://www.shlrc.mq.edu.au/emu</A>
+<a href="http://www.shlrc.mq.edu.au/emu">http://www.shlrc.mq.edu.au/emu</a>
+</p>
+
 
 <h3>See Also</h3>
 
 <p>
-<CODE><A HREF="emu.query.html">emu.query</A></CODE>
+<code><a href="emu.query.html">emu.query</a></code>
+</p>
+
 
 <h3>Examples</h3>
 
-<PRE>
+<pre>
 ## assumes a database called demo is available on your system and that
 ## the Emu system is installed. 
 
@@ -52,6 +55,6 @@ segs &lt;- emu.query("demo", "*", "Phonetic=vowel")
 durations &lt;- mudur( segs )
 hplot( durations, label(segs )
 
-</PRE>
+</pre>
 
-</BODY></HTML>
+</body></html>

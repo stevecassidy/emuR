@@ -1,5 +1,6 @@
-<HTML><HEAD><TITLE>R: Query an Emu Database</TITLE>
-<LINK REL=STYLESHEET TYPE="text/css" SRC="style.css"></HEAD><BODY>
+<html><head><title>R: Query an Emu Database</title>
+<link rel="stylesheet" type="text/css" href="../../R.css">
+</head><body>
 
 
 <h2>Query an Emu Database</h2>
@@ -12,46 +13,48 @@ Perform a query on an Emu speech database selecting segments for
 subsequent analysis.  The return value is a segment list containing
 the labels, start and end times and utterance name of each token
 matching the query.
+</p>
+
 
 <h3>Usage</h3>
 
-<PRE>
+<pre>
 emu.query(template, pattern=NULL, query="")
-</PRE>
+</pre>
 
 
 <h3>Arguments</h3>
 
-<TABLE>
-<TR VALIGN="TOP"><TD><CODE>template</CODE></TD>
-<TD>
-The name of the Emu database to query (in quotes)  </TD></TR>
-<TR VALIGN="TOP"><TD><CODE>pattern</CODE></TD>
-<TD>
+<table summary="R argblock">
+<tr valign="top"><td><code>template</code></td>
+<td>
+The name of the Emu database to query (in quotes)  </td></tr>
+<tr valign="top"><td><code>pattern</code></td>
+<td>
 A pattern matching utterances to be searched from the
-database  </TD></TR>
-<TR VALIGN="TOP"><TD><CODE>query</CODE></TD>
-<TD>
-a valid Emu query </TD></TR>
-</TABLE>
-<P>
-</P>
+database  </td></tr>
+<tr valign="top"><td><code>query</code></td>
+<td>
+a valid Emu query </td></tr>
+</table>
 
 <h3>Details</h3>
 
 <p>
 The Emu query language is described in the Emu
-documentation. <CODE>template</CODE> must refer to a valid database template
-on your system, ie. the template file name without the <CODE>.tpl</CODE>
+documentation. <code>template</code> must refer to a valid database template
+on your system, ie. the template file name without the <code>.tpl</code>
 extension.
+</p>
+
 
 <h3>Value</h3>
 
-<P>
-An object of type <CODE>emusegs</CODE> with one row per token matched by the
+<p>
+An object of type <code>emusegs</code> with one row per token matched by the
 query and columns for the token label, start time, end time and
-utterance name.  This can be passed to <CODE><A HREF="emu.track.html">emu.track</A></CODE> to extract
-speech data corresponding to each token.</P>
+utterance name.  This can be passed to <code><a href="emu.track.html">emu.track</a></code> to extract
+speech data corresponding to each token.</p>
 
 <h3>Note</h3>
 
@@ -59,21 +62,27 @@ speech data corresponding to each token.</P>
 This function calls an external program which is part of the Emu
 speech database system and so requires this system to be installed on
 your computer. See the Emu web site for details.
+</p>
+
 
 <h3>Author(s)</h3>
 
 <p>
 Steve Cassidy &lt;Steve.Cassidy@mq.edu.au&gt;
+</p>
+
 
 <h3>References</h3>
 
 <p>
 See the Emu documentation at:
-<A HREF="http://www.shlrc.mq.edu.au/emu">http://www.shlrc.mq.edu.au/emu</A>
+<a href="http://www.shlrc.mq.edu.au/emu">http://www.shlrc.mq.edu.au/emu</a>
+</p>
+
 
 <h3>Examples</h3>
 
-<PRE>
+<pre>
 
 ## assumes a database called demo is available on your system and that
 ## the Emu system is installed. 
@@ -86,6 +95,6 @@ summary(segs)
 data &lt;- emu.track( segs, "fm", cut=0.5 )
 eplot( data[,1:2], label( segs ), dopoints=T )
 
-</PRE>
+</pre>
 
-</BODY></HTML>
+</body></html>
