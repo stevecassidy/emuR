@@ -1,6 +1,7 @@
-R = /Applications/StartR.app/RAqua.app/Contents/bin/R
+#R = /Applications/StartR.app/RAqua.app/Contents/bin/R
+R = R
 
-VERSION = 1.7
+VERSION = 1.7.1
 
 ## Splus source files, note that options.S MUST come first as it has the 
 ## configurable settings in it. 
@@ -43,19 +44,20 @@ emudir:  version-info
 	rm -f emu/R/* emu/man/*
 	cp $(SFILES) emu/R/
 	cp man/*.Rd emu/man
-	cp  data/* emu/data
+	cp  data/*.* emu/data
 
 check:	emudir
 	$(R) CMD check emu
 
+# note that we need --binary below not because we are building binary
+# code but because the resulting module won't load in Windows 
+# without this
 R: $(SFILES) emudir 
-	$(R) CMD build emu
-
-
-blah:
+	rm  emu_*gz emu_*zip
+	$(R) CMD build --binary emu
 	tar xzf emu_$(VERSION)*.tar.gz
 	zip -r emu_$(VERSION).zip emu
-	tar czf emu_$(VERSION).tar.gz emu
+	tar czf emu_$(VERSION)_R.tar.gz emu
 
 version-info:
 	sed -e 's/\(emu\.version<-\)"[0-9.]*"/\1"$(VERSION)"/' src/AAoptions.S > tmp

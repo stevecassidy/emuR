@@ -64,24 +64,20 @@ if (emu.platform("Windows")) {
 
 
 ## this will get changed by the Makefile
-emu.version<-"1.7"
+emu.version<-"1.7.1"
 
 "emu.init" <- function() {
 
-  cat("emu.init thinks that emu.directory is ", emu.directory, "\n")
 	
   if (emu.platform("MacOS")) {
     dirsep <- ":"
     gettrack <- ""
-    cat("MacOS\n")
   } else if (emu.platform("Windows")) {
     dirsep <- "\\"
     gettrack <- "gettrack.exe"
-    cat("Windows\n")
   } else if (emu.platform("Unix")) {
     dirsep <- "/"
     gettrack <- "gettrack"
-    cat("Unix\n")
   } else {
     stop("Panic! I can't work out what platform I'm running on!\
 Please report this as  a bug at http://sf.net/projects/emu including\
