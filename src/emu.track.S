@@ -34,7 +34,8 @@
 
 
 
-"emu.track"<- function( seglist, trackname, cut=NULL, 
+"emu.track"<- function( seglist, trackname,
+                       cut=NULL, npoints=NULL,                       
 		       template=attr(seglist, "database")) 
 {
   if(emu.platform("MacOS")) {
@@ -63,6 +64,12 @@
     cut <- ""
   }
 
+  if(!missing(npoints)) {
+    npoints <- paste( "-n", npoints )
+  } else {
+    npoints <- ""
+  }
+
   if (is.R()) {
     ## change to the template directory to make relative paths work
     currentwd <- getwd()
@@ -76,6 +83,7 @@
   }
   command <- emu.command.name( emu.options("gettrack"),
                               cut,
+                              npoints,
                               segfile, trackname, resultfile )
 
   opstat <- emu.system( command )
@@ -93,7 +101,7 @@
   type <- attr(seglist, "type" )
 
   ## now read in the time/index data and the data 
-  if(type == "event" || cut != "" ) {
+  if(npoints == "" && (type == "event" || cut != "") ) {
     ## just read in the data and return it as a matrix
     as.matrix(read.table( resultfile ))
   } else {
