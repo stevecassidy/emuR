@@ -1,4 +1,5 @@
 \name{dextract.lab}
+\alias{dextract.lab}
 \title{
 Extract a subset of data from a trackdata object
 }

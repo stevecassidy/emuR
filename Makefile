@@ -46,11 +46,11 @@ R: $(SFILES)  emu/INDEX description version-info
 	tar czf emu_R_$(VERSION).tar.gz emu
 
 version-info:
-	sed -e 's/\(emu\.version<-\)"[0-9]*.[0-9]*"/\1"$(VERSION)"/' src/AAoptions.S > tmp
+	sed -e 's/\(emu\.version<-\)"[0-9.]*"/\1"$(VERSION)"/' src/AAoptions.S > tmp
 	mv tmp src/AAoptions.S
 
 description:
-	sed -e 's/Version: [0-9]*.[0-9]*/Version: $(VERSION)/' DESCRIPTION > emu/DESCRIPTION
+	sed -e 's/Version: [0-9.]*/Version: $(VERSION)/' DESCRIPTION > emu/DESCRIPTION
 
 
 emu/INDEX: $(RDFILES)

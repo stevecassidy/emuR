@@ -1,4 +1,5 @@
 \name{Slope.test}
+\alias{Slope.test}
 \title{Slope Test}
 \description{
 Tests whether the difference between two or more regression lines is
