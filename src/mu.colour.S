@@ -28,11 +28,12 @@
   ## will be assigned to label in the resulting list
   
   len <- length(labs)
+  ulen <- length(unique(labs))
 
-  if( length(col)==2*length(unique(labs)) ) {
-    colours <- 1:length(labs)
+  if( length(col)==2*ulen ) {
+    colours <- 1:len
     n <- 1
-    while( n <= length(unique(labs)) ) {
+    while( n <= ulen ) {
       lab <- col[2*n-1]
       colour <- col[2*n]
       colours[labs==lab] <- as.numeric(colour)
@@ -47,9 +48,17 @@
     if(length(col)!=length(labs)) 
       stop("length of colour vector differs from that of labels")
   } else {
-    if(col)
-      col <- 1:length(unique(labs))
-    else col <- rep(defaultcolour, len)
+    if(col) {
+      colours <- 1:ulen
+      # assign colours to each label uniquely
+      col <- labs
+      ulabels <- unique(labs)
+      for (i in 1:len) {
+        col[i] <- colours[ulabels==labs[i]]
+      }
+    } else {
+      col <- rep(defaultcolour, len)
+    }
   }
 
   if(!is.logical(linetype)){
@@ -62,10 +71,17 @@
       stop("length of linetype vector differs from that of labels")
   }
   else {
-    if(linetype)
-      linetype <- 1:length(unique(labs))
-    else 
+    if(linetype) {
+      lty <- 1:ulen
+      # assign linetypes to each label uniquely
+      linetype <- labs
+      ulabels <- unique(labs)
+      for (i in 1:len) {
+        linetype[i] <- lty[ulabels==labs[i]]
+      }
+    } else  {
       linetype <- rep(1, len)
+    }
   }
   foo <- NULL
   foo$colour <- col
@@ -78,6 +94,22 @@
   foo$legend$lty <- foo$linetype[!p1.temp]
   return(foo)
 }
+
+## return the colour for a given label via the colour object
+mu.colour.get <- function(col.lty, label) {
+
+  colour <- col.lty$legend$col[match(label, col.lty$legend$lab)]
+  return( colour )
+
+}
+
+mu.linetype.get <- function(col.lty, label) {
+
+  lty <- col.lty$legend$lty[match(label, col.lty$legend$lab)]
+  return( lty )
+
+}
+
 
 
 # Local Variables:

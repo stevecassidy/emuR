@@ -39,7 +39,6 @@
   if(formant)
     data <- cbind(-data[, 2], -data[, 1])
   col.lty <- mu.colour(labs, colour, linetype)
-  lty <- col.lty$linetype
   uniqlabels <- unique(labs)
   emat <- nums <- cen <- k <- l <- NULL
 
@@ -64,9 +63,11 @@
     }
     nums <- c(nums, nrow(e))
     emat <- rbind(emat, e)
-    k <- c(k, col.lty$legend$col[match(j, col.lty$legend$lab)])
-    l <-c(l, col.lty$legend$lty[match(j, col.lty$legend$lab)])
-    
+    # find the right colour and linetype for these points
+    # from the colour object calculated earlier
+    k <- c(k, mu.colour.get(col.lty, j))
+    l <- c(l, mu.linetype.get(col.lty, j))
+
     if(centroid) cen <- rbind(cen, cbind(m1, m2))
   }
 
@@ -97,11 +98,11 @@
     if(doellipse) {
       plot(emat[lowerlim:upperlim,  ], type = "l", axes = F, 
 	   xlim = xlim, ylim = ylim, 
-	   col = k[j], xlab = "", ylab = "", lty = l[j])
+	   col = k[j], xlab = "", ylab = "", lty = as.integer(l[j]))
     } else {
       plot(emat[lowerlim:upperlim,  ], type = "n", axes = F, 
 	   xlim = xlim, ylim = ylim, col = k[j], xlab
-	   = "", ylab = "", lty = l[j])
+	   = "", ylab = "", lty = as.integer(l[j]))
     }
     if(dopoints) {
       singlelab <- uniqlabels[j]

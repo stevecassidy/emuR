@@ -103,7 +103,21 @@
   ## now read in the time/index data and the data 
   if(npoints == "" && (type == "event" || cut != "") ) {
     ## just read in the data and return it as a matrix
-    as.matrix(read.table( resultfile ))
+    result <- read.table( resultfile )
+    if (ncol(result) > 1 ) {
+      colnames <- paste(trackname, 1:ncol(result), sep="")
+    } else {
+      colnames <- trackname
+    }
+    # add some useful metadata to the return value
+    # column and row names
+#    dimnames(result)[[1]] <- label(seglist) 
+    dimnames(result)[[2]] <- make.names(colnames)
+    # changed return type to data.frame !
+    # will this break scripts?
+    return( result )
+#    return( as.matrix(result) )
+    
   } else {
     data <- read.trackdata( resultfile, trackname ) 
 
