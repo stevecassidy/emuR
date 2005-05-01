@@ -75,15 +75,24 @@ rms50 <- dcut(demo.all.rms, 0.5, prop=T)
 # get the RMS 50ms on either side of the midpoint
 
 # first generate a vector of times from the segment list
+# take care not to extend beyond the original start/end
+# times of the segment list
 midtime <- (mustart(demo.all)+muend(demo.all))/2
-left <- midtime - 20
-right <- midtime + 20
+left <- midtime - 5
+right <- left + 3
 
-rms20 <- dcut(demo.all.rms, left, right)
+# get these 3ms segments
+rms3 <- dcut(demo.all.rms, left, right)
 
-# get the RMS at 20 ms less than the midpoint for each segment
+# get the RMS at 5 ms less than the midpoint for each segment
 rmsvec <- dcut(demo.all.rms, left)
 
+## make some very short tracks
+fm2 <- dcut(demo.vowels.fm, 0.0, 0.1)
+
+
 }
+
+
 \keyword{misc}
 

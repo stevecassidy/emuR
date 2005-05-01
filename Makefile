@@ -1,5 +1,5 @@
-#R = /Applications/StartR.app/RAqua.app/Contents/bin/R
-R = R
+R = /Applications/StartR.app/RAqua.app/Contents/bin/R
+#R = R
 
 VERSION = 1.7.1
 
@@ -53,7 +53,7 @@ check:	emudir
 # code but because the resulting module won't load in Windows 
 # without this
 R: $(SFILES) emudir 
-	rm  emu_*gz emu_*zip
+#	rm  emu_*gz emu_*zip
 	$(R) CMD build --binary emu
 	tar xzf emu_$(VERSION)*.tar.gz
 	zip -r emu_$(VERSION).zip emu

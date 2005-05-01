@@ -15,12 +15,12 @@
 
 "dshift" <- function(dataset, vec)
 {
-	## subtracts a vector from the corresponding
-	## entry in dataset - a list as returned by track()
-        lengths <- (dataset$index[, 2] - dataset$index[, 1]) + 1
-        vals <- rep(vec, lengths)
-        dataset$data <- dataset$data - vals
-        dataset
+  ## subtracts a vector from the corresponding
+  ## entry in dataset - a list as returned by track()
+  lengths <- (dataset$index[, 2] - dataset$index[, 1]) + 1
+  vals <- rep(vec, lengths)
+  dataset$data <- dataset$data - vals
+  dataset
 }
  
 

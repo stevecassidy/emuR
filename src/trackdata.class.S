@@ -106,6 +106,13 @@
   mat
 }
 
+"is.trackdata" <-
+function (object) 
+{
+    return(inherits(object, "trackdata"))
+}
+
+
 # Local Variables:
 # mode:S
 # S-temp-buffer-p:t

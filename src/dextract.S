@@ -32,28 +32,21 @@ dextract <- function(dataset, start, end) {
     if(is.matrix(dataset$data))
       return(dataset$data[outin,  ])
     else return(dataset$data[outin])
-  }
-  else {
+  } else {
     dapply(dataset, dextract.sub, start, end)
   }
 }
 
+# helper function for use via dapply, returns a new
+# trackdata element cut at start/end proportions
 dextract.sub <- function(data, ftime, start, end) {
-  if(is.matrix(data)) {
-    len <- nrow(data)
-    start <- floor(start * len)
-    end <- ceiling(end * len)
-    data <- data[start:end,  ]
-  }
-  else {
-    len <- length(data)
-    start <- floor(start * len)
-    end <- ceiling(end * len)
-    data <- data[start:end]
-  }
+  len <- nrow(data)
+  start <- floor(start * len)
+  end <- ceiling(end * len)
+  newdata <- data[start:end,  ]
   times <- seq(ftime[1], ftime[2], length=len)
-  ftime <- times[c(start,end)]
-  list(data = data, ftime = ftime)
+  newftime <- times[c(start,end)]
+  return(list(data = newdata, ftime = newftime))
 }
 
 

@@ -55,8 +55,6 @@ dtime <- function(dataset, times, single = T, average = T) {
   }
 }
 
-
-
 "dcut"<- function(trackdata, left.time, right.time, single = T,
                   average = T, prop = F)
 {

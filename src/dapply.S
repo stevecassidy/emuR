@@ -33,7 +33,6 @@
     trackdata$index <- rbind(trackdata$index)
   }
 
-  mat <- trackdata$data
   
   thisrow <- 1
   newindex <- trackdata$index
@@ -50,7 +49,6 @@
     } else {
       newdata <- c(newdata, tmp$data)
     }
-    
     
     newftime[j,] <- tmp$ftime
 
@@ -70,6 +68,65 @@
   }
   return(x)
 }
+
+"dmap"<- function(trackdata, fun, arg)
+{
+  ## a version of dapply which takes an additional
+  ## argument which should be a vector/matrix
+  ## with the same length/number of rows as the number of 
+  ## segments in the trackdata.  One row of 'arg' is
+  ## passed to 'fun' along with the data
+
+  if( version$major >= 5  && oldClass(trackdata)!="trackdata") {
+      stop("argument to dmap is not of class trackdata.")
+  } else if(class(trackdata)!="trackdata")
+    stop("argument to dapply is not of class trackdata.")
+
+  if(!is.matrix(trackdata$index)){
+    trackdata$ftime <- rbind(trackdata$ftime)
+    trackdata$index <- rbind(trackdata$index)
+  }
+
+  thisrow <- 1
+  newindex <- trackdata$index
+  newdata <- NULL
+  newftime <- trackdata$ftime
+
+  for(j in 1:nrow(trackdata$index)) {
+    newindex[j,1] <- thisrow
+
+    if (is.matrix(arg)) {
+      tmp <- fun(trackdata[j]$data, trackdata[j]$ftime, arg[j,])
+    } else {
+      tmp <- fun(trackdata[j]$data, trackdata[j]$ftime, arg[j])
+    }
+
+    if(is.matrix(tmp$data)){
+      newdata <- rbind(newdata, tmp$data)
+    } else {
+      newdata <- c(newdata, tmp$data)
+    }
+    
+    newftime[j,] <- tmp$ftime
+
+    if(is.matrix(tmp$data))
+      thisrow <- thisrow + nrow(tmp$data)
+    else
+      thisrow <- thisrow + length(tmp$data)
+    newindex[j,2] <- thisrow - 1
+
+  }
+
+  x <- list(data=as.matrix(newdata), index=newindex, ftime=newftime)
+  if( version$major >= 5 ) {
+    oldClass(x) <- "trackdata"
+  } else {
+    class(x) <- "trackdata"
+  }
+  return(x)
+}
+
+
 
 
 "segdiff"<- function( data, ftime, n=1 )
