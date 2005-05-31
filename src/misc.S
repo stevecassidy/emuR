@@ -104,7 +104,7 @@ structure(.Data = c(10, 100, 200, 300, 395, 510, 630, 765, 920, 1075, 1265,
 {
   ## first make a template, a list of num.cols what's
   template <- as.list(rep(what, num.cols))
-  data <- scan(file, template, skip=sk)
+  data <- scan(file, template, skip=sk,quote = "")
   num.rows <- length(data[[1]])
   mat <- matrix(0, num.rows, num.cols)
   for(i in 1:num.cols) {
