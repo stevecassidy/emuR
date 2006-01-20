@@ -64,10 +64,18 @@ if (emu.platform("Windows")) {
 
 
 ## this will get changed by the Makefile
-emu.version<-"1.7.1"
+emu.version<-"2.0.1"
 
 "emu.init" <- function() {
 
+  packpath = .path.package(package = "emu", quiet = FALSE)
+  sepa = .Platform$file.sep
+  nfile = "emudirectory"
+  filepath = paste(packpath,sepa,nfile,sep = "")
+  
+  if (file.exists(filepath)) {
+    emu.directory <<- readLines(con = filepath)
+  } 
 	
   if (emu.platform("MacOS")) {
     dirsep <- ":"
@@ -116,12 +124,12 @@ the variable 'version'.")
     }
     
     if( crashout ) { return( FALSE ) }
-
     if( modified && is.R() ) {
-      cat( "\nYou can avoid this dialog by modifying the variable\n",
-          "emu.directory in the emu library source file which can be found in\n",
-          "the emu/R subdirectory of the R installation (", .lib.loc, ").\n"
-          )
+
+      write(emu.directory, file = filepath)
+      cat("\nThis information was written to the file\n",
+      filepath,".\n") 
+           
     }
 
   }
@@ -158,6 +166,7 @@ the variable 'version'.")
 
   invisible()
 }
+
 
 "emu.options" <- function( option ) {
     emu[[option]]
