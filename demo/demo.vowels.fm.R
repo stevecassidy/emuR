@@ -1,1 +1,6 @@
-demo.vowels.fm <- read.trackdata("demo-vowel-fm.dat")
+packpath = .path.package(package = "emu", quiet = FALSE)
+  sepa = .Platform$file.sep
+  nfile = "demo-vowel-fm.dat"
+  filepath = paste(packpath,sepa,"demo",sepa,nfile,sep = "")
+ 
+ demo.vowels.fm <- read.trackdata(filepath)
