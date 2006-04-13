@@ -16,6 +16,23 @@
   return( paste( "\"", string , "\"", sep="" ) )
 }
 
+"get.originalFreq" <- function (fname) {
+  ##Original sampling frequency maybe stored at the top of the trackfile
+  ##in this format: "# Original_Freq 20000"
+  line <- readLines(fname, n=1)
+  line <- splitstring(line, " ")
+  if ((length(line) == 3) && (line[2] == "Original_Freq")) {
+    origfreq <- as.numeric(line[3])
+  } else {
+    return(NULL)
+  }
+  if (origfreq > 0) {
+    return(origfreq)
+  } else {
+    return(NULL)
+  }
+}
+
 ## construct a command line given a name and a list of arguments
 ## put quotes around the path since it may contain spaces on windows
 "emu.command.name" <- function( name, ... )
@@ -56,7 +73,7 @@
   on.exit( unlink( segfile ), add=TRUE )
   on.exit( unlink( resultfile ), add=TRUE ) 
   
-  museg.write( seglist, segfile )
+  write.emusegs( seglist, segfile )
   
   if(!missing(cut)) {
     cut <- paste( "-c", cut )
@@ -115,16 +132,17 @@
     dimnames(result)[[2]] <- make.names(colnames)
     # changed return type to data.frame !
     # will this break scripts?
+    attr(result, "fs") <- origfreq
     return( result )
 #    return( as.matrix(result) )
     
   } else {
     data <- read.trackdata( resultfile, trackname ) 
-
+    origfreq <- get.originalFreq(resultfile)
     ## a bit of validation
     if( nrow(data$ftime) != nseg )
       stop( "error in emu.track: mismatch between number of segments and number of data items read" )
-
+    attr(data,"fs") <- origfreq
     return( data )
   }
 }
@@ -142,35 +160,36 @@
 ## The new format is:
 ## segno time data data data
 ## segno time data data data
-read.trackdata <- function( filename, trackname="data" ) {
+"read.trackdata" <- function (filename, trackname = "data") {
 
-  if (!file.exists( filename ) ) {
-    ## try the twofile version
-    return( read.trackdata.twofile( filename, trackname ) )
-  }
+    if (!file.exists(filename)) {
+        ## try the twofile version
+        return(read.trackdata.twofile(filename, trackname))
+    }
+     ## otherwise we'll read the new file format
+    data <- read.table(filename)
+    
+    ## now convert this to trackdata
+    segnumbers <- data[, 1]
+    times <- data[, 2]
+    data <- data[, c(-1, -2)]
+    
+    data <- as.matrix(data)
+    dimnames(data) <- list(times, paste("T", 1:ncol(data), sep=""))
 
-  ## otherwise we'll read the new file format
-  data <- read.table( filename )
-
-  ## now convert this to trackdata
-  segnumbers <- data[,1]
-  times <- data[,2]
-  data <- data[,c(-1,-2)]
-
-  ## first check for the case of just one segment
-  if (length( unique(segnumbers)) == 1)  {
-    ## get the start/end positions and times of the segment
-    index <- cbind(start=1, end=length(segnumbers))
-    ftime <- cbind( start=times[1], end=times[length(times)] )
-  } else {
-    ## get the start/end positions and times of each segment
-    index <- cumsum(aggregate( data, by=list(segnum=segnumbers), FUN=length)[,2])
-    index <- cbind( start=c(1,index[1:(length(index)-1)]+1), end=index )
-
-    ftime <- cbind( start=times[index[,1]], end=times[index[,2]] )
-  }
-
-  return( as.trackdata( data, index, ftime, trackname ) )
+    ## first check for the case of just one segment
+    if (length(unique(segnumbers)) == 1) {
+        ## get the start/end positions and times of the segment
+        index <- cbind(start = 1, end = length(segnumbers))
+        ftime <- cbind(start = times[1], end = times[length(times)])
+    }
+    else {
+        ## get the start/end positions and times of each segment
+        index <- cumsum(aggregate(data, by = list(segnum = segnumbers), FUN = length)[, 2])
+        index <- cbind(start = c(1, index[1:(length(index) - 1)] + 1), end = index)
+        ftime <- cbind(start = times[index[, 1]], end = times[index[,2]])
+    }
+    return(as.trackdata(data, index, ftime, trackname))
 }
 
 
@@ -215,11 +234,28 @@ read.trackdata <- function( filename, trackname="data" ) {
 }
 
 
+"write.trackdata" <- function(trackdata, file) {
+   n <- 0:(nrow(trackdata$index)-1)
+   indices <- rep(n, trackdata$index[,2]-trackdata$index[,1]+1)
+   omat <- NULL
+
+   for(j in 1:nrow(trackdata$ftime)){
+      N <- trackdata$index[j,2]-trackdata$index[j,1]+1
+      ftimes <- trackdata$ftime[j,]
+      omat <- c(omat, seq(ftimes[1], ftimes[2], length=N))
+   }
+
+   result <- cbind(indices, omat, trackdata$data)
+   write(t(result), file, ncolumns=ncol(result))
+}
+
+
+
 "emu.query" <- function(template, pattern=NULL, query="" )
 {
 
   if(emu.platform("MacOS")) {
-    stop("emu.query is currently not implemented for MacOS. Use read.segs to read in segment lists saved from the query tool.")
+    stop("emu.query is currently not implemented for MacOS. Use read.emusegs to read in segment lists saved from the query tool.")
   }
 
   segfile <- emu.tempfile( "emu.query" )
@@ -252,7 +288,7 @@ read.trackdata <- function( filename, trackname="data" ) {
     stop(paste("Can't find the query results in emu.query: there may have been a problem with the query command.", sep=""))
   } 
 
-  result <- read.segs( segfile )
+  result <- read.emusegs( segfile )
 
   attr(result, "template") <- template
   return(result)
@@ -264,7 +300,7 @@ read.trackdata <- function( filename, trackname="data" ) {
 {
   segfile <- emu.tempfile( "emu.track" )
 	
-  museg.write( segs, segfile )
+  write.emusegs( segs, segfile )
 
   on.exit( unlink( segfile ) )
 
@@ -310,7 +346,7 @@ read.trackdata <- function( filename, trackname="data" ) {
   if (justlabels) 
     result <- scan( resultfile, what="" )
   else {
-    result <- read.segs( resultfile )
+    result <- read.emusegs( resultfile )
   }
 
   return(result)

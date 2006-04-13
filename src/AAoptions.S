@@ -64,7 +64,7 @@ if (emu.platform("Windows")) {
 
 
 ## this will get changed by the Makefile
-emu.version<-"2.0.1"
+emu.version<-"2.2.1.2"
 
 "emu.init" <- function() {
 
@@ -162,6 +162,7 @@ the variable 'version'.")
     library("eda")
     ## mva is needed by euclidean
     library("mva")
+    
   }
 
   invisible()

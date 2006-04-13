@@ -18,12 +18,28 @@
 }
 
 
-"bark" <- function(x)
-{
-  Hz <- x/1000
-  k1 <- (Hz/7.5) * (Hz/7.5)
-  (13 * (atan(0.76 * Hz))) + (3.5 * (atan(k1)))
+"bark" <- function(f, inv=F) {
+   # Convert Bark to Hz and vice-versa
+   # Formulae in 
+   # H. Traunmüller (1990) "Analytical expressions for the 
+   # tonotopic sensory scale" J. Acoust. Soc. Am. 88: 97-100. 
+   # f is a frequency in Hz unless inv=T,
+   # in which case f is a frequency in Bark
+   # inv: if T, performs Bark to Hz conversion
+   if(!inv)
+      result = ((26.81 * f) / (1960+f)) - 0.53
+   else
+      result = (1960 * (f + 0.53)) / (26.28 - f)
+   result
 }
+
+
+#"bark" <- function(x)
+#{
+#  Hz <- x/1000
+#  k1 <- (Hz/7.5) * (Hz/7.5)
+#  (13 * (atan(0.76 * Hz))) + (3.5 * (atan(k1)))
+#}
 
 "zwicker"<-
 structure(.Data = c(10, 100, 200, 300, 395, 510, 630, 765, 920, 1075, 1265, 

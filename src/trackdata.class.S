@@ -113,6 +113,28 @@ function (object)
 }
 
 
+"plot.trackdata" <-
+function (trackdata, timestart=NULL, ...)
+{
+   if(nrow(trackdata$index) > 1)
+      stop("can't plot trackdata from more than one segment. Use dplot()")
+   if(ncol(trackdata$data) > 1)
+      stop("can't plot trackdata from more than one track")
+
+   N <- nrow(trackdata$data)
+   left <- trackdata$ftime[1]
+   right <- trackdata$ftime[2]
+   times <- seq(left, right, length=N)
+   if(!is.null(timestart))
+      times <- times - left + timestart
+   data <- trackdata$data
+
+   plot(times, data, ...)
+ }
+
+
+
+
 # Local Variables:
 # mode:S
 # S-temp-buffer-p:t
