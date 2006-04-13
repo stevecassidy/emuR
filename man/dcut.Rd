@@ -1,98 +1,99 @@
 \name{dcut}
 \alias{dcut}
-\title{Extracts a subset of data from an Emu trackdata object}
-
-\description{
-  A general purpose tool for extracting data from track objects
-either at a particular time, or between two times. The times
-can be values in milliseconds or proportional times between
-zero (the onset) and one (the offset). 
+\title{Function to extract a vector or matrix from  EMU-Trackdata at a single time point of to create another EMU-trackdata object between two times.}
+\description{ A general purpose tool for extracting data from track objects
+     either at a particular time, or between two times. The times can
+     be values in milliseconds or proportional times between zero (the
+     onset) and one (the offset).
 }
-
 \usage{
-dcut(trackdata, left.time, right.time, single=T, average=T, prop=F)
+dcut(trackdata, left.time, right.time, single = T, average = T, prop = F)
 }
-
+%- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{trackdata}{An Emu trackdata object.}
-  \item{left.time}{A numeric vector: either values in 
-milliseconds, or proportional times.}
-  \item{right.time}{ An optional numeric vector: either values
-in milliseconds or proportional times.}
-  \item{single}{ If TRUE, one value is returned per segment.
-This applies when the requested time falls between
-two track frames. When single=TRUE, the preceding value
-is returned, unless average=TRUE (see below), in which case
-the average value of the two frames is returned.
-when the right.time argument is omitted}
+  \item{trackdata}{ An Emu trackdata object. }
+  \item{left.time}{ Either: a numeric vector of the same length
+as there are obsverations in trackdata. Or: a single value between
+0 and 1. In the first case, the left time boundary of trackdata[n,] is cut at left.time[n], 
+in the second case, and if prop=T, it is cut at that proportional time. }
+  \item{right.time}{ Either: a numeric vector of the same length
+as there are obsverations in trackdata. Or: a single value between
+0 and 1. In the first case, the right time boundary of trackdata[n,] is cut at right.time[n], 
+in the second case, and if prop=T, it is cut at that proportional time. }
+  \item{single}{ If TRUE, one value is returned per segment. This applies when
+          the requested time falls between two track frames. When
+          single=TRUE, the preceding value is returned, unless
+          average=TRUE (see below), in which case the average value of
+          the two frames is returned. when the right.time argument is
+          omitted }
   \item{average}{ A single element logical vector - see single above. Applies
-only when the right.times argument is omitted and
-when single = TRUE }
-  \item{prop}{If TRUE times interpreted as proportions, if FALSE, they
-  are interpreted as millisecond times.}
+          only when the right.times argument is omitted and when single
+          = TRUE  }
+  \item{prop}{ If TRUE left.time and right.time are
+ interpreted as proportions, if FALSE, they are
+          interpreted as millisecond times}
 }
-
 \details{
-This function cuts out part of the data for each segment  in a
-trackdata object.  For example cutting out the middle 50\%  or removing
-10ms from each segment's data. 
-  
-If \code{prop=FALSE} the time arguments (\code{left.time} and
-\code{right.time}) are interpreted as millisecond times and each should
-be a vector with the same length as the number of segments in
-\code{trackdata}.  If \code{prop=TRUE} the time arguments should be
-single values between zero (the onset of the segment) and one (the
-offset).  
+  This function extracts data from each segment of a
+     trackdata object. 
 
-If \code{right.time} is ommitted then a single data point correponding
-to \code{left.time} for each segment is returned. 
+     If 'prop=FALSE' the time arguments ('left.time' and 'right.time')
+     are interpreted as millisecond times and each should be a vector
+     with the same length as the number of segments in 'trackdata'.  If
+     'prop=TRUE' the time arguments should be single values between
+     zero (the onset of the segment) and one (the offset).  
 
+     If 'right.time' is omitted then a single data point correponding
+     to 'left.time' for each segment is returned.
 }
-
 \value{
-  A trackdata object with the shorter segment data when
-  \code{right.time} is ommitted a matrix or vector of data with one row
-  per segment.
-}
-\author{ Jonathan Harrington}
-\seealso{emu.track}
+  A trackdata object if both 'left.time' and 'right.time'
+are specified, otherwise a matrix if 'right.time' is unspecified
+and the trackdata object has multiple columns of data or
+a vector if right.time' is unspecified
+and the trackdata object has a single column of data.
 
+}
+\references{ ~put references to the literature/web site here ~ }
+\author{ Jonathan Harrington }
+%\note{ ~~further notes~~ 
+%
+% ~Make other sections like Warning with \section{Warning }{....} ~
+%
+\seealso{ 
+     \code{\link{emu.track}},  
+     \code{\link{dplot}},
+     \code{\link{eplot}}
+ }
 \examples{
+     # the data values of the trackdata object at the temporal midpoint
+     # (midvals is matrix of F1 and F2 data)
+     dip.fdat[1:10]
+     midvals <- dcut(dip.fdat, 0.5, prop=T)
+     midvals[1:10,]
+     \dontshow{readline(prompt = "Press return to advance.")}
+     
+     # the data values of the trackdata object between 
+     # extending from 20
+     # (bet is a trackdata object of F1 and F2 values)
+     bet <- dcut(dip.fdat, 0.2, 0.8, prop=T)
+     bet[1]
+     \dontshow{readline(prompt = "Press return to advance.")}
 
-data(demo.vowels.fm)
+     # the data values of the trackdata object at 30 ms after
+     # the start time of the trackdata object
+     # (time30 is a matrix of F1 and F2 data
+     times <- dip.fdat$ftime[,1]+30
+     times[1:10]
+     time30 <- dcut(dip.fdat, times)
+     time30[1:10]
+     \dontshow{readline(prompt = "Press return to advance.")}
 
-# get the formants at the midpoint returns a matrix
-f50 <- dcut(demo.vowels.fm, 0.5, prop=T)
-# get the formants between the 25\% and 75\% time points
-# returning a trackdata object
-fcut <- dcut(demo.vowels.fm, 0.25, 0.75, prop=T)
-# get  F0 at the midpoint, returns a vector
-
-data(demo.all)
-data(demo.all.rms)
-
-rms50 <- dcut(demo.all.rms, 0.5, prop=T)
-# get the RMS 50ms on either side of the midpoint
-
-# first generate a vector of times from the segment list
-# take care not to extend beyond the original start/end
-# times of the segment list
-midtime <- (mustart(demo.all)+muend(demo.all))/2
-left <- midtime - 5
-right <- left + 3
-
-# get these 3ms segments
-rms3 <- dcut(demo.all.rms, left, right)
-
-# get the RMS at 5 ms less than the midpoint for each segment
-rmsvec <- dcut(demo.all.rms, left)
-
-## make some very short tracks
-fm2 <- dcut(demo.vowels.fm, 0.0, 0.1)
-
-
-}
-
-
-\keyword{misc}
-
+     # the data values of the trackdata object 
+     # between the  start time and 30 ms after the start  time
+     # (int is a trackdata object of F1 and F2 values extending
+     # from the start of the diphthongs up to 30 ms after the diphthongs)
+     int <- dcut(dip.fdat, dip.fdat$ftime[,1], times)
+     int[1]
+ }
+\keyword{emu}

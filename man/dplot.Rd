@@ -1,84 +1,117 @@
 \name{dplot}
 \alias{dplot}
-\title{ Plot Emu Trackdata}
-\description{
-	A general purpose routine for plotting trackdata on a single
-	plot. Tracks can be aligned at an arbitrary position, length
-	normalised or averaged.  
+\title{ A function to plot one or more columns of EMU-trackdata as a function of time}
+\description{ A general purpose routine for plotting EMU-trackdata on a single plot.
+     Tracks can be aligned at an arbitrary position, length normalised
+     or averaged. The plots can be colour-coded for different category types.
 }
 \usage{
-dplot(dataset, labs = NULL, offset = 0, ref.time = NULL,
-         average = F, main = "", xlab = "time (ms)", ylab = "",
-         xlim = NULL, ylim = NULL, cex = 0.5, linetype = F,
-         normalise = F, colour = T, legn = "tl", axes = T, 
-         amp = F, n = 20)
+dplot(dataset, labs = NULL, offset = 0, ref.time = NULL, average = F, main = "", xlab = "time (ms)", ylab = "", xlim = NULL, ylim = NULL, cex = 0.5, linetype = F, normalise = F, colour = T, legend = "topright", axes = T, n = 20)
 }
 \arguments{
-  \item{dataset}{ An Emu trackdata object.}
-  \item{labs}{ A label vector with one element for each row in
-    \code{dataset}.  }
-  \item{offset}{ A number between 0 and 1, segments are aligned on the
-    plot with this proportion of their duration corresponing to zero. }
-  \item{ref.time}{A vector of one time per segment, an alternative to
-    \code{offset}, segments will be lined up on the plot with these
-    times at zero. }
-  \item{average}{If T, the data for each unique label in \code{labs} is
-    averaged.  }
-  \item{normalise}{ If T, the data for each segment will be time
-    normalised so that all segments appear to have the same length on
-    the plot.  }
-  \item{main}{A main title for the plot.}
-  \item{xlab}{A label for the x-axis.}
-  \item{ylab}{A label for the y-axis.}
-  \item{xlim}{A vector of the minimum and maximum limits of the x-axis.}
-  \item{ylim}{A vector of the minimum and maximum limits of the y-axis.}
-  \item{cex}{The \code{cex} parameter passed to \code{par} to control text
-    size on the plot. }
-  \item{linetype}{}
-  \item{colour}{colour and linetype can be either T, F or a vector.  If
-    they are F then the plot will use a single colour or linetype.  If
-    they are T then the plot will use a different colour/linetype for each
-    line.  If they is a vector then it should consist of one label for
-    each element to be plotted, the colour/linetype will be selected
-    according to this label. }
-  \item{legn}{The position to draw the legend, one of \code{"tl"}
-    (top-left), \code{"tr"} (top-right), \code{"bl"} (bottom-left) or
-    \code{"br"} (bottom-right). }
-  \item{axes}{If T, axes will be drawn on the plot.}
-  \item{amp}{ ~~Describe \code{amp} here~~ }
+  \item{dataset}{An EMU-trackdata object }
+  \item{labs}{ A label vector with one element for each row in 'dataset' }
+  \item{offset}{  A single numeric vector  between 0 and 1.
+0 and 1 denote synchronize the trackdata at their temporal onsets
+and offsets respectively; 0.5 denotes synchronization at the
+temporal midpoint, etc. }
+  \item{ref.time}{ A numeric vector. The length of the vector
+must be same as the number of observations in dataset, i.e.
+length(ref.time) must be equal to nrow(dataset$index). Trackdata
+observations are lined up at t = 0 ms, where t is relative
+to the times in this vector. }
+  \item{average}{ If T, the data for each unique label in 'labs' is averaged }
+  \item{main}{ A character vector for a main title for the plot. }
+  \item{xlab}{ A character vector for the x-axis label  }
+  \item{ylab}{ A character vector for the y-axis label. }
+  \item{xlim}{ A vector of two numeric values  specifying the  x-axis range}
+  \item{ylim}{ A vector of two numeric values  specifying the  y-axis range }
+  \item{cex}{ The 'cex' parameter passed to 'par' to control text size on
+          the plot }
+  \item{linetype}{ A single element logical vector. Defaults to F. 
+If T,  plot each label type in a different linetype}
+  \item{normalise}{ If T, the data for each segment is linearly time normalised so
+          that all observations have the same length. The number of points
+used in the linear time normalisation is control by the argument \item{n} }
+  \item{colour}{ A single element logical vector. Defaults to T 
+to plot each label type in a different colour }
+  \item{legend}{ Either a character vector to plot
+the legend. Possible values are: "bottomright"', '"bottom"', '"bottomleft"',
+     '"left"', '"topleft"', '"top"', '"topright"', '"right"' and
+     '"center"'. This places the legend on the inside of the plot frame
+     at the given location. Partial argument matching is used. Or 
+a logical vector: legend = F suppresses legend plotting. legend = T
+plots it at the default, legend = "topright"}
+  \item{axes}{ A single element logical vector. Defaults to T 
+to plot the axes }
+  \item{n}{ A single element numeric vector. Only used if normalise=T.
+The number of data points used to linearly time normalise each track }
 }
-
-\details{
-  This function is a general purpose plotting function for track data
-  generated by the \code{track} function.  Data for each segment is lined up
-  at some point along its length (eg. at the start, midpoint or end) and
-  possibly normalised or averaged before being plotted.  Normalisation
-  consists of stretching each segment out to have the same number of
-  samples as the longest segment; the stretching is done with the Emu
-  function \code{\link{linear}}.  Averaging takes account of the different
-  lengths of the segments in computing the average for each time point.  
-}
+%\details{
+%  ~~ If necessary, more details than the description above ~~
+%}
 \value{
-  None.
+ NULL
 }
-\references{ See the Emu documentation at:
-  \url{http://www.shlrc.mq.edu.au/emu} }
- 
-\seealso{ \code{\link{emu.track}} \code{\link{segplot}} }
-
+\references{ }
+\author{Jonathan Harrington}
+%\note{ ~~further notes~~ 
+%
+% ~Make other sections like Warning with \section{Warning }{....} ~
+%}
+\seealso{ 
+   \code{\link{dcut}}
+   \code{\link{emu.track}}
+}
 \examples{
 
-## assumes a database called demo is available on your system and that
-## the Emu system is installed. 
+   # Plot of column 1 (which happens to be the 1st formant) of an EMU-trackdata object
+   dplot(dip.fdat[,1])
+	\dontshow{readline(prompt = "Press return to advance.")}
 
-library(emu)
-# find all Phonetic vowels in the database
-segs <- emu.query("demo", "*", "Phonetic=A|E|I|O|U|V")
+   # As above but only observations 1 to 5
+   dplot(dip.fdat[1:5,1])
+	\dontshow{readline(prompt = "Press return to advance.")}
 
-# get formant data for entire tracks, returns trackdata
-data.all <- emu.track( segs, "fm" )
-# plot the data aligned at the midpoint
-dplot( data.all, label(segs), offset=0.5, normalise=T, main="Formant data for vowels")
+   #  column 2 (which happens to be of the second formant) and colour-coded
+   # for each label-type
+   dplot(dip.fdat[,2], dip.l)
+	\dontshow{readline(prompt = "Press return to advance.")}
+
+   # put the legend bottom left
+   dplot(dip.fdat[,2], dip.l, legend="bottomleft")
+	\dontshow{readline(prompt = "Press return to advance.")}
+
+   # as above with no legend and averaged per category
+   dplot(dip.fdat[,2], dip.l, legend=F, average=T)
+	\dontshow{readline(prompt = "Press return to advance.")}
+
+   # both formants averaged
+   dplot(dip.fdat[,1:2], dip.l, average=T)
+	\dontshow{readline(prompt = "Press return to advance.")}
+
+   # F2 only with linear-time normalisation
+   dplot(dip.fdat[,2], dip.l, norm=T)
+	\dontshow{readline(prompt = "Press return to advance.")}
+
+   # linear time-normalisation, both formants and averaged
+   dplot(dip.fdat[,1:2], dip.l, norm=T, average=T)
+	\dontshow{readline(prompt = "Press return to advance.")}
+
+   # synchronise at the temporal midpoint before averaging, F2 only
+   dplot(dip.fdat[,2], dip.l, offset=0.5, average=T)
+	\dontshow{readline(prompt = "Press return to advance.")}
+
+   # synchronise 60 ms before the diphthong offset
+   dplot(dip.fdat[,2], dip.l, ref.time=dip.fdat$ftime[,2]-60)
+	\dontshow{readline(prompt = "Press return to advance.")}
+
+   # as above averaged, no colour with linetype and averaged
+   dplot(dip.fdat[,2], dip.l, ref.time=dip.fdat$ftime[,2]-60,
+   average=T, colour=F, linetype=T)
+
+
 
 }
-\keyword{misc}
+\keyword{emu}
+

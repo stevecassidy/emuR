@@ -42,27 +42,28 @@ make.seglist(labels, start, end, utts, query, type, database)
 
 \examples{
 
-l <- c("A", "B", "C")
-s <- 1:3
-e <- 2:4
-u <- c("u1", "u1", "u1")
-segs <- make.seglist(l, s, e, u, "Fake Query", "segment", "fake")
+   l <- c("A", "B", "C")
+   s <- 1:3
+   e <- 2:4
+   u <- c("u1", "u1", "u1")
+   segs <- make.seglist(l, s, e, u, "Fake Query", "segment", "fake")
+   segs
+   ## summary gives an overview of the data in the segment list
+   summary(segs)
+   \dontshow{readline(prompt = "Press return to advance.")}
 
-## summary gives an overview of the data in the segment list
-summary(segs)
+   # The following should be TRUE
+   label(segs) == l
+   mustart(segs) == s
+   muend(segs) == e
+   utt(segs) == u
+   emusegs.database(segs) == "fake"
+   emusegs.type(segs) == "segment"
+   emusegs.query(segs) == "Fake Query"
 
-# The following should be TRUE
-label(segs) == l
-mustart(segs) == s
-muend(segs) == e
-utt(segs) == u
-emusegs.database(segs) == "fake"
-emusegs.type(segs) == "segment"
-emusegs.query(segs) == "Fake Query"
-
-# segment durations should all be 1
-mudur(segs) == c(1,1,1)
+   # segment durations should all be 1
+   mudur(segs) == c(1,1,1)
 
 }
 \keyword{misc}
-
+\keyword{emu}
