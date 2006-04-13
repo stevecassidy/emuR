@@ -1,0 +1,35 @@
+\name{write.emusegs}
+\alias{write.emusegs}
+\title{
+Write an Emu segment list to a file
+}
+\usage{
+   write.emusegs(seglist, file)
+}
+\arguments{
+   \item{seglist}{An Emu segment list}
+   \item{file}{The name of a file to write the segment list into.}
+}
+\value{
+   None.
+}
+\section{Side Effects}{
+   The segment list is written to a file in the standard format, suitable
+   for input to \code{gettrack} or other Emu utility programs. 
+}
+\seealso{
+  \code{\link{emu.query}}
+}
+
+\examples{
+   data(dip)
+   #dip a segment list - first 10 segments only
+   dip[1:10,]
+   write.emusegs(dip, "write.emusegs.example.txt")
+   
+   #The file write.emusegs.example.txt is written to R_HOME
+   readline(prompt = "Press return to advance.")
+   unlink("write.emusegs.example.txt")
+}
+\keyword{misc}
+\keyword{emu}
