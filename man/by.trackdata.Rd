@@ -7,13 +7,13 @@
    A given function 'FUN' is applied to the data corresponding to each segment of data.
 }
 \usage{
-   by(trackdata, fun, ..., nolist = F)
+   by(trackdata, fun, ..., simplify = F)
 }
 \arguments{
   \item{trackdata}{a track data object }
   \item{fun}{a function that is applied to each segment}
   \item{\dots}{ arguments of the function fun}
-  \item{nolist}{nolist = T , output is a vector; nolist = F a list is returned}
+  \item{simplify}{simplify = T , output is a matrix; simplify = F a list is returned}
 }
 
 \details{
