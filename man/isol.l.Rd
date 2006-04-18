@@ -15,5 +15,6 @@ isol.fdat = emu.track(isol, "fm")
 }
 
 \seealso{
-   \code{\link{segmentlist, trackdata}}
+   \code{\link{segmentlist}}
+   \code{\link{trackdata}}
 }
