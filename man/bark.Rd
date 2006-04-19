@@ -3,7 +3,7 @@
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{Convert Hertz to Bark and Bark to Hertz}
 \description{
- The calculation is done using the formulae Traunmüller (1990)
+ The calculation is done using the formulae Traunmller (1990)
 }
 \usage{
 bark(data, inv = F)
@@ -19,7 +19,7 @@ bark(data, inv = F)
 \value{
   A vector of matrix of the same length and dimensions as data.
 }
-\references{  Traunmüller, H. (1990) "Analytical expressions for the tonotopic sensory scale" J. Acoust. Soc. Am. 88: 97-100.}
+\references{  Traunmller, H. (1990) "Analytical expressions for the tonotopic sensory scale" J. Acoust. Soc. Am. 88: 97-100.}
 \author{Jonathan Harrington }
 %\note{ ~~further notes~~ }
 
@@ -50,7 +50,6 @@ bark(data, inv = F)
    # convert Hertz to Bark
    t1$data <- bark(t1$data)
    t1[1]
-   \dontshow{readline(prompt = "Press return to advance.")}
 
 }
 \keyword{ emu}
