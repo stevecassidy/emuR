@@ -24,6 +24,8 @@ x * y
   track data object
 }
 
+\author{Jonathan Harrington}
+
 \seealso{
 \code{\link{Arithmetic}}
 }

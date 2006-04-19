@@ -21,6 +21,8 @@ Writes out label files in ESPS format so that they can be loaded into Emulabel.
 \details{
  Writes out label files so that they can be loaded into Emulabel.  You have to supply the name of the directory where you want the label files to be stored as the third argument to makelab().
 
+\author{Jonathan Harrington}
+
 \examples{
 # s.vk <- emu.query("epg-demo", "*", "[Phoneme!=x -> Phoneme=k]")
 # l.vk <- label(s.vk)

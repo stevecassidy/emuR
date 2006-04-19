@@ -15,6 +15,7 @@
    The function returns the dimension attributes of a track data object as the number of segments x number of tracks.
 c(nrow(x$index), ncol(x$data))
 }
+\author{Jonathan Harrington}
 
 \examples{
 > dim.trackdata(isol.fdat)

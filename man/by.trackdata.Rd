@@ -76,7 +76,7 @@
    \dontshow{readline(prompt = "Press return to advance.")}
    
    #the same but return a vector
-   smoothed.vowlax.fund = by(vowlax.fund, smooth, nolist=T)
+   smoothed.vowlax.fund = by(vowlax.fund, smooth, simplify=F)
 
    #smoothed.vowlax.fund is of the same length as the track data objects $data vector
    length(smoothed.vowlax.fund )==length(vowlax.fund$data)

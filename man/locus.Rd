@@ -30,6 +30,7 @@
   The first two arguments are the x- and y-axis data, the third optional argument is for superimposing a parallel set of labels.
 }
 
+\author{Jonathan Harrington}
 \examples{
 # F2-onset
 f2onset = dcut(isol.fdat[,2], 0, prop=T)

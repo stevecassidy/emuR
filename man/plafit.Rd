@@ -11,6 +11,8 @@
   This function calculates the coefficients of a parabola.
 }
 
+\author{Jonathan Harrington}
+
 \examples{
 # Calculates the values of the parabola for the coeefficients of the second formants of the dataset vowlax.
 plafit(vowlax.fdat[1,2]$data)

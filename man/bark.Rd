@@ -13,17 +13,11 @@ bark(data, inv = F)
  \item{data}{A vector or matrix of data}
  \item{inv}{A single element logical vector. If F, data are converted from Hertz to Bark, if T, data are converted from Bark to Hertz.}
  }
-%\details{
-% ~~ If necessary, more details than the __description__  above ~~
-%}
 \value{
   A vector of matrix of the same length and dimensions as data.
 }
 \references{  Traunmller, H. (1990) "Analytical expressions for the tonotopic sensory scale" J. Acoust. Soc. Am. 88: 97-100.}
 \author{Jonathan Harrington }
-%\note{ ~~further notes~~ }
-
- ~Make other sections like WARNING with \section{WARNING }{....} ~
 
 \seealso{ 
      \code{\link{zwicker}},  
