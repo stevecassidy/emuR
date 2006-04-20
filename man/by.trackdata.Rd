@@ -60,40 +60,11 @@
 
    #get the the maximum F0 value for each segment in the track data object
    #this time return a vector 
-   maxF0 = by(vowlax.fund, max, nolist=T)
+   maxF0 = by(vowlax.fund, max, simplify=T)
    maxF0[1:10]
    \dontshow{readline(prompt = "Press return to advance.")}
    
    
-   #another Example
-   #---------------
-   
-   #Apply smooth() to each segment in the track data object
-   smoothed.vowlax.fund = by(vowlax.fund, smooth)
-   
-   #smoothed values of the 10th segment
-   smoothed.vowlax.fund[10]
-   \dontshow{readline(prompt = "Press return to advance.")}
-   
-   #the same but return a vector
-   smoothed.vowlax.fund = by(vowlax.fund, smooth, simplify=F)
-
-   #smoothed.vowlax.fund is of the same length as the track data objects $data vector
-   length(smoothed.vowlax.fund )==length(vowlax.fund$data)
-   
-   #thus a track data object can be rearranged- thus smoothed.vowlax.fund is a track data object
-   smoothed.vowlax.fund <- as.trackdata(smoothed.vowlax.fund, vowlax.fund$ind, vowlax.fund$ftime)
-   smoothed.vowlax.fund[1]
-   \dontshow{readline(prompt = "Press return to advance.")}
-
-   #combine smoothed and the original track data objects
-   new <- cbind(smoothed.vowlax.fund, vowlax.fund)
-   \dontshow{readline(prompt = "Press return to advance.")}
-
-   #plot smoothed and original track data together - 10th segment only
-   dplot(new[10,])
-   readline(prompt = "Press return to advance.")
-
 
    #another Example
    #---------------
@@ -103,7 +74,7 @@
    #Apply mean() to each column (F1 F2) to each segment in the track data object, 
    #return a matrix 
    
-   mean.dip.fdat = by(dip.fdat, apply, 2, mean, nolist=T)
+   mean.dip.fdat = by(dip.fdat, apply, 2, mean, simplify=T)
    mean.dip.fdat[1:10,] 
    #the function in FUN is apply(X, MARGIN, FUN, ...), thus argument "2" and "mean"
    #are arguments of apply.
