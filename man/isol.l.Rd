@@ -18,3 +18,6 @@ isol.fdat = emu.track(isol, "fm")
    \code{\link{segmentlist}}
    \code{\link{trackdata}}
 }
+
+\keyword{emu}
+\keyword{datasets}

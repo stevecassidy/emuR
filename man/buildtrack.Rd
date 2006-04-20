@@ -1,14 +1,12 @@
 \name{buildtrack}
 \alias{buildtrack}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Build trackdata objects from the output of by() }
 \description{
-  The buildtrack() function in the emu-R library can be used to build a list that is output from by() into a trackdata object.
+  This function can be used to build a list that is output from by(..., simplify=F) into a trackdata object.
 }
 \usage{
-buildtrack(mylist, ftime = NULL, trackname = "")
+    buildtrack(mylist, ftime = NULL, trackname = "")
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{mylist}{ a list that ist output from by() }
   \item{ftime}{ ftime }
@@ -20,11 +18,17 @@ buildtrack(mylist, ftime = NULL, trackname = "")
 
 \seealso{  \code{\link{by}} }
 \examples{
-
-p = by(vowlax.fdat[1:3,2], diff)
-m = buildtrack(p)
-\dontshow{readline(prompt = "Press return to advance.")}
-p
+   #vowlax.fdat is a track data objects of formant of the vowlax segment list
+   #calculate the difference between adjacent formant values
+   p = by(vowlax.fdat[1,2], diff)
+   \dontshow{readline(prompt = "Press return to advance.")}
+   p
+   \dontshow{readline(prompt = "Press return to advance.")}
+   
+   #now build a track data object out of these values
+   m = buildtrack(p)
+   \dontshow{readline(prompt = "Press return to advance.")}
+   m
 }
 
 \keyword{ emu }
