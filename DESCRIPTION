@@ -1,8 +1,8 @@
 Package: emu
-Version: 2.0.1
+Version: 2.2
 Priority: contrib
 Title: Interface to the Emu Speech Database System
-Author: Steve Cassidy and others, SHLRC, Macquarie University <steve.cassidy@mq.edu.au>
+Author: Jonathan Harrington and others, IPDS, Christian Albrechts Universität zu Kiel
 Description: Provides an interface to the Emu speech database system and
 	many special purpose functions for display and analysis of speech 
 	data. 
@@ -11,5 +11,5 @@ LazyLoad: yes
 LazyData: yes
 ZipData: no
 URL: http://emu.sourceforge.net/
-Maintainer: Steve Cassidy  <steve.cassidy@mq.edu.au>
+Maintainer: Jonathan Harrington  <jmh@ipds.uni-kiel.de>
 
