@@ -6,7 +6,7 @@
 
 \title{ Arithmetic operations on track data objects}
 \description{
-  Arithmetic operations on track data objects are performed in the same way as arithmetic operations on other objects.
+  These are methods of the generic arithmetic functions that perform arithmetic operations on track data objects in the same way as arithmetic operations on other objects.
 }
 \usage{
 x + y
@@ -27,7 +27,8 @@ x * y
 \author{Jonathan Harrington}
 
 \seealso{
-\code{\link{Arithmetic}}
+   \code{\link{Arithmetic}}
+   \code{\link{trackdata}}
 }
 
 \examples{
@@ -35,4 +36,4 @@ x * y
 vowlax.fdat[1,2] - vowlax.fdat[1,1]
 }
 \keyword{emu}
-
+\keyword{method}

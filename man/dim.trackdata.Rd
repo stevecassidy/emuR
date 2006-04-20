@@ -1,14 +1,14 @@
 \name{dim.trackdata}
 \alias{dim.trackdata}
 
-\title{ A function which returns dimension attributes of track data objects}
+\title{ A method of the generic function dim for objects of class \'trackdata\'}
 \description{
   The function returns the dimension attributes of a track data object.
 }
-\usage{dim.trackdata(x)}
+\usage{dim(x)}
 
 \arguments{
-\item{x}{track data object}
+\item{x} {a track data object}
 }
 
 \details{
@@ -18,8 +18,16 @@ c(nrow(x$index), ncol(x$data))
 \author{Jonathan Harrington}
 
 \examples{
-> dim.trackdata(isol.fdat)
-[1] 13  4
+   #isol.fdat is the formant track of the segment list isol
 
+   #write out the dimension of the track data object 
+   dim.trackdata(isol.fdat)
+
+   #because there are 13 segments
+   isol.fdat$ftime
+
+   #and there are 4 rows for each segment (see here for the first segment)
+   isol.fdat$data[1,]
 }
-\keyword{datasets}
+\keyword{emu}
+\keyword{methods}
