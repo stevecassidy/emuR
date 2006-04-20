@@ -42,4 +42,4 @@ segs
 unlink("seglist.txt")
 
 }
-\keyword{misc}
+\keyword{emu}
