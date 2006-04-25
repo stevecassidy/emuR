@@ -3,15 +3,28 @@ function(x, y)
 {
 # function for doing arithmetic on trackdata objects
 # see +.trackdata for examples
+
+if(class(x)=="trackdata")
+{
+ftime <- x$ftime
+inds <- x$index
+nm <- x$name
+}
+else
+{
+ftime <- y$ftime
+inds <- y$index
+nm <- y$name
+}
+
 if(class(x)=="trackdata" & class(y)=="trackdata")
 o <- x$data - y$data
 else if (class(x)=="trackdata" & class(y)!="trackdata")
 o <- x$data - y
 else if (class(x)!="trackdata" & class(y)=="trackdata")
 o <- x - y$data
-as.trackdata(o, x$index, x$ftime, x$name)
+as.trackdata(o, inds, ftime, nm)
 }
-
 
 "+.trackdata" <-
 function(x, y)
@@ -37,6 +50,18 @@ function(x, y)
 # same
 # sum(z$data -  (20+vowlax.fdat[,1]$data + 30+vowlax.fdat[,2]$data))
 
+if(class(x)=="trackdata")
+{
+ftime <- x$ftime
+inds <- x$index
+nm <- x$name
+}
+else
+{
+ftime <- y$ftime
+inds <- y$index
+nm <- y$name
+}
 
 
 if(class(x)=="trackdata" & class(y)=="trackdata")
@@ -45,28 +70,26 @@ else if (class(x)=="trackdata" & class(y)!="trackdata")
 o <- x$data + y
 else if (class(x)!="trackdata" & class(y)=="trackdata")
 o <- x + y$data
-as.trackdata(o, x$index, x$ftime, x$name)
+as.trackdata(o, inds, ftime, nm)
 }
-
-
-"*.trackdata" <-
-function(x, y)
-{
-# function for doing arithmetic on trackdata objects
-# see +.trackdata for examples
-if(class(x)=="trackdata" & class(y)=="trackdata")
-o <- x$data * y$data
-else if (class(x)=="trackdata" & class(y)!="trackdata")
-o <- x$data * y
-else if (class(x)!="trackdata" & class(y)=="trackdata")
-o <- x * y$data
-as.trackdata(o, x$index, x$ftime, x$name)
-}
-
 
 "/.trackdata" <-
 function(x, y)
 {
+
+if(class(x)=="trackdata")
+{
+ftime <- x$ftime
+inds <- x$index
+nm <- x$name
+}
+else
+{
+ftime <- y$ftime
+inds <- y$index
+nm <- y$name
+}
+
 # function for doing arithmetic on trackdata objects
 # see +.trackdata for examples
 if(class(x)=="trackdata" & class(y)=="trackdata")
@@ -75,6 +98,35 @@ else if (class(x)=="trackdata" & class(y)!="trackdata")
 o <- x$data / y
 else if (class(x)!="trackdata" & class(y)=="trackdata")
 o <- x / y$data
-as.trackdata(o, x$index, x$ftime, x$name)
+as.trackdata(o, inds, ftime, nm)
+}
+
+
+"*.trackdata" <-
+function(x, y)
+{
+
+if(class(x)=="trackdata")
+{
+ftime <- x$ftime
+inds <- x$index
+nm <- x$name
+}
+else
+{
+ftime <- y$ftime
+inds <- y$index
+nm <- y$name
+}
+
+# function for doing arithmetic on trackdata objects
+# see +.trackdata for examples
+if(class(x)=="trackdata" & class(y)=="trackdata")
+o <- x$data * y$data
+else if (class(x)=="trackdata" & class(y)!="trackdata")
+o <- x$data * y
+else if (class(x)!="trackdata" & class(y)=="trackdata")
+o <- x * y$data
+as.trackdata(o, inds, ftime, nm)
 }
 
