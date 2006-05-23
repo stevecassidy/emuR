@@ -132,6 +132,7 @@
     dimnames(result)[[2]] <- make.names(colnames)
     # changed return type to data.frame !
     # will this break scripts?
+    origfreq <- get.originalFreq(resultfile)
     attr(result, "fs") <- origfreq
     return( result )
 #    return( as.matrix(result) )
