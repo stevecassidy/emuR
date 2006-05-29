@@ -139,11 +139,9 @@
     
   } else {
     data <- read.trackdata( resultfile, trackname ) 
-    origfreq <- get.originalFreq(resultfile)
     ## a bit of validation
     if( nrow(data$ftime) != nseg )
       stop( "error in emu.track: mismatch between number of segments and number of data items read" )
-    attr(data,"fs") <- origfreq
     return( data )
   }
 }
@@ -190,7 +188,9 @@
         index <- cbind(start = c(1, index[1:(length(index) - 1)] + 1), end = index)
         ftime <- cbind(start = times[index[, 1]], end = times[index[,2]])
     }
-    return(as.trackdata(data, index, ftime, trackname))
+    result = as.trackdata(data, index, ftime, trackname)
+    attr(result, "fs") = get.originalFreq(filename)
+    return(result)
 }
 
 
