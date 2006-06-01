@@ -22,13 +22,13 @@ to NULL which means that the start time is taken from start(trackdata), i.e. the
 specifying the time interval over which the trackdata is to be plotted. Defaults to NULL which means that the trackdata object is
 plotted between between the start time of the first segment and the end time of the last segment.}
   \item{ylim}{Specify a yaxis range.}
-  \item{\labels}{ A character vector the same length as
+  \item{labels}{ A character vector the same length as
 the number of segments in the trackdata object. Each label
 is plotted at side = 3 on the plotted at the temporal
 midpoint of each segment in the trackdata object.
 Defaults to NULL (plot no labels). Labels will only
 be plotted if xlim=NULL.}
-  \item{\contig}{ A single valued logical vector T or F. If T,
+  \item{contig}{ A single valued logical vector T or F. If T,
 then all the segments of the trackdata object are
 assumed to be temporally contiguous, i.e. the
 boundaries of the segments are abutting in time
@@ -42,7 +42,7 @@ e.g. all "i:" vowels in a database. An example
 of a non-contiguous trackdata object is vowlax.fdat.
 If contig=F then each segment of the trackdata object
 is plotted separately.}
-  \item{\...}{ the same graphical parameters
+  \item{...}{ the same graphical parameters
 can be supplied to this function as for plot e.g type="l", lty=2 etc.}
 }
 

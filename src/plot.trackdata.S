@@ -1,8 +1,12 @@
 "plot.trackdata" <-
-function (trackdata, timestart=NULL, xlim=NULL, ylim=NULL, labels=NULL, contig=T, ...)
+function (trackdata, timestart=NULL, xlim=NULL, ylim=NULL, labels=NULL, col=NULL, lty=NULL, contig=T, ...)
  {
 
 N <- nrow(trackdata$data)
+if(is.null(col))
+col <- 1:ncol(trackdata)
+if(is.null(lty))
+lty <- rep(1, ncol(trackdata))
 n <- nrow(trackdata)
 # can't plot labels if xlim is specified
 if(!is.null(xlim))
@@ -50,7 +54,7 @@ if(is.null(xlim))
 xlim <- range(times)
 if(is.null(ylim))
 ylim <- range(data)
-plot(times, data[,k], xlim=xlim, ylim=ylim,...)
+plot(times, data[,k], xlim=xlim, ylim=ylim, col=col[k], lty=lty[k], ...)
 par(new=T)
 }
 par(new=F)
