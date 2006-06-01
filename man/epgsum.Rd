@@ -1,0 +1,90 @@
+\name{epgsum}
+\alias{epgsum}
+\title{ Sum contacts in palatograms. }
+\description{
+  The function calculates EPG contact
+profiles, i.e. sums active
+or inactive electrodes optionally by
+row and/or column in palatographic data.
+}
+\usage{epgsum (epgdata, profile = c(1, 3), inactive = F, rows = 1:8, 
+    columns = 1:8, trackname = "EPG-sum")  }
+
+\arguments{
+  \item{epgdata}{ An eight-columned EPG-compressed trackdata object,
+or an eight columned matrix of EPG-compressed trackdata, or
+a 3D palatographic array that is the output of palate() }
+  \item{profile}{A numeric vector of one or two values. The
+options are as follows. c(1,3) and c(1) sum the contacts
+by row, but the latter outputs the summation
+in the rows. c(2,3) and c(2)
+sum the contacts
+by column, but the latter outputs the summation in the columns.
+(see also rows and columns arguments and the examples below
+for further details). }
+ \item{inactive}{ a single element logical vector. If F (the default),
+then the active electrodes (i.e,  1s) are summed, otherwise
+the inactive electrodes (i.e., 0s) are summed.}
+ \item{trackname}{ single element character vector of the
+name of the track (defaults to "EPG-sum") }
+}
+
+\details{
+  Contact profiles are standard tools in electropalatographic
+analysis. See e.g., Byrd (1996) for details.
+}
+
+\value{
+These functions return a trackdata object if
+they are applied to an eight-columned EPG-compressed trackdata object,
+otherwise a one-columned matrix.}
+
+\references{ BYRD, D. (1996). Influences on articulatory timing 
+in consonant sequences. Journal of Phonetics, 24, 209-244.
+
+GIBBON, F. AND NICOLAIDIS, K. (1999). Palatography. 
+In W.J. Hardcastle & N. Hewlett (eds). Coarticulation. 
+(pp. 229-245). Cambridge University Press: Cambridge. }
+
+\examples{
+# Trackdata object of the sum of contacts in the 1st segment of polhom.epg
+epgsum(polhom.epg[1,])
+# as above, but the summation is in rows 1-3 only.
+epgsum(polhom.epg[1,], rows=c(1:3))
+# as epgsum(polhom.epg[1,]), except sum the inactive electrodes in columns 3-6.
+epgsum(polhom.epg[1,], columns=3:6, inactive=T)
+# Obtain compressed EPG-trackdata object for the 1st four segments of polhom.epg
+# at the temporal midpoint
+mid <- dcut(polhom.epg[1:4,], .5, prop=T)
+# sum of contacts in these four palatograms.
+epgsum(mid)
+# gives the same result as the previous command.
+p <- palate(mid)
+# sum the contacts in the palatograms.
+epgsum(p)
+# as above, but show the separate row summmations. 
+epgsum(p, 1)
+# as above, but show the separate column summmations. 
+epgsum(p, 2)
+# sum of the contacts in rows 1-4 showing the separate row summations.
+epgsum(p, 1, rows=1:4)
+# sum of the contacts in rows 1-4 showing the separate column summations.
+epgsum(p, 2, rows=1:4)
+# sum of the contacts in columns 3-6  showing the separate row summations.
+epgsum(p, 1, columns=3:6)
+# sum of the contacts in columns 3-6  showing the separate column summations.
+epgsum(p, 2, columns=3:6)
+
+}
+
+\author{ Jonathan Harrington }
+
+
+\seealso{ 
+\code{\link{epgai}}
+\code{\link{epgcog}}
+\code{\link{epggs}}
+\code{\link{palate}} 
+}
+
+\keyword{emu}
