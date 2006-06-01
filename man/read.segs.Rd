@@ -2,7 +2,7 @@
 \alias{read.segs}
 \title{ Create an Emu segment list from a file }
 \description{
-  Create an Emu segment list from a file saved by the Emu query tools. 
+  Create an Emu segment list from a file saved by the Emu query tools. *Has been replaced by read.emusegs* 
 }
 \usage{
 read.segs(file)
@@ -12,7 +12,7 @@ read.segs(file)
 }
 \details{
   Reads segment lists created by programs external to R/Splus and stored
-  in text files on disk.  
+  in text files on disk. Has been replaced by "read.emusegs".  
 }
 \value{
   An Emu segment list. 
