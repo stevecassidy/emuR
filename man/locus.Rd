@@ -1,43 +1,71 @@
 \name{locus}
 \alias{locus}
-\title{ Calculates a locus equation}
+\title{ Calculate locus equations for two-dimensional data }
 \description{
-  Calculates a locus equation.
+  The function plots a locus equation and returns associated 
+statistical information.
 }
-\usage{locus(target, onset,  labels.vow=NULL, yxline=T, xlim = NULL, ylim = NULL, xlab="", ylab="", plotgraph=T)}
+\usage{locus (target, onset, labels.vow = NULL, yxline = T, xlim = NULL, 
+    ylim = NULL, xlab = "", ylab = "", plotgraph = T) }
 
 \arguments{
-	\item{target}{vector of target freqs}
-	\item{onset}{vector of onset freqs}
-	\item{labels.vow}{optional vowel labels for plotting}
-	\item{xlim,ylim}{optional range for x and y-axes}
-	\item{xlab,ylab}{optional label for axes}
-	\item{plot}{if T, produces a plot of target x onset with a superimposed regression line through the scatter with superimposed line target = onset}
+	\item{target}{a numerical vector typically of F2 values at the vowel target}
+	\item{onset}{a numerical vector typically of the same
+length as target of  F2 values at the vowel onset}
+	\item{labels.vow}{an optionally character vector for plotting labels
+at the points (target, onset) of the same length as target}
+	\item{xlim,ylim}{a two-element numerical vector specifying the lower and upper limits on the x/y-axis}
+	\item{xlab,ylab}{a  character vector of length 1  for the x/y-axis label}
+	\item{plotgraph}{a logical vector for specifying whether the data
+should be plotted. Defaults to True.}
+	\item{yxline}{optionally plot the line target = onset.  Defaults to True.}
 }
 
+\value{
+A list containing regression diagnostics of
+the function lm() that can be accessed with
+summary() and the estimated locus frequency in $locus.
+A plot of values in the onset x target plane
+with superimposed locus equation and line onset=target.
+}
 
 \details{
-  The first two arguments are the x- and y-axis data, the third optional argument is for superimposing a parallel set of labels.
+  A locus equation is a straight line regression
+fitted with
+lm() in which the F2- values typically at the vowel onset
+are regressed on those of the target. The slope
+can be used to give an indication of target-on-onset
+coarticulatory influences. 
+
+The best estimate 
+of the locus frequency is where the locus equation
+bisects the line target = onset. 
 }
 
 \author{Jonathan Harrington}
 \examples{
 
-   # F2-onset
-   f2onset = dcut(isol.fdat[,2], 0, prop=T)
-   f2onset
+ # calculate an F2-locus equation for initial [d] 
+# preceding lax vowels produced by female speaker "68".
+# the onset is taken at the vowel onset; the
+# vowel target is taken at the vowel's temporal midpoint.
 
-   # F2-"target"
-   f2targ = dcut(isol.fdat[,2], .5, prop=T)
-   f2targ
+# identify initial "d" of speaker "68"
+temp <- vowlax.left == "d" & vowlax.spkr == "68"
+# get the F2 value at the vowel's temporal midpoint
+targ <- dcut(vowlax.fdat[temp,2], .5, prop=T)
+# F2 value at the vowel's acoustic onset.
+on <- dcut(vowlax.fdat[temp,2], 0, prop=T)
 
-   # F2-offset
-   f2offset= dcut(isol.fdat[,2], 1, prop=T)
-   f2offset
-   xlim = c(500, 2500); ylim = xlim; par(mfrow=c(1,2))
+# locus equation plot
+result <- locus(targ, on, vowlax.l[temp])
+# statistical diagnostics of the regression line (locus equation)
+summary(result)
+# intercept and slope
+result$coeff
+# best estimate of the locus frequency, i.e. the
+# point of bisection of on = targ with the regression line
+result$locus
 
-   #The first two arguments are the x- and y-axis data (in this case the F2-target and the F2-onset respectively) and there is a third optional argument for superimposing a parallel set of labels. In this example, the vowel labels are superimposed on the scatter and the x- and y-ranges are set to be the same. The F2-target x F2-onset data is plotted in the left panel, the F2-target x F2-offset data in the right panel:
-   stats.on = locus(f2targ, f2onset, isol.l, xlim=xlim, ylim=ylim)
-   stats.off = locus(f2targ, f2offset, isol.l, xlim=xlim, ylim=ylim)
 }
 \keyword{emu}

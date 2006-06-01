@@ -1,11 +1,11 @@
 \name{makelab}
 \alias{makelab}
 
-\title{ Export labels}
+\title{ Write out ESPS-style label files }
 \description{
-Writes out label files in ESPS format so that they can be loaded into Emulabel.
+Writes out separate ESPS-label files for each utterance to a specified directory.
 }
-\usage{makelab(vectimes, uttname, dir, extn="xlab", labels=NULL)
+\usage{makelab (vectimes, uttname, dir, extn = "xlab", labels = NULL) 
 }
 
 \arguments{
@@ -13,13 +13,15 @@ Writes out label files in ESPS format so that they can be loaded into Emulabel.
   \item{uttname}{a character vector of the same length as vectimes giving the utterance name associated with each element of vectimes}
   \item{dir}{a character specifying the directory}
   \item{extn}{a character specifying the extension of the resulting files. Defaults to xlab}
-  \item{labels}{if missing, each label written out as the label "x". Otherwise it can be a single element character vector such as "T" (each label then has the label "T") or else a vector of the same length as vectimes}
+  \item{labels}{either a single character vector or a character vector the same length as vectimes. 
+Defaults to "T"}
 }
 
-# labels:  if missing, each label written out
 
-\details{
- Writes out label files so that they can be loaded into Emulabel.  You have to supply the name of the directory where you want the label files to be stored as the third argument to makelab().
+\value{
+ ESPS-style label files are written out to the directory of the user's choice.
+One ESPS-label file is created for each utterance containing
+all time values for that utterance.}
 
 \author{Jonathan Harrington}
 

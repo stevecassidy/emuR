@@ -2,7 +2,10 @@
 \alias{buildtrack}
 \title{ Build trackdata objects from the output of by() }
 \description{
-  This function can be used to build a list that is output from by(..., simplify=F) into a trackdata object.
+  buildtrack() converts a list that is the output
+of by.trackdata() into a trackdata object if
+the list components are matrices whose rows are
+successive values in time.
 }
 \usage{
     buildtrack(mylist, ftime = NULL, trackname = "")
@@ -11,6 +14,17 @@
   \item{mylist}{ a list that ist output from by() }
   \item{ftime}{ ftime }
   \item{trackname}{ name of track data object}
+}
+
+\details{
+  The default of by.trackdata() is to return a list. If 
+each element of the list consists of a matrix
+whose rows are values occurring at the times given
+by the row dimension names of the matrix, then buildtrack()
+can be used to convert the list into a trackdata object.
+If the times are not given in the row dimension names,
+then these can be supplied as an additional argument to
+buildtrack()
 }
 
 \author{ Jonathan Harrington }

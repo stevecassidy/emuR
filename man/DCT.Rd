@@ -3,79 +3,88 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Discrete Cosine Transformation }
 \description{
-  Calculates the coefficients of the discrete cosine transformation
+  Obtain the coefficients of the discrete cosine transformation (DCT).
 }
 \usage{
 dct(wav, fit = F, k = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{wav}{ wav must be a vector or a one-columned matrix }
-  \item{fit}{ ~~Describe \code{fit} here~~ }
-  \item{k}{ number of returned coefficients }
+  \item{wav}{ a vector or single column matrix of numeric values to which the 2nd order polynomial is to be fitted. }
+  \item{fit}{ if F, return the DCT coefficients; 
+if T, the values of the smoothed trajectory are returned
+based on summing the cosine waves of the k lowest ordered
+DCT coefficients, where k is the argument given below. }
+  \item{k}{ The number of DCT coefficients that 
+are returned or on which the smoothed trajectory is based.
+Defaults to NULL which returns coefficients of
+frequencies k = 0, 1,2 .. N-1 where N is the
+length of the input signal, wav. If
+fit = T and k = NULL, then the the sum
+of all the  cosine waves whose amplitudes
+are the DCT coefficients are  returned - which
+is equal to the original signal. k must be
+between 2 and the length of the signal. }
 }
 \details{
-  ~~ If necessary, more details than the __description__  above ~~
+  The function calculates the DCT coefficients for any
+vector or single-columned matrix. The function can
+also be used to obtain a smoothed trajectory of the
+input data by summing the cosine waves derived from
+the first few DCT coefficients.
+
+The algorithm first reflects the input signal
+about the last data point, N. Thus if the input
+signal vec if of length N, the algorithm
+creates a vector c(vec, rev(vec[-c(1,N)])).
+and the R fft function is applied to this reflected signal.
+The DCT coefficients are real part of  what is returned by
+fft  i.e.  the amplitudes of
+the cosine waves of frequencies k = 0, 1, 2, ...2 *(N-1)
+radians per sample. The phase is zero in all cases.
+The amplitudes are calculated in such a way such
+that if these cosine waves are summed, the
+original (reflected) signal is reconstructed.
+What is returned by dct() are the amplitudes 
+of the cosine waves (DCT coefficients)
+up to a frequency of N radians/sample, i.e.
+a vector of cosine wave amplitudes
+that has the same
+length as the original signal and of
+frequencies k = 0, 1, 2, ... (N-1).  Alternatively, 
+if fit=T,  a smoothed signal of the same
+length as the original signal  is obtained 
+based on a summation of the lowest ordered DCT coefficients.
+This dct() algorithm returns very similar values
+to DCT() with inv=F 
+written by Catherine Watson and used in Watson & Harrington (1999).
 }
-\value{
-  ~Describe the value returned
-  If it is a LIST, use
-  \item{comp1 }{Description of 'comp1'}
-  \item{comp2 }{Description of 'comp2'}
-  ...
-}
-\references{ ~put references to the literature/web site here ~ }
+
+\references{ Watson, C. & Harrington, J. (1999).
+Acoustic evidence for dynamic formant trajectories
+in Australian English vowels. Journal of
+the Acoustical Society of America, 106, 458-468.
+
+Zahorian, S., and Jagharghi, A. (1993).
+Spectral-shape features versus formants
+as acoustic correlates for vowels,
+Journal of
+the Acoustical Society of America,  94, 19661982. }
 \author{ Jonathan Harrington }
-\note{ ~~further notes~~ }
 
- ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{ ~~objects to See Also as \code{\link{~~fun~~}}, ~~~ }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-function(wav, fit=F,  k=NULL)
-{
-
-if(!is.vector(wav) & !is.matrix(wav) )
-stop("input signal must be a vector or a one-columned matrix")
-if(is.matrix(wav) )
-{
-if(ncol(wav)!=1)
-stop("input signal must be a vector or a one-columned matrix")
-  }
-if(is.vector(wav))
-nz <- names(wav)
-if(is.matrix(wav))
-nz <- dimnames(wav)[[1]]
-N <- length(wav)
-if(is.null(k))
-k <- N
-if(k < 2 | k > N)
-stop("k must be between 2 and the length of the input signal")
-
-# program begins here
-wav <- c(wav, rev(wav[-c(1, N)]))
-Nref <- length(wav)
-coeff <- Re(fft(wav, inverse=T))/Nref
-
-if(fit)
-{
-p <- 1:k
-r <- c(Nref: (Nref-k+2))
-p <- c(p, r)
-coeff[-p] <- 0
-coeff <- Re(fft(coeff, inverse=T))
-  }
-coeff <-coeff[1:N]
-names(coeff) <- nz
-if(!fit)
-coeff <- coeff[1:k]
-coeff
-  }
+\seealso{ 
+\code{\link{DCT}}
+\code{\link{plafit}}
+\code{\link{by}}
 }
-\keyword{ ~kwd1 }% at least one, from doc/KEYWORDS
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\examples{
+# obtain the first four DCT coefficients 
+# (frequencies k = 0, 1, 2, 3) for some 
+# first formant frequency data
+vec <- vowlax.fdat[1,1]$data
+dct(vec, k=4)
+
+# obtain the corresponding smoothed
+# trajectory
+dct(vec, fit=T, k=4)
+}
