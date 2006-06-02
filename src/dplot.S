@@ -14,13 +14,11 @@
 
 "dplot" <-
 function (dataset, labs = NULL, offset = 0, ref.time = NULL, 
-    average = F, main = "", xlab = "time (ms)", ylab = "", xlim = NULL, 
+    average = F, main = "", xlab = "Time (ms)", ylab = "", xlim = NULL, 
     ylim = NULL, cex = 0.5, linetype = F, normalise = F, colour = T, 
-    legend = "topright", axes = T,  n = 20) 
+    legend = "topright", axes = T, n = 20) 
 {
     pout <- NULL
-    
-    
     if (is.matrix(dataset$data)) {
         pout <- as.list(NULL)
         pout$data <- as.list(NULL)
@@ -31,7 +29,6 @@ function (dataset, labs = NULL, offset = 0, ref.time = NULL,
         main <- c(rep("", numcols - 1), main)
         xlab <- c(rep("", numcols - 1), xlab)
         ylab <- c(rep("", numcols - 1), ylab)
-        
         axes <- c(rep(F, numcols - 1), axes)
         for (j in 1:ncol(dataset$data)) {
             mat <- dataset
