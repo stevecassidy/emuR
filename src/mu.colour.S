@@ -1,7 +1,33 @@
-"mu.colour" <-
-function (labs, col, linetype, defaultcolour = 1) 
+#############################################################################
+#                                                                           #
+#   copyright            : (C) 2000 SHLRC, Macquarie University             #
+#   email                : Steve.Cassidy@mq.edu.au			    #
+#   url			 : http://www.shlrc.mq.edu.au/emu		    #
+#									    #
+#   This program is free software; you can redistribute it and/or modify    #
+#   it under the terms of the GNU General Public License as published by    #
+#   the Free Software Foundation; either version 2 of the License, or       #
+#   (at your option) any later version.                                     #
+#									    #
+#############################################################################
+
+"mu.colour"<- function( labs, col, linetype, defaultcolour=1 )
 {
-    len <- length(labs)
+  ## Generate a colour and line type vector for 
+  ## one of the mu+ plots
+  ## col and linetype can be either T, F or a vector 
+  ## if they are F then the corresponding return element
+  ## is a vector of 1's of length len
+  ## if they are T then the corresponding return element
+  ## is a vector of different numbers, length len
+  ## if either is a vector then it is converted to a 
+  ## numeric vector with a different integer per unique label 
+
+  ## if col is a vector of length 2*length(unique(labs)) then
+  ## it should be a set of pairs {label, number} and number
+  ## will be assigned to label in the resulting list
+  
+  len <- length(labs)
     ulen <- length(unique(labs))
     if (length(col) == 2 * ulen) {
         colours <- 1:len
@@ -70,3 +96,24 @@ else{
     foo$legend$lty <- foo$linetype[!p1.temp]
     return(foo)
 }
+
+## return the colour for a given label via the colour object
+mu.colour.get <- function(col.lty, label) {
+
+  colour <- col.lty$legend$col[match(label, col.lty$legend$lab)]
+  return( colour )
+
+}
+
+mu.linetype.get <- function(col.lty, label) {
+
+  lty <- col.lty$legend$lty[match(label, col.lty$legend$lab)]
+  return( lty )
+
+}
+
+
+# Local Variables:
+# mode:S
+# S-temp-buffer-p:t
+# End:
