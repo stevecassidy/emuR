@@ -1,0 +1,34 @@
+Installation of Emu extensions to Splus
+
+- Unpack the zip/tar file in a working directory. 
+  This will create a directory emu-S with this file (INSTALL.txt) and
+  the Splus source code for the Emu library (Ssource) along with a
+  directory containing the html help files for Emu/Splus functions.
+
+- Create a directory for Emu in your Splus library directory, this might
+  be "C:\Spluswin\library" so you would create "C:\Spluswin\library\emu" 
+  and "C:\Spluswin\library\emu\_Data" (on Unix, this is .Data not _Data)
+
+- Start up Splus and attach this _Data (.Data) directory in position 1:
+
+attach( "C:\\Spluswin\\library\\emu\\_Data", pos=1 )
+ 
+  now source the Emu/Splus source code:
+
+source( "C:\Path\to\emu-S\Ssource" )
+
+  now quit Splus.
+
+- Restart Splus and you should be able to invoke the Emu library:
+
+library(emu)
+
+  you should see a message like:
+
+
+EMU Speech Database system
+ Version  1.0 (C) SHLRC, Macquarie University, 1998
+                                       
+
+- for help please consult the Emu manual and the html web pages
+  included in this distribution.
