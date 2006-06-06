@@ -1,90 +1,61 @@
-\name{dct}
-\alias{dct}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{ Discrete Cosine Transformation }
+\name{DCT}
+\alias{DCT}
+\title{Calculate the Discrete Cosine Transform. }
 \description{
-  Obtain the coefficients of the discrete cosine transformation (DCT).
+  Calculate the Discrete Cosine Transform on time series data.
 }
 \usage{
-dct(wav, fit = F, k = NULL)
+DCT(data, inv = T)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{wav}{ a vector or single column matrix of numeric values to which the 2nd order polynomial is to be fitted. }
-  \item{fit}{ if F, return the DCT coefficients; 
-if T, the values of the smoothed trajectory are returned
-based on summing the cosine waves of the k lowest ordered
-DCT coefficients, where k is the argument given below. }
-  \item{k}{ The number of DCT coefficients that 
-are returned or on which the smoothed trajectory is based.
-Defaults to NULL which returns coefficients of
-frequencies k = 0, 1,2 .. N-1 where N is the
-length of the input signal, wav. If
-fit = T and k = NULL, then the the sum
-of all the  cosine waves whose amplitudes
-are the DCT coefficients are  returned - which
-is equal to the original signal. k must be
-between 2 and the length of the signal. }
+  \item{data}{ A vector of numeric data }
+  \item{inv}{ If TRUE, compute the inverse transform, default TRUE  }
 }
 \details{
-  The function calculates the DCT coefficients for any
-vector or single-columned matrix. The function can
-also be used to obtain a smoothed trajectory of the
-input data by summing the cosine waves derived from
-the first few DCT coefficients.
+  
+   Forward DCT calculates the discrete cosine transform of the time varying
+   signal b_n
+   \eqn{
+                 N-1
+ G(k) = 2*e(n)/N*SUM b_n*cos[pi*(2k+1)*n/2N] k=0..N-1(3)
+                 n=0
+   }
 
-The algorithm first reflects the input signal
-about the last data point, N. Thus if the input
-signal vec if of length N, the algorithm
-creates a vector c(vec, rev(vec[-c(1,N)])).
-and the R fft function is applied to this reflected signal.
-The DCT coefficients are real part of  what is returned by
-fft  i.e.  the amplitudes of
-the cosine waves of frequencies k = 0, 1, 2, ...2 *(N-1)
-radians per sample. The phase is zero in all cases.
-The amplitudes are calculated in such a way such
-that if these cosine waves are summed, the
-original (reflected) signal is reconstructed.
-What is returned by dct() are the amplitudes 
-of the cosine waves (DCT coefficients)
-up to a frequency of N radians/sample, i.e.
-a vector of cosine wave amplitudes
-that has the same
-length as the original signal and of
-frequencies k = 0, 1, 2, ... (N-1).  Alternatively, 
-if fit=T,  a smoothed signal of the same
-length as the original signal  is obtained 
-based on a summation of the lowest ordered DCT coefficients.
-This dct() algorithm returns very similar values
-to DCT() with inv=F 
-written by Catherine Watson and used in Watson & Harrington (1999).
+   Inverse DCT reconstructs a time domain waveform from the cosine
+   waveform G(k), a smoothed version of the orginal b_n can be 
+   obtained if less than  N-1 cosines are used.
+
+   \eqn{   
+       N-1
+ b_n = SUM e(n)*G(k)*cos[pi*(2k+1)*n/2N] n=0..N-1(2)
+       k=0
+  }
+  
+   where
+   \eqn{
+ e(n) = 1/sqrt(2) if n=0
+      = 1, otherwize
+ }
+}
+\value{
+  A vector with the same number of elements as the  original data. 
+}
+\references{ K. Rao and P. Yip, Discrete cosine transform : algorithms,
+  advantages, applications, Academic Press, Boston, MA, 1990. }
+\author{Catherine Watson }
+\seealso{ \code{\link{applyDCT}} 
+\code{\link{dct}}
 }
 
-\references{ Watson, C. & Harrington, J. (1999).
-Acoustic evidence for dynamic formant trajectories
-in Australian English vowels. Journal of
-the Acoustical Society of America, 106, 458-468.
-
-Zahorian, S., and Jagharghi, A. (1993).
-Spectral-shape features versus formants
-as acoustic correlates for vowels,
-Journal of
-the Acoustical Society of America,  94, 19661982. }
-\author{ Jonathan Harrington }
-
-\seealso{ 
-\code{\link{DCT}}
-\code{\link{plafit}}
-\code{\link{by}}
-}
 \examples{
-# obtain the first four DCT coefficients 
-# (frequencies k = 0, 1, 2, 3) for some 
-# first formant frequency data
-vec <- vowlax.fdat[1,1]$data
-dct(vec, k=4)
+# inverse transform should be the identity transform 
+# expect result = 1:10 (approx)
+DCT(DCT(1:10,F),T)
 
-# obtain the corresponding smoothed
-# trajectory
-dct(vec, fit=T, k=4)
+# Simple transform, expect
+# [1]  7.778175e+00 -4.036036e+00 -9.898332e-16 -4.323021e-01 -4.884981e-16
+# [6] -1.414214e-01 -4.824093e-15 -5.718538e-02  1.021405e-15 -1.603587e-02
+DCT(1:10,F)
+
 }
+\keyword{misc}% at least one, from doc/KEYWORDS

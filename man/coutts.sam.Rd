@@ -1,6 +1,6 @@
 \name{coutts.sam}
 \alias{coutts.sam}
-\title{Emu segment list}
+\title{Trackdata of acoustic waveforms of coutts}
 \usage{data(coutts.sam)}
 \description{
    Trackdata of acoustic waveforms of coutts.

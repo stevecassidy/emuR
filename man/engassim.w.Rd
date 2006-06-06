@@ -1,6 +1,6 @@
 \name{engassim.w}
 \alias{engassim.w}
-\title{Emu segment list}
+\title{Vector of word labels for the above}
 \usage{data(engassim.w)}
 \description{
    Vector of word labels for the above.

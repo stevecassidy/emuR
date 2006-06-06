@@ -1,6 +1,6 @@
 \name{dorsal.fm}
 \alias{dorsal.fm}
-\title{Emu segment list}
+\title{Formant trackdata of dorsal}
 \usage{data(dorsal.fm)}
 \description{
    Formant trackdata of dorsal.

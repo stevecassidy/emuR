@@ -1,10 +1,10 @@
 \name{coutts.epg}
 \alias{coutts.epg}
-\title{Emu segment list}
+\title{EPG-compressed trackdata of the segment list coutts}
 \usage{data(coutts.epg)}
 \description{
-   EPG-compressed trackdata of the segment list coutts (frame rate 5 ms).
-}
+   EPG-compressed trackdata of the segment list coutts(frame rate 5 ms).
+} 
 %\format{
 %  NA
 %

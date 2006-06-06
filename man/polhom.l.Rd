@@ -1,6 +1,6 @@
 \name{polhom.l}
 \alias{polhom.l}
-\title{Emu segment list}
+\title{Vector of phonetic labels of  the segment list polhom}
 \usage{data(polhom.l)}
 \description{
    Vector of phonetic labels of  the segment list polhom.

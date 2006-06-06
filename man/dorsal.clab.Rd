@@ -1,9 +1,9 @@
 \name{dorsal.clab}
 \alias{dorsal.clab}
-\title{Emu segment list}
+\title{A vector of consonant labels for C (dorsal)}
 \usage{data(dorsal.clab)}
 \description{
-   a vector of consonant labels for C (dorsal).
+   A vector of consonant labels for C (dorsal).
 }
 %\format{
 %  NA

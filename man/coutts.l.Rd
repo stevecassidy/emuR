@@ -1,6 +1,6 @@
 \name{coutts.l}
 \alias{coutts.l}
-\title{Emu segment list}
+\title{Vector of word label of the segment list coutts}
 \usage{data(coutts.l)}
 \description{
    Vector of word label of the segment list coutts.

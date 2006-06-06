@@ -1,6 +1,6 @@
 \name{dorsal.vlab}
 \alias{dorsal.vlab}
-\title{Emu segment list}
+\title{A vector of vowel labels for V (dorsal)}
 \usage{data(dorsal.vlab)}
 \description{
    A vector of vowel labels for V (dorsal).

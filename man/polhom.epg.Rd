@@ -1,6 +1,6 @@
 \name{polhom.epg}
 \alias{polhom.epg}
-\title{Emu segment list}
+\title{EPG-compressed trackdata of the segment list polhom}
 \usage{data(polhom.epg)}
 \description{
    EPG-compressed trackdata of the segment list polhom (frame rate 10 ms).

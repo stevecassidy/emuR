@@ -1,9 +1,9 @@
 \name{engassim.l}
 \alias{engassim.l}
-\title{Emu segment list}
+\title{Vector of phonetic labels for engassim: /nK/ = /nk,ng/, /sK/ = /sk,sg/}
 \usage{data(engassim.l)}
 \description{
-   vector of phonetic labels for engassim: /nK/ = /nk,ng/, /sK/ = /sk,sg/.
+   Vector of phonetic labels for engassim: /nK/ = /nk,ng/, /sK/ = /sk,sg/.
 }
 %\format{
 %  NA

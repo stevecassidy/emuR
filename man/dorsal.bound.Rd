@@ -1,9 +1,9 @@
 \name{dorsal.bound}
 \alias{dorsal.bound}
-\title{Emu segment list}
+\title{Vector of the acoustic boundary times between V and C in dorsal}
 \usage{data(dorsal.bound)}
 \description{
-   vector of the acoustic boundary times between V and C in dorsal.
+   Vector of the acoustic boundary times between V and C in dorsal.
 }
 %\format{
 %  NA

@@ -37,20 +37,25 @@ then the cell is white (unfilled).
 # greyscale image across the first two segments 'just relax'
 # with title
 epggs(coutts.epg[1:2,], main="just relax")
+readline("press enter to continue")
 
 # as above but with dotted gridlines in blue
 epggs(coutts.epg[1:2,], main="just relax", gridlty=2, gridcol="blue")
+readline("press enter to continue")
 
 # as the first example, but with greyscale set to 2
 epggs(coutts.epg[1:2,], 2, main="just relax")
+readline("press enter to continue")
 
 # get palatograms for "S" from the polhom.epg database
 temp = polhom.l == "S"
 # greyscale image of all "S" segments at their temporal midpoint
 epggs(dcut(polhom.epg[temp,], 0.5, prop=T))
+readline("press enter to continue")
 
 # greyscale image of all "S" segments from their onset to offset
 epggs(polhom.epg[temp,])
+readline("press enter to continue")
 
 # the same but derived from palates
 p <- palate(polhom.epg[temp,])
