@@ -41,7 +41,10 @@ the times corresponding to the first and last rows of data.
   \item{index}{A two column matrix of the start and end rows for each segment}
   \item{ftime}{A two column matrix of the start and end times for each segment}
 }
-\seealso{\code{\link{dsmooth}}, \code{\link{ddiff}}}
+\seealso{
+\code{\link{dsmooth}}
+\code{\link{ddiff}}
+}
 
 \examples{
 library(emu)

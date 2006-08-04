@@ -47,18 +47,13 @@ Defaults to 50 (resulting in 50^2 classified points) }
 defining the metric for classifying the points. "bayes" is for Bayesian classification,
 "mahal" is for classification according to Mahalanobis distances. ) }
 }
-%\details{
-%  ~~ If necessary, more details than the description above ~~
-%}
+
 \value{
   NULL
 }
-%\references{ ~put references to the literature/web site here ~ }
+
 \author{ Jonathan Harrington jmh@ipds.uni-kiel.de, Steve Cassidy, Gordon Watson }
-%\note{ ~~further notes~~ 
-%
-% ~Make other sections like Warning with \section{Warning }{....} ~
-%}
+
 \seealso{ 
    \code{\link{dcut}}
 }

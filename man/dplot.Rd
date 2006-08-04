@@ -22,17 +22,17 @@ observations are lined up at t = 0 ms, where t is relative
 to the times in this vector. }
   \item{average}{ If T, the data for each unique label in 'labs' is averaged }
   \item{main}{ A character vector for a main title for the plot. }
-  \item{xlab}{ A character vector for the x-axis label  }
+  \item{xlab}{ A character vector for the x-axis label.  }
   \item{ylab}{ A character vector for the y-axis label. }
-  \item{xlim}{ A vector of two numeric values  specifying the  x-axis range}
-  \item{ylim}{ A vector of two numeric values  specifying the  y-axis range }
+  \item{xlim}{ A vector of two numeric values specifying the x-axis range}
+  \item{ylim}{ A vector of two numeric values specifying the y-axis range }
   \item{cex}{ The 'cex' parameter passed to 'par' to control text size on
           the plot }
   \item{linetype}{ A single element logical vector. Defaults to F. 
 If T,  plot each label type in a different linetype}
   \item{normalise}{ If T, the data for each segment is linearly time normalised so
           that all observations have the same length. The number of points
-used in the linear time normalisation is control by the argument \item{n} }
+used in the linear time normalisation is control by the argument n. }
   \item{colour}{ A single element logical vector. Defaults to T 
 to plot each label type in a different colour }
   \item{legend}{ Either a character vector to plot
@@ -47,18 +47,13 @@ to plot the axes }
   \item{n}{ A single element numeric vector. Only used if normalise=T.
 The number of data points used to linearly time normalise each track }
 }
-%\details{
-%  ~~ If necessary, more details than the description above ~~
-%}
+
 \value{
  NULL
 }
 \references{ }
 \author{Jonathan Harrington}
-%\note{ ~~further notes~~ 
-%
-% ~Make other sections like Warning with \section{Warning }{....} ~
-%}
+
 \seealso{ 
    \code{\link{dcut}}
    \code{\link{emu.track}}
