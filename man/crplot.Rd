@@ -1,0 +1,71 @@
+\name{crplot}
+\alias{crplot}
+\title{ Function to plot a digital sinusoid and the circle from which it is derived. }
+\description{ A digital sinusoid is derived the movement of a point around a circle. 
+The function shows the relationship between the two for various parameter settings.}
+\usage{
+crplot(A = 1, k = 1, p = 0, N = 16, const = NULL, figsize = 8, npoints = 500, col = 1, cplot = T, splot = T, numplot = T, axes = T, incircle = T, arrow = T, linetype = 1, textplot = NULL, lineplot = NULL, ylab = "Amplitude", super = NULL, xaxlab = NULL, type = "b", xlab = "Time (number of points)", fconst = 3.5/3.1, pointconst = 1.2)
+}
+
+\arguments{
+  \item{A}{ Amplitude of the circle/sinusoid. }
+  \item{k}{ Frequency of the sinusoid }
+  \item{p}{ Phase of the sinusoid }
+  \item{N}{ Number of points per cycle or revolution. }
+  \item{const}{ A constant corresponding to k + A*cos(2*pi*k+p) }
+  \item{figsize}{ Set the figure size as pin <- c(figsize, figsize/2).
+Defaults to figsize = 8. }
+  \item{npoints}{ The number of points used in plotting the circle. Defaults to 500 }
+  \item{col}{ An integer for the color in plotting the sinusoid and points around the circle }
+  \item{cplot}{ Now redundant }
+  \item{splot}{ Now redundant }
+  \item{numplot}{ Logical. If T (defaults), the digital points around the circle are numbered }
+  \item{axes}{ Logical. If T, plot axes. }
+  \item{incircle}{ Logical. If T, plot an the angle between digital points in the circle. }
+  \item{arrow}{ Logical. If T, plot an arrow on incircle showing the direction of movement. }
+  \item{linetype}{ Specify a linetype. Same function as lty in plot }
+  \item{textplot}{ A list containing $radius, $textin, $pivals
+for plotting text at specified angles and radii on
+the circle. $radius: a vector of  amplitudes of the radii at
+which the text is to be plotted; $textin: a vector
+of chacacter labels to be plotted; $pivals: the angle, in radians
+relative to  zero radians (top of the circle) at which
+the text is to be plotted. Defaults to NULL }
+  \item{lineplot}{ Plot lines from the centre of the circle
+ to the circumference. lineplot is  a vector specifying
+ the angle in radians (zero corresponds to the top of the circle) }
+  \item{ylab}{ Specify a y-axis label. }
+  \item{super}{ Superimpose a part solid circle and corresponding
+ sinusoid. This needs to be a list containing $first and
+$last, which are values between 0 and 2*pi defining
+ the beginning and ending of the part circle which is
+ to be superimposed }
+  \item{xaxlab}{ Now redundant }
+  \item{xlab}{ Specify an x-axis label. }
+  \item{fconst}{ A single elment numeric vector
+for the aspect ratio in a postscript plot. Defaults to 3.5/3.1 
+which is appropriate for a postscript setting of  setps(h=4, w=4) }
+  \item{pointconst}{ The radius for plotting the numbers around the circle.
+Defaults to 1.2 * A }
+}
+
+
+\references{ Harrington, J, & Cassidy, S. 1999. Techniques in Speech Acoustics. Kluwer}
+\author{ Jonathan Harrington}
+
+
+\seealso{ 
+\code{\link{cr}}
+}
+
+\examples{
+crplot()
+# sine wave
+crplot(p=-pi/2)
+\dontshow{readline(prompt = "Press return to advance.")}
+crplot(k=3)
+\dontshow{readline(prompt = "Press return to advance.")}
+# aliasing
+crplot(k=15)
+}
+\keyword{emu}

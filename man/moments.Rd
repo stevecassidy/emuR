@@ -1,0 +1,42 @@
+\name{moments}
+\alias{moments}
+\title{ Function to calculate statistical moments }
+\description{
+  The function calculates the first 4 moments, i.e. the mean, variance, 
+skew, kurtosis.
+}
+\usage{
+moments(count, x, minval = F)
+}
+\arguments{
+  \item{count}{ A vector of the observed instances per class }
+  \item{x}{ A vector of the same length as count defining the class.
+If missing, and if count is of class spectral, then x is equal to trackfreq(count). If x is missing and is not of class spectral, then x default to 0:(length(count)-1) }
+  \item{minval}{ If T, subtract min(count) from count so that
+the minimum value of count is zero. This is principally
+used in calculating spectral moments where count is in decibels,
+and more generally if count contains negative values.}
+}
+\details{
+  The units of the first moment are the same as x,
+the units of the second moment are x ^2, and the
+third and fourth moments are dimensionless.
+}
+
+\references{ Snedecor, G & Cochran, W. 'Statistical Methods' Iowa State Press.
+Wuensch,K., 2005  }
+\author{ Jonathan Harrington }
+
+\examples{
+# first four moments of a vector
+mom <- moments(bridge[,2])
+# the above is the same as moments(bridge[,2], 0:12)
+# first four moments of a spectral vector with the dB values
+# reset so that the minimum dB value is 0. The d.c. offset is also
+# excluded in the calculation
+mom <- moments(e.dft[-1], minval=T)
+# the temporal skew of F1 for the 10th segment. Use
+m <- moments(vowlax.fdat[10,1]$data)[3]
+
+}
+\keyword{emu}

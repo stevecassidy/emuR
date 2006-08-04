@@ -1,0 +1,76 @@
+\name{plot.spectral}
+\alias{plot.spectral}
+
+\title{ Plot spectra from EMU spectral objects  }
+\description{
+   The function plots spectrum of any EMU spectral object. 
+}
+\usage{
+plot.spectral(specdata, labs, ylim, xlim, ylab, xlab, col, lty, lwd, fun, freq, type = "l", power = F, powcoeffs = c(10, 10), dbnorm = F, dbcoeffs = c(0, 0), legend = T, ...)
+}
+
+\arguments{
+  \item{specdata}{ An EMU object of class 'spectral' }
+  \item{labs}{ An optional vector character labels. Must be the same length as specdata }
+  \item{ylim}{ A two-element numeric vector for  the y-axis range (see 'par') }
+  \item{xlim}{ A two-element numeric vector for  the x-axis range (see 'par') }
+  \item{ylab}{ A single-element character vector for the  y-axis title (see 'par') }
+  \item{xlab}{ A single-element character vector for the  x-axis range (see 'par')  }
+  \item{col}{ Specify a color - see 'mu.colour') }
+  \item{lty}{ Specify a linetype - see 'mu.colour' }
+  \item{lwd}{ Specify line thickness - see 'mu.colour' }
+  \item{fun}{ An R function name e.g., mean, var, sum, etc.
+The function is applied separately to each category type specified in labs }
+  \item{freq}{ A numeric vector the same length as the number of columns
+in specdata specifying the frequencies at which the
+spectral data is to be plotted. If not supplied, defaults to trackfreq(specdata) }
+  \item{type}{ A single element character vector for the linetype }
+  \item{power}{ Logical. If T, then specdata (or specdata$data
+if specdata is a trackdata object, is converted to
+a * specdata^b, where a and b have the values given in powcoeffs.
+This operation is applied before b }
+  \item{powcoeffs}{ A two-element numeric vector. Defaults to c(10, 10) }
+  \item{dbnorm}{ Logical. If T, apply dB-level normalization
+per spectrum as defined by dbcoeffs below. Defaults to F. }
+  \item{dbcoeffs}{ A two element numeric vector (x, y).
+The spectra are normalised in such a way that the values
+of each spectrum at a frequency of y are set to a dB level of x.
+For example, to normalise the spectrum to 10 dB at 2000 Hz, 
+set dbnorm to T and dbcoeffs  to c(2000, 10) }
+  \item{legend}{ Parameters for defining the legend. See 'mu.legend' for
+further details }
+  \item{\dots}{ Further graphical parameters may be supplied. }
+}
+\details{
+   This function is implemented when a spectral trackdata object
+is called with the 'plot' function. 
+}
+
+\author{ Jonathan Harrington }
+\note{ To plot spectral data from a spectral trackdata object,
+then call the function explicitly with 'plot/spectral' rather than
+with just 'plot' 
+}
+
+\seealso{ 
+\code{\link{plot}}
+\code{\link{plot.trackdata}}
+\code{\link{as.spectral}}
+}
+
+\examples{
+plot(vowlax.dft.5[1,])
+\dontshow{readline(prompt = "Press return to advance.")}
+# with label types
+plot(vowlax.dft.5[1:20,], vowlax.l[1:20])
+\dontshow{readline(prompt = "Press return to advance.")}
+# As above but averaged after converting to power ratios.
+plot(vowlax.dft.5[1:20,], vowlax.l[1:20], fun=mean, power=T)
+\dontshow{readline(prompt = "Press return to advance.")}
+# All the spectra of one segment in a trackdata object
+plot.spectral(fric.dft[1,])
+
+
+
+}
+\keyword{emu}
