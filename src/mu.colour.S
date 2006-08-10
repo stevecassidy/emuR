@@ -10,92 +10,90 @@
 #   (at your option) any later version.                                     #
 #									    #
 #############################################################################
-
-"mu.colour"<- function( labs, col, linetype, defaultcolour=1 )
+"mu.colour" <-
+function(labs, col=T, linetype=F, lwd=NULL)
 {
-  ## Generate a colour and line type vector for 
-  ## one of the mu+ plots
-  ## col and linetype can be either T, F or a vector 
-  ## if they are F then the corresponding return element
-  ## is a vector of 1's of length len
-  ## if they are T then the corresponding return element
-  ## is a vector of different numbers, length len
-  ## if either is a vector then it is converted to a 
-  ## numeric vector with a different integer per unique label 
+result <- NULL
+if(is.logical(col))
+{
+if(col)
+result$colour <- label.num(labs)
+else
+result$colour <- rep(1, length(labs))
+}
 
-  ## if col is a vector of length 2*length(unique(labs)) then
-  ## it should be a set of pairs {label, number} and number
-  ## will be assigned to label in the resulting list
-  
-  len <- length(labs)
-    ulen <- length(unique(labs))
-    if (length(col) == 2 * ulen) {
-        colours <- 1:len
-        n <- 1
-        while (n <= ulen) {
-            lab <- col[2 * n - 1]
-            colour <- col[2 * n]
-            colours[labs == lab] <- as.numeric(colour)
-            n <- n + 1
-        }
-        col <- colours
-    }
-    else if (is.numeric(col)) {
-if(length(col)==1)
-col <- rep(col, len)
-else{
-        if (length(col) != length(labs)) 
-            stop("length of colour vector differs from that of labels")
+else if( length(col)==length(labs) )
+result$colour <- col
+else if(length(col)==length(unique(labs) ) )
+{
+k <- 1
+result$colour <- labs
+for(j in unique(labs)){
+temp <- labs==j
+result$colour[temp] = col[k]
+k <- k+1
 }
-    }
-    else if (!is.logical(col)) {
-        col <- 1:length(unique(col))
-        if (length(col) != length(labs)) 
-            stop("length of colour vector differs from that of labels")
-    }
-    else {
-        if (col) {
-            colours <- 1:ulen
-            col <- labs
-            ulabels <- unique(labs)
-            for (i in 1:len) {
-                col[i] <- colours[ulabels == labs[i]]
-            }
-        }
-        else {
-            col <- rep(defaultcolour, len)
-        }
-    }
-    if (!is.logical(linetype)) {
-        if (length(linetype) == 1) 
-            linetype <- rep(linetype, len)
-        else linetype <- 1:length(unique(linetype))
-        if (length(linetype) != length(labs)) 
-            stop("length of linetype vector differs from that of labels")
-    }
-    else {
-        if (linetype) {
-            lty <- 1:ulen
-            linetype <- labs
-            ulabels <- unique(labs)
-            for (i in 1:len) {
-                linetype[i] <- lty[ulabels == labs[i]]
-            }
-        }
-        else {
-            linetype <- rep(1, len)
-        }
-    }
-    foo <- NULL
-    foo$colour <- col
-    foo$linetype <- linetype
-    p1 <- paste(labs, col, linetype)
+}
+else if(length(col)==1)
+result$colour <- rep(col, length(labs))
+
+if(is.logical(linetype))
+{
+if(linetype)
+result$linetype <- label.num(labs)
+else
+result$linetype <- rep(1, length(labs))
+}
+
+else if( length(linetype)==length(labs) )
+result$linetype <- linetype
+else if(length(linetype)==length(unique(labs) ) )
+{
+k <- 1
+result$linetype <- labs
+for(j in unique(labs)){
+temp <- labs==j
+result$linetype[temp] = linetype[k]
+k <- k+1
+}
+}
+
+else if(length(linetype)==1)
+result$linetype <- rep(linetype, length(labs))
+
+
+if(is.null(lwd))
+result$lwd <- rep(1, length(labs))
+else if( length(lwd)==length(labs) )
+result$lwd <- lwd
+else if(length(lwd)==length(unique(labs) ) )
+{
+k <- 1
+result$lwd <- labs
+for(j in unique(labs)){
+temp <- labs==j
+result$lwd[temp] = lwd[k]
+k <- k+1
+}
+}
+
+else if(length(lwd)==1)
+result$lwd <- rep(lwd, length(labs))
+
+ p1 <- paste(labs, result$colour, result$linetype, result$lwd)
     p1.temp <- duplicated(p1)
-    foo$legend$lab <- labs[!p1.temp]
-    foo$legend$col <- foo$colour[!p1.temp]
-    foo$legend$lty <- foo$linetype[!p1.temp]
-    return(foo)
+    result$legend$lab <- labs[!p1.temp]
+    result$legend$col <- result$colour[!p1.temp]
+    result$legend$lty <- result$linetype[!p1.temp]
+result$legend$lwd <- result$lwd[!p1.temp]
+
+result
 }
+
+
+
+
+
 
 ## return the colour for a given label via the colour object
 mu.colour.get <- function(col.lty, label) {

@@ -12,34 +12,8 @@
 #############################################################################
 
 
-"mel" <- function(x)
-{
-	1/log(2) * (log(1 + (x/1000))) * 1000
-}
 
 
-"bark" <- function(f, inv=F) {
-   # Convert Bark to Hz and vice-versa
-   # Formulae in 
-   # H. Traunmüller (1990) "Analytical expressions for the 
-   # tonotopic sensory scale" J. Acoust. Soc. Am. 88: 97-100. 
-   # f is a frequency in Hz unless inv=T,
-   # in which case f is a frequency in Bark
-   # inv: if T, performs Bark to Hz conversion
-   if(!inv)
-      result = ((26.81 * f) / (1960+f)) - 0.53
-   else
-      result = (1960 * (f + 0.53)) / (26.28 - f)
-   result
-}
-
-
-#"bark" <- function(x)
-#{
-#  Hz <- x/1000
-#  k1 <- (Hz/7.5) * (Hz/7.5)
-#  (13 * (atan(0.76 * Hz))) + (3.5 * (atan(k1)))
-#}
 
 "zwicker"<-
 structure(.Data = c(10, 100, 200, 300, 395, 510, 630, 765, 920, 1075, 1265, 
@@ -253,6 +227,110 @@ splitstring <- function(str,char) {
   nums <- c(1:length(utt))
   nums[temp]
 }
+
+
+"rad" <-
+function(vec, samfreq = 20000, hz = T)
+{
+# hz: if T, vec is a vector in Hertz, otherwise it's radians
+# convert from radians to Hz, or Hz to radians
+	if(hz) vals <- (vec * 2 * pi)/samfreq else vals <- (vec * samfreq)/(2 * 
+			pi)
+	vals
+}
+
+"freqtoint" <-
+function(trackdata, j){
+# note to remove the dc offset, set j to -1
+sg <- sign(j)
+zerowhich <- sg==0
+if(all(sg[!zerowhich] > 0))
+sg[zerowhich] = 1
+else sg[zerowhich] = -1
+j <- abs(j)
+fs <- trackfreq(trackdata)
+N <- length(fs)
+res <- 1+ (((j - fs[1]) * (N-1))/(fs[N] - fs[1]))
+res[res < 1] = 1
+res[res > N] = N
+res <- sg * res
+unique(round(res))
+}
+
+
+"dbnorm" <-
+function(specdata, f=0, db=0)
+{
+
+
+if(is.trackdata(specdata))
+dat <- specdata$data
+else
+dat <- specdata
+
+
+# normalise to dbnorm
+minfun <- function(specvals, f, db)
+{
+specvals <- specvals - specvals[f]+db
+}
+if(is.matrix(dat))
+dat <- fapply(dat, minfun, f, db)
+else
+dat = dat-dat[f]+db
+
+if(is.trackdata(specdata))
+{
+specdata$data <- dat
+return(specdata)
+}
+else return(dat)
+
+}
+
+
+
+"dbtopower" <-
+function(specdata, const = 10, base=10, inv=F)
+{
+# function for converting from db to power and back
+if(is.trackdata(specdata))
+dat <- specdata$data
+else dat <- specdata
+if(!inv)
+result <- base^(dat/const)
+else
+result <- const * log(dat, base=base)
+if(is.trackdata(specdata))
+{
+specdata$data <- result
+return(specdata)
+}
+else return(result)
+}
+
+
+"shift" <-
+function(x, delta = 1,  circular = T)
+{
+## converts x[n] into x[n-1] by multiplying the Fourier
+## transform on x[n] by z^-1 i.e. by e^-iw
+N <- length(x)
+if(delta < 0)
+delta <- N + delta
+h <- c(rep(0, delta), 1)
+if(!circular) {
+N <- length(x) + length(h) - 1
+x <- c(x, rep(0, N - length(x)))
+}
+filter(x, h, sides = 1, circular = T)[1:N]
+
+}
+
+
+
+
+
 
 # Local Variables:
 # mode:S

@@ -6,3 +6,10 @@ function(x)
 c(nrow(x$index), ncol(x$data))
 }
 
+"dimnames.trackdata" <-
+function(trackdata)
+{
+dimnames(trackdata$data)
+}
+
+

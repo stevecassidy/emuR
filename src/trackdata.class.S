@@ -30,49 +30,54 @@
   print(x$data, ...)
 }
 
-"[.trackdata"<- function(dataset, i, j, ...)
+
+
+
+"[.trackdata" <-
+function (dataset, i, j, ...) 
 {
-  ## dataset[i] gets the data for the i'th segment as a trackdata object
 
-  if (missing(i)) {
-    i <- 1:nrow(dataset$index)
-  }
 
-  ftime <- dataset$ftime[i, ,drop=F]
+    if (missing(i)) {
+        i <- 1:nrow(dataset$index)
+    }
 
-  index <- dataset$index[i, ,drop=F]
 
-  ## work out which rows of data we want
-  datarows <- NULL
-  for( ind in 1:nrow(index) ){
-    datarows <- c(datarows, seq(from=index[ind,1], to=index[ind,2]))
-  }
+    ftime <- dataset$ftime[i, , drop = F]
+    index <- dataset$index[i, , drop = F]
 
-  if(is.matrix(dataset$data)){
-    if(missing(j))
-      data <- dataset$data[datarows, ,drop=F]
-    else
-      data <- dataset$data[datarows,j,drop=F]
-  }
-  else {
-      data <- dataset$data[datarows, drop=F]
-  }
 
-  # now we need to rehash the index matrix to corrspond to the new
-  # data matrix
-
-  lval <- index[, 2] - index[, 1] + 1
-  right <- cumsum(lval)
-  left <- right + 1
-  left <- left[ - length(left)]
-  left <- c(1, left)
-  nindex <- cbind(left, right)
-
-  dataset$index <- nindex
-  dataset$ftime <- ftime
-  dataset$data <- data
-  return(dataset)
+    datarows <- NULL
+    for (ind in 1:nrow(index)) {
+        datarows <- c(datarows, seq(from = index[ind, 1], to = index[ind, 
+            2]))
+    }
+    if (is.matrix(dataset$data)) {
+        if (missing(j)) 
+            data <- dataset$data[datarows, , drop = F]
+        else data <- dataset$data[datarows, j, drop = F]
+    }
+    else {
+        data <- dataset$data[datarows, drop = F]
+    }
+    lval <- index[, 2] - index[, 1] + 1
+    right <- cumsum(lval)
+    left <- right + 1
+    left <- left[-length(left)]
+    left <- c(1, left)
+    nindex <- cbind(left, right)
+    dataset$index <- nindex
+    dataset$ftime <- ftime
+    dataset$data <- data
+    return(dataset)
 }
+
+
+
+
+
+
+
 
 "summary.trackdata" <- function(object, ...)
 {
@@ -189,6 +194,65 @@ for(j in 1:nrow(trackdata)){
 plot(trackdata[j,], timestart=timestart, xlim=xlim, ylim=ylim, labels=labels[j], contig=T, ...)
 }
 }
+}
+
+
+"bark.trackdata" <-
+function(trackdata)
+{
+if(is.spectral(trackdata$data))
+return(bark.spectral(trackdata))
+else
+{
+trackdata$data <- bark(trackdata$data)
+return(trackdata)
+}
+}
+
+
+
+"mel.trackdata" <-
+function(trackdata)
+{
+if(is.spectral(trackdata$data))
+return(mel.spectral(trackdata))
+else
+{
+trackdata$data <- mel(trackdata$data)
+return(trackdata)
+}
+}
+
+
+
+
+
+"trackfreq" <-
+function(specdata){
+if(is.trackdata(specdata))
+return(attr(specdata$data, "fs"))
+else
+return(attr(specdata, "fs"))
+}
+
+
+"get.trackkeywrd" <-
+function (fname) 
+{
+    line <- readLines(fname, n = 2)
+    line <- splitstring(line[2], " ")
+    if ((length(line) == 3) && (line[2] == "Trackname")) {
+        trackname <- line[3]
+    }
+    else {
+        return(NULL)
+    }
+    if (trackname  !=  "") {
+        return(trackname)
+    }
+    else {
+        return(NULL)
+    }
 }
 
 

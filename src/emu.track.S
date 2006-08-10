@@ -51,100 +51,81 @@
 
 
 
-"emu.track"<- function( seglist, trackname,
-                       cut=NULL, npoints=NULL,                       
-		       template=attr(seglist, "database")) 
+"emu.track" <-
+function (seglist, trackname, cut = NULL, npoints = NULL, template = attr(seglist, 
+    "database")) 
 {
-  if(emu.platform("MacOS")) {
-    stop("emu.track is currently not implemented for MacOS. Use read.trackdata to read in data saved from the query tool.")
-  }
-  
-  if( !inherits(seglist,"emusegs") ) 
-    stop( "emu.track only works for emu segment/event lists" ) 
-
-  if( is.null(template) ) 
-    stop( "no template supplied and no default in segment list" )
-
-  nseg <- nrow(seglist)
-
-  segfile <- emu.tempfile( "emu.track" )
-  resultfile <- emu.tempfile( "emu.track" )
-  
-  on.exit( unlink( segfile ), add=TRUE )
-  on.exit( unlink( resultfile ), add=TRUE ) 
-  
-  write.emusegs( seglist, segfile )
-  
-  if(!missing(cut)) {
-    cut <- paste( "-c", cut )
-  } else {
-    cut <- ""
-  }
-
-  if(!missing(npoints)) {
-    npoints <- paste( "-n", npoints )
-  } else {
-    npoints <- ""
-  }
-
-  if (is.R()) {
-    ## change to the template directory to make relative paths work
-    currentwd <- getwd()
-    ## this is a simple test to see whether template is a
-    ## filename or just a database name
-    if ( dirname(template) != "." ) {
-      setwd(dirname(template))
-    } else {
-      setwd(dirname(emu.options("bindir")))
+    if (emu.platform("MacOS")) {
+        stop("emu.track is currently not implemented for MacOS. Use read.trackdata to read in data saved from the query tool.")
     }
-  }
-  command <- emu.command.name( emu.options("gettrack"),
-                              cut,
-                              npoints,
-                              segfile, trackname, resultfile )
-
-  opstat <- emu.system( command )
-
-  if (is.R()) {
-    ## return to the original wd
-    setwd(currentwd)
-  }
-
-  if (!file.exists(resultfile) ) {
-    ## give a suitable error message
-    stop(paste("file ", resultfile, " doesn't exist in emu.track", sep=""))
-  } 
-
-  type <- attr(seglist, "type" )
-
-  ## now read in the time/index data and the data 
-  if(npoints == "" && (type == "event" || cut != "") ) {
-    ## just read in the data and return it as a matrix
-    result <- read.table( resultfile )
-    if (ncol(result) > 1 ) {
-      colnames <- paste(trackname, 1:ncol(result), sep="")
-    } else {
-      colnames <- trackname
+    if (!inherits(seglist, "emusegs")) 
+        stop("emu.track only works for emu segment/event lists")
+    if (is.null(template)) 
+        stop("no template supplied and no default in segment list")
+    nseg <- nrow(seglist)
+    segfile <- emu.tempfile("emu.track")
+    resultfile <- emu.tempfile("emu.track")
+    on.exit(unlink(segfile), add = TRUE)
+    on.exit(unlink(resultfile), add = TRUE)
+    write.emusegs(seglist, segfile)
+    if (!missing(cut)) {
+        cut <- paste("-c", cut)
     }
-    # add some useful metadata to the return value
-    # column and row names
-#    dimnames(result)[[1]] <- label(seglist) 
-    dimnames(result)[[2]] <- make.names(colnames)
-    # changed return type to data.frame !
-    # will this break scripts?
-    origfreq <- get.originalFreq(resultfile)
-    attr(result, "fs") <- origfreq
-    return( result )
-#    return( as.matrix(result) )
-    
-  } else {
-    data <- read.trackdata( resultfile, trackname ) 
-    ## a bit of validation
-    if( nrow(data$ftime) != nseg )
-      stop( "error in emu.track: mismatch between number of segments and number of data items read" )
-    return( data )
-  }
+    else {
+        cut <- ""
+    }
+    if (!missing(npoints)) {
+        npoints <- paste("-n", npoints)
+    }
+    else {
+        npoints <- ""
+    }
+    if (is.R()) {
+        currentwd <- getwd()
+        if (dirname(template) != ".") {
+            setwd(dirname(template))
+        }
+        else {
+            setwd(dirname(emu.options("bindir")))
+        }
+    }
+    command <- emu.command.name(emu.options("gettrack"), cut, 
+        npoints, segfile, trackname, resultfile)
+    opstat <- emu.system(command)
+    if (is.R()) {
+        setwd(currentwd)
+    }
+    if (!file.exists(resultfile)) {
+        stop(paste("file ", resultfile, " doesn't exist in emu.track", 
+            sep = ""))
+    }
+    type <- attr(seglist, "type")
+    if (npoints == "" && (type == "event" || cut != "")) {
+        result <- read.table(resultfile)
+        if (ncol(result) > 1) {
+            colnames <- paste(trackname, 1:ncol(result), sep = "")
+        }
+        else {
+            colnames <- trackname
+        }
+        dimnames(result)[[2]] <- make.names(colnames)
+     samfreq <- get.originalFreq(resultfile)
+key <- get.trackkeywrd(resultfile)
+if(any(key %in% c("dft", "css", "lps", "cep")))
+{
+    attr(result, "fs") <- seq(0, samfreq/2, length=ncol(data))
+class(result) <- c(class(result), "spectral")
 }
+        return(result)
+    }
+    else {
+        data <- read.trackdata(resultfile, trackname)
+        if (nrow(data$ftime) != nseg) 
+            stop("error in emu.track: mismatch between number of segments and number of data items read")
+        return(data)
+    }
+}
+
 
 ## read.trackdata
 ##  read data from two files into a trackdata object, the files
@@ -159,39 +140,41 @@
 ## The new format is:
 ## segno time data data data
 ## segno time data data data
-"read.trackdata" <- function (filename, trackname = "data") {
-
+"read.trackdata" <-
+function (filename, trackname = "data") 
+{
     if (!file.exists(filename)) {
-        ## try the twofile version
         return(read.trackdata.twofile(filename, trackname))
     }
-     ## otherwise we'll read the new file format
     data <- read.table(filename)
-    
-    ## now convert this to trackdata
     segnumbers <- data[, 1]
     times <- data[, 2]
     data <- data[, c(-1, -2)]
-    
     data <- as.matrix(data)
-    dimnames(data) <- list(times, paste("T", 1:ncol(data), sep=""))
-
-    ## first check for the case of just one segment
+    dimnames(data) <- list(times, paste("T", 1:ncol(data), sep = ""))
     if (length(unique(segnumbers)) == 1) {
-        ## get the start/end positions and times of the segment
         index <- cbind(start = 1, end = length(segnumbers))
         ftime <- cbind(start = times[1], end = times[length(times)])
     }
     else {
-        ## get the start/end positions and times of each segment
-        index <- cumsum(aggregate(data, by = list(segnum = segnumbers), FUN = length)[, 2])
-        index <- cbind(start = c(1, index[1:(length(index) - 1)] + 1), end = index)
-        ftime <- cbind(start = times[index[, 1]], end = times[index[,2]])
+        index <- cumsum(aggregate(data, by = list(segnum = segnumbers), 
+            FUN = length)[, 2])
+        index <- cbind(start = c(1, index[1:(length(index) - 
+            1)] + 1), end = index)
+        ftime <- cbind(start = times[index[, 1]], end = times[index[, 
+            2]])
     }
-    result = as.trackdata(data, index, ftime, trackname)
-    attr(result, "fs") = get.originalFreq(filename)
+    result <- as.trackdata(data, index, ftime, trackname)
+samfreq <- get.originalFreq(filename)
+key <- get.trackkeywrd(filename)
+if(any(key %in% c("dft", "css", "lps", "cep")))
+{
+    attr(result$data, "fs") <- seq(0, samfreq/2, length=ncol(data))
+class(result$data) <- c(class(result$data), "spectral")
+}
     return(result)
 }
+
 
 
 

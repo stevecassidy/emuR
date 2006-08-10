@@ -55,76 +55,68 @@ dtime <- function(dataset, times, single = T, average = T) {
   }
 }
 
-"dcut"<- function(trackdata, left.time, right.time, single = T,
-                  average = T, prop = F)
+
+
+
+
+
+"dcut" <-
+function (trackdata, left.time, right.time, single = T, average = T, 
+    prop = F) 
 {
-  ## trackdata: an object of class trackdata
-  ## left.time: a vector of times which must be greater
-  ## than trackdata$ftime[,1]
-  ## right.time: a vector of times which must be less
-  ## than trackdata$ftime[,2]
-  ## if right.time is missing, then a vector or
-  ## matrix of values are returned at left.time
-  ## single: only applies if right.time is missing
-  ## sometimes two values might be equitemporal
-  ## between a left.time value, so if single is T
-  ## only one of these is returned (see method below)
-  ## average: only applies if right.time is missing and
-  ## if single is T. If average is T and two
-  ## values are equitemporal between a left.time value, 
-  ## then the values are averaged; otherwise the first
-  ## value is taken
-  ## prop: if prop is T then left.time and right.time
-  ## must be single valued vectors between 0 and 1
-  ## For example, if prop = T and left.time is 0.25
-  ## and right.time is 0.7, then trackdata is returned
-  ## from time points corresponding to 25% of the duration
-  ## into the trackdata to 70% of the duration into the
-  ## trackdata. If right.time is missing and prop=T, then
-  ## a vector or matrix is returned at a 
-  ## time corresponding to 100 * left.time %. For example, 
-  ## dcut(trackdata, 0.5, prop=T) extracts the values
-  ## at the 50% time point
-  ## 
-  ##
-
-  if(prop) {
-    if(missing(right.time))
-      omat <- dextract(trackdata, left.time)
-    else
-      omat <- dextract(trackdata, left.time, right.time)
-  } else {
-    if(missing(right.time))
-      omat <- dtime(trackdata, left.time, single = single, 
-                    average = average)
-    else {
-      if(length(left.time) != nrow(trackdata$ftime)) {
-        stop( "different number of elements in left.time and $ftime")
-      }
-      if(length(right.time) != nrow(trackdata$ftime)) {
-        stop("different number of elements in right.time and $ftime")
-      }
-      if(any(left.time < trackdata$ftime[, 1])) 
-        stop("some left.time values are less than $ftime[,1]")
-
-      if(any(right.time > trackdata$ftime[, 2])) 
-        stop("some right.time values are greater than $ftime[,2]")
-
-      if( any( right.time <= left.time ) ) 
-        stop("some right.time values are before the corresponding left.time")
-
-      lval <- nrow(trackdata$index)
-      for(j in 1:lval) {
-        tdat <- dcut.sub(trackdata[j], left.time[j], right.time[j])
-        if(j == 1)
-          omat <- tdat
-        else
-          omat <- bind(omat, tdat)
-      }
+    if (prop) {
+        if (missing(right.time)) 
+            omat <- dextract(trackdata, left.time)
+        else omat <- dextract(trackdata, left.time, right.time)
     }
-  }
-  return(omat)
+    else {
+        if (missing(right.time)) 
+            omat <- dtime(trackdata, left.time, single = single, 
+                average = average)
+        else {
+            if (length(left.time) != nrow(trackdata$ftime)) {
+                stop("different number of elements in left.time and $ftime")
+            }
+            if (length(right.time) != nrow(trackdata$ftime)) {
+                stop("different number of elements in right.time and $ftime")
+            }
+            if (any(left.time < trackdata$ftime[, 1])) 
+                stop("some left.time values are less than $ftime[,1]")
+            if (any(right.time > trackdata$ftime[, 2])) 
+                stop("some right.time values are greater than $ftime[,2]")
+            if (any(right.time <= left.time)) 
+                stop("some right.time values are before the corresponding left.time")
+            lval <- nrow(trackdata$index)
+            for (j in 1:lval) {
+                tdat <- dcut.sub(trackdata[j], left.time[j], 
+                  right.time[j])
+                if (j == 1) 
+                  omat <- tdat
+                else omat <- bind(omat, tdat)
+            }
+        }
+    }
+if(is.spectral(trackdata$data))
+{
+if(is.trackdata(omat))
+{
+attr(omat$data, "fs") <- attr(trackdata$data, "fs")
+if(!is.spectral(omat$data))
+class(omat$data) <- c(class(omat$data), "spectral")
 }
+else
+{
+attr(omat, "fs") <- attr(trackdata$data, "fs")
+if(!is.spectral(omat))
+class(omat) <- c(class(omat), "spectral")
+}
+
+}
+    return(omat)
+}
+
+
+
 
 "dcut.sub" <- function(trackdata, left.time, right.time)
 {

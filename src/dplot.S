@@ -12,10 +12,11 @@
 #############################################################################
 
 
+
 "dplot" <-
 function (dataset, labs = NULL, offset = 0, ref.time = NULL, 
     average = F, main = "", xlab = "Time (ms)", ylab = "", xlim = NULL, 
-    ylim = NULL, cex = 0.5, linetype = F, normalise = F, colour = T, 
+    ylim = NULL, cex = 0.5, linetype = F, normalise = F, colour = T,lwd=NULL,
     legend = "topright", axes = T, n = 20) 
 {
     pout <- NULL
@@ -38,11 +39,11 @@ function (dataset, labs = NULL, offset = 0, ref.time = NULL,
                   ref.time = ref.time, average = average, main = main[j], 
                   xlab = xlab[j], ylab = ylab[j], xlim = xlim, 
                   ylim = ylim, cex = cex, linetype = linetype, 
-                  colour = colour, legend = legend, axes = axes[j])
+                  colour = colour, legend = legend, lwd=lwd, axes = axes[j])
             else vals <- dplot.norm(mat, labs = labs, average = average, 
                 main = main[j], xlab = xlab[j], ylab = ylab[j], 
                 xlim = xlim, ylim = ylim, cex = cex, linetype = linetype, 
-                colour = colour, legend = legend, axes = axes[j], 
+                colour = colour, legend = legend, lwd=lwd, axes = axes[j], 
                 n = n)
             par(new = T)
             pout$data[[j]] <- vals$data
@@ -57,11 +58,11 @@ function (dataset, labs = NULL, offset = 0, ref.time = NULL,
             pout <- dplot.time(dataset, labs = labs, offset = offset, 
                 ref.time = ref.time, average = average, main = main, 
                 xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim, 
-                cex = cex, linetype = linetype, colour = colour, 
+                cex = cex, linetype = linetype, colour = colour, lwd=lwd,
                 legend = legend, axes = axes)
         else pout <- dplot.norm(dataset, labs = labs, average = average, 
             main = main, xlab = xlab, ylab = ylab, xlim = xlim, 
-            ylim = ylim, cex = cex, linetype = linetype, colour = colour, 
+            ylim = ylim, cex = cex, linetype = linetype, colour = colour, lwd=lwd,
             legend = legend, axes = axes, n = n)
     }
     par(new = F)
@@ -70,23 +71,25 @@ function (dataset, labs = NULL, offset = 0, ref.time = NULL,
 
 
 
+
+
 "dplot.time" <-
 function (dataset, labs = NULL, offset = 0, ref.time = NULL, 
     average = F, main = "", xlab = "time (ms)", ylab = "", xlim = NULL, 
-    ylim = NULL, cex = 0.5, linetype = F, colour = T, legend = "topright", 
+    ylim = NULL, cex = 0.5, linetype = F, colour = T, lwd=NULL, legend = "topright", 
     axes = T) 
 {
     ovec <- as.list(NULL)
-   
     samrate <- 1000/((dataset$ftime[1, 2] - dataset$ftime[1, 
         1])/(dataset$index[1, 2] - dataset$index[1, 1]))
     if ((offset < 0) | (offset > 1)) 
         stop("offset must be between 0 and 1")
     if (is.null(labs)) 
         labs <- rep(1, nrow(dataset$index))
-    col.lty <- mu.colour(labs, colour, linetype)
+    col.lty <- mu.colour(labs, colour, linetype, lwd)
     colour <- col.lty$colour
     linetype <- col.lty$linetype
+lwd <- col.lty$lwd
     if (is.null(ref.time)) 
         ref.time <- dataset$ftime[, 1] + ((dataset$ftime[, 2] - 
             dataset$ftime[, 1]) * offset)
@@ -125,7 +128,7 @@ function (dataset, labs = NULL, offset = 0, ref.time = NULL,
         for (j in 1:nrow(mat.na)) {
             plot(xtime, mat.na[j, ], xlim = xtimelim, ylim = ylim, 
                 xlab = "", ylab = "", axes = F, type = "l", col = colour[j], 
-                lty = as.numeric(linetype[j]))
+                lty = as.numeric(linetype[j]), lwd=as.numeric(lwd[j]))
             par(new = T)
         }
         ovec$data <- mat.na
@@ -157,10 +160,11 @@ function (dataset, labs = NULL, offset = 0, ref.time = NULL,
         col.code <- match(col.lty$legend$lab, unique(labs))
         colour <- col.lty$legend$col
         linetype <- col.lty$legend$lty
+lwd <- col.lty$legend$lwd
         for (j in 1:nrow(outmat)) {
             plot(xtime, outmat[j, ], xlim = xtimelim, ylim = ylim, 
                 xlab = "", ylab = "", axes = F, type = "l", col = colour[col.code[j]], 
-                lty = as.numeric(linetype[col.code[j]]))
+                lty = as.numeric(linetype[col.code[j]]), lwd = as.numeric(lwd[col.code[j]]))
             par(new = T)
         }
         ovec$data <- outmat
@@ -173,28 +177,25 @@ function (dataset, labs = NULL, offset = 0, ref.time = NULL,
         box()
     }
     title(main = main, xlab = xlab, ylab = ylab, cex = cex)
-    
-    if(is.logical(legend))
-{
-if(legend)
-legend <- "topright"
+    if (is.logical(legend)) {
+        if (legend) 
+            legend <- "topright"
         legend(legend, NULL, col.lty$legend$lab, col = col.lty$legend$col, 
-            lty = as.numeric(col.lty$legend$lty), cex = cex)
-}
-else
-legend(legend, NULL, col.lty$legend$lab, col = col.lty$legend$col, 
-            lty = as.numeric(col.lty$legend$lty), cex = cex)
-
-   
+            lty = as.numeric(col.lty$legend$lty), lwd = as.numeric(col.lty$legend$lwd), cex = cex)
+    }
+    else legend(legend, NULL, col.lty$legend$lab, col = col.lty$legend$col, 
+        lty = as.numeric(col.lty$legend$lty), lwd = as.numeric(col.lty$legend$lwd), cex = cex)
     invisible(ovec)
 }
+
+
 
 
 
 "dplot.norm" <-
 function (dataset, labs = NULL, average = F, main = "", xlab = "time (ms)", 
     ylab = "", xlim = NULL, ylim = NULL, cex = 0.5, linetype = F, 
-    colour = T, legend = "topright", axes = T, n = 20) 
+    colour = T, lwd=NULL, legend = "topright", axes = T, n = 20) 
 {
     ovec <- NULL
     if (is.null(ylim)) 
@@ -204,9 +205,10 @@ function (dataset, labs = NULL, average = F, main = "", xlab = "time (ms)",
     if (is.null(labs)) {
         labs <- rep(1, nrow(dataset$index))
     }
-    col.lty <- mu.colour(labs, colour, linetype)
+    col.lty <- mu.colour(labs, colour, linetype, lwd)
     colour <- col.lty$colour
     linetype <- col.lty$linetype
+lwd <- col.lty$lwd
     mat.na <- linear(dataset, n)
     mat.na$ftime <- dataset$ftime
     class(mat.na) <- "trackdata"
@@ -216,7 +218,7 @@ function (dataset, labs = NULL, average = F, main = "", xlab = "time (ms)",
         for (j in 1:lval) {
             plot(xvec, mat.na[j]$data, xlim = xlim, ylim = ylim, 
                 xlab = "", ylab = "", axes = F, type = "l", col = colour[j], 
-                lty = as.numeric(linetype[j]))
+                lty = as.numeric(linetype[j]), lwd=as.numeric(lwd[j]))
             par(new = T)
         }
         ovec$data <- mat.na
@@ -250,10 +252,11 @@ function (dataset, labs = NULL, average = F, main = "", xlab = "time (ms)",
         col.code <- match(col.lty$legend$lab, unique(labs))
         colour <- col.lty$legend$col
         linetype <- col.lty$legend$lty
+lwd <- col.lty$legend$lwd
         for (j in 1:nrow(outmat)) {
             plot(xvec, outmat[j, ], xlim = xlim, ylim = ylim, 
                 xlab = "", ylab = "", axes = F, type = "l", col = colour[col.code[j]], 
-                lty = as.numeric(linetype[col.code[j]]))
+                lty = as.numeric(linetype[col.code[j]]), lwd = as.numeric(lwd[col.code[j]]))
             par(new = T)
         }
         ovec$data <- outmat
@@ -266,16 +269,14 @@ function (dataset, labs = NULL, average = F, main = "", xlab = "time (ms)",
         box()
     }
     title(main = main, xlab = xlab, ylab = ylab, cex = cex)
-   if(is.logical(legend))
-{
-if(legend)
-legend <- "topright"
+    if (is.logical(legend)) {
+        if (legend) 
+            legend <- "topright"
         legend(legend, NULL, col.lty$legend$lab, col = col.lty$legend$col, 
-            lty = as.numeric(col.lty$legend$lty), cex = cex)
-}
-else
-legend(legend, NULL, col.lty$legend$lab, col = col.lty$legend$col, 
-            lty = as.numeric(col.lty$legend$lty), cex = cex)
-
+            lty = as.numeric(col.lty$legend$lty), lwd = as.numeric(col.lty$legend$lwd), cex = cex)
+    }
+    else legend(legend, NULL, col.lty$legend$lab, col = col.lty$legend$col, 
+        lty = as.numeric(col.lty$legend$lty), lwd = as.numeric(col.lty$legend$lwd), cex = cex)
     invisible(ovec)
 }
+

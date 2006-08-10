@@ -39,3 +39,5 @@ coeff <- coeff[1:k]
 coeff
 }
 
+
+
