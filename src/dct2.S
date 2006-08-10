@@ -1,43 +1,47 @@
+
 "dct" <-
-function(wav, fit=F,  k=NULL)
+function (data, m=NULL, fit=F) 
 {
-
-if(!is.vector(wav) & !is.matrix(wav) )
-stop("input signal must be a vector or a one-columned matrix")
-if(is.matrix(wav) )
+# written by Catherine Watson, modified by Jonathan Harrington
+    if (is.matrix(data)) 
+        nz <- dimnames(data)[[1]]
+else nz <- names(data)
+    ldat <- length(data)
+if(!is.null(m))
 {
-if(ncol(wav)!=1)
-stop("input signal must be a vector or a one-columned matrix")
+if ((m < 1) | (m > ldat-1))
+stop("m must be between 1 and length(data)-1")
 }
-if(is.vector(wav))
-nz <- names(wav)
-if(is.matrix(wav))
-nz <- dimnames(wav)[[1]]
-N <- length(wav)
-if(is.null(k))
-k <- N
-if(k < 2 | k > N)
-stop("k must be between 2 and the length of the input signal")
-
-# program begins here
-wav <- c(wav, rev(wav[-c(1, N)]))
-Nref <- length(wav)
-coeff <- Re(fft(wav, inverse=T))/Nref
-
-if(fit)
-{
-p <- 1:k
-r <- c(Nref: (Nref-k+2))
-p <- c(p, r)
-coeff[-p] <- 0
-coeff <- Re(fft(coeff, inverse=T))
-}
-coeff <-coeff[1:N]
-names(coeff) <- nz
+    transdat <- vector(length = ldat)
+    
+        transdat[1] <- (2/(ldat * sqrt(2))) * sum(data)
+        for (n in 1:(ldat - 1)) {
+            j <- 0:(ldat - 1)
+            transdat[n + 1] <- (2/ldat) * sum(data * cos((pi * 
+                n * (2 * j + 1))/(2 * ldat)))
+        }
+names(transdat) <- nz
 if(!fit)
-coeff <- coeff[1:k]
-coeff
+{
+if(is.null(m))
+return(transdat)
+else
+return(transdat[1:(m+1)])
 }
-
-
+    else {
+data <- transdat
+transdat <- vector(length = ldat)
+if(is.null(m))
+        m <- 1:(ldat - 1)
+else
+m <- 1:m
+        for (n in 0:(ldat - 1)) {
+            transdat[n + 1] <- (1/sqrt(2)) * data[1] * cos((pi * 
+                0 * (2 * n + 1))/(2 * ldat)) + sum(data[m + 1] * 
+                cos((pi * m * (2 * n + 1))/(2 * ldat)))
+        }
+    }
+names(transdat) <- nz
+    transdat
+}
 
