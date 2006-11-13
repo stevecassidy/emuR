@@ -15,14 +15,6 @@
 
 
 
-"zwicker"<-
-structure(.Data = c(10, 100, 200, 300, 395, 510, 630, 765, 920, 1075, 1265, 
-	1480, 1710, 1990, 2310, 2675, 3125, 3650, 4350, 5250, 6350, 7600, 9250, 
-	11750, 90, 200, 300, 400, 505, 630, 770, 915, 1080, 1265, 1475, 1720, 
-	1990, 2310, 2690, 3125, 3675, 4350, 5250, 6350, 7650, 9400, 11750, 
-	15250), .Dim = c(24, 2))
-
-
 
 
 ## return the index of the value in vec which is closest to val
@@ -35,11 +27,7 @@ structure(.Data = c(10, 100, 200, 300, 395, 510, 630, 765, 920, 1075, 1265,
 	nums[temp]
 }
 
-"hamming" <- function(pts = 512)
-{
-  vec <- 0:(pts-1)
-  0.54 - 0.46 * cos((2 * pi * vec)/(pts-1))
-}
+
 
 "label.num" <- function(labs)
 {
@@ -144,89 +132,6 @@ structure(.Data = c(10, 100, 200, 300, 395, 510, 630, 765, 920, 1075, 1265,
 	newmat2[-1,  ]
 }
 
-
-"splitmat"<- function(data, labs, filename = "file", labelfile = T)
-{
-# data: a vector or matrix of data; labs a parallel label
-# file. Creates a new 
-#  series of objects called obj.n etc. where n is an
-# integer from 1 to n number of phonetic classes
-# if labelfile is T, then a parallel label file is created
-# called l.file.n
-	newmat <- NULL
-	labelfile <- NULL
-	labelname <- NULL
-	k <- 1
-	if(!is.matrix(data))
-		data <- rbind(data)
-	for(j in unique(labs)) {
-          temp <- muclass(labs, j)
-          newdata <- data[temp,  ]
-          outlab <- paste(filename, k, sep = ".")
-          l.outlab <- paste("l.", outlab, sep = "")
-          assign(outlab, newdata, w = 1)
-          assign(l.outlab, rep(j, sum(temp)), w = 1)
-          labelname <- c(labelname, j)
-          newmat <- c(newmat, outlab)
-          labelfile <- c(labelfile, l.outlab)
-          k <- k + 1
-	}
-	z <- cbind(newmat, labelfile, labelname)
-	headlabs <- c("filename", "label-file", "label-type")
-	dimnames(z) <- list(NULL, headlabs)
-	z
-}
-
-
-if( is.R() ) {
-
-  splitstring <- function(str, char)  {
-    return(strsplit(str, char)[[1]])
-  }
-
-} else {
-
-splitstring <- function(str,char) {
-  if(str == "")
-    mat <- c(str)
-  else {
-    mat <- NULL
-    ind <- 1
-    cont <- T
-    while(T) {
-      ministr <- NULL
-      length <- 0
-      while(T) {
-	ch <- substring(str, ind, ind)
-	if(ch == char) {
-	  ind <- ind + 1
-	  break
-	}
-	if(ch == "") {
-	  break
-	}
-	ministr <- c(ministr, ch)
-	ind <- ind + 1
-	length <- length + 1
-      }
-      ## now concatenate string
-      if(length > 0)
-	mat <- c(mat, paste(ministr, collapse = ""))
-      if(ch == "")
-	break
-    }
-  }
-  mat
-}
-
-}
-
-"uttnum"<- function(utt, str)
-{
-  temp <- muclass(utt, str)
-  nums <- c(1:length(utt))
-  nums[temp]
-}
 
 
 "rad" <-

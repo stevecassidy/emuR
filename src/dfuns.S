@@ -12,25 +12,6 @@
 #############################################################################
 
 
-"drecord" <- function(trackdata, segnum, time)
-{
-  ## returns the element in the frames data list
-  ## that is referenced by segnum and time
-  ftime <- trackdata$ftime
-  indx <- trackdata$index
-
-  if(!is.matrix(ftime)) ftime <- rbind(ftime)
-  if(!is.matrix(indx)) indx <- rbind(indx)
-
-  baserec <- indx[segnum, 1]
-  endrec <- indx[segnum, 2]
-  thisseg <- ftime[segnum,  ]
-  percent <- (time - thisseg[1])/(thisseg[2] - thisseg[1])	
-  
-  return(as.integer(baserec + percent * (endrec - baserec)))
-}
-
-"frames.record" <- drecord
 
 "frames.time" <- function(dataset, datanum)
 {

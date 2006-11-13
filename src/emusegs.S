@@ -161,23 +161,7 @@ setMethod("[", "emusegs",
   invisible()
 }
 
-"utt" <- function(segs) 
-{
-  segs$utts
-}
 
-"mustart" <- function(segs){
-  as.numeric(segs$start)
-}
-
-"muend" <- function(segs){
-  as.numeric(segs$end)
-}
-
-"mudur" <- function(segs)
-{
-  muend(segs) - mustart(segs)
-}
 
 "label" <- function(segs)
 {
@@ -199,39 +183,7 @@ setMethod("[", "emusegs",
 }
 
 
-"bind.emusegs" <- function(...) 
-{
-  lists <- list(...)
 
-  database <- emusegs.database(lists[[1]])
-  type     <- emusegs.type(lists[[1]])
-  query <- "compound"
-
-  labels <- NULL
-  starts <- NULL
-  ends   <- NULL
-  utts   <- NULL
-  
-  for( n in 1:length(lists)) {
-    sl <- lists[[n]]
-    if( emusegs.database(sl) != database )
-      stop( "can't bind segment lists from different databases" )
-    if( emusegs.type(sl) != type )
-      stop( "can't bind segment lists and event lists together" )
-    labels <- c(labels, label(sl))
-    starts <- c(starts, mustart(sl))
-    ends   <- c(ends, muend(sl))
-    utts   <- c(utts, sl$utts)
-  }
-  make.seglist( labels, starts, ends, utts, query, type, database )
-}
-
-
-slen <- function(segs)
-{
-  ## find the length of a segment list
-  nrow(segs)
-}
 
 # Local Variables:
 # mode:S
