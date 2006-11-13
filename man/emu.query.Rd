@@ -35,8 +35,7 @@ speech data corresponding to each token.
   speech database system and so requires this system to be installed on
   your computer. See the Emu web site for details.  }
 
-\seealso{ \code{\link{emu.track}}, \code{\link{mudur}},
-  \code{\link{mustart}}, \code{\link{muend}}, \code{\link{uttplot}}}
+\seealso{ \code{\link{emu.track}}}
 
 \examples{
 

@@ -69,7 +69,7 @@ emu.track(seglist, trackname, cut=NULL, npoints=NULL, template=attr(seglist, "da
   speech database system and so requires this system to be installed on
   your computer. See the Emu web site for details.  }
 
-\seealso{ \code{\link{dplot}} \code{\link{segplot}} \code{\link{dapply}} }
+\seealso{ \code{\link{dplot}} \code{\link{dapply}} }
 
 \examples{
 

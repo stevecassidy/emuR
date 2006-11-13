@@ -73,7 +73,6 @@ the Acoustical Society of America,  94, 19661982. }
 \author{ Jonathan Harrington }
 
 \seealso{ 
-\code{\link{DCT}}
 \code{\link{plafit}}
 \code{\link{by}}
 }

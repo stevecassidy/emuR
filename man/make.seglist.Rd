@@ -37,8 +37,7 @@ make.seglist(labels, start, end, utts, query, type, database)
   An Emu segment list.
 }
 \author{ Steve Cassidy }
-\seealso{   \code{\link{modify.seglist}}, \code{\link{label}},
-  \code{\link{mustart}}, \code{\link{muend}}, \code{\link{utt}} }
+\seealso{   \code{\link{modify.seglist}}, \code{\link{label}}}
 
 \examples{
 
