@@ -3,7 +3,7 @@ R = R
 
 Rcmd = R CMD
 
-VERSION = 2.2
+VERSION = 2.3
 
 ## Splus source files, note that options.S MUST come first as it has the 
 ## configurable settings in it. 
