@@ -1,5 +1,6 @@
 \name{dcut}
 \alias{dcut}
+\alias{dcut.sub}
 \title{Function to extract a vector or matrix from  EMU-Trackdata at a single time point of to create another EMU-trackdata object between two times.}
 \description{ A general purpose tool for extracting data from track objects
      either at a particular time, or between two times. The times can
@@ -7,7 +8,7 @@
      onset) and one (the offset).
 }
 \usage{
-dcut(trackdata, left.time, right.time, single = T, average = T, prop = F)
+dcut(trackdata, left.time, right.time, single = TRUE, average = TRUE, prop = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -96,4 +97,6 @@ and the trackdata object has a single column of data.
      int <- dcut(dip.fdat, dip.fdat$ftime[,1], times)
      int[1]
  }
-\keyword{emu}
+
+\keyword{datagen}
+

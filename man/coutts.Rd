@@ -1,24 +1,6 @@
 \name{coutts}
 \alias{coutts}
-\title{Emu segment list}
+\title{Emu Dataset}
 \usage{data(coutts)}
-\description{
-   Word-segment list of five words female speaker of Australian English.
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Segment list of words, read speech, female speaker of Australian English from database epgcoutts}
 \keyword{datasets}

@@ -6,11 +6,11 @@
    The function plots spectrum of any EMU spectral object. 
 }
 \usage{
-plot.spectral(specdata, labs, ylim, xlim, ylab, xlab, col, lty, lwd, fun, freq, type = "l", power = F, powcoeffs = c(10, 10), dbnorm = F, dbcoeffs = c(0, 0), legend = T, ...)
+plot.spectral(x, labs, ylim, xlim, ylab, xlab, col, lty, lwd, fun, freq, type = "l", power = FALSE, powcoeffs = c(10, 10), dbnorm = FALSE, dbcoeffs = c(0, 0), legend = TRUE, ...)
 }
 
 \arguments{
-  \item{specdata}{ An EMU object of class 'spectral' }
+  \item{x}{ An EMU object of class 'spectral' }
   \item{labs}{ An optional vector character labels. Must be the same length as specdata }
   \item{ylim}{ A two-element numeric vector for  the y-axis range (see 'par') }
   \item{xlim}{ A two-element numeric vector for  the x-axis range (see 'par') }
@@ -73,4 +73,7 @@ plot.spectral(fric.dft[1,])
 
 
 }
-\keyword{emu}
+
+\keyword{dplot}
+
+

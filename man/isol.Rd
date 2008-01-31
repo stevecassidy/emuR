@@ -1,21 +1,6 @@
 \name{isol}
 \alias{isol}
-\docType{data}
-\title{ Emu segment list}
-\description{
-  Segment list of the ausisol06 database of isolated word productions by a male speaker of Australian English.
-}
+\title{Emu Dataset}
 \usage{data(isol)}
-
-}
-\details{
-  Some simple isolated word data produced by a speaker of Australian English, who produced a number of isolated /dVd/ words where the V is one of the 13 possible monophthongs of Australian English.
-}
-
-\seealso{
-  \code{\link{segmentlist}}
-}
-
-
-\keyword{emu}
+\description{Segment list of vowels in a /d_d/ context isolated word speech, one male speaker of Australian English from database isolated.}
 \keyword{datasets}

@@ -2,7 +2,7 @@
 \alias{classify}
 \title{ ~~function to do ... ~~ }
 \description{
-  ~~ A concise (1-5 lines) description of what the function does. ~~
+%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
 classify(data, train, metric = "bayes")
@@ -46,4 +46,6 @@ function (data, train, metric = "bayes")
     result
   }
 }
-\keyword{emu}
+
+
+\keyword{models}

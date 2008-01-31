@@ -1,12 +1,17 @@
 \name{dplot}
 \alias{dplot}
+\alias{dplot.norm}
+\alias{dplot.time}
+
 \title{ A function to plot one or more columns of EMU-trackdata as a function of time}
 \description{ A general purpose routine for plotting EMU-trackdata on a single plot.
      Tracks can be aligned at an arbitrary position, length normalised
      or averaged. The plots can be colour-coded for different category types.
 }
 \usage{
-dplot(dataset, labs = NULL, offset = 0, ref.time = NULL, average = F, main = "", xlab = "time (ms)", ylab = "", xlim = NULL, ylim = NULL, cex = 0.5, linetype = F, normalise = F, colour = T, legend = "topright", axes = T, n = 20)
+dplot(dataset, labs = NULL, offset = 0, ref.time = NULL, average = FALSE, main = "", 
+xlab = "Time (ms)", ylab = "", xlim = NULL, ylim = NULL, cex = 0.5, linetype = FALSE, 
+normalise = FALSE, colour = TRUE, lwd = NULL, legend = "topright", axes = TRUE, n = 20)
 }
 \arguments{
   \item{dataset}{An EMU-trackdata object }
@@ -35,12 +40,22 @@ If T,  plot each label type in a different linetype}
 used in the linear time normalisation is control by the argument n. }
   \item{colour}{ A single element logical vector. Defaults to T 
 to plot each label type in a different colour }
+  \item{lwd}{ A code passed to the lwd argument
+in plotting functions.
+'lwd' can be either
+a single element numeric vector, or its length must
+be equal to the number of unique types in labs.
+For example, if lwd=3 and if labs = c("a", "b", "a", "c"),
+then the output is c(3, 3, 3, 3). Alternatively,
+if lwd = c(2,3,1), then the output is
+c(2, 3, 2, 1) for the same example. The default is
+NULL in which case all lines are drawn with lwd=1 }
   \item{legend}{ Either a character vector to plot
 the legend. Possible values are: "bottomright"', '"bottom"', '"bottomleft"',
      '"left"', '"topleft"', '"top"', '"topright"', '"right"' and
      '"center"'. This places the legend on the inside of the plot frame
      at the given location. Partial argument matching is used. Or 
-a logical vector: legend = F suppresses legend plotting. legend = T
+a logical vector: legend = FALSE suppresses legend plotting. legend = TRUE
 plots it at the default, legend = "topright"}
   \item{axes}{ A single element logical vector. Defaults to T 
 to plot the axes }
@@ -108,5 +123,5 @@ The number of data points used to linearly time normalise each track }
 
 
 }
-\keyword{emu}
+\keyword{dplot}
 

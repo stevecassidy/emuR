@@ -6,7 +6,7 @@
    The function converts from decibels to a linear scale 
 }
 \usage{
-dbtopower(specdata, const = 10, base = 10, inv = F)
+dbtopower(specdata, const = 10, base = 10, inv = FALSE)
 }
 
 \arguments{
@@ -42,4 +42,5 @@ vec = dbtopower(10)
 res = dbtopower(vowlax.dft.5)
 res = dbtopower(res, inv=T)
 }
-\keyword{emu}
+
+\keyword{math}

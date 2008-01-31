@@ -6,6 +6,7 @@ Convert labels to integers
 \usage{
 label.num(labs)
 }
+\description{}
 \arguments{
 \item{labs}{
 A vector of labels.

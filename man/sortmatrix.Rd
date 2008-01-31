@@ -6,6 +6,7 @@ Sort matrix by label
 \usage{
 sortmatrix(mat, labs=dimnames(mat)[[2]])
 }
+\description{}
 \arguments{
 \item{mat}{
 A mu+ sement matrix.

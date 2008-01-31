@@ -1,25 +1,6 @@
 \name{dorfric.dft}
 \alias{dorfric.dft}
-\title{Emu trackdata object}
+\title{Emu Dataset}
 \usage{data(dorfric.dft)}
-\description{Spectral trackdata object, 256 point DFT, 16 kHz 
-			sampling frequency.
-   
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Spectral trackdata object from the segment list dorfric.}
 \keyword{datasets}

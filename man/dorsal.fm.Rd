@@ -1,24 +1,6 @@
 \name{dorsal.fm}
 \alias{dorsal.fm}
-\title{Formant trackdata of dorsal}
+\title{Emu Dataset}
 \usage{data(dorsal.fm)}
-\description{
-   Formant trackdata of dorsal.
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Trackdata of formants from the segment list dorsal}
 \keyword{datasets}

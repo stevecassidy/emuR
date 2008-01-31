@@ -13,7 +13,7 @@
 }
 
    
-\notes{
+\note{
    The entire data track is retrieved for each segment in the segment list. The amount of data
    returned will depend on the sample rate and number of columns in the track requested. 
 }
@@ -32,5 +32,5 @@
    demo.vowels.fm[1]
   
 }
-\keyword{emu}
+
 \keyword{classes}

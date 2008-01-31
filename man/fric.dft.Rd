@@ -1,24 +1,6 @@
 \name{fric.dft}
 \alias{fric.dft}
-\title{Emu trackdata object}
+\title{Emu Dataset}
 \usage{data(fric.dft)}
-\description{
-   Spectral trackdata object (256 point DFT, 16000 Hz sampling freq.)
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Spectral trackdata object from the segment list fric.}
 \keyword{datasets}

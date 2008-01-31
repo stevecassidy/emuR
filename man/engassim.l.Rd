@@ -1,24 +1,6 @@
 \name{engassim.l}
 \alias{engassim.l}
-\title{Vector of phonetic labels for engassim: /nK/ = /nk,ng/, /sK/ = /sk,sg/}
+\title{Emu Dataset}
 \usage{data(engassim.l)}
-\description{
-   Vector of phonetic labels for engassim: /nK/ = /nk,ng/, /sK/ = /sk,sg/.
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Vector of phonetic labels from the segment list engassim: /nK/ = /nk,ng/, /sK/ = /sk,sg/}
 \keyword{datasets}

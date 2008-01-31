@@ -5,8 +5,8 @@
   The function plots a locus equation and returns associated 
 statistical information.
 }
-\usage{locus (target, onset, labels.vow = NULL, yxline = T, xlim = NULL, 
-    ylim = NULL, xlab = "", ylab = "", plotgraph = T) }
+\usage{locus (target, onset, labels.vow = NULL, yxline = TRUE, xlim = NULL, 
+    ylim = NULL, xlab = "", ylab = "", plotgraph = TRUE) }
 
 \arguments{
 	\item{target}{a numerical vector typically of F2 values at the vowel target}
@@ -64,8 +64,9 @@ summary(result)
 # intercept and slope
 result$coeff
 # best estimate of the locus frequency, i.e. the
-# point of bisection of on = targ with the regression line
+# point of bisection of on = TRUEarg with the regression line
 result$locus
 
 }
-\keyword{emu}
+
+\keyword{math}

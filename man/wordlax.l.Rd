@@ -23,4 +23,3 @@
 
 
 \keyword{datasets}
-\keyword{emu}

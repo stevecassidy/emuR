@@ -1,24 +1,6 @@
 \name{polhom.l}
 \alias{polhom.l}
-\title{Vector of phonetic labels of  the segment list polhom}
+\title{Emu Dataset}
 \usage{data(polhom.l)}
-\description{
-   Vector of phonetic labels of  the segment list polhom.
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Vector of phonetic labels from the segment list polhom}
 \keyword{datasets}

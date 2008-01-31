@@ -4,10 +4,11 @@
 Translate labels in a label vector
 }
 \usage{
-  label.convert(source, match, replace)
+  label.convert(segs.or.labels, match, replace)
 }
+\description{}
 \arguments{
-  \item{source}{
+  \item{segs.or.labels}{
     An Emu segment list or a vector of character labels
   }
   \item{match}{
@@ -42,11 +43,10 @@ label.convert(labs, c("A", "E", "I"), "vv")
 library(emu)
 segs <- emu.query("demo", "*", "Phonetic=vowel")
 newsegs <- label.convert(segs, c("A", "E", "I"), c("a", "e", "i"))
-}
 
 ## Example of using sub, replace any label consisting of
 ## any character followed by a colon with "long"
 sub(".:", "long", label(segs) )
-
+}
 \keyword{misc}
 

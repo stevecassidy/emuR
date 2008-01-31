@@ -52,4 +52,5 @@ start(polhom) - start(polhom.epg)
 \code{\link{tracktimes}}
 }
 
-\keyword{emu}
+\keyword{utilities}
+

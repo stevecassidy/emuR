@@ -37,9 +37,9 @@ fft.complex(data, normlen=T)
 ##--	     or do  help(data=index)  for the standard data sets.
 
 ## The function is currently defined as
-function (data, normlen = T) 
+function (data, normlen = TRUE) 
 {
-    if (is.matrix(data) == F) {
+    if (is.matrix(data) == FALSE) {
         n <- length(data)
         fftres <- fft(data)
     }

@@ -25,9 +25,9 @@ or the element number for spectral vectors.
 \author{Jonathan Harrington}
 
 
-\seealso{ 
-\code{\link{[.spectral}}
-}
+%\seealso{ 
+%\code{\link{[.spectral}}
+%}
 
 \examples{
 freqtoint(fric.dft,1000:2000)
@@ -43,4 +43,7 @@ freqtoint(vowlax.dft.5, -1)
 
 
 }
-\keyword{emu}
+
+\keyword{math}
+
+

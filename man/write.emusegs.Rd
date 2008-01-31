@@ -6,6 +6,7 @@ Write an Emu segment list to a file
 \usage{
    write.emusegs(seglist, file)
 }
+\description{}
 \arguments{
    \item{seglist}{An Emu segment list}
    \item{file}{The name of a file to write the segment list into.}
@@ -32,4 +33,4 @@ Write an Emu segment list to a file
    unlink("write.emusegs.example.txt")
 }
 \keyword{misc}
-\keyword{emu}
+

@@ -1,6 +1,3 @@
-\" -*-nroff-*-
-
-
 \name{splitstring}
 \alias{splitstring}
 \title{
@@ -9,6 +6,7 @@ Split a string into words.
 \usage{
 splitstring(str,char)
 }
+\description{}
 \arguments{
 \item{str}{
 A string.

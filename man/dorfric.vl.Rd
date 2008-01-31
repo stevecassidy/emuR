@@ -11,8 +11,7 @@
 %}
 %
 
-}
-%
+
 \seealso{
    \code{\link{segmentlist}}
 }

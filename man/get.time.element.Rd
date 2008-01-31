@@ -1,17 +1,17 @@
-\" -*-nroff-*-
 \name{get.time.element}
 \alias{get.time.element}
 \title{
 Get data for a given time
 }
 \usage{
-get.time.element(time, trackdata)
+get.time.element(timeval, dataset)
 }
+\description{}
 \arguments{
-\item{time}{
+\item{timeval}{
 A time in milliseconds
 }
-\item{trackdata}{
+\item{dataset}{
 A trackdata object as returned by \code{track}.
 }}
 \value{

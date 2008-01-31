@@ -38,7 +38,7 @@ ddiff(dataset, n=1, smoothing=T)
 ##--	     or do  help(data=index)  for the standard data sets.
 
 ## The function is currently defined as
-function (dataset, n = 1, smoothing = T) 
+function (dataset, n = 1, smoothing = TRUE) 
 {
     outdat <- dapply(dataset, ddiff.sub, n = n)
     if (smoothing) 

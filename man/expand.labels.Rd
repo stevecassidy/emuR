@@ -3,6 +3,7 @@
 \title{
 Label each data sample
 }
+\description{}
 \usage{
 expand.labels(indvals, labs)
 }

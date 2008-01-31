@@ -1,24 +1,6 @@
 \name{coutts.sam}
 \alias{coutts.sam}
-\title{Trackdata of acoustic waveforms of coutts}
+\title{Emu Dataset}
 \usage{data(coutts.sam)}
-\description{
-   Trackdata of acoustic waveforms of coutts.
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Trackdata of acoustic waveforms from the segment list coutts}
 \keyword{datasets}

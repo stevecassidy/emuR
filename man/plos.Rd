@@ -1,24 +1,6 @@
 \name{plos}
 \alias{plos}
-\title{Emu segment list}
+\title{Emu Dataset}
 \usage{data(plos)}
-\description{
-   Segment list  /b, d/ from closure onset to the periodic 
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Segment list of syllable-initial German /b/ and /d/, isolated words, one male speaker from database gerplosives.}
 \keyword{datasets}

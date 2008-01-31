@@ -6,7 +6,7 @@
   The function plots and/or sums digital sinusoids for different parameter settings.
 }
 \usage{
-cr(A = 1, k = 1, p = 0, N = 16, samfreq = NULL, duration = NULL, const = NULL, expon = NULL, plotf = T, ylim = NULL, xlim = NULL, values = F, xlab = "Time (number of points)", ylab = "Amplitude", type = "b", bw = NULL, dopoints = F, ...)
+cr(A = 1, k = 1, p = 0, N = 16, samfreq = NULL, duration = NULL, const = NULL, expon = NULL, plotf = TRUE, ylim = NULL, xlim = NULL, values = FALSE, xlab = "Time (number of points)", ylab = "Amplitude", type = "b", bw = NULL, dopoints = FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -92,4 +92,4 @@ cr(const=4, k=50, bw=4, samfreq=2000, N=100)
 cr(expon=-0.95,  N=200, type="l")
 
 }
-\keyword{emu }
+\keyword{dplot}

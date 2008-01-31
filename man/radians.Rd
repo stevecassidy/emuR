@@ -6,6 +6,7 @@ Converts degrees to radians
 \usage{
 radians(degrees)
 }
+\description{}
 \arguments{
 \item{degrees}{
 Angular measurement for conversion.

@@ -1,24 +1,6 @@
 \name{dorsal.sam}
 \alias{dorsal.sam}
-\title{Trackdata of acoustic waveform for the segment list dorsal}
+\title{Emu Dataset}
 \usage{data(dorsal.sam)}
-\description{
-   Trackdata of acoustic waveform for the segment list dorsal.
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Trackdata of acoustic waveform from the segment list dorsal}
 \keyword{datasets}

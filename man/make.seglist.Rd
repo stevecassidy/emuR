@@ -29,15 +29,15 @@ make.seglist(labels, start, end, utts, query, type, database)
   against future changes to the format, \code{make.seglist} should be
   used whenever you wish to create a segment list.   Another function,
   \code{\link{modify.seglist}} can be used to change some part of an
-  existing segment list. The functions \code{\link{label}},
-  \code{\link{mustart}}, \code{\link{muend}} and \code{\link{utt}} can
+  existing segment list. The functions \code{\link{label.emusegs}},
+  \code{\link{start.emusegs}}, \code{\link{end.emusegs}} and \code{\link{utt.emusegs}} can
   be used to access the different columns of the segment list.
 }
 \value{
   An Emu segment list.
 }
 \author{ Steve Cassidy }
-\seealso{   \code{\link{modify.seglist}}, \code{\link{label}}}
+\seealso{   \code{\link{modify.seglist}}, \code{\link{label.emusegs}}}
 
 \examples{
 
@@ -65,4 +65,4 @@ make.seglist(labels, start, end, utts, query, type, database)
 
 }
 \keyword{misc}
-\keyword{emu}
+

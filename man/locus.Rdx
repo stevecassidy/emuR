@@ -53,8 +53,8 @@ locus(data.onset, data.mid, labels.stop, labels.vow, colnum=1, which=unique(labe
 ## The function is currently defined as
 function (data.onset, data.mid, labels.stop, labels.vow, colnum = 1, 
     which = unique(labels.stop)[1], col = 1, ylab = "", xlab = "", 
-    main = paste("locus equation for", which), sub = T, xlim = NULL, 
-    ylim = NULL, plot.graph = T, printval = T, lineval = 0.5) 
+    main = paste("locus equation for", which), sub = TRUE, xlim = NULL, 
+    ylim = NULL, plot.graph = TRUE, printval = TRUE, lineval = 0.5) 
 {
     temp <- muclass(labels.stop, which)
     if (!is.matrix(data.onset)) 
@@ -64,9 +64,9 @@ function (data.onset, data.mid, labels.stop, labels.vow, colnum = 1,
     l.xv <- labels.vow[temp]
     midvals <- data.mid[temp, colnum]
     onsetvals <- data.onset[temp, colnum]
-    if (any(xlim) == F) 
+    if (any(xlim) == FALSE) 
         xlim <- range(midvals)
-    if (any(ylim) == F) 
+    if (any(ylim) == FALSE) 
         ylim <- range(onsetvals)
     if (plot.graph) 
         plot(midvals, onsetvals, type = "n", col = col, ylab = "", 

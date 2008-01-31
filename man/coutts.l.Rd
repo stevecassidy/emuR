@@ -1,23 +1,6 @@
 \name{coutts.l}
 \alias{coutts.l}
-\title{Vector of word label of the segment list coutts}
+\title{Emu Dataset}
 \usage{data(coutts.l)}
-\description{
-   Vector of word label of the segment list coutts.
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Vector of word label from the segment list coutts}
 \keyword{datasets}

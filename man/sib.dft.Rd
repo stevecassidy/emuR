@@ -1,24 +1,6 @@
 \name{sib.dft}
 \alias{sib.dft}
-\title{Emu trackdata object}
+\title{Emu Dataset}
 \usage{data(sib.dft)}
-\description{
-   Spectral trackdata object for the segment list sib
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Spectral trackdata object from the segment list sib.}
 \keyword{datasets}

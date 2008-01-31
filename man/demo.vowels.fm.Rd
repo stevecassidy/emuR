@@ -34,5 +34,5 @@ data: a three columned matrix with the formant values of the first three formant
  demo.vowels.fm <- read.trackdata(filepath)
 }
 
-\keyword{emu}
+
 \keyword{datasets}

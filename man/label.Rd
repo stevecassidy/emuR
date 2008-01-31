@@ -1,18 +1,24 @@
-\name{label}
-\alias{label}
-\title{Get labels from segment list}
+\name{Extract label and utterances from emu segment list}
+\alias{label.emusegs}
+\alias{utt.emusegs}
+
+\title{Get labels / utterances from segment list}
 \description{
-  label extracts the labels from the segment list.
+  label: extracts the labels from the segment list.
+  utt: extracts the utterances from the segment list.
+
 }
 \usage{
-   label(segs)
+   label.emusegs(segs)
+   utt.emusegs(segs)
 }
 \arguments{
  \item{segs}{ segment list}
 }
-}
+
 \value{
-   label vector
+   label / utterance vector
+   
 }
 
 \author{Jonathan Harrington}
@@ -33,4 +39,4 @@
    
 }
 
-\keyword{emu}
+\keyword{datagen}

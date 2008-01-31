@@ -24,16 +24,19 @@ times.
 times <- tracktimes(vowlax.fdat)
 # track time values for a matrix of trackdata values
 # at  the temporal midpoint
-tracktimes(dcut(vowlax.fdat[1:3,], 0.5, prop=T))}
+tracktimes(dcut(vowlax.fdat[1:3,], 0.5, prop=T))
+}
+
+
 
 \author{ Jonathan Harrington }
 
 
 \seealso{ 
-\code{\link{start.trackdata}}
-\code{\link{end.trackdata}}
-\code{\link{start.emusegs}}
-\code{\link{end.emusegs}}
+   \code{\link{start.trackdata}}
+   \code{\link{end.trackdata}}
+   \code{\link{start.emusegs}}
+   \code{\link{end.emusegs}}
 }
+\keyword{datagen}
 
-\keyword{emu}

@@ -1,24 +1,6 @@
 \name{plos.sam}
 \alias{plos.sam}
-\title{Sampled speech data of plos for segment list plos}
+\title{Emu Dataset}
 \usage{data(plos.sam)}
-\description{
-   Sampled speech data of plos
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Trackdata object of sampled speech data from the segment list plos}
 \keyword{datasets}

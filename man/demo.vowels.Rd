@@ -32,5 +32,5 @@
  demo.vowels <- read.emusegs(filepath)
 }
 
-\keyword{emu}
+
 \keyword{datasets}

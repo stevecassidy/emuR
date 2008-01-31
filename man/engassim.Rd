@@ -1,24 +1,6 @@
 \name{engassim}
 \alias{engassim}
-\title{Emu segment list}
+\title{Emu Dataset}
 \usage{data(engassim)}
-\description{
-   Segment list of sequences of /nk, ng, sk, sg/, one female speaker of Australian English.
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Segment list of a a sequence of syllable final {[n]} or {[N]} preceding {[k]} or {[g],} isolated words single speaker, Australian English female from database epgassim.}
 \keyword{datasets}

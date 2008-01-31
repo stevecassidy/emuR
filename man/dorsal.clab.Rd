@@ -1,24 +1,6 @@
 \name{dorsal.clab}
 \alias{dorsal.clab}
-\title{A vector of consonant labels for C (dorsal)}
+\title{Emu Dataset}
 \usage{data(dorsal.clab)}
-\description{
-   A vector of consonant labels for C (dorsal).
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Vector of consonant labels from the segment list dorsal.}
 \keyword{datasets}

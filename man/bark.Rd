@@ -2,13 +2,15 @@
 \alias{bark}
 \alias{bark.trackdata}
 \alias{bark.spectral}
+\alias{bark.default}
+
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{Convert Hertz to Bark and Bark to Hertz}
 \description{
  The calculation is done using the formulae Traunmueller (1990)
 }
 \usage{
-bark(data, inv = F)
+bark(data, inv = FALSE)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -52,7 +54,7 @@ are removed in the case of spectral objects.
 
         
         # convert Hertz values to Bark and back to Hertz
-        bark(bark(vec, inv=T))
+        bark(bark(vec, inv=TRUE))
         
 
         # convert the $data values in a trackdata object to Bark
@@ -78,4 +80,5 @@ plot(e.dft, freq=bark(trackfreq(e.dft)))
 # in a higher frequency range.
 
 }
-\keyword{emu}
+
+\keyword{math}

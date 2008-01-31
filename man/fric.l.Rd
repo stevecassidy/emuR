@@ -1,24 +1,6 @@
 \name{fric.l}
 \alias{fric.l}
-\title{Vector of labels}
+\title{Emu Dataset}
 \usage{data(fric.l)}
-\description{
-   Vector of (phonetic) labels to segment list fric
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Vector of labels from the segment list fric}
 \keyword{datasets}

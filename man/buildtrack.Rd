@@ -45,4 +45,4 @@ buildtrack()
    m
 }
 
-\keyword{ emu }
+\keyword{manip}

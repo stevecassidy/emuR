@@ -4,13 +4,18 @@
 Calculate mahalanobis distances
 }
 \usage{
-mahal.dist(data, model)
+mahal.dist(data, train, labels = NULL)
 }
+\description{}
 \arguments{
 \item{data}{
 A matrix of numerical data points.
 }
-\item{model}{
+\item{labels}{
+A vector of labels..
+}
+
+\item{train}{
 A gaussian model as returned by the \code{train} function.
 }}
 \value{

@@ -4,7 +4,10 @@
 \description{ A digital sinusoid is derived the movement of a point around a circle. 
 The function shows the relationship between the two for various parameter settings.}
 \usage{
-crplot(A = 1, k = 1, p = 0, N = 16, const = NULL, figsize = 8, npoints = 500, col = 1, cplot = T, splot = T, numplot = T, axes = T, incircle = T, arrow = T, linetype = 1, textplot = NULL, lineplot = NULL, ylab = "Amplitude", super = NULL, xaxlab = NULL, type = "b", xlab = "Time (number of points)", fconst = 3.5/3.1, pointconst = 1.2)
+crplot(A = 1, k = 1, p = 0, N = 16, const = NULL, figsize = 8, npoints = 500, col = 1, cplot = TRUE, 
+splot = TRUE, numplot = TRUE, axes = TRUE, incircle = TRUE, arrow = TRUE, linetype = 1, textplot = NULL, 
+lineplot = NULL, ylab = "Amplitude", super = NULL, xaxlab = NULL, type = "b", 
+xlab = "Time (number of points)", fconst = 3.5/3.1, pointconst = 1.2)
 }
 
 \arguments{
@@ -42,6 +45,8 @@ $last, which are values between 0 and 2*pi defining
  to be superimposed }
   \item{xaxlab}{ Now redundant }
   \item{xlab}{ Specify an x-axis label. }
+  \item{type}{ Specify a type. }
+
   \item{fconst}{ A single elment numeric vector
 for the aspect ratio in a postscript plot. Defaults to 3.5/3.1 
 which is appropriate for a postscript setting of  setps(h=4, w=4) }
@@ -68,4 +73,5 @@ crplot(k=3)
 # aliasing
 crplot(k=15)
 }
-\keyword{emu}
+
+\keyword{dplot}

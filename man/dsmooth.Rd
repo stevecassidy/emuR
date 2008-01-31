@@ -1,5 +1,6 @@
 \name{dsmooth}
 \alias{dsmooth}
+\alias{dsmooth.sub}
 \title{
 Smooth the data in a trackdata object.
 }

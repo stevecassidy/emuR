@@ -42,4 +42,5 @@
    dip.fdat.rl[1] 
    unlink("emu.write.track.example.txt")
 }
-\keyword{ emu}
+%\keyword{emu}
+\keyword{IO}

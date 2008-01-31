@@ -1,15 +1,11 @@
 \name{shift}
 \alias{shift}
-
 \title{ Function to shift the elements of a vector. }
 \description{
    The function makes use of the function 'fitler'
 to delay or advance a signal by k points. 
 }
-\usage{
-shift(x, delta = 1, circular = T)
-}
-.
+\usage{shift(x, delta = 1, circular = TRUE)}
 \arguments{
   \item{x}{ A numeric vector }
   \item{delta}{ A single element numeric vector. Defines
@@ -39,4 +35,6 @@ shift(vec, 2, circular=F)
 
 
 }
-\keyword{emu}
+
+\keyword{manip}
+

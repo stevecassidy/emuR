@@ -6,7 +6,7 @@
 objects or from a 3D-palatographic array
 that is output from palate().
 }
-\usage{epgplot(epgdata, select = NULL, numbering = "times", gridlines = T, 
+\usage{epgplot(epgdata, select = NULL, numbering = "times", gridlines = TRUE, 
     mfrow = NULL, col = 1, mar = c(0.8, 0.1, 0.8, 0.1), xlim = NULL) }
 
 \arguments{
@@ -105,4 +105,5 @@ epgplot(coutts.epg[2,], c(16377, 16633))
 \code{\link{palate}} 
 }
 
-\keyword{emu}
+%\keyword{emu}
+\keyword{dplot}

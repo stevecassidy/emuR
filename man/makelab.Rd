@@ -52,4 +52,5 @@ all time values for that utterance.}
    #the first two segments are from the same utterance,
    #thus one label file was created in the R_HOME directory
 }
-\keyword{emu}
+
+\keyword{IO}

@@ -42,4 +42,6 @@ segs
 unlink("seglist.txt")
 
 }
-\keyword{emu}
+
+\keyword{IO}
+

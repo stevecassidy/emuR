@@ -67,7 +67,7 @@ function (values, vec, labs = NULL, ylim = NULL, col = 1, main = "")
         leftid <- values$index[j, 1]
         rightid <- values$index[j, 2]
         data <- values$data[leftid:rightid, ]
-        if (any(ylim) == F) 
+        if (any(ylim) == FALSE) 
             ylim <- range(data)
         notap <- rep(NA, ncol(data))
         newdata <- rbind(data, notap)

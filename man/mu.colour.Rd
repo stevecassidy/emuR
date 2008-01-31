@@ -9,7 +9,7 @@ in EMU plotting functions as is used mostly in calls
 from within plot.trackdata, plot.spectral, eplot, and dplot
 }
 \usage{
-mu.colour(labs, col = T, linetype = F, lwd = NULL)
+mu.colour(labs, col = TRUE, linetype = FALSE, lwd = NULL)
 }
 
 \arguments{
@@ -42,7 +42,7 @@ c(2, 3, 2, 1) for the same example. Finally,
 col can be specified as a character or numeric
 vector that is the same length as labs, allowing the
 user to choose the color in which each line should be drawn.
-The default is col = T.
+The default is col = TRUE.
 
  }
   \item{linetype}{ A code specifying
@@ -92,6 +92,7 @@ the parameters for the 'legend' function.
 
   ...
 }
+}
 
 \author{ Steve Cassidy modified by Jonathan Harrington }
 
@@ -131,4 +132,5 @@ eplot(vowlax.fdat.5[,1:2], vowlax.l, linetype=2, lwd=2)
 }
 
 
-\keyword{emu}
+
+\keyword{utilities}

@@ -1,24 +1,6 @@
 \name{dorfric}
 \alias{dorfric}
-\title{Emu segment list}
+\title{Emu Dataset}
 \usage{data(dorfric)}
-\description{
-   Segment list, postvocalic German dorsal fricatives
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Segment list of palatal and velar fricatives, read speech, one female speaker of Standard North German from database kielread}
 \keyword{datasets}

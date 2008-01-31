@@ -1,8 +1,12 @@
-\name{(+,-,*,/.trackdata}
+\name{+,-,*,/.trackdata}
 \alias{-.trackdata}
 \alias{+.trackdata}
 \alias{/.trackdata}
 \alias{*.trackdata}
+\alias{-}
+\alias{+}
+\alias{/}
+\alias{*}
 
 \title{ Arithmetic operations on track data objects}
 \description{
@@ -33,7 +37,7 @@ x * y
 
 \examples{
 #Subtraction of the first formant of the first segment from second formant
-vowlax.fdat[1,2] - vowlax.fdat[1,1]
+#vowlax.fdat[1,2] - vowlax.fdat[1,1]
 }
-\keyword{emu}
-\keyword{method}
+
+\keyword{methods}

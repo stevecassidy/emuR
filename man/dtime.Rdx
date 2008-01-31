@@ -39,7 +39,7 @@ dtime(dataset, times, single=F, method="average")
 ##--	     or do  help(data=index)  for the standard data sets.
 
 ## The function is currently defined as
-function (dataset, times, single = F, method = "average") 
+function (dataset, times, single = FALSE, method = "average") 
 {
     if (!is.matrix(dataset$data)) 
         dataset$data <- cbind(dataset$data)

@@ -1,4 +1,3 @@
-\" -*-nroff-*-
 \name{frames.time}
 \alias{frames.time}
 \title{
@@ -7,6 +6,7 @@ Find the time and position of a data element.
 \usage{
 frames.time(dataset, datanum)
 }
+\description{}
 \arguments{
 \item{dataset}{
 A dataset returned by \code{track} or \code{frames}.

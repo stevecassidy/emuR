@@ -1,6 +1,6 @@
 \name{dextract}
 \alias{dextract}
-\title{  }
+\title{Extract a subset of data from a trackdata object}
 
 \description{ A function that cuts up trackdata either at a proportional
  time or proportionally between two times. It is a subsidiary function

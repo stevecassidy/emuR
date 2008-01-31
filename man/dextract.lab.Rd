@@ -8,10 +8,10 @@ Extract a subset of data from a trackdata object according to the
 label in the parallel label vector.
 }
 \usage{
-dextract.lab(trackdata, labs, labtype=unique(labs))
+dextract.lab(dataset, labs, labtype=unique(labs))
 }
 \arguments{
-\item{trackdata}{
+\item{dataset}{
 A trackdata object returned from \code{track}.
 }
 \item{labs}{

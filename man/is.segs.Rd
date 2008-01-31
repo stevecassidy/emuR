@@ -6,6 +6,7 @@ Test whether an object is a segment list
 \usage{
 is.segs(x)
 }
+\description{}
 \arguments{
 \item{x}{
 Any Splus object

@@ -1,24 +1,6 @@
 \name{stops10}
 \alias{stops10}
-\title{Emu trackdata object}
+\title{Emu Dataset}
 \usage{data(stops10)}
-\description{
-   Spectral matrix, 256-point DFT calculated 10 ms after the stop release in word-initial, German [b, d, g] from the gerisol datasbase. Data from one male speaker of standard German. 
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Spectral matrix extracted 10 ms after stop release/burst onset in syllable-initial /b, d, g/ isolated words, one male speaker of Standard German.}
 \keyword{datasets}

@@ -7,8 +7,8 @@ such that the greyness in cell r, c is in proportion to the
 frequency of contacts in cells of row r and columns c
 of all palatograms in the object passed to this function.
 }
-\usage{epggs (epgdata, gscale = 100, gridlines = T, gridcol = "gray", 
-    gridlty = 1, axes = T, xlab = "", ylab = "", ...)  }
+\usage{epggs (epgdata, gscale = 100, gridlines = TRUE, gridcol = "gray", 
+    gridlty = 1, axes = TRUE, xlab = "", ylab = "", ...)  }
 
 \arguments{
   \item{epgdata}{ An eight-columned EPG-compressed trackdata object,
@@ -19,6 +19,10 @@ of the greyscale. Defaults to 100.  }
  \item{gridlines}{ if T (default) grid lines over the
 palatographic image are drawn are drawn. }
  \item{gridlty}{ A single-valued numeric vector that defines the linetype for plotting the grid. }
+ \item{gridcol}{ color of grid }
+\item{axes}{ T for show axes, F for no axes}
+\item{xlab}{ A character vector for the x-axis label.  }
+\item{ylab}{ A character vector for the y-axis label.  }
  \item{...}{ graphical parameters can be given as arguments to 'epggs'. }}
 
 \details{
@@ -72,4 +76,5 @@ epggs(p)
 \code{\link{palate}} 
 }
 
-\keyword{emu}
+\keyword{dplot}
+%\keyword{emu}

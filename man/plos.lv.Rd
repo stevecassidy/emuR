@@ -1,24 +1,6 @@
 \name{plos.lv}
 \alias{plos.lv}
-\title{Vector of labels of the following vowels for segment list plos}
+\title{Emu Dataset}
 \usage{data(plos.lv)}
-\description{
-   A vector of labels of the following vowels of segment list plos
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Vector of labels of the following vowels from the segment list plos}
 \keyword{datasets}

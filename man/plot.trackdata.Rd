@@ -10,8 +10,11 @@ as a function of time for several segments.
 }
 
 \usage{
-plot.trackdata (trackdata, timestart = NULL, xlim = NULL, ylim = NULL, labels = NULL, contig = T, ...) 
+plot.trackdata (trackdata, timestart = NULL, xlim = NULL, ylim = NULL, labels = NULL, 
+col = NULL, lty = NULL, contig = TRUE,  ...) 
 }
+
+
 
 \arguments{
   \item{trackdata}{A trackdata object.}
@@ -28,7 +31,7 @@ is plotted at side = 3 on the plotted at the temporal
 midpoint of each segment in the trackdata object.
 Defaults to NULL (plot no labels). Labels will only
 be plotted if xlim=NULL.}
-  \item{contig}{ A single valued logical vector T or F. If T,
+  \item{col}{ A single valued logical vector T or F. If T,
 then all the segments of the trackdata object are
 assumed to be temporally contiguous, i.e. the
 boundaries of the segments are abutting in time
@@ -37,11 +40,13 @@ the end time of segment[j-1,]. In this case,
 all the segments of the trackdata object are
 plotted on the same plot as a function of time.
 An example of a contiguous trackdata object is coutts.sam.
-contig = F is when a trackdata object is non-contiguous
+contig = FALSE is when a trackdata object is non-contiguous
 e.g. all "i:" vowels in a database. An example
 of a non-contiguous trackdata object is vowlax.fdat.
 If contig=F then each segment of the trackdata object
 is plotted separately.}
+  \item{lty}{ }
+    \item{contig}{ }
   \item{...}{ the same graphical parameters
 can be supplied to this function as for plot e.g type="l", lty=2 etc.}
 }
@@ -105,4 +110,5 @@ xlab="Time (ms)", type="b", ylim=c(300, 2400))
 
 }
 
-\keyword{ emu }
+%\keyword{emu}
+\keyword{dplot}

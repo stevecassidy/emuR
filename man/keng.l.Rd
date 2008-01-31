@@ -1,24 +1,6 @@
 \name{keng.l}
 \alias{keng.l}
-\title{Vector of labels}
+\title{Emu Dataset}
 \usage{data(keng.l)}
-\description{
-   A vector of labels of the following vowel: "front" when /k/ precedes the above front vowels, "back" when /k/ precedes the above back vowels.
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Vector of labels designating whether the following vowel is front or back from the segment list keng}
 \keyword{datasets}

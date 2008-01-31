@@ -61,4 +61,5 @@ ci <- epgci(palate(dcut(coutts.epg, 0.5, prop=T)))
 \code{\link{palate}} 
 }
 
-\keyword{emu}
+%\keyword{emu}
+\keyword{math}

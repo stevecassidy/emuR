@@ -42,4 +42,6 @@ par(new=T)
 plot(res, ylim=ylim, type="l", col=2)
 
 }
-\keyword{emu}
+
+
+\keyword{manip}

@@ -1,5 +1,6 @@
 \name{dim.trackdata}
 \alias{dim.trackdata}
+\alias{dim}
 
 \title{ A method of the generic function dim for objects of class \'trackdata\'}
 \description{
@@ -29,5 +30,5 @@ c(nrow(x$index), ncol(x$data))
    #and there are 4 rows for each segment (see here for the first segment)
    isol.fdat$data[1,]
 }
-\keyword{emu}
+
 \keyword{methods}

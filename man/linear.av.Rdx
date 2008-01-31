@@ -45,7 +45,7 @@ function (dataset, labs)
         dataset$data <- cbind(dataset$data)
     for (j in 1:ncol(dataset$data)) {
         vec <- matrix(c(dataset$data[, j]), nrow(dataset$index), 
-            byrow = T)
+            byrow = TRUE)
         outmat <- NULL
         for (k in unique(labs)) {
             temp <- labs == k
@@ -57,7 +57,7 @@ function (dataset, labs)
     }
     tnum <- nrow(mat)
     tlab <- length(unique(labs))
-    rightin <- seq(tnum/tlab, tnum, length = tlab)
+    rightin <- seq(tnum/tlab, tnum, length = TRUElab)
     leftin <- rightin - (tnum/tlab) + 1
     finmat$data <- mat
     finmat$index <- cbind(leftin, rightin)

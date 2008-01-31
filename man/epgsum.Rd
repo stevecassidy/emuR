@@ -7,7 +7,7 @@ profiles, i.e. sums active
 or inactive electrodes optionally by
 row and/or column in palatographic data.
 }
-\usage{epgsum (epgdata, profile = c(1, 3), inactive = F, rows = 1:8, 
+\usage{epgsum (epgdata, profile = c(1, 3), inactive = FALSE, rows = 1:8, 
     columns = 1:8, trackname = "EPG-sum")  }
 
 \arguments{
@@ -25,6 +25,8 @@ for further details). }
  \item{inactive}{ a single element logical vector. If F (the default),
 then the active electrodes (i.e,  1s) are summed, otherwise
 the inactive electrodes (i.e., 0s) are summed.}
+ \item{rows}{vector of rows to sum}
+ \item{columns}{vector of columns to sum}
  \item{trackname}{ single element character vector of the
 name of the track (defaults to "EPG-sum") }
 }
@@ -87,4 +89,5 @@ epgsum(p, 2, columns=3:6)
 \code{\link{palate}} 
 }
 
-\keyword{emu}
+%\keyword{emu}
+\keyword{math}

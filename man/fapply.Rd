@@ -6,7 +6,7 @@
  Applies a function to an EMU spectral object.
 }
 \usage{
-fapply(specdata, fun, ..., power = F, powcoeffs = c(10, 10))
+fapply(specdata, fun, ..., power = FALSE, powcoeffs = c(10, 10))
 }
 
 \arguments{
@@ -61,4 +61,5 @@ d2 <- fapply(vowlax.dft.5, dct, 10, T)
 d3 <- fapply(fric.dft[1:4,], dct, 10, T)
 
 }
-\keyword{emu}
+
+\keyword{utilities}

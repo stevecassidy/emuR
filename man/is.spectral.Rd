@@ -32,6 +32,7 @@ is.spectral(vowlax.dft.5[1,])
 is.spectral(fric.dft[1,1])
 
 
-  }
 }
-\keyword{emu}
+
+
+\keyword{attribute}

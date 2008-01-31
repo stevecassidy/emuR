@@ -6,7 +6,7 @@
 skew, kurtosis.
 }
 \usage{
-moments(count, x, minval = F)
+moments(count, x, minval = FALSE)
 }
 \arguments{
   \item{count}{ A vector of the observed instances per class }
@@ -39,4 +39,5 @@ mom <- moments(e.dft[-1], minval=T)
 m <- moments(vowlax.fdat[10,1]$data)[3]
 
 }
-\keyword{emu}
+
+\keyword{math}

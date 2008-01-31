@@ -1,24 +1,6 @@
 \name{fric}
 \alias{fric}
-\title{Emu segment list}
+\title{Emu Dataset}
 \usage{data(fric)}
-\description{
-   Segment list of intervocalic [s,z], one speaker, Kiel Corpus of Read speech
-}
-%\format{
-%  NA
-%
-%}
-%
-
-
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Segment list of word-medial {[s]} or {[z]} one male speaker of Standard North German, read speech from database kielread.}
 \keyword{datasets}

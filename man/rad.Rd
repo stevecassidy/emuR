@@ -6,7 +6,7 @@
     convert between Hertz and Radians 
 }
 \usage{
-rad(vec, samfreq = 20000, hz = T)
+rad(vec, samfreq = 20000, hz = TRUE)
 }
 
 \arguments{
@@ -30,4 +30,6 @@ rad(4000, 8000)
 rad(c(pi/2, pi/4), 10000, F)
 
 }
-\keyword{emu}
+
+\keyword{math}
+

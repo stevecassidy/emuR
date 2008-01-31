@@ -1,24 +1,6 @@
 \name{dorsal.epg}
 \alias{dorsal.epg}
-\title{EPG-compressed trackdata of the segment list dorsal}
+\title{Emu Dataset}
 \usage{data(dorsal.epg)}
-\description{
-   EPG-compressed trackdata of the segment list dorsal.
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{EPG-compressed trackdata from the segment list dorsal}
 \keyword{datasets}

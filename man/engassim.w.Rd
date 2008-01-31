@@ -1,24 +1,6 @@
 \name{engassim.w}
 \alias{engassim.w}
-\title{Vector of word labels for the above}
+\title{Emu Dataset}
 \usage{data(engassim.w)}
-\description{
-   Vector of word labels for the above.
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Vector of word labels from the segment list engassim.}
 \keyword{datasets}

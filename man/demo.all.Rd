@@ -33,5 +33,5 @@
     demo.all <- read.emusegs(filepath)
 }
 
-\keyword{emu}
+
 \keyword{datasets}

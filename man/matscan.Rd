@@ -1,4 +1,3 @@
-\" -*-nroff-*-
 \name{matscan}
 \alias{matscan}
 \title{
@@ -7,6 +6,7 @@ Read matrix data from a file
 \usage{
 matscan(file, num.cols=count.fields(file)[1], what=0, sk=0)
 }
+\description{}
 \arguments{
 \item{file}{
 A filename.

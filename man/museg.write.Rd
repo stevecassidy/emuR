@@ -6,6 +6,7 @@ Write an Emu segment list to a file
 \usage{
 museg.write(seglist, file)
 }
+\description{}
 \arguments{
 \item{seglist}{
 An Emu segment list

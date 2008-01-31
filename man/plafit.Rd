@@ -5,7 +5,7 @@
 \description{
   Fit a second ordered polynomial to a vector of values
 }
-\usage{plafit(wav, fit = F, n = 101)}
+\usage{plafit(wav, fit = FALSE, n = 101)}
 
 \arguments{
   \item{wav}{ a vector or single column matrix of numeric values to which the 2nd order polynomial is to be fitted. }
@@ -47,9 +47,13 @@ plafit(vowlax.fund[1,]$data, fit=T)
 by(vowlax.fund[1:3,], plafit, simplify=T)
 }
 
-\seealso{ 
-\code{\link{dct}}
 
+
+
+\seealso{ 
+   \code{\link{dct}}
 }
 
-\keyword{emu}
+
+\keyword{math}
+

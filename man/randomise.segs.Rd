@@ -6,6 +6,7 @@
 \usage{
 randomise.segs(segs,  rand=T, bwd=F)
 }
+\description{}
 \arguments{
 \item{segs}{
 An Emu segment list.

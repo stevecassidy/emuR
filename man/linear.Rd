@@ -1,4 +1,3 @@
-\" -*-nroff-*-
 \name{linear}
 \alias{linear}
 \title{
@@ -7,6 +6,7 @@ Perform linear time normalisation on trackdata.
 \usage{
 linear(dataset, n=20)
 }
+\description{}
 \arguments{
 \item{dataset}{
 A trackdata object as returned by \code{track}.

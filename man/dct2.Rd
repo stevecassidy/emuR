@@ -5,22 +5,24 @@
 \description{
   Obtain the coefficients of the discrete cosine transformation (DCT).
 }
+
+
 \usage{
-dct(wav, fit = F, k = NULL)
+dct(data, m = NULL, fit = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{wav}{ a vector or single column matrix of numeric values to which the 2nd order polynomial is to be fitted. }
+  \item{data}{ a vector or single column matrix of numeric values to which the 2nd order polynomial is to be fitted. }
   \item{fit}{ if F, return the DCT coefficients; 
 if T, the values of the smoothed trajectory are returned
 based on summing the cosine waves of the k lowest ordered
 DCT coefficients, where k is the argument given below. }
-  \item{k}{ The number of DCT coefficients that 
+  \item{m}{ The number of DCT coefficients that 
 are returned or on which the smoothed trajectory is based.
 Defaults to NULL which returns coefficients of
 frequencies k = 0, 1,2 .. N-1 where N is the
 length of the input signal, wav. If
-fit = T and k = NULL, then the the sum
+fit = TRUE and k = NULL, then the the sum
 of all the  cosine waves whose amplitudes
 are the DCT coefficients are  returned - which
 is equal to the original signal. k must be
@@ -87,3 +89,6 @@ dct(vec, k=4)
 # trajectory
 dct(vec, fit=T, k=4)
 }
+
+\keyword{math}
+

@@ -38,9 +38,9 @@ fft.mod(fftvals, unreflected=F, transpose=T)
 ##--	     or do  help(data=index)  for the standard data sets.
 
 ## The function is currently defined as
-function (fftvals, unreflected = F, transpose = T) 
+function (fftvals, unreflected = FALSE, transpose = TRUE) 
 {
-    if (is.matrix(fftvals) == F) 
+    if (is.matrix(fftvals) == FALSE) 
         fftvals <- cbind(fftvals)
     n <- nrow(fftvals)
     fft.mod <- apply(fftvals, 2, Mod)

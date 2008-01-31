@@ -33,10 +33,11 @@
 
 
 \seealso{ 
-   \code{\link{rbind}},
+   \code{\link{rbind}}
    \code{\link{cbind.trackdata}}
-   \code{\link{trackdata}}}
+   \code{\link{trackdata}}
    \code{\link{emu.track}}
+}
 
 \examples{
    data(vowlax)
@@ -59,5 +60,5 @@
    \dontshow{readline(prompt = "Press return to advance.")}
 
 }
-\keyword{emu}
+
 \keyword{methods}

@@ -13,13 +13,14 @@ mel =   1/log(2) * (log(1 + (Hz/1000))) * 1000
 where Hz is the frequency in Hz.
 
 }
+ 
 
 \usage{
-mel(data, inv = F)
+mel(a, ...)
 }
 \arguments{
-\item{data}{A vector or matrix of data or a spectral object.}
-\item{inv}{A single element logical vector. If F, data are converted
+\item{a}{A vector or matrix of data or a spectral object.}
+\item{...}{inv = FALSE: A single element logical vector. If F, data are converted
           from Hertz to mel, if T, data are converted from mel to
           Hertz. (Does not apply if 'data' is an oject of class 'spectral'.}
 }
@@ -92,5 +93,6 @@ plot(e.dft, freq=mel(trackfreq(e.dft)))
 # in a higher frequency range.
 }
 
-\keyword{emu}
+
 % Converted by Sd2Rd version 0.3-3.
+\keyword{math}

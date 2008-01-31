@@ -1,4 +1,3 @@
-\" -*-nroff-*-
 \name{norm}
 \alias{norm}
 \title{
@@ -7,6 +6,7 @@ Normalise speech data
 \usage{
 norm(data, speakerlabs, type="gerst", rescale=F)
 }
+\description{}
 \arguments{
 \item{data}{
 A matrix of data. Can be either an n-columned matrix or a trackdata

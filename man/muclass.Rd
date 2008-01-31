@@ -1,4 +1,3 @@
-\" -*-nroff-*-
 \name{muclass}
 \alias{muclass}
 \title{
@@ -7,6 +6,7 @@ Find common elements in vectors
 \usage{
 muclass(labels, class)
 }
+\description{}
 \arguments{
 \item{labels}{
 A vector of labels. 

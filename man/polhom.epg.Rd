@@ -1,24 +1,6 @@
 \name{polhom.epg}
 \alias{polhom.epg}
-\title{EPG-compressed trackdata of the segment list polhom}
+\title{Emu Dataset}
 \usage{data(polhom.epg)}
-\description{
-   EPG-compressed trackdata of the segment list polhom (frame rate 10 ms).
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{EPG-compressed trackdata from the segment list polhom}
 \keyword{datasets}

@@ -1,24 +1,6 @@
 \name{plos.w}
 \alias{plos.w}
-\title{Vector of word labels for segment list plos}
+\title{Emu Dataset}
 \usage{data(plos.w)}
-\description{
-   A vector of the word labels from which the segments were taken
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Vector of word labels from the segment list plos}
 \keyword{datasets}

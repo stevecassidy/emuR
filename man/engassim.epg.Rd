@@ -1,24 +1,6 @@
 \name{engassim.epg}
 \alias{engassim.epg}
-\title{EPG-compressed trackdata of the segment list engassim}
+\title{Emu Dataset}
 \usage{data(engassim.epg)}
-\description{
-   EPG-compressed trackdata of the segment list engassim.
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{EPG-compressed trackdata from the segment list engassim}
 \keyword{datasets}

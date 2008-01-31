@@ -1,24 +1,6 @@
 \name{plos.asp}
 \alias{plos.asp}
-\title{Vector of times at which the burst onset occurs for segment list plos}
+\title{Emu Dataset}
 \usage{data(plos.asp)}
-\description{
-   Vector of times at which the burst onset occurs
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Vector of times at which the burst onset i.e. onset of stop release occurs for segment list plos}
 \keyword{datasets}

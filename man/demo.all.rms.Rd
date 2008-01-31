@@ -35,5 +35,5 @@ data: a vector with the rms data
 
 }
 
-\keyword{emu}
+
 \keyword{datasets}

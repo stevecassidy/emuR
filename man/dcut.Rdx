@@ -41,8 +41,8 @@ dcut(trackdata, left.time, right.time, single=T, average=T, prop=F)
 ##--	     or do  help(data=index)  for the standard data sets.
 
 ## The function is currently defined as
-function (trackdata, left.time, right.time, single = T, average = T, 
-    prop = F) 
+function (trackdata, left.time, right.time, single = TRUE, average = TRUE, 
+    prop = FALSE) 
 {
     if (prop) {
         if (missing(right.time)) 

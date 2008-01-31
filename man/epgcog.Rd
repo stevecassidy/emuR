@@ -83,4 +83,5 @@ epgcog(r, rows=5:8, columns=3:6)
 \code{\link{palate}} 
 }
 
-\keyword{emu}
+%\keyword{emu}
+\keyword{math}

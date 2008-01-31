@@ -1,24 +1,6 @@
 \name{coutts.epg}
 \alias{coutts.epg}
-\title{EPG-compressed trackdata of the segment list coutts}
+\title{Emu Dataset}
 \usage{data(coutts.epg)}
-\description{
-   EPG-compressed trackdata of the segment list coutts(frame rate 5 ms).
-} 
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{EPG-compressed trackdata from the segment list coutts}
 \keyword{datasets}

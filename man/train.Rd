@@ -1,4 +1,3 @@
-\" -*-nroff-*-
 \name{train}
 \alias{train}
 \title{
@@ -7,6 +6,7 @@ Train a Gaussian Model
 \usage{
 train(x, lab)
 }
+\description{}
 \arguments{
 \item{x}{
 A data vector or matrix.

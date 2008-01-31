@@ -1,5 +1,6 @@
 \name{segmentlist}
 \alias{segmentlist}
+\alias{emusegs}
 
 \title{Segment list}
 \description{
@@ -27,5 +28,5 @@
    #demo.vowels is a segment list
    demo.vowels
 }
-\keyword{emu}
+
 \keyword{classes}

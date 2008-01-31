@@ -5,10 +5,10 @@
   Test whether an object is an Emu trackdata object
 }
 \usage{
-  is.trackdata(data)
+  is.trackdata(object)
 }
 \arguments{
- \item{data}{ A data object to be tested }
+ \item{object}{ A data object to be tested }
 }
 \value{
   Returns TRUE if the argument is a trackdata object.

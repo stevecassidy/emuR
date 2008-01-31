@@ -1,24 +1,6 @@
 \name{bridge}
 \alias{bridge}
-\title{Emu segment list}
+\title{Emu Dataset}
 \usage{data(bridge)}
-\description{
-   A matrix of the (hypothetical) count per hour of cars crossing a bridge on three separate days.
-}
-%\format{
-%  NA
-%
-%}
-%
-
-}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-\keyword{emu}
+\description{Three-columned matrix}
 \keyword{datasets}

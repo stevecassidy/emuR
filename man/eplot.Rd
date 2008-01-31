@@ -5,7 +5,9 @@
   The function plots ellipses for different categories from two-dimensional data.
 }
 \usage{
-eplot(data, labs, chars, formant = F, scaling = "linear", prob = 0.95, nsdev = NULL, dopoints = F, doellipse = T, centroid = F, main = "", xlab = "", ylab = "", axes = T, xlim, ylim, colour = T, linetype = F, boundary = F, ...)
+eplot(data, labs, chars, formant = FALSE, scaling = "linear", prob = 0.95, 
+nsdev = NULL, dopoints = FALSE, doellipse = TRUE, centroid = FALSE, main = "", 
+xlab = "", ylab = "", axes = TRUE, xlim, ylim, colour = TRUE, linetype = FALSE, boundary = FALSE, lwd = NULL, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -41,13 +43,19 @@ of the ellipse contours. Defaults to 0.95}
   \item{boundary}{ If T, the plotting area is divided into nboundary^2 equally spaced points
 (default = 50^2 = 2500) and all these points are classified as one of the 
 label types in labs. The colour-coded classified label is superimposed on the plot.  }
-  \item{\nboundary}{ used if boundary=T. The density of the points that are classified.
-Defaults to 50 (resulting in 50^2 classified points) }
-\item{\nboundary}{ used if boundary=T. A character vector either "bayes" or "mahal"
-defining the metric for classifying the points. "bayes" is for Bayesian classification,
-"mahal" is for classification according to Mahalanobis distances. ) }
-}
+\item{lwd}{ A code passed to the lwd argument
+in plotting functions.
+'lwd' can be either
+a single element numeric vector, or its length must
+be equal to the number of unique types in labs.
+For example, if lwd=3 and if labs = c("a", "b", "a", "c"),
+then the output is c(3, 3, 3, 3). Alternatively,
+if lwd = c(2,3,1), then the output is
+c(2, 3, 2, 1) for the same example. The default is
+NULL in which case all lines are drawn with lwd=1 }
 
+\item{...}{graphical options \link{par}} 
+}
 \value{
   NULL
 }
@@ -103,4 +111,5 @@ defining the metric for classifying the points. "bayes" is for Bayesian classifi
 
 }
 
-\keyword{emu}
+%\keyword{emu}
+\keyword{dplot}
