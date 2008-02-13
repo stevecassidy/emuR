@@ -43,8 +43,8 @@ function (dataset, i, j, ...)
     }
 
 
-    ftime <- dataset$ftime[i, , drop = F]
-    index <- dataset$index[i, , drop = F]
+    ftime <- dataset$ftime[i, , drop = FALSE]
+    index <- dataset$index[i, , drop = FALSE]
 
 
     datarows <- NULL
@@ -54,11 +54,10 @@ function (dataset, i, j, ...)
     }
     if (is.matrix(dataset$data)) {
         if (missing(j)) 
-            data <- dataset$data[datarows, , drop = F]
-        else data <- dataset$data[datarows, j, drop = F]
-    }
-    else {
-        data <- dataset$data[datarows, drop = F]
+            data <- dataset$data[datarows, , drop = FALSE]
+        else data <- dataset$data[datarows, j, drop = FALSE]
+    } else {
+        data <- dataset$data[datarows, drop = FALSE]
     }
     lval <- index[, 2] - index[, 1] + 1
     right <- cumsum(lval)
@@ -119,8 +118,9 @@ function (object)
 
 
 "plot.trackdata" <-
-function (trackdata, timestart=NULL, xlim=NULL, ylim=NULL, labels=NULL, col=NULL, lty=NULL, contig=T, ...)
+function (x, timestart=NULL, xlim=NULL, ylim=NULL, labels=NULL, col=NULL, lty=NULL, contig=TRUE, ...)
  {
+ trackdata = x
 
 N <- nrow(trackdata$data)
 if(is.null(col))
@@ -175,9 +175,9 @@ xlim <- range(times)
 if(is.null(ylim))
 ylim <- range(data)
 plot(times, data[,k], xlim=xlim, ylim=ylim, col=col[k], lty=lty[k], ...)
-par(new=T)
+par(new=TRUE)
 }
-par(new=F)
+par(new=FALSE)
 if(!is.null(labels))
 {
 if(length(boundary.times) > 2)
@@ -191,15 +191,16 @@ if(is.null(labels))
 labels <- rep("", nrow(trackdata))
 
 for(j in 1:nrow(trackdata)){
-plot(trackdata[j,], timestart=timestart, xlim=xlim, ylim=ylim, labels=labels[j], contig=T, ...)
+plot(trackdata[j,], timestart=timestart, xlim=xlim, ylim=ylim, labels=labels[j], contig=TRUE, ...)
 }
 }
 }
 
 
 "bark.trackdata" <-
-function(trackdata)
+function(f, ...)
 {
+trackdata = f
 if(is.spectral(trackdata$data))
 return(bark.spectral(trackdata))
 else
@@ -212,8 +213,9 @@ return(trackdata)
 
 
 "mel.trackdata" <-
-function(trackdata)
+function(a)
 {
+trackdata = a
 if(is.spectral(trackdata$data))
 return(mel.spectral(trackdata))
 else

@@ -15,9 +15,9 @@
 
 "dplot" <-
 function (dataset, labs = NULL, offset = 0, ref.time = NULL, 
-    average = F, main = "", xlab = "Time (ms)", ylab = "", xlim = NULL, 
-    ylim = NULL, cex = 0.5, linetype = F, normalise = F, colour = T,lwd=NULL,
-    legend = "topright", axes = T, n = 20) 
+    average = FALSE, main = "", xlab = "Time (ms)", ylab = "", xlim = NULL, 
+    ylim = NULL, cex = 0.5, linetype = FALSE, normalise = FALSE, colour = TRUE,lwd=NULL,
+    legend = "topright", axes = TRUE, n = 20) 
 {
     pout <- NULL
     if (is.matrix(dataset$data)) {
@@ -30,7 +30,7 @@ function (dataset, labs = NULL, offset = 0, ref.time = NULL,
         main <- c(rep("", numcols - 1), main)
         xlab <- c(rep("", numcols - 1), xlab)
         ylab <- c(rep("", numcols - 1), ylab)
-        axes <- c(rep(F, numcols - 1), axes)
+        axes <- c(rep(FALSE, numcols - 1), axes)
         for (j in 1:ncol(dataset$data)) {
             mat <- dataset
             mat$data <- mat$data[, j]
@@ -45,7 +45,7 @@ function (dataset, labs = NULL, offset = 0, ref.time = NULL,
                 xlim = xlim, ylim = ylim, cex = cex, linetype = linetype, 
                 colour = colour, legend = legend, lwd=lwd, axes = axes[j], 
                 n = n)
-            par(new = T)
+            par(new = TRUE)
             pout$data[[j]] <- vals$data
             if (j == ncol(dataset$data)) {
                 pout$time <- vals$time
@@ -65,7 +65,7 @@ function (dataset, labs = NULL, offset = 0, ref.time = NULL,
             ylim = ylim, cex = cex, linetype = linetype, colour = colour, lwd=lwd,
             legend = legend, axes = axes, n = n)
     }
-    par(new = F)
+    par(new = FALSE)
     invisible(pout)
 }
 
@@ -75,9 +75,9 @@ function (dataset, labs = NULL, offset = 0, ref.time = NULL,
 
 "dplot.time" <-
 function (dataset, labs = NULL, offset = 0, ref.time = NULL, 
-    average = F, main = "", xlab = "time (ms)", ylab = "", xlim = NULL, 
-    ylim = NULL, cex = 0.5, linetype = F, colour = T, lwd=NULL, legend = "topright", 
-    axes = T) 
+    average = FALSE, main = "", xlab = "time (ms)", ylab = "", xlim = NULL, 
+    ylim = NULL, cex = 0.5, linetype = FALSE, colour = TRUE, lwd=NULL, legend = "topright", 
+    axes = TRUE) 
 {
     ovec <- as.list(NULL)
     samrate <- 1000/((dataset$ftime[1, 2] - dataset$ftime[1, 
@@ -110,7 +110,7 @@ lwd <- col.lty$lwd
         right.na <- left.na + length.index - 1
         mat.na[j, left.na:right.na] <- dataset$data[left:right]
     }
-    z <- apply(mat.na, 2, mean, na.rm = T)
+    z <- apply(mat.na, 2, mean, na.rm = TRUE)
     natemp <- is.na(z)
     nums <- c(1:length(natemp))
     nonums <- nums[!natemp]
@@ -123,13 +123,13 @@ lwd <- col.lty$lwd
     xtime <- seq(time1, time2, length = ncol(mat.na))
     xtimelim <- (xlim - pointval) * interval
     if (is.null(ylim)) 
-        ylim <- range(mat.na, na.rm = T)
+        ylim <- range(mat.na, na.rm = TRUE)
     if (!average) {
         for (j in 1:nrow(mat.na)) {
             plot(xtime, mat.na[j, ], xlim = xtimelim, ylim = ylim, 
-                xlab = "", ylab = "", axes = F, type = "l", col = colour[j], 
+                xlab = "", ylab = "", axes = FALSE, type = "l", col = colour[j], 
                 lty = as.numeric(linetype[j]), lwd=as.numeric(lwd[j]))
-            par(new = T)
+            par(new = TRUE)
         }
         ovec$data <- mat.na
         ovec$time <- xtime
@@ -143,7 +143,7 @@ lwd <- col.lty$lwd
                 temp <- labs == j
                 vals <- mat.na[temp, ]
                 if (is.matrix(vals)) {
-                  mvals <- apply(vals, 2, mean, na.rm = T)
+                  mvals <- apply(vals, 2, mean, na.rm = TRUE)
                 }
                 else {
                   mvals <- vals
@@ -153,7 +153,7 @@ lwd <- col.lty$lwd
             }
         }
         else {
-            outmat <- apply(mat.na, 2, mean, na.rm = T)
+            outmat <- apply(mat.na, 2, mean, na.rm = TRUE)
             outmat <- rbind(outmat)
             outlabs <- 1
         }
@@ -163,9 +163,9 @@ lwd <- col.lty$lwd
 lwd <- col.lty$legend$lwd
         for (j in 1:nrow(outmat)) {
             plot(xtime, outmat[j, ], xlim = xtimelim, ylim = ylim, 
-                xlab = "", ylab = "", axes = F, type = "l", col = colour[col.code[j]], 
+                xlab = "", ylab = "", axes = FALSE, type = "l", col = colour[col.code[j]], 
                 lty = as.numeric(linetype[col.code[j]]), lwd = as.numeric(lwd[col.code[j]]))
-            par(new = T)
+            par(new = TRUE)
         }
         ovec$data <- outmat
         ovec$time <- xtime
@@ -193,9 +193,9 @@ lwd <- col.lty$legend$lwd
 
 
 "dplot.norm" <-
-function (dataset, labs = NULL, average = F, main = "", xlab = "time (ms)", 
-    ylab = "", xlim = NULL, ylim = NULL, cex = 0.5, linetype = F, 
-    colour = T, lwd=NULL, legend = "topright", axes = T, n = 20) 
+function (dataset, labs = NULL, average = FALSE, main = "", xlab = "time (ms)", 
+    ylab = "", xlim = NULL, ylim = NULL, cex = 0.5, linetype = FALSE, 
+    colour = TRUE, lwd=NULL, legend = "topright", axes = TRUE, n = 20) 
 {
     ovec <- NULL
     if (is.null(ylim)) 
@@ -217,9 +217,9 @@ lwd <- col.lty$lwd
     if (!average) {
         for (j in 1:lval) {
             plot(xvec, mat.na[j]$data, xlim = xlim, ylim = ylim, 
-                xlab = "", ylab = "", axes = F, type = "l", col = colour[j], 
+                xlab = "", ylab = "", axes = FALSE, type = "l", col = colour[j], 
                 lty = as.numeric(linetype[j]), lwd=as.numeric(lwd[j]))
-            par(new = T)
+            par(new = TRUE)
         }
         ovec$data <- mat.na
         ovec$time <- xvec
@@ -232,7 +232,7 @@ lwd <- col.lty$lwd
             for (j in unique(labs)) {
                 temp <- labs == j
                 vals <- mat.na[temp]$data
-                vals <- matrix(vals, ncol = n, byrow = T)
+                vals <- matrix(vals, ncol = n, byrow = TRUE)
                 if (is.matrix(vals)) {
                   mvals <- apply(vals, 2, mean)
                 }
@@ -244,7 +244,7 @@ lwd <- col.lty$lwd
             }
         }
         else {
-            outmat <- apply(matrix(mat.na, ncol = 20, byrow = T), 
+            outmat <- apply(matrix(mat.na, ncol = 20, byrow = TRUE), 
                 2, mean)
             outmat <- rbind(outmat)
             outlabs <- 1
@@ -255,9 +255,9 @@ lwd <- col.lty$lwd
 lwd <- col.lty$legend$lwd
         for (j in 1:nrow(outmat)) {
             plot(xvec, outmat[j, ], xlim = xlim, ylim = ylim, 
-                xlab = "", ylab = "", axes = F, type = "l", col = colour[col.code[j]], 
+                xlab = "", ylab = "", axes = FALSE, type = "l", col = colour[col.code[j]], 
                 lty = as.numeric(linetype[col.code[j]]), lwd = as.numeric(lwd[col.code[j]]))
-            par(new = T)
+            par(new = TRUE)
         }
         ovec$data <- outmat
         ovec$time <- xvec

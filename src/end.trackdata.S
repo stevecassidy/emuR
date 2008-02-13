@@ -1,5 +1,5 @@
 "end.trackdata" <-
-function(x)
+function(x, ...)
 {
 x$ftime[,2]
 }

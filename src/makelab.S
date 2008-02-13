@@ -45,9 +45,9 @@ omat <- omat[psort,]
 
 dirloc <- paste(paste(dir, uttname, sep="/"), extn, sep=".")
 write(t(a1), dirloc)
-write(t(a2), dirloc, append=T)
-write(t(a3), dirloc, append=T)
-write(t(omat), dirloc, ncol=3, append=T)
+write(t(a2), dirloc, append=TRUE)
+write(t(a3), dirloc, append=TRUE)
+write(t(omat), dirloc, ncol=3, append=TRUE)
 
 }
 

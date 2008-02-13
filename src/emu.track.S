@@ -55,9 +55,7 @@
 function (seglist, trackname, cut = NULL, npoints = NULL, template = attr(seglist, 
     "database")) 
 {
-    if (emu.platform("MacOS")) {
-        stop("emu.track is currently not implemented for MacOS. Use read.trackdata to read in data saved from the query tool.")
-    }
+
     if (!inherits(seglist, "emusegs")) 
         stop("emu.track only works for emu segment/event lists")
     if (is.null(template)) 
@@ -238,9 +236,6 @@ class(result$data) <- c(class(result$data), "spectral")
 "emu.query" <- function(template, pattern=NULL, query="" )
 {
 
-  if(emu.platform("MacOS")) {
-    stop("emu.query is currently not implemented for MacOS. Use read.emusegs to read in segment lists saved from the query tool.")
-  }
 
   segfile <- emu.tempfile( "emu.query" )
 	
@@ -280,7 +275,7 @@ class(result$data) <- c(class(result$data), "spectral")
 
 
 "emu.requery" <- function(segs, level, targetlevel=level,
-                          justlabels=F, sequence=0, longerok=F )
+                          justlabels=FALSE, sequence=0, longerok=FALSE )
 {
   segfile <- emu.tempfile( "emu.track" )
 	

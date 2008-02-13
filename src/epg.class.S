@@ -26,8 +26,8 @@ class(p) <- "EPG"
 }
 N <- dim(p)[3]
 o <- epgsum(p, 1, rows=5:1)
-w <- matrix(weights, nrow=N, ncol=5, byrow=T)
-divisor <- matrix(c(rep(8, 4), 6), nrow=N, ncol=5, byrow=T)
+w <- matrix(weights, nrow=N, ncol=5, byrow=TRUE)
+divisor <- matrix(c(rep(8, 4), 6), nrow=N, ncol=5, byrow=TRUE)
 num <- log(apply(w * o/divisor, 1, sum) + 1)
 den <- log(sum(weights) + 1)
 result <- cbind(num/den)
@@ -117,38 +117,39 @@ function(epgdata, weights = seq(7.5, 0.5, by = -1), rows=1:8, columns=1:8, row1 
 # epgcog(r, rows=5:8, columns=3:6)
 
 
+    weights <- weights[rows]
+    if (!inherits(epgdata, "EPG")) 
+        p <- palate(epgdata)
+    else p <- epgdata
+    if (length(dim(p)) == 2) {
+        p <- array(p, c(8, 8, 1))
+        class(p) <- "EPG"
+    }
+    N <- dim(p)[3]
+times <- dimnames(p)[[3]]
+    if (!is.null(row1)) 
+        p[1, , ] <- p[1, , ] * row1
+    rowsum <- epgsum(p, 1, columns = columns)
+    w <- matrix(weights, nrow = N, ncol = 8, byrow = TRUE)
+    prodsum <- rowsum * w
+    prodsum <- rbind(prodsum[, rows])
+    sumval <- apply(prodsum, 1, sum)
+    psum <- epgsum(p, rows = rows, columns = columns)
+    result <- rep(0, length(psum))
+    temp <- psum == 0
+    result[!temp] <- sumval[!temp]/psum[!temp]
+    result <- cbind(result)
+rownames(result) <- times
+    if (is.trackdata(epgdata)) {
+        epgdata$data <- result
+        epgdata$trackname <- "centre of gravity"
+    }
+    else epgdata <- result
+    epgdata
+}
 
 
-weights <- weights[rows]
-if(!inherits(epgdata, "EPG")) p <- palate(epgdata)
-else p <- epgdata
-# in case there is only one palate
-if(length(dim(p) )==2)
-{
-p <- array(p, c(8, 8, 1))
-class(p) <- "EPG"
-}
-N <- dim(p)[3]
-if(!is.null(row1))
-p[1,  ,  ] <- p[1,  ,  ] * row1
-rowsum <- epgsum(p, 1, columns=columns)
-w <- matrix(weights, nrow=N, ncol=8, byrow=T)
-prodsum <- rowsum * w
-prodsum <- rbind(prodsum[,rows])
-sumval <- apply(prodsum, 1, sum)
-psum <- epgsum(p, rows=rows, columns=columns)
-# prevent division by zero
-result <- rep(0, length(psum))
-temp <- psum==0
-result[!temp] <- sumval[!temp]/psum[!temp]
-result <- cbind(result)
-if(is.trackdata(epgdata)) {
-epgdata$data <- result
-epgdata$trackname <- "centre of gravity"
-}
-else epgdata <- result
-epgdata
-}
+
 
 "epgdi" <-
 function(epgdata)
@@ -184,7 +185,7 @@ if(is.trackdata(epgdata)) {
 }
 
 "epggs" <-
-function(epgdata, gscale=100, gridlines=T, gridcol="gray", gridlty=1, axes=T, xlab="", ylab="", ...)
+function(epgdata, gscale=100, gridlines=TRUE, gridcol="gray", gridlty=1, axes=TRUE, xlab="", ylab="", ...)
 {
 # function to plot a 3D greyscale EPG imageb
 # p is palate data, returned by palate() or EPG-trackdata
@@ -206,7 +207,7 @@ class(p) <- "EPG"
 }
 n = dim(p)[3]
 sump  = (apply(p, c(1,2), sum))/n 
-image(1:8, 1:8, t(1-sump[8:1,]), col = gray(0:gscale/gscale), axes=F, xlab=xlab, ylab=ylab, ...)
+image(1:8, 1:8, t(1-sump[8:1,]), col = gray(0:gscale/gscale), axes=FALSE, xlab=xlab, ylab=ylab, ...)
 if(axes)
 {
 axis(side=1)
@@ -217,138 +218,113 @@ grid(8, 8, col = gridcol, lty=gridlty)
 }
 
 "epgplot" <-
-function(epgdata, select=NULL, numbering = "times", gridlines = T, mfrow = NULL, col = 1, mar=c(.8, .1, .8, .1), xlim=NULL)
+function(epgdata, select=NULL, numbering = "times", gridlines = TRUE, mfrow = NULL, col = 1, mar=c(.8, .1, .8, .1), xlim=NULL)
 {
 # epgdata: a list as returned by emu.track()
 # or else an array of palates. 
 # numbering can be T or F or else a numeric or character vector
 # which is equal in length to the number of palates)
 # xlim: can only be used if epgdata are contiguous!
-oldpar <- par()
-# reset plot defaults on exit
-on.exit(par(mfrow=oldpar$mfrow))
 
-# set margin size
-par(mar=mar)
-
-# function to draw EPG-gridlines
-epggrid <- function()
-{
-xgrid <- NULL
-	for(j in 0:8) {
-		vec <- c(j, j, NA)
-		xgrid <- c(xgrid, vec)
-	}
-	ygrid <- rep(c(0, 8, NA), 9)	
-ygrid[c(2,26)] <- 7
-lines(xgrid, ygrid)
-ygrid[25] <- 1
-ygrid[2] <- 8
-lines(ygrid, xgrid)
-}
-
-
-	if(!inherits(epgdata, "EPG")) epgdata <- palate(epgdata)
-
-
-if(!is.null(select))
-{
-times <- dimnames(epgdata)[[3]]
-smat <- NULL
-for(j in select){
-cl <- closest(as.numeric(times), j)[1]
-smat <- c(smat, cl)
-}
-epgdata <- epgdata[,,smat]
-}
-
-
-
-
-
-	
-	# the number of palates
-	N <- dim(epgdata)
-	if(length(N) == 2)
-{
-		N <- 1
-epgdata <- array(epgdata, c(8, 8, 1))
-}
-	else N <- N[3]
-times <- dimnames(epgdata)[[3]]
-if(!is.null(xlim))
-{
-temp <- as.numeric(times) > xlim[1] & as.numeric(times) < xlim[2]
-epgdata <- epgdata[,,temp]
-times <- times[temp]
-N <- sum(temp)
-}
-	if(is.logical(numbering)) {
-		if(numbering)
-			main <- as.character(1:N)
-		else main <- rep("", N)
-	}
-	else if(length(numbering)==1)
-{
-if(numbering == "times")
-main <- times
-}
-else
-main <- as.character(numbering)
-	x <- rep(0:7, rep(8, 8))
-	xpoly <- cbind(x, x + 1, x + 1, x)
-	y <- rep(7:0, 8)
-	ypoly <- cbind(y, y, y + 1, y + 1)	# work out a sensible mfrow default
-	if(is.null(mfrow)) {
-		foo <- ceiling(sqrt(N))
-		bar <- ceiling(N/foo)
-		mfrow <- c(foo, bar)
-	}
-
-	epgplot.sub <- function(pgram, xpoly, ypoly, col = 1, main = "")
-	{
-		which <- c(pgram) == 1
-		if(any(which)) {
-# do nothing if the palate is empty
-			xpoly <- xpoly[which,  ]
-			ypoly <- ypoly[which,  ]	
-	# silly hack to coerce a vector into a matrix
-			xpoly <- rbind(xpoly)
-			ypoly <- rbind(ypoly)
-			mat <- NULL
-			for(j in 1:sum(which)) {
-				mat$x <- c(mat$x, c(xpoly[j,  ], NA))
-				mat$y <- c(mat$y, c(ypoly[j,  ], NA))
-			}
-# remove last NA
-			mat$x <- mat$x[ - length(mat$x)]
-			mat$y <- mat$y[ - length(mat$y)]
-		}
-		plot(0:8, 0:8, type = "n", axes = F, xlab = "", ylab = "", main
-			 = main)
-		if(any(which))
-			polygon(mat$x, mat$y, col = col)
-	}
-# plot the palatograms with a hack in case there's only one
-	par(mfrow = mfrow)
-	if(N > 1) {
-		for(j in 1:N) {
-			epgplot.sub(epgdata[,  , j], xpoly, ypoly, col = col, 
-				main = main[j])
-			if(gridlines) 
-epggrid()
-		}
-	}
-	else {
-		epgplot.sub(epgdata, xpoly, ypoly, col = col, main = main)
-		if(gridlines) 
-epggrid()
-	}
-par(mar=oldpar$mar)
+   oldpar = par(no.readonly=TRUE)
+    on.exit(par(oldpar))
+    par(mar = mar)
+    epggrid <- function() {
+        xgrid <- NULL
+        for (j in 0:8) {
+            vec <- c(j, j, NA)
+            xgrid <- c(xgrid, vec)
+        }
+        ygrid <- rep(c(0, 8, NA), 9)
+        ygrid[c(2, 26)] <- 7
+        lines(xgrid, ygrid)
+        ygrid[25] <- 1
+        ygrid[2] <- 8
+        lines(ygrid, xgrid)
+    }
+    if (!inherits(epgdata, "EPG")) 
+        epgdata <- palate(epgdata)
+    if (!is.null(select)) {
+        times <- dimnames(epgdata)[[3]]
+        smat <- NULL
+        for (j in select) {
+            cl <- closest(as.numeric(times), j)[1]
+            smat <- c(smat, cl)
+        }
+        epgdata <- epgdata[, , smat]
+    }
+    N <- dim(epgdata)
+    if (length(N) == 2) {
+        N <- 1
+        epgdata <- array(epgdata, c(8, 8, 1))
+    }
+    else N <- N[3]
+    times <- dimnames(epgdata)[[3]]
+    if (!is.null(xlim)) {
+        temp <- as.numeric(times) > xlim[1] & as.numeric(times) < 
+            xlim[2]
+        epgdata <- epgdata[, , temp]
+        times <- times[temp]
+        N <- sum(temp)
+    }
+    if (is.logical(numbering)) {
+        if (numbering) 
+            main <- as.character(1:N)
+        else main <- rep("", N)
+    }
+    else if (length(numbering) == 1) {
+        if (numbering == "times") 
+            main <- times
+    }
+    else main <- as.character(numbering)
+    x <- rep(0:7, rep(8, 8))
+    xpoly <- cbind(x, x + 1, x + 1, x)
+    y <- rep(7:0, 8)
+    ypoly <- cbind(y, y, y + 1, y + 1)
+    if (is.null(mfrow)) {
+        foo <- ceiling(sqrt(N))
+        bar <- ceiling(N/foo)
+        mfrow <- c(foo, bar)
+    }
+    epgplot.sub <- function(pgram, xpoly, ypoly, col = 1, main = "") {
+        which <- c(pgram) == 1
+        if (any(which)) {
+            xpoly <- xpoly[which, ]
+            ypoly <- ypoly[which, ]
+            xpoly <- rbind(xpoly)
+            ypoly <- rbind(ypoly)
+            mat <- NULL
+            for (j in 1:sum(which)) {
+                mat$x <- c(mat$x, c(xpoly[j, ], NA))
+                mat$y <- c(mat$y, c(ypoly[j, ], NA))
+            }
+            mat$x <- mat$x[-length(mat$x)]
+            mat$y <- mat$y[-length(mat$y)]
+        }
+        plot(0:8, 0:8, type = "n", axes = FALSE, xlab = "", ylab = "", 
+            main = main)
+        if (any(which)) 
+            polygon(mat$x, mat$y, col = col)
+    }
+    par(mfrow = mfrow)
+    if (N > 1) {
+        for (j in 1:N) {
+            epgplot.sub(epgdata[, , j], xpoly, ypoly, col = col, 
+                main = main[j])
+            if (gridlines) 
+                epggrid()
+        }
+    }
+    else {
+        epgplot.sub(epgdata, xpoly, ypoly, col = col, main = main)
+        if (gridlines) 
+            epggrid()
+    }
+    par(mar = oldpar$mar)
 }
 
 "epgsum" <-
-function(epgdata, profile=c(1,3), inactive = F, rows=1:8, columns=1:8, trackname="EPG-sum")
+function(epgdata, profile=c(1,3), inactive = FALSE, rows=1:8, columns=1:8, trackname="EPG-sum")
 {
 # function  that sums by row or by column
 # either the active or inactive electrodes of EPG-data.

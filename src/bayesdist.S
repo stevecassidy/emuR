@@ -130,8 +130,8 @@
 }
 
 
-bayesplot <- function(data, train, N = 10, ellipse = F, 
-		      labs = NULL, xlab="", ylab="", colour=T, ...)
+bayesplot <- function(data, train, N = 10, ellipse = FALSE, 
+		      labs = NULL, xlab="", ylab="", colour = TRUE, ...)
 {
   ## data is the original data, used for scaling
   ## train is the stuff you get from train()
@@ -147,14 +147,14 @@ bayesplot <- function(data, train, N = 10, ellipse = F,
   plot(points, type = "n", xlim = rx, ylim = ry, xlab=xlab, ylab=ylab)
   ulabs <- unique(blabs)
   k <- 1
-  colours <- mu.colour( ulabs, colour, F )$colour
+  colours <- mu.colour( ulabs, colour, FALSE )$colour
   for(j in ulabs) {
     temp <- muclass(blabs, j)
     text(points[temp,  ], blabs[temp], col = colours[k])
     k <- k + 1
   }
   if(ellipse && !is.null(labs) ) {
-    par(new = T)
+    par(new = TRUE)
     eplot(data, labs, xlim = rx, ylim = ry, colour=colour, ...)
   }
 }

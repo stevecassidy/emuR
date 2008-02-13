@@ -1,5 +1,5 @@
 "end.emusegs" <-
-function(x)
+function(x, ...)
 {
 as.numeric(x$end)
 }

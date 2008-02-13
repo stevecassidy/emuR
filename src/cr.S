@@ -1,8 +1,8 @@
 "cr" <-
 function(A = 1, k = 1, p = 0, N = 16, samfreq = NULL, duration = NULL, 
-const = NULL, expon = NULL, plotf = T, ylim = NULL,  xlim=NULL, values
- = F, xlab = "Time (number of points)", ylab = "Amplitude", 
-type = "b", bw = NULL, dopoints = F, ...)
+const = NULL, expon = NULL, plotf = TRUE, ylim = NULL,  xlim=NULL, values
+ = FALSE, xlab = "Time (number of points)", ylab = "Amplitude", 
+type = "b", bw = NULL, dopoints = FALSE, ...)
 {
 ## A: amplitude (arbitrary units); defaults to 1
 ## to shift by a quarter wave, p = 2 * pi * .25
@@ -96,8 +96,8 @@ else invisible()
 
 "crplot" <-
 function(A = 1, k = 1, p = 0, N = 16, const = NULL, figsize = 8, 
-npoints = 500, col = 1, cplot = T, splot = T, numplot = T, axes = T, 
-incircle = T, arrow = T, linetype = 1, textplot = NULL, lineplot = NULL,
+npoints = 500, col = 1, cplot = TRUE, splot = TRUE, numplot = TRUE, axes = TRUE, 
+incircle = TRUE, arrow = TRUE, linetype = 1, textplot = NULL, lineplot = NULL,
 ylab = "Amplitude", super = NULL, xaxlab = NULL, type = "b", xlab = 
 "Time (number of points)", fconst = 3.5/3.1, pointconst = 1.2)
 {
@@ -105,7 +105,7 @@ ylab = "Amplitude", super = NULL, xaxlab = NULL, type = "b", xlab =
 if(A < -2 | A > 2)
 stop("choose A to be between plus or minus 2")
 if(N > 50)
-numplot = F
+numplot = FALSE
  
 "cr.lines" <-
 function(pivals, Ax = 1, Ay = 1, plotshift, col = 1, lty = 2)
@@ -123,7 +123,7 @@ function(pivals, Ax = 1, Ay = 1, plotshift, col = 1, lty = 2)
 
 "cr.super" <-
 function(first = 0, last = pi/3, Ax = 1, Ay = 1, k = 1, p = 0, const
-	 = NULL, figsize = 8, npoints = 500, N = npoints, col = 1, axes = T, 
+	 = NULL, figsize = 8, npoints = 500, N = npoints, col = 1, axes = TRUE, 
 	ylab = "amplitude", lwd = 2)
 {
 	first <- round(1 + ((first * (npoints - 1))/(2 * pi)))
@@ -136,7 +136,7 @@ function(first = 0, last = pi/3, Ax = 1, Ay = 1, k = 1, p = 0, const
 	sinv <- Ax *  - sin(nums)
 	plot(sinv[first:last] - plotshift, cosv[first:last], type = "l", xlim
 		 = c( - pin[1]/2, pin[1]/2), ylim = c( - pin[2]/2, pin[2]/2), 
-		axes = F, ylab = "", xlab = "", lwd = lwd)
+		axes = FALSE, ylab = "", xlab = "", lwd = lwd)
 	if(k == 0)
 		theta <- rep(0 + p, N)
 	else theta <- seq(0 + p, k * 2 * pi + p, by = (k * 2 * 
@@ -144,9 +144,9 @@ function(first = 0, last = pi/3, Ax = 1, Ay = 1, k = 1, p = 0, const
 	sinpoints <- Ax *  - sin(theta) - plotshift
 	cospoints <- Ay * cos(theta)
 	xvals <- seq(0, figsize/2, length = N)
-	par(new = T)
+	par(new = TRUE)
 	plot(xvals[first:last], cospoints[first:last], type = "l", xlim = c( - 
-		pin[1]/2, pin[1]/2), ylim = c( - pin[2]/2, pin[2]/2), axes = F, 
+		pin[1]/2, pin[1]/2), ylim = c( - pin[2]/2, pin[2]/2), axes = FALSE, 
 		ylab = "", xlab = "", col = col, lwd = lwd)
 }
 
@@ -220,7 +220,7 @@ cosv <- Ay * cos(nums)
 sinv <- Ax *  - sin(nums)
 if(cplot) {
 plot(sinv - plotshift, cosv, type = "l", xlim = c( - pin[1]/2, 
-pin[1]/2), ylim = c( - pin[2]/2, pin[2]/2), axes = F, 
+pin[1]/2), ylim = c( - pin[2]/2, pin[2]/2), axes = FALSE, 
 ylab = ylab, xlab = "", col = col, lty = linetype)
 }
 ## plot the points on the circle
@@ -260,12 +260,12 @@ lines(x.th2, y.th2, col = col)## .
 cir.thet <- seq(theta[1], theta[2], length = 
   round((npoints * (theta[2] - theta[1]))/(2 * 
   pi)))
-par(new = T)
+par(new = TRUE)
 cos.in <- Ay * cos(cir.thet) * 0.5
 sin.in <- Ax *  - sin(cir.thet) * 0.5
 plot(sin.in - plotshift, cos.in, type = "l", 
   xlim = c( - pin[1]/2, pin[1]/2), ylim = c( - 
-  pin[2]/2, pin[2]/2), axes = F, ylab = "", 
+  pin[2]/2, pin[2]/2), axes = FALSE, ylab = "", 
   xlab = "", col = col)## .
 len.in <- length(cos.in)
 if(arrow)
@@ -279,9 +279,9 @@ if(arrow)
 ## plot the cosine wave
 if(splot) {
 xvals <- seq(0, figsize/2, length = N) * fconst - 0.2
-par(new = T)
+par(new = TRUE)
 plot(xvals, cospoints, type = "l", xlim = c( - pin[1]/2, pin[1]/
-2), ylim = c( - pin[2]/2, pin[2]/2), axes = F, ylab = 
+2), ylim = c( - pin[2]/2, pin[2]/2), axes = FALSE, ylab = 
 "", xlab = "", col = col, lty = linetype)
 points(xvals, cospoints, pch = 16, mkh = 0.05)
 }
@@ -308,7 +308,7 @@ abline(h = 0, lty = 2)
 }
 ## superimpose a part circle
 if(!is.null(super)) {
-par(new = T)
+par(new = TRUE)
 cr.super(first = super$first, last = super$last, Ax = Ax, Ay = 
 Ay, k = k, p = p, figsize = figsize, 
 const = const, npoints = npoints)

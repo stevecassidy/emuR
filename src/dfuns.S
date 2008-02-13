@@ -18,8 +18,8 @@
 {
   ## return the time and the number of the segment element
   ## that the datanum refers to
-  if(is.matrix(dataset$ftime) == F) dataset$ftime <- rbind(dataset$ftime)
-  if(is.matrix(dataset$index) == F)  dataset$index <- rbind(dataset$index)
+  if(is.matrix(dataset$ftime) == FALSE) dataset$ftime <- rbind(dataset$ftime)
+  if(is.matrix(dataset$index) == FALSE)  dataset$index <- rbind(dataset$index)
   nums <- seq(1, nrow(dataset$ftime))
   incl <- dataset$index[, 1] <= datanum & dataset$index[, 2] >= datanum
   retv <- NULL

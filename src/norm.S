@@ -12,7 +12,7 @@
 #############################################################################
 
 
-"norm"<- function(data, speakerlabs, type = "gerst", rescale = F)
+"norm"<- function(data, speakerlabs, type = "gerst", rescale = FALSE)
 {
   ## data: a matrix of data. Can be
   ## an n-columned matrix or a list as returned by track()
@@ -33,12 +33,12 @@
   ## e.g. if the range on the first parameter across all talkers
   ## is 200 to 1000, then the first nearey-scaled parameter
   ## is rescaled linearly within this range
-  flag <- F
+  flag <- FALSE
   if(is.list(data)) {
-    flag <- T
+    flag <- TRUE
     indvals <- data$index
     tvals <- data$ftime
-    speakerlabs <- expand.labels(indvals, speakerlabs)
+    speakerlabs <- expand_labels(indvals, speakerlabs)
     data <- data$data
   }
   if(!is.matrix(data))
@@ -78,8 +78,8 @@
       data <- rescale.nearey(data, neardata)
     if(type == "gerst")
       data <- rescale.gerst(data, mind, ranged)
-    if(type == "cen")
-      data <- rescale.cen(data, cendata)
+    #if(type == "cen")
+    # data <- rescale.cen(data, cendata)
   }
   if(flag) {
     vec <- data
@@ -97,9 +97,9 @@
   maxvals <- apply(data, 2, max)
   rvals <- maxvals - minvals
   vec1 <- rep(minvals, nrow(data))
-  vecmat <- matrix(vec1, nrow(data), byrow = T)
+  vecmat <- matrix(vec1, nrow(data), byrow = TRUE)
   rvec1 <- rep(rvals, nrow(data))
-  rvecmat <- matrix(rvec1, nrow(data), byrow = T)
+  rvecmat <- matrix(rvec1, nrow(data), byrow = TRUE)
   (data - vecmat)/rvecmat
 }
 
@@ -110,9 +110,9 @@
   meanvals <- apply(data, 2, mean)
   rvals <- sqrt(apply(data, 2, var))
   vec1 <- rep(meanvals, nrow(data))
-  vecmat <- matrix(vec1, nrow(data), byrow = T)
+  vecmat <- matrix(vec1, nrow(data), byrow = TRUE)
   rvec1 <- rep(rvals, nrow(data))
-  rvecmat <- matrix(rvec1, nrow(data), byrow = T)
+  rvecmat <- matrix(rvec1, nrow(data), byrow = TRUE)
   (data - vecmat)/rvecmat
 }
 
@@ -140,7 +140,7 @@
   mat
 }
 
-"expand.labels"<- function(indvals, labs)
+"expand_labels"<- function(indvals, labs)
 {
   ## indvals is the index component returned by frames/track
   ## labs is the parallel label vector

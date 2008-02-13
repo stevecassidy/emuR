@@ -57,7 +57,7 @@ function (trackdata, fun, ...)
 
 
 "fapply" <-
-function(specdata, fun, ..., power=F, powcoeffs = c(10, 10))
+function(specdata, fun, ..., power=FALSE, powcoeffs = c(10, 10))
 {
 if(!is.spectral(specdata))
 stop("object must be of class spectral")
@@ -80,7 +80,7 @@ omat <- as.spectral(omat, attr(specdata$data, "fs"))
 else
 dimnames(omat) <- list(dnames[[1]], NULL)
 if(power)
-omat <- dbtopower(omat, powcoeffs[1], powcoeffs[2], inv=T)
+omat <- dbtopower(omat, powcoeffs[1], powcoeffs[2], inv=TRUE)
 return(as.trackdata(omat, specdata$index, specdata$ftime))
 }
 
@@ -104,7 +104,7 @@ attr(omat, "fs") <- attr(specdata, "fs")
 else
 dimnames(omat) <- list(dnames[[1]], NULL)
 if(power)
-omat <- dbtopower(omat, powcoeffs[1], powcoeffs[2], inv=T)
+omat <- dbtopower(omat, powcoeffs[1], powcoeffs[2], inv=TRUE)
 return(omat)
 }
 }

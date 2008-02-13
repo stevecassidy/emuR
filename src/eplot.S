@@ -13,10 +13,10 @@
 
 ##########################################################################
 "eplot" <-
-function (data, labs, chars, formant = F, scaling = "linear", 
-    prob = 0.95, nsdev = NULL, dopoints = F, doellipse = T, centroid = F, 
-    main = "", xlab = "", ylab = "", axes = T, xlim, ylim, colour = T, 
-    linetype = F, boundary = F, lwd=NULL, ...) 
+function (data, labs, chars, formant = FALSE, scaling = "linear", 
+    prob = 0.95, nsdev = NULL, dopoints = FALSE, doellipse = TRUE, centroid = FALSE, 
+    main = "", xlab = "", ylab = "", axes = TRUE, xlim, ylim, colour = TRUE, 
+    linetype = FALSE, boundary = FALSE, lwd=NULL, ...) 
 {
     ocall <- match.call()
     if (is.null(nsdev)) 
@@ -29,7 +29,7 @@ function (data, labs, chars, formant = F, scaling = "linear",
         blabs <- classify(points, tdat, metric = metric)
         ulabs <- unique(labs)
         k <- 1
-        colours <- mu.colour(ulabs, T, F)$colour
+        colours <- mu.colour(ulabs, TRUE, FALSE)$colour
         for (j in ulabs) {
             temp <- muclass(blabs, j)
             text(points[temp, ], blabs[temp], col = colours[k])
@@ -39,7 +39,7 @@ function (data, labs, chars, formant = F, scaling = "linear",
     if (missing(labs)) 
         labs <- rep(".", nrow(data))
     if (!doellipse & !dopoints) 
-        centroid <- T
+        centroid <- TRUE
     if (nrow(data) != length(labs)) 
         stop("Data and labels don't match")
     if (ncol(data) != 2) 
@@ -65,7 +65,7 @@ linewidth <- col.lty$lwd
     emat <- nums <- cen <- k <- l <- NULL
     for (j in uniqlabels) {
         temp <- labs == j
-        mat <- data[temp, , drop = F]
+        mat <- data[temp, , drop = FALSE]
         if (nrow(mat) > 2) {
             evals <- eigen(var(mat))
             m1 <- mean(mat[, 1])
@@ -107,17 +107,17 @@ linewidth <- c(linewidth, col.lty$legend$lwd[match(j, col.lty$legend$lab)])
         lowerlim <- rowmarker[j, 1]
         upperlim <- rowmarker[j, 2]
         if (doellipse) {
-            plot(emat[lowerlim:upperlim, ], type = "l", axes = F, 
+            plot(emat[lowerlim:upperlim, ], type = "l", axes = FALSE, 
                 xlim = xlim, ylim = ylim, col = k[j], xlab = "", 
                 ylab = "", lty = as.numeric(l[j]), lwd=as.numeric(linewidth[j]))
         }
         else {
-            plot(emat[lowerlim:upperlim, ], type = "n", axes = F, 
+            plot(emat[lowerlim:upperlim, ], type = "n", axes = FALSE, 
                 xlim = xlim, ylim = ylim, col = k[j], xlab = "", 
                 ylab = "", lty = as.numeric(l[j]), lwd=as.numeric(linewidth[j]))
         }
         if (dopoints) {
-            centroid <- F
+            centroid <- FALSE
             singlelab <- uniqlabels[j]
             temp <- labs == singlelab
             if (!missing(chars)) 
@@ -131,7 +131,7 @@ linewidth <- c(linewidth, col.lty$legend$lwd[match(j, col.lty$legend$lab)])
             text(cen[j, 1], cen[j, 2], singlelab, col = k[j])
         }
         if (j < nrow(rowmarker)) 
-            par(new = T)
+            par(new = TRUE)
     }
     par(col = 1)
     box()
@@ -182,7 +182,7 @@ linewidth <- c(linewidth, col.lty$legend$lwd[match(j, col.lty$legend$lab)])
 }
 
 "polygonplot" <- function(data, labels, order,
-                          formant=T, axes=T,
+                          formant=TRUE, axes=TRUE,
                           xlab="", ylab="",
                           main = "", xlim, ylim)
 {
@@ -191,7 +191,7 @@ linewidth <- c(linewidth, col.lty$legend$lwd[match(j, col.lty$legend$lab)])
     data <- data[,1:2]
   }
   if( ncol(data) != 2 ) {
-    error( "polygonplot() requires two columns of data" )
+    stop( "polygonplot() requires two columns of data" )
   }
 
   if(formant)
@@ -204,8 +204,8 @@ linewidth <- c(linewidth, col.lty$legend$lwd[match(j, col.lty$legend$lab)])
     points <- rbind( points, apply(tmp, 2, mean) )
   }
 
-  plot( points, type="b", pch=" ", axes=F, xlab="", ylab="" )
-  text( points, order, axes=F, , xlab="", ylab="" )
+  plot( points, type="b", pch=" ", axes=FALSE, xlab="", ylab="" )
+  text( points, order, axes=FALSE, , xlab="", ylab="" )
 
   par(col = 1)
   box()

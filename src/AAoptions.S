@@ -64,7 +64,7 @@ if (emu.platform("Windows")) {
 
 
 ## this will get changed by the Makefile
-emu.version<-"2.3"
+emu.version<-"3.0"
 
 "emu.init" <- function() {
 
@@ -74,7 +74,7 @@ emu.version<-"2.3"
   filepath = paste(packpath,sepa,nfile,sep = "")
   
   if (file.exists(filepath)) {
-    emu.directory <<- readLines(con = filepath)
+    emu.directory <- readLines(con = filepath)
   } 
 	
   if (emu.platform("MacOS")) {
@@ -144,24 +144,12 @@ the variable 'version'.")
 	      gettrack=gettrack
               ),
            env = .GlobalEnv )
-  } else {
-    assign( "emu",
-           list( 
-                version=emu.version,
-                deprecated.warnings=1,
-                bindir=bindir,
-                dirsep=dirsep,
-                gettrack=gettrack
-                ),
-           frame=0)
-  }
+  } 
 
   
   if( is.R() ) {
-    ## eda is needed for smooth, used in dsmooth
-    library("eda")
-    ## mva is needed by euclidean
-    library("mva")
+
+    library("stats")
     
   }
 
@@ -170,6 +158,7 @@ the variable 'version'.")
 
 
 "emu.options" <- function( option ) {
-    emu[[option]]
+    laa = get("emu",env = .GlobalEnv)
+    return(laa[[option]])
 }
 

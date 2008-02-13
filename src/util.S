@@ -48,13 +48,14 @@ if( !exists("is.R") ) {
 emu.system <- function(cmd) {
   if (is.R()) {
     system(cmd)
-  } else if (emu.platform("Windows")) {
-    dos(cmd)
-  } else if (emu.platform("Unix")) {
-    unix(cmd)
-  } else {
-    stop("don't know how to run a system command -- fix emu.system")
   }
+  #else if (emu.platform("Windows")) {
+  #  dos(cmd)
+  #} else if (emu.platform("Unix")) {
+  #  unix(cmd)
+  #} else {
+  #  stop("don't know how to run a system command -- fix emu.system")
+  #}
 }
 
 ## tempfile is fine unless we're on windows where v3.3 can't grok
@@ -72,4 +73,6 @@ emu.tempfile <- function(prefix) {
     return(tempfile(prefix))
   }
 }
+
+
 

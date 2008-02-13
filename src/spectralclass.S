@@ -71,8 +71,9 @@ trackdata
 
 
 "plot.spectral" <-
-function(specdata, labs, ylim, xlim, ylab, xlab, col, lty, lwd, fun, freq, type="l", power=F, powcoeffs=c(10, 10), dbnorm=F, dbcoeffs=c(0, 0), legend=T, ...)
+function(x, labs, ylim, xlim, ylab, xlab, col, lty, lwd, fun, freq, type="l", power=FALSE, powcoeffs=c(10, 10), dbnorm=FALSE, dbcoeffs=c(0, 0), legend=TRUE, ...)
 {
+specdata = x
 if(is.trackdata(specdata))
 specdata <- specdata$data
 if(!is.spectral(specdata))
@@ -111,7 +112,7 @@ dimnames(mat$fn) <- list(mat$l, dimnames(specdata)[[2]])
 specdata <- mat$fn
 # specdata <- apply(specdata, 2, tapply, labs, fun)
 if(power)
-specdata <- dbtopower(specdata, powcoeffs[1], powcoeffs[2], inv=T)
+specdata <- dbtopower(specdata, powcoeffs[1], powcoeffs[2], inv=TRUE)
 if( length(unique(labs))  > 1)  
 labs <- dimnames(specdata)[[1]]
 else
@@ -130,17 +131,17 @@ xlab <- ""
 if(missing(ylab))
 ylab <- ""
 if(missing(col))
-col <- T
+col <- TRUE
 if(missing(lty))
-lty <- F
+lty <- FALSE
 if(missing(lwd))
 lwd <- NULL
 cols <- mu.colour(labs, col, lty, lwd)
 for(j in 1:nrow(specdata)){
 plot(f, specdata[j,], type=type, col=cols$colour[j], 
 lty=cols$linetype[j], lwd=cols$lwd[j], xlim=xlim, ylim=ylim,
-xlab=xlab, ylab=ylab, axes=F, ...)
-par(new=T)
+xlab=xlab, ylab=ylab, axes=FALSE, ...)
+par(new=TRUE)
 }
   if (is.logical(legend)) {
         if (legend & length(unique(labs) ) > 1)
@@ -162,8 +163,9 @@ axis(side=2)
 
 
 "bark.spectral" <-
-function(specobject)
+function(f, ...)
 {
+specobject = f
 if(!is.trackdata(specobject))
 {
 if(!is.matrix(specobject))
@@ -206,8 +208,9 @@ specobject
 
 
 "mel.spectral" <-
-function(specobject)
+function(a)
 {
+specobject = a
 if(!is.trackdata(specobject))
 {
 if(!is.matrix(specobject))

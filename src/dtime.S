@@ -12,7 +12,7 @@
 #############################################################################
 
 
-dtime <- function(dataset, times, single = T, average = T) {
+dtime <- function(dataset, times, single = TRUE, average = TRUE) {
   if(!is.matrix(dataset$data))
     dataset$data <- cbind(dataset$data)
 
@@ -61,8 +61,8 @@ dtime <- function(dataset, times, single = T, average = T) {
 
 
 "dcut" <-
-function (trackdata, left.time, right.time, single = T, average = T, 
-    prop = F) 
+function (trackdata, left.time, right.time, single = TRUE, average = TRUE, 
+    prop = FALSE) 
 {
     if (prop) {
         if (missing(right.time)) 

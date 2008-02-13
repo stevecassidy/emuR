@@ -1,5 +1,5 @@
 "start.trackdata" <-
-function(x)
+function(x, ...)
 {
 x$ftime[,1]
 }

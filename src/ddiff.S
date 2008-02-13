@@ -12,7 +12,7 @@
 #############################################################################
 
 
-"ddiff"<- function(dataset, n = 1, smoothing = T)
+"ddiff"<- function(dataset, n = 1, smoothing = TRUE)
 {
   ## differentiates a list, as returned by track, to the nth
   ## order, readjusting the index and ftime values each time

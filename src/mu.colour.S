@@ -11,13 +11,13 @@
 #									    #
 #############################################################################
 "mu.colour" <-
-function(labs, col=T, linetype=F, lwd=NULL)
+function(labs, col=TRUE, linetype=FALSE, lwd=NULL)
 {
 result <- NULL
 if(is.logical(col))
 {
 if(col)
-result$colour <- label.num(labs)
+result$colour <- label_num(labs)
 else
 result$colour <- rep(1, length(labs))
 }
@@ -40,7 +40,7 @@ result$colour <- rep(col, length(labs))
 if(is.logical(linetype))
 {
 if(linetype)
-result$linetype <- label.num(labs)
+result$linetype <- label_num(labs)
 else
 result$linetype <- rep(1, length(labs))
 }

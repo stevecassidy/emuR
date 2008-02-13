@@ -49,7 +49,7 @@
     dataset$data <- cbind(dataset$data)
   for(j in 1:ncol(dataset$data)) {
     vec <- matrix(c(dataset$data[, j]), nrow(dataset$index), byrow
-                  = T)
+                  = TRUE)
     outmat <- NULL
     for(k in unique(labs)) {
       temp <- labs == k

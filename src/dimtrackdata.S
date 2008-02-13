@@ -1,4 +1,4 @@
-"dim.trackdata" <-
+dim.trackdata <-
 function(x)
 {
 # function returns the dimension attributes of
@@ -7,8 +7,8 @@ c(nrow(x$index), ncol(x$data))
 }
 
 "dimnames.trackdata" <-
-function(trackdata)
-{
+function(x)
+{trackdata = x
 dimnames(trackdata$data)
 }
 

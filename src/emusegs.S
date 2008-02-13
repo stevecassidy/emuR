@@ -13,7 +13,7 @@
 
 
 
-"read.emusegs"<- function(file)
+read.emusegs<- function(file)
 {
   ## scan the lines of the file into a vector
 
@@ -86,10 +86,10 @@ is.seglist <- function(object) {
 
 ## modify a segment list by changing one or more of the fields
 "modify.seglist" <- function( segs,
-                             labels=label(segs),
-                             start=mustart(segs),
-                             end=muend(segs),
-                             utts=utt(segs),
+                             labels=label.emusegs(segs),
+                             start=start.emusegs(segs),
+                             end=end.emusegs(segs),
+                             utts=utt.emusegs(segs),
                              query=emusegs.query(segs),
                              type=emusegs.type(segs),
                              database=emusegs.database(segs))
@@ -136,7 +136,7 @@ is.seglist <- function(object) {
 
 "[.emusegs"<- function(segs,i,j)
 {
-  NextMethod("[",drop=F)
+  NextMethod("[",drop=FALSE)
 }
 
 if( version$major >= 5 ) {
@@ -161,13 +161,16 @@ setMethod("[", "emusegs",
   invisible()
 }
 
-
-"label" <- function(segs)
-{
-  segs$label
+"label" <- function(segs) {
+  UseMethod("label")
 }
 
-"as.matrix.emusegs" <- function(x)
+"label.emusegs" <- function(segs)
+{
+  as.character(segs$label)
+}
+
+"as.matrix.emusegs" <- function(x, ...)
 {
   cbind( as.character(x$label), x$start, x$end, as.character(x$utt) )
 }
@@ -175,12 +178,47 @@ setMethod("[", "emusegs",
 "write.emusegs" <- function(seglist, file)
 {
   cat(paste("database:", attributes(seglist)$database, "\n", sep=""), file=file)
-  cat(paste("query:", attributes(seglist)$query, "\n", sep=""), file=file, append=T)
-  cat(paste("type:", attributes(seglist)$type, "\n", sep=""), file=file, append=T)
-  cat("#\n", file=file, append=T)
-  write(t(as.matrix(seglist)), file, ncolumns = 4, append=T)
+  cat(paste("query:", attributes(seglist)$query, "\n", sep=""), file=file, append=TRUE)
+  cat(paste("type:", attributes(seglist)$type, "\n", sep=""), file=file, append=TRUE)
+  cat("#\n", file=file, append=TRUE)
+  write(t(as.matrix(seglist)), file, ncolumns = 4, append=TRUE)
 }
 
+
+"start.emusegs" <-
+function(x)
+{
+as.numeric(x$start)
+}
+
+
+"end.emusegs" <-
+function(x)
+{
+as.numeric(x$end)
+}
+
+utt = 
+function(x) {
+  UseMethod("utt")
+}
+
+"utt.emusegs" <-
+function(x)
+{
+as.character(x$utts)
+}
+
+dur = 
+function(segs) {
+  UseMethod("dur")
+}
+
+dur.emusegs = 
+function(segs)
+{
+  return(end(segs) - start(segs))
+}
 
 
 # Local Variables:

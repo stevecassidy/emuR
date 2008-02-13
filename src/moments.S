@@ -1,5 +1,5 @@
 "moments" <-
-function(count, x, minval=F)
+function(count, x, minval=FALSE)
 
 {
 # compute moments. x is a numeric class

@@ -1,4 +1,4 @@
-"cbind.trackdata" <-
+cbind.trackdata <-
 function (...) 
 {
 mat <- NULL

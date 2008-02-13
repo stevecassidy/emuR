@@ -12,7 +12,7 @@
 #############################################################################
 
 
-library(mva)
+library(stats)
 
 "euclidean"<- function(data, m = 1, n = ncol(data))
 {

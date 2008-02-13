@@ -1,5 +1,5 @@
 "locus" <-
-function (target, onset,  labels.vow=NULL, yxline=T, xlim = NULL, ylim = NULL, xlab="", ylab="", plotgraph=T) 
+function (target, onset,  labels.vow=NULL, yxline=TRUE, xlim = NULL, ylim = NULL, xlab="", ylab="", plotgraph=TRUE) 
 {
 # target: vector of target freqs
 # onset: vector of onset freqs

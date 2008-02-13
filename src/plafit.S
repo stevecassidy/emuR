@@ -1,5 +1,5 @@
 "plafit" <-
-function(wav,fit=F, n=101)
+function(wav,fit=FALSE, n=101)
 {
 if(!is.vector(wav) & !is.matrix(wav) )
 stop("input signal must be a vector or a one-columned matrix")

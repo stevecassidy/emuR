@@ -1,5 +1,5 @@
 "start.emusegs" <-
-function(x)
+function(x, ...)
 {
 as.numeric(x$start)
 }

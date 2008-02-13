@@ -6,7 +6,7 @@ function(template)
 template <- paste(template, "tpl", sep=".")
 if(dirname(template)==".")
 template <-  paste( dirname(emu.options("bindir")), template, sep="/")
-p <- scan(template, what="list", quiet=T)
+p <- scan(template, what="list", quiet=TRUE)
 which <- p=="track"
 n <- 1:length(p)
 valsa <- n[which]+1
