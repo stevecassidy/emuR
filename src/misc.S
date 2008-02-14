@@ -17,6 +17,7 @@
 
 
 
+
 ## return the index of the value in vec which is closest to val
 "closest" <- function(vec, val)
 {
