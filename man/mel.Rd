@@ -16,13 +16,11 @@ where Hz is the frequency in Hz.
  
 
 \usage{
-mel(a, ...)
+mel(a)
 }
 \arguments{
 \item{a}{A vector or matrix of data or a spectral object.}
-\item{...}{inv = FALSE: A single element logical vector. If F, data are converted
-          from Hertz to mel, if T, data are converted from mel to
-          Hertz. (Does not apply if 'data' is an oject of class 'spectral'.}
+
 }
 \value{
 A vector or matrix or spectral object  of the same length and dimensions as data.
@@ -60,9 +58,9 @@ the dB values at those frequencies.
  mel(vec)
 
         
-        # convert Hertz values to mel and back to Hertz
+        # convert Hertz values to mel 
 
-        mel(mel(vec, inv=T))
+        mel(vec)
         
 
         # convert the $data values in a trackdata object to mel
@@ -82,7 +80,7 @@ the dB values at those frequencies.
 w = mel(e.dft)
 par(mfrow=c(1,2))
 plot(w, type="l")
-\dontshow{readline(prompt = "Press return to advance.")}
+
 
 # The values of w are at equal mel intervals. Compare
 # with

@@ -31,7 +31,7 @@ linear filtering to carry out the shifting.
 vec = 1:10
 shift(vec, 2)
 shift(vec, -2)
-shift(vec, 2, circular=F)
+shift(vec, 2, circular=FALSE)
 
 
 }

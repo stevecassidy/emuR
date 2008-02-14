@@ -53,9 +53,9 @@ bisects the line target = onset.
 # identify initial "d" of speaker "68"
 temp <- vowlax.left == "d" & vowlax.spkr == "68"
 # get the F2 value at the vowel's temporal midpoint
-targ <- dcut(vowlax.fdat[temp,2], .5, prop=T)
+targ <- dcut(vowlax.fdat[temp,2], .5, prop=TRUE)
 # F2 value at the vowel's acoustic onset.
-on <- dcut(vowlax.fdat[temp,2], 0, prop=T)
+on <- dcut(vowlax.fdat[temp,2], 0, prop=TRUE)
 
 # locus equation plot
 result <- locus(targ, on, vowlax.l[temp])

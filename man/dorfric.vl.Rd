@@ -1,7 +1,7 @@
 \name{dorfric.vl}
 \alias{dorfric.vl}
 \title{A vector of the preceding vowel labels in the dorfric dataset}
-\usage{data(dorfric.vl)}
+\usage{dorfric.vl}
 \description{A vector of labels preceding the labels: "C" or "x"
    
 }
@@ -19,5 +19,5 @@
 %\examples{
 %}
 
-\keyword{emu}
+%\keyword{emu}
 \keyword{datasets}

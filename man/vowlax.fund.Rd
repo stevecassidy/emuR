@@ -1,6 +1,6 @@
 \name{vowlax.fund}
 \alias{vowlax.fund}
-\title{Emu Dataset}
-\usage{data(vowlax.fund)}
-\description{Trackdata of fundamental frequency from the segment list vowlax}
+\title{Trackdata of fundamental frequency from the segment list vowlax}
+\usage{vowlax.fund}
+\description{An EMU dataset}
 \keyword{datasets}

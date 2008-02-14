@@ -1,6 +1,9 @@
-\name{Extract label and utterances from emu segment list}
+\name{label}
 \alias{label.emusegs}
+\alias{label}
 \alias{utt.emusegs}
+\alias{utt}
+
 
 \title{Get labels / utterances from segment list}
 \description{
@@ -9,11 +12,13 @@
 
 }
 \usage{
-   label.emusegs(segs)
-   utt.emusegs(segs)
+    \method{label}{emusegs}(segs)
+    \method{utt}{emusegs}(x)
 }
 \arguments{
  \item{segs}{ segment list}
+ \item{x}{ segment list}
+
 }
 
 \value{
@@ -24,14 +29,14 @@
 \author{Jonathan Harrington}
 
 \seealso{
-   \code{\link{segmentlist}}
+   \code{\link{segmentlist} \link{start} \link{end}}
 }
 
 \examples{
    data(dip)
    #dip is a segment list - first ten segments only
    dip[1:10,]
-   \dontshow{readline(prompt = "Press return to advance.")}
+   
 
    #extract labels from the segment list
    dips.labs = label(dip)
@@ -39,4 +44,4 @@
    
 }
 
-\keyword{datagen}
+\keyword{methods}

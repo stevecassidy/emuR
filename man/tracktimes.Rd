@@ -24,7 +24,7 @@ times.
 times <- tracktimes(vowlax.fdat)
 # track time values for a matrix of trackdata values
 # at  the temporal midpoint
-tracktimes(dcut(vowlax.fdat[1:3,], 0.5, prop=T))
+tracktimes(dcut(vowlax.fdat[1:3,], 0.5, prop=TRUE))
 }
 
 

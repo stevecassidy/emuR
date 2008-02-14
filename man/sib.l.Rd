@@ -1,6 +1,6 @@
 \name{sib.l}
 \alias{sib.l}
-\title{Emu Dataset}
-\usage{data(sib.l)}
-\description{Vector of phonetic labels from the segment list sib}
+\title{Vector of phonetic labels from the segment list sib}
+\usage{sib.l}
+\description{An EMU dataset}
 \keyword{datasets}

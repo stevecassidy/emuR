@@ -40,7 +40,7 @@ then this function is applied to $data.
 vec = dbtopower(10)
 # convert dB-data to a power ratio and back to decibels
 res = dbtopower(vowlax.dft.5)
-res = dbtopower(res, inv=T)
+res = dbtopower(res, inv=TRUE)
 }
 
 \keyword{math}

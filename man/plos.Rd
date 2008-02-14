@@ -1,6 +1,6 @@
 \name{plos}
 \alias{plos}
-\title{Emu Dataset}
-\usage{data(plos)}
-\description{Segment list of syllable-initial German /b/ and /d/, isolated words, one male speaker from database gerplosives.}
+\title{Segment list of syllable-initial German b and d , isolated words, one male speaker from database gerplosives.}
+\usage{plos}
+\description{An EMU dataset}
 \keyword{datasets}

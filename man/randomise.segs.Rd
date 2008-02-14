@@ -4,7 +4,7 @@
   Randomise or Reverse items in a segment list
 }
 \usage{
-randomise.segs(segs,  rand=T, bwd=F)
+randomise.segs(segs,  rand=TRUE, bwd=FALSE)
 }
 \description{}
 \arguments{
@@ -26,11 +26,12 @@ An Emu segment list.
   \code{\link{emu.query}}
 }
 \examples{
+data(vowlax)
 ## assumes a database called demo is available on your system and that
 ## the Emu system is installed. 
 
-# find all Phonetic vowels in the database
-segs <- emu.query("demo", "*", "Phonetic=vowel")
+# all Phonetic vowels in the database
+segs <- vowlax
 
 # randomise the segment list
 rsegs <- randomise.segs( segs )

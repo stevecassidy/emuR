@@ -4,7 +4,7 @@
 Normalise speech data
 }
 \usage{
-norm(data, speakerlabs, type="gerst", rescale=F)
+norm(data, speakerlabs, type="gerst", rescale=FALSE)
 }
 \description{}
 \arguments{

@@ -1,6 +1,6 @@
 \name{isol}
 \alias{isol}
-\title{Emu Dataset}
-\usage{data(isol)}
-\description{Segment list of vowels in a /d_d/ context isolated word speech, one male speaker of Australian English from database isolated.}
+\title{Segment list of vowels in a d_d context isolated word speech, one male speaker of Australian English from database isolated.}
+\usage{isol}
+\description{An EMU dataset}
 \keyword{datasets}

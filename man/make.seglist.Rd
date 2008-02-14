@@ -49,19 +49,19 @@ make.seglist(labels, start, end, utts, query, type, database)
    segs
    ## summary gives an overview of the data in the segment list
    summary(segs)
-   \dontshow{readline(prompt = "Press return to advance.")}
+   
 
    # The following should be TRUE
    label(segs) == l
-   mustart(segs) == s
-   muend(segs) == e
+   dur(segs) == s
+   end(segs) == e
    utt(segs) == u
    emusegs.database(segs) == "fake"
    emusegs.type(segs) == "segment"
    emusegs.query(segs) == "Fake Query"
 
    # segment durations should all be 1
-   mudur(segs) == c(1,1,1)
+   dur(segs) == c(1,1,1)
 
 }
 \keyword{misc}

@@ -1,6 +1,6 @@
 \name{vowlax.df}
 \alias{vowlax.df}
-\title{Emu Dataset}
-\usage{data(vowlax.df)}
-\description{Data frame of various parameters and labels from the segment list vowlax}
+\title{Data frame of various parameters and labels from the segment list vowlax}
+\usage{vowlax.df}
+\description{An EMU dataset}
 \keyword{datasets}

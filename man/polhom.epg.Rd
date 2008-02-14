@@ -1,6 +1,6 @@
 \name{polhom.epg}
 \alias{polhom.epg}
-\title{Emu Dataset}
-\usage{data(polhom.epg)}
-\description{EPG-compressed trackdata from the segment list polhom}
+\title{EPG-compressed trackdata from the segment list polhom}
+\usage{polhom.epg}
+\description{An EMU dataset}
 \keyword{datasets}

@@ -6,7 +6,7 @@
    The function plots spectrum of any EMU spectral object. 
 }
 \usage{
-plot.spectral(x, labs, ylim, xlim, ylab, xlab, col, lty, lwd, fun, freq, type = "l", power = FALSE, powcoeffs = c(10, 10), dbnorm = FALSE, dbcoeffs = c(0, 0), legend = TRUE, ...)
+\method{plot}{spectral}(x, labs, ylim, xlim, ylab, xlab, col, lty, lwd, fun, freq, type = "l", power = FALSE, powcoeffs = c(10, 10), dbnorm = FALSE, dbcoeffs = c(0, 0), legend = TRUE, ...)
 }
 
 \arguments{
@@ -60,13 +60,13 @@ with just 'plot'
 
 \examples{
 plot(vowlax.dft.5[1,])
-\dontshow{readline(prompt = "Press return to advance.")}
+
 # with label types
 plot(vowlax.dft.5[1:20,], vowlax.l[1:20])
-\dontshow{readline(prompt = "Press return to advance.")}
+
 # As above but averaged after converting to power ratios.
-plot(vowlax.dft.5[1:20,], vowlax.l[1:20], fun=mean, power=T)
-\dontshow{readline(prompt = "Press return to advance.")}
+plot(vowlax.dft.5[1:20,], vowlax.l[1:20], fun=mean, power=TRUE)
+
 # All the spectra of one segment in a trackdata object
 plot.spectral(fric.dft[1,])
 

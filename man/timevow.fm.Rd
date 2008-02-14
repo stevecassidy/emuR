@@ -1,6 +1,6 @@
 \name{timevow.fm}
 \alias{timevow.fm}
-\title{Emu Dataset}
-\usage{data(timevow.fm)}
-\description{Trackdata of the first four formants from the segment list timevow}
+\title{Trackdata of the first four formants from the segment list timevow}
+\usage{timevow.fm}
+\description{An EMU dataset}
 \keyword{datasets}

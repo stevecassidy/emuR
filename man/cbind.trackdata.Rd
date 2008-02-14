@@ -8,7 +8,7 @@
    columns of the track data object by columns. 
 }
 \usage{
-   cbind(...)
+        \method{cbind}{trackdata}(...)
 }
 
 \arguments{
@@ -48,7 +48,7 @@
    
    #rms track data object for vowlax - first segment only 
    vowlax.rms[1,]
-   \dontshow{readline(prompt = "Press return to advance.")}   
+      
    
    #now combine both track data objects
    fund.rms.lax = cbind(vowlax.fund, vowlax.rms)

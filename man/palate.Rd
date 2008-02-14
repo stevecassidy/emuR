@@ -40,7 +40,7 @@ the times at which the palatograms occur.
 p <- palate(coutts.epg)
 
 # convert an EPG-compressed matrix to palatograms
-p <- palate(dcut(coutts.epg, 0, prop=T))
+p <- palate(dcut(coutts.epg, 0, prop=TRUE))
 
 }
 

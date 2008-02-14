@@ -39,10 +39,6 @@ A two column matrix giving the start and end times for each segment.
 \seealso{
 track, dextract, get.time.element, frames.time
 }
-\examples{
-data(emu.voweldata)
-# get just the data for the e: and E vowels
-eE.data <- dextract.lab(vdata, label(vsegs), c("e:", "E"))
-}
-\keyword{misc}
+
+\keyword{internal}
 

@@ -54,7 +54,7 @@ readline("press enter to continue")
 # get palatograms for "S" from the polhom.epg database
 temp = polhom.l == "S"
 # greyscale image of all "S" segments at their temporal midpoint
-epggs(dcut(polhom.epg[temp,], 0.5, prop=T))
+epggs(dcut(polhom.epg[temp,], 0.5, prop=TRUE))
 readline("press enter to continue")
 
 # greyscale image of all "S" segments from their onset to offset

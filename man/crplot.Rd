@@ -67,9 +67,9 @@ Defaults to 1.2 * A }
 crplot()
 # sine wave
 crplot(p=-pi/2)
-\dontshow{readline(prompt = "Press return to advance.")}
+
 crplot(k=3)
-\dontshow{readline(prompt = "Press return to advance.")}
+
 # aliasing
 crplot(k=15)
 }

@@ -60,7 +60,7 @@ Journal of Phonetics, 19, 251-266.
 #  COG: trackdata
 cog <- epgcog(coutts.epg)
 #  cog, one-columned matrix
-cog <- epgcog(dcut(coutts.epg, 0.5, prop=T))
+cog <- epgcog(dcut(coutts.epg, 0.5, prop=TRUE))
 # posterior cog for Fig. 10.5, p. 239 in Gibbon & Nicolaidis (1999)
 r = array(0, c(8, 8, 2))
 r[6,c(1, 8),1] <- 1

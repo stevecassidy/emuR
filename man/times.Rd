@@ -11,13 +11,16 @@ Obtain start and end times for EMU segment lists and
 trackdata objects
 }
 
-\usage{start.emusegs(x)
-end.emusegs(x)
-start.trackdata(x)
-end.trackdata(x) }
+\usage{
+\method{start}{emusegs}(x, ...)
+\method{end}{emusegs}(x, ...)
+\method{start}{trackdata}(x, ...)
+\method{end}{trackdata}(x, ...)
+}
 
 \arguments{
   \item{x}{ a segment list or a trackdata object }
+  \item{...}{ due to the generic only}
 }
 
 \details{
@@ -27,7 +30,7 @@ The former refers to the boundary times of
 segments, the latter the start and end times
 at which the tracks from segments occur.
 start.emusegs and end.emusegs give
-exactly the same output as mustart and muend
+exactly the same output as start and end
 respectively.
 }
 

@@ -1,4 +1,4 @@
-\name{+,-,*,/.trackdata}
+\name{Arithmetic.trackdata}
 \alias{-.trackdata}
 \alias{+.trackdata}
 \alias{/.trackdata}
@@ -12,12 +12,7 @@
 \description{
   These are methods of the generic arithmetic functions that perform arithmetic operations on track data objects in the same way as arithmetic operations on other objects.
 }
-\usage{
-x + y
-x - y
-x / y
-x * y
-}
+
 
 \arguments{
 	\item{x}{track data object}

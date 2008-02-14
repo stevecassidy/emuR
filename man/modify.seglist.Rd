@@ -39,10 +39,10 @@ modify.seglist(segs, labels, start, end, utts, query, type, database)
 \seealso{ \code{\link{emu.query}} }
 
 \examples{
-library(emu)
-segs <- emu.query("demo","*","Phonetic=vowel")
+data(vowlax)
+segs = vowlax
 # extend the start times by 10ms
-newsegs <- modify.seglist( segs, start=mustart(segs)+10 )
+newsegs <- modify.seglist( segs, start=start(segs)+10 )
 
 # change the associated database name
 # this will affect where emu.track looks to find data

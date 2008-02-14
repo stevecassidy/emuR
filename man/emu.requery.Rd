@@ -8,7 +8,7 @@
   the segment that follows or one dominated by the original segment. 
 }
 \usage{
-emu.requery(segs, level, targetlevel=level, justlabels=F, sequence=0, longerok=F)
+emu.requery(segs, level, targetlevel=level, justlabels=FALSE, sequence=0, longerok=FALSE)
 }
 \arguments{
  \item{segs}{ An Emu segment list }
@@ -79,25 +79,23 @@ emu.requery(segs, level, targetlevel=level, justlabels=F, sequence=0, longerok=F
 \seealso{ \code{\link{emu.query}} }
 
 \examples{
-library(emu)
-segs <- emu.query("demo", "*", "Phonetic=vowel")
+
+data(vowlax)
+
+# find all Phonetic vowels in the database
+\dontrun{segs <- emu.query("demo", "*", "Phonetic=vowel")}
+\dontshow{segs = vowlax}
 
 ## find the word level segments 
-wsegs <- emu.requery(segs, level="Phonetic", targetlevel="Text")
-
-## now find the Phonetic segments corresponding to the words
-## this will give the complete transcription, eg. (SAID -  s->E->d->H)
-psegs <- emu.requery(wsegs, level="Text", targetlevel="Phonetic")
-
-# if instead we want all of the Phonetic segments seperately:
-psegs <- emu.requery(wsegs, level="Text", targetlevel="Phonetic", longerok=T)
+\dontrun{wsegs <- emu.requery(segs, level="Phonetic", targetlevel="Text")}
+\dontshow{wsegs = vowlax.word}
 
 # now find the Phonetic segment that follows the original vowels:
-nsegs <- emu.requery(segs, level="Phonetic", sequence=1)
-
+\dontrun{nsegs <- emu.requery(segs, level="Phonetic", sequence=1)}
+\dontshow{nsegs <- vowlax.right}
 # and the one that preceeds them, but only get the labels this time
-prelabs <- emu.requery(segs, level="Phonetic", sequence=-1, justlabels=T)
-
+\dontrun{prelabs <- emu.requery(segs, level="Phonetic", sequence=-1, justlabels=TRUE)}
+\dontshow{prelabs <- vowlax.left}
 
 
 }

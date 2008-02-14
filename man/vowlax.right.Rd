@@ -1,6 +1,6 @@
 \name{vowlax.right}
 \alias{vowlax.right}
-\title{Emu Dataset}
-\usage{data(vowlax.right)}
-\description{Vector of labels following the vowels from the segment list vowlax}
+\title{Vector of labels following the vowels from the segment list vowlax}
+\usage{vowlax.right}
+\description{An EMU dataset}
 \keyword{datasets}

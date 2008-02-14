@@ -1,6 +1,6 @@
 \name{dorfric.w}
 \alias{dorfric.w}
-\title{Emu Dataset}
-\usage{data(dorfric.w)}
-\description{Vector of the word labels from the segment list dorfric}
+\title{Vector of the word labels from the segment list dorfric}
+\usage{dorfric.w}
+\description{An EMU dataset}
 \keyword{datasets}

@@ -1,6 +1,6 @@
 \name{bridge}
 \alias{bridge}
-\title{Emu Dataset}
-\usage{data(bridge)}
-\description{Three-columned matrix}
+\title{Three-columned matrix}
+\usage{bridge}
+\description{An EMU dataset}
 \keyword{datasets}

@@ -1,6 +1,6 @@
 \name{f2geraus.l}
 \alias{f2geraus.l}
-\title{Emu Dataset}
-\usage{data(f2geraus.l)}
-\description{Vector of labels parallel to f2geraus to identify the language.}
+\title{Vector of labels parallel to f2geraus to identify the language.}
+\usage{f2geraus.l}
+\description{An EMU dataset}
 \keyword{datasets}

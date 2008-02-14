@@ -1,4 +1,4 @@
-\name{by}
+\name{by.trackdata}
 \alias{by.trackdata}
 \alias{by}
 
@@ -7,16 +7,20 @@
    A given function 'FUN' is applied to the data corresponding to each segment of data.
 }
 \usage{
-   by(trackdata, fun, ..., simplify = FALSE)
+  \method{by}{trackdata}(data, INDICES=NULL,FUN, \dots, simplify = FALSE
+)
 }
 \arguments{
-  \item{trackdata}{a track data object }
-  \item{fun}{a function that is applied to each segment}
+  \item{data}{a track data object }
+  \item{INDICES} {a list of segment indices, like a label vector}
+  \item{FUN}{a function that is applied to each segment}
   \item{\dots}{ arguments of the function fun}
   \item{simplify}{simplify = TRUE , output is a matrix; simplify = FALSE a list is returned}
 }
 
 \details{
+It is the same as trackapply but with the extension to subsume calculation to groups of segments.
+Note, if you do not want to apply the function fun to a special group of segments, use \link{trackapply} instead.
   by.trackdata() is provides a way of  applying a function iteratively
 to each segment of a trackdata object without the need
 for using a for-loop. It can be used to calculate, for example,
@@ -53,6 +57,7 @@ apply() - see examples below.
 
 
 \seealso{ 
+   \code{\link{trackapply}},
    \code{\link{by}},
    \code{\link{trackdata}}
    \code{\link{dapply}}
@@ -63,47 +68,32 @@ apply() - see examples below.
 
 
 \examples{
-   data(vowlax)
+  data(demo.vowels)
+  data(demo.vowels.fm)
 
-   #segment list vowlax - first segment only 
-   vowlax[1,]
-   
-   #F0 track data object for vowlax - first segment only 
-   vowlax.fund[1,]
 
-   #To get the maximum F0 value for each segment in the track data object
-   maxF0 = by(vowlax.fund, max)
-   
-   #maxF0 - for the first ten segments only 
-   maxF0[1:10]
-   \dontshow{readline(prompt = "Press return to advance.")}
+   #mean F1 subsumed for each vowel
+   ################################
+   lab = label(demo.vowels)
+   by(demo.vowels.fm[,1], lab ,mean ,simplify=FALSE)
 
-   #maxF0 is a list of length 410 because there are 410 segments in the track data object
-   length(maxF0)
-   nrow(vowlax.fund$index)
-   \dontshow{readline(prompt = "Press return to advance.")}
 
-   #get the the maximum F0 value for each segment in the track data object
-   #this time return a vector 
-   maxF0 = by(vowlax.fund, max, simplify=T)
-   maxF0[1:10]
-   \dontshow{readline(prompt = "Press return to advance.")}
-   
-   
+   #mean F1 subsumed for segment onsets mids and offsets
+   ##############################################
+   data = demo.vowels.fm
+   llabs = NULL
+   for (ind in 1:dim(data$ftime)[1]) {
+     seglabs = rep("mid",data$index[ind,2]-data$index[ind,1]+1)
+     seglabs[1] = "on"
+     seglabs[length(seglabs)] = "off"
+     llabs = as.vector(c(llabs , seglabs))
+   }
 
-   #another Example
-   #---------------
-   
-   data(dip)
-   #dip.fdat - formant F1, F2 track data of the segment list dip (see data(dip))
-   #Apply mean() to each column (F1 F2) to each segment in the track data object, 
-   #return a matrix 
-   
-   mean.dip.fdat = by(dip.fdat, apply, 2, mean, simplify=T)
-   mean.dip.fdat[1:10,] 
-   #the function in FUN is apply(X, MARGIN, FUN, ...), thus argument "2" and "mean"
-   #are arguments of apply.
+   by(demo.vowels.fm[,1], llabs , mean , simplify=FALSE)
 
+   #mean F1 subsumed for segment onsets mids and offsets subsumed for each vowel
+   #####################################################################
+   by(demo.vowels.fm[,1], list(lab = lab, llabs = llabs) , mean , simplify=FALSE)
 
 
 }

@@ -70,16 +70,16 @@ and the trackdata object has a single column of data.
      # the data values of the trackdata object at the temporal midpoint
      # (midvals is matrix of F1 and F2 data)
      dip.fdat[1:10]
-     midvals <- dcut(dip.fdat, 0.5, prop=T)
+     midvals <- dcut(dip.fdat, 0.5, prop=TRUE)
      midvals[1:10,]
-     \dontshow{readline(prompt = "Press return to advance.")}
+     
      
      # the data values of the trackdata object between 
      # extending from 20
      # (bet is a trackdata object of F1 and F2 values)
-     bet <- dcut(dip.fdat, 0.2, 0.8, prop=T)
+     bet <- dcut(dip.fdat, 0.2, 0.8, prop=TRUE)
      bet[1]
-     \dontshow{readline(prompt = "Press return to advance.")}
+     
 
      # the data values of the trackdata object at 30 ms after
      # the start time of the trackdata object
@@ -88,7 +88,7 @@ and the trackdata object has a single column of data.
      times[1:10]
      time30 <- dcut(dip.fdat, times)
      time30[1:10]
-     \dontshow{readline(prompt = "Press return to advance.")}
+     
 
      # the data values of the trackdata object 
      # between the  start time and 30 ms after the start  time

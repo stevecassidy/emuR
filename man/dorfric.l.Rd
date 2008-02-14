@@ -1,6 +1,6 @@
 \name{dorfric.l}
 \alias{dorfric.l}
-\title{Emu Dataset}
-\usage{data(dorfric.l)}
-\description{Vector of phoneme labels from the segment list dorfric}
+\title{Vector of phoneme labels from the segment list dorfric}
+\usage{dorfric.l}
+\description{An EMU dataset}
 \keyword{datasets}

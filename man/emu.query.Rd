@@ -41,14 +41,16 @@ speech data corresponding to each token.
 
 ## assumes a database called demo is available on your system and that
 ## the Emu system is installed. 
-
+data(vowlax)
 # find all Phonetic vowels in the database
-segs <- emu.query("demo", "*", "Phonetic=vowel")
+\dontrun{segs <- emu.query("demo", "*", "Phonetic=vowel")}
+\dontshow{segs = vowlax}
 # display summary information on the segments found
 summary(segs)
 # get formant data at the midpoint and plot it
-data <- emu.track( segs, "fm", cut=0.5 )
-eplot( data[,1:2], label( segs ), dopoints=T )
+\dontrun{data <- emu.track( segs, "fm", cut=0.5 )}
+\dontshow{data = vowlax.fdat.5}
+eplot( data[,1:2], label( segs ), dopoints=TRUE )
 
 
 }

@@ -25,14 +25,7 @@ data: a three columned matrix with the formant values of the first three formant
    \code{\link{trackdata}}   
 }
 
-\examples{
-    packpath = .path.package(package = "emu", quiet = FALSE)
-      sepa = .Platform$file.sep
-      nfile = "demo-vowel-fm.dat"
-      filepath = paste(packpath,sepa,"demo",sepa,nfile,sep = "")
-     
- demo.vowels.fm <- read.trackdata(filepath)
-}
+
 
 
 \keyword{datasets}

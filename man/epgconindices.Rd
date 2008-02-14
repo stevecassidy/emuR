@@ -45,10 +45,10 @@ blending in Catalan consonant clusters. Journal of Phonetics, 29, 273-301. }
 #  Anteriority index: trackdata
 ai <- epgai(coutts.epg)
 #  Dorsopalatal index, one-columned matrix
-di <- epgdi(dcut(coutts.epg, 0.5, prop=T))
+di <- epgdi(dcut(coutts.epg, 0.5, prop=TRUE))
 # Next to examples: Centrality  index, one-columed matrix
 ci <- epgci(palate(coutts.epg))
-ci <- epgci(palate(dcut(coutts.epg, 0.5, prop=T)))
+ci <- epgci(palate(dcut(coutts.epg, 0.5, prop=TRUE)))
 
 }
 

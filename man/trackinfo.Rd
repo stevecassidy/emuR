@@ -23,7 +23,7 @@
 
 \examples{
    #tracks that are defined for data base kielread06
-   trackinfo("kielread06")   
+   \dontrun{trackinfo("kielread06")}   
 }
 %\keyword{emu}
 \keyword{utilities}

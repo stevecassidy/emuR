@@ -6,7 +6,9 @@
 \description{
   The function returns the dimension attributes of a track data object.
 }
-\usage{dim(x)}
+\usage{
+     \method{dim}{trackdata}(x)
+}
 
 \arguments{
 \item{x} {a track data object}

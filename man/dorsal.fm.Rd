@@ -1,6 +1,6 @@
 \name{dorsal.fm}
 \alias{dorsal.fm}
-\title{Emu Dataset}
-\usage{data(dorsal.fm)}
-\description{Trackdata of formants from the segment list dorsal}
+\title{Trackdata of formants from the segment list dorsal}
+\usage{dorsal.fm}
+\description{An EMU dataset}
 \keyword{datasets}

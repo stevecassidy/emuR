@@ -80,12 +80,12 @@ readline("press enter to continue")
 
 # as above but
 # no gridlines, different colour, numbering rather than times
-epgplot(p[,,c(2, 8)], gridlines=F, col="pink", numbering=T)
+epgplot(p[,,c(2, 8)], gridlines=FALSE, col="pink", numbering=TRUE)
 readline("press enter to continue")
 
 # as above but with a user-specified title
 
-epgplot(p[,,c(2, 8)], gridlines=F, col="pink", numbering=c("s1", "s2"))
+epgplot(p[,,c(2, 8)], gridlines=FALSE, col="pink", numbering=c("s1", "s2"))
 readline("press enter to continue")
 
 # plot the palatograms in the second

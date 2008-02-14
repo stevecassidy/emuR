@@ -1,6 +1,6 @@
 \name{sib.dft}
 \alias{sib.dft}
-\title{Emu Dataset}
-\usage{data(sib.dft)}
-\description{Spectral trackdata object from the segment list sib.}
+\title{Spectral trackdata object from the segment list sib.}
+\usage{sib.dft}
+\description{An EMU dataset}
 \keyword{datasets}

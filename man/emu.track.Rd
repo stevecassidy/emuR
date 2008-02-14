@@ -75,14 +75,17 @@ emu.track(seglist, trackname, cut=NULL, npoints=NULL, template=attr(seglist, "da
 
 ## assumes a database called demo is available on your system and that
 ## the Emu system is installed. 
+data(vowlax)
 
 # find all Phonetic vowels in the database
-segs <- emu.query("demo", "*", "Phonetic=vowel")
-
+\dontrun{segs <- emu.query("demo", "*", "Phonetic=vowel")}
+\dontshow{segs = vowlax}
 # get formant data at the midpoint, returns an array
-data.mid <- emu.track( segs, "fm", cut=0.5 )
+\dontrun{data.mid <- emu.track( segs, "fm", cut=0.5 )}
+\dontshow{data.mid = vowlax.fdat.5}
 # get formant data for entire tracks, returns trackdata
-data.all <- emu.track( segs, "fm" )
+\dontrun{data.all <- emu.track( segs, "fm" )}
+\dontshow{data.all = vowlax.fdat}
 summary(data.all)
 
 

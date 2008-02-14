@@ -1,6 +1,6 @@
 \name{dorsal.vlab}
 \alias{dorsal.vlab}
-\title{Emu Dataset}
-\usage{data(dorsal.vlab)}
-\description{Vector of vowel labels from the segment list dorsal.}
+\title{Vector of vowel labels from the segment list dorsal.}
+\usage{dorsal.vlab}
+\description{An EMU dataset}
 \keyword{datasets}

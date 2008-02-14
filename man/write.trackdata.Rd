@@ -32,7 +32,7 @@
    
    #There is a file emu.write.track.example.txt written to R_HOME/
    #that includes the track data
-   \dontshow{readline(prompt = "Press return to advance.")}
+   
    unlink("emu.write.track.example.txt")
 
 }

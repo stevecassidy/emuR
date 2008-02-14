@@ -1,6 +1,6 @@
 \name{vowlax.l}
 \alias{vowlax.l}
-\title{Emu Dataset}
-\usage{data(vowlax.l)}
-\description{Vector of phoneme labels from the segment list vowlax}
+\title{Vector of phoneme labels from the segment list vowlax}
+\usage{vowlax.l}
+\description{An EMU dataset}
 \keyword{datasets}

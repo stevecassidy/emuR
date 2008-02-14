@@ -1,6 +1,6 @@
 \name{engassim.w}
 \alias{engassim.w}
-\title{Emu Dataset}
-\usage{data(engassim.w)}
-\description{Vector of word labels from the segment list engassim.}
+\title{Vector of word labels from the segment list engassim.}
+\usage{engassim.w}
+\description{An EMU dataset}
 \keyword{datasets}

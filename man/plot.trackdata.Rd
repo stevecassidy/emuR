@@ -10,14 +10,14 @@ as a function of time for several segments.
 }
 
 \usage{
-plot.trackdata (trackdata, timestart = NULL, xlim = NULL, ylim = NULL, labels = NULL, 
+\method{plot}{trackdata}(x, timestart = NULL, xlim = NULL, ylim = NULL, labels = NULL, 
 col = NULL, lty = NULL, contig = TRUE,  ...) 
 }
 
 
 
 \arguments{
-  \item{trackdata}{A trackdata object.}
+  \item{x}{A trackdata object.}
   \item{timestart}{ A single valued numeric vector for setting
 the time at which the trackdata should start. Defaults
 to NULL which means that the start time is taken from start(trackdata), i.e. the time at which the trackdata object starts.}
@@ -95,17 +95,17 @@ plot(coutts.sam, type="l", timestart=0, labels=labs)
 
 # plot each segment in its own window.
 par(mfrow=c(2,3))
-plot(coutts.sam, type="l", labels=labs, contig=F)
+plot(coutts.sam, type="l", labels=labs, contig=FALSE)
 
 
 # plot each segment in its own window and set timestart to 0 ms, set the colour to red
 par(mfrow=c(2,3))
-plot(coutts.sam, type="l", labels=labs, timestart=0, contig=F, col="red")
+plot(coutts.sam, type="l", labels=labs, timestart=0, contig=FALSE, col="red")
 
 # F1 and F2 of six vowels with labels
 
 par(mfrow=c(2,3))
-plot(vowlax.fdat[1:6,1:2], contig=F, labels=vowlax.l[1:6], ylab="F1 and F2", 
+plot(vowlax.fdat[1:6,1:2], contig=FALSE, labels=vowlax.l[1:6], ylab="F1 and F2", 
 xlab="Time (ms)", type="b", ylim=c(300, 2400))
 
 }

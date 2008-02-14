@@ -47,9 +47,10 @@ the times corresponding to the first and last rows of data.
 }
 
 \examples{
-library(emu)
-segs <- emu.query("demo", "*", "Phonetic=vowel")
-fm <- emu.track(segs, "fm")
+
+data(dip)
+## formant data of the first segment in segment list dip
+fm <- dip.fdat[1]
 
 testfun <- function(data, ftime, n) {
   ## return only the first n rows of data

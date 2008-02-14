@@ -38,7 +38,7 @@ res = dbnorm(e.dft, 1500, 0)
 # compare the two
 ylim = range(c(res, e.dft))
 plot(e.dft, ylim=ylim, type="l")
-par(new=T)
+par(new=TRUE)
 plot(res, ylim=ylim, type="l", col=2)
 
 }

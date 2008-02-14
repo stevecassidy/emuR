@@ -25,7 +25,7 @@ must be same as the number of observations in dataset, i.e.
 length(ref.time) must be equal to nrow(dataset$index). Trackdata
 observations are lined up at t = 0 ms, where t is relative
 to the times in this vector. }
-  \item{average}{ If T, the data for each unique label in 'labs' is averaged }
+  \item{average}{ If TRUE, the data for each unique label in 'labs' is averaged }
   \item{main}{ A character vector for a main title for the plot. }
   \item{xlab}{ A character vector for the x-axis label.  }
   \item{ylab}{ A character vector for the y-axis label. }
@@ -34,8 +34,8 @@ to the times in this vector. }
   \item{cex}{ The 'cex' parameter passed to 'par' to control text size on
           the plot }
   \item{linetype}{ A single element logical vector. Defaults to F. 
-If T,  plot each label type in a different linetype}
-  \item{normalise}{ If T, the data for each segment is linearly time normalised so
+If TRUE,  plot each label type in a different linetype}
+  \item{normalise}{ If TRUE, the data for each segment is linearly time normalised so
           that all observations have the same length. The number of points
 used in the linear time normalisation is control by the argument n. }
   \item{colour}{ A single element logical vector. Defaults to T 
@@ -77,48 +77,48 @@ The number of data points used to linearly time normalise each track }
 
    # Plot of column 1 (which happens to be the 1st formant) of an EMU-trackdata object
    dplot(dip.fdat[,1])
-	\dontshow{readline(prompt = "Press return to advance.")}
+	
 
    # As above but only observations 1 to 5
    dplot(dip.fdat[1:5,1])
-	\dontshow{readline(prompt = "Press return to advance.")}
+	
 
    #  column 2 (which happens to be of the second formant) and colour-coded
    # for each label-type
    dplot(dip.fdat[,2], dip.l)
-	\dontshow{readline(prompt = "Press return to advance.")}
+	
 
    # put the legend bottom left
    dplot(dip.fdat[,2], dip.l, legend="bottomleft")
-	\dontshow{readline(prompt = "Press return to advance.")}
+	
 
    # as above with no legend and averaged per category
-   dplot(dip.fdat[,2], dip.l, legend=F, average=T)
-	\dontshow{readline(prompt = "Press return to advance.")}
+   dplot(dip.fdat[,2], dip.l, legend=FALSE, average=TRUE)
+	
 
    # both formants averaged
-   dplot(dip.fdat[,1:2], dip.l, average=T)
-	\dontshow{readline(prompt = "Press return to advance.")}
+   dplot(dip.fdat[,1:2], dip.l, average=TRUE)
+	
 
    # F2 only with linear-time normalisation
-   dplot(dip.fdat[,2], dip.l, norm=T)
-	\dontshow{readline(prompt = "Press return to advance.")}
+   dplot(dip.fdat[,2], dip.l, norm=TRUE)
+	
 
    # linear time-normalisation, both formants and averaged
-   dplot(dip.fdat[,1:2], dip.l, norm=T, average=T)
-	\dontshow{readline(prompt = "Press return to advance.")}
+   dplot(dip.fdat[,1:2], dip.l, norm=TRUE, average=TRUE)
+	
 
    # synchronise at the temporal midpoint before averaging, F2 only
-   dplot(dip.fdat[,2], dip.l, offset=0.5, average=T)
-	\dontshow{readline(prompt = "Press return to advance.")}
+   dplot(dip.fdat[,2], dip.l, offset=0.5, average=TRUE)
+	
 
    # synchronise 60 ms before the diphthong offset
    dplot(dip.fdat[,2], dip.l, ref.time=dip.fdat$ftime[,2]-60)
-	\dontshow{readline(prompt = "Press return to advance.")}
+	
 
    # as above averaged, no colour with linetype and averaged
    dplot(dip.fdat[,2], dip.l, ref.time=dip.fdat$ftime[,2]-60,
-   average=T, colour=F, linetype=T)
+   average=TRUE, colour=FALSE, linetype=TRUE)
 
 
 

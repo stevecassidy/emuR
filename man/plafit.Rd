@@ -40,11 +40,8 @@ of the parabola as a function of time from the coefficients.
 plafit(vowlax.fund[1,]$data)
 
 # return the fitted values of the polynomial
-plafit(vowlax.fund[1,]$data, fit=T)
+plafit(vowlax.fund[1,]$data, fit=TRUE)
 
-# obtain coefficients for the first three segments
-# of f0 data in the trackdata object vowlax.fund
-by(vowlax.fund[1:3,], plafit, simplify=T)
 }
 
 

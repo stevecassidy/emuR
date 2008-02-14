@@ -1,6 +1,6 @@
 \name{fric.w}
 \alias{fric.w}
-\title{Emu Dataset}
-\usage{data(fric.w)}
-\description{Vector of word labels from the segment list fric.}
+\title{Vector of word labels from the segment list fric.}
+\usage{fric.w}
+\description{An EMU dataset}
 \keyword{datasets}

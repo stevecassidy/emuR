@@ -1,6 +1,6 @@
 \name{coutts.epg}
 \alias{coutts.epg}
-\title{Emu Dataset}
-\usage{data(coutts.epg)}
-\description{EPG-compressed trackdata from the segment list coutts}
+\title{EPG-compressed trackdata from the segment list coutts}
+\usage{coutts.epg}
+\description{An EMU dataset}
 \keyword{datasets}

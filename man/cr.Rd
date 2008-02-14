@@ -63,31 +63,31 @@ an exponential (see expon using exp( - rad(bw/2, samfreq = samfreq).  }
 \examples{
 # cosine wave
 cr()
-\dontshow{readline(prompt = "Press return to advance.")}
+
 # doubling the frequency, 1/3 amplitude, phase = pi/4, 50 points
 cr(A=1/3, k=2, p=pi/4, N=50)
-\dontshow{readline(prompt = "Press return to advance.")}
+
 # sum 3 sinusoids of different frequencies)
 cr(k=c(1, 3, 4))
-\dontshow{readline(prompt = "Press return to advance.")}
+
 # sum 2 sinusoids of different parameters
 cr(c(1, 2), c(2, 10), c(0, -pi/3), N=200, type="l")
-\dontshow{readline(prompt = "Press return to advance.")}
+
 
 # store the above to a vector and overlay with noise
-v = cr(c(1, 2), c(2, 10), c(0, -pi/3), N=200, type="l", values=T)
+v = cr(c(1, 2), c(2, 10), c(0, -pi/3), N=200, type="l", values=TRUE)
 r = runif(200, -3, 3)
 v = v+r
 plot(0:199, v, type="l")
-\dontshow{readline(prompt = "Press return to advance.")}
+
 
 # 100 points of a 50 Hz sinusoid with a 4 Hz bandwidth 
 # at a sampling frequency of 200 Hz
 cr(k=50, bw=4, samfreq=2000, N=100)
-\dontshow{readline(prompt = "Press return to advance.")}
+
 # the same but shift the y-axis by +4 (d.c. offset=+4)
 cr(const=4, k=50, bw=4, samfreq=2000, N=100)
-\dontshow{readline(prompt = "Press return to advance.")}
+
 # sinusoid multiplied by a decaying exponential (same effect as bandwidth)
 cr(expon=-0.95,  N=200, type="l")
 

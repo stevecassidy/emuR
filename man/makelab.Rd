@@ -33,7 +33,7 @@ all time values for that utterance.}
    vowlax.fdat[1:2,]
 
    #Formant values of the midpoint of the segment
-   vowlax.fdat.5 = dcut(vowlax.fdat,0.5,prop=T)
+   vowlax.fdat.5 = dcut(vowlax.fdat,0.5,prop=TRUE)
 
    #the time marks of the midpoint of the segment
    times = vowlax.fdat.5[1:2,1]

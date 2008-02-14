@@ -10,7 +10,7 @@
    Track data objects are created by emu.track().
 }
 \usage{
-   rbind(...)
+     \method{rbind}{trackdata}(\dots)
 }
 
 \arguments{
@@ -57,7 +57,7 @@
    #the combined track data object
    #The first ten rows in $data keep vowlax.fund data, the 11th to last row keeps vowlax.rms data 
    fund.rms.lax
-   \dontshow{readline(prompt = "Press return to advance.")}
+   
 
 }
 

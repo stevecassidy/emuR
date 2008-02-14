@@ -1,6 +1,6 @@
 \name{isol.fdat}
 \alias{isol.fdat}
-\title{Emu Dataset}
-\usage{data(isol.fdat)}
-\description{Trackdata of formants from the segment list isol}
+\title{Trackdata of formants from the segment list isol}
+\usage{isol.fdat}
+\description{An EMU dataset}
 \keyword{datasets}

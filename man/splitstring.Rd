@@ -19,8 +19,8 @@ A vector of strings.  The original \code{str} is split at ever occurrence of
 \code{char} to generate a vector of strings. 
 }
 \examples{
-> splitstring("/home/recog/steve/foo", "/")
-[1] "home" "recog" "steve" "foo"
+splitstring("/home/recog/steve/foo", "/")
+#[1] "home" "recog" "steve" "foo"
 }
 \keyword{misc}
 % Converted by Sd2Rd version 0.3-3.

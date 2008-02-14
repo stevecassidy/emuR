@@ -1,6 +1,6 @@
 \name{polhom}
 \alias{polhom}
-\title{Emu Dataset}
-\usage{data(polhom)}
-\description{Segment list of four Polish homorganic fricatives from database epgpolish.}
+\title{Segment list of four Polish homorganic fricatives from database epgpolish.}
+\usage{polhom}
+\description{An EMU dataset}
 \keyword{datasets}

@@ -17,7 +17,7 @@ mu.colour(labs, col = TRUE, linetype = FALSE, lwd = NULL)
   \item{col}{ A code passed to the 'col'
 argument in plotting functions. There are four possibilities. Either
 logical, a character vector, or a numeric vector.
-In the first case, if T, then a different numeric
+In the first case, if TRUE, then a different numeric
 code is given for each unique label type. For example,
 if labs is c("a", "b", "a", "c"), then
 the output is c(1, 2, 1, 3). If F, then for this
@@ -50,7 +50,7 @@ linetypes, i.e. the values passed to lty
 in plotting functions.There are 2 possibilities.
 Either
 logical, a character vector, or a numeric vector.
-In the first case, if T, then a different numeric
+In the first case, if TRUE, then a different numeric
 code is given for each unique label type. For example,
 if labs is c("a", "b", "a", "c"), then
 the output is c(1, 2, 1, 3). If F, then for this
@@ -82,7 +82,7 @@ NULL in which case all lines are drawn with lwd=1  }
    Parameters are also supplied for use with the function 'legend' 
 }
 \value{
-  If it is a LIST, use
+  If it is a LISTRUE, use
   \item{colour }{A code for the color'}
   \item{linetype }{A code for the linetype}
 \item{lwd} {A code for the line width}
@@ -107,25 +107,25 @@ the parameters for the 'legend' function.
 \examples{
 # examples will be given using the above functions
 # b/w but with different linetypes
-eplot(vowlax.fdat.5[,1:2], vowlax.l, col=F, linetype=T)
-\dontshow{readline(prompt = "Press return to advance.")}
+eplot(vowlax.fdat.5[,1:2], vowlax.l, col=FALSE, linetype=TRUE)
+
 # user-defined colors
 eplot(vowlax.fdat.5[,1:2], vowlax.l, col=c("green", "blue", "red", "orange"))
-\dontshow{readline(prompt = "Press return to advance.")}
+
 # spectral plot, user-defined colors, the last one is dotted
 # and with a line-thickness of 2
 plot(vowlax.dft.5[1:20,], vowlax.l[1:20], 
 col=c("green", "blue", "red", "orange"), 
 fun=mean, lty=c(1, 1, 1, 2), lwd=c(1, 1, 1, 2))
-\dontshow{readline(prompt = "Press return to advance.")}
+
 # similar but using dplot()
 dplot(vowlax.fdat[1:20,2], vowlax.l, 
 col=c("green", "blue", "red", "orange"), 
 lwd=c(1, 1, 1, 2), linetype=c(1, 1, 1, 2))
-\dontshow{readline(prompt = "Press return to advance.")}
+
 # the default except plot everything with a dotted line
-dplot(vowlax.fdat[,2], vowlax.l, average=T, linetype=2)
-\dontshow{readline(prompt = "Press return to advance.")}
+dplot(vowlax.fdat[,2], vowlax.l, average=TRUE, linetype=2)
+
 # the default except plot everything with a dotted line and
 # with double line thickness
 eplot(vowlax.fdat.5[,1:2], vowlax.l, linetype=2, lwd=2)

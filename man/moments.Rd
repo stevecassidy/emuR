@@ -34,7 +34,7 @@ mom <- moments(bridge[,2])
 # first four moments of a spectral vector with the dB values
 # reset so that the minimum dB value is 0. The d.c. offset is also
 # excluded in the calculation
-mom <- moments(e.dft[-1], minval=T)
+mom <- moments(e.dft[-1], minval=TRUE)
 # the temporal skew of F1 for the 10th segment. Use
 m <- moments(vowlax.fdat[10,1]$data)[3]
 

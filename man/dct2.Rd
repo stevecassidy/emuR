@@ -3,7 +3,7 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Discrete Cosine Transformation }
 \description{
-  Obtain the coefficients of the discrete cosine transformation (DCT).
+  Obtain the coefficients of the discrete cosine transformation (DCTRUE).
 }
 
 
@@ -79,15 +79,16 @@ the Acoustical Society of America,  94, 19661982. }
 \code{\link{by}}
 }
 \examples{
+data(vowlax)
 # obtain the first four DCT coefficients 
 # (frequencies k = 0, 1, 2, 3) for some 
 # first formant frequency data
 vec <- vowlax.fdat[1,1]$data
-dct(vec, k=4)
+dct(vec, m=4)
 
 # obtain the corresponding smoothed
 # trajectory
-dct(vec, fit=T, k=4)
+dct(vec, m=4 , fit=TRUE)
 }
 
 \keyword{math}

@@ -1,6 +1,6 @@
 \name{dorsal.sam}
 \alias{dorsal.sam}
-\title{Emu Dataset}
-\usage{data(dorsal.sam)}
-\description{Trackdata of acoustic waveform from the segment list dorsal}
+\title{Trackdata of acoustic waveform from the segment list dorsal}
+\usage{dorsal.sam}
+\description{An EMU dataset}
 \keyword{datasets}

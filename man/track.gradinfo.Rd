@@ -40,12 +40,12 @@
 \seealso{ \code{\link{emu.track}}, \code{\link{dapply}} }
 
 \examples{
-library(emu)
-segs <- emu.query("demo","*","Phonetic=vowel")
+data(vowlax)
+segs = vowlax
 ## fm has 4 columns
-data.fm <- emu.track(segs, "fm")
+data.fm <-vowlax.fdat
 ## F0 has one
-data.F0 <- emu.track(segs, "F0")
+data.F0 <- vowlax.fund
 ## info.fm will have duration, 4xstart, 4xend, 4xdelta, 4xslope
 info.fm <- track.gradinfo(data.fm)
 ## this should be true

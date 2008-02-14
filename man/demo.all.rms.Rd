@@ -25,15 +25,6 @@ data: a vector with the rms data
    \code{\link{trackdata}}
 }
 
-\examples{
-    packpath = .path.package(package = "emu", quiet = FALSE)
-      sepa = .Platform$file.sep
-      nfile = "demo-all-rms.dat"
-      filepath = paste(packpath,sepa,"demo",sepa,nfile,sep = "")
-     
-     demo.all.rms <- read.trackdata(filepath)
-
-}
 
 
 \keyword{datasets}
