@@ -17,7 +17,6 @@
 
 
 
-
 ## return the index of the value in vec which is closest to val
 "closest" <- function(vec, val)
 {
@@ -30,7 +29,7 @@
 
 
 
-"label.num" <- function(labs)
+"label_num" <- function(labs)
 {
   ## labs: a vector of labels
   ## convert labels to integers
@@ -44,11 +43,11 @@
 }
 
 
-## label.convert --
+## label_convert --
 ##  map one set of labels to another in a segment
 ##  list or label vector
 ##
-"label.convert" <- function(segs.or.labels, match, replace)
+"label_convert" <- function(segs.or.labels, match, replace)
 {
   if (is.seglist( segs.or.labels ) ) {
     labs <- label(segs.or.labels)
@@ -59,7 +58,7 @@
     ## this is only ok if length(replace) == 1 so that we
     ## replace anything in match with replace
     if( length(replace) != 1 ) {
-      stop("Lengths of match and replace vectors differ in label.convert")
+      stop("Lengths of match and replace vectors differ in label_convert")
     } 
   }
 
@@ -99,14 +98,14 @@
   !(is.na(match(labels, class)))
 }
 
-"randomise.segs" <-  function( segs, rand = T, bwd=F )
+"randomise.segs" <-  function( segs, rand = TRUE, bwd=FALSE )
 {
   if( bwd ){
     ## reverse the segment list
-    segs[slen(segs):1,]
+    segs[nrow(segs):1,]
   } else {
     ## randomise the segment list
-    segs[sample(1:slen(segs)),]
+    segs[sample(1:nrow(segs)),]
   }
 }
 
@@ -136,7 +135,7 @@
 
 
 "rad" <-
-function(vec, samfreq = 20000, hz = T)
+function(vec, samfreq = 20000, hz = TRUE)
 {
 # hz: if T, vec is a vector in Hertz, otherwise it's radians
 # convert from radians to Hz, or Hz to radians
@@ -197,7 +196,7 @@ else return(dat)
 
 
 "dbtopower" <-
-function(specdata, const = 10, base=10, inv=F)
+function(specdata, const = 10, base=10, inv=FALSE)
 {
 # function for converting from db to power and back
 if(is.trackdata(specdata))
@@ -217,7 +216,7 @@ else return(result)
 
 
 "shift" <-
-function(x, delta = 1,  circular = T)
+function(x, delta = 1,  circular = TRUE)
 {
 ## converts x[n] into x[n-1] by multiplying the Fourier
 ## transform on x[n] by z^-1 i.e. by e^-iw
@@ -229,8 +228,45 @@ if(!circular) {
 N <- length(x) + length(h) - 1
 x <- c(x, rep(0, N - length(x)))
 }
-filter(x, h, sides = 1, circular = T)[1:N]
+filter(x, h, sides = 1, circular = TRUE)[1:N]
 
+}
+
+
+
+
+
+splitstring <- function(str,char) {
+  if(str == "")
+    mat <- c(str)
+  else {
+    mat <- NULL
+    ind <- 1
+    cont <- TRUE
+    while(TRUE) {
+      ministr <- NULL
+      length <- 0
+      while(TRUE) {
+	ch <- substring(str, ind, ind)
+	if(ch == char) {
+	  ind <- ind + 1
+	  break
+	}
+	if(ch == "") {
+	  break
+	}
+	ministr <- c(ministr, ch)
+	ind <- ind + 1
+	length <- length + 1
+      }
+      ## now concatenate string
+      if(length > 0)
+	mat <- c(mat, paste(ministr, collapse = ""))
+      if(ch == "")
+	break
+    }
+  }
+  mat
 }
 
 
