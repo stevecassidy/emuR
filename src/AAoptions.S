@@ -102,7 +102,7 @@ the variable 'version'.")
     ## it isn't found
     crashout <- FALSE
     modified <- FALSE
-
+  if (interactive()) {
     while( !crashout  &&
           !file.exists( paste( bindir, gettrack, sep=dirsep ) ) ) {
 
@@ -114,7 +114,9 @@ the variable 'version'.")
       cat( "Enter nothing and press return to exit this configuration loop.\n\n")
 
       ## we assign to the global namespace to make sure this is retained
-      emu.directory <<-  readline( "Emu Directory: " )
+
+       emu.directory <<-  readline( "Emu Directory: " )
+    
       modified <- TRUE
       if( emu.directory == "" ) {
         crashout <- TRUE
@@ -122,6 +124,7 @@ the variable 'version'.")
         bindir <- paste(emu.directory, "bin", sep=dirsep)
       }
     }
+   }
     
     if( crashout ) { return( FALSE ) }
     if( modified && is.R() ) {
