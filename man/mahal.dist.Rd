@@ -6,7 +6,10 @@ Calculate mahalanobis distances
 \usage{
 mahal.dist(data, train, labels = NULL)
 }
-\description{}
+\description{
+Calculates mahalanobis distances
+
+}
 \arguments{
 \item{data}{
 A matrix of numerical data points.

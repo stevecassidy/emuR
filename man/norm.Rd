@@ -6,7 +6,9 @@ Normalise speech data
 \usage{
 norm(data, speakerlabs, type="gerst", rescale=FALSE)
 }
-\description{}
+\description{
+Normalises speech data
+}
 \arguments{
 \item{data}{
 A matrix of data. Can be either an n-columned matrix or a trackdata

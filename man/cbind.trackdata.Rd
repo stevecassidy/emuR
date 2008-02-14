@@ -4,7 +4,7 @@
 
 \title{ A method of the generic function cbind for objects of class \'trackdata\'}
 \description{
-   Different track data objects from one segment list are bound by combining the $data
+   Different track data objects from one segment list are bound by combining the \$data
    columns of the track data object by columns. 
 }
 \usage{
@@ -17,14 +17,14 @@
 
 \details{
    All track data objects have to be track data of the same segment list. 
-   Thus $index and $ftime values have to be identically for all track data objects.
+   Thus \$index and \$ftime values have to be identically for all track data objects.
    Track data objects are created by emu.track().
    The number of rows of the track data objects must match.
 }
 
 \value{
-  A track data object with the same $index and $ftime values of the source track data objects and 
-  with $data that includes all columns of $data of the source track data objects.
+  A track data object with the same \$index and \$ftime values of the source track data objects and 
+  with \$data that includes all columns of \$data of the source track data objects.
 }
 
 \author{Jonathan Harrington}

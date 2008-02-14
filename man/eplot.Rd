@@ -40,8 +40,8 @@ of the ellipse contours. Defaults to 0.95}
   \item{linetype}{If linetype is TRUE) the ellipses will be plotted with
           different linetypes.  This is useful for plots that will be
           printed.}
-  \item{boundary}{ If TRUE, the plotting area is divided into nboundary^2 equally spaced points
-(default = 50^2 = 2500) and all these points are classified as one of the 
+  \item{boundary}{ If TRUE, the plotting area is divided into nboundary\eqn{\mbox{\textasciicircum}}{^}2 equally spaced points
+(default = 50\eqn{\mbox{\textasciicircum}}{^}2 = 2500) and all these points are classified as one of the 
 label types in labs. The colour-coded classified label is superimposed on the plot.  }
 \item{lwd}{ A code passed to the lwd argument
 in plotting functions.
@@ -78,7 +78,7 @@ NULL in which case all lines are drawn with lwd=1 }
    eplot(data, phonetic, form=TRUE, main="F1 x F2 plane", centroid=TRUE)
    eplot(data, phonetic, form=TRUE, main="F1 x F2 plane", dopoints=TRUE)
    eplot(data, phonetic, form=TRUE, main="F1 x F2 plane in Bark", dopoints=TRUE, scaling="bark")
-   eplot(data, phonetic, form=TRUE, main="F1 x F2 plane in Bark b/w with linetype", colour=FALSE, linetype=TRUE, dopoints=TRUE, scaling="bark") 
+   eplot(data, phonetic, form=TRUE, main="F1 x F2 plane in Bark b/w with linetype", colour=FALSE, linetype=TRUE, dopoints=TRUE, scaling="bark") 
    eplot(data, phonetic, form=TRUE, main="F1 x F2 plane", doellipse=FALSE, dopoints=TRUE)
    eplot(data, phonetic, form=TRUE, dopoints=TRUE, prob=0.5, main="F1 x F2 plane, 50\% confidence intervals")
    eplot(data, phonetic, form=TRUE, dopoints=TRUE, nsdev=2, main="F1 x F2 plane, 2 standard deviations")
@@ -89,7 +89,7 @@ NULL in which case all lines are drawn with lwd=1 }
    
 
    temp <- phonetic=="O"
-   eplot(data[temp,], phonetic[temp], word[temp], form=TRUE, dopoints=TRUE, main="[O] only showing word labels")  
+   eplot(data[temp,], phonetic[temp], word[temp], form=TRUE, dopoints=TRUE, main="[O] only showing word labels")  
    eplot(data, phonetic, form=TRUE,  dopoints=TRUE, boundary=TRUE, main="F1 x F2 plane with Bayesian classification")
    eplot(data, phonetic, form=TRUE,  dopoints=TRUE, boundary=TRUE, nboundary=100, main="Bayesian classification with more points classified")
    

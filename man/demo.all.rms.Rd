@@ -7,9 +7,9 @@
    It is the result of get rms data for the segment list demo.all (data(demo.all)).
 }
 \format{
- A object with $index, $ftime and $data
+ A object with \$index, \$ftime and \$data
  
-index: a two columned matrix with the range of the $data rows that belong to the segment
+index: a two columned matrix with the range of the \$data rows that belong to the segment
 ftime: a two columned matrix with the times marks of the segment
 data: a vector with the rms data
 

@@ -25,9 +25,9 @@ The function is applied separately to each category type specified in labs }
 in specdata specifying the frequencies at which the
 spectral data is to be plotted. If not supplied, defaults to trackfreq(specdata) }
   \item{type}{ A single element character vector for the linetype }
-  \item{power}{ Logical. If T, then specdata (or specdata$data
+  \item{power}{ Logical. If T, then specdata (or specdata\$data
 if specdata is a trackdata object, is converted to
-a * specdata^b, where a and b have the values given in powcoeffs.
+a * specdata\eqn{\mbox{\textasciicircum}}{^}b, where a and b have the values given in powcoeffs.
 This operation is applied before b }
   \item{powcoeffs}{ A two-element numeric vector. Defaults to c(10, 10) }
   \item{dbnorm}{ Logical. If T, apply dB-level normalization

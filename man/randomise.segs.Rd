@@ -6,7 +6,10 @@
 \usage{
 randomise.segs(segs,  rand=TRUE, bwd=FALSE)
 }
-\description{}
+\description{
+  Randomises or Reverses items in a segment list
+
+}
 \arguments{
 \item{segs}{
 An Emu segment list.

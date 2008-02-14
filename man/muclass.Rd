@@ -6,7 +6,9 @@ Find common elements in vectors
 \usage{
 muclass(labels, class)
 }
-\description{}
+\description{
+Finds common elements in vectors 
+}
 \arguments{
 \item{labels}{
 A vector of labels. 

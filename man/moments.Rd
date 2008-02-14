@@ -19,7 +19,7 @@ and more generally if count contains negative values.}
 }
 \details{
   The units of the first moment are the same as x,
-the units of the second moment are x ^2, and the
+the units of the second moment are x\eqn{\mbox{\textasciicircum}}{^}2, and the
 third and fourth moments are dimensionless.
 }
 

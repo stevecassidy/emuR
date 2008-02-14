@@ -7,9 +7,9 @@
 }
    
 \format{
-  \item{$index}{a two columned matrix; each row keeps the first and last index of the $data rows that belong to one segment}
-  \item{$ftime}{a two columned matrix; each row keeps the times marks of one segment}
-  \item{$data}{a multi-columned matrix with the real track values for each segment}
+  \item{\$index}{a two columned matrix, each row keeps the first and last index of the \$data rows that belong to one segment}
+  \item{\$ftime}{a two columned matrix, each row keeps the times marks of one segment}
+  \item{\$data}{a multi-columned matrix with the real track values for each segment}
 }
 
    

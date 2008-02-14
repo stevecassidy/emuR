@@ -33,13 +33,13 @@ A	11880.8	12184.8	msdjc004\
 E	17188.3	17366.4	msdjc005\
 ei	20315.2	20655.2	msdjc006"
 
-cat(seglist.txt, file="seglist.txt")
+\dontrun{cat(seglist.txt, file="seglist.txt")}
 
 # now read it back as a segment list
-segs <- read.emusegs("seglist.txt")
-segs
+\dontrun{segs <- read.emusegs("seglist.txt")}
+\dontrun{segs}
 ## and clean up
-unlink("seglist.txt")
+\dontrun{unlink("seglist.txt")}
 
 }
 

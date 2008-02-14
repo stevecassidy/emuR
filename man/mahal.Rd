@@ -6,7 +6,9 @@ Classify using Mahalanobis distance
 \usage{
 mahal(data, train)
 }
-\description{}
+\description{
+Classifies using Mahalanobis distance
+}
 \arguments{
 \item{data}{
 A vector or matrix of data
@@ -40,8 +42,6 @@ Speech Communication
 }
 \seealso{
 train
-}
-\examples{
 }
 \keyword{misc}
 % Converted by Sd2Rd version 0.3-3.

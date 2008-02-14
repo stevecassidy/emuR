@@ -6,14 +6,18 @@ Find the time and position of a data element.
 \usage{
 frames.time(dataset, datanum)
 }
-\description{}
+\description{
+Finds the time and position of a data element.
+
+}
 \arguments{
 \item{dataset}{
 A dataset returned by \code{track} or \code{frames}.
 }
 \item{datanum}{
 An integer, an index into the \code{data} component of \code{dataset}. 
-}}
+}
+}
 \value{
 The segment number which contains the element \code{datanum} of \code{dataset$data}.
 }

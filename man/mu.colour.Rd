@@ -86,8 +86,8 @@ NULL in which case all lines are drawn with lwd=1  }
   \item{colour }{A code for the color'}
   \item{linetype }{A code for the linetype}
 \item{lwd} {A code for the line width}
-\item{legend} {A list consisting of $legend$lab, 
-$legend$lty and $legend$lwd that specify
+\item{legend} {A list consisting of \$legend\$lab, 
+\$legend\$lty and \$legend\$lwd that specify
 the parameters for the 'legend' function.
 
   ...

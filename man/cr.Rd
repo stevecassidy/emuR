@@ -6,7 +6,10 @@
   The function plots and/or sums digital sinusoids for different parameter settings.
 }
 \usage{
-cr(A = 1, k = 1, p = 0, N = 16, samfreq = NULL, duration = NULL, const = NULL, expon = NULL, plotf = TRUE, ylim = NULL, xlim = NULL, values = FALSE, xlab = "Time (number of points)", ylab = "Amplitude", type = "b", bw = NULL, dopoints = FALSE, ...)
+cr(A = 1, k = 1, p = 0, N = 16, samfreq = NULL, duration = NULL, 
+const = NULL, expon = NULL, plotf = TRUE, ylim = NULL, 
+xlim = NULL, values = FALSE, xlab = "Time (number of points)", 
+ylab = "Amplitude", type = "b", bw = NULL, dopoints = FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -33,7 +36,7 @@ A ms value can be supplied only if the sampling frequency is also specified. }
 up or down the y-axis. For example, when const is 5, then
 5 + s, where s is the sinusoid is plotted. Defaults to 0 (zero). }
   \item{expon}{ A numeric vector. If supplied, then what is
-plotted is expon[j]^(c(0:(N - 1) *   A cos (2 * pi * k/N * (0:(N-1))).
+plotted is expon[j]\eqn{\mbox{\textasciicircum}}{^}(c(0:(N - 1) *   A cos (2 * pi * k/N * (0:(N-1))).
 For example, a decaying sinusoid is produced with cr(expon=-0.9).
 Defaults to NULL (i.e. to expon = 1).}
   \item{plotf}{ A single-valued logical vector. If T (default), 

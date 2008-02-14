@@ -42,7 +42,7 @@ the dB values at those frequencies.
 
 \author{Jonathan Harrington}
 
-\references{  Traunmueller, H. (1990) "Analytical expressions for the tonotopic sensory scale" J. Acoust. Soc. Am. 88: 97-100.}
+\references{  Traunmueller, H. (1990) \"Analytical expressions for the tonotopic sensory scale\" J. Acoust. Soc. Am. 88: 97-100.}
 
 \seealso{ 
      \code{\link{bark}},  
@@ -63,7 +63,7 @@ the dB values at those frequencies.
         mel(vec)
         
 
-        # convert the $data values in a trackdata object to mel
+        # convert the \$data values in a trackdata object to mel
         # create a new track data object
 
         t1 <- dip.fdat

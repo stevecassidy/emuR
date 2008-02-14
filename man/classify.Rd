@@ -1,31 +1,27 @@
 \name{classify}
 \alias{classify}
-\title{ ~~function to do ... ~~ }
+\title{ classify}
 \description{
-%  ~~ A concise (1-5 lines) description of what the function does. ~~
+classifies data
 }
+
 \usage{
 classify(data, train, metric = "bayes")
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
-  \item{data}{ ~~Describe \code{data} here~~ }
-  \item{train}{ ~~Describe \code{train} here~~ }
-  \item{metric}{ ~~Describe \code{metric} here~~ }
+  \item{data}{ data to classify}
+  \item{train}{training data}
+  \item{metric}{bayes or mahal}
 }
-\details{
-}
+
 \value{
-  \item{comp1 }{Description of 'comp1'}
-  \item{comp2 }{Description of 'comp2'}
-  ...
+The calssification matrix.
 }
-\references{ ~put references to the literature/web site here ~ }
+
 \author{ Jonathan Harrington }
-\note{ ~~further notes~~ }
 
 
-\seealso{  }
 \examples{
 
 ## The function is currently defined as

@@ -24,7 +24,7 @@ should be plotted. Defaults to True.}
 \value{
 A list containing regression diagnostics of
 the function lm() that can be accessed with
-summary() and the estimated locus frequency in $locus.
+summary() and the estimated locus frequency in \$locus.
 A plot of values in the onset x target plane
 with superimposed locus equation and line onset=target.
 }

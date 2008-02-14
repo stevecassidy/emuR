@@ -6,7 +6,9 @@ Write an Emu segment list to a file
 \usage{
    write.emusegs(seglist, file)
 }
-\description{}
+\description{
+Writes an Emu segment list to a file
+}
 \arguments{
    \item{seglist}{An Emu segment list}
    \item{file}{The name of a file to write the segment list into.}
@@ -26,11 +28,10 @@ Write an Emu segment list to a file
    data(dip)
    #dip a segment list - first 10 segments only
    dip[1:10,]
-   write.emusegs(dip, "write.emusegs.example.txt")
+   \dontrun{write.emusegs(dip, "write.emusegs.example.txt")}
    
-   #The file write.emusegs.example.txt is written to R_HOME
-   readline(prompt = "Press return to advance.")
-   unlink("write.emusegs.example.txt")
+   #The file write.emusegs.example.txt would have been written to R_HOME
+   \dontrun{unlink("write.emusegs.example.txt")}
 }
 \keyword{misc}
 

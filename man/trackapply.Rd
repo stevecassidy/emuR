@@ -21,7 +21,7 @@ to each segment of a trackdata object without the need
 for using a for-loop. It can be used to calculate, for example,
 the mean value of the data values of each segment separately.
 Any function that can be applied sensibly to
-trackdata[j]$data where j is a segment number can be
+trackdata[j]\$data where j is a segment number can be
 used as the fun argument to trackapply(). It is also possible
 to write your own function and use trackapply() to apply
 it separately to each segment.
@@ -89,22 +89,6 @@ apply() - see examples below.
    
    
    
-
-   #another Example
-   #---------------
-   
-   data(dip)
-   #dip.fdat - formant F1, F2 track data of the segment list dip (see data(dip))
-   #Apply mean() to each column (F1 F2) to each segment in the track data object, 
-   #return a matrix 
-   
-   mean.dip.fdat = trackapply(dip.fdat,apply , 2, mean, simplify = TRUE)
-   mean.dip.fdat[1:10,] 
-   #the function in FUN is apply(X, MARGIN, FUN, ...), thus argument "2" and "mean"
-   #are arguments of apply.
-
-
-
 }
 
 \keyword{methods}

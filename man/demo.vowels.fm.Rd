@@ -7,9 +7,7 @@
    It is the result of get fm data for the segment list demo.vowels (see data(demo.vowels)).
 }
 \format{
- An object with $index, $ftime and $data
- 
-index: a two columned matrix with the range of the $data rows that belong to the segment
+index: a two columned matrix with the range of the \$data rows that belong to the segment
 ftime: a two columned matrix with the times marks of the segment
 data: a three columned matrix with the formant values of the first three formants for each segment  
 

@@ -15,21 +15,9 @@
   \item{smoothing}{ if TRUE track is smoothed }
 }
 
-%\value{
-%  ~Describe the value returned
-%  If it is a LIST, use
-%  \item{comp1 }{Description of 'comp1'}
-%  \item{comp2 }{Description of 'comp2'}
-%  ...
-%}
 
 \author{ Jonathan Harrington}
 
-%\seealso{ ~~objects to See Also as \code{\link{~~fun~~}}, ~~~ }
-%\examples{
-%
-%
-%}
 
 \keyword{math}
 

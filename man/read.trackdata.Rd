@@ -28,19 +28,19 @@
    data(dip)
    #Formant track data of the segment list dip (see data(dip)) - first segment only
    dip.fdat[1]
-   write.trackdata(dip.fdat, "emu.write.track.example.txt")
+   \dontrun{write.trackdata(dip.fdat, "emu.write.track.example.txt")}
 
    #There is a file emu_write.track.example.txt written to R_HOME/
    #that includes the track data
    
    #Now load the track data into R
-   dip.fdat.rl = read.trackdata("emu.write.track.example.txt", "fm")
-   dip.fdat.rl[1] 
+   \dontrun{dip.fdat.rl = read.trackdata("emu.write.track.example.txt", "fm")}
+   \dontrun{dip.fdat.rl[1]} 
    
    #Now load the track data into R without argument trackname
-   dip.fdat.rl = read.trackdata("emu.write.track.example.txt")
-   dip.fdat.rl[1] 
-   unlink("emu.write.track.example.txt")
+   \dontrun{dip.fdat.rl = read.trackdata("emu.write.track.example.txt")}
+   \dontrun{dip.fdat.rl[1]} 
+   \dontrun{unlink("emu.write.track.example.txt")}
 }
 %\keyword{emu}
 \keyword{IO}

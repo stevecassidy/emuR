@@ -18,7 +18,7 @@ plotted at these times only. Note: this argument
 should only be used if epgdata is temporally contiguous, 
 i.e. the entire trackdata object contains palatograms at
 successive multiple times of the EPG sampling frequency.
-(as in coutts.epg$ftime). Defaults to  NULL, in which
+(as in coutts.epg\$ftime). Defaults to  NULL, in which
 case  palatograms are plotted for all
 times available in epgdata. }
  \item{numbering}{ Either "times" (default), or logical T, or a character
@@ -41,7 +41,7 @@ plotted.  Note: this argument
 should only be used if epgdata is temporally contiguous, 
 i.e. the entire trackdata object contains palatograms at
 successive multiple times of the EPG sampling frequency.
-(as in coutts.epg$ftime). Defaults to NULL (plot all
+(as in coutts.epg\$ftime). Defaults to NULL (plot all
 time values). }
  \item{col}{ specify a colour for plotting the filled EPG cells. }
  \item{mar}{ A numerical vector of the form 'c(bottom, left, top, right)'
@@ -62,31 +62,25 @@ rectangle is empty.
 
 \examples{
 epgplot(polhom.epg[10,])
-readline("press enter to continue")
 
 # as above but between times 1295 ms and 1330 ms
 epgplot(polhom.epg[10,], xlim=c(1295, 1330))
-readline("press enter to continue")
 
 # the same as above, but the data is first
 # converted to a 3D palatographic array
 p <- palate(polhom.epg[10,])
 epgplot(p, xlim=c(1295, 1330))
-readline("press enter to continue")
 
 # plot palatograms 2 and 8
 epgplot(p[,,c(2, 8)])
-readline("press enter to continue")
 
 # as above but
 # no gridlines, different colour, numbering rather than times
 epgplot(p[,,c(2, 8)], gridlines=FALSE, col="pink", numbering=TRUE)
-readline("press enter to continue")
 
 # as above but with a user-specified title
 
 epgplot(p[,,c(2, 8)], gridlines=FALSE, col="pink", numbering=c("s1", "s2"))
-readline("press enter to continue")
 
 # plot the palatograms in the second
 # segment of coutts.epg that are closest in time

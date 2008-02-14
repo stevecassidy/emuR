@@ -7,9 +7,9 @@
    It is the result of get F0 data for the segment list demo.vowels (see data(demo.vowels)).
 }
 \format{
- An object with $index, $ftime and $data
+ An object with \$index, \$ftime and \$data
  
-index: a two columned matrix with the range of the $data rows that belong to the segment
+index: a two columned matrix with the range of the \$data rows that belong to the segment
 ftime: a two columned matrix with the times marks of the segment
 data: a one columned matrix with the F0 values
 

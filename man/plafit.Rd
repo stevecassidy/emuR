@@ -27,7 +27,7 @@ of the vector i.e. such htat the fitted parabola and original vector have the sa
 
 \value{
 The function returns the coefficients of
-c0, c1, c2 in the parabola  y = c0 + c1t + c2t^2
+c0, c1, c2 in the parabola  y = c0 + c1t + c2t\eqn{\mbox{\textasciicircum}}{^}2
 where t extends between -1 and 1. The function
 can also be used to derive the values 
 of the parabola as a function of time from the coefficients.

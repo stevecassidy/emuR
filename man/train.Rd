@@ -6,7 +6,9 @@ Train a Gaussian Model
 \usage{
 train(x, lab)
 }
-\description{}
+\description{
+Trains a Gaussian Model
+}
 \arguments{
 \item{x}{
 A data vector or matrix.

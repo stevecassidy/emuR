@@ -1,23 +1,8 @@
 \name{dur}
 \alias{dur}
 \docType{data}
-\title{ ~~ data name/kind ... ~~}
+\title{ duration }
 \description{
-  ~~ A concise (1-5 lines) description of the dataset. ~~
+calculates durations
 }
-\usage{dur}
-
-\details{
-  ~~ If necessary, more details than the __description__ above ~~
-}
-%\source{
-%  ~~ reference to a publication or URL from which the data were obtained ~~
-%}
-%\references{
-%  ~~ possibly secondary sources and usages ~~
-%}
-%\examples{
-%##data(dur)
-%## maybe str(dur) ; plot(dur) ...
-%}
 \keyword{attribute}

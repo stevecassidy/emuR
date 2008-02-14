@@ -22,7 +22,7 @@ and offsets respectively; 0.5 denotes synchronization at the
 temporal midpoint, etc. }
   \item{ref.time}{ A numeric vector. The length of the vector
 must be same as the number of observations in dataset, i.e.
-length(ref.time) must be equal to nrow(dataset$index). Trackdata
+length(ref.time) must be equal to nrow(dataset\$index). Trackdata
 observations are lined up at t = 0 ms, where t is relative
 to the times in this vector. }
   \item{average}{ If TRUE, the data for each unique label in 'labs' is averaged }
@@ -66,7 +66,6 @@ The number of data points used to linearly time normalise each track }
 \value{
  NULL
 }
-\references{ }
 \author{Jonathan Harrington}
 
 \seealso{ 

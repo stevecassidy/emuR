@@ -27,11 +27,11 @@ Defaults to figsize = 8. }
   \item{incircle}{ Logical. If T, plot an the angle between digital points in the circle. }
   \item{arrow}{ Logical. If T, plot an arrow on incircle showing the direction of movement. }
   \item{linetype}{ Specify a linetype. Same function as lty in plot }
-  \item{textplot}{ A list containing $radius, $textin, $pivals
+  \item{textplot}{ A list containing \$radius, \$textin, \$pivals
 for plotting text at specified angles and radii on
-the circle. $radius: a vector of  amplitudes of the radii at
-which the text is to be plotted; $textin: a vector
-of chacacter labels to be plotted; $pivals: the angle, in radians
+the circle. \$radius: a vector of  amplitudes of the radii at
+which the text is to be plotted; \$textin: a vector
+of chacacter labels to be plotted; \$pivals: the angle, in radians
 relative to  zero radians (top of the circle) at which
 the text is to be plotted. Defaults to NULL }
   \item{lineplot}{ Plot lines from the centre of the circle
@@ -39,8 +39,8 @@ the text is to be plotted. Defaults to NULL }
  the angle in radians (zero corresponds to the top of the circle) }
   \item{ylab}{ Specify a y-axis label. }
   \item{super}{ Superimpose a part solid circle and corresponding
- sinusoid. This needs to be a list containing $first and
-$last, which are values between 0 and 2*pi defining
+ sinusoid. This needs to be a list containing \$first and
+\$last, which are values between 0 and 2*pi defining
  the beginning and ending of the part circle which is
  to be superimposed }
   \item{xaxlab}{ Now redundant }

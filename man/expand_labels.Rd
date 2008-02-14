@@ -3,7 +3,9 @@
 \title{
 Label each data sample
 }
-\description{}
+\description{
+Labels each data sample
+}
 \usage{
  expand_labels(indvals, labs)
 }

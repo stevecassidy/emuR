@@ -17,10 +17,10 @@ dbtopower(specdata, const = 10, base = 10, inv = FALSE)
 from a logarithmic to an anti-logarithmic form, otherwise the other way round }
 }
 \details{
-   The function returns base^(specdata/const) if 
+   The function returns base\eqn{\mbox{\textasciicircum}}{^}(specdata/const) if 
 inv=F, otherwise,  const * log(dat, base=base). If the object
 to which this function is applied is of class 'trackdata'
-then this function is applied to $data. 
+then this function is applied to \$data. 
 }
 \value{
   An object of the same class.

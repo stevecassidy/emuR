@@ -10,7 +10,6 @@
 \usage{
 dcut(trackdata, left.time, right.time, single = TRUE, average = TRUE, prop = FALSE)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{trackdata}{ An Emu trackdata object. }
   \item{left.time}{ Either: a numeric vector of the same length
@@ -55,12 +54,7 @@ a vector if right.time' is unspecified
 and the trackdata object has a single column of data.
 
 }
-\references{ ~put references to the literature/web site here ~ }
 \author{ Jonathan Harrington }
-%\note{ ~~further notes~~ 
-%
-% ~Make other sections like Warning with \section{Warning }{....} ~
-%
 \seealso{ 
      \code{\link{emu.track}},  
      \code{\link{dplot}},

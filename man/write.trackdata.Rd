@@ -28,12 +28,12 @@
    data(dip)
    #Formant track data of the segment list dip (see data(dip)) - first segment only
    dip.fdat[1]
-   write.trackdata(dip.fdat, "emu.write.track.example.txt")
+   \dontrun{write.trackdata(dip.fdat, "emu.write.track.example.txt")}
    
-   #There is a file emu.write.track.example.txt written to R_HOME/
+   #There is a file emu.write.track.example.txt would have been written to R_HOME/
    #that includes the track data
    
-   unlink("emu.write.track.example.txt")
+   \dontrun{unlink("emu.write.track.example.txt")}
 
 }
 

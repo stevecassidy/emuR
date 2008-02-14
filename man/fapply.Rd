@@ -13,12 +13,19 @@ fapply(specdata, fun, ..., power = FALSE, powcoeffs = c(10, 10))
   \item{specdata}{ A matrix or trackdata object of class spectral }
   \item{fun}{ A function to be applied. }
   \item{\dots}{ Optional arguments to fun }
-  \item{power}{ A single element logical vector. If T, convert specdata to
-power values i.e. apply the function to a * specdata^b or a * specdata$data^b
-where a and b powcoeffs defined below. }
-  \item{powcoeffs}{ A 2 element numeric vector for converting dB values to power values.
-Defaults to a = 10 and b = 10. See \code{power}}
+  \item{power}{
+A single element logical vector. If T, convert specdata to
+power values i.e. apply the function to a * specdata \eqn{\mbox{\textasciicircum}}{^}b 
+or a * specdata\$data \eqn{\mbox{\textasciicircum}}{^}b
+where a and b powcoeffs defined below. 
 }
+\item{powcoeffs}{
+A 2 element numeric vector for converting dB values to power values.
+Defaults to a = 10 and b = 10. See \code{power}.
+}
+
+}
+
 \details{
   fapply performs a similar operation to apply except that it
 is specifically designed for handling EMU spectral objects.
@@ -35,7 +42,7 @@ depending on the function that is applied.
 \section{Warning }{The function can be very slow
 if applied to a large trackdata object. In this case,
 it may be faster to use a for-loop with the desired
-function around $data}
+function around \$data}
 
 \seealso{
 \code{\link{apply}}

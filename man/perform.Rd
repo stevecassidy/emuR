@@ -6,7 +6,10 @@ Performance (hit rate) of a confusion matrix
 \usage{
 perform(data)
 }
-\description{}
+\description{
+Performs (hit rate) of a confusion matrix
+
+}
 \arguments{
 \item{data}{
 A confusion matrix.

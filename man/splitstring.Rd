@@ -6,7 +6,9 @@ Split a string into words.
 \usage{
 splitstring(str,char)
 }
-\description{}
+\description{
+Splits a string into words.
+}
 \arguments{
 \item{str}{
 A string.

@@ -13,7 +13,7 @@ of track values obtained at a single time point using dcut() }
 }
 
 \details{
-  Every $data value in a trackdata object is
+  Every \$data value in a trackdata object is
 associated with a time at which it occurs
 in the utterance. This function returns those
 times.

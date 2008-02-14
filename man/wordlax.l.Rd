@@ -5,21 +5,4 @@
 \description{
    For wordlax (see data(vowlax))
 }
-%\format{
-%  NA
-%
-%}
-%
-%\details{ 
-%  NA
-%}
-%
-\seealso{
-   \code{\link{segmentlist}}
-}
-%
-%\examples{
-%}
-
-
 \keyword{datasets}

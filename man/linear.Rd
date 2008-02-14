@@ -6,7 +6,9 @@ Perform linear time normalisation on trackdata.
 \usage{
 linear(dataset, n=20)
 }
-\description{}
+\description{
+Performs linear time normalisation on trackdata.
+}
 \arguments{
 \item{dataset}{
 A trackdata object as returned by \code{track}.

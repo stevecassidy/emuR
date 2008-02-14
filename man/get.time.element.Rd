@@ -6,7 +6,10 @@ Get data for a given time
 \usage{
 get.time.element(timeval, dataset)
 }
-\description{}
+\description{
+Gets data for a given time
+
+}
 \arguments{
 \item{timeval}{
 A time in milliseconds

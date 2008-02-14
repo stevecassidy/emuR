@@ -8,7 +8,9 @@ Find the inter-euclidean distance for a data matrix
 \usage{
 euclidean(data, m=1, n=ncol(data))
 }
-\description{}
+\description{
+Finds the inter-euclidean distance for a data matrix
+}
 \arguments{
    \item{data}{
    A vector or matrix of numerical data. 
