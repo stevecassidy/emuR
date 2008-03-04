@@ -36,7 +36,7 @@ check:	emudir
 # without this
 R: $(SFILES) emudir 
 	#rm  emu_*gz emu_*zip
-	$R CMD build --binary emu
+	###$R CMD build --binary emu
 	#tar xzf emu_$(VERSION)*.tar.gz
 	#gzip -r emu_$(VERSION).zip emu
 	#tar czf emu_$(VERSION)_R.tar.gz emu
