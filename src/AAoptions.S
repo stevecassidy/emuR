@@ -1,15 +1,15 @@
-#############################################################################
-#                                                                           #
-#   copyright            : (C) 2000 SHLRC, Macquarie University             #
-#   email                : Steve.Cassidy@mq.edu.au			    #
-#   url			 : http://www.shlrc.mq.edu.au/emu		    #
-#									    #
-#   This program is free software; you can redistribute it and/or modify    #
-#   it under the terms of the GNU General Public License as published by    #
-#   the Free Software Foundation; either version 2 of the License, or       #
-#   (at your option) any later version.                                     #
-#									    #
-#############################################################################
+##############################################################################
+##                                                                           #
+##   copyright            : (C) 2000 SHLRC, Macquarie University             #
+##   email                : Steve.Cassidy@mq.edu.au			     #
+##   url			 : http://www.shlrc.mq.edu.au/emu	     #
+##								             #
+##   This program is free software; you can redistribute it and/or modify    #
+##   it under the terms of the GNU General Public License as published by    #
+##   the Free Software Foundation; either version 2 of the License, or       #
+##   (at your option) any later version.                                     #
+##                                                                           #
+##############################################################################
 
 
 
@@ -22,8 +22,8 @@ emu.platform <- function(what) {
        version$os == "mingw32") {
       return(what == "Windows")
     } else if (
-	version$os == "MacOS" ||
-	substr(version$os,0,6) == "darwin" ) {
+               version$os == "MacOS" ||
+               substr(version$os,0,6) == "darwin" ) {
       return(what == "MacOS")
     } else {
       return(what == "Unix")
@@ -74,78 +74,94 @@ emu.version<-"3.0"
   filepath = paste(packpath,sepa,nfile,sep = "")
   
   if (file.exists(filepath)) {
-    emu.directory <- readLines(con = filepath)
-  } 
-	
-  if (emu.platform("MacOS")) {
-    dirsep <- ":"
-    gettrack <- ""
-  } else if (emu.platform("Windows")) {
-    dirsep <- "\\"
-    gettrack <- "gettrack.exe"
-  } else if (emu.platform("Unix")) {
-    dirsep <- "/"
-    gettrack <- "gettrack"
+    tcllibpaths <- readLines(con = filepath)
+    w <- tcllibpaths!=""
+    tcllibpaths <- tcllibpaths[w]
   } else {
-    stop("Panic! I can't work out what platform I'm running on!\
+    tcllibpaths=character(0)
+  }
+
+  if (length(tcllibpaths)==0) {
+    if (emu.platform("MacOS")) {
+      user <- Sys.getenv("USER")
+      tcllibpaths <- c("/Library/Tcl",paste("/Users/",user,"/Library/Tcl",sep=""))
+    } else if (emu.platform("Windows")) {
+      tcllibpaths <- "C:\\Program Files\\Emu\\lib"
+    } else if (emu.platform("Unix")) {
+      tcllibpaths <- "/usr/local/lib"
+    } else {
+      stop("Panic! I can't work out what platform I'm running on!\
 Please report this as  a bug at http://sf.net/projects/emu including\
 details of the operating system you are running on and the value of\
 the variable 'version'.")
+    }
   }
+  
 
-  if (emu.platform("MacOS")) {
-    bindir <- ""
-  } else {
-    bindir <- paste(emu.directory, "bin", sep=dirsep)                   
+  ## test emu.directory to find one of the executables, query if
+  ## it isn't found
+  crashout <- FALSE
+  modified <- FALSE
 
-    ## test emu.directory to find one of the executables, query if
-    ## it isn't found
-    crashout <- FALSE
-    modified <- FALSE
+  if ( class( try( library( "tcltk" ), silent=TRUE )) == "try-error" ) {
+    cat( "Error trying to load tcltk. Make sure your R version is\n" )
+    cat( "tcltk enabled.\n")
+    cat( "On Macintosh OS X try loading X11\n")
+    return( FALSE )
+  }
+  for (path in tcllibpaths) {
+    addTclPath(path)
+  }
+  tclfound <- tclRequire( "emuR" ,warn = FALSE )
+  
   if (interactive()) {
-    while( !crashout  &&
-          !file.exists( paste( bindir, gettrack, sep=dirsep ) ) ) {
+    while( !crashout  && class(tclfound) != "tclObj" ) {
 
-      cat( "Configuration error: emu.directory (", emu.directory, ") doesn't\n" )
-      cat( "correspond to an Emu installation.\n" )
-      cat( "Please enter the directory in which Emu is installed\n" )
-      cat( "on your system, eg. C:\\Program Files\\Emu on Windows \n" )
-      cat( "or /usr/local on Unix.\n\n" )
-      cat( "Enter nothing and press return to exit this configuration loop.\n\n")
+      cat( "Configuration error: Cannot find Emu Tcl libraries in\n" )
+      cat( tcllibpaths, sep=" or " )
+      cat( "\n" )
+      cat( "Please enter the directories seperated by \";\" in which\n" )
+      cat( "Emu libraries and tcllib >= 1.8 are installed on your system\n" )
+      cat( "eg. C:\\Program Files\\Emu\\lib on Windows\n" )
+      cat( "or /usr/local/lib on Unix.\n\n" )
+      cat( "Enter nothing and press return to exit this configuration loop.\n" )
+      cat( "\n")
 
       ## we assign to the global namespace to make sure this is retained
 
-       emu.directory <<-  readline( "Emu Directory: " )
-    
+      emu.directory <<-  readline( "Emu Directory: " )
+      
       modified <- TRUE
       if( emu.directory == "" ) {
         crashout <- TRUE
       } else {
-        bindir <- paste(emu.directory, "bin", sep=dirsep)
+        tcllibpaths=strsplit( emu.directory, ";" )[[1]]
+        for (path in tcllibpaths) {
+          addTclPath(path)
+        }
+        tclfound <- tclRequire( "emuR", warn = TRUE )
       }
     }
-   }
-    
-    if( crashout ) { return( FALSE ) }
-    if( modified && is.R() ) {
-
-      write(emu.directory, file = filepath)
-      cat("\nThis information was written to the file\n",
-      filepath,".\n") 
-           
-    }
-
   }
+  
+  if( crashout ) { return( FALSE ) }
+  if( modified && is.R() ) {
+
+    writeLines(tcllibpaths, con = filepath)
+    cat("\nThis information was written to the file\n",
+        filepath,".\n") 
+    
+  }
+
+
 
   if( is.R() ) {
     assign( "emu", 
-         list( 
-              version=emu.version,
-              deprecated.warnings=1,
-              bindir=bindir,
-              dirsep=dirsep,
-	      gettrack=gettrack
-              ),
+           list( 
+                version=emu.version,
+                deprecated.warnings=1,
+                libdir=tcllibpaths
+                ),
            env = .GlobalEnv )
   } 
 
@@ -153,7 +169,6 @@ the variable 'version'.")
   if( is.R() ) {
 
     library("stats")
-    
   }
 
   invisible()
@@ -161,7 +176,7 @@ the variable 'version'.")
 
 
 "emu.options" <- function( option ) {
-    laa = get("emu",env = .GlobalEnv)
-    return(laa[[option]])
+  laa = get("emu",env = .GlobalEnv)
+  return(laa[[option]])
 }
 
