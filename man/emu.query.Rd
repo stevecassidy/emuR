@@ -31,7 +31,7 @@ speech data corresponding to each token.
 \references{ See the Emu documentation at:
   \url{http://www.shlrc.mq.edu.au/emu} }
 \author{ Steve Cassidy <Steve.Cassidy@mq.edu.au> }
-\note{ This function calls an external program which is part of the Emu
+\note{ This function calls an external which are scripts via tcltk part of the Emu
   speech database system and so requires this system to be installed on
   your computer. See the Emu web site for details.  }
 
