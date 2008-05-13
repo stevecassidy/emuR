@@ -331,8 +331,8 @@
   ##requery
   tclRes <- .TclEval(sprintf("set nsegs [$%s requery %s %s]",
                             as.character(TclSegs), level, options))
-  on.exit(.TclEval(sprintf("$%s destroy",as.character(TclSegs))),add=T)
-  on.exit(.TclEval(sprintf("$%s destroy",as.character(tclRes))),add=T)
+  on.exit(.TclEval(sprintf("$%s destroy",as.character(TclSegs))),add=TRUE)
+  on.exit(.TclEval(sprintf("$%s destroy",as.character(tclRes))),add=TRUE)
   if (justlabels) {
     ##then TclRes is a simple Tcl list containing just labels
     result=splitstring(tclvalue(tclRes), " ")

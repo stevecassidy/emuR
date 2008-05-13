@@ -1,7 +1,7 @@
 #R = /Applications/StartR.app/RAqua.app/Contents/bin/R
 R = R
 
-VERSION = 3.0
+VERSION = 3.1
 
 ## Splus source files, note that options.S MUST come first as it has the 
 ## configurable settings in it. 
