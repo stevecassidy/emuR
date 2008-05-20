@@ -311,7 +311,7 @@
     options <- paste( options, "-justlabels" )
   if (sequence != 0)
     options <- paste( options, "-sequence", sequence )
-  if (longerok != 0)
+  if (longerok)
     options <- paste( options, "-longerok" )
   options <-  paste( options, "-targetlevel", targetlevel)
   s <- as.matrix(segs)
@@ -332,13 +332,15 @@
   tclRes <- .TclEval(sprintf("set nsegs [$%s requery %s %s]",
                             as.character(TclSegs), level, options))
   on.exit(.TclEval(sprintf("$%s destroy",as.character(TclSegs))),add=TRUE)
-  on.exit(.TclEval(sprintf("$%s destroy",as.character(tclRes))),add=TRUE)
   if (justlabels) {
     ##then TclRes is a simple Tcl list containing just labels
     result=splitstring(tclvalue(tclRes), " ")
     return(result)
   }
   else {
+    # if not justlabels, then tclRes is a snit object which will be destroyed
+    # on exit
+    on.exit(.TclEval(sprintf("$%s destroy",as.character(tclRes))),add=TRUE)
     ##then TclRes is a snit type seglist
     type = .TclEval(sprintf("$%s cget -type", as.character(tclRes)))
     type= .TclString(type)
