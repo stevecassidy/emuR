@@ -1,7 +1,7 @@
 #R = /Applications/StartR.app/RAqua.app/Contents/bin/R
 R = R
 
-VERSION = 3.1-1
+VERSION = 3.2
 
 ## Splus source files, note that options.S MUST come first as it has the 
 ## configurable settings in it. 
@@ -19,7 +19,7 @@ all: R
 emudir:  version-info 
 	rm -rf emu
 	mkdir  emu
-	sed -e 's/Version: [0-9.]*/Version: $(VERSION)/' DESCRIPTION > emu/DESCRIPTION
+	sed -e 's/Version: [0-9.-]*/Version: $(VERSION)/' DESCRIPTION > emu/DESCRIPTION
 	mkdir -p emu/R
 	mkdir -p emu/man 
 	mkdir -p emu/data
@@ -42,7 +42,7 @@ R: $(SFILES) emudir
 	#tar czf emu_$(VERSION)_R.tar.gz emu
 
 version-info:
-	sed -e 's/\(emu\.version<-\)"[0-9.]*"/\1"$(VERSION)"/' src/AAoptions.S > tmp
+	sed -e 's/\(emu\.version<-\)"[0-9.-]*"/\1"$(VERSION)"/' src/AAoptions.S > tmp
 	mv tmp src/AAoptions.S
 
 
