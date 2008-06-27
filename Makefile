@@ -1,7 +1,8 @@
 #R = /Applications/StartR.app/RAqua.app/Contents/bin/R
 R = R
 
-VERSION = 3.2
+VERSION = 3.3
+
 
 ## Splus source files, note that options.S MUST come first as it has the 
 ## configurable settings in it. 
@@ -9,7 +10,7 @@ VERSION = 3.2
 ## pick up the source files, note that AAoptions.S should always be the
 ## first file in this bundle
 SFILES = src/*.S 
-
+RFILES = src/*.R
 # documentation files in R doc format
 RDFILES = man/*.Rd
 
@@ -25,12 +26,13 @@ emudir:  version-info
 	mkdir -p emu/data
 	rm -f emu/R/* emu/man/*
 	cp $(SFILES) emu/R/
+	cp $(RFILES) emu/R/
 	cp man/*.Rd emu/man
 	cp  data/*.* emu/data
 
 check:	emudir
 	$Rcmd check emu
-	echo hier
+#	echo hier
 # note that we need --binary below not because we are building binary
 # code but because the resulting module won't load in Windows 
 # without this
@@ -53,4 +55,4 @@ version-info:
 # 	$Rcmd Rdindex $(RDFILES) > emu/INDEX
 
 emu-R.pdf: $(RDFILES)
-	$Rcmd Rd2dvi --pdf --title="Emu/R Documentation" --output=emu-R.pdf  $(RDFILES)
+#	$Rcmd Rd2dvi --pdf --title="Emu/R Documentation" --output=emu-R.pdf  $(RDFILES)
