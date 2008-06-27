@@ -19,10 +19,10 @@
 }
 
 \details{
-It is the same as trackapply but with the extension 
+It is the same as trapply but with the extension 
 to subsume calculation to groups of segments.
 Note, if you do not want to apply the function fun to a 
-special group of segments, use \link{trackapply} instead.
+special group of segments, use \link{trapply} instead.
 }
 \value{
   list or vector
@@ -32,7 +32,7 @@ special group of segments, use \link{trackapply} instead.
 
 
 \seealso{ 
-   \code{\link{trackapply}},
+   \code{\link{trapply}},
    \code{\link{by}},
    \code{\link{trackdata}}
    \code{\link{dapply}}
