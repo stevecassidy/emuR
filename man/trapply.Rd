@@ -83,7 +83,7 @@ apply() - see examples below.
    
 
    #Mean formant value per column (F1, F2, F3, F4) for the first 10 segments
-   trapply(vowlax.fdat[1:10,], apply, 2, mean, simplify=T)
+   trapply(vowlax.fdat[1:10,], apply, 2, mean, simplify=TRUE)
 
    #get the the maximum F0 value for each segment in the track data object
    #this time return a vector 
@@ -91,7 +91,7 @@ apply() - see examples below.
    maxF0[1:10]
    
    # get a track data object of DCT-smoothed (first two coefficients) F1 values
-   vowlax.fdat.F1.dct = trapply(vowlax.fdat[,1], dct, 2, T, buildtrack=T)
+   vowlax.fdat.F1.dct = trapply(vowlax.fdat[,1], dct, 2, T, buildtrack=TRUE)
    
    
 
