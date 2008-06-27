@@ -91,7 +91,7 @@ apply() - see examples below.
    maxF0[1:10]
    
    # get a track data object of DCT-smoothed (first two coefficients) F1 values
-   vowlax.fdat.F1.dct = trapply(vowlax.fdat[,1], dct, 2, T, buildtrack=TRUE)
+   vowlax.fdat.F1.dct = trapply(vowlax.fdat[,1], dct, 2, TRUE, buildtrack=TRUE)
    
    
 
