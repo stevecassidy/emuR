@@ -47,7 +47,7 @@ cat("\n",
 "\n(C) IPS, University of Munich 2008",
 "\n                                  ", 
 "\nR Package of the EMU Speech Database system - Version ", emu.options("version"),
-"\n\nBIN path of EMU Installation:", emu.options("bindir"), 
+"\n\nTcl lib path of EMU Installation:", emu.options("libdir"), 
 "\nFor configuration, modify file",filepath, "\n",
 "\nFor support requests, contact http://sourceforge.net/projects/emu \n")
 
