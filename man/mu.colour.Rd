@@ -9,7 +9,7 @@ in EMU plotting functions as is used mostly in calls
 from within plot.trackdata, plot.spectral, eplot, and dplot
 }
 \usage{
-mu.colour(labs, col = TRUE, linetype = FALSE, lwd = NULL)
+mu.colour(labs, col = TRUE, linetype = FALSE, lwd = NULL, pch = NULL)
 }
 
 \arguments{
@@ -77,6 +77,8 @@ then the output is c(3, 3, 3, 3). Alternatively,
 if lwd = c(2,3,1), then the output is
 c(2, 3, 2, 1) for the same example. The default is
 NULL in which case all lines are drawn with lwd=1  }
+\item{pch}{ A code passed to the pch argument
+in plotting functions. Functions in the same way as lwd above}
 }
 \details{
    Parameters are also supplied for use with the function 'legend' 
@@ -107,7 +109,7 @@ the parameters for the 'legend' function.
 \examples{
 # examples will be given using the above functions
 # b/w but with different linetypes
-eplot(vowlax.fdat.5[,1:2], vowlax.l, col=FALSE, linetype=TRUE)
+eplot(vowlax.fdat.5[,1:2], vowlax.l, col=FALSE, lty=TRUE)
 
 # user-defined colors
 eplot(vowlax.fdat.5[,1:2], vowlax.l, col=c("green", "blue", "red", "orange"))
@@ -121,14 +123,14 @@ fun=mean, lty=c(1, 1, 1, 2), lwd=c(1, 1, 1, 2))
 # similar but using dplot()
 dplot(vowlax.fdat[1:20,2], vowlax.l, 
 col=c("green", "blue", "red", "orange"), 
-lwd=c(1, 1, 1, 2), linetype=c(1, 1, 1, 2))
+lwd=c(1, 1, 1, 2), lty=c(1, 1, 1, 2))
 
-# the default except plot everything with a dotted line
-dplot(vowlax.fdat[,2], vowlax.l, average=TRUE, linetype=2)
+# the default except plot everything with a dotted line and plotting symbol 4
+dplot(vowlax.fdat[,2], vowlax.l, average=TRUE, lty=2, pch=4, type="b", xlim=c(40, 60))
 
 # the default except plot everything with a dotted line and
 # with double line thickness
-eplot(vowlax.fdat.5[,1:2], vowlax.l, linetype=2, lwd=2)
+eplot(vowlax.fdat.5[,1:2], vowlax.l, lty=2, lwd=2)
 }
 
 

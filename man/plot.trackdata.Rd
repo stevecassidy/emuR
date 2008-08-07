@@ -11,8 +11,7 @@ as a function of time for several segments.
 
 \usage{
 \method{plot}{trackdata}(x, timestart = NULL, xlim = NULL, ylim = NULL, labels = NULL, 
-col = NULL, lty = NULL, contig = TRUE,  ...) 
-}
+    col = TRUE, lty = FALSE, type = "p", pch = NULL, contig = TRUE, ...) }
 
 
 
@@ -31,7 +30,14 @@ is plotted at side = 3 on the plotted at the temporal
 midpoint of each segment in the trackdata object.
 Defaults to NULL (plot no labels). Labels will only
 be plotted if xlim=NULL.}
-  \item{col}{ A single valued logical vector T or F. If T,
+  \item{col}{A single element logical vector. Defaults to T 
+to plot each label type in a different colour}
+  \item{lty}{A single element logical vector. Defaults to F. 
+If TRUE,  plot each label type in a different linetype }
+\item{type}{ Specify the type of plot. See \link{plot} for the various possibilities }
+\item{pch}{ The symbol types to be used for plotting. Should be specified as a
+numeric vector of the same length as there are unique label classes }
+    \item{contig}{  A single valued logical vector T or F. If T,
 then all the segments of the trackdata object are
 assumed to be temporally contiguous, i.e. the
 boundaries of the segments are abutting in time
@@ -45,8 +51,6 @@ e.g. all "i:" vowels in a database. An example
 of a non-contiguous trackdata object is vowlax.fdat.
 If contig=F then each segment of the trackdata object
 is plotted separately.}
-  \item{lty}{ }
-    \item{contig}{ }
   \item{...}{ the same graphical parameters
 can be supplied to this function as for plot e.g type="l", lty=2 etc.}
 }
@@ -74,39 +78,45 @@ plot(vowlax.fdat[1,1])
 # as above, but limits are set for the time axis.
 plot(vowlax.fdat[1,1], xlim=c(880, 920))
 
-# the same as above but the start-time of the x-axis is also set to 0 ms
-plot(vowlax.fdat[1,1], xlim=c(880, 920), timestart=0)
-
-# a single segment of trackdata (sampled speech data) plotted as a function of time.
-plot(coutts.sam[1,], type="l")
-
-# as above, but limits are set for the time axis.
-plot(coutts.sam[1,], type="l", xlim=c(16200, 16300))
-
-# the same as above but the start-time of the x-axis is also set to 0 ms
-plot(coutts.sam, type="l", timestart=0, xlim=c(16200, 16300))
-
-# get some labels
-labs = label(coutts)
-
-# superimpose these on the plot
-plot(coutts.sam, type="l", timestart=0, labels=labs)
+# the the start-time of the x-axis is set to 0 ms, plot F1 and F3, lineplot
+plot(vowlax.fdat[1,c(1,3)],  timestart=0, type="l")
 
 
-# plot each segment in its own window.
-par(mfrow=c(2,3))
-plot(coutts.sam, type="l", labels=labs, contig=FALSE)
+# plot F1-F4, same colour, same plotting symbol, between 900 
+# and 920 ms, type is line and points plot, different linetype per track, no box
+plot(vowlax.fdat[1,], col="blue", pch=20, xlim=c(900, 920), type="b", lty=TRUE, bty="n")
 
 
-# plot each segment in its own window and set timestart to 0 ms, set the colour to red
-par(mfrow=c(2,3))
-plot(coutts.sam, type="l", labels=labs, timestart=0, contig=FALSE, col="red")
-
-# F1 and F2 of six vowels with labels
-
+# F1 and F2 of six vowels with labels, separate windows
 par(mfrow=c(2,3))
 plot(vowlax.fdat[1:6,1:2], contig=FALSE, labels=vowlax.l[1:6], ylab="F1 and F2", 
 xlab="Time (ms)", type="b", ylim=c(300, 2400))
+
+# As above, timestart set to zero, colour set to blue, different plotting
+# symbols for the two tracks
+plot(vowlax.fdat[1:6,1:2], contig=FALSE, labels=vowlax.l[1:6], ylab="F1 and F2", 
+xlab="Time (ms)", type="b", col="blue", pch=c(1,2),  ylim=c(300, 2400), timestart=0)
+
+# RMS energy for the utterance 'just relax said Coutts'
+ plot(coutts.rms, type="l")
+# as above a different colour
+ plot(coutts.rms, type="l", col="pink")
+# as above, linetype 2, double line thickness, no box, times reset to 0 ms
+ plot(coutts.rms, type="l", col="pink", lty=2, lwd=2, bty="n", timestart=0)
+# as above but plotted as non-contiguous segments, i.e one segment per panel
+ par(mfrow=c(2,3))
+ plot(coutts.rms, type="l", col="pink", lty=2, lwd=2, bty="n", timestart=0, contig=FALSE)
+# plot with labels
+ labels = label(coutts)
+par(mfrow=c(1,1))
+ plot(coutts.rms, labels=labels, type="l", bty="n")
+# as above, double line-thickness, green, line type 3, no box, 
+# time start 0 ms with x and y axis labels
+ plot(coutts.rms, labels=labels, type="l", lwd=2, col="green", lty=3,  bty="n", timestart=0, xlab="Time (ms)", ylab="Amplitude")
+# as above with a different plotting symbol for the points
+par(mfrow=c(2,3))
+ plot(coutts.rms, labels=labels, type="b", lwd=2, col="green", timestart=0, bty="n", contig=FALSE, pch=20)
+ 
 
 }
 

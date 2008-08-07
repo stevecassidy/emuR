@@ -9,7 +9,7 @@ the centrality index, the dorsopalatal index respectively
 as a trackdata object or a vector
 }
 \usage{epgai (epgdata, weights = c(1, 9, 81, 729, 4921))
-    epgci (epgdata, weights = c(1, 11, 120, 1320)) 
+    epgci (epgdata, weights = c(1, 17, 289, 4913)) 
     epgdi (epgdata)  }
 
 \arguments{

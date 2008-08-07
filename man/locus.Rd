@@ -5,8 +5,7 @@
   The function plots a locus equation and returns associated 
 statistical information.
 }
-\usage{locus (target, onset, labels.vow = NULL, yxline = TRUE, xlim = NULL, 
-    ylim = NULL, xlab = "", ylab = "", plotgraph = TRUE) }
+\usage{locus (target, onset, labels.vow = NULL, yxline = TRUE, plotgraph = TRUE,  axes = TRUE, ...) }
 
 \arguments{
 	\item{target}{a numerical vector typically of F2 values at the vowel target}
@@ -14,11 +13,11 @@ statistical information.
 length as target of  F2 values at the vowel onset}
 	\item{labels.vow}{an optionally character vector for plotting labels
 at the points (target, onset) of the same length as target}
-	\item{xlim,ylim}{a two-element numerical vector specifying the lower and upper limits on the x/y-axis}
-	\item{xlab,ylab}{a  character vector of length 1  for the x/y-axis label}
+\item{yxline}{optionally plot the line target = onset.  Defaults to True.}
 	\item{plotgraph}{a logical vector for specifying whether the data
 should be plotted. Defaults to True.}
-	\item{yxline}{optionally plot the line target = onset.  Defaults to True.}
+\item{axes}{A logical vector indicating whether the axes should be plotted}
+\item{...}{graphical options \link{par}} 
 }
 
 \value{

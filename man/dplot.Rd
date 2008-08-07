@@ -9,31 +9,24 @@
      or averaged. The plots can be colour-coded for different category types.
 }
 \usage{
-dplot(dataset, labs = NULL, offset = 0, ref.time = NULL, average = FALSE, main = "", 
-xlab = "Time (ms)", ylab = "", xlim = NULL, ylim = NULL, cex = 0.5, linetype = FALSE, 
-normalise = FALSE, colour = TRUE, lwd = NULL, legend = "topright", axes = TRUE, n = 20)
+dplot(x, labs = NULL, offset = 0, prop = TRUE, average = FALSE, 
+    xlim = NULL, ylim = NULL, lty = FALSE, normalise = FALSE, 
+    colour = TRUE, lwd = NULL, pch = NULL, legend = "topright", 
+    axes = TRUE, type = "l", n = 20, ...)
 }
 \arguments{
-  \item{dataset}{An EMU-trackdata object }
+  \item{x}{An EMU-trackdata object }
   \item{labs}{ A label vector with one element for each row in 'dataset' }
-  \item{offset}{  A single numeric vector  between 0 and 1.
+  \item{offset}{ Either: A single numeric vector  between 0 and 1.
 0 and 1 denote synchronize the trackdata at their temporal onsets
 and offsets respectively; 0.5 denotes synchronization at the
-temporal midpoint, etc. }
-  \item{ref.time}{ A numeric vector. The length of the vector
-must be same as the number of observations in dataset, i.e.
-length(ref.time) must be equal to nrow(dataset\$index). Trackdata
-observations are lined up at t = 0 ms, where t is relative
-to the times in this vector. }
+temporal midpoint, etc. Or a numeric vector of the same length as x
+specifying the synchronisation point per segment}
+  \item{prop}{ A single element character vector specifying whether the tracks should be aligned proportionally or relative to millisecond times. Defaults to proportional alignment}
   \item{average}{ If TRUE, the data for each unique label in 'labs' is averaged }
-  \item{main}{ A character vector for a main title for the plot. }
-  \item{xlab}{ A character vector for the x-axis label.  }
-  \item{ylab}{ A character vector for the y-axis label. }
-  \item{xlim}{ A vector of two numeric values specifying the x-axis range}
+   \item{xlim}{ A vector of two numeric values specifying the x-axis range}
   \item{ylim}{ A vector of two numeric values specifying the y-axis range }
-  \item{cex}{ The 'cex' parameter passed to 'par' to control text size on
-          the plot }
-  \item{linetype}{ A single element logical vector. Defaults to F. 
+  \item{lty}{ A single element logical vector. Defaults to F. 
 If TRUE,  plot each label type in a different linetype}
   \item{normalise}{ If TRUE, the data for each segment is linearly time normalised so
           that all observations have the same length. The number of points
@@ -50,6 +43,8 @@ then the output is c(3, 3, 3, 3). Alternatively,
 if lwd = c(2,3,1), then the output is
 c(2, 3, 2, 1) for the same example. The default is
 NULL in which case all lines are drawn with lwd=1 }
+\item{pch}{ A code passed to the pch argument
+in plotting functions. Functions in the same way as lwd above}
   \item{legend}{ Either a character vector to plot
 the legend. Possible values are: "bottomright"', '"bottom"', '"bottomleft"',
      '"left"', '"topleft"', '"top"', '"topright"', '"right"' and
@@ -59,8 +54,10 @@ a logical vector: legend = FALSE suppresses legend plotting. legend = TRUE
 plots it at the default, legend = "topright"}
   \item{axes}{ A single element logical vector. Defaults to T 
 to plot the axes }
+  \item{type}{ The default line type. Default to "l" for a line plot }
   \item{n}{ A single element numeric vector. Only used if normalise=T.
 The number of data points used to linearly time normalise each track }
+\item{...}{graphical options \link{par}} 
 }
 
 \value{
@@ -112,12 +109,13 @@ The number of data points used to linearly time normalise each track }
 	
 
    # synchronise 60 ms before the diphthong offset
-   dplot(dip.fdat[,2], dip.l, ref.time=dip.fdat$ftime[,2]-60)
+   dplot(dip.fdat[,2], dip.l, offset=dip.fdat$ftime[,2]-60, prop=FALSE)
 	
 
-   # as above averaged, no colour with linetype and averaged
-   dplot(dip.fdat[,2], dip.l, ref.time=dip.fdat$ftime[,2]-60,
-   average=TRUE, colour=FALSE, linetype=TRUE)
+   # as above averaged, no colour with linetype, 
+# different plot symbols double line thickness in the range between +- 20 ms
+   dplot(dip.fdat[,2], dip.l, offset=dip.fdat$ftime[,2]-60, prop=FALSE,
+   average=TRUE, colour=FALSE, lty=TRUE, pch=1:3, lwd =2, type="b", xlim=c(-20, 20))
 
 
 

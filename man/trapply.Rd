@@ -6,20 +6,20 @@
    A given function 'FUN' is applied to the data corresponding to each segment of data.
 }
 \usage{
-  trapply (trackdata, fun, \dots, simplify = FALSE , buildtrack = FALSE)
+  trapply (trackdata, fun, \dots, simplify = FALSE, buildtrack = FALSE)
 }
 \arguments{
   \item{trackdata}{a track data object }
   \item{fun}{a function that is applied to each segment}
   \item{\dots}{ arguments of the function fun}
   \item{simplify}{simplify = TRUE , output is a matrix; simplify = FALSE a list is returned}
-  \item{buildtrack}{buildtrack = TRUE , output is a track data object; buildtrack = FALSE a list or matrix is returned depending on simplify}
+\item{buildtrack}{buildtrack = TRUE , return a trackdata object}
 }
 
 \details{
-  trapply() is provides a way of  applying a function iteratively
-to each segment of a trackdata object 
-It can be used to calculate, for example,
+  trapply() applies a function iteratively
+to each segment of a trackdata object without the need
+for using a for-loop. It can be used to calculate, for example,
 the mean value of the data values of each segment separately.
 Any function that can be applied sensibly to
 trackdata[j]\$data where j is a segment number can be
@@ -27,11 +27,11 @@ used as the fun argument to trapply(). It is also possible
 to write your own function and use trapply() to apply
 it separately to each segment.
 Care needs to be taken in using trapply() in the
-following two ways. Firstly, the argument buildtrack=T should
+following two ways. Firstly, the argument simplify=T should
 only be set if it can be guaranteed that 
 a vector of the same length or matrix of the same
 number of rows as the number of segments in the trackdata
-object is returned. For example, buildtrack=T can
+object is returned. For example, simplify=T can
 be used in calculating the mean per segment of
 a trackdata object, because there will only be one
 value (the mean) per segment. However, simplify should
@@ -46,58 +46,42 @@ as F1-F4, but then the function needs to be put inside
 apply() - see examples below.
 }
 \value{
-  list or vector
+  list or vector or matrix
 }
 
 \author{Jonathan Harrington}
 
 
 \seealso{ 
-   \code{\link{trackdata}}
-   \code{\link{dapply}}
-   \code{\link{smooth}} 
-   \code{\link{apply}} 
+     \code{\link{apply}} 
    
 }
 
 
 \examples{
-   data(vowlax)
-
-   #segment list vowlax - first segment only 
-   vowlax[1,]
-   
-   #F0 track data object for vowlax - first segment only 
-   vowlax.fund[1,]
-
-   #To get the maximum F0 value for each segment in the track data object
-   maxF0 = trapply(vowlax.fund,max)
-   
-   #maxF0 - for the first ten segments only 
-   maxF0[1:10]
-   
-
-   #maxF0 is a list of length 410 because there are 410 segments in the track data object
-   length(maxF0)
-   nrow(vowlax.fund$index)
-   
-
-   #Mean formant value per column (F1, F2, F3, F4) for the first 10 segments
-   trapply(vowlax.fdat[1:10,], apply, 2, mean, simplify=TRUE)
-
-   #get the the maximum F0 value for each segment in the track data object
-   #this time return a vector 
-   maxF0 = trapply(vowlax.fund, max, simplify=TRUE)
-   maxF0[1:10]
-   
-   # get a track data object of DCT-smoothed (first two coefficients) F1 values
-   vowlax.fdat.F1.dct = trapply(vowlax.fdat[,1], dct, 2, TRUE, buildtrack=TRUE)
-   
-   
-
-   
-   
+# mean f0 one value per segment
+m = trapply(vowlax.fund, mean, simplify=TRUE)
+# mean F1 - F4
+m = trapply(vowlax.fdat, apply, 2, mean, simplify=TRUE)
+# make a logical vector of any segments that have an F1 value
+# between their start time and end time greater than n Hz
+pfun <- function(x, n=1000) any(x > n)
+# greater than 1100 Hz
+temp = trapply(vowlax.fdat[,1], pfun, 1100, simplify=TRUE)
+# get the F2-range per segment
+r = trapply(vowlax.fdat[,2], range)
+# F2-range of 20th segment
+r[[20]]
+# DCT-smooth F2 with 10 coeffs
+# get the first 4 DCT coefficients
+f2.dct = trapply(vowlax.fdat[,2], dct, 3, simplify=TRUE)
+# dct-smooth F2 with the first 5 DCT coeffs
+f2sm = trapply(vowlax.fdat[,2], dct, 4, TRUE,  buildtrack=TRUE)
+# Make new F2 trackdata such that each segment has
+# F2 divided by its F2 range
+pfun <- function(x) x/(diff(abs(range(x))))
+newf2 = trapply(vowlax.fdat[,2], pfun, buildtrack=TRUE)
 }
 
-\keyword{manip}
+\keyword{methods}
 

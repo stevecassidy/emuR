@@ -6,7 +6,8 @@
    The function plots spectrum of any EMU spectral object. 
 }
 \usage{
-\method{plot}{spectral}(x, labs, ylim, xlim, ylab, xlab, col, lty, lwd, fun, freq, type = "l", power = FALSE, powcoeffs = c(10, 10), dbnorm = FALSE, dbcoeffs = c(0, 0), legend = TRUE, ...)
+\method{plot}{spectral}(x, labs, ylim, xlim, col, lty, lwd, fun, freq, type = "l", 
+    power = FALSE, powcoeffs = c(10, 10), dbnorm = FALSE, dbcoeffs = c(0,0), legend = TRUE, axes = TRUE, ...)
 }
 
 \arguments{
@@ -14,9 +15,7 @@
   \item{labs}{ An optional vector character labels. Must be the same length as specdata }
   \item{ylim}{ A two-element numeric vector for  the y-axis range (see 'par') }
   \item{xlim}{ A two-element numeric vector for  the x-axis range (see 'par') }
-  \item{ylab}{ A single-element character vector for the  y-axis title (see 'par') }
-  \item{xlab}{ A single-element character vector for the  x-axis range (see 'par')  }
-  \item{col}{ Specify a color - see 'mu.colour') }
+   \item{col}{ Specify a color - see 'mu.colour') }
   \item{lty}{ Specify a linetype - see 'mu.colour' }
   \item{lwd}{ Specify line thickness - see 'mu.colour' }
   \item{fun}{ An R function name e.g., mean, var, sum, etc.
@@ -39,6 +38,7 @@ For example, to normalise the spectrum to 10 dB at 2000 Hz,
 set dbnorm to T and dbcoeffs  to c(2000, 10) }
   \item{legend}{ Parameters for defining the legend. See 'mu.legend' for
 further details }
+ \item{axes}{ A logical vector indicating whether the axes should be plotted }
   \item{\dots}{ Further graphical parameters may be supplied. }
 }
 \details{
