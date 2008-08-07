@@ -64,7 +64,7 @@ if (emu.platform("Windows")) {
 
 
 ## this will get changed by the Makefile
-emu.version<-"3.3"
+emu.version<-"4.0"
 
 "emu.init" <- function() {
 
@@ -116,7 +116,7 @@ the variable 'version'.")
   
   if (interactive()) {
     while( !crashout  && class(tclfound) != "tclObj" ) {
-
+      cat( "This R Add-On will not work with EMU version <= 2.0prev!\n" )
       cat( "Configuration error: Cannot find Emu Tcl libraries in\n" )
       cat( tcllibpaths, sep=" or " )
       cat( "\n" )

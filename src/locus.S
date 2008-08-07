@@ -1,5 +1,8 @@
-"locus" <-
-function (target, onset,  labels.vow=NULL, yxline=TRUE, xlim = NULL, ylim = NULL, xlab="", ylab="", plotgraph=TRUE) 
+
+
+`locus` <-
+function (target, onset, labels.vow = NULL, yxline = TRUE,  
+    plotgraph = TRUE, axes=TRUE,  ...) 
 {
 # target: vector of target freqs
 # onset: vector of onset freqs
@@ -12,24 +15,27 @@ function (target, onset,  labels.vow=NULL, yxline=TRUE, xlim = NULL, ylim = NULL
 # returns: statistical results of the fitting
 # the regression line and the locus frequency in $locus
 regr <- lm(onset ~ target)
-mat <- rbind(cbind(1, -1), cbind(1, -regr$coef[2]))
-vec <- c(0, regr$coef[1])
-regr$locus <- ((solve(mat) %*% vec)[1])
-if(plotgraph)
-{
-if(is.null(xlim))
-xlim <- range(target)
-if(is.null(ylim))
-ylim <- range(onset)
-if(is.null(labels.vow))
-labels.vow <- rep("x", length(target))
-plot(target, onset, xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, type="n")
-text(target, onset, labels.vow)
-abline(regr)
-if(yxline)
-abline(0, 1, lty=2)
-}
+    mat <- rbind(cbind(1, -1), cbind(1, -regr$coef[2]))
+    vec <- c(0, regr$coef[1])
+    regr$locus <- ((solve(mat) %*% vec)[1])
+    if (plotgraph) {
+        if (is.null(labels.vow)) 
+            labels.vow <- rep("x", length(target))
+        plot(target, onset,  type = "n", axes=FALSE,  ...)
+		if(axes)
+		{
+		axis(side=1)
+		axis(side=2)
+		}
+		if(is.character(labels.vow))
+        text(target, onset, labels.vow, ...)
+		else if(is.numeric(labels.vow))
+		points(target, onset, pch=labels.vow, ...)
+        abline(regr, ...)
+        if (yxline) 
+            abline(0, 1, lty = 2)
+    }
 
-regr
+    regr
 }
 

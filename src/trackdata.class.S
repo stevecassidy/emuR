@@ -116,85 +116,108 @@ function (object)
     return(inherits(object, "trackdata"))
 }
 
-
-"plot.trackdata" <-
-function (x, timestart=NULL, xlim=NULL, ylim=NULL, labels=NULL, col=NULL, lty=NULL, contig=TRUE, ...)
- {
- trackdata = x
-
-N <- nrow(trackdata$data)
-if(is.null(col))
-col <- 1:ncol(trackdata)
-if(is.null(lty))
-lty <- rep(1, ncol(trackdata))
-n <- nrow(trackdata)
-# can't plot labels if xlim is specified
-if(!is.null(xlim))
-labels <- NULL
-
-if(!is.null(labels))
+`plot.trackdata` <-
+function (x, timestart = NULL, xlim = NULL, ylim = NULL, labels = NULL, 
+    col = TRUE, lty = FALSE, type="p", pch=NULL, contig = TRUE, ...) 
 {
-if( length(labels) != nrow(trackdata) )
-stop("if labels are supplied, there must be one label per segment")
-label.times <- apply(trackdata$ftime, 1, mean)
-boundary.times <- c(trackdata$ftime[,1], trackdata$ftime[n])
+    trackdata <- x
+    N <- nrow(trackdata$data)
+   	if(is.logical(col))
+		{
+    if (col) 
+	col <- 1:ncol(trackdata)
+	else
+        col <- rep(1, ncol(trackdata))
+		}
+		else
+		{
+		if(length(col)!=ncol(trackdata))
+		col <- rep(col[1], ncol(trackdata))
+		}
+
+	if(is.logical(lty))
+		{
+    if (lty) 
+	lty <- 1:ncol(trackdata)
+	else
+        lty <- rep(1, ncol(trackdata))
+		}
+		else
+		{
+		if(length(lty)!=ncol(trackdata))
+		lty <- rep(lty[1], ncol(trackdata))
+		}
+	if(is.null(pch))
+	pch <- rep(1, ncol(trackdata))
+	else
+		{
+		if(length(pch)!=ncol(trackdata))
+		pch <- rep(pch[1], ncol(trackdata))
+		}
+
+		
+    n <- nrow(trackdata)
+    if (!is.null(xlim)) 
+        labels <- NULL
+    if (!is.null(labels)) {
+        if (length(labels) != nrow(trackdata)) 
+            stop("if labels are supplied, there must be one label per segment")
+        label.times <- apply(trackdata$ftime, 1, mean)
+        boundary.times <- c(trackdata$ftime[, 1], trackdata$ftime[n])
+    }
+    if (n > 1 & contig) {
+        inds <- cbind(1, N)
+        ftime <- cbind(trackdata$ftime[1, 1], trackdata$ftime[n, 
+            2])
+        trackdata <- as.trackdata(trackdata$data, inds, ftime)
+    }
+    if (!is.null(xlim)) {
+        if (nrow(trackdata) != 1) 
+            stop("can't specify xlim if there's more than one segment")
+    }
+    left <- trackdata$ftime[1]
+    right <- trackdata$ftime[2]
+    times <- seq(left, right, length = nrow(trackdata$data))
+    if (!is.null(timestart)) {
+        times <- times - left + timestart
+        if (!is.null(labels)) {
+            label.times <- label.times - left + timestart
+            boundary.times <- boundary.times - left + timestart
+        }
+    }
+    data <- trackdata$data
+    if (nrow(trackdata) == 1) {
+            if (is.null(xlim)) 
+                xlim <- range(times)
+            if (is.null(ylim)) 
+                ylim <- range(data)
+        for (k in 1:ncol(data)) {
+				if(k==ncol(data))
+            plot(times, data[, k], xlim = xlim, ylim = ylim, 
+                col = col[k], lty = lty[k], pch=pch[k], type=type, ...)
+				else
+				 plot(times, data[, k], xlim = xlim, ylim = ylim, 
+                col = col[k], lty = lty[k], pch=pch[k], xlab="", ylab="", main="", axes=FALSE, bty="n", type=type)
+            par(new = TRUE)
+        }
+        par(new = FALSE)
+        if (!is.null(labels)) {
+            if (length(boundary.times) > 2) 
+                abline(v = boundary.times)
+            mtext(labels, at = label.times)
+        }
+    }
+    else {
+        if (is.null(labels)) 
+            labels <- rep("", nrow(trackdata))
+        for (j in 1:nrow(trackdata)) {
+            plot(trackdata[j, ], timestart = timestart, xlim = xlim, 
+                ylim = ylim, labels = labels[j], col=col, lty=lty, type=type, pch=pch,contig = TRUE, ...)
+        }
+    }
 }
 
 
-if(n > 1 & contig)
-{
-inds <- cbind(1, N)
-ftime <- cbind(trackdata$ftime[1,1], trackdata$ftime[n,2])
-trackdata <- as.trackdata(trackdata$data, inds, ftime)
-}
-
-if(!is.null(xlim))
-{
-if(nrow(trackdata)!=1)
-stop("can't specify xlim if there's more than one segment")
-}
-
-left <- trackdata$ftime[1]
-right <- trackdata$ftime[2]
-times <- seq(left, right, length=nrow(trackdata$data))
-if(!is.null(timestart))
-{
-times <- times - left + timestart
-if(!is.null(labels))
-{
-label.times <- label.times - left + timestart
-boundary.times <- boundary.times - left + timestart
-}
-}
-data <- trackdata$data
-if(nrow(trackdata)==1)
-{
-for(k in 1:ncol(data)){
-if(is.null(xlim))
-xlim <- range(times)
-if(is.null(ylim))
-ylim <- range(data)
-plot(times, data[,k], xlim=xlim, ylim=ylim, col=col[k], lty=lty[k], ...)
-par(new=TRUE)
-}
-par(new=FALSE)
-if(!is.null(labels))
-{
-if(length(boundary.times) > 2)
-abline(v=boundary.times)
-mtext(labels, at=label.times)
-}
-}
-else
-{
-if(is.null(labels))
-labels <- rep("", nrow(trackdata))
-
-for(j in 1:nrow(trackdata)){
-plot(trackdata[j,], timestart=timestart, xlim=xlim, ylim=ylim, labels=labels[j], contig=TRUE, ...)
-}
-}
-}
 
 
 "bark.trackdata" <-

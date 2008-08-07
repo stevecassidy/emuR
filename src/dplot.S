@@ -13,41 +13,53 @@
 
 
 
-"dplot" <-
-function (dataset, labs = NULL, offset = 0, ref.time = NULL, 
-    average = FALSE, main = "", xlab = "Time (ms)", ylab = "", xlim = NULL, 
-    ylim = NULL, cex = 0.5, linetype = FALSE, normalise = FALSE, colour = TRUE,lwd=NULL,
-    legend = "topright", axes = TRUE, n = 20) 
+`dplot` <-
+function (x, labs = NULL, offset = 0, prop=TRUE, 
+    average = FALSE, 
+	    xlim = NULL, ylim = NULL,  lty = FALSE, normalise = FALSE, 
+    colour = TRUE, lwd = NULL, pch=NULL, legend = "topright", axes = TRUE, type="l",
+    n = 20, ...) 
 {
+
+
+
+if(prop)
+{
+if(length(offset) != 1)
+stop("Specify only one offset time when prop=T")
+else if ((offset < 0) | (offset > 1)) 
+        stop("offset must be between 0 and 1 when prop=T")
+
+
+}
+
+else
+if(nrow(x) != length(offset))
+stop("nrow(x) and length(offset) must be the same when prop=F")
+
     pout <- NULL
-    if (is.matrix(dataset$data)) {
+    if (is.matrix(x$data)) {
         pout <- as.list(NULL)
         pout$data <- as.list(NULL)
         mat <- NULL
         if (is.null(ylim)) 
-            ylim <- range(dataset$data)
-        numcols <- ncol(dataset$data)
-        main <- c(rep("", numcols - 1), main)
-        xlab <- c(rep("", numcols - 1), xlab)
-        ylab <- c(rep("", numcols - 1), ylab)
-        axes <- c(rep(FALSE, numcols - 1), axes)
-        for (j in 1:ncol(dataset$data)) {
-            mat <- dataset
+            ylim <- range(x$data)
+        numcols <- ncol(x$data)
+          
+        for (j in 1:ncol(x$data)) {
+            mat <- x
             mat$data <- mat$data[, j]
             if (!normalise) 
                 vals <- dplot.time(mat, labs = labs, offset = offset, 
-                  ref.time = ref.time, average = average, main = main[j], 
-                  xlab = xlab[j], ylab = ylab[j], xlim = xlim, 
-                  ylim = ylim, cex = cex, linetype = linetype, 
-                  colour = colour, legend = legend, lwd=lwd, axes = axes[j])
+                  prop=prop, average = average,  xlim = xlim, 
+                  ylim = ylim,  lty = lty, 
+                  colour = colour, legend = legend, lwd = lwd, pch=pch, type=type)
             else vals <- dplot.norm(mat, labs = labs, average = average, 
-                main = main[j], xlab = xlab[j], ylab = ylab[j], 
-                xlim = xlim, ylim = ylim, cex = cex, linetype = linetype, 
-                colour = colour, legend = legend, lwd=lwd, axes = axes[j], 
-                n = n)
+                xlim = xlim, ylim = ylim,  lty = lty, 
+                colour = colour, legend = legend, lwd = lwd, pch=pch, type=type,  n = n)
             par(new = TRUE)
             pout$data[[j]] <- vals$data
-            if (j == ncol(dataset$data)) {
+            if (j == ncol(x$data)) {
                 pout$time <- vals$time
                 pout$labs <- vals$labs
             }
@@ -55,60 +67,65 @@ function (dataset, labs = NULL, offset = 0, ref.time = NULL,
     }
     else {
         if (!normalise) 
-            pout <- dplot.time(dataset, labs = labs, offset = offset, 
-                ref.time = ref.time, average = average, main = main, 
-                xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim, 
-                cex = cex, linetype = linetype, colour = colour, lwd=lwd,
-                legend = legend, axes = axes)
-        else pout <- dplot.norm(dataset, labs = labs, average = average, 
-            main = main, xlab = xlab, ylab = ylab, xlim = xlim, 
-            ylim = ylim, cex = cex, linetype = linetype, colour = colour, lwd=lwd,
-            legend = legend, axes = axes, n = n)
+            pout <- dplot.time(x, labs = labs, offset = offset, 
+                prop=prop, average = average,  xlim = xlim, ylim = ylim, 
+                 lty = lty, colour = colour, 
+                lwd = lwd, pch=pch, type=type, legend = legend)
+        else pout <- dplot.norm(x, labs = labs, average = average, xlim = xlim, 
+            ylim = ylim,  lty = lty, colour = colour, 
+            lwd = lwd, pch=pch, type=type, legend = legend,  n = n)
     }
+
     par(new = FALSE)
+
     invisible(pout)
+	title(...)
+	box(...)
+	 if (axes) {
+        axis(side = 1)
+        axis(side = 2)
+    }
 }
 
 
 
 
-
-"dplot.time" <-
-function (dataset, labs = NULL, offset = 0, ref.time = NULL, 
-    average = FALSE, main = "", xlab = "time (ms)", ylab = "", xlim = NULL, 
-    ylim = NULL, cex = 0.5, linetype = FALSE, colour = TRUE, lwd=NULL, legend = "topright", 
-    axes = TRUE) 
+`dplot.time` <-
+function (x, labs = NULL, offset = 0, prop=TRUE, 
+    average = FALSE,  
+    xlim = NULL, ylim = NULL, lty = FALSE, colour = TRUE, 
+    lwd = NULL, pch=NULL, legend = "topright",  type="l", ...) 
 {
     ovec <- as.list(NULL)
-    samrate <- 1000/((dataset$ftime[1, 2] - dataset$ftime[1, 
-        1])/(dataset$index[1, 2] - dataset$index[1, 1]))
-    if ((offset < 0) | (offset > 1)) 
-        stop("offset must be between 0 and 1")
-    if (is.null(labs)) 
-        labs <- rep(1, nrow(dataset$index))
-    col.lty <- mu.colour(labs, colour, linetype, lwd)
+    samrate <- 1000/((x$ftime[1, 2] - x$ftime[1, 
+        1])/(x$index[1, 2] - x$index[1, 1]))
+        if (is.null(labs)) 
+        labs <- rep(1, nrow(x$index))
+    col.lty <- mu.colour(labs, colour, lty, lwd, pch)
     colour <- col.lty$colour
-    linetype <- col.lty$linetype
-lwd <- col.lty$lwd
-    if (is.null(ref.time)) 
-        ref.time <- dataset$ftime[, 1] + ((dataset$ftime[, 2] - 
-            dataset$ftime[, 1]) * offset)
-    maxlen <- 2 * (max(dataset$index[, 2] - dataset$index[, 1] + 
+    lty <- col.lty$linetype
+    lwd <- col.lty$lwd
+	pch <- col.lty$pch
+    if (prop) 
+        ref.time <- x$ftime[, 1] + ((x$ftime[, 2] - 
+            x$ftime[, 1]) * offset)
+			else ref.time <- offset
+    maxlen <- 2 * (max(x$index[, 2] - x$index[, 1] + 
         1))
     pointval <- round(maxlen/2)
-    mat.na <- matrix(NA, nrow(dataset$index), maxlen)
-    for (j in 1:nrow(dataset$index)) {
-        left <- dataset$index[j, 1]
-        right <- dataset$index[j, 2]
+    mat.na <- matrix(NA, nrow(x$index), maxlen)
+    for (j in 1:nrow(x$index)) {
+        left <- x$index[j, 1]
+        right <- x$index[j, 2]
         length.index <- right - left + 1
-        times <- dataset$ftime[j, ]
+        times <- x$ftime[j, ]
         refn <- ref.time[j]
         inval <- closest(seq(times[1], times[2], length = length.index), 
             refn)
         inval <- inval[1]
         left.na <- pointval - inval + 1
         right.na <- left.na + length.index - 1
-        mat.na[j, left.na:right.na] <- dataset$data[left:right]
+        mat.na[j, left.na:right.na] <- x$data[left:right]
     }
     z <- apply(mat.na, 2, mean, na.rm = TRUE)
     natemp <- is.na(z)
@@ -127,8 +144,9 @@ lwd <- col.lty$lwd
     if (!average) {
         for (j in 1:nrow(mat.na)) {
             plot(xtime, mat.na[j, ], xlim = xtimelim, ylim = ylim, 
-                xlab = "", ylab = "", axes = FALSE, type = "l", col = colour[j], 
-                lty = as.numeric(linetype[j]), lwd=as.numeric(lwd[j]))
+                xlab = "", ylab = "", axes = FALSE, type = type, 
+                col = colour[j], lty = as.numeric(lty[j]), bty="n",
+                lwd = as.numeric(lwd[j]), pch=as.numeric(pch[j]))
             par(new = TRUE)
         }
         ovec$data <- mat.na
@@ -159,66 +177,87 @@ lwd <- col.lty$lwd
         }
         col.code <- match(col.lty$legend$lab, unique(labs))
         colour <- col.lty$legend$col
-        linetype <- col.lty$legend$lty
-lwd <- col.lty$legend$lwd
+        lty <- col.lty$legend$lty
+        lwd <- col.lty$legend$lwd
+		pch <- col.lty$legend$pch
         for (j in 1:nrow(outmat)) {
             plot(xtime, outmat[j, ], xlim = xtimelim, ylim = ylim, 
-                xlab = "", ylab = "", axes = FALSE, type = "l", col = colour[col.code[j]], 
-                lty = as.numeric(linetype[col.code[j]]), lwd = as.numeric(lwd[col.code[j]]))
+                xlab = "", ylab = "", axes = FALSE, type = type, bty="n", 
+                col = colour[col.code[j]], lty = as.numeric(lty[col.code[j]]), 
+                lwd = as.numeric(lwd[col.code[j]]), pch = as.numeric(pch[col.code[j]]))
             par(new = TRUE)
         }
         ovec$data <- outmat
         ovec$time <- xtime
         ovec$labs <- outlabs
     }
-    if (axes) {
-        axis(side = 1, cex = cex)
-        axis(side = 2, cex = cex)
-        box()
-    }
-    title(main = main, xlab = xlab, ylab = ylab, cex = cex)
+   
     if (is.logical(legend)) {
         if (legend) 
+		{
             legend <- "topright"
+			if ((type=="l") | is.null(pch))
+			legend(legend, NULL, col.lty$legend$lab, col = col.lty$legend$col, 
+            lty = as.numeric(col.lty$legend$lty), lwd = as.numeric(col.lty$legend$lwd))
+			else if(type=="p")
+			legend(legend, NULL, col.lty$legend$lab, col = col.lty$legend$col, 
+            pch = as.numeric(col.lty$legend$pch) )
+			else
         legend(legend, NULL, col.lty$legend$lab, col = col.lty$legend$col, 
-            lty = as.numeric(col.lty$legend$lty), lwd = as.numeric(col.lty$legend$lwd), cex = cex)
+            lty = as.numeric(col.lty$legend$lty), lwd = as.numeric(col.lty$legend$lwd),pch = as.numeric(col.lty$legend$pch) )
+			}
     }
-    else legend(legend, NULL, col.lty$legend$lab, col = col.lty$legend$col, 
-        lty = as.numeric(col.lty$legend$lty), lwd = as.numeric(col.lty$legend$lwd), cex = cex)
+    else 
+	{
+	if ((type=="l") | is.null(pch))
+	legend(legend, NULL, col.lty$legend$lab, col = col.lty$legend$col, 
+        lty = as.numeric(col.lty$legend$lty), lwd = as.numeric(col.lty$legend$lwd))
+		else if(type=="p")
+		legend(legend, NULL, col.lty$legend$lab, col = col.lty$legend$col, 
+        pch = as.numeric(col.lty$legend$pch) )
+		else
+	legend(legend, NULL, col.lty$legend$lab, col = col.lty$legend$col, 
+        lty = as.numeric(col.lty$legend$lty), lwd = as.numeric(col.lty$legend$lwd),pch = as.numeric(col.lty$legend$pch) )
+		
+		}
+
     invisible(ovec)
+	
 }
 
 
 
 
-
-"dplot.norm" <-
-function (dataset, labs = NULL, average = FALSE, main = "", xlab = "time (ms)", 
-    ylab = "", xlim = NULL, ylim = NULL, cex = 0.5, linetype = FALSE, 
-    colour = TRUE, lwd=NULL, legend = "topright", axes = TRUE, n = 20) 
+`dplot.norm` <-
+function (x, labs = NULL, average = FALSE, 
+ xlim = NULL, ylim = NULL,  lty = FALSE, type="l",
+    colour = TRUE, lwd = NULL, pch=NULL, legend = "topright",  
+    n = 20) 
 {
     ovec <- NULL
     if (is.null(ylim)) 
-        ylim <- range(dataset$data)
+        ylim <- range(x$data)
     if (is.null(xlim)) 
         xlim <- c(0, 1)
     if (is.null(labs)) {
-        labs <- rep(1, nrow(dataset$index))
+        labs <- rep(1, nrow(x$index))
     }
-    col.lty <- mu.colour(labs, colour, linetype, lwd)
+    col.lty <- mu.colour(labs, colour, lty, lwd, pch)
     colour <- col.lty$colour
-    linetype <- col.lty$linetype
-lwd <- col.lty$lwd
-    mat.na <- linear(dataset, n)
-    mat.na$ftime <- dataset$ftime
+    lty <- col.lty$linetype
+    lwd <- col.lty$lwd
+	pch <- col.lty$pch
+    mat.na <- linear(x, n)
+    mat.na$ftime <- x$ftime
     class(mat.na) <- "trackdata"
     xvec <- seq(0, 1, length = n)
-    lval <- nrow(dataset$index)
+    lval <- nrow(x$index)
     if (!average) {
         for (j in 1:lval) {
             plot(xvec, mat.na[j]$data, xlim = xlim, ylim = ylim, 
-                xlab = "", ylab = "", axes = FALSE, type = "l", col = colour[j], 
-                lty = as.numeric(linetype[j]), lwd=as.numeric(lwd[j]))
+                xlab = "", ylab = "", axes = FALSE, type = type, bty="n", 
+                col = colour[j], lty = as.numeric(lty[j]), 
+                lwd = as.numeric(lwd[j]), pch = as.numeric(pch[j]))
             par(new = TRUE)
         }
         ovec$data <- mat.na
@@ -251,32 +290,49 @@ lwd <- col.lty$lwd
         }
         col.code <- match(col.lty$legend$lab, unique(labs))
         colour <- col.lty$legend$col
-        linetype <- col.lty$legend$lty
-lwd <- col.lty$legend$lwd
+        lty <- col.lty$legend$lty
+        lwd <- col.lty$legend$lwd
+		pch <- col.lty$legend$pch
         for (j in 1:nrow(outmat)) {
             plot(xvec, outmat[j, ], xlim = xlim, ylim = ylim, 
-                xlab = "", ylab = "", axes = FALSE, type = "l", col = colour[col.code[j]], 
-                lty = as.numeric(linetype[col.code[j]]), lwd = as.numeric(lwd[col.code[j]]))
+                xlab = "", ylab = "", axes = FALSE, type = type, bty="n", 
+                col = colour[col.code[j]], lty = as.numeric(lty[col.code[j]]), 
+                lwd = as.numeric(lwd[col.code[j]]), pch = as.numeric(pch[col.code[j]]))
             par(new = TRUE)
         }
         ovec$data <- outmat
         ovec$time <- xvec
         ovec$labs <- labs
     }
-    if (axes) {
-        axis(side = 1, cex = cex)
-        axis(side = 2, cex = cex)
-        box()
-    }
-    title(main = main, xlab = xlab, ylab = ylab, cex = cex)
+    
     if (is.logical(legend)) {
         if (legend) 
+		{
             legend <- "topright"
+			if ((type=="l") | is.null(pch))
+			legend(legend, NULL, col.lty$legend$lab, col = col.lty$legend$col, 
+            lty = as.numeric(col.lty$legend$lty), lwd = as.numeric(col.lty$legend$lwd))
+			else if(type=="p")
+			legend(legend, NULL, col.lty$legend$lab, col = col.lty$legend$col, 
+            pch = as.numeric(col.lty$legend$pch) )
+			else
         legend(legend, NULL, col.lty$legend$lab, col = col.lty$legend$col, 
-            lty = as.numeric(col.lty$legend$lty), lwd = as.numeric(col.lty$legend$lwd), cex = cex)
+            lty = as.numeric(col.lty$legend$lty), lwd = as.numeric(col.lty$legend$lwd),pch = as.numeric(col.lty$legend$pch) )
+			}
     }
-    else legend(legend, NULL, col.lty$legend$lab, col = col.lty$legend$col, 
-        lty = as.numeric(col.lty$legend$lty), lwd = as.numeric(col.lty$legend$lwd), cex = cex)
+    else 
+	{
+	if ((type=="l") | is.null(pch))
+	legend(legend, NULL, col.lty$legend$lab, col = col.lty$legend$col, 
+        lty = as.numeric(col.lty$legend$lty), lwd = as.numeric(col.lty$legend$lwd))
+		else if(type=="p")
+		legend(legend, NULL, col.lty$legend$lab, col = col.lty$legend$col, 
+        pch = as.numeric(col.lty$legend$pch) )
+		else
+	legend(legend, NULL, col.lty$legend$lab, col = col.lty$legend$col, 
+        lty = as.numeric(col.lty$legend$lty), lwd = as.numeric(col.lty$legend$lwd),pch = as.numeric(col.lty$legend$pch) )
+		
+		}
     invisible(ovec)
 }
 
