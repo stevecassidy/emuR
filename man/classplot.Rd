@@ -10,7 +10,7 @@ in model. It then produces a two-dimensional plot colour-coded for classificatio
           }
           \arguments{
             \item{model}{
-            A two-dimensional training model output from qda(), lda(), or svm()
+            A two-dimensional training model output from qda(), lda() of MASS package , or svm() of e1071 package
             }
             \item{xlim}{
 		       A vector of two numeric elements specifying the range on the x-axis 
@@ -40,17 +40,22 @@ temp = vowlax.spkr=="68"
 fm.qda = qda(vowlax.fdat.5[temp,1:2], vowlax.l[temp])
 # Linear discriminant analysis
 fm.lda = lda(vowlax.fdat.5[temp,1:2], vowlax.l[temp])
-#library(e1071)
-# Support vector machine
-fm.svm = qda(vowlax.fdat.5[temp,1:2], factor(vowlax.l[temp]))
-xlim = range(vowlax.fdat.5[temp,1])
-ylim = range(vowlax.fdat.5[temp,2])
-par(mfrow=c(1,3))
+
+par(mfrow=c(1,2))
 classplot(fm.qda, xlim=xlim, ylim=ylim, main="QDA")
 classplot(fm.lda, xlim=xlim, ylim=ylim, main="LDA")
-classplot(fm.svm, xlim=xlim, ylim=ylim, xlab="F1", ylab="F2", main="SVM")          
-                   }
+
+
+# install.packages("e1071")
+# library(e1071)
+# Support vector machine
+\dontrun{fm.svm = svm(vowlax.fdat.5[temp,1:2], factor(vowlax.l[temp]))}
+\dontrun{xlim = range(vowlax.fdat.5[temp,1])}
+\dontrun{ylim = range(vowlax.fdat.5[temp,2])}
+\dontrun{classplot(fm.svm, xlim=xlim, ylim=ylim, xlab="F1", ylab="F2", main="SVM")}          
+
+}
 \author{Jonathan Harrington} 
 \seealso{
-\code{\link[MASS]{qda}}, \code{\link[MASS]{lda}}, \code{\link[MASS]{svm}}. There is a function \code{\link[MASS]{plot.svm}} which produces a prettier plot for SVMs.
+\code{\link[MASS]{qda}}, \code{\link[MASS]{lda}}, svm of e1071 package. There is a function plot.svm which produces a prettier plot for SVMs.
 }
