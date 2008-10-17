@@ -1,5 +1,6 @@
 Package: emu
-Version: 4.0
+Version: 4.1
+Date: 0909-09-09
 Priority: contrib
 Title: Interface to the Emu Speech Database System
 Author: Jonathan Harrington and others, IPS LMU Muenchen & IPDS CAU Kiel
