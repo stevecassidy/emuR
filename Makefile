@@ -1,7 +1,7 @@
 #R = /Applications/StartR.app/RAqua.app/Contents/bin/R
 R = R
 
-VERSION = 4.0
+VERSION = 4.1
 
 
 ## Splus source files, note that options.S MUST come first as it has the 
@@ -13,6 +13,7 @@ SFILES = src/*.S
 RFILES = src/*.R
 # documentation files in R doc format
 RDFILES = man/*.Rd
+DATE := $(shell date +%F)
 
 all: R
 
@@ -20,7 +21,7 @@ all: R
 emudir:  version-info 
 	rm -rf emu
 	mkdir  emu
-	sed -e 's/Version: [0-9.-]*/Version: $(VERSION)/' DESCRIPTION > emu/DESCRIPTION
+	sed -e 's/Version: [0-9.-]*/Version: $(VERSION)/' -e 's/Date: [0-9-]*/Date: $(DATE)/' DESCRIPTION > emu/DESCRIPTION
 	mkdir -p emu/R
 	mkdir -p emu/man 
 	mkdir -p emu/data
