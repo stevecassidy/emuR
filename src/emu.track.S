@@ -268,7 +268,7 @@
 
   type = .TclEval(sprintf("$%s cget -type", as.character(tclRes)))
   type= .TclString(type)
-  segs = .TclEval(sprintf("$%s index", as.character(tclRes)))
+  segs = .TclEval(sprintf("$%s gettext", as.character(tclRes)))
   num = .TclEval(sprintf("$%s numsegs", as.character(tclRes)))
   labs = c()
   stime = c()
@@ -278,16 +278,17 @@
   if(.TclNum(num) == 0) {
     stop(paste("Can't find the query results in emu.query: there may have been a problem with the query command.",sep=""))
   }
-  
-  ## get the date to R
-  for(i in c(0:(.TclNum(num)-1))) {
-    seg=.TclLindex(segs,i)
-    seg=splitstring(tclvalue(seg)," ")
-    labs = c(labs,seg[1])
-    stime= c(stime,as.numeric(seg[2]))
-    etime= c(etime,as.numeric(seg[3]))
-    utts= c(utts,seg[4])
-  }
+  cat("moving data from Tcl to R",sep="\n")
+  ## get the data into R
+  lsegs <- strsplit(tclvalue(segs),"\n")
+  lsegs <- strsplit(lsegs[[1]],"\t")
+  mat <- NULL
+  ## in libemu, segments consist of 5 item
+  mat <- matrix(unlist(lsegs),ncol=5,byrow=T)
+  labs <- mat[,1]
+  stime <- mat[,2]
+  etime <- mat[,3]
+  utts <- mat[,4]
   which = labs=="{}"
   labs[which]="*"
   if (length(labs) == 0) {
@@ -323,9 +324,10 @@
 
   ## fill the segment list with data
   for(i in c(1:nseg)) {
+    lab <- .TclEval(sprintf("set Tlab \"%s\"", s[i,1]))
     res <- .Tcl(sprintf("$%s append [list %s %s %s %s]",
                         as.character(TclSegs),
-                        s[i,1],s[i,2],s[i,3],
+                        as.character(lab),s[i,2],s[i,3],
                         s[i,4]))
   }
   ##requery
@@ -334,7 +336,13 @@
   on.exit(.TclEval(sprintf("$%s destroy",as.character(TclSegs))),add=TRUE)
   if (justlabels) {
     ##then TclRes is a simple Tcl list containing just labels
-    result=splitstring(tclvalue(tclRes), " ")
+    ##or maybe not so simple, when items contain spaces
+    ##    result=splitstring(tclvalue(tclRes), " ")
+    result=c()
+    length <- .TclNum(.TclEval(sprintf("llength $%s", as.character(tclRes))))
+    for(i in 1:length) {
+      result=c(result,tclvalue(.TclLindex(tclRes,i-1)))
+    }
     return(result)
   }
   else {
@@ -344,7 +352,7 @@
     ##then TclRes is a snit type seglist
     type = .TclEval(sprintf("$%s cget -type", as.character(tclRes)))
     type= .TclString(type)
-    nsegs = .TclEval(sprintf("$%s index", as.character(tclRes)))
+    nsegs = .TclEval(sprintf("$%s gettext", as.character(tclRes)))
     num = .TclEval(sprintf("$%s numsegs", as.character(tclRes)))
     template = .TclEval(sprintf("$%s cget -database", as.character(tclRes)))
     template=.TclString(template)
@@ -356,14 +364,18 @@
     if(.TclNum(num) == 0) {
       stop(paste("Can't find the query results in emu.query: there may have been a problem with the query command.",sep=""))
     }
-    for(i in c(0:(.TclNum(num)-1))) {
-      seg=.TclLindex(nsegs,i)
-      seg=splitstring(tclvalue(seg)," ")
-      labs = c(labs,seg[1])
-      stime= c(stime,as.numeric(seg[2]))
-      etime= c(etime,as.numeric(seg[3]))
-      utts= c(utts,seg[4])
-    }
+    cat("moving data from Tcl to R",sep="\n")
+    ## get the data into R
+    lsegs <- strsplit(tclvalue(nsegs),"\n")
+    lsegs <- strsplit(lsegs[[1]],"\t")
+    mat <- NULL
+
+    ## segments consists of 4 items (5 in the future)
+    mat <- matrix(unlist(lsegs),ncol=4,byrow=T)
+    labs <- mat[,1]
+    stime <- mat[,2]
+    etime <- mat[,3]
+    utts <- mat[,4]
     which = labs=="{}"
     labs[which]="*"
     if (length(labs) == 0) {
@@ -391,7 +403,7 @@
 
 ".TclLindex" <- function(val, i) {
 
-  v <- .Tcl(paste("lindex $", as.character(val), " ", i, sep=""))
+  v <- .TclEval(paste("lindex $", as.character(val), " ", i, sep=""))
   return( v )
 }
 
