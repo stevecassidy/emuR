@@ -241,6 +241,9 @@
 
 
 "write.trackdata" <- function(trackdata, file) {
+  if (!is.trackdata(trackdata)) 
+    stop("Argument is not a trackdata object.")
+  
   n <- 0:(nrow(trackdata$index)-1)
   indices <- rep(n, trackdata$index[,2]-trackdata$index[,1]+1)
   omat <- NULL
@@ -252,7 +255,15 @@
   }
 
   result <- cbind(indices, omat, trackdata$data)
-  write(t(result), file, ncolumns=ncol(result))
+  append=FALSE
+  if (is.spectral(trackdata) {
+    append=TRUE
+    samfreq <- attr(trackdata$data,"fs")[ncol(trackdata)]
+    samfreq <- paste("#","Original_Freq", samfreq)
+    trackname <- paste("#", "Trackname", trackdata$trackname)
+    cat(samfreq,trackname,file=file,sep="\n")
+  }
+  write(t(result), file, ncolumns=ncol(result),append=append)
 }
 
 
