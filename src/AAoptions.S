@@ -65,6 +65,9 @@ if (emu.platform("Windows")) {
 
 ## this will get changed by the Makefile
 emu.version<-"4.1"
+emu.date<-"2009-02-17"
+
+emu.year<-unlist(strsplit(emu.date, "-"))[1]
 
 "emu.init" <- function() {
 
@@ -160,7 +163,8 @@ the variable 'version'.")
            list( 
                 version=emu.version,
                 deprecated.warnings=1,
-                libdir=tcllibpaths
+                libdir=tcllibpaths,
+                year=emu.year
                 ),
            env = .GlobalEnv )
   } 

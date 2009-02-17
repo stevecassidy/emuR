@@ -5,13 +5,14 @@
 duration of segments is calculated for each segment in the segment list
 }
 \usage{
-\method{dur}{emusegs}(segs)
+\method{dur}{emusegs}(x)
 }
 \arguments{
-  \item{segs}{ a segment list}
+  \item{x}{ a segment list}
 }
 \value{
 a vector of durations
 }
+\author{Jonathan Harrington}
 \keyword{ internal }
 

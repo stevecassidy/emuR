@@ -41,6 +41,9 @@ fm.qda = qda(vowlax.fdat.5[temp,1:2], vowlax.l[temp])
 # Linear discriminant analysis
 fm.lda = lda(vowlax.fdat.5[temp,1:2], vowlax.l[temp])
 
+xlim=c(0,1000)
+ylim=c(0,3000)
+
 par(mfrow=c(1,2))
 classplot(fm.qda, xlim=xlim, ylim=ylim, main="QDA")
 classplot(fm.lda, xlim=xlim, ylim=ylim, main="LDA")

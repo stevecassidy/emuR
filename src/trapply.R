@@ -1,38 +1,25 @@
 `trapply` <-
-function(trackdata, fun, ..., simplify=FALSE, buildtrack=FALSE)
+  function (trackdata, fun, ..., simplify = FALSE, returntrack = FALSE) 
 {
-
-if(!simplify & !buildtrack)
-result <- list(NULL)
-else
-result <- NULL
-
-
-for(j in 1:nrow(trackdata)){
-if(!simplify & !buildtrack)
-result[[j]] <- fun(trackdata[j,]$data, ...)
-else
-{
-if(!buildtrack)
-result <- rbind(result, fun(trackdata[j,]$data, ...))
-else
-result <- c(result, fun(trackdata[j,]$data, ...))
-}
-}
-
-if(simplify & !buildtrack)
-{
-if (ncol(result) == 1)
-result <- c(result)
-}
-
-if(buildtrack)
-{
-trackdata$data <- cbind(result)
-result <- trackdata
-}
-
-result
-
+  if(returntrack)
+    simplify <- FALSE
+                                        # if simplify is F or if returntrack is T, store as a list
+  if (!simplify) 
+    result <- list(NULL)
+  else result <- NULL
+  for (j in 1:nrow(trackdata)) {
+    if (!simplify) 
+      result[[j]] <- fun(trackdata[j, ]$data, ...)
+    else 
+      result <- rbind(result, fun(trackdata[j, ]$data, 
+                                  ...))        
+  }
+  if (simplify) {
+    if (ncol(result) == 1) 
+      result <- c(result)
+  }
+  if (returntrack)
+    result <- buildtrack(result)
+  result
 }
 

@@ -6,14 +6,14 @@
    A given function 'FUN' is applied to the data corresponding to each segment of data.
 }
 \usage{
-  trapply (trackdata, fun, \dots, simplify = FALSE, buildtrack = FALSE)
+  trapply (trackdata, fun, \dots, simplify = FALSE, returntrack = FALSE)
 }
 \arguments{
   \item{trackdata}{a track data object }
   \item{fun}{a function that is applied to each segment}
   \item{\dots}{ arguments of the function fun}
   \item{simplify}{simplify = TRUE , output is a matrix; simplify = FALSE a list is returned}
-\item{buildtrack}{buildtrack = TRUE , return a trackdata object}
+  \item{returntrack}{returntrack = FALSE , return a trackdata object}
 }
 
 \details{
@@ -76,11 +76,11 @@ r[[20]]
 # get the first 4 DCT coefficients
 f2.dct = trapply(vowlax.fdat[,2], dct, 3, simplify=TRUE)
 # dct-smooth F2 with the first 5 DCT coeffs
-f2sm = trapply(vowlax.fdat[,2], dct, 4, TRUE,  buildtrack=TRUE)
+f2sm = trapply(vowlax.fdat[,2], dct, 4, TRUE,  returntrack=TRUE)
 # Make new F2 trackdata such that each segment has
 # F2 divided by its F2 range
 pfun <- function(x) x/(diff(abs(range(x))))
-newf2 = trapply(vowlax.fdat[,2], pfun, buildtrack=TRUE)
+newf2 = trapply(vowlax.fdat[,2], pfun, returntrack=TRUE)
 }
 
 \keyword{methods}

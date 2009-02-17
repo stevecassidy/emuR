@@ -1,14 +1,14 @@
 #############################################################################
-#                                                                           #
-#   copyright            : (C) 2000 SHLRC, Macquarie University             #
-#   email                : Steve.Cassidy@mq.edu.au			    #
-#   url			 : http://www.shlrc.mq.edu.au/emu		    #
-#									    #
-#   This program is free software; you can redistribute it and/or modify    #
-#   it under the terms of the GNU General Public License as published by    #
-#   the Free Software Foundation; either version 2 of the License, or       #
-#   (at your option) any later version.                                     #
-#									    #
+##                                                                          #
+##   copyright            : (C) 2000 SHLRC, Macquarie University            #
+##   email                : Steve.Cassidy@mq.edu.au			    #
+##   url			 : http://www.shlrc.mq.edu.au/emu	    #
+##       								    #
+##   This program is free software; you can redistribute it and/or modify   #
+##   it under the terms of the GNU General Public License as published by   #
+##   the Free Software Foundation; either version 2 of the License, or      #
+##   (at your option) any later version.                                    #
+##									    #
 #############################################################################
 
 
@@ -25,7 +25,7 @@ read.emusegs<- function(file)
     lines <- scan(file, what = "", sep="\n")
   }
 
-  # first three lines are header followed by a hash line
+  ## first three lines are header followed by a hash line
   inheader <- 1
   i <- 1
   labels <- start <- end <- utts <- NULL
@@ -198,26 +198,30 @@ function(x, ...)
 as.numeric(x$end)
 }
 
-utt = 
+"utt" <-  
 function(x) {
   UseMethod("utt")
 }
 
 "utt.emusegs" <-
-function(x)
+  function(x)
 {
-as.character(x$utts)
+  as.character(x$utts)
 }
 
-dur = 
-function(segs) {
-  UseMethod("dur")
-}
+"dur" <- 
+  function(x) {
+    UseMethod("dur")
+  }
 
-dur.emusegs = 
-function(segs)
+"dur.emusegs" <-
+  function (x) 
 {
-  return(end(segs) - start(segs))
+  if(all(end(x)==0))
+    d <- end(x)
+  else
+    d <-  end(x) - start(x)
+  d
 }
 
 

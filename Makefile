@@ -45,7 +45,7 @@ R: $(SFILES) emudir
 	#tar czf emu_$(VERSION)_R.tar.gz emu
 
 version-info:
-	sed -e 's/\(emu\.version<-\)"[0-9.-]*"/\1"$(VERSION)"/' src/AAoptions.S > tmp
+	sed -e 's/\(emu\.version<-\)"[0-9.-]*"/\1"$(VERSION)"/' -e 's/\(emu\.date<-\)"[0-9-]*"/\1"$(DATE)"/' src/AAoptions.S > tmp
 	mv tmp src/AAoptions.S
 
 

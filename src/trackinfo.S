@@ -1,6 +1,5 @@
-"trackinfo" <-
-function(template)
+"trackinfo" <- function (template) 
 {
-	unlist(strsplit(tclvalue(.TclEval(sprintf("emuR::gettracks %s",template))), " "))
+  unlist(strsplit(tclvalue(.TclEval(sprintf("emuR::gettracks %s",
+                                            template))), " "))
 }
-

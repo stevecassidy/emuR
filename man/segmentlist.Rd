@@ -10,10 +10,12 @@
 \format{
   multi-columned matrix
   one row per segment
-  \item{first column}{label}
-  \item{second column}{segment onset time}
-  \item{third column}{segment offset time}
-  \item{fourth column}{utterance name}  
+  \itemize{
+    \item{first column}{label}
+    \item{second column}{segment onset time}
+    \item{third column}{segment offset time}
+    \item{fourth column}{utterance name}
+  }
 }
 
    

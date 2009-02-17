@@ -256,7 +256,7 @@
 
   result <- cbind(indices, omat, trackdata$data)
   append=FALSE
-  if (is.spectral(trackdata) {
+  if (is.spectral(trackdata)) {
     append=TRUE
     samfreq <- attr(trackdata$data,"fs")[ncol(trackdata)]
     samfreq <- paste("#","Original_Freq", samfreq)
@@ -295,7 +295,7 @@
   lsegs <- strsplit(lsegs[[1]],"\t")
   mat <- NULL
   ## in libemu, segments consist of 5 item
-  mat <- matrix(unlist(lsegs),ncol=5,byrow=T)
+  mat <- matrix(unlist(lsegs),ncol=5,byrow=TRUE)
   labs <- mat[,1]
   stime <- mat[,2]
   etime <- mat[,3]
@@ -382,7 +382,7 @@
     mat <- NULL
 
     ## segments consists of 4 items (5 in the future)
-    mat <- matrix(unlist(lsegs),ncol=4,byrow=T)
+    mat <- matrix(unlist(lsegs),ncol=4,byrow=TRUE)
     labs <- mat[,1]
     stime <- mat[,2]
     etime <- mat[,3]

@@ -54,61 +54,59 @@ function (trackdata, fun, ...)
 }
 
 
-
-
-"fapply" <-
-function(specdata, fun, ..., power=FALSE, powcoeffs = c(10, 10))
+`fapply` <-
+  function (specdata, fun, ..., power = FALSE, powcoeffs = c(10, 
+                                                 10)) 
 {
-if(!is.spectral(specdata))
-stop("object must be of class spectral")
-if(power)
-specdata <- dbtopower(specdata, powcoeffs[1], powcoeffs[2])
-dnames  <- dimnames(specdata)
-omat <- NULL
-if(is.trackdata(specdata)){
-class(specdata$data) <- "spectral"
-for(j in 1:nrow(specdata$data)){
-vals <- fun(specdata$data[j,], ...)
-omat <- rbind(omat, vals)
-}
-if(ncol(omat) == ncol(specdata))
-{
-dimnames(omat) <- dnames
-if(!is.spectral(omat))
-omat <- as.spectral(omat, attr(specdata$data, "fs"))
-}
-else
-dimnames(omat) <- list(dnames[[1]], NULL)
-if(power)
-omat <- dbtopower(omat, powcoeffs[1], powcoeffs[2], inv=TRUE)
-return(as.trackdata(omat, specdata$index, specdata$ftime))
-}
+  if (!is.spectral(specdata)) 
+    stop("object must be of class spectral")
+  if (power) 
+    specdata <- dbtopower(specdata, powcoeffs[1], powcoeffs[2])
+  dnames <- dimnames(specdata)
+  omat <- NULL
+  if (is.trackdata(specdata)) {
+    class(specdata$data) <- "spectral"
+    for (j in 1:nrow(specdata$data)) {
+      vals <- fun(specdata$data[j, ], ...)
+      omat <- rbind(omat, vals)
+    }
+    if (ncol(omat) == ncol(specdata)) {
+      dimnames(omat) <- dnames
+      if (!is.spectral(omat)) 
+        omat <- as.spectral(omat, attr(specdata$data, 
+                                       "fs"))
+    }
+    else dimnames(omat) <- list(dnames[[1]], NULL)
+    if (power) 
+      omat <- dbtopower(omat, powcoeffs[1], powcoeffs[2], 
+                        inv = TRUE)
+    return(as.trackdata(omat, specdata$index, specdata$ftime))
+  }
+  else {
+    if(!is.matrix(specdata))
+      {
+        samfreq = max(trackfreq(specdata))*2
+        specdata = as.spectral(rbind(specdata), samfreq)
+      }
 
-
-
-
-else {
-for(j in 1:nrow(specdata)){
-vals <- fun(specdata[j,], ...)
-omat <- rbind(omat, vals)
+    for (j in 1:nrow(specdata)) {
+      vals <- fun(specdata[j, ], ...)
+      omat <- rbind(omat, vals)
+    }
+    if (ncol(omat) == ncol(specdata)) {
+      dimnames(omat) <- dnames
+      if (!is.spectral(omat)) {
+        class(omat) <- c(class(omat), "spectral")
+        attr(omat, "fs") <- attr(specdata, "fs")
+      }
+    }
+    else dimnames(omat) <- list(dnames[[1]], NULL)
+    if (power) 
+      omat <- dbtopower(omat, powcoeffs[1], powcoeffs[2], 
+                        inv = TRUE)
+    return(omat)
+  }
 }
-if(ncol(omat) == ncol(specdata))
-{
-dimnames(omat) <- dnames
-if(!is.spectral(omat))
-{
-class(omat) <- c(class(omat), "spectral")
-attr(omat, "fs") <- attr(specdata, "fs")
-}
-}
-else
-dimnames(omat) <- list(dnames[[1]], NULL)
-if(power)
-omat <- dbtopower(omat, powcoeffs[1], powcoeffs[2], inv=TRUE)
-return(omat)
-}
-}
-
 
 # Local Variables:
 # mode:S

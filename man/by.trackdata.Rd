@@ -12,9 +12,9 @@
 }
 \arguments{
   \item{data}{a track data object }
-  \item{INDICES} {a list of segment indices, like a label vector}
+  \item{INDICES}{a list of segment indices, like a label vector}
   \item{FUN}{a function that is applied to each segment}
-  \item{\dots}{ arguments of the function fun}
+  \item{\dots}{arguments of the function fun}
   \item{simplify}{simplify = TRUE , output is a matrix; simplify = FALSE a list is returned}
 }
 
