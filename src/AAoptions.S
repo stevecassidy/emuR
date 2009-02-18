@@ -54,7 +54,7 @@ if (emu.platform("Windows")) {
 } else {
 
   ## change this value for unix
-  emu.directory <- "/usr/local"
+  emu.directory <- "/usr/local/Emu/lib"
 
 }
 
@@ -87,11 +87,11 @@ emu.year<-unlist(strsplit(emu.date, "-"))[1]
   if (length(tcllibpaths)==0) {
     if (emu.platform("MacOS")) {
       user <- Sys.getenv("USER")
-      tcllibpaths <- c("/Library/Tcl",paste("/Users/",user,"/Library/Tcl",sep=""))
+      tcllibpaths <- c("/Library/Tcl",paste(Sys.getenv("HOME"),"/Library/Tcl",sep=""))
     } else if (emu.platform("Windows")) {
       tcllibpaths <- "C:\\Program Files\\Emu\\lib"
     } else if (emu.platform("Unix")) {
-      tcllibpaths <- "/usr/local/lib"
+      tcllibpaths <- c("/usr/local/Emu/lib",Sys.getenv("HOME"))
     } else {
       stop("Panic! I can't work out what platform I'm running on!\
 Please report this as  a bug at http://sf.net/projects/emu including\
@@ -126,7 +126,7 @@ the variable 'version'.")
       cat( "Please enter the directories seperated by \";\" in which\n" )
       cat( "Emu libraries and tcllib >= 1.8 are installed on your system\n" )
       cat( "eg. C:\\Program Files\\Emu\\lib on Windows\n" )
-      cat( "or /usr/local/lib on Unix.\n\n" )
+      cat( "or /usr/local/Emu/lib or $HOME/Emu/lib on Unix.\n\n" )
       cat( "Enter nothing and press return to exit this configuration loop.\n" )
       cat( "\n")
 
