@@ -99,14 +99,17 @@
 
   ## create a simple matrix for event kind of data (one sample)
   if (missing(npoints) &&  (type == "event" || !missing(cut))) {
-    result=data.frame(result)
+    ##result=data.frame(result)
+    rownames=result[,1]
+    result=result[,-1]
     if (ncol(result) > 1) {
-      colnames <- paste(trackname, 1:ncol(result), sep = "")
+      colnames <- paste("T", 1:ncol(result), sep = "")
     }
     else {
       colnames=trackname
     }
-    dimnames(result)[[2]] <- make.names(colnames)
+    colnames(result) <- colnames
+    rownames(result) <- rownames
     if(any(key %in% c("dft", "css", "lps", "cep")))
       {
         attr(result, "fs") <- seq(0, samfreq/2, length=ncol(result))
