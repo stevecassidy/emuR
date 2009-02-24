@@ -341,7 +341,7 @@
     lab <- .TclEval(sprintf("set Tlab \"%s\"", s[i,1]))
     res <- .Tcl(sprintf("$%s append [list %s %s %s %s]",
                         as.character(TclSegs),
-                        as.character(lab),s[i,2],s[i,3],
+                        .TclString(lab),s[i,2],s[i,3],
                         s[i,4]))
   }
   ##requery
