@@ -71,9 +71,9 @@
   on.exit(.TclEval(sprintf("$%s destroy",as.character(TclSegs))))
   ## fill the Tcl segment list with data from the R seglist
   for(i in c(1:nrow(seglist))) {
-    res <- .Tcl(sprintf("$%s append [list %s %s %s %s]",
+    res <- .Tcl(sprintf("$%s append [list %s%s%s %s %s %s]",
                         as.character(TclSegs),
-                        s[i,1],s[i,2],s[i,3],
+                        "{'",s[i,1],"'}",s[i,2],s[i,3],
                         s[i,4]))
   }
   ## create a tracklist in tcl, a snit object created from within the seglist
@@ -338,10 +338,10 @@
 
   ## fill the segment list with data
   for(i in c(1:nseg)) {
-    lab <- .TclEval(sprintf("set Tlab \"%s\"", s[i,1]))
-    res <- .Tcl(sprintf("$%s append [list %s %s %s %s]",
+    #lab <- .TclEval(sprintf("set Tlab \"%s\"", s[i,1]))
+    res <- .Tcl(sprintf("$%s append [list %s%s%s %s %s %s]",
                         as.character(TclSegs),
-                        .TclString(lab),s[i,2],s[i,3],
+                        "{'",s[i,2],"'}",s[i,2],s[i,3],
                         s[i,4]))
   }
   ##requery
