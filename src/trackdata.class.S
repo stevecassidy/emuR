@@ -265,6 +265,10 @@
   function (fname) 
 {
   line <- readLines(fname, n = 2)
+  if (length(line) < 2) {
+    return(NULL)
+  }
+  
   line <- splitstring(line[2], " ")
   if ((length(line) == 3) && (line[2] == "Trackname")) {
     trackname <- line[3]

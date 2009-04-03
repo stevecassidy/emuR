@@ -51,7 +51,7 @@
 
 
 "emu.track" <- function(seglist, trackname, cut = NULL, npoints = NULL,
-                        template = attr(seglist, "database"))
+                        template = attr(seglist, "database"), rmfile = TRUE)
 {
   
   s <- as.matrix(seglist)
@@ -85,6 +85,8 @@
   ##on.exit(.TclEval(sprintf("$%s destroy",as.character(TclTrack))),add=T)
   ## get data from tcl (one string!)
   res = .Tcl(paste("join [",as.character(TclTrack)," cget -data]",sep=""))
+  tmpfiletrx = .TclString(.Tcl(paste(as.character(TclTrack),
+    " cget -tempfile", sep="")))
   samfreq = .TclNum(.Tcl(paste(as.character(TclTrack),
     " cget -origfreq",sep="")))
   numrecs = .TclNum(.Tcl(paste(as.character(TclTrack),
@@ -95,58 +97,13 @@
   type <- attr(seglist, "type")
 
   result <- NULL
-  result <- matrix(strmat,nrow=numrecs,byrow=TRUE)
-
-  ## create a simple matrix for event kind of data (one sample)
-  if (missing(npoints) &&  (type == "event" || !missing(cut))) {
-    ##result=data.frame(result)
-    rownames=result[,1]
-    result=result[,-1]
-    if (ncol(result) > 1) {
-      colnames <- paste("T", 1:ncol(result), sep = "")
-    }
-    else {
-      colnames=trackname
-    }
-    colnames(result) <- colnames
-    rownames(result) <- rownames
-    if(any(key %in% c("dft", "css", "lps", "cep")))
-      {
-        attr(result, "fs") <- seq(0, samfreq/2, length=ncol(result))
-        class(result) <- c(class(result), "spectral")
-      }
-    return(result)
-  }
-  else {
-    ##complicated stuff, real track data objects
-    segnumbers <- result[,1]
-    times <- result[, 2]
-    data <- result[, c(-1, -2)]
-    data <- as.matrix(data)
-    dimnames(data) <- list(times, paste("T", 1:ncol(data), sep = ""))
-    if (length(unique(segnumbers)) == 1) {
-      index <- cbind(start = 1, end = length(segnumbers))
-      ftime <- cbind(start = times[1], end = times[length(times)])
-    }  else {
-      index <- cumsum(aggregate(data, by = list(segnum = segnumbers), 
-                                FUN = length)[, 2])
-      index <- cbind(start = c(1, index[1:(length(index) - 
-                       1)] + 1), end = index)
-      ftime <- cbind(start = times[index[, 1]], end = times[index[, 
-                                                  2]])
-    }
-    result <- as.trackdata(data, index, ftime, trackname)
-    if(any(key %in% c("dft", "css", "lps", "cep")))
-      {
-        attr(result$data, "fs") <- seq(0, samfreq/2, length=ncol(data))
-        class(result$data) <- c(class(result$data), "spectral")
-      }
-    if (nrow(result$ftime) != nseg) {
-      cat(paste(nrow(result$ftime), nseg))
-      stop("error in emu.track: mismatch between number of segments and number of data items read")
-    }
-    return(result)
-  }
+  #return(result)
+  # eingefügt
+  #return(result)
+  cat("\n moving data from Tcl to R",sep="\n")
+  resultfile = read.trackdata(tmpfiletrx,trackname)
+  gc()
+  return(resultfile)
 }
 
 
@@ -171,7 +128,10 @@
   if (!file.exists(filename)) {
     return(read.trackdata.twofile(filename, trackname))
   }
-  data <- read.table(filename)
+  data = read.table(filename)
+  #print(object.size(data))
+ 
+  #unlink(filename)
   segnumbers <- data[, 1]
   times <- data[, 2]
   data <- data[, c(-1, -2)]
@@ -180,8 +140,7 @@
   if (length(unique(segnumbers)) == 1) {
     index <- cbind(start = 1, end = length(segnumbers))
     ftime <- cbind(start = times[1], end = times[length(times)])
-  }
-  else {
+  } else {
     index <- cumsum(aggregate(data, by = list(segnum = segnumbers), 
                               FUN = length)[, 2])
     index <- cbind(start = c(1, index[1:(length(index) - 
@@ -190,14 +149,24 @@
                                                 2]])
   }
   result <- as.trackdata(data, index, ftime, trackname)
+  rm(data)
+  gc()
   samfreq <- get.originalFreq(filename)
   key <- get.trackkeywrd(filename)
+  unlink(filename)
   if(any(key %in% c("dft", "css", "lps", "cep")))
     {
       attr(result$data, "fs") <- seq(0, samfreq/2, length=ncol(data))
       class(result$data) <- c(class(result$data), "spectral")
     }
+
+
   return(result)
+  #save(result, file="~/Rtmprtrd")
+  #rm(result)
+  #gc()
+  #return()
+  #return("~/Rtmprtrd")
 }
 
 
