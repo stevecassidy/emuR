@@ -101,9 +101,12 @@
   # eingefügt
   #return(result)
   cat("\n moving data from Tcl to R",sep="\n")
-  resultfile = read.trackdata(tmpfiletrx,trackname)
+  result = read.trackdata(tmpfiletrx,trackname)
+  if (rmfile) {
+    file.remove(tmpfiletrx)
+  }
   gc()
-  return(resultfile)
+  return(result)
 }
 
 
@@ -130,8 +133,7 @@
   }
   data = read.table(filename)
   #print(object.size(data))
- 
-  #unlink(filename)
+
   segnumbers <- data[, 1]
   times <- data[, 2]
   data <- data[, c(-1, -2)]
@@ -153,7 +155,6 @@
   gc()
   samfreq <- get.originalFreq(filename)
   key <- get.trackkeywrd(filename)
-  unlink(filename)
   if(any(key %in% c("dft", "css", "lps", "cep")))
     {
       attr(result$data, "fs") <- seq(0, samfreq/2, length=ncol(data))
@@ -162,11 +163,7 @@
 
 
   return(result)
-  #save(result, file="~/Rtmprtrd")
-  #rm(result)
-  #gc()
-  #return()
-  #return("~/Rtmprtrd")
+
 }
 
 
