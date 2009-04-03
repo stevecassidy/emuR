@@ -6,7 +6,7 @@
   time-series data from the database. 
 }
 \usage{
-emu.track(seglist, trackname, cut=NULL, npoints=NULL, template=attr(seglist, "database"))
+emu.track(seglist, trackname, cut=NULL, npoints=NULL, template=attr(seglist, "database"), rmfile=TRUE)
 }
 
 \arguments{
@@ -22,6 +22,7 @@ emu.track(seglist, trackname, cut=NULL, npoints=NULL, template=attr(seglist, "da
     around the event time.}
  \item{template}{ The database to retrieve the data from, this should
    not normally be set. }
+ \item{rmfile}{ A trackdata matrix is written to users home directory. This file is removed (TRUE) or kept (FALSE).}   
 }
 \details{
 
