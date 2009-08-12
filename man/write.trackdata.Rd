@@ -13,7 +13,7 @@
 }
 
 \arguments{
-  \item{trackdata}{ track data object}
+  \item{trackdata}{ track data object or track data object as character}
   \item{file}{ file name }
 }
 

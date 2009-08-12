@@ -52,7 +52,6 @@ summary(segs)
 \dontshow{data = vowlax.fdat.5}
 eplot( data[,1:2], label( segs ), dopoints=TRUE )
 
-
 }
 \keyword{misc}
 

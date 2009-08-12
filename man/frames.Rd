@@ -13,14 +13,8 @@ frames(trackdata)
 \value{
   Data frames from the input object.
 }
-\details{
-}
-\references{
-}
 \seealso{
   \code{\link{trackdata}}
 }
-\examples{
-}
 \author{Jonathan Harrington}
-\keyword{}
+\keyword{utilities}
