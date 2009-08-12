@@ -65,7 +65,7 @@ if (emu.platform("Windows")) {
 
 ## this will get changed by the Makefile
 emu.version<-"4.1"
-emu.date<-"2009-08-11"
+emu.date<-"2009-08-12"
 
 emu.year<-unlist(strsplit(emu.date, "-"))[1]
 
@@ -82,7 +82,7 @@ emu.year<-unlist(strsplit(emu.date, "-"))[1]
     cat( "Error trying to load tcltk. Make sure your R version is\n" )
     cat( "tcltk enabled.\n")
     cat( "On Macintosh OS X try loading X11\n")
-    return( FALSE )
+    return(invisible());
     }
   }
   
@@ -181,17 +181,17 @@ emulink = function (paths="") {
     cat( "tcltk enabled. See capabilities(\"tcltk\").\n")
     cat( "On Macintosh OS X try loading X11\n")
     }
-    return( FALSE )
-  }
+    return(invisible());
+}
 tclfound <- tclRequire( "emuR" ,warn = FALSE )   
    if(class(tclfound) == "tclObj" ) {
      if (interactive()) {
      cat("Your configuration works already. \n")
      cat("Thus the directories in which the Emu libraries and tcllib >= 1.8 \n")
      cat("are installed on your system are one or some of these: \n", tclvalue(tcl("set", "auto_path")), "\n");
-     cat("Further configuration does not affect anything. If you like to add an adiitional tcl path use addTclPath().\n");
+     cat("Further configuration does not affect anything. If you like to add an additional tcl path use addTclPath().\n");
      }
- return(TRUE);
+ return(invisible());
 }  
 if (paths == "") {
  # get current configuration
@@ -307,7 +307,7 @@ the variable 'version'.")
     }
   }
   
-  if( crashout ) { return(FALSE) }
+  if( crashout ) { return(invisible()); }
   if( is.R() ) {
 
     writeLines(tcllibpaths, con = filepath)
