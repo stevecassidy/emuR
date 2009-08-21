@@ -14,8 +14,10 @@
 {
   if(is.trackdata(trackdata)){
 
-    if(is.spectral(trackdata$data))
-      stop("trackdata is already of class spectral")
+    if(is.spectral(trackdata$data)) {
+      warning("matrix is already of class spectral")
+      return(trackdata)
+      }
     N <- ncol(trackdata$data)
     if(missing(fs))
       fs <- 0: (ncol(trackdata$data)-1)
@@ -31,8 +33,10 @@
   }
 
   else if (is.matrix(trackdata)){
-    if(is.spectral(trackdata))
-      stop("matrix is already of class spectral")
+    if(is.spectral(trackdata)) {
+      warning("matrix is already of class spectral")
+      return(trackdata)
+      }
     N <- ncol(trackdata)
     if(missing(fs))
       fs <- 0: (ncol(trackdata)-1)
@@ -49,8 +53,10 @@
   else
     {
 
-      if(is.spectral(trackdata))
-        stop("vector is already of class spectral")
+      if(is.spectral(trackdata)){
+        warning("matrix is already of class spectral")
+        return(trackdata)
+      }
       N <- length(trackdata)
       if(missing(fs))
         fs <- 0: (length(trackdata)-1)
