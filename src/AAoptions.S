@@ -126,11 +126,11 @@ the variable 'version'.")
     if( !crashout  && class(tclfound) != "tclObj" ) {
     if (interactive()) {
     cat( "\nLibrary successfully loaded. \n" )
-    cat( "However, some functions that interface to the database notably emu.query() " )
-    cat( "and emu.track() will not work unless you have already " )
+    cat( "However, some functions that interface to the database notably emu.query()\n" )
+    cat( "and emu.track() will not work unless you have already \n" )
     cat( "installed Emu (www.emu.sf.net). \n" )
-    cat( "This R Add-On will not work with EMU version <= 2.0prev!\n" )
-    cat( "If Emu is installed on your system, run the program " )
+    cat( "This R Add-On will not work properly with EMU version <= 2.2.4!\n" )
+    cat( "If Emu is installed on your system, run the program \n" )
     cat( "emulink() to establish the link to Emu. \n" )
     }
     }
