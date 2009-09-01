@@ -43,9 +43,9 @@
         "\n      INSTITUTE OF PHONETICS      ",
         "\n      AND SPEECH PROCESSING       ", 
         "\n                                  ",
-        "\n(C) IPS, University of Munich ", emu.options("year"),
+        "\n(C) IPS, University of Munich ", emu.year,
         "\n                                  ", 
-        "\nR Package of the EMU Speech Database system - Version ", emu.options("version"),
+        "\nR Package of the EMU Speech Database system - Version ", emu.version,
         "\nFor support requests, contact http://sourceforge.net/projects/emu \n")
 
   }
