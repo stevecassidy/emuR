@@ -293,8 +293,8 @@ the variable 'version'.")
       if( emu.directory == "" ) {
         crashout <- TRUE
        cat( "Link to Emu not established. \n")
-       cat( "Report Bug to www.emu.sf.net with description of your problem. ")
-       cat( "Do not forget to give information about the platform and Emu R and EmuR versions you are running.\n" )
+       cat( "Report Bug to www.emu.sf.net with description of your problem. \n")
+       cat( "Do not forget to give information about \nthe platform, Emu, R and EmuR versions you are running.\n" )
        cat( "Try emulink() again to establish the link to Emu. \n" )    
        
       } else {
