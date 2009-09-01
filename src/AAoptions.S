@@ -65,7 +65,7 @@ if (emu.platform("Windows")) {
 
 ## this will get changed by the Makefile
 emu.version<-"4.1"
-emu.date<-"2009-08-12"
+emu.date<-"2009-09-01"
 
 emu.year<-unlist(strsplit(emu.date, "-"))[1]
 
