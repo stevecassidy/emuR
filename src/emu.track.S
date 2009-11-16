@@ -84,7 +84,7 @@
   ##when deleting TclSegs (its parent)
   ##on.exit(.TclEval(sprintf("$%s destroy",as.character(TclTrack))),add=T)
   ## get data from tcl (one string!)
-  res = .Tcl(paste("join [",as.character(TclTrack)," cget -data]",sep=""))
+  ## res = .Tcl(paste("join [",as.character(TclTrack)," cget -data]",sep=""))
   tmpfiletrx = .TclString(.Tcl(paste(as.character(TclTrack),
     " cget -tempfile", sep="")))
   samfreq = .TclNum(.Tcl(paste(as.character(TclTrack),
@@ -93,20 +93,42 @@
     " cget -numrecs",sep="")))
   key = .TclString(.Tcl(paste(as.character(TclTrack),
     " cget -trackname", sep="")))
-  strmat <- as.numeric(res)
+  ## strmat <- as.numeric(res)
   type <- attr(seglist, "type")
 
  
 
-  cat("\n moving data from Tcl to R",sep="\n")
-  result = read.trackdata(tmpfiletrx,trackname)
-  # this is not done by read.trackdata because the tmpfile does not contain key and samfreq information and
-  # if it does once, it does not matter anyway
-    if(any(key %in% c("dft", "css", "lps", "cep")))
-    {
-      attr(result$data, "fs") <- seq(0, samfreq/2, length=ncol(result$data))
-      class(result$data) <- c(class(result$data), "spectral")
+
+  
+  
+  if (npointsV == 1 && (type == "event" || cutV != -1)) {
+    result <- read.table(tmpfiletrx)
+    if (ncol(result) > 1) {
+      colnames <- paste(trackname, 1:ncol(result), sep = "")
     }
+    else {
+      colnames <- trackname
+    }
+    dimnames(result)[[2]] <- make.names(colnames)
+    samfreq <- get.originalFreq(tmpfiletrx)
+    key <- get.trackkeywrd(tmpfiletrx)
+  }
+  else {
+    result <- read.trackdata(tmpfiletrx, trackname)
+    if (nrow(result$ftime) != nseg) 
+      stop("error in emu.track: mismatch between number of segments and number of data items read")
+  }
+  # this is not done by read.trackdata because the tmpfile does not contain
+  # key and samfreq information and
+  # if it does once, it does not matter anyway:
+  # yeah right...
+
+  if(any(key %in% c("dft", "css", "lps", "cep")))
+    {
+      attr(result, "fs") <- seq(0, samfreq/2, length=ncol(data))
+      class(result) <- c(class(result), "spectral")
+    }
+  
   if (rmfile) {
     file.remove(tmpfiletrx)
   }
