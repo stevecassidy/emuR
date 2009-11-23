@@ -125,8 +125,8 @@
 
   if(any(key %in% c("dft", "css", "lps", "cep")))
     {
-      attr(result, "fs") <- seq(0, samfreq/2, length=ncol(data))
-      class(result) <- c(class(result), "spectral")
+      attr(result$data, "fs") <- seq(0, samfreq/2, length=ncol(data))
+      class(result$data) <- c(class(result$data), "spectral")
     }
   
   if (rmfile) {
