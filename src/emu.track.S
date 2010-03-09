@@ -125,7 +125,7 @@
 
   if(any(key %in% c("dft", "css", "lps", "cep")))
     {
-      attr(result$data, "fs") <- seq(0, samfreq/2, length=ncol(data))
+      attr(result$data, "fs") <- seq(0, samfreq/2, length=ncol(result$data))
       class(result$data) <- c(class(result$data), "spectral")
     }
   
