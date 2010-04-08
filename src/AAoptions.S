@@ -156,10 +156,12 @@ the variable 'version'.")
   if( class(tclfound) == "tclObj" ) {
     if( is.R() ) {
 
-    writeLines(tcllibpaths, con = filepath)
+    # to write the emudirfile is not necessary if the files are in the standard directory
+    # futher an error appears when users do not have permissions to write the file
+    # writeLines(tcllibpaths, con = filepath)
       if (interactive()) {
     cat("\nTcl lib path of EMU Installation:", emu.options("libdir"))
-    cat("\nFor configuration, modify file",filepath,"or use emulink().\n\n")
+    cat("\nFor configuration use emulink().\n\n")
     cat( "Library successfully loaded and linked to the Emu installation. \n\n" )
     }
   }
