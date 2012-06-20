@@ -18,8 +18,10 @@
 }
 
   ## default is just to use rbind
-"bind.default" <- rbind
-
+"bind.default" <- function(...)
+{
+  rbind(...)
+}
 
 "bind.trackdata"<- function(...)
 {

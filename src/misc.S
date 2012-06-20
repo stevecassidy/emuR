@@ -13,10 +13,6 @@
 
 
 
-
-
-
-
 ## return the index of the value in vec which is closest to val
 "closest" <- function(vec, val)
 {
@@ -71,7 +67,7 @@
     }
   }
   if (is.seglist(segs.or.labels)) {
-    return( modify.seglist(segs.or.labels, label=labs))
+    return( modify.seglist(segs.or.labels, labels=labs))
   } else {
     return( labs )
   }
