@@ -50,10 +50,10 @@ function around \$data}
 }
 \examples{
 # mean value per spectrum, input is a spectral matrix
-m <- fapply(vowlax.dft.5, mean)
+m <- fapply(vowlax.dft.5, sapply, FUN=mean)
 # as above but after converting dB to powers before
 # applying the function
-m <- fapply(vowlax.dft.5, mean, power=TRUE)
+m <- fapply(vowlax.dft.5, sapply, FUN=mean, power=TRUE)
 # spectral range
 r <- fapply(vowlax.dft.5, range)
 # spectral moments applied to a trackdata object

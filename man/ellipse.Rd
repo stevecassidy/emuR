@@ -28,7 +28,7 @@ The increment between points, in degrees.
 A matrix of x and y coordinates for the ellipse. 
 }
 \seealso{
-eplot()
+\code{\link{eplot}}
 }
 \keyword{misc}
 % Converted by Sd2Rd version 0.3-3.

@@ -50,7 +50,7 @@ special group of segments, use \link{trapply} instead.
    #mean F1 subsumed for each vowel
    ################################
    lab = label(demo.vowels)
-   by(demo.vowels.fm[,1], lab ,mean ,simplify=FALSE)
+   by(demo.vowels.fm[,1], lab ,sapply,mean,simplify=FALSE)
 
 
    #mean F1 subsumed for segment onsets mids and offsets
@@ -64,11 +64,11 @@ special group of segments, use \link{trapply} instead.
      llabs = as.vector(c(llabs , seglabs))
    }
 
-   by(demo.vowels.fm[,1], llabs , mean , simplify=FALSE)
+   by(demo.vowels.fm[,1], llabs , sapply, mean , simplify=FALSE)
 
    #mean F1 subsumed for segment onsets mids and offsets subsumed for each vowel
    #####################################################################
-   by(demo.vowels.fm[,1], list(lab = lab, llabs = llabs) , mean , simplify=FALSE)
+   by(demo.vowels.fm[,1], list(lab = lab, llabs = llabs) , sapply, mean , simplify=FALSE)
 
 
 }
