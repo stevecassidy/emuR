@@ -78,6 +78,7 @@ emu.platform <- function(what) {
   ##         "\n\n		(C) Institute of Phonetics and Speech Processing (IPS) \n University of Munich 2012\n\n")
   ##  }
   
+ 
   
   if (interactive()) {
     
@@ -86,13 +87,15 @@ emu.platform <- function(what) {
     nfile = "emudirectory"
     filepath = paste(packpath,sepa,nfile,sep = "")
     mess = paste("\n \n     _  _________     _______    \n    | ||  ______ \\  / _______|    \n    | || | _____| || |_______     \n    | || ||______/  \\_______ \\    \n    | || | _   . . .   _ ___| |   \n    |_||_||_||.:.:.:.||_|____/            \n               : : :             \n      INSTITUTE OF PHONETICS      \n      AND SPEECH PROCESSING        \n                                  \n(C) IPS University of Munich"  ,emu.year,"\n\nR Package of the EMU Speech Database system - Version  ",emu.version," \nFor support requests contact http://emu.sourceforge.net \n")    
-        
-  packageStartupMessage(mess, appendLF = FALSE)
+   packageStartupMessage(mess, appendLF = FALSE)
+   packageStartupMessage( "\nV Library successfully loaded." )
   }
+
+
+emudata.init()
   
   ## setup defaults 
   emu.init()
-    
   ## call user's .First.emu if present
 
   if( exists(".First.emu") )

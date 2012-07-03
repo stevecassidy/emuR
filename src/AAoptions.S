@@ -68,13 +68,12 @@ the variable 'version'.")
   if (interactive()) {
       if( !crashout  && class(tclfound) != "tclObj" ) {
           if (interactive()) {
-            message( "\nLibrary successfully loaded. \n" )
-            cat( "However, some functions that interface to the database notably emu.query()\n" )
-            cat( "and emu.track() will not work unless you have already \n" )
-            cat( "installed Emu (www.emu.sf.net). \n" )
-            cat( "This R Add-On works best with EMU version 2.4! You need at least EMU 2.2.4.\n\n" )
-            message( "If the EMU System is installed on your system, run the function" )
-            message( "emulink() to establish the link to EMU. \n" )
+            message( "X Library NOT linked to EMU installation !!!" )
+            cat( "    Some functions that need database access notably emu.query()\n" )
+            cat( "    and emu.track() will not work unless you have already \n" )
+            cat( "    installed Emu (www.emu.sf.net). \n" )
+            cat( "    This R Add-On works best with EMU version 2.4! You need at least EMU 2.2.4.\n" )
+            message( "    Establish the link to your installed EMU System by calling emulink(). \n" )
             }
       }
   }
@@ -103,13 +102,13 @@ the variable 'version'.")
     # futher an error appears when users do not have permissions to write the file
     # writeLines(tcllibpaths, con = filepath)
     if (interactive()) {
-      cat("\nTcl lib path of EMU Installation:", emu.options("libdir"))
+      message( "V Library successfully linked to the Emu installation." )
+      cat("\tTcl lib path of EMU Installation:", emu.options("libdir"))
       if (unlist(strsplit(tclvalue(.TclEval(sprintf("catch emuR::getdbs"))), " ")) == "0") {
-       cat("\n\twith EMU/R tcl-library version: ", emurinfo())
-       cat("\n\tand EMU tcl-library version: ", emuinfo())
+       cat("\n\t\twith EMU/R tcl-library version: ", emurinfo())
+       cat("\n\t\tand EMU tcl-library version: ", emuinfo())
       }
-      cat("\nFor configuration use emulink().\n\n")
-      cat( "Library successfully loaded and linked to the Emu installation. \n\n" )
+      message("\n\tFor configuration use emulink().\n\n")
     }
   }
   invisible()
@@ -318,5 +317,21 @@ emulink = function (paths="") {
 "emu.options" <- function( option ) {
   laa = get("emu",envir = .GlobalEnv)
   return(laa[[option]])
+}
+
+
+emudata.init <- function() {
+   messemudatamore = ""
+  if(any(installed.packages()[,1] == "emudata")) {
+    library(emudata)
+    messemudata="V Additional datasets successfully loaded from package emudata."
+  } else {
+    messemudata="X NO additional databases loaded."
+    messemudatamore="    To have access to all datasets used in \n    Harrington, J. (2010). The Phonetic Analysis of Speech Corpora. Blackwell,\n    install package emudata."
+  }
+  if (interactive()) {
+    message(messemudata)
+    cat(messemudatamore)
+  }
 }
 
