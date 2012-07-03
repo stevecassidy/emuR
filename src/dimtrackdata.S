@@ -8,7 +8,8 @@ c(nrow(x$index), ncol(x$data))
 
 "dimnames.trackdata" <-
 function(x)
-{trackdata = x
+{
+trackdata = x
 dimnames(trackdata$data)
 }
 
