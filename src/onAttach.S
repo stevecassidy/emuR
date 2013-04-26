@@ -82,7 +82,7 @@ emu.platform <- function(what) {
   
   if (interactive()) {
     
-    packpath = .path.package(package = "emu", quiet = FALSE)
+    packpath = path.package(package = "emu", quiet = FALSE)
     sepa = .Platform$file.sep
     nfile = "emudirectory"
     filepath = paste(packpath,sepa,nfile,sep = "")

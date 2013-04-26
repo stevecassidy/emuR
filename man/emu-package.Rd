@@ -68,11 +68,11 @@ Harrington, J. (2010). The Phonetic Analysis of Speech Corpora. Blackwell.
         # dplot, eplot
         # Extract track values at point in time
         seg.fm = emu.track(seg,"fm")
-        seg.fm.5 = dcut(seg.fm, .5, prop =T)
+        seg.fm.5 = dcut(seg.fm, .5, prop =TRUE)
         
         # Plot the data as time signal and formant card
-        dplot(seg.fm[,1:2], seg.lab, normalise=T, main = "Formants over vowel duration")
-        eplot(seg.fm.5[,1:2], seg.lab, dopoints=T, doellipse=F, main = "F1/F2 of vowel midpoint", form=T, xlab = "F2 in Hz", ylab = "F1 in Hz")
+        dplot(seg.fm[,1:2], seg.lab, normalise=TRUE, main = "Formants over vowel duration")
+        eplot(seg.fm.5[,1:2], seg.lab, dopoints=TRUE, doellipse=FALSE, main = "F1/F2 of vowel midpoint", form=TRUE, xlab = "F2 in Hz", ylab = "F1 in Hz")
         
         # emu.requery
         # An EMU query and ...
@@ -87,7 +87,7 @@ Harrington, J. (2010). The Phonetic Analysis of Speech Corpora. Blackwell.
         # plot.spectral
         # Plot of spectral data from 50% of aspiration duration 
         segH.dft = emu.track(segH,"dft")
-        segH.dft.5 = dcut(segH.dft, .5,prop=T)
+        segH.dft.5 = dcut(segH.dft, .5,prop=TRUE)
         plot(segH.dft.5,segH.lab, main = "Spectral data of aspiration")
     }
 

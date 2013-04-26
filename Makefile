@@ -1,7 +1,7 @@
 #R = /Applications/StartR.app/RAqua.app/Contents/bin/R
 R = R
 
-VERSION = 4.2
+VERSION = 4.3
 
 
 ## Splus source files, note that options.S MUST come first as it has the 
@@ -30,6 +30,7 @@ emudir:  version-info
 	cp $(RFILES) emu/R/
 	cp man/*.Rd emu/man
 	cp  data/*.* emu/data
+	cp NAMESPACE emu
 
 check:	emudir
 	$Rcmd check emu

@@ -14,7 +14,7 @@
 
 "emu.init" <- function() {
 
-  packpath = .path.package(package = "emu", quiet = FALSE)
+  packpath = path.package(package = "emu", quiet = FALSE)
   sepa = .Platform$file.sep
   nfile = "emudirectory"
   filepath = paste(packpath,sepa,nfile,sep = "")
@@ -117,7 +117,7 @@ the variable 'version'.")
 
 emulink = function (paths="") {
 
-  packpath = .path.package(package = "emu", quiet = FALSE)
+  packpath = path.package(package = "emu", quiet = FALSE)
   sepa = .Platform$file.sep
   nfile = "emudirectory"
   filepath = paste(packpath,sepa,nfile,sep = "")
@@ -322,8 +322,8 @@ emulink = function (paths="") {
 
 emudata.init <- function() {
    messemudatamore = ""
-  if(any(installed.packages()[,1] == "emudata")) {
-    library(emudata)
+  if(require(emudata)) {
+    
     messemudata="V Additional datasets successfully loaded from package emudata."
   } else {
     messemudata="X NO additional databases loaded."
