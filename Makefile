@@ -1,7 +1,7 @@
 #R = /Applications/StartR.app/RAqua.app/Contents/bin/R
 R = R
 
-VERSION = 4.3
+VERSION = 4.4
 
 
 ## Splus source files, note that options.S MUST come first as it has the 
@@ -48,6 +48,8 @@ R: $(SFILES) emudir
 version-info:
 	sed -e 's/\(emu\.version<-\)"[0-9.-]*"/\1"$(VERSION)"/' -e 's/\(emu\.date<-\)"[0-9-]*"/\1"$(DATE)"/' src/AAoptions.S > tmp
 	mv tmp src/AAoptions.S
+	sed -e 's/\(emu\.version<-\)"[0-9.-]*"/\1"$(VERSION)"/' -e 's/\(emu\.date<-\)"[0-9-]*"/\1"$(DATE)"/' src/onAttach.S > tmp
+	mv tmp src/onAttach.S
 
 
 

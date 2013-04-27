@@ -87,7 +87,7 @@ the variable 'version'.")
                 libdir=tcllibpaths,
                 year=emu.year
                 ),
-           envir = .GlobalEnv )
+           pos=which(search()=='package:emu'))
   } 
 
   
@@ -289,7 +289,7 @@ emulink = function (paths="") {
                 libdir=tcllibpaths,
                 year=emu.year
                 ),
-           envir = .GlobalEnv )
+           pos=which(search()=='package:emu'))
   } 
 
   
@@ -315,7 +315,7 @@ emulink = function (paths="") {
     return(tcllibpaths)
 }
 "emu.options" <- function( option ) {
-  laa = get("emu",envir = .GlobalEnv)
+  laa = get("emu",pos=which(search()=='package:emu'))
   return(laa[[option]])
 }
 

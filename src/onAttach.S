@@ -17,8 +17,8 @@
     
     
     ## this will get changed by the Makefile
-emu.version<-"4.3"
-emu.date<-"2012-06-20"
+emu.version<-"4.4"
+emu.date<-"2013-04-28"
     
 emu.year<-unlist(strsplit(emu.date, "-"))[1]
 
@@ -107,5 +107,4 @@ emudata.init()
 
 ## Local Variables:
 ## mode:S
-## S-temp-buffer-p:t
 ## End:
