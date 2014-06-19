@@ -12,8 +12,6 @@
 ##############################################################################
 
 
-emu.version <- "FOOO"
-emu.year <- "2014"
 
 ".onAttach"<- function(libname, pkgname)
 {
@@ -24,7 +22,7 @@ emu.year <- "2014"
     sepa = .Platform$file.sep
     nfile = "emudirectory"
     filepath = paste(packpath,sepa,nfile,sep = "")
-    mess = paste("\n \n     _  _________     _______    \n    | ||  ______ \\  / _______|    \n    | || | _____| || |_______     \n    | || ||______/  \\_______ \\    \n    | || | _   . . .   _ ___| |   \n    |_||_||_||.:.:.:.||_|____/            \n               : : :             \n      INSTITUTE OF PHONETICS      \n      AND SPEECH PROCESSING        \n                                  \n(C) IPS University of Munich"  ,emu.year,"\n\nR Package of the EMU Speech Database system - Version  ",emu.version," \nFor support requests contact http://emu.sourceforge.net \n")    
+    mess = paste("\n \n     _  _________     _______    \n    | ||  ______ \\  / _______|    \n    | || | _____| || |_______     \n    | || ||______/  \\_______ \\    \n    | || | _   . . .   _ ___| |   \n    |_||_||_||.:.:.:.||_|____/            \n               : : :             \n      INSTITUTE OF PHONETICS      \n      AND SPEECH PROCESSING        \n                                  \n(C) IPS University of Munich\n\nR Package of the EMU Speech Database system - Version",packageVersion("emuR")," \nFor support requests contact http://emu.sourceforge.net \n")    
    packageStartupMessage(mess, appendLF = FALSE)
    packageStartupMessage( "\nLibrary successfully loaded." )
   }
