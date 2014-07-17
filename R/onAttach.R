@@ -32,20 +32,20 @@
 
 
 
-emudata.init <- function() {
-   messemudatamore = ""
-  if(require(emudata)) {
-    
-    messemudata="V Additional datasets successfully loaded from package emudata."
-  } else {
-    messemudata="X NO additional databases loaded."
-    messemudatamore="    To have access to all datasets used in \n    Harrington, J. (2010). The Phonetic Analysis of Speech Corpora. Blackwell,\n    install package emudata."
-  }
-  if (interactive()) {
-    message(messemudata)
-    cat(messemudatamore)
-  }
-}
+# emudata.init <- function() {
+#    messemudatamore = ""
+#   if(require(emudata)) {
+#     
+#     messemudata="V Additional datasets successfully loaded from package emudata."
+#   } else {
+#     messemudata="X NO additional databases loaded."
+#     messemudatamore="    To have access to all datasets used in \n    Harrington, J. (2010). The Phonetic Analysis of Speech Corpora. Blackwell,\n    install package emudata."
+#   }
+#   if (interactive()) {
+#     message(messemudata)
+#     cat(messemudatamore)
+#   }
+# }
 
 
 
