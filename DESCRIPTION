@@ -1,16 +1,11 @@
 Package: emuR
-Type: Package
+Version: 0.0.1
 Title: Interface to the Emu Speech Database System
-Version: 2.0
-Date: 2014-06-19
-Author: Jonathan Harrington, Tina John and others, IPS LMU Muenchen & IPDS CAU Kiel
-Maintainer: Jonathan Harrington  <jmh@phonetik.uni-muenchen.de>
+Date: 2014-07-17
+Authors@R: c(person("Steve", "Cassidy", role = c("aut", "cre"), email = "steve.cassidy@mq.edu.au"),
+             person("Raphael", "Winkelmann", role = c("aut", "cre"), email = "raphael@phonetik.uni-muenchen.de"),
+	           person("Klaus", "Jaensch", role = c("aut", "cre"), email = "klauj@phonetik.uni-muenchen.de"))
 Description: Provides many special purpose functions for display and analysis of speech data. 
 License: GPL (>= 2)
 Depends: R (>= 2.13), stats, methods, MASS
-Suggests: emudata
-LazyLoad: yes
-LazyData: yes
-ZipData: no
-URL: http://emu.sourceforge.net/
 
