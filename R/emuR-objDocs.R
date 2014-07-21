@@ -9,6 +9,7 @@
 ##' offset time \itemfourth columnutterance name }
 ##' @seealso \code{\link{emu.query}}, \code{\link{demo.vowels}}
 ##' @keywords classes
+##' @name segmentlist
 ##' @examples
 ##' 
 ##'    data(demo.vowels)
@@ -39,6 +40,7 @@ NULL
 ##' @author Jonathan Harrington
 ##' @seealso \code{\link{tracktimes}}
 ##' @keywords utilities
+##' @name start.emusegs
 ##' @examples
 ##' 
 ##' # start time of a segment list
