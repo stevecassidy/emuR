@@ -1,6 +1,14 @@
-
-
-
+##' Performance (hit rate) of a confusion matrix
+##' 
+##' Performs (hit rate) of a confusion matrix
+##' 
+##' 
+##' @param data A confusion matrix.
+##' @return Caluculates the accuracy (total score) of the confusion matrix,
+##' returning percentage of correct, and incorrect matches.
+##' @seealso confusion
+##' @keywords misc
+##' @export perform
 "perform" <- function(data)
 {
   ## calculates total score in a confusion matrix, data
@@ -17,9 +25,3 @@
   dimnames(m) <- list(NULL, labcol)
   m
 }
-
-# Local Variables:
-# mode:S
-# S-temp-buffer-p:t
-# End:
-

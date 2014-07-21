@@ -1,4 +1,10 @@
-
+##' make a EMU legend
+##' 
+##' see function
+##' 
+##' 
+##' @keywords internal
+##' @export mu.legend
 "mu.legend"<- function(legn, xlim, ylim)
 {
   fudge.x <- (xlim[2]-xlim[1])/5
@@ -15,9 +21,3 @@
     return(locator(1))
   stop("Unknown legend locator in mu.legend")
 }
-
-
-# Local Variables:
-# mode:S
-# S-temp-buffer-p:t
-# End:

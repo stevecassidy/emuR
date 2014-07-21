@@ -4,4 +4,3 @@
   class(o) <- c("EPG")
   o
 }
-

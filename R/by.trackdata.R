@@ -1,3 +1,56 @@
+##' A method of the generic function by for objects of class \'trackdata\'
+##' 
+##' A given function 'FUN' is applied to the data corresponding to each segment
+##' of data.
+##' 
+##' It is the same as trapply but with the extension to subsume calculation to
+##' groups of segments. Note, if you do not want to apply the function fun to a
+##' special group of segments, use \link{trapply} instead.
+##' 
+##' @aliases by.trackdata by
+##' @param data a track data object
+##' @param INDICES a list of segment indices, like a label vector
+##' @param FUN a function that is applied to each segment
+##' @param \dots arguments of the function fun
+##' @param simplify simplify = TRUE , output is a matrix; simplify = FALSE a
+##' list is returned
+##' @return list or vector
+##' @author Jonathan Harrington
+##' @seealso \code{\link{trapply}}, \code{\link{by}}, \code{\link{trackdata}}
+##' \code{\link{dapply}} \code{\link{smooth}} \code{\link{apply}}
+##' @keywords methods
+##' @examples
+##' 
+##'   data(demo.vowels)
+##'   data(demo.vowels.fm)
+##' 
+##' 
+##'    #mean F1 subsumed for each vowel
+##'    ################################
+##'    lab = label(demo.vowels)
+##'    by(demo.vowels.fm[,1], lab ,sapply,mean,simplify=FALSE)
+##' 
+##' 
+##'    #mean F1 subsumed for segment onsets mids and offsets
+##'    ##############################################
+##'    data = demo.vowels.fm
+##'    llabs = NULL
+##'    for (ind in 1:dim(data$ftime)[1]) {
+##'      seglabs = rep("mid",data$index[ind,2]-data$index[ind,1]+1)
+##'      seglabs[1] = "on"
+##'      seglabs[length(seglabs)] = "off"
+##'      llabs = as.vector(c(llabs , seglabs))
+##'    }
+##' 
+##'    by(demo.vowels.fm[,1], llabs , sapply, mean , simplify=FALSE)
+##' 
+##'    #mean F1 subsumed for segment onsets mids and offsets subsumed for each vowel
+##'    #####################################################################
+##'    by(demo.vowels.fm[,1], list(lab = lab, llabs = llabs) , sapply, mean , simplify=FALSE)
+##' 
+##' 
+##' 
+##' @export by.trackdata
 `by.trackdata` <- function (data, INDICES = NULL, FUN, ..., simplify = FALSE) 
 {
   #there might be a problem with data$data therefore data is replaced by abitrary datam
@@ -53,5 +106,3 @@
   }
   result
 }
-
-

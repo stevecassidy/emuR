@@ -2,4 +2,3 @@
 {
   as.numeric(x$end)
 }
-

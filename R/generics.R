@@ -55,4 +55,3 @@
   get(.Generic)(x$data)   
   
 }
-

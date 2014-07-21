@@ -1,5 +1,23 @@
 library(stats)
 
+##' Find the inter-euclidean distance for a data matrix
+##' 
+##' Finds the inter-euclidean distance for a data matrix
+##' 
+##' 
+##' @aliases euclidean euclidean.metric
+##' @param data A vector or matrix of numerical data.
+##' @param m The first column of data to be used in the distance calculation.
+##' @param n The last column of data to be used in the distance calculation.
+##' @return Calculates the euclidean distance between successive rows of the
+##' matrix based on columns m:n.
+##' @seealso steady
+##' @keywords misc
+##' @examples
+##' 
+##'   euclidean(cbind(c(1,2,3,4), c(2,3,2,2)))
+##' 
+##' @export euclidean
 "euclidean"<- function(data, m = 1, n = ncol(data))
 {
   ## returns  a vector of Euclidean distances between adjacent
@@ -15,9 +33,3 @@ library(stats)
   values <- c(1, 1 + cumsum(downstep))
   dist(data)[values]
 }
-
-
-# Local Variables:
-# mode:S
-# S-temp-buffer-p:t
-# End:

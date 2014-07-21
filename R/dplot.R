@@ -1,5 +1,109 @@
-
-
+##' A function to plot one or more columns of EMU-trackdata as a function of
+##' time
+##' 
+##' A general purpose routine for plotting EMU-trackdata on a single plot.
+##' Tracks can be aligned at an arbitrary position, length normalised or
+##' averaged. The plots can be colour-coded for different category types.
+##' 
+##' 
+##' @aliases dplot dplot.norm dplot.time
+##' @param x An EMU-trackdata object
+##' @param labs A label vector with one element for each row in 'dataset'
+##' @param offset Either: A single numeric vector between 0 and 1. 0 and 1
+##' denote synchronize the trackdata at their temporal onsets and offsets
+##' respectively; 0.5 denotes synchronization at the temporal midpoint, etc. Or
+##' a numeric vector of the same length as x specifying the synchronisation
+##' point per segment
+##' @param prop A single element character vector specifying whether the tracks
+##' should be aligned proportionally or relative to millisecond times. Defaults
+##' to proportional alignment
+##' @param average If TRUE, the data for each unique label in 'labs' is
+##' averaged
+##' @param xlim A vector of two numeric values specifying the x-axis range
+##' @param ylim A vector of two numeric values specifying the y-axis range
+##' @param lty A single element logical vector. Defaults to F.  If TRUE, plot
+##' each label type in a different linetype
+##' @param normalise If TRUE, the data for each segment is linearly time
+##' normalised so that all observations have the same length. The number of
+##' points used in the linear time normalisation is control by the argument n.
+##' @param colour A single element logical vector. Defaults to T to plot each
+##' label type in a different colour
+##' @param lwd A code passed to the lwd argument in plotting functions. 'lwd'
+##' can be either a single element numeric vector, or its length must be equal
+##' to the number of unique types in labs. For example, if lwd=3 and if labs =
+##' c("a", "b", "a", "c"), then the output is c(3, 3, 3, 3). Alternatively, if
+##' lwd = c(2,3,1), then the output is c(2, 3, 2, 1) for the same example. The
+##' default is NULL in which case all lines are drawn with lwd=1
+##' @param pch A code passed to the pch argument in plotting functions.
+##' Functions in the same way as lwd above
+##' @param legend Either a character vector to plot the legend. Possible values
+##' are: "bottomright"', '"bottom"', '"bottomleft"', '"left"', '"topleft"',
+##' '"top"', '"topright"', '"right"' and '"center"'. This places the legend on
+##' the inside of the plot frame at the given location. Partial argument
+##' matching is used. Or a logical vector: legend = FALSE suppresses legend
+##' plotting. legend = TRUE plots it at the default, legend = "topright"
+##' @param axes A single element logical vector. Defaults to T to plot the axes
+##' @param type The default line type. Default to "l" for a line plot
+##' @param n A single element numeric vector. Only used if normalise=T. The
+##' number of data points used to linearly time normalise each track
+##' @param ... graphical options \link{par}
+##' @return NULL
+##' @author Jonathan Harrington
+##' @seealso \code{\link{dcut}} \code{\link{emu.track}}
+##' @keywords dplot
+##' @examples
+##' 
+##' 
+##'    # Plot of column 1 (which happens to be the 1st formant) of an EMU-trackdata object
+##'    dplot(dip.fdat[,1])
+##' 	
+##' 
+##'    # As above but only observations 1 to 5
+##'    dplot(dip.fdat[1:5,1])
+##' 	
+##' 
+##'    #  column 2 (which happens to be of the second formant) and colour-coded
+##'    # for each label-type
+##'    dplot(dip.fdat[,2], dip.l)
+##' 	
+##' 
+##'    # put the legend bottom left
+##'    dplot(dip.fdat[,2], dip.l, legend="bottomleft")
+##' 	
+##' 
+##'    # as above with no legend and averaged per category
+##'    dplot(dip.fdat[,2], dip.l, legend=FALSE, average=TRUE)
+##' 	
+##' 
+##'    # both formants averaged
+##'    dplot(dip.fdat[,1:2], dip.l, average=TRUE)
+##' 	
+##' 
+##'    # F2 only with linear-time normalisation
+##'    dplot(dip.fdat[,2], dip.l, norm=TRUE)
+##' 	
+##' 
+##'    # linear time-normalisation, both formants and averaged
+##'    dplot(dip.fdat[,1:2], dip.l, norm=TRUE, average=TRUE)
+##' 	
+##' 
+##'    # synchronise at the temporal midpoint before averaging, F2 only
+##'    dplot(dip.fdat[,2], dip.l, offset=0.5, average=TRUE)
+##' 	
+##' 
+##'    # synchronise 60 ms before the diphthong offset
+##'    dplot(dip.fdat[,2], dip.l, offset=dip.fdat$ftime[,2]-60, prop=FALSE)
+##' 	
+##' 
+##'    # as above averaged, no colour with linetype, 
+##' # different plot symbols double line thickness in the range between +- 20 ms
+##'    dplot(dip.fdat[,2], dip.l, offset=dip.fdat$ftime[,2]-60, prop=FALSE,
+##'    average=TRUE, colour=FALSE, lty=TRUE, pch=1:3, lwd =2, type="b", xlim=c(-20, 20))
+##' 
+##' 
+##' 
+##' 
+##' @export dplot
 `dplot` <- function (x, labs = NULL, offset = 0, prop=TRUE, 
                      average = FALSE, xlim = NULL, ylim = NULL,  
                      lty = FALSE, normalise = FALSE, colour = TRUE, 

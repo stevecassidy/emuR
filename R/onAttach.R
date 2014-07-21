@@ -32,10 +32,3 @@
 #     cat(messemudatamore)
 #   }
 # }
-
-
-
-
-## Local Variables:
-## mode:S
-## End:

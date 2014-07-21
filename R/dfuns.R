@@ -1,6 +1,21 @@
-
-
-
+##' Find the time and position of a data element.
+##' 
+##' Finds the time and position of a data element.
+##' 
+##' The dataset returned from \code{track} or \code{frames} consists of a
+##' matrix of data (the \code{data} component) and two index components
+##' (\code{index} and \code{ftime}). The data for all segments is concatenated
+##' together in \code{$data}.  This function can be used to find out which
+##' segment a particular row of \code{$data} corresponds to.
+##' 
+##' @param dataset A dataset returned by \code{track} or \code{frames}.
+##' @param datanum An integer, an index into the \code{data} component of
+##' \code{dataset}.
+##' @return The segment number which contains the element \code{datanum} of
+##' \code{dataset$data}.
+##' @seealso track, frames
+##' @keywords misc
+##' @export frames.time
 "frames.time" <- function(dataset, datanum)
 {
   ## return the time and the number of the segment element
@@ -20,6 +35,26 @@
 }
 
 
+
+
+
+
+
+
+
+
+##' Get data for a given time
+##' 
+##' Gets data for a given time
+##' 
+##' 
+##' @param timeval A time in milliseconds
+##' @param dataset A trackdata object as returned by \code{track}.
+##' @return The element number of \code{trackdata$data} corresponding to
+##' \code{time}
+##' @seealso track, frames
+##' @keywords misc
+##' @export get.time.element
 "get.time.element"<- function(timeval, dataset)
 {
   ## timeval: a time in milliseconds
@@ -32,10 +67,3 @@
   right.i <- dataset$index[numrows, 2]
   round(((timeval - left)/(right - left)) * (right.i - left.i)) + 1
 }
-
-
-
-# Local Variables:
-# mode:S
-# S-temp-buffer-p:t
-# End:

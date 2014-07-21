@@ -1,3 +1,82 @@
+##' Plot digital sinuoids.
+##' 
+##' The function plots and/or sums digital sinusoids for different parameter
+##' settings.
+##' 
+##' 
+##' @param A A vector of amplitude values. Defaults to A = 1
+##' @param k A vector of cycles (repetitions). Defauls to k = 1
+##' @param p A vector of phase values between -pi/2 and pi/2. Defaults to 0.
+##' @param N The number of points in the signal. Defaults to 16.
+##' @param samfreq If NULL, then a sinusoid is plotted with a frequency of k
+##' cycles per N points. Otherwise, if samfreq is an numeric, then the argument
+##' to k is interpreted as the frequency in Hz and the sinusoid at that
+##' frequency is plotted for however many points are specified by N. For
+##' example, if samfreq is 40 (Hz), and if N is 40 and k = 1, then 1 cycle of a
+##' 1 Hz sinusoid will be plotted.
+##' @param duration Specify the duration in ms. If NULL, the default, then the
+##' duration of the sinusoid is in points (N), otherwise if a numeric value is
+##' supplied, then in ms. For example, 1/2 second of a 1 cycle sinusoid at a
+##' sampling frequency of 40 Hz: duration = 500, k = 1, samfreq=40. A ms value
+##' can be supplied only if the sampling frequency is also specified.
+##' @param const A single numeric vector for shifting the entire sinusoid up or
+##' down the y-axis. For example, when const is 5, then 5 + s, where s is the
+##' sinusoid is plotted. Defaults to 0 (zero).
+##' @param expon A numeric vector. If supplied, then what is plotted is
+##' expon[j]\eqn{\mbox{\textasciicircum}}{^}(c(0:(N - 1) * A cos (2 * pi * k/N
+##' * (0:(N-1))). For example, a decaying sinusoid is produced with
+##' cr(expon=-0.9). Defaults to NULL (i.e. to expon = 1).
+##' @param plotf A single-valued logical vector. If T (default), the sinusoid
+##' is plotted.
+##' @param ylim A two-valued numeric vector for specifying the y-axis range.
+##' @param xlim A two-valued numeric vector for specifying the y-axis range.
+##' @param values If T, then the values of the sinusoid are listed. Defaults to
+##' F.
+##' @param xlab A character vector for plotting the x-axis title.
+##' @param ylab A character vector for plotting the y-axis title.
+##' @param type A character vector for specifying the line type (see par)
+##' @param bw A numeric vector for specifying the bandwidth, if the sampling
+##' frequency is supplied. The bandwidth is converted to an exponential (see
+##' expon using exp( - rad(bw/2, samfreq = samfreq).
+##' @param dopoints this is now redundant.
+##' @param \dots Option for supplying further graphical parameters - see par.
+##' @author Jonathan Harrington
+##' @seealso \code{\link{crplot}}
+##' @keywords dplot
+##' @examples
+##' 
+##' # cosine wave
+##' cr()
+##' 
+##' # doubling the frequency, 1/3 amplitude, phase = pi/4, 50 points
+##' cr(A=1/3, k=2, p=pi/4, N=50)
+##' 
+##' # sum 3 sinusoids of different frequencies)
+##' cr(k=c(1, 3, 4))
+##' 
+##' # sum 2 sinusoids of different parameters
+##' cr(c(1, 2), c(2, 10), c(0, -pi/3), N=200, type="l")
+##' 
+##' 
+##' # store the above to a vector and overlay with noise
+##' v = cr(c(1, 2), c(2, 10), c(0, -pi/3), N=200, type="l", values=TRUE)
+##' r = runif(200, -3, 3)
+##' v = v+r
+##' plot(0:199, v, type="l")
+##' 
+##' 
+##' # 100 points of a 50 Hz sinusoid with a 4 Hz bandwidth 
+##' # at a sampling frequency of 200 Hz
+##' cr(k=50, bw=4, samfreq=2000, N=100)
+##' 
+##' # the same but shift the y-axis by +4 (d.c. offset=+4)
+##' cr(const=4, k=50, bw=4, samfreq=2000, N=100)
+##' 
+##' # sinusoid multiplied by a decaying exponential (same effect as bandwidth)
+##' cr(expon=-0.95,  N=200, type="l")
+##' 
+##' 
+##' @export cr
 "cr" <- function(A = 1, k = 1, p = 0, N = 16, 
                  samfreq = NULL, duration = NULL, 
                  const = NULL, expon = NULL, plotf = TRUE, 
@@ -95,6 +174,82 @@
 
 
 
+
+
+
+
+
+
+
+
+##' Function to plot a digital sinusoid and the circle from which it is
+##' derived.
+##' 
+##' A digital sinusoid is derived the movement of a point around a circle.  The
+##' function shows the relationship between the two for various parameter
+##' settings.
+##' 
+##' 
+##' @param A Amplitude of the circle/sinusoid.
+##' @param k Frequency of the sinusoid
+##' @param p Phase of the sinusoid
+##' @param N Number of points per cycle or revolution.
+##' @param const A constant corresponding to k + A*cos(2*pi*k+p)
+##' @param figsize Set the figure size as pin <- c(figsize, figsize/2).
+##' Defaults to figsize = 8.
+##' @param npoints The number of points used in plotting the circle. Defaults
+##' to 500
+##' @param col An integer for the color in plotting the sinusoid and points
+##' around the circle
+##' @param cplot Now redundant
+##' @param splot Now redundant
+##' @param numplot Logical. If T (defaults), the digital points around the
+##' circle are numbered
+##' @param axes Logical. If T, plot axes.
+##' @param incircle Logical. If T, plot an the angle between digital points in
+##' the circle.
+##' @param arrow Logical. If T, plot an arrow on incircle showing the direction
+##' of movement.
+##' @param linetype Specify a linetype. Same function as lty in plot
+##' @param textplot A list containing \$radius, \$textin, \$pivals for plotting
+##' text at specified angles and radii on the circle. \$radius: a vector of
+##' amplitudes of the radii at which the text is to be plotted; \$textin: a
+##' vector of chacacter labels to be plotted; \$pivals: the angle, in radians
+##' relative to zero radians (top of the circle) at which the text is to be
+##' plotted. Defaults to NULL
+##' @param lineplot Plot lines from the centre of the circle to the
+##' circumference. lineplot is a vector specifying the angle in radians (zero
+##' corresponds to the top of the circle)
+##' @param ylab Specify a y-axis label.
+##' @param super Superimpose a part solid circle and corresponding sinusoid.
+##' This needs to be a list containing \$first and \$last, which are values
+##' between 0 and 2*pi defining the beginning and ending of the part circle
+##' which is to be superimposed
+##' @param xaxlab Now redundant
+##' @param xlab Specify an x-axis label.
+##' @param type Specify a type.
+##' @param fconst A single elment numeric vector for the aspect ratio in a
+##' postscript plot. Defaults to 3.5/3.1 which is appropriate for a postscript
+##' setting of setps(h=4, w=4)
+##' @param pointconst The radius for plotting the numbers around the circle.
+##' Defaults to 1.2 * A
+##' @author Jonathan Harrington
+##' @seealso \code{\link{cr}}
+##' @references Harrington, J, & Cassidy, S. 1999. Techniques in Speech
+##' Acoustics. Kluwer
+##' @keywords dplot
+##' @examples
+##' 
+##' crplot()
+##' # sine wave
+##' crplot(p=-pi/2)
+##' 
+##' crplot(k=3)
+##' 
+##' # aliasing
+##' crplot(k=15)
+##' 
+##' @export crplot
 "crplot" <- function(A = 1, k = 1, p = 0, N = 16, const = NULL, figsize = 8, 
                      npoints = 500, col = 1, cplot = TRUE, splot = TRUE, numplot = TRUE, axes = TRUE, 
                      incircle = TRUE, arrow = TRUE, linetype = 1, textplot = NULL, lineplot = NULL,
@@ -313,4 +468,3 @@
              const = const, npoints = npoints)
   }
 }
-

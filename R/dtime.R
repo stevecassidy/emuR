@@ -1,5 +1,10 @@
-
-
+##' time signal times
+##' 
+##' see function
+##' 
+##' 
+##' @keywords internal
+##' @export dtime
 dtime <- function(dataset, times, single = TRUE, average = TRUE) {
   if(!is.matrix(dataset$data))
     dataset$data <- cbind(dataset$data)
@@ -48,6 +53,92 @@ dtime <- function(dataset, times, single = TRUE, average = TRUE) {
 
 
 
+
+
+
+
+
+
+
+
+##' Function to extract a vector or matrix from EMU-Trackdata at a single time
+##' point of to create another EMU-trackdata object between two times.
+##' 
+##' A general purpose tool for extracting data from track objects either at a
+##' particular time, or between two times. The times can be values in
+##' milliseconds or proportional times between zero (the onset) and one (the
+##' offset).
+##' 
+##' This function extracts data from each segment of a trackdata object.
+##' 
+##' If 'prop=FALSE' the time arguments ('left.time' and 'right.time') are
+##' interpreted as millisecond times and each should be a vector with the same
+##' length as the number of segments in 'trackdata'.  If 'prop=TRUE' the time
+##' arguments should be single values between zero (the onset of the segment)
+##' and one (the offset).
+##' 
+##' If 'right.time' is omitted then a single data point correponding to
+##' 'left.time' for each segment is returned.
+##' 
+##' @aliases dcut dcut.sub
+##' @param trackdata An Emu trackdata object.
+##' @param left.time Either: a numeric vector of the same length as there are
+##' obsverations in trackdata. Or: a single value between 0 and 1. In the first
+##' case, the left time boundary of trackdata[n,] is cut at left.time[n], in
+##' the second case, and if prop=T, it is cut at that proportional time.
+##' @param right.time Either: a numeric vector of the same length as there are
+##' obsverations in trackdata. Or: a single value between 0 and 1. In the first
+##' case, the right time boundary of trackdata[n,] is cut at right.time[n], in
+##' the second case, and if prop=T, it is cut at that proportional time.
+##' @param single If TRUE, one value is returned per segment. This applies when
+##' the requested time falls between two track frames. When single=TRUE, the
+##' preceding value is returned, unless average=TRUE (see below), in which case
+##' the average value of the two frames is returned. when the right.time
+##' argument is omitted
+##' @param average A single element logical vector - see single above. Applies
+##' only when the right.times argument is omitted and when single = TRUE
+##' @param prop If TRUE left.time and right.time are interpreted as
+##' proportions, if FALSE, they are interpreted as millisecond times
+##' @return A trackdata object if both 'left.time' and 'right.time' are
+##' specified, otherwise a matrix if 'right.time' is unspecified and the
+##' trackdata object has multiple columns of data or a vector if right.time' is
+##' unspecified and the trackdata object has a single column of data.
+##' @author Jonathan Harrington
+##' @seealso \code{\link{emu.track}}, \code{\link{dplot}}, \code{\link{eplot}}
+##' @keywords datagen
+##' @examples
+##' 
+##'      # the data values of the trackdata object at the temporal midpoint
+##'      # (midvals is matrix of F1 and F2 data)
+##'      dip.fdat[1:10]
+##'      midvals <- dcut(dip.fdat, 0.5, prop=TRUE)
+##'      midvals[1:10,]
+##'      
+##'      
+##'      # the data values of the trackdata object between 
+##'      # extending from 20
+##'      # (bet is a trackdata object of F1 and F2 values)
+##'      bet <- dcut(dip.fdat, 0.2, 0.8, prop=TRUE)
+##'      bet[1]
+##'      
+##' 
+##'      # the data values of the trackdata object at 30 ms after
+##'      # the start time of the trackdata object
+##'      # (time30 is a matrix of F1 and F2 data
+##'      times <- dip.fdat$ftime[,1]+30
+##'      times[1:10]
+##'      time30 <- dcut(dip.fdat, times)
+##'      time30[1:10]
+##'      
+##' 
+##'      # the data values of the trackdata object 
+##'      # between the  start time and 30 ms after the start  time
+##'      # (int is a trackdata object of F1 and F2 values extending
+##'      # from the start of the diphthongs up to 30 ms after the diphthongs)
+##'      int <- dcut(dip.fdat, dip.fdat$ftime[,1], times)
+##'      int[1]
+##'  
+##' @export dcut
 "dcut" <- function (trackdata, left.time, right.time, 
                     single = TRUE, average = TRUE, prop = FALSE) 
 {
@@ -137,9 +228,3 @@ dtime <- function(dataset, times, single = TRUE, average = TRUE) {
   
   as.trackdata(trackdata$data, trackdata$index, trackdata$ftime)
 }
-
-
-# Local Variables:
-# mode:S
-# S-temp-buffer-p:t
-# End:
