@@ -8,4 +8,7 @@ Authors@R: c(person("Steve", "Cassidy", role = c("aut", "cre"), email = "steve.c
 Description: Provides many special purpose functions for display and analysis of speech data. 
 License: GPL (>= 2)
 Depends: R (>= 2.13), stats, methods, MASS
+LazyLoad: yes
+LazyData: yes
+ZipData: no
 
