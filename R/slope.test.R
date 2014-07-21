@@ -10,56 +10,56 @@
   ## see E. Pedhazur, Multiple Regression in Behavioral Research
   ## p.436-450, 496-507. 
   Slope.sub <- function(...)
-    {
-      ## combine the matrices, and find out how many rows there are altogether
-      omat <- NULL
-      omat$numcats <- length(list(...))
-      for(j in list(...)) {
-	numrows <- nrow(j)
-	omat$y <- c(omat$y, j[, 1])
-	omat$x <- c(omat$x, j[, 2])
-	omat$numrows <- c(omat$numrows, numrows)
-      }
-      ## set up category vectors of 1, 0, 0, .... -1
-      vec <- rep(0, omat$numcats - 1)
-      omat$mat <- NULL
-      for(j in 1:length(vec)) {
-	zeros <- vec
-	zeros[j] <- 1
-	zeros <- c(zeros, -1)
-	zeros <- rep(zeros, omat$numrows)
-	omat$mat <- cbind(omat$mat, zeros)
-      }
-      omat
+  {
+    ## combine the matrices, and find out how many rows there are altogether
+    omat <- NULL
+    omat$numcats <- length(list(...))
+    for(j in list(...)) {
+      numrows <- nrow(j)
+      omat$y <- c(omat$y, j[, 1])
+      omat$x <- c(omat$x, j[, 2])
+      omat$numrows <- c(omat$numrows, numrows)
     }
-
+    ## set up category vectors of 1, 0, 0, .... -1
+    vec <- rep(0, omat$numcats - 1)
+    omat$mat <- NULL
+    for(j in 1:length(vec)) {
+      zeros <- vec
+      zeros[j] <- 1
+      zeros <- c(zeros, -1)
+      zeros <- rep(zeros, omat$numrows)
+      omat$mat <- cbind(omat$mat, zeros)
+    }
+    omat
+  }
+  
   ## main function begins here
   omat <- Slope.sub(...)	
   ## number of category vectors and the (1) continuous vector for intercept
   k1 <- omat$numcats	# the (1) continuous vector for intercept
   k2 <- 1	        # number of category vectors, product 
-                        # vectors and (1)continuous vector 
-
+  # vectors and (1)continuous vector 
+  
   ## for slope
   k3 <- 1 + ((omat$numcats - 1) * 2)	
   ## number of category vectors and (1) continuous vector for slope
   k4 <- omat$numcats	## length of y and of x
   N <- sum(omat$numrows)
-
+  
   for(j in list(...)) {
     ## find the F-ratio, degrees of freedom, r-squared values, slope and intercept
     ## for the separate matrices
     firstvals <- summary.lm(lm(j[, 1] ~ j[, 2]))
     first.pf <- pf(firstvals$fstatistic[1], firstvals$fstatistic[2],
-		   firstvals$fstatistic[3])
+                   firstvals$fstatistic[3])
     first.out <- c(firstvals$r.squared, firstvals$fstatistic, 
-		   first.pf, firstvals$coefficients[, 1])
+                   first.pf, firstvals$coefficients[, 1])
     omat$separate <- rbind(omat$separate, first.out)
   }
-
+  
   dimnames(omat$separate)[[2]] <- c("r-sq", "F ratio", "df", "df", 
-				    "prob. line fits data", "intercept", "slope")	
-
+                                    "prob. line fits data", "intercept", "slope")	
+  
   ## multiply the category vectors by the x-values 
   prodvals <- omat$x * omat$mat
   z123 <- lm(omat$y ~ omat$x + omat$mat + prodvals)
@@ -72,7 +72,7 @@
   fratio.in <- fval.in.num/fval.in.den
   s123 <- summary.aov(z123)
   fratio.slope <- s123$"F Value"[3]	
-
+  
   ## calculate probabilities and degrees of freedom
   prob.in <- pf(fratio.in, k1 - k2, N - k1 - 1)
   prob.slope <- pf(fratio.slope, k3 - k4, N - k3 - 1)
@@ -81,7 +81,7 @@
   outtemp <- rbind(first, second)
   col.lab <- c("intercept", "slope")
   row.lab <- c("F ratio", "Probability of them being DIFFERENT", "df", 
-	       "df")
+               "df")
   dimnames(outtemp) <- list(col.lab, row.lab)
   omat$combined <- outtemp
   omat

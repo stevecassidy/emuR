@@ -9,29 +9,29 @@
   ## vector and return an object with components $data and $ftime
   ## dapply must ensure that the resulting data component is
   ## still a matrix, even if the function returns a vector.
-
+  
   if( version$major >= 5  && oldClass(trackdata)!="trackdata") {
-      stop("argument to dapply is not of class trackdata.")
+    stop("argument to dapply is not of class trackdata.")
   } else if(class(trackdata)!="trackdata")
     stop("argument to dapply is not of class trackdata.")
-
-
+  
+  
   if(!is.matrix(trackdata$index)){
     trackdata$ftime <- rbind(trackdata$ftime)
     trackdata$index <- rbind(trackdata$index)
   }
-
+  
   
   thisrow <- 1
   newindex <- trackdata$index
   newdata <- NULL
   newftime <- trackdata$ftime
-
+  
   for(j in 1:nrow(trackdata$index)) {
     newindex[j,1] <- thisrow
-
+    
     tmp <- fun(trackdata[j]$data, trackdata[j]$ftime, ...)
-
+    
     if(is.matrix(tmp$data)){
       newdata <- rbind(newdata, tmp$data)
     } else {
@@ -39,15 +39,15 @@
     }
     
     newftime[j,] <- tmp$ftime
-
+    
     if(is.matrix(tmp$data))
       thisrow <- thisrow + nrow(tmp$data)
     else
       thisrow <- thisrow + length(tmp$data)
     newindex[j,2] <- thisrow - 1
-
+    
   }
-
+  
   x <- list(data=as.matrix(newdata), index=newindex, ftime=newftime)
   if( version$major >= 5 ) {
     oldClass(x) <- "trackdata"

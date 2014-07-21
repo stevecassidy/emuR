@@ -13,16 +13,14 @@
   classify( data, train, metric="bayes" )
 }
 
-"bayes.dist"<-
-  function(data, train, labels=NULL)
+"bayes.dist" <- function(data, train, labels=NULL)
 {
   if (emu.options("deprecated.warnings"))
     cat("bayes.dist is deprecated, use distance with metric=\"bayes\"\n")
   distance( data, train, labels, metric="bayes")
 }
 
-"mahal.dist" <-
-  function( data, train, labels=NULL )
+"mahal.dist" <- function( data, train, labels=NULL )
 {
   if (emu.options("deprecated.warnings"))
     cat("mahal.dist is deprecated, use distance with metric=\"mahal\"\n")
@@ -31,8 +29,7 @@
 
 
 ## generalise bayes.dist and mahal.dist
-"distance" <-
-  function( data, train, labels=NULL, metric="bayes" )
+"distance" <- function( data, train, labels=NULL, metric="bayes" )
 {
   ## data is a set of data points
   ## train is the result of the train fn and contains
@@ -44,11 +41,11 @@
   ## metric - one of "bayes" or "mahal" for bayesian or mahalanobis distance
   
   if(!is.matrix(data)) data <- cbind(data)
-
+  
   ncols <- length(train$label)
   ndims <- ncol(data)
   probs <- matrix(0, nrow = nrow(data), ncol = ncols)
-
+  
   for(lab in 1:ncols) {
     tmp <- (lab - 1) * ndims + 1
     tmp1 <- tmp + ndims - 1
@@ -72,8 +69,7 @@
 }
 
 
-"bayesian.metric" <- 
-  function( data, mean, cov, invcov )
+"bayesian.metric" <- function( data, mean, cov, invcov )
 {
   # calcuate the gaussian classification metric for multivariate data
   # given mean vector and covariance matrix
@@ -85,8 +81,7 @@
   return( det - apply(pow * t(x.u), 1, sum) )
 }
 
-"mahalanobis.metric" <-
-  function(data, mean, invcov)
+"mahalanobis.metric" <- function(data, mean, invcov)
 {
   x.u <- t(data) - mean
   pow <- t(x.u) %*% invcov
@@ -99,7 +94,7 @@
 "classify" <- function(data, train, metric="bayes")
 {
   probs <- distance(data, train, metric=metric )
-
+  
   ## what's best depends on the metric, bayes is a prob. so max is best
   ## mahal is a distance so min is best
   if( metric=="bayes" ) {
@@ -118,7 +113,7 @@
 
 
 bayesplot <- function(data, train, N = 10, ellipse = FALSE, 
-		      labs = NULL, xlab="", ylab="", colour = TRUE, ...)
+                      labs = NULL, xlab="", ylab="", colour = TRUE, ...)
 {
   ## data is the original data, used for scaling
   ## train is the stuff you get from train()

@@ -7,20 +7,18 @@
 # inv: if T, performs Bark to Hz conversion
 
 
-"bark" <-
-function (f, ...) {
-   UseMethod("bark") 
+"bark" <- function (f, ...) {
+  UseMethod("bark") 
 }
 
 
-"bark.default" <-
-function (f, inv = FALSE, ...) 
+"bark.default" <- function (f, inv = FALSE, ...) 
 {
-    if (!inv) {
-        result = ((26.81 * f)/(1960 + f)) - 0.53
-    } else {
-        result = (1960 * (f + 0.53))/(26.28 - f)
-    }
-    return(result)
+  if (!inv) {
+    result = ((26.81 * f)/(1960 + f)) - 0.53
+  } else {
+    result = (1960 * (f + 0.53))/(26.28 - f)
+  }
+  return(result)
 }
 

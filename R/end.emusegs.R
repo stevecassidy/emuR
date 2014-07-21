@@ -1,6 +1,5 @@
-"end.emusegs" <-
-function(x, ...)
+"end.emusegs" <- function(x, ...)
 {
-as.numeric(x$end)
+  as.numeric(x$end)
 }
 

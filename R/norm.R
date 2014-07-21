@@ -51,12 +51,12 @@
     vals <- data[temp,  ]
     if(type == "gerst")
       nvals <- gerst.sub(vals)
-      else if(type == "lob")
-	nvals <- lob.sub(vals)
-	else if(type == "nearey")
-	  nvals <- nearey.sub(vals)
-	  else if(type == "cen")
-	    nvals <- cen.sub(vals)
+    else if(type == "lob")
+      nvals <- lob.sub(vals)
+    else if(type == "nearey")
+      nvals <- nearey.sub(vals)
+    else if(type == "cen")
+      nvals <- cen.sub(vals)
     data[temp,  ] <- nvals
   }
   if(rescale) {
@@ -148,44 +148,44 @@
 
 "rescale.lob"<- function(data, mvals, sdvals)
 {
-# rescales the Lobanov normalised data. mvals is the
-# mean of the raw data, sdvals the standard dev. of
-# the raw data
-	if(!is.matrix(data)) data <- mvals + (data * sdvals) else mat <- NULL
-	{
-		for(j in 1:ncol(data)) {
-			vec <- data[, j] * sdvals[j]
-			mvec <- vec + mvals[j]
-			mat <- cbind(mat, mvec)
-		}
-	}
-	mat
+  # rescales the Lobanov normalised data. mvals is the
+  # mean of the raw data, sdvals the standard dev. of
+  # the raw data
+  if(!is.matrix(data)) data <- mvals + (data * sdvals) else mat <- NULL
+{
+  for(j in 1:ncol(data)) {
+    vec <- data[, j] * sdvals[j]
+    mvec <- vec + mvals[j]
+    mat <- cbind(mat, mvec)
+  }
+}
+mat
 }
 
 
 "rescale.gerst"<- function(data, mind, ranged)
 {
-	for(j in 1:ncol(data)) {
-		data[, j] <- data[, j] * ranged[j] + mind[j]
-	}
-	data
+  for(j in 1:ncol(data)) {
+    data[, j] <- data[, j] * ranged[j] + mind[j]
+  }
+  data
 }
 
 
 
 "rescale.nearey"<- function(data, neardata)
 {
-	if(!is.matrix(data))
-		data <- rbind(data)
-	for(j in 1:ncol(data)) {
-		rval <- max(neardata[, j]) - min(neardata[, j])
-		mindata <- min(data[, j])
-		maxdata <- max(data[, j])
-		rangedata <- maxdata - mindata
-		data[, j] <- min(neardata[, j]) + 
-		  (((data[, j] - mindata)/rangedata) * rval)
-	}
-	data
+  if(!is.matrix(data))
+    data <- rbind(data)
+  for(j in 1:ncol(data)) {
+    rval <- max(neardata[, j]) - min(neardata[, j])
+    mindata <- min(data[, j])
+    maxdata <- max(data[, j])
+    rangedata <- maxdata - mindata
+    data[, j] <- min(neardata[, j]) + 
+      (((data[, j] - mindata)/rangedata) * rval)
+  }
+  data
 }
 
 

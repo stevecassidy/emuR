@@ -1,13 +1,11 @@
-"mel" <-
-function(a)
+"mel" <- function(a)
 {
-UseMethod("mel")
+  UseMethod("mel")
 }
 
-"mel.default" <-
-function (a) 
+"mel.default" <- function (a) 
 {
-    1/log(2) * (log(1 + (a/1000))) * 1000
+  1/log(2) * (log(1 + (a/1000))) * 1000
 }
 
 

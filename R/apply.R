@@ -1,49 +1,47 @@
 
-"dapply" <-
-function (trackdata, fun, ...) 
+"dapply" <- function (trackdata, fun, ...) 
 {
-    if (version$major >= 5 && oldClass(trackdata) != "trackdata") {
-        stop("argument to dapply is not of class trackdata.")
-    }
-    else if (!is.trackdata(trackdata)) 
-        stop("argument to dapply is not of class trackdata.")
-    if (!is.matrix(trackdata$index)) {
-        trackdata$ftime <- rbind(trackdata$ftime)
-        trackdata$index <- rbind(trackdata$index)
-    }
-    thisrow <- 1
-    newindex <- trackdata$index
-    newdata <- NULL
-    newftime <- trackdata$ftime
-    for (j in 1:nrow(trackdata$index)) {
-        newindex[j, 1] <- thisrow
-        tmp <- fun(trackdata[j]$data, trackdata[j]$ftime, ...)
-        if (is.matrix(tmp$data)) {
-            newdata <- rbind(newdata, tmp$data)
-        }
-        else {
-            newdata <- c(newdata, tmp$data)
-        }
-        newftime[j, ] <- tmp$ftime
-        if (is.matrix(tmp$data)) 
-            thisrow <- thisrow + nrow(tmp$data)
-        else thisrow <- thisrow + length(tmp$data)
-        newindex[j, 2] <- thisrow - 1
-    }
-    x <- list(data = as.matrix(newdata), index = newindex, ftime = newftime)
-    if (version$major >= 5) {
-        oldClass(x) <- "trackdata"
+  if (version$major >= 5 && oldClass(trackdata) != "trackdata") {
+    stop("argument to dapply is not of class trackdata.")
+  }
+  else if (!is.trackdata(trackdata)) 
+    stop("argument to dapply is not of class trackdata.")
+  if (!is.matrix(trackdata$index)) {
+    trackdata$ftime <- rbind(trackdata$ftime)
+    trackdata$index <- rbind(trackdata$index)
+  }
+  thisrow <- 1
+  newindex <- trackdata$index
+  newdata <- NULL
+  newftime <- trackdata$ftime
+  for (j in 1:nrow(trackdata$index)) {
+    newindex[j, 1] <- thisrow
+    tmp <- fun(trackdata[j]$data, trackdata[j]$ftime, ...)
+    if (is.matrix(tmp$data)) {
+      newdata <- rbind(newdata, tmp$data)
     }
     else {
-        class(x) <- "trackdata"
+      newdata <- c(newdata, tmp$data)
     }
-    return(x)
+    newftime[j, ] <- tmp$ftime
+    if (is.matrix(tmp$data)) 
+      thisrow <- thisrow + nrow(tmp$data)
+    else thisrow <- thisrow + length(tmp$data)
+    newindex[j, 2] <- thisrow - 1
+  }
+  x <- list(data = as.matrix(newdata), index = newindex, ftime = newftime)
+  if (version$major >= 5) {
+    oldClass(x) <- "trackdata"
+  }
+  else {
+    class(x) <- "trackdata"
+  }
+  return(x)
 }
 
 
-`fapply` <-
-  function (specdata, fun, ..., power = FALSE, powcoeffs = c(10, 
-                                                 10)) 
+'fapply' <- function (specdata, fun, ..., power = FALSE, powcoeffs = c(10, 
+                                                                       10)) 
 {
   if (!is.spectral(specdata)) 
     stop("object must be of class spectral")
@@ -71,11 +69,11 @@ function (trackdata, fun, ...)
   }
   else {
     if(!is.matrix(specdata))
-      {
-        samfreq = max(trackfreq(specdata))*2
-        specdata = as.spectral(rbind(specdata), samfreq)
-      }
-
+    {
+      samfreq = max(trackfreq(specdata))*2
+      specdata = as.spectral(rbind(specdata), samfreq)
+    }
+    
     for (j in 1:nrow(specdata)) {
       vals <- fun(specdata[j, ], ...)
       omat <- rbind(omat, vals)

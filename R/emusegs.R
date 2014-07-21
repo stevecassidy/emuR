@@ -1,8 +1,8 @@
 
-read.emusegs<- function(file)
+read.emusegs <- function(file)
 {
   ## scan the lines of the file into a vector
-
+  
   ## R 1.4 introduced comment.char="#" arg to scan, grrr
   if( is.R() && as.numeric(version$minor) > 3.0 ) {
     ## in R, we need to avoid skipping the # as a comment line
@@ -10,7 +10,7 @@ read.emusegs<- function(file)
   } else {
     lines <- scan(file, what = "", sep="\n")
   }
-
+  
   ## first three lines are header followed by a hash line
   inheader <- 1
   i <- 1
@@ -28,17 +28,17 @@ read.emusegs<- function(file)
       i <- i + 1
     }
   }
-
+  
   if (inheader) {
     stop( "End of header (#) not found in segment file" )
   }
-
+  
   ## now slurp the body of the segment list
   mat <- matscan( file, 4, what="", sk=i )
   
   segs <- make.seglist(mat[,1], mat[,2], mat[,3], mat[,4], 
-                     query, type, database )
-
+                       query, type, database )
+  
   segs
 }
 
@@ -49,20 +49,20 @@ if( version$major >= 5 ) {
 make.seglist <- function(labels, start, end, utts, query, type, database)
 {
   seglist <- data.frame(labels=I(as.character(labels)),
-			start=as.numeric(start), 
-			end=as.numeric(end), 
-			utts=I(as.character(utts)))
-
+                        start=as.numeric(start), 
+                        end=as.numeric(end), 
+                        utts=I(as.character(utts)))
+  
   if( version$major >= 5 ) {
     oldClass(seglist) <- "emusegs"
   } else {
     class(seglist) <- c("emusegs", "data.frame")
   }
-
+  
   attr(seglist, "query") <- query
   attr(seglist, "type") <- type
   attr(seglist, "database") <- database
-
+  
   seglist
 }
 
@@ -72,16 +72,16 @@ is.seglist <- function(object) {
 
 ## modify a segment list by changing one or more of the fields
 "modify.seglist" <- function( segs,
-                             labels=label.emusegs(segs),
-                             start=start.emusegs(segs),
-                             end=end.emusegs(segs),
-                             utts=utt.emusegs(segs),
-                             query=emusegs.query(segs),
-                             type=emusegs.type(segs),
-                             database=emusegs.database(segs))
+                              labels=label.emusegs(segs),
+                              start=start.emusegs(segs),
+                              end=end.emusegs(segs),
+                              utts=utt.emusegs(segs),
+                              query=emusegs.query(segs),
+                              type=emusegs.type(segs),
+                              database=emusegs.database(segs))
 {
   make.seglist( labels, start, end, utts,
-               query, type, database )
+                query, type, database )
 }
 
 "emusegs.database" <- function(sl) 
@@ -126,15 +126,15 @@ is.seglist <- function(object) {
 }
 
 if( version$major >= 5 ) {
-setMethod("[", "emusegs",
-          function(x, i, j=1:ncol(x), drop = T)
-          {
-            if(missing(drop))
-              "[.emusegs"(x, i,j)
-            else
-              "[.emusegs"(x, i,j)
-          }
-          )
+  setMethod("[", "emusegs",
+            function(x, i, j=1:ncol(x), drop = T)
+            {
+              if(missing(drop))
+                "[.emusegs"(x, i,j)
+              else
+                "[.emusegs"(x, i,j)
+            }
+  )
 }
 
 "summary.emusegs" <- function(object, ...)
@@ -172,28 +172,28 @@ setMethod("[", "emusegs",
 
 
 "start.emusegs" <-
-function(x, ...)
-{
-as.numeric(x$start)
-}
+  function(x, ...)
+  {
+    as.numeric(x$start)
+  }
 
 
 "end.emusegs" <-
-function(x, ...)
-{
-as.numeric(x$end)
-}
+  function(x, ...)
+  {
+    as.numeric(x$end)
+  }
 
 "utt" <-  
-function(x) {
-  UseMethod("utt")
-}
+  function(x) {
+    UseMethod("utt")
+  }
 
 "utt.emusegs" <-
   function(x)
-{
-  as.character(x$utts)
-}
+  {
+    as.character(x$utts)
+  }
 
 "dur" <- 
   function(x) {
@@ -202,13 +202,13 @@ function(x) {
 
 "dur.emusegs" <-
   function (x) 
-{
-  if(all(end(x)==0))
-    d <- end(x)
-  else
-    d <-  end(x) - start(x)
-  d
-}
+  {
+    if(all(end(x)==0))
+      d <- end(x)
+    else
+      d <-  end(x) - start(x)
+    d
+  }
 
 
 # Local Variables:

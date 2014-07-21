@@ -1,9 +1,8 @@
-`trapply` <-
-  function (trackdata, fun, ..., simplify = FALSE, returntrack = FALSE) 
+`trapply` <- function (trackdata, fun, ..., simplify = FALSE, returntrack = FALSE) 
 {
   if(returntrack)
     simplify <- FALSE
-                                        # if simplify is F or if returntrack is T, store as a list
+  # if simplify is F or if returntrack is T, store as a list
   if (!simplify) 
     result <- list(NULL)
   else result <- NULL

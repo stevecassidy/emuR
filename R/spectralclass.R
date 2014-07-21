@@ -1,5 +1,4 @@
-"is.spectral" <-
-  function(dat)
+"is.spectral" <- function(dat)
 {
   if(!is.trackdata(dat))
     return(any(class(dat) %in% "spectral"))
@@ -9,77 +8,77 @@
 
 
 
-"as.spectral" <-
-  function(trackdata, fs)
+"as.spectral" <- function(trackdata, fs)
 {
   if(is.trackdata(trackdata)){
-
+    
     if(is.spectral(trackdata$data)) {
       warning("matrix is already of class spectral")
       return(trackdata)
-      }
+    }
     N <- ncol(trackdata$data)
     if(missing(fs))
       fs <- 0: (ncol(trackdata$data)-1)
     else{
       if(length(fs)==1)
-        {
-          fs <- fs/2
-          fs <- seq(0, fs, length=N)
-        }
+      {
+        fs <- fs/2
+        fs <- seq(0, fs, length=N)
+      }
     }
     attr(trackdata$data, "fs") <- fs
     class(trackdata$data) <- c(class(trackdata$data), "spectral")
   }
-
+  
   else if (is.matrix(trackdata)){
     if(is.spectral(trackdata)) {
       warning("matrix is already of class spectral")
       return(trackdata)
-      }
+    }
     N <- ncol(trackdata)
     if(missing(fs))
       fs <- 0: (ncol(trackdata)-1)
     else{
       if(length(fs)==1)
-        {
-          fs <- fs/2
-          fs <- seq(0, fs, length=N)
-        }
+      {
+        fs <- fs/2
+        fs <- seq(0, fs, length=N)
+      }
     }
     attr(trackdata, "fs") <- fs
     class(trackdata) <- c(class(trackdata), "spectral")
   }
   else
-    {
-
-      if(is.spectral(trackdata)){
-        warning("matrix is already of class spectral")
-        return(trackdata)
-      }
-      N <- length(trackdata)
-      if(missing(fs))
-        fs <- 0: (length(trackdata)-1)
-      else{
-        if(length(fs)==1)
-          {
-            fs <- fs/2
-            fs <- seq(0, fs, length=N)
-          }
-      }
-      attr(trackdata, "fs") <- fs
-      class(trackdata) <- c(class(trackdata), "spectral")
+  {
+    
+    if(is.spectral(trackdata)){
+      warning("matrix is already of class spectral")
+      return(trackdata)
     }
+    N <- length(trackdata)
+    if(missing(fs))
+      fs <- 0: (length(trackdata)-1)
+    else{
+      if(length(fs)==1)
+      {
+        fs <- fs/2
+        fs <- seq(0, fs, length=N)
+      }
+    }
+    attr(trackdata, "fs") <- fs
+    class(trackdata) <- c(class(trackdata), "spectral")
+  }
   trackdata
 }
 
 
 
 
-`plot.spectral` <-
-  function (x, labs, ylim, xlim,  col, lty, lwd, fun, 
-            freq, type = "l", power = FALSE, powcoeffs = c(10, 10), dbnorm = FALSE, 
-            dbcoeffs = c(0, 0), legend = TRUE, axes=TRUE,  ...) 
+`plot.spectral` <- function (x, labs, ylim, xlim,  col, lty, 
+                             lwd, fun, freq, type = "l", 
+                             power = FALSE, powcoeffs = c(10, 10), 
+                             dbnorm = FALSE, dbcoeffs = c(0, 0), 
+                             legend = TRUE, axes=TRUE,  ...) 
 {
   specdata = x
   if (is.trackdata(specdata)) 
@@ -148,18 +147,17 @@
   else legend(legend, NULL, cols$legend$lab, col = cols$legend$col, 
               lty = as.numeric(cols$legend$lty), lwd = as.numeric(cols$legend$lwd))
   if(axes)
-    {
-      axis(side = 1)
-      axis(side = 2)
-    }
+  {
+    axis(side = 1)
+    axis(side = 2)
+  }
   title(...)
   box(...)
 }
 
 
 
-`bark.spectral` <-
-  function (f, ...) 
+`bark.spectral` <- function (f, ...) 
 {
   specobject = f
   if (!is.trackdata(specobject)) {
@@ -180,8 +178,7 @@
     spec <- specobject$data
   else if (is.matrix(specobject)) 
     spec <- specobject
-  else spec <- as.spectral(rbind(specobject), attr(specobject, 
-                                                   "fs"))
+  else spec <- as.spectral(rbind(specobject), attr(specobject,"fs"))
   res <- NULL
   for (j in 1:nrow(spec)) {
     v = approx(b, c(spec[j, ]), ba)
@@ -201,14 +198,12 @@
 }
 
 
-`mel.spectral` <-
-  function (a) 
+`mel.spectral` <- function (a) 
 {
   specobject = a
   if (!is.trackdata(specobject)) {
     if (!is.matrix(specobject)) 
-      specobject <- as.spectral(rbind(specobject), attr(specobject, 
-                                                        "fs"))
+      specobject <- as.spectral(rbind(specobject), attr(specobject, "fs"))
   }
   f <- trackfreq(specobject)
   b <- mel(f)

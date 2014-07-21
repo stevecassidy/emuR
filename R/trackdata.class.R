@@ -2,13 +2,14 @@
 ## Methods that define operations on the class "trackdata"
 ## see also track and frames
 
+
 "print.trackdata"<- function(x, ...)
 {
   if(is.null(x$trackname)) 
     cat("trackdata from unknown track.\n")
   else
     cat("trackdata from track:", x$trackname,"\n")
-
+  
   cat("index:\n")
   print(x$index, ...)
   cat("ftime:\n")
@@ -20,24 +21,23 @@
 
 
 
-"[.trackdata" <-
-  function (dataset, i, j, ...) 
+"[.trackdata" <- function (dataset, i, j, ...) 
 {
-
-
+  
+  
   if (missing(i)) {
     i <- 1:nrow(dataset$index)
   }
-
-
+  
+  
   ftime <- dataset$ftime[i, , drop = FALSE]
   index <- dataset$index[i, , drop = FALSE]
-
-
+  
+  
   datarows <- NULL
   for (ind in 1:nrow(index)) {
     datarows <- c(datarows, seq(from = index[ind, 1], to = index[ind, 
-                                                        2]))
+                                                                 2]))
   }
   if (is.matrix(dataset$data)) {
     if (missing(j)) 
@@ -86,9 +86,9 @@
 "as.trackdata" <- function( data, index, ftime, trackname="" )
 {
   mat <- list( data=as.matrix(data), 
-	      index=index, 
-	      ftime=ftime,
-	      trackname=trackname)
+               index=index, 
+               ftime=ftime,
+               trackname=trackname)
   if( version$major >= 5 ) {
     oldClass(mat) <- "trackdata"
   } else {
@@ -97,51 +97,51 @@
   mat
 }
 
-"is.trackdata" <-
-  function (object) 
+"is.trackdata" <- function (object) 
 {
   return(inherits(object, "trackdata"))
 }
 
-`plot.trackdata` <-
-  function (x, timestart = NULL, xlim = NULL, ylim = NULL, labels = NULL, 
-            col = TRUE, lty = FALSE, type="p", pch=NULL, contig = TRUE, ...) 
+`plot.trackdata` <- function (x, timestart = NULL, xlim = NULL, 
+                              ylim = NULL, labels = NULL, col = TRUE, 
+                              lty = FALSE, type="p", pch=NULL, 
+                              contig = TRUE, ...) 
 {
   trackdata <- x
   N <- nrow(trackdata$data)
   if(is.logical(col))
-    {
-      if (col) 
-	col <- 1:ncol(trackdata)
-      else
-        col <- rep(1, ncol(trackdata))
-    }
+  {
+    if (col) 
+      col <- 1:ncol(trackdata)
+    else
+      col <- rep(1, ncol(trackdata))
+  }
   else
-    {
-      if(length(col)!=ncol(trackdata))
-        col <- rep(col[1], ncol(trackdata))
-    }
-
+  {
+    if(length(col)!=ncol(trackdata))
+      col <- rep(col[1], ncol(trackdata))
+  }
+  
   if(is.logical(lty))
-    {
-      if (lty) 
-	lty <- 1:ncol(trackdata)
-      else
-        lty <- rep(1, ncol(trackdata))
-    }
+  {
+    if (lty) 
+      lty <- 1:ncol(trackdata)
+    else
+      lty <- rep(1, ncol(trackdata))
+  }
   else
-    {
-      if(length(lty)!=ncol(trackdata))
-        lty <- rep(lty[1], ncol(trackdata))
-    }
+  {
+    if(length(lty)!=ncol(trackdata))
+      lty <- rep(lty[1], ncol(trackdata))
+  }
   if(is.null(pch))
     pch <- rep(1, ncol(trackdata))
   else
-    {
-      if(length(pch)!=ncol(trackdata))
-        pch <- rep(pch[1], ncol(trackdata))
-    }
-
+  {
+    if(length(pch)!=ncol(trackdata))
+      pch <- rep(pch[1], ncol(trackdata))
+  }
+  
   
   n <- nrow(trackdata)
   if (!is.null(xlim)) 
@@ -207,49 +207,45 @@
 
 
 
-"bark.trackdata" <-
-  function(f, ...)
+"bark.trackdata" <- function(f, ...)
 {
   trackdata = f
   if(is.spectral(trackdata$data))
     return(bark.spectral(trackdata))
   else
-    {
-      trackdata$data <- bark(trackdata$data)
-      return(trackdata)
-    }
+  {
+    trackdata$data <- bark(trackdata$data)
+    return(trackdata)
+  }
 }
 
 
 
-"mel.trackdata" <-
-  function(a)
+"mel.trackdata" <- function(a)
 {
   trackdata = a
   if(is.spectral(trackdata$data))
     return(mel.spectral(trackdata))
   else
-    {
-      trackdata$data <- mel(trackdata$data)
-      return(trackdata)
-    }
+  {
+    trackdata$data <- mel(trackdata$data)
+    return(trackdata)
+  }
 }
 
 
 
 
 
-"trackfreq" <-
-  function(specdata){
-    if(is.trackdata(specdata))
-      return(attr(specdata$data, "fs"))
-    else
-      return(attr(specdata, "fs"))
-  }
+"trackfreq" <- function(specdata){
+  if(is.trackdata(specdata))
+    return(attr(specdata$data, "fs"))
+  else
+    return(attr(specdata, "fs"))
+}
 
 
-"get.trackkeywrd" <-
-  function (fname) 
+"get.trackkeywrd" <- function (fname) 
 {
   line <- readLines(fname, n = 2)
   if (length(line) < 2) {
@@ -272,8 +268,7 @@
 }
 
 
-"dur.trackdata" <-
-  function (x) 
+"dur.trackdata" <- function (x) 
 {
   x$ftime[,2] - x$ftime[,1]
 }

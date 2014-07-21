@@ -1,7 +1,7 @@
 
-".onAttach"<- function(libname, pkgname)
+".onAttach" <- function(libname, pkgname)
 {
- 
+  
   if (interactive()) {
     
     packpath = path.package(package = "emuR", quiet = FALSE)
@@ -9,8 +9,8 @@
     nfile = "emudirectory"
     filepath = paste(packpath,sepa,nfile,sep = "")
     mess = paste("\n \n     _  _________     _______    \n    | ||  ______ \\  / _______|    \n    | || | _____| || |_______     \n    | || ||______/  \\_______ \\    \n    | || | _   . . .   _ ___| |   \n    |_||_||_||.:.:.:.||_|____/            \n               : : :             \n      INSTITUTE OF PHONETICS      \n      AND SPEECH PROCESSING        \n                                  \n(C) IPS University of Munich\n\nR Package of the EMU Speech Database system - Version",packageVersion("emuR")," \nFor support see https://github.com/IPS-LMU/emuR \n")    
-   packageStartupMessage(mess, appendLF = FALSE)
-   packageStartupMessage( "\nLibrary successfully loaded." )
+    packageStartupMessage(mess, appendLF = FALSE)
+    packageStartupMessage( "\nLibrary successfully loaded." )
   }
 }
 

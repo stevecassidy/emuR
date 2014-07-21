@@ -1,16 +1,16 @@
 
-"bind"<- function(a,...)
+"bind" <- function(a,...)
 {
   UseMethod("bind")
 }
 
-  ## default is just to use rbind
+## default is just to use rbind
 "bind.default" <- function(...)
 {
   rbind(...)
 }
 
-"bind.trackdata"<- function(...)
+"bind.trackdata" <- function(...)
 {
   ## function to combine datasets into one single datasets
   ## any number of datasets accepted e.g. dcombine(x, y, z)

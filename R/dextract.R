@@ -11,7 +11,7 @@ dextract <- function(dataset, start, end) {
       stop("proportional start must be less than proportional end")
     }
   }
-
+  
   if(missing(end)) {
     leftin <- dataset$index[, 1]
     rightin <- dataset$index[, 2]
@@ -27,17 +27,16 @@ dextract <- function(dataset, start, end) {
 
 # helper function for use via dapply, returns a new
 # trackdata element cut at start/end proportions
-"dextract.sub" <-
-function (data, ftime, start, end) 
+"dextract.sub" <- function (data, ftime, start, end) 
 {
-    len <- nrow(data)
-start <- floor(start * (len - 1) + 1)
-end <- ceiling(end * (len - 1) + 1)
-    
-    newdata <- data[start:end, ]
-    times <- seq(ftime[1], ftime[2], length = len)
-    newftime <- times[c(start, end)]
-    return(list(data = newdata, ftime = newftime))
+  len <- nrow(data)
+  start <- floor(start * (len - 1) + 1)
+  end <- ceiling(end * (len - 1) + 1)
+  
+  newdata <- data[start:end, ]
+  times <- seq(ftime[1], ftime[2], length = len)
+  newftime <- times[c(start, end)]
+  return(list(data = newdata, ftime = newftime))
 }
 
 

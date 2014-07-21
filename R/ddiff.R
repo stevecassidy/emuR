@@ -6,12 +6,12 @@
   ## order, readjusting the index and ftime values each time
   ## dataset: a list as returned by track
   ## n: the order of differentiation
-
+  
   ## now we apply the function to the data using dapply
   outdat <- dapply(dataset, ddiff.sub, n = n)
   if(smoothing)
     dsmooth(outdat)
-    else outdat
+  else outdat
 }
 
 ddiff.sub <- function(data, ftime, n)
@@ -25,7 +25,7 @@ ddiff.sub <- function(data, ftime, n)
   ## and $ftime values adjusted accordingly
   ## values in $data that are returned are per millisecond
   if(is.matrix(data)) lval <- nrow(data) else lval <- length(data
-							     )
+  )
   if(lval < 1) stop("not enough data points in ddiff")	
   ## compute the time between samples
   interval <- (ftime[2] - ftime[1])/lval	
@@ -33,7 +33,7 @@ ddiff.sub <- function(data, ftime, n)
   data <- diff(data, differences = n)
   if(is.matrix(data))
     lval <- nrow(data)
-    else lval <- length(data)
+  else lval <- length(data)
   timefactor <- (n * interval)/2
   ftime[1] <- ftime[1] + timefactor
   ftime[2] <- ftime[2] - timefactor	

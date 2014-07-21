@@ -2,11 +2,11 @@
 "closest" <- function(vec, val)
 {
   ## return the index of the value in vec which is closest to val
-	newval <- min(abs((vec - val)))
-	z <- abs(vec - val)
-	temp <- z == newval
-	nums <- c(1:length(vec))
-	nums[temp]
+  newval <- min(abs((vec - val)))
+  z <- abs(vec - val)
+  temp <- z == newval
+  nums <- c(1:length(vec))
+  nums[temp]
 }
 
 
@@ -25,12 +25,12 @@
 }
 
 
-## label_convert --
-##  map one set of labels to another in a segment
-##  list or label vector
-##
 "label_convert" <- function(segs.or.labels, match, replace)
 {
+  ## label_convert --
+  ##  map one set of labels to another in a segment
+  ##  list or label vector
+  ##
   if (is.seglist( segs.or.labels ) ) {
     labs <- label(segs.or.labels)
   } else {
@@ -43,7 +43,7 @@
       stop("Lengths of match and replace vectors differ in label_convert")
     } 
   }
-
+  
   if (length(replace) == 1) {
     temp <- muclass(labs, match)
     labs[temp] <- replace
@@ -100,118 +100,113 @@
   ## if labs is "p" "t" "k", then mat
   ## will be sorted with these three labels in the first
   ## three columns
-	b1 <- labs
-	b2 <- dimnames(mat)[[1]]
-	c1 <- match(b2, b1)
-	d1 <- cbind(c1, mat)
-	newmat <- d1[sort.list(d1[, 1]),  ]
-	newmat <- newmat[, -1]
-	b1 <- dimnames(newmat)[[1]]
-	b2 <- dimnames(newmat)[[2]]
-	c1 <- match(b2, b1)
-	d1 <- rbind(c1, newmat)
-	newmat2 <- d1[, (sort.list(d1[1,  ],  ))]
-	newmat2[-1,  ]
+  b1 <- labs
+  b2 <- dimnames(mat)[[1]]
+  c1 <- match(b2, b1)
+  d1 <- cbind(c1, mat)
+  newmat <- d1[sort.list(d1[, 1]),  ]
+  newmat <- newmat[, -1]
+  b1 <- dimnames(newmat)[[1]]
+  b2 <- dimnames(newmat)[[2]]
+  c1 <- match(b2, b1)
+  d1 <- rbind(c1, newmat)
+  newmat2 <- d1[, (sort.list(d1[1,  ],  ))]
+  newmat2[-1,  ]
 }
 
 
 
-"rad" <-
-function(vec, samfreq = 20000, hz = TRUE)
+"rad" <- function(vec, samfreq = 20000, hz = TRUE)
 {
-# hz: if T, vec is a vector in Hertz, otherwise it's radians
-# convert from radians to Hz, or Hz to radians
-	if(hz) vals <- (vec * 2 * pi)/samfreq else vals <- (vec * samfreq)/(2 * 
-			pi)
-	vals
+  # hz: if T, vec is a vector in Hertz, otherwise it's radians
+  # convert from radians to Hz, or Hz to radians
+  if(hz) vals <- (vec * 2 * pi)/samfreq else vals <- (vec * samfreq)/(2 * 
+                                                                        pi)
+  vals
 }
 
-"freqtoint" <-
-function(trackdata, j){
-# note to remove the dc offset, set j to -1
-sg <- sign(j)
-zerowhich <- sg==0
-if(all(sg[!zerowhich] > 0))
-sg[zerowhich] = 1
-else sg[zerowhich] = -1
-j <- abs(j)
-fs <- trackfreq(trackdata)
-N <- length(fs)
-res <- 1+ (((j - fs[1]) * (N-1))/(fs[N] - fs[1]))
-res[res < 1] = 1
-res[res > N] = N
-res <- sg * res
-unique(round(res))
+"freqtoint" <- function(trackdata, j){
+  # note to remove the dc offset, set j to -1
+  sg <- sign(j)
+  zerowhich <- sg==0
+  if(all(sg[!zerowhich] > 0))
+    sg[zerowhich] = 1
+  else sg[zerowhich] = -1
+  j <- abs(j)
+  fs <- trackfreq(trackdata)
+  N <- length(fs)
+  res <- 1+ (((j - fs[1]) * (N-1))/(fs[N] - fs[1]))
+  res[res < 1] = 1
+  res[res > N] = N
+  res <- sg * res
+  unique(round(res))
 }
 
 
-"dbnorm" <-
-function(specdata, f=0, db=0)
+"dbnorm" <- function(specdata, f=0, db=0)
 {
+  
+  
+  if(is.trackdata(specdata))
+    dat <- specdata$data
+  else
+    dat <- specdata
+  
+  
+  # normalise to dbnorm
+  minfun <- function(specvals, f, db)
+  {
+    specvals <- specvals - specvals[f]+db
+  }
+  if(is.matrix(dat))
+    dat <- fapply(dat, minfun, f, db)
+  else
+    dat = dat-dat[f]+db
+  
+  if(is.trackdata(specdata))
+  {
+    specdata$data <- dat
+    return(specdata)
+  }
+  else return(dat)
+  
+}
 
 
-if(is.trackdata(specdata))
-dat <- specdata$data
-else
-dat <- specdata
 
-
-# normalise to dbnorm
-minfun <- function(specvals, f, db)
+"dbtopower" <- function(specdata, const = 10, base=10, inv=FALSE)
 {
-specvals <- specvals - specvals[f]+db
+  # function for converting from db to power and back
+  if(is.trackdata(specdata))
+    dat <- specdata$data
+  else dat <- specdata
+  if(!inv)
+    result <- base^(dat/const)
+  else
+    result <- const * log(dat, base=base)
+  if(is.trackdata(specdata))
+  {
+    specdata$data <- result
+    return(specdata)
+  }
+  else return(result)
 }
-if(is.matrix(dat))
-dat <- fapply(dat, minfun, f, db)
-else
-dat = dat-dat[f]+db
 
-if(is.trackdata(specdata))
+
+"shift" <- function(x, delta = 1,  circular = TRUE)
 {
-specdata$data <- dat
-return(specdata)
-}
-else return(dat)
-
-}
-
-
-
-"dbtopower" <-
-function(specdata, const = 10, base=10, inv=FALSE)
-{
-# function for converting from db to power and back
-if(is.trackdata(specdata))
-dat <- specdata$data
-else dat <- specdata
-if(!inv)
-result <- base^(dat/const)
-else
-result <- const * log(dat, base=base)
-if(is.trackdata(specdata))
-{
-specdata$data <- result
-return(specdata)
-}
-else return(result)
-}
-
-
-"shift" <-
-function(x, delta = 1,  circular = TRUE)
-{
-## converts x[n] into x[n-1] by multiplying the Fourier
-## transform on x[n] by z^-1 i.e. by e^-iw
-N <- length(x)
-if(delta < 0)
-delta <- N + delta
-h <- c(rep(0, delta), 1)
-if(!circular) {
-N <- length(x) + length(h) - 1
-x <- c(x, rep(0, N - length(x)))
-}
-filter(x, h, sides = 1, circular = TRUE)[1:N]
-
+  ## converts x[n] into x[n-1] by multiplying the Fourier
+  ## transform on x[n] by z^-1 i.e. by e^-iw
+  N <- length(x)
+  if(delta < 0)
+    delta <- N + delta
+  h <- c(rep(0, delta), 1)
+  if(!circular) {
+    N <- length(x) + length(h) - 1
+    x <- c(x, rep(0, N - length(x)))
+  }
+  filter(x, h, sides = 1, circular = TRUE)[1:N]
+  
 }
 
 
@@ -229,23 +224,23 @@ splitstring <- function(str,char) {
       ministr <- NULL
       length <- 0
       while(TRUE) {
-	ch <- substring(str, ind, ind)
-	if(ch == char) {
-	  ind <- ind + 1
-	  break
-	}
-	if(ch == "") {
-	  break
-	}
-	ministr <- c(ministr, ch)
-	ind <- ind + 1
-	length <- length + 1
+        ch <- substring(str, ind, ind)
+        if(ch == char) {
+          ind <- ind + 1
+          break
+        }
+        if(ch == "") {
+          break
+        }
+        ministr <- c(ministr, ch)
+        ind <- ind + 1
+        length <- length + 1
       }
       ## now concatenate string
       if(length > 0)
-	mat <- c(mat, paste(ministr, collapse = ""))
+        mat <- c(mat, paste(ministr, collapse = ""))
       if(ch == "")
-	break
+        break
     }
   }
   mat

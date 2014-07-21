@@ -1,12 +1,10 @@
-"start.trackdata" <-
-function(x, ...)
+"start.trackdata" <- function(x, ...)
 {
-x$ftime[,1]
+  x$ftime[,1]
 }
 
-"end.trackdata" <-
-function(x, ...)
+"end.trackdata" <- function(x, ...)
 {
-x$ftime[,2]
+  x$ftime[,2]
 }
 
