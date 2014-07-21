@@ -1,6 +1,8 @@
 emuR
 ====
 
+[![Build Status](https://travis-ci.org/IPS-LMU/emuR.png)](https://travis-ci.org/IPS-LMU/emuR)
+
 The R library for the Emu Speech Database System
 
 
