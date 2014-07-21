@@ -41,7 +41,7 @@ Harrington, J. (2010). The Phonetic Analysis of Speech Corpora. Blackwell.
 \code{\link{emu.testsuite}}
 }
 \examples{
-   
+    \dontrun{
     # emu.query
     # Available Databases:
     dbinfo()
@@ -90,7 +90,7 @@ Harrington, J. (2010). The Phonetic Analysis of Speech Corpora. Blackwell.
         segH.dft.5 = dcut(segH.dft, .5,prop=TRUE)
         plot(segH.dft.5,segH.lab, main = "Spectral data of aspiration")
     }
-
+}
 
     \dontrun{emu.testsuite()}
 }
