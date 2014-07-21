@@ -45,7 +45,7 @@
 
 ##########################################
 
-##' A method of the generic function dim for objects of class \'trackdata\'
+##' A method of the generic function dim for objects of class 'trackdata'
 ##' 
 ##' The function returns the dimension attributes of a track data object.
 ##' 

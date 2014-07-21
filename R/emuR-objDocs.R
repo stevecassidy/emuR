@@ -4,9 +4,13 @@
 ##' 
 ##' 
 ##' @aliases segmentlist emusegs
-##' @format multi-columned matrix one row per segment \itemize{ \itemfirst
-##' columnlabel \itemsecond columnsegment onset time \itemthird columnsegment
-##' offset time \itemfourth columnutterance name }
+##' @format multi-columned matrix one row per segment 
+##' \itemize{ 
+##'   \item columnlabel 
+##'   \item columnsegment onset time 
+##'   \item columnsegment offset time 
+##'   \item columnutterance name 
+##' }
 ##' @seealso \code{\link{emu.query}}, \code{\link{demo.vowels}}
 ##' @keywords classes
 ##' @name segmentlist
