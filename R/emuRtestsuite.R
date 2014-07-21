@@ -1,8 +1,3 @@
-#-- emuRtestsuite.R
-#-- 
-#
-#--  Created by Tina John on 14.02.12.
-#--  Copyright 2012 IPS LMU Munich. All rights reserved.
 
 emu.testsuite = function ( ) {
     # emu.query
