@@ -43,7 +43,7 @@
 ##'     } else {
 ##'         # emu.query
 ##'         # An EMU query    
-##'         seg = emu.query("demo","*","Phonetic = @: | e: | ei | A | E | @u")
+##'         seg = emu.query("demo","*","Phonetic = @@: | e: | ei | A | E | @@u")
 ##'         seg
 ##'         
 ##'         #Extract Labels from segment list
