@@ -1,3 +1,44 @@
+##' Electropalatographic contact indices
+##' 
+##' epgai(), epgci(), epgdi() return the anteriority index, the centrality
+##' index, the dorsopalatal index respectively as a trackdata object or a
+##' vector
+##' 
+##' These are exact implementations of the formulae for calculating the EPG
+##' anteriority, EPG centrality, and EPG dorsopalatal indices as described in
+##' Recasens & Pallares (2001).
+##' 
+##' @aliases epgai epgci epgdi
+##' @param epgdata An eight-columned EPG-compressed trackdata object, or an
+##' eight columned matrix of EPG-compressed trackdata, or a 3D palatographic
+##' array that is the output of palate()
+##' @param weights A vector of five values that are applied to EPG rows 1-5
+##' respectively in epgai(). A vector of four values that are applied to
+##' columns 1 and 8, to columns 2 and 7, columns 3 and 6, columns 4 and 5
+##' respectively. Defaults to the values given in Recasens & Pallares (2001).
+##' @return These functions return a trackdata object if they are applied to an
+##' eight-columned EPG-compressed trackdata object, otherwise a one-columned
+##' matrix.
+##' @author Jonathan Harrington
+##' @seealso \code{\link{epgcog}} \code{\link{epggs}} \code{\link{palate}}
+##' @references GIBBON, F. AND NICOLAIDIS, K. (1999). Palatography.  In W.J.
+##' Hardcastle & N. Hewlett (eds). Coarticulation.  (pp. 229-245). Cambridge
+##' University Press: Cambridge.
+##' 
+##' RECASENS, D. & PALLARES, M. (2001) Coarticulation, assimilation and
+##' blending in Catalan consonant clusters. Journal of Phonetics, 29, 273-301.
+##' @keywords math
+##' @examples
+##' 
+##' #  Anteriority index: trackdata
+##' ai <- epgai(coutts.epg)
+##' #  Dorsopalatal index, one-columned matrix
+##' di <- epgdi(dcut(coutts.epg, 0.5, prop=TRUE))
+##' # Next to examples: Centrality  index, one-columed matrix
+##' ci <- epgci(palate(coutts.epg))
+##' ci <- epgci(palate(dcut(coutts.epg, 0.5, prop=TRUE)))
+##' 
+##' 
 "epgai" <- function(epgdata, weights = c(1, 9, 81, 729, 4921))
 {
   # function to calculate the anteriority index per palate
@@ -83,7 +124,37 @@
 
 
 
-
+"epgdi" <- function(epgdata)
+{
+  # function to calculate the Qp, or
+  # dorsopalatal  index per palate
+  # as in Recasens & Pallares, 2001, 29, Jphon, p. 283, 
+  # p: either a list of epg track
+  # data returned by track () or a three-dimensionsal array of palates
+  
+  # 
+  # returns: if p is a list, then
+  # the function returns trackdata of the
+  # same length as p with ant.index values.
+  # Otherwise, if p is an array of palates, 
+  # one value (the ant.index) per palate) is returned
+  #
+  if(!inherits(epgdata, "EPG")) p <- palate(epgdata)
+  else p <- epgdata
+  # in case there is only one palate
+  if(length(dim(p) )==2)
+  {
+    p <- array(p, c(8, 8, 1))
+    class(p) <- "EPG"
+  }
+  result <- cbind(epgsum(p, rows=6:8)/24)
+  if(is.trackdata(epgdata)) {
+    epgdata$data <- result
+    epgdata$trackname <- "dorsopalatal"
+  }
+  else epgdata <- result
+  epgdata
+}
 
 
 
@@ -216,44 +287,6 @@
   else epgdata <- result
   epgdata
 }
-
-
-
-
-"epgdi" <- function(epgdata)
-{
-  # function to calculate the Qp, or
-  # dorsopalatal  index per palate
-  # as in Recasens & Pallares, 2001, 29, Jphon, p. 283, 
-  # p: either a list of epg track
-  # data returned by track () or a three-dimensionsal array of palates
-  
-  # 
-  # returns: if p is a list, then
-  # the function returns trackdata of the
-  # same length as p with ant.index values.
-  # Otherwise, if p is an array of palates, 
-  # one value (the ant.index) per palate) is returned
-  #
-  if(!inherits(epgdata, "EPG")) p <- palate(epgdata)
-  else p <- epgdata
-  # in case there is only one palate
-  if(length(dim(p) )==2)
-  {
-    p <- array(p, c(8, 8, 1))
-    class(p) <- "EPG"
-  }
-  result <- cbind(epgsum(p, rows=6:8)/24)
-  if(is.trackdata(epgdata)) {
-    epgdata$data <- result
-    epgdata$trackname <- "dorsopalatal"
-  }
-  else epgdata <- result
-  epgdata
-}
-
-
-
 
 
 

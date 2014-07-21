@@ -28,7 +28,13 @@
 
 
 
-
+##' Expand trackdata
+##' 
+##' see function
+##' 
+##' 
+##' @aliases [.trackdata
+##' @keywords internal
 "[.trackdata" <- function (dataset, i, j, ...) 
 {
   

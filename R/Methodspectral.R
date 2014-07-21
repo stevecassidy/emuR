@@ -1,3 +1,10 @@
+##' Expand spectral
+##' 
+##' see function
+##' 
+##' 
+##' @aliases [.spectral
+##' @keywords internal
 "[.spectral" <- function (dat, i, j, drop) 
 {
   

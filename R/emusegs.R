@@ -348,6 +348,15 @@ is.seglist <- function(object) {
   print.data.frame(x, ...)
 }
 
+
+
+##' Expand emusegs
+##' 
+##' see function
+##' 
+##' 
+##' @aliases [.emusegs
+##' @keywords internal
 "[.emusegs"<- function(segs,i,j)
 {
   NextMethod("[",drop=FALSE)
@@ -364,9 +373,6 @@ if( version$major >= 5 ) {
             }
   )
 }
-
-
-
 
 
 
@@ -517,6 +523,13 @@ if( version$major >= 5 ) {
   as.character(x$utts)
 }
 
+
+##' duration
+##' 
+##' calculates durations
+##' 
+##' @param x ???
+##' @export
 "dur" <- function(x) {
   UseMethod("dur")
 }
