@@ -1,15 +1,3 @@
-##########################################################
-# Convert Bark to Hz and vice-versa
-# Formulae in 
-# H. Traunm\"uller (1990) "Analytical expressions for the 
-# tonotopic sensory scale" J. Acoust. Soc. Am. 88: 97-100. 
-# f is a frequency in Hz unless inv=TRUE,
-# in which case f is a frequency in Bark
-# inv: if T, performs Bark to Hz conversion
-##########################################################
-
-
-
 ##' Convert Hertz to Bark and Bark to Hertz
 ##' 
 ##' The calculation is done using the formulae Traunmueller (1990)
