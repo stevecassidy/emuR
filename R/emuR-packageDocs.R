@@ -27,7 +27,6 @@
 ##' @author Tina John (help text)
 ##' 
 ##' Maintainer: <jmh@@phonetik.uni-muenchen.de>
-##' @seealso \code{\link{emu.testsuite}}
 ##' @references Harrington, J. (2010). The Phonetic Analysis of Speech Corpora.
 ##' Blackwell.
 ##' @keywords package
