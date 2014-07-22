@@ -14,7 +14,8 @@ Depends:
     R (>= 2.13),
     stats,
     methods,
-    MASS
+    MASS,
+    wrassp
 LazyLoad: yes
 LazyData: yes
 ZipData: no
