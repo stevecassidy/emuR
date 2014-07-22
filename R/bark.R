@@ -122,12 +122,7 @@
   UseMethod("bark") 
 }
 
-##' bark.default
-##' 
-##' see function
-##' 
-##' 
-##' @keywords internal
+
 ##' @export bark.default
 "bark.default" <- function (f, inv = FALSE, ...) 
 {

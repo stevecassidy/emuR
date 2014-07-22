@@ -63,12 +63,7 @@ dextract <- function(dataset, start, end) {
   }
 }
 
-##' dextract.sub
-##' 
-##' see function
-##' 
-##' 
-##' @keywords internal
+
 ##' @export
 "dextract.sub" <- function (data, ftime, start, end) 
 {

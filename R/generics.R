@@ -1,9 +1,4 @@
-##' Math.trackdata
-##' 
-##' see function
-##' 
-##' 
-##' @keywords internal
+
 ##' @export
 `Math.trackdata` <- function (x,...) 
 {
@@ -15,12 +10,7 @@
   as.trackdata(o, inds, ftime, nm)
 }
 
-##' Math2.trackdata
-##' 
-##' see function
-##' 
-##' 
-##' @keywords internal
+
 ##' @export
 `Math2.trackdata` <- function (x) 
 {
@@ -32,12 +22,7 @@
   as.trackdata(o, inds, ftime, nm)
 }
 
-##' Ops.trackdata
-##' 
-##' see function
-##' 
-##' 
-##' @keywords internal
+
 ##' @export
 `Ops.trackdata` <- function (e1, e2) 
 {

@@ -440,12 +440,6 @@ if( version$major >= 5 ) {
 
 
 
-##' label.emusegs
-##' 
-##' see function
-##' 
-##' 
-##' @keywords internal
 ##' @export
 "label.emusegs" <- function(segs)
 {
@@ -513,47 +507,26 @@ if( version$major >= 5 ) {
   write(t(as.matrix(seglist)), file, ncolumns = 4, append=TRUE)
 }
 
-##' start.emusegs
-##' 
-##' see function
-##' 
-##' 
-##' @keywords internal
+
 ##' @export
 "start.emusegs" <- function(x, ...)
 {
   as.numeric(x$start)
 }
 
-##' end.emusegs
-##' 
-##' see function
-##' 
-##' 
-##' @keywords internal
+
 ##' @export
 "end.emusegs" <- function(x, ...)
 {
   as.numeric(x$end)
 }
 
-##' utt
-##' 
-##' see function
-##' 
-##' 
-##' @keywords internal
+
 ##' @export
 "utt" <- function(x) {
   UseMethod("utt")
 }
 
-##' utt.emusegs
-##' 
-##' see function
-##' 
-##' 
-##' @keywords internal
 ##' @export
 "utt.emusegs" <- function(x)
 {

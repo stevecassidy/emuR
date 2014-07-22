@@ -195,12 +195,6 @@ dtime <- function(dataset, times, single = TRUE, average = TRUE) {
 
 
 
-##' dcut.sub
-##' 
-##' see function
-##' 
-##' 
-##' @keywords internal
 ##' @export
 "dcut.sub" <- function(trackdata, left.time, right.time)
 {

@@ -26,12 +26,6 @@
 }
 
 
-##' ddiff.sub
-##' 
-##' see function
-##' 
-##' 
-##' @keywords internal
 ##' @export 
 ddiff.sub <- function(data, ftime, n)
 {

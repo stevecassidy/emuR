@@ -1,9 +1,4 @@
-##' start.trackdata
-##' 
-##' see function
-##' 
-##' 
-##' @keywords internal
+
 ##' @export
 "start.trackdata" <- function(x, ...)
 {
@@ -11,12 +6,6 @@
 }
 
 
-##' end.trackdata
-##' 
-##' see function
-##' 
-##' 
-##' @keywords internal
 ##' @export
 "end.trackdata" <- function(x, ...)
 {
