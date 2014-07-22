@@ -24,8 +24,8 @@
 ##' @export mahal
 "mahal" <- function(data, train)
 {
-  if (emu.options("deprecated.warnings"))
-    cat("mahal is deprecated, use classify with metric=\"mahal\"\n")
+  #   if (emu.options("deprecated.warnings")) # commented out because glabal vars don't exist any more
+  cat("mahal is deprecated, use classify with metric=\"mahal\"\n")
   classify( data, train, metric="mahal" )
 }
 
@@ -46,8 +46,8 @@
 ##' @export bayes.lab
 "bayes.lab" <- function(data, train)
 {
-  if (emu.options("deprecated.warnings"))
-    cat("bayes.lab is deprecated, use classify with metric=\"bayes\"\n")
+  #if (emu.options("deprecated.warnings")) # commented out because glabal vars don't exist any more
+  cat("bayes.lab is deprecated, use classify with metric=\"bayes\"\n")
   classify( data, train, metric="bayes" )
 }
 
@@ -68,8 +68,8 @@
 ##' @export bayes.dist
 "bayes.dist" <- function(data, train, labels=NULL)
 {
-  if (emu.options("deprecated.warnings"))
-    cat("bayes.dist is deprecated, use distance with metric=\"bayes\"\n")
+  #if (emu.options("deprecated.warnings")) # commented out because glabal vars don't exist any more
+  cat("bayes.dist is deprecated, use distance with metric=\"bayes\"\n")
   distance( data, train, labels, metric="bayes")
 }
 
@@ -103,8 +103,8 @@
 ##' @export mahal.dist
 "mahal.dist" <- function( data, train, labels=NULL )
 {
-  if (emu.options("deprecated.warnings"))
-    cat("mahal.dist is deprecated, use distance with metric=\"mahal\"\n")
+  #if (emu.options("deprecated.warnings")) # commented out because glabal vars don't exist any more
+  #cat("mahal.dist is deprecated, use distance with metric=\"mahal\"\n") # commented out because glabal vars don't exist any more
   distance( data, train, labels, metric="mahal")
 }
 
