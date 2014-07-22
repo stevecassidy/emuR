@@ -16,7 +16,7 @@ library(stats)
 ##' @examples
 ##' 
 ##'   euclidean(cbind(c(1,2,3,4), c(2,3,2,2)))
-##' 
+##' @import stats
 ##' @export euclidean
 "euclidean"<- function(data, m = 1, n = ncol(data))
 {
