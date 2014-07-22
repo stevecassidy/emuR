@@ -8,5 +8,8 @@ epgci(epgdata, weights = c(1, 17, 289, 4913))
 \description{
 see function: epgai
 }
+\seealso{
+\code{\link{epgai}}
+}
 \keyword{internal}
 

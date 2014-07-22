@@ -178,7 +178,13 @@
 
 
 
-
+##' dplot.time
+##' 
+##' see function
+##' 
+##' 
+##' @keywords internal
+##' @export
 `dplot.time` <- function (x, labs = NULL, offset = 0, prop=TRUE, 
                           average = FALSE,  xlim = NULL, ylim = NULL, 
                           lty = FALSE, colour = TRUE, lwd = NULL, 
@@ -315,7 +321,13 @@
 
 
 
-
+##' dplot.norm
+##' 
+##' see function
+##' 
+##' 
+##' @keywords internal
+##' @export
 `dplot.norm` <- function (x, labs = NULL, average = FALSE, xlim = NULL, 
                           ylim = NULL,  lty = FALSE, type = "l", colour = TRUE, 
                           lwd = NULL, pch = NULL, legend = "topright",  n = 20) 

@@ -5,6 +5,7 @@
 ##' 
 ##' @aliases [.EPG
 ##' @keywords internal
+##' @export
 "[.EPG" <- function (palates, i, j, k) 
 {
   o <- NextMethod("[")

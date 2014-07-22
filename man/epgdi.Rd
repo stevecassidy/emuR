@@ -8,5 +8,8 @@ epgdi(epgdata)
 \description{
 see function: epgai
 }
+\seealso{
+\code{\link{epgai}}
+}
 \keyword{internal}
 

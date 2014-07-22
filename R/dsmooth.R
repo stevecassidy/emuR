@@ -20,6 +20,14 @@
 }
 
 
+
+##' dsmooth.sub
+##' 
+##' see function
+##' 
+##' 
+##' @keywords internal
+##' @export
 "dsmooth.sub" <- function(data, ftime)
 {
   if(is.matrix(data)){

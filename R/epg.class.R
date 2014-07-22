@@ -85,7 +85,7 @@
 ##' 
 ##' see function: epgai
 ##' 
-##' 
+##' @seealso \code{\link{epgai}} 
 ##' @keywords internal
 ##' @export
 "epgci" <- function (epgdata, weights = c(1, 17, 289, 4913)) 
@@ -134,7 +134,7 @@
 ##' 
 ##' see function: epgai
 ##' 
-##' 
+##' @seealso \code{\link{epgai}}
 ##' @keywords internal
 ##' @export
 "epgdi" <- function(epgdata)

@@ -25,6 +25,14 @@
   else outdat
 }
 
+
+##' ddiff.sub
+##' 
+##' see function
+##' 
+##' 
+##' @keywords internal
+##' @export 
 ddiff.sub <- function(data, ftime, n)
 {
   ## a function to be called by dapply

@@ -63,10 +63,17 @@ dextract <- function(dataset, start, end) {
   }
 }
 
-# helper function for use via dapply, returns a new
-# trackdata element cut at start/end proportions
+##' dextract.sub
+##' 
+##' see function
+##' 
+##' 
+##' @keywords internal
+##' @export
 "dextract.sub" <- function (data, ftime, start, end) 
 {
+# helper function for use via dapply, returns a new
+# trackdata element cut at start/end proportions
   len <- nrow(data)
   start <- floor(start * (len - 1) + 1)
   end <- ceiling(end * (len - 1) + 1)
