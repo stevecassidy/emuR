@@ -39,6 +39,7 @@
 ##' ci <- epgci(palate(dcut(coutts.epg, 0.5, prop=TRUE)))
 ##' 
 ##' 
+##' @export
 "epgai" <- function(epgdata, weights = c(1, 9, 81, 729, 4921))
 {
   # function to calculate the anteriority index per palate
@@ -80,8 +81,14 @@
 }
 
 
-
-`epgci` <- function (epgdata, weights = c(1, 17, 289, 4913)) 
+##' epgci
+##' 
+##' see function: epgai
+##' 
+##' 
+##' @keywords internal
+##' @export
+"epgci" <- function (epgdata, weights = c(1, 17, 289, 4913)) 
 {
   # function to calculate the centrality index per palate
   # as in the CCa formula in Recasens & Pallares, 2001, 29, Jphon, p. 283, 
@@ -123,7 +130,13 @@
 
 
 
-
+##' epgdi
+##' 
+##' see function: epgai
+##' 
+##' 
+##' @keywords internal
+##' @export
 "epgdi" <- function(epgdata)
 {
   # function to calculate the Qp, or

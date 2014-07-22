@@ -436,6 +436,16 @@ if( version$major >= 5 ) {
   UseMethod("label")
 }
 
+
+
+
+##' label.emusegs
+##' 
+##' see function
+##' 
+##' 
+##' @keywords internal
+##' @export
 "label.emusegs" <- function(segs)
 {
   as.character(segs$label)

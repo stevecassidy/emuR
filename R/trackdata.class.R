@@ -35,6 +35,7 @@
 ##' 
 ##' @aliases [.trackdata
 ##' @keywords internal
+##' @export
 "[.trackdata" <- function (dataset, i, j, ...) 
 {
   
