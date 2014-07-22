@@ -417,7 +417,7 @@
 
 
 
-
+##' @export
 "bark.trackdata" <- function(f, ...)
 {
   trackdata = f
@@ -431,7 +431,7 @@
 }
 
 
-
+##' @export
 "mel.trackdata" <- function(a)
 {
   trackdata = a
