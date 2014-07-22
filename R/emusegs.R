@@ -415,7 +415,6 @@ if( version$major >= 5 ) {
 ##' 
 ##' @aliases label.emusegs label utt.emusegs utt
 ##' @param segs segment list
-##' @param x segment list
 ##' @return label / utterance vector
 ##' @author Jonathan Harrington
 ##' @seealso \code{\link{segmentlist} \link{start} \link{end}}

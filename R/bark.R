@@ -118,7 +118,7 @@
 ##' 
 ##' 
 ##' @export bark
-"bark" <- function (f, ...) {
+"bark" <- function (f, inv = FALSE, ...) {
   UseMethod("bark") 
 }
 
