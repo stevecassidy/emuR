@@ -30,6 +30,7 @@
 ##' @references Harrington, J. (2010). The Phonetic Analysis of Speech Corpora.
 ##' Blackwell.
 ##' @keywords package
+##' @import methods
 ##' @examples
 ##' 
 ##'     \dontrun{
