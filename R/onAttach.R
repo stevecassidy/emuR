@@ -17,7 +17,12 @@
 
 
 
-
+# ##' emudata init
+# ##' 
+# ##' loads package emudata as far as installed or reports message
+# ##' 
+# ##' 
+# ##' @keywords internal
 # emudata.init <- function() {
 #    messemudatamore = ""
 #   if(require(emudata)) {
@@ -32,10 +37,3 @@
 #     cat(messemudatamore)
 #   }
 # }
-
-
-
-
-## Local Variables:
-## mode:S
-## End:

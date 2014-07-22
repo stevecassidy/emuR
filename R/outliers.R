@@ -1,4 +1,10 @@
-
+##' outliers
+##' 
+##' see function
+##' 
+##' 
+##' @keywords internal
+##' @export outliers
 "outliers" <-  function(data, labels, threshold) {
   model <- train(data,labels)
   dist <- distance(data, model, labels, metric="mahal")

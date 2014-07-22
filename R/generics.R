@@ -1,4 +1,5 @@
 
+##' @export
 `Math.trackdata` <- function (x,...) 
 {
   
@@ -9,6 +10,8 @@
   as.trackdata(o, inds, ftime, nm)
 }
 
+
+##' @export
 `Math2.trackdata` <- function (x) 
 {
   
@@ -19,6 +22,8 @@
   as.trackdata(o, inds, ftime, nm)
 }
 
+
+##' @export
 `Ops.trackdata` <- function (e1, e2) 
 {
   x = e1
@@ -50,9 +55,15 @@
 }
 
 
+##' Summary.trackdata
+##' 
+##' see function
+##' 
+##' 
+##' @keywords internal
+##' @export
 `Summary.trackdata` <- function (x,..., na.rm=TRUE) 
 {
   get(.Generic)(x$data)   
   
 }
-

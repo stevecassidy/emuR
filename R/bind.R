@@ -1,15 +1,52 @@
-
+##' class method bind data
+##' 
+##' binds data
+##' 
+##' 
+##' @keywords internal
+##' @export bind
 "bind" <- function(a,...)
 {
   UseMethod("bind")
 }
 
 ## default is just to use rbind
+
+
+
+
+
+
+
+
+##' data binding
+##' 
+##' binds data
+##' 
+##' 
+##' @keywords internal
+##' @export bind.default
 "bind.default" <- function(...)
 {
   rbind(...)
 }
 
+
+
+
+
+
+
+
+
+##' bind trackdata
+##' 
+##' binds diffrent trackdata objects together
+##' 
+##' 
+##' @param \dots trackdata objects
+##' @keywords methods
+##' @export bind.trackdata
 "bind.trackdata" <- function(...)
 {
   ## function to combine datasets into one single datasets
@@ -37,10 +74,3 @@
   }
   mat
 }
-
-
-
-# Local Variables:
-# mode:S
-# S-temp-buffer-p:t
-# End:

@@ -1,3 +1,11 @@
+##' Expand spectral
+##' 
+##' see function
+##' 
+##' 
+##' @aliases [.spectral
+##' @keywords internal
+##' @export
 "[.spectral" <- function (dat, i, j, drop) 
 {
   
@@ -38,4 +46,3 @@
     }
   }
 }
-

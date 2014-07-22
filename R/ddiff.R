@@ -1,5 +1,16 @@
-
-
+##' Differentiation of tracks
+##' 
+##' Differentiates a list, as returned by track, to the nth order, readjusting
+##' the index and ftime values each time.
+##' 
+##' 
+##' @aliases ddiff ddiff.sub
+##' @param dataset track data object - a list as returned by track
+##' @param n the order of differentiation
+##' @param smoothing if TRUE track is smoothed
+##' @author Jonathan Harrington
+##' @keywords math
+##' @export ddiff
 "ddiff"<- function(dataset, n = 1, smoothing = TRUE)
 {
   ## differentiates a list, as returned by track, to the nth
@@ -14,6 +25,8 @@
   else outdat
 }
 
+
+##' @export 
 ddiff.sub <- function(data, ftime, n)
 {
   ## a function to be called by dapply
@@ -42,12 +55,3 @@ ddiff.sub <- function(data, ftime, n)
   ## and return the data in the required format
   list(data = data, ftime = ftime)
 }
-
-
-
-# Local Variables:
-# mode:S
-# S-temp-buffer-p:t
-# End:
-
-
