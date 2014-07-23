@@ -6,7 +6,7 @@
 emu.track()
 }
 \description{
-stub function to tell user that a new version is coming
+function stub to tell user that a new version is coming
 }
 \keyword{internal}
 

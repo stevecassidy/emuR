@@ -1,32 +1,32 @@
 ##' emu.track
 ##' 
-##' stub function to tell user that a new version is coming
+##' function stub to tell user that a new version is coming
 ##' 
 ##' 
 ##' @keywords internal
 ##' @export
 "emu.track" <- function () 
 {
-  stop('emu.track is not available in the emuR package. Use the new emu.track2() function instead.')
+  stop('emu.track is not available in the emuR package. Please use the new emu.track2() function instead.')
 }
 
 
 
-##' emu.track2
+##' Extract trackdata information for a given segmentlist
 ##' 
 ##' A new and improved version of emu.track that utilizes the wrassp package for 
-##' signal processing and SSFF file handling
+##' signal processing and SSFF file handling.
 ##' 
-##' Reads time relevant data from a given seglist and extracts the specified
+##' Reads time relevant data from a given segmentlist, extracts the specified
 ##' trackdata and places it into a trackdata object (analogos to the depricated emu.track). The
-##' seglist has to either contain valid paths to the signal files in which case the according
-##' SSFF files have to be in the same folder or 
+##' segmentlist$utts has to either contain valid paths to the signal files in which case the according
+##' SSFF files have to be in the same folder or valid paths to the SSFF files
 ##' 
 ##' 
 ##' @param Seglist seglist obtained by a function of package seglist with
 ##' option newemuutts=T
 ##' @param FileExtAndTrackName file extension and trackname separated by a ':' (e.g. fms:fm where fms is the file extension and fm is the track/column name) 
-##' @param PathToDbRootFilder is the path to the 
+##' @param PathToDbRootFolder is the path to the 
 ##' @param OnTheFlyFunctionName name of wrassp function to do on-the-fly calculation 
 ##' @param OnTheFlyParas a list parameters that will be given to the function 
 ##' passed in by the OnTheFlyFunctionName parameter. This list can easily be 
@@ -36,7 +36,7 @@
 ##' @return an object of type trackdata is returned
 ##' @author Raphael Winkelmann
 ##' @seealso \code{\link{formals}}
-##' @keywords internal
+##' @keywords misc
 ##' @import wrassp
 ##' @export
 "emu.track2" <- function(Seglist=NULL, FileExtAndTrackName=NULL, PathToDbRootFolder=NULL,
@@ -51,15 +51,13 @@
   # split FileExtAndtrackname
   splitQuery = unlist(strsplit(FileExtAndTrackName, ":"))
   
-  newFileEx = paste(".",splitQuery[1],sep="")
+  fileExt = paste(".",splitQuery[1],sep="")
   colName = splitQuery[2]
   
   ###################################
   # update Seglist paths if neccesary
-  print(Seglist)
-  Seglist = expandBaseNamesToFullPaths(Seglist, PathToDbRootFolder, newFileEx)
+  Seglist = expandBaseNamesToFullPaths(Seglist, PathToDbRootFolder, fileExt)
   
-  #return(Seglist)
   
   ###################################
   #create empty index, ftime matrices
@@ -81,24 +79,14 @@
     
     pb <- txtProgressBar(min = 0, max = length(Seglist$utts), style = 3)
   }
+  
+  
   #########################
   # LOOP OVER UTTS
   curIndexStart = 1
   for (i in 1:length(Seglist$utts)){
     
-    ####################################################
-    #split at "." char (fixed=T to turn off regex matching)
-    #dotSplitFilePath <- unlist(strsplit(Seglist$utts[i], ".", fixed=T ))
-    #dotSplitFilePath[length(dotSplitFilePath)] <- newFileEx
-    
-    #fname <- paste(dotSplitFilePath, collapse="")
     fname = Seglist$utts[i]
-    ################
-    # extract path
-    # (may no longer need this little bit at all)
-    #con = url(fname)
-    #fname = summary(con)$description
-    #close(con)
     
     ################
     #get data object
@@ -186,34 +174,54 @@
 }
 
 
+##' Expand the base names of a segmentlist so that $utts contains full paths
+##' 
+##' Recusivly searches a root directory for files matching the 
+##' base name specified in the utts files of a segmentlist. If
+##' the utt name is 'XYZ' and fileExt is '.fms' the file
+##' 'XYZ.fms' will be searched for in the root directory given.
 ##'
-##'
-##'
+##' @param Seglist segmentlist to be expandend
+##' @param PathToDbRootFolder path to root directory (CAUTION: think of DB size and search space!) 
+##' @param fileExt file extention including dot (e.g. '.fms'|'.f0'|'.rms'|...) 
+##' @return segmentlist with expanded $utts
 ##' @author Raphael Winkelmann
 ##' @export
 expandBaseNamesToFullPaths <- function(Seglist=NULL, PathToDbRootFolder=NULL, fileExt=NULL)
 {
-  Seglist$utts = paste(Seglist$utts, fileExt, sep="")
-  showInfo = T  
-  for(i in 1:length(Seglist$utts)){
-    if(file.exists(Seglist$utts[i])){
-      print("This file exists!!!")
-      print(Seglist$utts[i])
-    }else{
-      if(showInfo){
-        cat('INFO: Globing for files is slow! Try to pre expand the basenames to your segmentlist\n')
-        showInfo = F
-      }
-      fullPath = list.files(PathToDbRootFolder, pattern=paste(Seglist$utts[i], "$", sep = ""), recursive=T, full.names=T)
-      if(length(fullPath != 0)){
-        Seglist$utts[i] = fullPath
+  # check if utts are valid paths -> if yes do nothing
+  if(all(file.exists(Seglist$utts) == TRUE)){
+    return(Seglist)
+  }else{
+    # append fileExt
+    Seglist$utts = paste(Seglist$utts, fileExt, sep="")
+    showInfo = T
+    for(i in 1:length(Seglist$utts)){
+      if(file.exists(Seglist$utts[i])){
+        print("This file exists!!!")
+        print(Seglist$utts[i])
       }else{
-        stop("Following file could not be found anywhere in ", PathToDbRootFolder, " : ", Seglist$utts[i])
+        if(showInfo){
+          cat('INFO: Globbing for files to expand segmentlist... this is slow for large search spaces/large DBs! Try to pre-expand the base names of your segmentlist (by calling expandBaseNamesToFullPaths directly) for speed improvements...\n')
+          pb <- txtProgressBar(min = 0, max = length(Seglist$utts), style = 3)
+          showInfo = F
+        }
+        fullPath = list.files(PathToDbRootFolder, pattern=paste(Seglist$utts[i], "$", sep = ""), recursive=T, full.names=T)
+        if(length(fullPath != 0)){
+          Seglist$utts[i] = fullPath
+          setTxtProgressBar(pb, i)
+        }else{
+          stop("Following file could not be found anywhere in ", PathToDbRootFolder, " : ", Seglist$utts[i])
+        }
       }
     }
+    # close progress bar and return seglist
+    close(pb)
+    return(Seglist)
   }
-  return(Seglist)
 }
 
 # FOR DEVELOPMENT
-td = emu.track2(fric, FileExtAndTrackName='fms:fm', PathToDbRootFolder='~/Downloads/kiel03/readI/')
+# td = emu.track2(fric, FileExtAndTrackName='fms:fm', PathToDbRootFolder='~/Downloads/kiel03/readI/')
+# fricWithFmsPaths=expandBaseNamesToFullPaths(Seglist=fric, PathToDbRootFolder='~/Downloads/kiel03/readI/', fileExt='.fms')
+# td = emu.track2(fricWithFmsPaths, FileExtAndTrackName='fms:fm')
