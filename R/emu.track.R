@@ -39,9 +39,9 @@
 ##' @keywords misc
 ##' @import wrassp
 ##' @export
-"emu.track2" <- function(Seglist=NULL, FileExtAndTrackName=NULL, PathToDbRootFolder=NULL,
-                         OnTheFlyFunctionName = NULL, OnTheFlyParas=NULL, 
-                         OnTheFlyOptLogFilePath=NULL){
+"emu.track2" <- function(Seglist = NULL, FileExtAndTrackName = NULL, PathToDbRootFolder = NULL,
+                         OnTheFlyFunctionName = NULL, OnTheFlyParas = NULL, 
+                         OnTheFlyOptLogFilePath = NULL){
   
   if( is.null(Seglist) || is.null(FileExtAndTrackName)) {
     stop("Argument Seglist and FileExtAndtrackname are required.\n")
@@ -56,8 +56,11 @@
   
   ###################################
   # update Seglist paths if neccesary
-  Seglist = expandBaseNamesToFullPaths(Seglist, PathToDbRootFolder, fileExt)
-  
+  if(is.null(OnTheFlyFunctionName)){
+    Seglist = expandBaseNamesToFullPaths(Seglist, PathToDbRootFolder, fileExt)
+  }else{
+    Seglist = expandBaseNamesToFullPaths(Seglist, PathToDbRootFolder, '.wav')
+  }
   
   ###################################
   #create empty index, ftime matrices
@@ -166,7 +169,7 @@
   }
   
   if(!is.null(OnTheFlyFunctionName)){
-    close(pb$utts)
+    close(pb)
   }
   
   return(myTrackData)
@@ -216,7 +219,9 @@ expandBaseNamesToFullPaths <- function(Seglist=NULL, PathToDbRootFolder=NULL, fi
       }
     }
     # close progress bar and return seglist
-    close(pb)
+    if(pb){
+      close(pb)
+    }
     return(Seglist)
   }
 }
