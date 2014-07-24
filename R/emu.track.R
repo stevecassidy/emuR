@@ -219,7 +219,7 @@ expandBaseNamesToFullPaths <- function(Seglist=NULL, PathToDbRootFolder=NULL, fi
       }
     }
     # close progress bar and return seglist
-    if(pb){
+    if(exists("pb")){
       close(pb)
     }
     return(Seglist)
