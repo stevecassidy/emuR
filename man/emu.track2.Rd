@@ -4,9 +4,9 @@
 \title{Extract trackdata information for a given segmentlist}
 \usage{
 emu.track2(Seglist = NULL, FileExtAndTrackName = NULL,
-  PathToDbRootFolder = NULL, OnTheFlyFunctionName = NULL,
-  OnTheFlyParas = NULL, OnTheFlyOptLogFilePath = NULL,
-  NrOfAllocationRows = 1e+06)
+  PathToDbRootFolder = NULL, cut = NULL, npoints = NULL,
+  OnTheFlyFunctionName = NULL, OnTheFlyParas = NULL,
+  OnTheFlyOptLogFilePath = NULL, NrOfAllocationRows = 1e+06)
 }
 \arguments{
 \item{Seglist}{seglist obtained by a function of package seglist with
@@ -15,6 +15,10 @@ option newemuutts=T}
 \item{FileExtAndTrackName}{file extension and trackname separated by a ':' (e.g. fms:fm where fms is the file extension and fm is the track/column name)}
 
 \item{PathToDbRootFolder}{is the path to the}
+
+\item{cut}{An optional cut time for segment data, ranges between 0 and 1, a value of 0.5 will extract data only at the segment midpoint.}
+
+\item{npoints}{An optional number of points to retrieve for each segment or event. For segments this requires a cut= argument and data is extracted around the cut time. For events data is extracted around the event time.}
 
 \item{OnTheFlyFunctionName}{name of wrassp function to do on-the-fly calculation}
 
