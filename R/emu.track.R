@@ -27,6 +27,8 @@
 ##' option newemuutts=T
 ##' @param FileExtAndTrackName file extension and trackname separated by a ':' (e.g. fms:fm where fms is the file extension and fm is the track/column name) 
 ##' @param PathToDbRootFolder is the path to the 
+##' @param cut An optional cut time for segment data, ranges between 0 and 1, a value of 0.5 will extract data only at the segment midpoint.
+##' @param npoints An optional number of points to retrieve for each segment or event. For segments this requires a cut= argument and data is extracted around the cut time. For events data is extracted around the event time.
 ##' @param OnTheFlyFunctionName name of wrassp function to do on-the-fly calculation 
 ##' @param OnTheFlyParas a list parameters that will be given to the function 
 ##' passed in by the OnTheFlyFunctionName parameter. This list can easily be 
@@ -41,7 +43,7 @@
 ##' @import wrassp
 ##' @export
 "emu.track2" <- function(Seglist = NULL, FileExtAndTrackName = NULL, PathToDbRootFolder = NULL,
-                         OnTheFlyFunctionName = NULL, OnTheFlyParas = NULL, 
+                         cut = NULL, npoints = NULL, OnTheFlyFunctionName = NULL, OnTheFlyParas = NULL, 
                          OnTheFlyOptLogFilePath = NULL, NrOfAllocationRows = 1000000){
   
   if( is.null(Seglist) || is.null(FileExtAndTrackName)) {
@@ -61,6 +63,25 @@
     Seglist = getFiles(Seglist, PathToDbRootFolder, fileExt)
   }else{
     Seglist = getFiles(Seglist, PathToDbRootFolder, '.wav')
+  }
+  
+  ####################################
+  # check if cut value is correct
+  if(!is.null(cut)){
+    if(cut < 0 || cut > 1){
+      stop('Bad value given for cut argument. Cut can only be a value between 0 and 1!')
+    }
+  }
+  
+  ####################################
+  # check if npoints value is correct
+  if(!is.null(npoints)){
+    if(npoints%%2 == 0){
+      stop('Bad value given for npoints argument. Npoints has to be an odd number!')
+    }
+    if(is.null(cut)){
+      stop('Cut argument hast to be set if npoints argument is used.')
+    }
   }
   
   ###################################
@@ -129,7 +150,7 @@
     
     
     fSampleRateInMS <- (1 / attr(curDObj, "sampleRate")) * 1000
-    fStartTime <- attr(curDObj,"startTime") * 1000
+    fStartTime <- attr(curDObj, "startTime") * 1000
     
     timeStampSeq <- seq(fStartTime, curEnd, fSampleRateInMS)
     
@@ -153,10 +174,10 @@
     
     #############################
     # calculate size of and create new data matrix
-    tmpData <- eval(parse(text=paste("curDObj$",colName,sep="")))
-    rowSeq <- seq(timeStampSeq[curStartDataIdx],timeStampSeq[curEndDataIdx], fSampleRateInMS) 
-    curData <- matrix(ncol=ncol(tmpData), nrow=length(rowSeq))
-    colnames(curData) <- paste("T", 1:ncol(curData), sep="")
+    tmpData <- eval(parse(text = paste("curDObj$", colName, sep = "")))
+    rowSeq <- seq(timeStampSeq[curStartDataIdx], timeStampSeq[curEndDataIdx], fSampleRateInMS) 
+    curData <- matrix(ncol = ncol(tmpData), nrow = length(rowSeq))
+    colnames(curData) <- paste("T", 1:ncol(curData), sep = "")
     rownames(curData) <- rowSeq
     
     # check if it is possible to extract curData
@@ -209,5 +230,5 @@
 
 
 # FOR DEVELOPMENT
-#system.time(emu.track2(new.sWithExpUtts, 'dft:dft', path2db))
+system.time(emu.track2(new.sWithExpUtts[1:200,], 'dft:dft', path2db, NrOfAllocationRows = 100000))
 #td = emu.track2(new.sWithExpUtts, 'dft:dft', path2db)
