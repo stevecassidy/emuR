@@ -36,7 +36,7 @@
 ##' parameter one wishes to change.     
 ##' @param OnTheFlyOptLogFilePath path to log file for on-the-fly function
 ##' @param NrOfAllocationRows If the size limit of the data matrix is reached a further NrOfAllocationRows more rows will be allocated (this will leed performance drops). 
-##' @return an object of type trackdata is returned
+##' @return If dcut is NOT set (the default) a object of type trackdata is returned. If dcut is set and npoints is NOT, a data.frame is returned
 ##' @author Raphael Winkelmann
 ##' @seealso \code{\link{formals}}
 ##' @keywords misc
@@ -123,7 +123,7 @@
     cat('\n  INFO: parsing', length(Seglist$utts), fileExt, 'files\n')
     pb <- txtProgressBar(min = 0, max = length(Seglist$utts), style = 3)
   }
-
+  
   #########################
   # LOOP OVER UTTS
   curIndexStart = 1
@@ -166,6 +166,14 @@
     curStartDataIdx <- breakVal
     curEndDataIdx <- length(timeStampSeq)
     
+    if(!is.null(cut)){
+      if(is.null(npoints)){
+        cutTime = curStart + (curEnd - curStart) * cut
+        print(cutTime)
+      }
+      #       closestIdx = which(min(abs(timeStampSeq-cutTime)))
+    }
+    
     ####################
     # set index and ftime
     curIndexEnd <- curIndexStart + curEndDataIdx - curStartDataIdx
@@ -195,7 +203,7 @@
       cat('\n  INFO: allocating more space in data matrix')
       data = rbind(data, matrix(ncol = ncol(data), nrow = NrOfAllocationRows))
     }
-      
+    
     data[curIndexStart:curIndexEnd,] = curData
     curIndexStart <- curIndexEnd + 1
     
@@ -232,3 +240,6 @@
 # FOR DEVELOPMENT
 #system.time(emu.track2(new.sWithExpUtts[1:200,], 'dft:dft', path2db, NrOfAllocationRows = 100000))
 #td = emu.track2(new.sWithExpUtts, 'dft:dft', path2db)
+n = emu::emu.query('ae','*','Phonetic=n')
+emu.track2(n, 'fms:fm', '~/emuDBs/ae/', cut=.5)
+
