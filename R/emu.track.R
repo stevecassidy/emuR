@@ -230,5 +230,5 @@
 
 
 # FOR DEVELOPMENT
-system.time(emu.track2(new.sWithExpUtts[1:200,], 'dft:dft', path2db, NrOfAllocationRows = 100000))
+#system.time(emu.track2(new.sWithExpUtts[1:200,], 'dft:dft', path2db, NrOfAllocationRows = 100000))
 #td = emu.track2(new.sWithExpUtts, 'dft:dft', path2db)
