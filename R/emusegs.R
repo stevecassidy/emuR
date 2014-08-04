@@ -601,6 +601,7 @@ if( version$major >= 5 ) {
     showInfo = T
     # recursively get all files in dbRoot that end with fileExt 
     allFiles = list.files(PathToDbRootFolder, pattern=paste(fileExt, "$", sep = ""), recursive=T, full.names=T)
+    
     for(i in 1:length(Seglist$utts)){
       if(file.exists(Seglist$utts[i])){
         print("This file exists!!!")
@@ -611,17 +612,18 @@ if( version$major >= 5 ) {
           pb <- txtProgressBar(min = 0, max = length(Seglist$utts), style = 3)
           showInfo = F
         }
-        foundIdx = grep(Seglist$utts[2], allFiles, fixed = T);
+        foundIdx = grep(Seglist$utts[i], allFiles, fixed = T);
         
         #         fullPath = list.files(PathToDbRootFolder, pattern=paste(Seglist$utts[i], "$", sep = ""), recursive=T, full.names=T)
-        if(length(foundIdx == 1)){
+        if(length(foundIdx) == 1){
           Seglist$utts[i] = allFiles[foundIdx]
           setTxtProgressBar(pb, i)
         }else{
-          if(length(foundIdx == 0)){
+          if(length(foundIdx) == 0){
+            print(foundIdx)
             stop("Following file could not be found anywhere in ", PathToDbRootFolder, " : ", Seglist$utts[i])
           }else{
-            stop("Multiple files found with same base name + ext: ", allFiles[foundIdx])
+            stop("Multiple files found with same base name + ext: ", paste(allFiles[foundIdx],collapse = " "))
           }
         }
       }
@@ -633,4 +635,3 @@ if( version$major >= 5 ) {
     return(Seglist)
   }
 }
-

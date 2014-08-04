@@ -33,6 +33,7 @@
 ##' generated using the \code{formals} function and then setting the according 
 ##' parameter one wishes to change.     
 ##' @param OnTheFlyOptLogFilePath path to log file for on-the-fly function
+##' @param NrOfAllocationRows If the size limit of the data matrix is reached a further NrOfAllocationRows more rows will be allocated (this will leed performance drops). 
 ##' @return an object of type trackdata is returned
 ##' @author Raphael Winkelmann
 ##' @seealso \code{\link{formals}}
@@ -41,7 +42,7 @@
 ##' @export
 "emu.track2" <- function(Seglist = NULL, FileExtAndTrackName = NULL, PathToDbRootFolder = NULL,
                          OnTheFlyFunctionName = NULL, OnTheFlyParas = NULL, 
-                         OnTheFlyOptLogFilePath = NULL){
+                         OnTheFlyOptLogFilePath = NULL, NrOfAllocationRows = 1000000){
   
   if( is.null(Seglist) || is.null(FileExtAndTrackName)) {
     stop("Argument Seglist and FileExtAndtrackname are required.\n")
@@ -57,9 +58,9 @@
   ###################################
   # update Seglist paths if neccesary
   if(is.null(OnTheFlyFunctionName)){
-    Seglist = expandBaseNamesToFullPaths(Seglist, PathToDbRootFolder, fileExt)
+    Seglist = getFiles(Seglist, PathToDbRootFolder, fileExt)
   }else{
-    Seglist = expandBaseNamesToFullPaths(Seglist, PathToDbRootFolder, '.wav')
+    Seglist = getFiles(Seglist, PathToDbRootFolder, '.wav')
   }
   
   ###################################
@@ -73,6 +74,22 @@
   data <- NULL
   origFreq <- NULL
   
+  
+  ########################
+  # preallocate data (needs first element to be read)
+  if(!is.null(OnTheFlyFunctionName)){
+    funcFormals$listOfFiles = Seglist$utts[1]
+    curDObj = do.call(OnTheFlyFunctionName,funcFormals)
+  }else{
+    curDObj <- read.AsspDataObj(Seglist$utts[1])
+  }
+  tmpData <- eval(parse(text = paste("curDObj$", colName, sep = "")))
+  cat('\n  INFO: preallocating data matrix with:', ncol(tmpData), ',', NrOfAllocationRows, 
+      'columns and rows.')
+  data <- matrix(ncol = ncol(tmpData), nrow = NrOfAllocationRows) # preallocate
+  
+  #########################
+  # set up function formals + pb
   if(!is.null(OnTheFlyFunctionName)){
     funcFormals = formals(OnTheFlyFunctionName)
     funcFormals[names(OnTheFlyParas)] = OnTheFlyParas
@@ -81,9 +98,11 @@
     cat('\n  INFO: applying', OnTheFlyFunctionName, 'to', length(Seglist$utts), 'files\n')
     
     pb <- txtProgressBar(min = 0, max = length(Seglist$utts), style = 3)
+  }else{
+    cat('\n  INFO: parsing', length(Seglist$utts), fileExt, 'files\n')
+    pb <- txtProgressBar(min = 0, max = length(Seglist$utts), style = 3)
   }
-  
-  
+
   #########################
   # LOOP OVER UTTS
   curIndexStart = 1
@@ -100,14 +119,9 @@
       curDObj = do.call(OnTheFlyFunctionName,funcFormals)
     }else{
       curDObj <- read.AsspDataObj(fname)
+      setTxtProgressBar(pb, i)
     }
     
-    if(is.null(data)){
-      text=paste("curDObj$",colName,sep="")
-      tmpData <- eval(parse(text=paste("curDObj$",colName,sep=""))) #SIC->try indexing
-      data <- matrix(ncol=ncol(tmpData), nrow=0)
-      tmpData <- NULL
-    }
     origFreq <- attr(curDObj, "origFreq")
     
     curStart <- Seglist$start[i]
@@ -140,27 +154,44 @@
     #############################
     # calculate size of and create new data matrix
     tmpData <- eval(parse(text=paste("curDObj$",colName,sep="")))
-    
     rowSeq <- seq(timeStampSeq[curStartDataIdx],timeStampSeq[curEndDataIdx], fSampleRateInMS) 
     curData <- matrix(ncol=ncol(tmpData), nrow=length(rowSeq))
     colnames(curData) <- paste("T", 1:ncol(curData), sep="")
     rownames(curData) <- rowSeq
-    curData[,] <- tmpData[curStartDataIdx:curEndDataIdx,] 
+    
+    # check if it is possible to extract curData
+    if(curStartDataIdx > 0 && curEndDataIdx <= dim(tmpData)[1]){
+      curData[,] <- tmpData[curStartDataIdx:curEndDataIdx,]
+    }else{
+      entry= paste(Seglist[i,], collapse = " ")
+      stop('Can not extract following segmentlist entry: ', entry, ' start and/or end times out of bounds')
+    }
     
     ##############################
-    # Append to global data matrix app
-    data <- rbind(data, curData)
-    
+    # Check if enough space (expand data matrix ifnecessary) 
+    # then append to data matrix 
+    if(length(data)<curIndexEnd){
+      cat('\n  INFO: allocating more space in data matrix')
+      data = rbind(data, matrix(ncol = ncol(data), nrow = NrOfAllocationRows))
+    }
+      
+    data[curIndexStart:curIndexEnd,] = curData
     curIndexStart <- curIndexEnd+1
     
     curDObj = NULL
   }
+  ########################################
+  # remove superfluous NA vals from data
+  cat('\n  INFO: removing superfluous NA vals from data')
+  data = data[complete.cases(data),]
+  
   ########################################
   #convert data, index, ftime to trackdata
   myTrackData <- as.trackdata(data, index=index, ftime, FileExtAndTrackName)
   
   if(any(colName %in% c("dft", "css", "lps", "cep"))){
     if(!is.null(origFreq)){
+      cat('\n  INFO: adding fs attribute to trackdata$data fields')
       attr(myTrackData$data, "fs") <- seq(0, origFreq/2, length=ncol(myTrackData$data))
       class(myTrackData$data) <- c(class(myTrackData$data), "spectral")
     }else{
@@ -177,56 +208,6 @@
 }
 
 
-##' Expand the base names of a segmentlist so that $utts contains full paths
-##' 
-##' Recusivly searches a root directory for files matching the 
-##' base name specified in the utts files of a segmentlist. If
-##' the utt name is 'XYZ' and fileExt is '.fms' the file
-##' 'XYZ.fms' will be searched for in the root directory given.
-##'
-##' @param Seglist segmentlist to be expandend
-##' @param PathToDbRootFolder path to root directory (CAUTION: think of DB size and search space!) 
-##' @param fileExt file extention including dot (e.g. '.fms'|'.f0'|'.rms'|...) 
-##' @return segmentlist with expanded $utts
-##' @author Raphael Winkelmann
-##' @export
-expandBaseNamesToFullPaths <- function(Seglist=NULL, PathToDbRootFolder=NULL, fileExt=NULL)
-{
-  # check if utts are valid paths -> if yes do nothing
-  if(all(file.exists(Seglist$utts) == TRUE)){
-    return(Seglist)
-  }else{
-    # append fileExt
-    Seglist$utts = paste(Seglist$utts, fileExt, sep="")
-    showInfo = T
-    for(i in 1:length(Seglist$utts)){
-      if(file.exists(Seglist$utts[i])){
-        print("This file exists!!!")
-        print(Seglist$utts[i])
-      }else{
-        if(showInfo){
-          cat('INFO: Globbing for files to expand segmentlist... this is slow for large search spaces/large DBs! Try to pre-expand the base names of your segmentlist (by calling expandBaseNamesToFullPaths directly) for speed improvements...\n')
-          pb <- txtProgressBar(min = 0, max = length(Seglist$utts), style = 3)
-          showInfo = F
-        }
-        fullPath = list.files(PathToDbRootFolder, pattern=paste(Seglist$utts[i], "$", sep = ""), recursive=T, full.names=T)
-        if(length(fullPath != 0)){
-          Seglist$utts[i] = fullPath
-          setTxtProgressBar(pb, i)
-        }else{
-          stop("Following file could not be found anywhere in ", PathToDbRootFolder, " : ", Seglist$utts[i])
-        }
-      }
-    }
-    # close progress bar and return seglist
-    if(exists("pb")){
-      close(pb)
-    }
-    return(Seglist)
-  }
-}
-
 # FOR DEVELOPMENT
-# td = emu.track2(fric, FileExtAndTrackName='fms:fm', PathToDbRootFolder='~/Downloads/kiel03/readI/')
-# fricWithFmsPaths=expandBaseNamesToFullPaths(Seglist=fric, PathToDbRootFolder='~/Downloads/kiel03/readI/', fileExt='.fms')
-# td = emu.track2(fricWithFmsPaths, FileExtAndTrackName='fms:fm')
+#system.time(emu.track2(new.sWithExpUtts, 'dft:dft', path2db))
+#td = emu.track2(new.sWithExpUtts, 'dft:dft', path2db)

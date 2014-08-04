@@ -5,7 +5,8 @@
 \usage{
 emu.track2(Seglist = NULL, FileExtAndTrackName = NULL,
   PathToDbRootFolder = NULL, OnTheFlyFunctionName = NULL,
-  OnTheFlyParas = NULL, OnTheFlyOptLogFilePath = NULL)
+  OnTheFlyParas = NULL, OnTheFlyOptLogFilePath = NULL,
+  NrOfAllocationRows = 1e+06)
 }
 \arguments{
 \item{Seglist}{seglist obtained by a function of package seglist with
@@ -23,6 +24,8 @@ generated using the \code{formals} function and then setting the according
 parameter one wishes to change.}
 
 \item{OnTheFlyOptLogFilePath}{path to log file for on-the-fly function}
+
+\item{NrOfAllocationRows}{If the size limit of the data matrix is reached a further NrOfAllocationRows more rows will be allocated (this will leed performance drops).}
 }
 \value{
 an object of type trackdata is returned
