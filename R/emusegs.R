@@ -569,3 +569,68 @@ if( version$major >= 5 ) {
     d <-  end(x) - start(x)
   d
 }
+
+
+##' Expand the base names of a segmentlist so that $utts contains full paths
+##' 
+##' Recusivly searches a root directory for files matching the 
+##' base name specified in the utts files of a segmentlist. If
+##' the utt name is 'XYZ' and fileExt is '.fms' the file
+##' 'XYZ.fms' will be searched for in the root directory given.
+##'
+##' @param Seglist segmentlist to be expandend
+##' @param PathToDbRootFolder path to root directory (CAUTION: think of DB size and search space!) 
+##' @param fileExt file extention including dot (e.g. '.fms'|'.f0'|'.rms'|...) 
+##' @return segmentlist with expanded $utts
+##' @author Raphael Winkelmann
+##' @export
+"getFiles" <- function(Seglist=NULL, PathToDbRootFolder=NULL, fileExt=NULL) {
+  UseMethod("getFiles")
+}
+
+
+##' @export
+"getFiles.emusegs" <- function(Seglist=NULL, PathToDbRootFolder=NULL, fileExt=NULL)
+{
+  # check if utts are valid paths -> if yes do nothing
+  if(all(file.exists(Seglist$utts) == TRUE)){
+    return(Seglist)
+  }else{
+    # append fileExt
+    Seglist$utts = paste(Seglist$utts, fileExt, sep="")
+    showInfo = T
+    # recursively get all files in dbRoot that end with fileExt 
+    allFiles = list.files(PathToDbRootFolder, pattern=paste(fileExt, "$", sep = ""), recursive=T, full.names=T)
+    for(i in 1:length(Seglist$utts)){
+      if(file.exists(Seglist$utts[i])){
+        print("This file exists!!!")
+        print(Seglist$utts[i])
+      }else{
+        if(showInfo){
+          cat('INFO: Globbing for files to expand segmentlist... this is slow for large search spaces/large DBs! Try to pre-expand the base names of your segmentlist (by calling expandBaseNamesToFullPaths directly) for speed improvements...\n')
+          pb <- txtProgressBar(min = 0, max = length(Seglist$utts), style = 3)
+          showInfo = F
+        }
+        foundIdx = grep(Seglist$utts[2], allFiles, fixed = T);
+        
+        #         fullPath = list.files(PathToDbRootFolder, pattern=paste(Seglist$utts[i], "$", sep = ""), recursive=T, full.names=T)
+        if(length(foundIdx == 1)){
+          Seglist$utts[i] = allFiles[foundIdx]
+          setTxtProgressBar(pb, i)
+        }else{
+          if(length(foundIdx == 0)){
+            stop("Following file could not be found anywhere in ", PathToDbRootFolder, " : ", Seglist$utts[i])
+          }else{
+            stop("Multiple files found with same base name + ext: ", allFiles[foundIdx])
+          }
+        }
+      }
+    }
+    # close progress bar and return seglist
+    if(exists("pb")){
+      close(pb)
+    }
+    return(Seglist)
+  }
+}
+
