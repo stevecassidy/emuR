@@ -128,8 +128,8 @@
     curEnd <- Seglist$end[i]
     
     
-    fSampleRateInMS <- (1/attr(curDObj, "sampleRate"))*1000
-    fStartTime <- attr(curDObj,"startTime")*1000
+    fSampleRateInMS <- (1 / attr(curDObj, "sampleRate")) * 1000
+    fStartTime <- attr(curDObj,"startTime") * 1000
     
     timeStampSeq <- seq(fStartTime, curEnd, fSampleRateInMS)
     
@@ -147,7 +147,7 @@
     
     ####################
     # set index and ftime
-    curIndexEnd <- curIndexStart+curEndDataIdx-curStartDataIdx
+    curIndexEnd <- curIndexStart + curEndDataIdx - curStartDataIdx
     index[i,] <- c(curIndexStart, curIndexEnd)
     ftime[i,] <- c(timeStampSeq[curStartDataIdx], timeStampSeq[curEndDataIdx])
     
@@ -176,13 +176,13 @@
     }
       
     data[curIndexStart:curIndexEnd,] = curData
-    curIndexStart <- curIndexEnd+1
+    curIndexStart <- curIndexEnd + 1
     
     curDObj = NULL
   }
   ########################################
   # remove superfluous NA vals from data
-  cat('\n  INFO: removing superfluous NA vals from data')
+  cat('\n  INFO: removing superfluous NA vals from over-allocated data matrix')
   data = data[complete.cases(data),]
   
   ########################################

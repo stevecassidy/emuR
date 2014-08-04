@@ -608,7 +608,7 @@ if( version$major >= 5 ) {
         print(Seglist$utts[i])
       }else{
         if(showInfo){
-          cat('INFO: Globbing for files to expand segmentlist... this is slow for large search spaces/large DBs! Try to pre-expand the base names of your segmentlist (by calling expandBaseNamesToFullPaths directly) for speed improvements...\n')
+          cat('\n  INFO: Globbing for files to expand segmentlist... this is slow for large search spaces/large DBs! Try to pre-expand the base names of your segmentlist (by calling expandBaseNamesToFullPaths directly) for speed improvements...\n')
           pb <- txtProgressBar(min = 0, max = length(Seglist$utts), style = 3)
           showInfo = F
         }
