@@ -167,11 +167,19 @@
     curEndDataIdx <- length(timeStampSeq)
     
     if(!is.null(cut)){
-      if(is.null(npoints)){
-        cutTime = curStart + (curEnd - curStart) * cut
-        print(cutTime)
-      }
-      #       closestIdx = which(min(abs(timeStampSeq-cutTime)))
+      stop('cut function still in development')
+      cutTime = curStart + (curEnd - curStart) * cut
+#       print(cutTime)
+      #############################################
+      # find closest value in timeStampSeq
+      closestIdx = NULL
+      smallestDist = Inf
+      sampleTimes = timeStampSeq[curStartDataIdx:curEndDataIdx]
+#       print('------------------------------------------')
+      closestIdx = which.min(abs(sampleTimes - cutTime))
+      
+      cutDataDataIdx = curStartDataIdx + closestIdx
+#       print(closestIdx)
     }
     
     ####################
@@ -179,6 +187,7 @@
     curIndexEnd <- curIndexStart + curEndDataIdx - curStartDataIdx
     index[i,] <- c(curIndexStart, curIndexEnd)
     ftime[i,] <- c(timeStampSeq[curStartDataIdx], timeStampSeq[curEndDataIdx])
+#     print(ftime[i,])
     
     #############################
     # calculate size of and create new data matrix
@@ -240,6 +249,6 @@
 # FOR DEVELOPMENT
 #system.time(emu.track2(new.sWithExpUtts[1:200,], 'dft:dft', path2db, NrOfAllocationRows = 100000))
 #td = emu.track2(new.sWithExpUtts, 'dft:dft', path2db)
-n = emu::emu.query('ae','*','Phonetic=n')
-emu.track2(n, 'fms:fm', '~/emuDBs/ae/', cut=.5)
+#n = emu::emu.query('ae','*','Phonetic=n')
+#emu.track2(n, 'fms:fm', '~/emuDBs/ae/', cut=.5)
 
