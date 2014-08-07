@@ -268,8 +268,8 @@
 # FOR DEVELOPMENT
 #system.time(emu.track2(new.sWithExpUtts[1:200,], 'dft:dft', path2db, NrOfAllocationRows = 100000))
 #td = emu.track2(new.sWithExpUtts, 'dft:dft', path2db)
-n = emu::emu.query('ae','*','Phonetic=n')
-emu.track2(n, 'fms:fm', '~/emuDBs/ae/')
+#n = emu::emu.query('ae','*','Phonetic=n')
+#emu.track2(n, 'fms:fm', '~/emuDBs/ae/')
 
 
 #emu::emu.track(n, 'fm', cut=.1, npoints = 3)
