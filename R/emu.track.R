@@ -76,9 +76,9 @@
   ####################################
   # check if npoints value is correct
   if(!is.null(npoints)){
-    if(npoints%%2 == 0){
-      stop('Bad value given for npoints argument. Npoints has to be an odd number!')
-    }
+#     if(npoints%%2 == 0){
+#       stop('Bad value given for npoints argument. Npoints has to be an odd number!')
+#     }
     if(is.null(cut)){
       stop('Cut argument hast to be set if npoints argument is used.')
     }
@@ -166,82 +166,104 @@
     curStartDataIdx <- breakVal
     curEndDataIdx <- length(timeStampSeq)
     
+    # extract data
+    tmpData <- eval(parse(text = paste("curDObj$", colName, sep = "")))
     if(!is.null(cut)){
-      stop('cut function still in development')
+      #stop('cut parameter still in development')
       cutTime = curStart + (curEnd - curStart) * cut
-#       print(cutTime)
+      
       #############################################
       # find closest value in timeStampSeq
       closestIdx = NULL
       smallestDist = Inf
       sampleTimes = timeStampSeq[curStartDataIdx:curEndDataIdx]
-#       print('------------------------------------------')
       closestIdx = which.min(abs(sampleTimes - cutTime))
       
-      cutDataDataIdx = curStartDataIdx + closestIdx
-#       print(closestIdx)
-    }
-    
-    ####################
-    # set index and ftime
-    curIndexEnd <- curIndexStart + curEndDataIdx - curStartDataIdx
-    index[i,] <- c(curIndexStart, curIndexEnd)
-    ftime[i,] <- c(timeStampSeq[curStartDataIdx], timeStampSeq[curEndDataIdx])
-#     print(ftime[i,])
-    
-    #############################
-    # calculate size of and create new data matrix
-    tmpData <- eval(parse(text = paste("curDObj$", colName, sep = "")))
-    rowSeq <- seq(timeStampSeq[curStartDataIdx], timeStampSeq[curEndDataIdx], fSampleRateInMS) 
-    curData <- matrix(ncol = ncol(tmpData), nrow = length(rowSeq))
-    colnames(curData) <- paste("T", 1:ncol(curData), sep = "")
-    rownames(curData) <- rowSeq
-    
-    # check if it is possible to extract curData
-    if(curStartDataIdx > 0 && curEndDataIdx <= dim(tmpData)[1]){
-      curData[,] <- tmpData[curStartDataIdx:curEndDataIdx,]
+      cutDataDataIdx = curStartDataIdx + closestIdx - 1 # -1 because curStartDataIdx == 1
+      
+      if(is.null(npoints) || npoints == 1){
+        tmpData <- eval(parse(text = paste("curDObj$", colName, sep = "")))
+        
+        data[curIndexStart,] = tmpData[cutDataDataIdx,]
+        curIndexStart = curIndexStart + 1
+        
+      }else{
+        print('here') 
+      }
     }else{
-      entry= paste(Seglist[i,], collapse = " ")
-      stop('Can not extract following segmentlist entry: ', entry, ' start and/or end times out of bounds')
+      
+      ####################
+      # set index and ftime
+      curIndexEnd <- curIndexStart + curEndDataIdx - curStartDataIdx
+      index[i,] <- c(curIndexStart, curIndexEnd)
+      ftime[i,] <- c(timeStampSeq[curStartDataIdx], timeStampSeq[curEndDataIdx])
+      
+      #############################
+      # calculate size of and create new data matrix
+      rowSeq <- seq(timeStampSeq[curStartDataIdx], timeStampSeq[curEndDataIdx], fSampleRateInMS) 
+      curData <- matrix(ncol = ncol(tmpData), nrow = length(rowSeq))
+      colnames(curData) <- paste("T", 1:ncol(curData), sep = "")
+      rownames(curData) <- rowSeq
+      
+      # check if it is possible to extract curData
+      if(curStartDataIdx > 0 && curEndDataIdx <= dim(tmpData)[1]){
+        curData[,] <- tmpData[curStartDataIdx:curEndDataIdx,]
+      }else{
+        entry= paste(Seglist[i,], collapse = " ")
+        stop('Can not extract following segmentlist entry: ', entry, ' start and/or end times out of bounds')
+      }
+      
+      ##############################
+      # Check if enough space (expand data matrix ifnecessary) 
+      # then append to data matrix 
+      if(length(data)<curIndexEnd){
+        cat('\n  INFO: allocating more space in data matrix')
+        data = rbind(data, matrix(ncol = ncol(data), nrow = NrOfAllocationRows))
+      }
+      
+      data[curIndexStart:curIndexEnd,] = curData
+      curIndexStart <- curIndexEnd + 1
+      
+      curDObj = NULL
     }
-    
-    ##############################
-    # Check if enough space (expand data matrix ifnecessary) 
-    # then append to data matrix 
-    if(length(data)<curIndexEnd){
-      cat('\n  INFO: allocating more space in data matrix')
-      data = rbind(data, matrix(ncol = ncol(data), nrow = NrOfAllocationRows))
-    }
-    
-    data[curIndexStart:curIndexEnd,] = curData
-    curIndexStart <- curIndexEnd + 1
-    
-    curDObj = NULL
   }
   ########################################
   # remove superfluous NA vals from data
-  cat('\n  INFO: removing superfluous NA vals from over-allocated data matrix')
+  cat('\n  INFO: removing superfluous NA vals from over-allocated data matrix\n')
   data = data[complete.cases(data),]
   
-  ########################################
-  #convert data, index, ftime to trackdata
-  myTrackData <- as.trackdata(data, index=index, ftime, FileExtAndTrackName)
-  
-  if(any(colName %in% c("dft", "css", "lps", "cep"))){
-    if(!is.null(origFreq)){
-      cat('\n  INFO: adding fs attribute to trackdata$data fields')
-      attr(myTrackData$data, "fs") <- seq(0, origFreq/2, length=ncol(myTrackData$data))
-      class(myTrackData$data) <- c(class(myTrackData$data), "spectral")
-    }else{
-      stop("no origFreq entry in spectral data file!")
+  if(!is.null(cut)){
+  }else{
+    ########################################
+    #convert data, index, ftime to trackdata
+    myTrackData <- as.trackdata(data, index=index, ftime, FileExtAndTrackName)
+    
+    if(any(colName %in% c("dft", "css", "lps", "cep"))){
+      if(!is.null(origFreq)){
+        cat('\n  INFO: adding fs attribute to trackdata$data fields')
+        attr(myTrackData$data, "fs") <- seq(0, origFreq/2, length=ncol(myTrackData$data))
+        class(myTrackData$data) <- c(class(myTrackData$data), "spectral")
+      }else{
+        stop("no origFreq entry in spectral data file!")
+      }
     }
   }
-  
   if(!is.null(OnTheFlyFunctionName)){
     close(pb)
   }
   
-  return(myTrackData)
+  if(!is.null(cut)){
+    if(is.null(npoints) || npoints == 1){
+      df = as.data.frame(data)
+      colnames(df) = paste(colName, seq(1:ncol(df)), sep = '')
+      print(df)
+      return(df)
+    }else{
+      print('dude')
+    }
+  }else{
+    return(myTrackData)
+  }
   
 }
 
@@ -249,6 +271,11 @@
 # FOR DEVELOPMENT
 #system.time(emu.track2(new.sWithExpUtts[1:200,], 'dft:dft', path2db, NrOfAllocationRows = 100000))
 #td = emu.track2(new.sWithExpUtts, 'dft:dft', path2db)
-#n = emu::emu.query('ae','*','Phonetic=n')
-#emu.track2(n, 'fms:fm', '~/emuDBs/ae/', cut=.5)
+n = emu::emu.query('ae','*','Phonetic=n')
+emu.track2(n, 'fms:fm', '~/emuDBs/ae/', cut=.7, npoints=3)
 
+
+#emu::emu.track(n, 'fm', cut=.5, npoints=3)
+
+#t = emu::emu.query('ae','*','Tone=H*')
+#emu::emu.track(t, 'fm', npoints=3)
