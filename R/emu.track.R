@@ -79,8 +79,8 @@
     #     if(npoints%%2 == 0){
     #       stop('Bad value given for npoints argument. Npoints has to be an odd number!')
     #     }
-    if(is.null(cut)){
-      stop('Cut argument hast to be set if npoints argument is used.')
+    if(is.null(cut) && emusegs.type(Seglist) != 'event'){
+      stop('Cut argument hast to be set or seglist has to be of type event if npoints argument is used.')
     }
   }
   
@@ -298,4 +298,4 @@
 
 ###########################
 
-#tdnew = emu.track2(t, 'fms:fm', path2db)
+tdnew = emu.track2(t, 'fms:fm', path2db)
