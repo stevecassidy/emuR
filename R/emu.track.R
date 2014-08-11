@@ -160,7 +160,11 @@
     
     # add one on if event to be able to capture in breakValues 
     if(emusegs.type(Seglist) == 'event'){
-      timeStampSeq <- seq(fStartTime, curEnd + fSampleRateInMS, fSampleRateInMS)
+      if(npoints == 1 || is.null(npoints)){
+        timeStampSeq <- seq(fStartTime, curEnd + fSampleRateInMS, fSampleRateInMS)
+      }else{
+        timeStampSeq <- seq(fStartTime, curEnd + fSampleRateInMS * npoints, fSampleRateInMS)
+      }
     }else{
       timeStampSeq <- seq(fStartTime, curEnd, fSampleRateInMS)
     }
@@ -187,6 +191,7 @@
     if(!is.null(cut) || emusegs.type(Seglist) == 'event'){
       if(emusegs.type(Seglist) == 'event'){
         cutTime = curStart
+        curEndDataIdx <- curStartDataIdx
         curStartDataIdx = curStartDataIdx - 1 # last to elements are relevant -> move start to left
       }else{
         cutTime = curStart + (curEnd - curStart) * cut
@@ -298,4 +303,4 @@
 
 ###########################
 
-tdnew = emu.track2(t, 'fms:fm', path2db)
+#tdnew = emu.track2(t, 'fms:fm', path2db, npoints = 3)
