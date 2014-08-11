@@ -53,7 +53,7 @@ test_that("returned trackdata$data field has correct length", {
 
 ##############################
 test_that("all sorts of cut values work", {
-  cutVals = seq(0, 1, 0.01)
+  cutVals = seq(0, 1, 0.04)
   for(cutV in cutVals){
     td = emu.track2(n, 'fms:fm', path2db, cut=cutV)
     expect_that(class(td), equals('trackdata'))
