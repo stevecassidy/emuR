@@ -1,6 +1,6 @@
 ##' emu.track
 ##' 
-##' function stub to tell user that a new version is coming
+##' function stub to tell user that a new version is available
 ##' 
 ##' 
 ##' @keywords internal
@@ -36,7 +36,7 @@
 ##' parameter one wishes to change.     
 ##' @param OnTheFlyOptLogFilePath path to log file for on-the-fly function
 ##' @param NrOfAllocationRows If the size limit of the data matrix is reached a further NrOfAllocationRows more rows will be allocated (this will leed performance drops). 
-##' @return If dcut is NOT set (the default) a object of type trackdata is returned. If dcut is set and npoints is NOT, a data.frame is returned
+##' @return If dcut is NOT set (the default) a object of type trackdata is returned. If dcut is set and npoints is NOT, or the seglist is of type event and npoints is not set a data.frame is returned
 ##' @author Raphael Winkelmann
 ##' @seealso \code{\link{formals}}
 ##' @keywords misc
@@ -146,15 +146,24 @@
     
     origFreq <- attr(curDObj, "origFreq")
     
+    # set curStart+curEnd
     curStart <- Seglist$start[i]
-    curEnd <- Seglist$end[i]
+    if(emusegs.type(Seglist) == 'event'){
+      curEnd <- Seglist$start[i]
+    }else{
+      curEnd <- Seglist$end[i]
+    }
     
     
     fSampleRateInMS <- (1 / attr(curDObj, "sampleRate")) * 1000
     fStartTime <- attr(curDObj, "startTime") * 1000
     
-    timeStampSeq <- seq(fStartTime, curEnd, fSampleRateInMS)
-    
+    # add one on if event to be able to capture in breakValues 
+    if(emusegs.type(Seglist) == 'event'){
+      timeStampSeq <- seq(fStartTime, curEnd + fSampleRateInMS, fSampleRateInMS)
+    }else{
+      timeStampSeq <- seq(fStartTime, curEnd, fSampleRateInMS)
+    }
     ##################################################
     # search for first element larger than start time
     breakVal <- -1
@@ -164,8 +173,10 @@
         break
       }
     }
+    
     curStartDataIdx <- breakVal
     curEndDataIdx <- length(timeStampSeq)
+    
     
     ################
     # extract data
@@ -174,10 +185,17 @@
     #############################################################
     # set curIndexEnd dependant on if event/segment/cut/npoints
     if(!is.null(cut) || emusegs.type(Seglist) == 'event'){
-      cutTime = curStart + (curEnd - curStart) * cut
+      if(emusegs.type(Seglist) == 'event'){
+        cutTime = curStart
+        curStartDataIdx = curStartDataIdx - 1 # last to elements are relevant -> move start to left
+      }else{
+        cutTime = curStart + (curEnd - curStart) * cut
+      }
+      
       sampleTimes = timeStampSeq[curStartDataIdx:curEndDataIdx]
       closestIdx = which.min(abs(sampleTimes - cutTime))
       cutTimeSampleIdx = curStartDataIdx + closestIdx - 1
+      
       if(is.null(npoints) || npoints == 1){
         # reset data idxs
         curStartDataIdx = curStartDataIdx + closestIdx - 1
@@ -227,6 +245,8 @@
     curDObj = NULL
     
   }
+  
+  
   ########################################
   # remove superfluous NA vals from data
   cat('\n  INFO: removing superfluous NA vals from over-allocated data matrix\n')
@@ -261,7 +281,7 @@
   
   #print(resObj)
   return(resObj)
-  
+
 }
 
 
@@ -271,8 +291,11 @@
 #n = emu::emu.query('ae','*','Phonetic=n')
 #emu.track2(n, 'fms:fm', '~/emuDBs/ae/')
 
-
 #emu::emu.track(n, 'fm', cut=.1, npoints = 3)
 
 #t = emu::emu.query('ae','*','Tone=H*')
 #emu::emu.track(t, 'fm', npoints=3)
+
+###########################
+
+#tdnew = emu.track2(t, 'fms:fm', path2db)

@@ -18,7 +18,7 @@ option newemuutts=T}
 
 \item{cut}{An optional cut time for segment data, ranges between 0 and 1, a value of 0.5 will extract data only at the segment midpoint.}
 
-\item{npoints}{An optional number of points to retrieve for each segment or event. For segments this requires a cut= argument and data is extracted around the cut time. For events data is extracted around the event time.}
+\item{npoints}{An optional number of points to retrieve for each segment or event. For segments this requires a cut= argument and data is extracted around the cut time. For events data is extracted around the event time. If npoints is an odd number the samples are centered around the cut-time-sample, if not they are sqewed to the right by one sample.}
 
 \item{OnTheFlyFunctionName}{name of wrassp function to do on-the-fly calculation}
 
@@ -32,7 +32,7 @@ parameter one wishes to change.}
 \item{NrOfAllocationRows}{If the size limit of the data matrix is reached a further NrOfAllocationRows more rows will be allocated (this will leed performance drops).}
 }
 \value{
-an object of type trackdata is returned
+If dcut is NOT set (the default) a object of type trackdata is returned. If dcut is set and npoints is NOT, or the seglist is of type event and npoints is not set a data.frame is returned
 }
 \description{
 A new and improved version of emu.track that utilizes the wrassp package for

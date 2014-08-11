@@ -3,10 +3,10 @@
 \alias{emu.track}
 \title{emu.track}
 \usage{
-emu.track()
+emu.track(...)
 }
 \description{
-function stub to tell user that a new version is coming
+function stub to tell user that a new version is available
 }
 \keyword{internal}
 
