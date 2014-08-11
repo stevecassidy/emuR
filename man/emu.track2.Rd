@@ -6,7 +6,8 @@
 emu.track2(Seglist = NULL, FileExtAndTrackName = NULL,
   PathToDbRootFolder = NULL, cut = NULL, npoints = NULL,
   OnTheFlyFunctionName = NULL, OnTheFlyParas = NULL,
-  OnTheFlyOptLogFilePath = NULL, NrOfAllocationRows = 1e+06)
+  OnTheFlyOptLogFilePath = NULL, NrOfAllocationRows = 1e+06,
+  verbose = TRUE)
 }
 \arguments{
 \item{Seglist}{seglist obtained by a function of package seglist with
@@ -30,13 +31,15 @@ parameter one wishes to change.}
 \item{OnTheFlyOptLogFilePath}{path to log file for on-the-fly function}
 
 \item{NrOfAllocationRows}{If the size limit of the data matrix is reached a further NrOfAllocationRows more rows will be allocated (this will leed performance drops).}
+
+\item{verbose}{show progress bars and other infos}
 }
 \value{
 If dcut is NOT set (the default) a object of type trackdata is returned. If dcut is set and npoints is NOT, or the seglist is of type event and npoints is not set a data.frame is returned
 }
 \description{
 A new and improved version of emu.track that utilizes the wrassp package for
-signal processing and SSFF file handling.
+signal processing and SSFF/audio file handling.
 }
 \details{
 Reads time relevant data from a given segmentlist, extracts the specified

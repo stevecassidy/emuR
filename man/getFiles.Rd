@@ -3,7 +3,8 @@
 \alias{getFiles}
 \title{Expand the base names of a segmentlist so that $utts contains full paths}
 \usage{
-getFiles(Seglist = NULL, PathToDbRootFolder = NULL, fileExt = NULL)
+getFiles(Seglist = NULL, PathToDbRootFolder = NULL, fileExt = NULL,
+  verbose = TRUE)
 }
 \arguments{
 \item{Seglist}{segmentlist to be expandend}
@@ -11,6 +12,8 @@ getFiles(Seglist = NULL, PathToDbRootFolder = NULL, fileExt = NULL)
 \item{PathToDbRootFolder}{path to root directory (CAUTION: think of DB size and search space!)}
 
 \item{fileExt}{file extention including dot (e.g. '.fms'|'.f0'|'.rms'|...)}
+
+\item{verbose}{show progress bars and other infos}
 }
 \value{
 segmentlist with expanded $utts
