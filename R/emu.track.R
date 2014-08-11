@@ -15,7 +15,7 @@
 ##' Extract trackdata information for a given segmentlist
 ##' 
 ##' A new and improved version of emu.track that utilizes the wrassp package for 
-##' signal processing and SSFF file handling.
+##' signal processing and SSFF/audio file handling.
 ##' 
 ##' Reads time relevant data from a given segmentlist, extracts the specified
 ##' trackdata and places it into a trackdata object (analogos to the depricated emu.track). The
