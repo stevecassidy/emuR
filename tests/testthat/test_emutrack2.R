@@ -13,6 +13,7 @@ n = read.emusegs(path2segl)
 path2segl <- list.files(system.file("extdata", package = "emuR"), pattern = glob2rx("ae-hStar.seg"), full.names = TRUE)
 hStar = read.emusegs(path2segl)
 
+##############################
 test_that("correct classes are returned", {
   
   td = emu.track2(n, 'fms:fm', path2db)
@@ -35,11 +36,12 @@ test_that("correct classes are returned", {
   
 })
 
+##############################
 test_that("bad calls", {
   expect_error(emu.track2(n, 'fms:fm', path2db, npoints=3))
 })
 
-
+##############################
 test_that("returned trackdata$data field has correct length", {
   td = emu.track2(n, 'fms:fm', path2db, cut=.5, npoints=3)
   expect_that(dim(td$data)[1], equals(length(n$utts)*3))
@@ -47,4 +49,13 @@ test_that("returned trackdata$data field has correct length", {
   td = emu.track2(n, 'fms:fm', path2db, cut=.5, npoints=5)
   expect_that(dim(td$data)[1], equals(length(n$utts)*5))
 
+})
+
+##############################
+test_that("all sorts of cut values work", {
+  cutVals = seq(0, 1, 0.01)
+  for(cutV in cutVals){
+    td = emu.track2(n, 'fms:fm', path2db, cut=cutV)
+    expect_that(class(td), equals('trackdata'))
+  }
 })
