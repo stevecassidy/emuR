@@ -581,16 +581,17 @@ if( version$major >= 5 ) {
 ##' @param Seglist segmentlist to be expandend
 ##' @param PathToDbRootFolder path to root directory (CAUTION: think of DB size and search space!) 
 ##' @param fileExt file extention including dot (e.g. '.fms'|'.f0'|'.rms'|...) 
+##' @param verbose show progress bars and other infos
 ##' @return segmentlist with expanded $utts
 ##' @author Raphael Winkelmann
 ##' @export
-"getFiles" <- function(Seglist=NULL, PathToDbRootFolder=NULL, fileExt=NULL) {
+"getFiles" <- function(Seglist=NULL, PathToDbRootFolder=NULL, fileExt=NULL, verbose=TRUE) {
   UseMethod("getFiles")
 }
 
 
 ##' @export
-"getFiles.emusegs" <- function(Seglist=NULL, PathToDbRootFolder=NULL, fileExt=NULL)
+"getFiles.emusegs" <- function(Seglist=NULL, PathToDbRootFolder=NULL, fileExt=NULL, verbose=TRUE)
 {
   # check if utts are valid paths -> if yes do nothing
   if(all(file.exists(Seglist$utts) == TRUE)){
@@ -608,8 +609,10 @@ if( version$major >= 5 ) {
         print(Seglist$utts[i])
       }else{
         if(showInfo){
-          cat('\n  INFO: Globbing for files to expand segmentlist (slow for large search spaces/large DBs)\n')
-          pb <- txtProgressBar(min = 0, max = length(Seglist$utts), style = 3)
+          if(verbose){
+            cat('\n  INFO: Globbing for files to expand segmentlist (slow for large search spaces/large DBs)\n')
+            pb <- txtProgressBar(min = 0, max = length(Seglist$utts), style = 3)
+          }
           showInfo = F
         }
         foundIdx = grep(Seglist$utts[i], allFiles, fixed = T);
@@ -617,7 +620,9 @@ if( version$major >= 5 ) {
         #         fullPath = list.files(PathToDbRootFolder, pattern=paste(Seglist$utts[i], "$", sep = ""), recursive=T, full.names=T)
         if(length(foundIdx) == 1){
           Seglist$utts[i] = allFiles[foundIdx]
-          setTxtProgressBar(pb, i)
+          if(verbose){
+            setTxtProgressBar(pb, i)
+          }
         }else{
           if(length(foundIdx) == 0){
             print(foundIdx)

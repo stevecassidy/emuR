@@ -36,6 +36,7 @@
 ##' parameter one wishes to change.     
 ##' @param OnTheFlyOptLogFilePath path to log file for on-the-fly function
 ##' @param NrOfAllocationRows If the size limit of the data matrix is reached a further NrOfAllocationRows more rows will be allocated (this will leed performance drops). 
+##' @param verbose show progress bars and other infos
 ##' @return If dcut is NOT set (the default) a object of type trackdata is returned. If dcut is set and npoints is NOT, or the seglist is of type event and npoints is not set a data.frame is returned
 ##' @author Raphael Winkelmann
 ##' @seealso \code{\link{formals}}
@@ -44,7 +45,7 @@
 ##' @export
 "emu.track2" <- function(Seglist = NULL, FileExtAndTrackName = NULL, PathToDbRootFolder = NULL,
                          cut = NULL, npoints = NULL, OnTheFlyFunctionName = NULL, OnTheFlyParas = NULL, 
-                         OnTheFlyOptLogFilePath = NULL, NrOfAllocationRows = 1000000){
+                         OnTheFlyOptLogFilePath = NULL, NrOfAllocationRows = 1000000, verbose = TRUE){
   
   if( is.null(Seglist) || is.null(FileExtAndTrackName)) {
     stop("Argument Seglist and FileExtAndtrackname are required.\n")
@@ -60,9 +61,9 @@
   ###################################
   # update Seglist paths if neccesary
   if(is.null(OnTheFlyFunctionName)){
-    Seglist = getFiles(Seglist, PathToDbRootFolder, fileExt)
+    Seglist = getFiles(Seglist, PathToDbRootFolder, fileExt, verbose=verbose)
   }else{
-    Seglist = getFiles(Seglist, PathToDbRootFolder, '.wav')
+    Seglist = getFiles(Seglist, PathToDbRootFolder, '.wav', verbose=verbose)
   }
   
   ####################################
@@ -105,8 +106,10 @@
     curDObj <- read.AsspDataObj(Seglist$utts[1])
   }
   tmpData <- eval(parse(text = paste("curDObj$", colName, sep = "")))
-  cat('\n  INFO: preallocating data matrix with:', ncol(tmpData), ',', NrOfAllocationRows, 
-      'columns and rows.')
+  if(verbose){
+    cat('\n  INFO: preallocating data matrix with:', ncol(tmpData), ',', NrOfAllocationRows, 
+        'columns and rows.')
+  }
   data <- matrix(ncol = ncol(tmpData), nrow = NrOfAllocationRows) # preallocate
   timeStampRowNames = numeric(NrOfAllocationRows) - 1 # preallocate rownames vector. -1 to set default val other than 0
   
@@ -121,8 +124,10 @@
     
     pb <- txtProgressBar(min = 0, max = length(Seglist$utts), style = 3)
   }else{
-    cat('\n  INFO: parsing', length(Seglist$utts), fileExt, 'files\n')
-    pb <- txtProgressBar(min = 0, max = length(Seglist$utts), style = 3)
+    if(verbose){
+      cat('\n  INFO: parsing', length(Seglist$utts), fileExt, 'files\n')
+      pb <- txtProgressBar(min = 0, max = length(Seglist$utts), style = 3)
+    }
   }
   
   #########################
@@ -141,7 +146,9 @@
       curDObj = do.call(OnTheFlyFunctionName,funcFormals)
     }else{
       curDObj <- read.AsspDataObj(fname)
-      setTxtProgressBar(pb, i)
+      if(verbose){
+        setTxtProgressBar(pb, i)
+      }
     }
     
     origFreq <- attr(curDObj, "origFreq")
@@ -238,7 +245,9 @@
     # Check if enough space (expand data matrix ifnecessary) 
     # then append to data matrix 
     if(length(data)<curIndexEnd){
-      cat('\n  INFO: allocating more space in data matrix')
+      if(verbose){
+        cat('\n  INFO: allocating more space in data matrix')
+      }
       data = rbind(data, matrix(ncol = ncol(data), nrow = NrOfAllocationRows))
       timeStampRowNames = c(timeStampRowNames, numeric(NrOfAllocationRows) - 1)
     }
@@ -254,7 +263,9 @@
   
   ########################################
   # remove superfluous NA vals from data
-  cat('\n  INFO: removing superfluous NA vals from over-allocated data matrix\n')
+  if(verbose){
+    cat('\n  INFO: removing superfluous NA vals from over-allocated data matrix\n')
+  }
   data = data[complete.cases(data),]
   timeStampRowNames = timeStampRowNames[timeStampRowNames != -1]
   
@@ -280,13 +291,13 @@
   }
   
   # close progress bar if open
-  if(!is.null(OnTheFlyFunctionName)){
+  if(!is.null(OnTheFlyFunctionName) && !verbose){
     close(pb)
   }
   
   #print(resObj)
   return(resObj)
-
+  
 }
 
 

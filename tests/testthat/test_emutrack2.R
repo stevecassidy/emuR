@@ -16,37 +16,37 @@ hStar = read.emusegs(path2segl)
 ##############################
 test_that("correct classes are returned", {
   
-  td = emu.track2(n, 'fms:fm', path2db)
+  td = emu.track2(n, 'fms:fm', path2db, verbose=F)
   expect_that(class(td), equals('trackdata'))
   
-  td = emu.track2(n, 'fms:fm', path2db, cut=.5)
+  td = emu.track2(n, 'fms:fm', path2db, cut=.5, verbose=F)
   expect_that(class(td), equals('data.frame'))
 
-  td = emu.track2(n, 'fms:fm', path2db, cut=.5, npoints=3)
+  td = emu.track2(n, 'fms:fm', path2db, cut=.5, npoints=3, verbose=F)
   expect_that(class(td), equals('trackdata'))
   
-  td = emu.track2(n, 'fms:fm', path2db, cut=.5, npoints=1)
+  td = emu.track2(n, 'fms:fm', path2db, cut=.5, npoints=1, verbose=F)
   expect_that(class(td), equals('data.frame'))
 
-  td = emu.track2(hStar, 'fms:fm', path2db)
+  td = emu.track2(hStar, 'fms:fm', path2db, verbose=F)
   expect_that(class(td), equals('data.frame'))
 
-  td = emu.track2(hStar, 'fms:fm', path2db, npoints=3)
+  td = emu.track2(hStar, 'fms:fm', path2db, npoints=3, verbose=F)
   expect_that(class(td), equals('trackdata'))
   
 })
 
 ##############################
 test_that("bad calls", {
-  expect_error(emu.track2(n, 'fms:fm', path2db, npoints=3))
+  expect_error(emu.track2(n, 'fms:fm', path2db, npoints=3, verbose=F))
 })
 
 ##############################
 test_that("returned trackdata$data field has correct length", {
-  td = emu.track2(n, 'fms:fm', path2db, cut=.5, npoints=3)
+  td = emu.track2(n, 'fms:fm', path2db, cut=.5, npoints=3, verbose=F)
   expect_that(dim(td$data)[1], equals(length(n$utts)*3))
 
-  td = emu.track2(n, 'fms:fm', path2db, cut=.5, npoints=5)
+  td = emu.track2(n, 'fms:fm', path2db, cut=.5, npoints=5, verbose=F)
   expect_that(dim(td$data)[1], equals(length(n$utts)*5))
 
 })
@@ -55,7 +55,7 @@ test_that("returned trackdata$data field has correct length", {
 test_that("all sorts of cut values work", {
   cutVals = seq(0, 1, 0.04)
   for(cutV in cutVals){
-    td = emu.track2(n, 'fms:fm', path2db, cut=cutV)
-    expect_that(class(td), equals('trackdata'))
+    td = emu.track2(n, 'fms:fm', path2db, cut=cutV, verbose=F)
+    expect_that(class(td), equals('data.frame'))
   }
 })
