@@ -80,9 +80,6 @@
   ####################################
   # check if npoints value is correct
   if(!is.null(npoints)){
-    #     if(npoints%%2 == 0){
-    #       stop('Bad value given for npoints argument. Npoints has to be an odd number!')
-    #     }
     if(is.null(cut) && emusegs.type(Seglist) != 'event'){
       stop('Cut argument hast to be set or seglist has to be of type event if npoints argument is used.')
     }
@@ -103,7 +100,9 @@
   ########################
   # preallocate data (needs first element to be read)
   if(!is.null(OnTheFlyFunctionName)){
+    funcFormals = NULL
     funcFormals$listOfFiles = Seglist$utts[1]
+    funcFormals$ToFile = FALSE
     curDObj = do.call(OnTheFlyFunctionName,funcFormals)
   }else{
     curDObj <- read.AsspDataObj(Seglist$utts[1])
@@ -318,3 +317,5 @@
 ###########################
 
 #tdnew = emu.track2(t, 'fms:fm', path2db, npoints = 3)
+
+#emu.track2(n, 'pit:pitch', path2db, OnTheFlyFunctionName = 'mhsF0', verbose=F)
