@@ -70,5 +70,8 @@ test_that("preexpanded seglist", {
 
 ##############################
 test_that("on the fly calculation", {
-#   emu.track2(n, 'dft:dft', path2db, OnTheFlyFunctionName = 'mhsF0', verbose=F)
+  td = emu.track2(n, 'dft:dft', path2db, OnTheFlyFunctionName = 'dftSpectrum', verbose=F)
+  expect_that(class(td), equals('trackdata'))
+  td = emu.track2(n, 'pit:pitch', path2db, OnTheFlyFunctionName = 'mhsF0', verbose=F)
+  expect_that(class(td), equals('trackdata'))
 })

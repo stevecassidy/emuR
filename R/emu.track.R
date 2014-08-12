@@ -269,6 +269,7 @@
     cat('\n  INFO: removing superfluous NA vals from over-allocated data matrix\n')
   }
   data = data[complete.cases(data),]
+  data = as.matrix(data) # make sure it is a matrix to be able to set row names
   timeStampRowNames = timeStampRowNames[timeStampRowNames != -1]
   
   if((!is.null(cut) && (npoints == 1 || is.null(npoints))) || (emusegs.type(Seglist) == 'event' && (npoints == 1 || is.null(npoints)))){
@@ -318,4 +319,4 @@
 
 #tdnew = emu.track2(t, 'fms:fm', path2db, npoints = 3)
 
-#emu.track2(n, 'pit:pitch', path2db, OnTheFlyFunctionName = 'mhsF0', verbose=F)
+#tdnew = emu.track2(n, 'pit:pitch', path2db, OnTheFlyFunctionName = 'mhsF0', verbose=F)
