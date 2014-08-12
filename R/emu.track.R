@@ -72,6 +72,9 @@
     if(cut < 0 || cut > 1){
       stop('Bad value given for cut argument. Cut can only be a value between 0 and 1!')
     }
+    if(emusegs.type(Seglist) == 'event'){
+      stop("Cut value should not be set if emusegs.type(Seglist) == 'event'!")
+    }
   }
   
   ####################################

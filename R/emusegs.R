@@ -593,6 +593,22 @@ if( version$major >= 5 ) {
 ##' @export
 "getFiles.emusegs" <- function(Seglist=NULL, PathToDbRootFolder=NULL, fileExt=NULL, verbose=TRUE)
 {
+  ##### para checks ####
+  # check Seglist 
+  # TODO with class function
+  
+  # PathToDbRootFolder is valid path
+  if(!file.exists(PathToDbRootFolder)){
+    stop('PathToDbRootFolder does not exist!')
+  }
+  # fileExt starts with dot
+  if(substr(fileExt, 1, 1) != '.'){
+    if(verbose){
+      warning('fileExt does not start with a . are you sure this is correct? Will proceed but probably fail...!')
+    }
+  }
+  
+  
   # check if utts are valid paths -> if yes do nothing
   if(all(file.exists(Seglist$utts) == TRUE)){
     return(Seglist)
