@@ -23,10 +23,12 @@
 ##' SSFF files have to be in the same folder or valid paths to the SSFF files
 ##' 
 ##' 
-##' @param Seglist seglist obtained by a function of package seglist with
-##' option newemuutts=T
-##' @param FileExtAndTrackName file extension and trackname separated by a ':' (e.g. fms:fm where fms is the file extension and fm is the track/column name) 
-##' @param PathToDbRootFolder is the path to the 
+##' @param Seglist seglist obtained by querying a EMU DB
+##' @param FileExtAndTrackName file extension and trackname separated by a ':' (e.g. fms:fm where fms is the 
+##' file extension and fm is the track/column name). Default extensions and track/column names
+##' are defined in the variable \code{wrasspOutputInfos} of the \code{wrassp} package.
+##' @param PathToDbRootFolder is the path to the root dir of the Emu database; must be set, even if on-the-fly processing is applied 
+##' (this might change in future versions)
 ##' @param cut An optional cut time for segment data, ranges between 0 and 1, a value of 0.5 will extract data only at the segment midpoint.
 ##' @param npoints An optional number of points to retrieve for each segment or event. For segments this requires a cut= argument and data is extracted around the cut time. For events data is extracted around the event time. If npoints is an odd number the samples are centered around the cut-time-sample, if not they are sqewed to the right by one sample.
 ##' @param OnTheFlyFunctionName name of wrassp function to do on-the-fly calculation 
@@ -35,9 +37,9 @@
 ##' generated using the \code{formals} function and then setting the according 
 ##' parameter one wishes to change.     
 ##' @param OnTheFlyOptLogFilePath path to log file for on-the-fly function
-##' @param NrOfAllocationRows If the size limit of the data matrix is reached a further NrOfAllocationRows more rows will be allocated (this will leed performance drops). 
+##' @param NrOfAllocationRows If the size limit of the data matrix is reached a further NrOfAllocationRows more rows will be allocated (this will lead performance drops). 
 ##' @param verbose show progress bars and other infos
-##' @return If dcut is NOT set (the default) a object of type trackdata is returned. If dcut is set and npoints is NOT, or the seglist is of type event and npoints is not set a data.frame is returned
+##' @return If \code{dcut} is NOT set (the default) an object of type trackdata is returned. If \code{dcut} is set and \code{npoints} is NOT, or the seglist is of type event and npoints is not set a data.frame is returned
 ##' @author Raphael Winkelmann
 ##' @seealso \code{\link{formals}}
 ##' @keywords misc

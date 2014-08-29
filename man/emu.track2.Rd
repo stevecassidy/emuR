@@ -10,12 +10,14 @@ emu.track2(Seglist = NULL, FileExtAndTrackName = NULL,
   verbose = TRUE)
 }
 \arguments{
-\item{Seglist}{seglist obtained by a function of package seglist with
-option newemuutts=T}
+\item{Seglist}{seglist obtained by querying a EMU DB}
 
-\item{FileExtAndTrackName}{file extension and trackname separated by a ':' (e.g. fms:fm where fms is the file extension and fm is the track/column name)}
+\item{FileExtAndTrackName}{file extension and trackname separated by a ':' (e.g. fms:fm where fms is the
+file extension and fm is the track/column name). Default extensions and track/column names
+are defined in the variable \code{wrasspOutputInfos} of the \code{wrassp} package.}
 
-\item{PathToDbRootFolder}{is the path to the}
+\item{PathToDbRootFolder}{is the path to the root dir of the Emu database; must be set, even if on-the-fly processing is applied
+(this might change in future versions)}
 
 \item{cut}{An optional cut time for segment data, ranges between 0 and 1, a value of 0.5 will extract data only at the segment midpoint.}
 
@@ -30,12 +32,12 @@ parameter one wishes to change.}
 
 \item{OnTheFlyOptLogFilePath}{path to log file for on-the-fly function}
 
-\item{NrOfAllocationRows}{If the size limit of the data matrix is reached a further NrOfAllocationRows more rows will be allocated (this will leed performance drops).}
+\item{NrOfAllocationRows}{If the size limit of the data matrix is reached a further NrOfAllocationRows more rows will be allocated (this will lead performance drops).}
 
 \item{verbose}{show progress bars and other infos}
 }
 \value{
-If dcut is NOT set (the default) a object of type trackdata is returned. If dcut is set and npoints is NOT, or the seglist is of type event and npoints is not set a data.frame is returned
+If \code{dcut} is NOT set (the default) an object of type trackdata is returned. If \code{dcut} is set and \code{npoints} is NOT, or the seglist is of type event and npoints is not set a data.frame is returned
 }
 \description{
 A new and improved version of emu.track that utilizes the wrassp package for
