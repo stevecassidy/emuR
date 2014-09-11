@@ -5,8 +5,8 @@
 ##' 
 ##' @keywords internal
 ##' @export
-"emu.query" <- function () 
+"emu.query" <- function (...) 
 {
-  stop('emu.query is currenlty not available in this version of the emuR package. We are curerntly working
+  stop('emu.query is not available in this version of the emuR package. We are currently working
           on a new implementation of this function.')
 }
