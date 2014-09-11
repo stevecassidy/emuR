@@ -854,6 +854,8 @@ get.bundle.levels.s3 <-function(db,bundleName){
   }
   bundleSelector=db[['items']][['bundle']]==bundleName
   items=db[['items']][bundleSelector,]
+  bundleSelector=db[['labels']][['bundle']]==bundleName
+  bundleLabels=db[['labels']][bundleSelector,]
   
   nrows=nrow(items)
   cLvl=NULL
@@ -887,8 +889,8 @@ get.bundle.levels.s3 <-function(db,bundleName){
       attrDefsLen=length(attrDefs)
       
       gid=items[r,'id']
-      itemLabelSelector=db[['labels']][['itemID']]==gid
-      labelRows=db[['labels']][itemLabelSelector,]
+      itemLabelSelector=bundleLabels[['itemID']]==gid
+      labelRows=bundleLabels[itemLabelSelector,]
       nLabelRows=nrow(labelRows)
        labels=list()
       for(j in 1:nLabelRows){
