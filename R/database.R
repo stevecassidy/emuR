@@ -1648,7 +1648,7 @@ load.annotation.for.legacy.bundle=function(schema,uttCode,basePath=NULL){
   levels=list()
   links=list()
   
-  #  xlabel files first
+  #  ESPS label files first
   for(ad in schema[['annotationDescriptors']]){
     extension=ad[['extension']]
     #cat("Anno ext: ",extension,ad$basePath,"\n")
@@ -1666,7 +1666,7 @@ load.annotation.for.legacy.bundle=function(schema,uttCode,basePath=NULL){
         #cat("Anno: ",annoPath,"\n")
         if(extension!='hlb'){
           # parse lab file
-          labTier=parse.xlabel.file(labFilePath=annoPath,tierName=ad[['name']],sampleRate=sampleRate)
+          labTier=parse.esps.label.file(labFilePath=annoPath,tierName=ad[['name']],sampleRate=sampleRate)
           if(!is.null(labTier)){
             levels[[labTier[['name']]]] <- labTier
           }

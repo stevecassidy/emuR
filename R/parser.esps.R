@@ -1,17 +1,17 @@
 require(stringr)
 
-## Parser for Xlabel lab files
+## Parser for ESPS label files
 ## 
-## @param labFilePath Xlabel file path
+## @param labFilePath ESPS label file path
 ## @param tierName name of the tier
 ## @param sampleRate sample rate of corresponding signal file
 ## @param encoding text encoding (default: UTF-8)
 ## @return new tier contains parsed items
 ## @import stringr
 ## @author Klaus Jaensch
-## @keywords emuSX XLabel lab Emu
+## @keywords emuSX ESPS lab Emu
 ## 
-parse.xlabel.file <- function(labFilePath=NULL,tierName,sampleRate,encoding="UTF-8") {
+parse.esps.label.file <- function(labFilePath=NULL,tierName,sampleRate,encoding="UTF-8") {
   SIGNAL_KEY="signal"
   NUMBER_OF_FIELDS_KEY="nfields"
   SEPARATOR_KEY="separator"

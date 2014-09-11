@@ -56,14 +56,14 @@ parse.hlb.file <- function(database=NULL,hlbFilePath=NULL,levelDefinitions,level
             if(t$name==currentTierName){
               tierExists=TRUE
               # TODO check items
-              # for now I assume that every item in xlabel file has corresponding item in hlb file and vice versa
+              # for now I assume that every item in ESPS label file has corresponding item in hlb file and vice versa
                #merge
               labitems=t$items
               currentExistingItems=labitems
               labitemsCount=length(labitems)
               currentitemsCount=length(currentitems)
               if(labitemsCount!=currentitemsCount){
-                stop("Tier: ",currentTierName,": count of items in hlb file (",currentitemsCount,") differs from count in xlabel file (",labitemsCount,")");
+                stop("Tier: ",currentTierName,": count of items in hlb file (",currentitemsCount,") differs from count in ESPS label file (",labitemsCount,")");
               }
               #newTier=clone.bundle.level(t);
               newTier=t
