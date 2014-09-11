@@ -11,7 +11,7 @@ require(stringr)
 ## @author Klaus Jaensch
 ## @keywords emuR Emu hierarchy hlb
 ## 
-parse.hlb.file <- function(database=NULL,hlbFilePath=NULL,levelDefinitions,levels) {
+parse.hlb.file <- function(hlbFilePath=NULL,levelDefinitions,levels) {
   
   EMU_HIERARCHY_HEADER = "**EMU hierarchical labels**"
   hlbTiers=list()
