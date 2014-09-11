@@ -6,7 +6,7 @@ require(stringr)
 ## @param tierName name of the tier
 ## @param sampleRate sample rate of corresponding signal file
 ## @param encoding text encoding (default: UTF-8)
-## @return new tier contains parsed items
+## @return new tier containing parsed items
 ## @import stringr
 ## @author Klaus Jaensch
 ## @keywords emuR ESPS lab Emu
