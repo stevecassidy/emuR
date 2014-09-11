@@ -2,14 +2,14 @@ require(testthat)
 require(wrassp)
 require(emuR)
 
-context("emuSX queries")
+context("emuR queries")
 
 .test_emu_ae_db=NULL
 
 ## "private" function does not work with R CMD check !
 test_load_ae_database<-function(){
   if(is.null(.test_emu_ae_db)){
-    legacyDbEmuAeTpl <- system.file("extdata/legacy_emu/db/ae","ae.tpl", package="emuSX")
+    legacyDbEmuAeTpl <- system.file("extdata/legacy_emu/db/ae","ae.tpl", package="emuR")
     aeTmpDir=tempfile('test_emu_ae')
     convert.database.from.legacy.emu(emuTplPath=legacyDbEmuAeTpl,targetDir=aeTmpDir,showProgress=FALSE)
     .test_emu_ae_db<<-load.database(file.path(aeTmpDir,'ae'),showProgress=FALSE)
@@ -38,8 +38,8 @@ test_that("Query labels",{
 #   
   
   ae=test_load_ae_database()
-  #legacyDbEmuAeTpl <- system.file("extdata/legacy_emu_db/ae","ae.tpl", package="emuSX")
-  #expect_that(legacyDbEmuAeTpl,is_equivalent_to('/homes/klausj/DEVELOPMENT/NewEMU/emuSX/inst/extdata/legacy_emu_db/ae/ae.tpl'))
+  #legacyDbEmuAeTpl <- system.file("extdata/legacy_emu_db/ae","ae.tpl", package="emuR")
+  #expect_that(legacyDbEmuAeTpl,is_equivalent_to('/homes/klausj/DEVELOPMENT/NewEMU/emuR/inst/extdata/legacy_emu_db/ae/ae.tpl'))
   #aeTmpDir=tempfile('test_emu_ae')
   #convert.database.from.legacy.emu(emuTplPath=legacyDbEmuAeTpl,targetDir=aeTmpDir)
   #ae<<-load.database(file.path(aeTmpDir,'ae'))
@@ -153,7 +153,7 @@ test_that("Query using Num function",{
 test_that("Check Phonetic tier seglist",{
   ae=test_load_ae_database()
   # load legacy emu seglist
-  legacyEmuAePhoneticSeglist <- system.file("extdata/legacy_emu/seglist","legacy_emu_ae_phonetic_seglist.RData", package="emuSX")
+  legacyEmuAePhoneticSeglist <- system.file("extdata/legacy_emu/seglist","legacy_emu_ae_phonetic_seglist.RData", package="emuR")
   load(file=legacyEmuAePhoneticSeglist)
   tsl=.legacy_emu_ae_phonetic_seglist
   # get original query string

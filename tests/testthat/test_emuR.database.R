@@ -2,7 +2,7 @@ require(testthat)
 require(wrassp)
 require(emuR)
 
-context("emuSX database")
+context("emuR database")
 
 .aeSampleRate=20000
 
@@ -11,7 +11,7 @@ context("emuSX database")
 ## "private" function does not work with R CMD check !
 test_load_ae_database<-function(){
   if(is.null(.test_emu_ae_db)){
-    legacyDbEmuAeTpl <- system.file("extdata/legacy_emu/db/ae","ae.tpl", package="emuSX")
+    legacyDbEmuAeTpl <- system.file("extdata/legacy_emu/db/ae","ae.tpl", package="emuR")
     .test_emu_ae_db_dir<<-tempfile('test_emu_ae')
     convert.database.from.legacy.emu(emuTplPath=legacyDbEmuAeTpl,targetDir=.test_emu_ae_db_dir,showProgress=FALSE)
     .test_emu_ae_db<<-load.database(file.path(.test_emu_ae_db_dir,'ae'),showProgress=FALSE)
