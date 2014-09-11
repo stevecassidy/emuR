@@ -6,7 +6,7 @@
 query.database(database, query, queryLang = "EQL2", resultType = "emusegs")
 }
 \arguments{
-\item{database}{object of class emuSX.database}
+\item{database}{object of class emuR.database}
 
 \item{query}{EQL query string}
 
@@ -41,6 +41,6 @@ Klaus Jaensch
 \keyword{EQL}
 \keyword{Emu}
 \keyword{database}
-\keyword{emuSX}
+\keyword{emuR}
 \keyword{query}
 

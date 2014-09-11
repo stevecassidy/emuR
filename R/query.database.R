@@ -43,36 +43,36 @@ list.related.items <-function(bundle,item,direction='to',recursive=TRUE){
 
 .create.condition.text<-function(opr,value){
   o=list(opr=opr,value=value)
-  class(o)<-c('emuSX.condition.text','emuSX.condition')
+  class(o)<-c('emuR.condition.text','emuR.condition')
   return(o)
 }
 
 .create.condition.text.alternatives<-function(opr,values){
   o=list(opr=opr,values=values)
-  class(o)<-c('emuSX.condition.text.alternatives','emuSX.condition')
+  class(o)<-c('emuR.condition.text.alternatives','emuR.condition')
   return(o)
 }
 
 create.condition.level.label<-function(levelName,conditionText){
   o=list(levelName=levelName,conditionText=conditionText)
-  class(o)<-c('emuSX.condition.level.label','emuSX.condition')
+  class(o)<-c('emuR.condition.level.label','emuR.condition')
   return(o)
 }
 
 create.condition<-function(op1,opr,op2){
   o=list(op1=op1,opr=opr,op2=op2)
-  class(o)<-'emuSX.condition'
+  class(o)<-'emuR.condition'
   return(o)
 }
 
 
 create.subtree<-function(items,links,resultLevel=NULL,projectionItems=NULL){
   o=list(items=items,links=links,resultLevel=resultLevel,projectionItems=projectionItems)
-  class(o)<-'emuSX.query.result'
+  class(o)<-'emuR.query.result'
   return(o)
 }
 
-emuSX.regexprl<-function(pattern,x){
+emuR.regexprl<-function(pattern,x){
   m=regexpr(pattern,x)
   return((m==1) & (attr(m,'match.length')==nchar(x)))
 }
@@ -110,11 +110,11 @@ query.labels<-function(ldf,conditionText){
     for(value in values){
       if(is.null(res)){
         #res=subset(ldf,grepl(value,label))
-        ssl=emuSX.regexprl(value,ldf[['label']])
+        ssl=emuR.regexprl(value,ldf[['label']])
         res=ldf[ssl,]
       }else{
         #r=subset(ldf,grepl(value,label))
-        ssl=emuSX.regexprl(value,ldf[['label']])
+        ssl=emuR.regexprl(value,ldf[['label']])
         r=ldf[ssl,]
         res=rbind(res,r)
       }
@@ -123,11 +123,11 @@ query.labels<-function(ldf,conditionText){
     for(value in values){
       if(is.null(res)){
         #res=subset(ldf,!grepl(value,label))
-        ssl=!emuSX.regexprl(value,ldf[['label']])
+        ssl=!emuR.regexprl(value,ldf[['label']])
         res=ldf[ssl,]
       }else{
         #res=subset(res,!grepl(value,label))
-        ssl=!emuSX.regexprl(value,res[['label']])
+        ssl=!emuR.regexprl(value,res[['label']])
         res=res[ssl,]
       }
     }
@@ -853,13 +853,13 @@ query.database.eql.in.bracket<-function(database,q){
 
 ## Query EMU database
 ## 
-## @param database object of class emuSX.database
+## @param database object of class emuR.database
 ## @param query EQL query string
 ## @return EMU seglist
 ## @author Klaus Jaensch
 ## @import sqldf stringr
 ## @export
-## @keywords emuSX database query Emu EQL 
+## @keywords emuR database query Emu EQL 
 ## 
 query.database.with.eql.seglist<-function(database,query){
 
@@ -875,13 +875,13 @@ query.database.with.eql.seglist<-function(database,query){
 
 ## Query EMU database
 ## 
-## @param database object of class emuSX.database
+## @param database object of class emuR.database
 ## @param query EQL query string
 ## @return result set object
 ## @author Klaus Jaensch
 ## @import sqldf stringr
 ## @export
-## @keywords emuSX database query Emu EQL 
+## @keywords emuR database query Emu EQL 
 ## 
 query.database.with.eql<-function(database,query){
   parseRes=list()
@@ -919,7 +919,7 @@ query.database.with.eql<-function(database,query){
 
 ##' Query EMU database
 ##' @description Query an EMU database
-##' @param database object of class emuSX.database
+##' @param database object of class emuR.database
 ##' @param query EQL query string
 ##' @param queryLang query language
 ##' @param resultType type (class name) of result
@@ -928,7 +928,7 @@ query.database.with.eql<-function(database,query){
 ##' @import sqldf stringr
 ##' @export
 ##' @seealso \code{\link{load.database}}
-##' @keywords emuSX database query Emu EQL 
+##' @keywords emuR database query Emu EQL 
 ##' @examples
 ##' \dontrun{
 ##' ## Query database object ae with EQL query [Phonetic=t -> Phonetic=s] and store result seglist in variable segListTs

@@ -9,7 +9,7 @@ require(stringr)
 ## @return new tier contains parsed items
 ## @import stringr
 ## @author Klaus Jaensch
-## @keywords emuSX ESPS lab Emu
+## @keywords emuR ESPS lab Emu
 ## 
 parse.esps.label.file <- function(labFilePath=NULL,tierName,sampleRate,encoding="UTF-8") {
   SIGNAL_KEY="signal"

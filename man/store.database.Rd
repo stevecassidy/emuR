@@ -33,5 +33,5 @@ Klaus Jaensch
 }
 \keyword{Emu}
 \keyword{database}
-\keyword{emuSX}
+\keyword{emuR}
 

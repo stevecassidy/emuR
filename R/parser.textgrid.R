@@ -9,7 +9,7 @@ require(stringr)
 ## @return an annoation object
 ## @author Klaus Jaensch
 ## @import stringr
-## @keywords emuSX TextGrid Praat Emu
+## @keywords emuR TextGrid Praat Emu
 ## 
 parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
   FILE_TYPE_KEY="File type"
@@ -176,7 +176,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
                     segmentIndexStr=sub("[[:space:]]*[]][[:space:]]*[:][[:space:]]*","",segmentIndexStr);
                     currentElementIndex=segmentIndexStr;
                     
-                    #currentSegment=emuSX.annotation.model.IntervalItem()
+                    #currentSegment=emuR.annotation.model.IntervalItem()
                     
                     
                     currentSegmentIndex=segmentIndexStr;

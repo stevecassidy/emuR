@@ -6,10 +6,10 @@ require(stringr)
 ## @param hlbFilePath file path to EMU HLB file
 ## @param levelDefinitions list of annotation level definitions
 ## @param levels list of already existing annotation levels
-## @return emuSX.database database object including parsed hlb file
+## @return emuR.database database object including parsed hlb file
 ## @import stringr
 ## @author Klaus Jaensch
-## @keywords emuSX Emu hierarchy hlb
+## @keywords emuR Emu hierarchy hlb
 ## 
 parse.hlb.file <- function(database=NULL,hlbFilePath=NULL,levelDefinitions,levels) {
   
@@ -67,7 +67,7 @@ parse.hlb.file <- function(database=NULL,hlbFilePath=NULL,levelDefinitions,level
               }
               #newTier=clone.bundle.level(t);
               newTier=t
-              class(newTier) <- 'emuSX.annotation.model.Level'
+              class(newTier) <- 'emuR.annotation.model.Level'
               break
             }
           }
@@ -93,9 +93,9 @@ parse.hlb.file <- function(database=NULL,hlbFilePath=NULL,levelDefinitions,level
               currItem=currentitems[[i]]
               exType=exItem$type
               cl=class(exItem)[[1]]
-              if(cl=='emuSX.annotation.model.IntervalItem'){
+              if(cl=='emuR.annotation.model.IntervalItem'){
                 newItems[[i]]=create.interval.item(id=currItem$id,sampleStart=exItem$sampleStart,sampleDur=exItem$sampleDur,labels=exItem$labels)
-              }else if(cl=='emuSX.annotation.model.EventItem'){
+              }else if(cl=='emuR.annotation.model.EventItem'){
                 newItems[[i]]=create.event.item(id=currItem$id,samplePoint=exItem$samplePoint,labels=exItem$labels)
               }
             }
@@ -142,7 +142,7 @@ parse.hlb.file <- function(database=NULL,hlbFilePath=NULL,levelDefinitions,level
           item=NULL
           #if(!is.null(currentExistingItems)){
           #  exItem=currentExistingItems[[currentIdx]]
-          #  item=emuSX.annotation.model.Item.setId(exItem,id)
+          #  item=emuR.annotation.model.Item.setId(exItem,id)
           #}else{
           item=create.item(id=id,labels=attrs)
           #}
@@ -206,7 +206,7 @@ parse.hlb.file <- function(database=NULL,hlbFilePath=NULL,levelDefinitions,level
               toId=as.integer(toIdStr)
               #toItem=items[[toIdStr]]
               
-              #links[[length(links)+1]]=emuSX.annotation.model.Link(fromItem,toItem)
+              #links[[length(links)+1]]=emuR.annotation.model.Link(fromItem,toItem)
               links[[length(links)+1]]=create.link(fromID=fromId,toID=toId)
               
               #cat("Link: ",fromId,toId,"\n")

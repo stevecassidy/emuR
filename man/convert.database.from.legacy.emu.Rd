@@ -13,7 +13,7 @@ convert.database.from.legacy.emu(emuTplPath, targetDir, showProgress = TRUE)
 \item{showProgress}{show progress bar}
 }
 \value{
-object of class emuSX.database
+object of class emuR.database
 }
 \description{
 Convert legacy EMU database and store in new format to directory
@@ -34,6 +34,6 @@ Klaus Jaensch
 }
 \keyword{Emu}
 \keyword{database}
-\keyword{emuSX}
+\keyword{emuR}
 \keyword{schema}
 

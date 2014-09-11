@@ -11,7 +11,7 @@ load.database(databaseDir, showProgress = FALSE)
 \item{showProgress}{show progress bar}
 }
 \value{
-object of class emuSX.database
+object of class emuR.database
 }
 \description{
 Load EMU database
@@ -21,6 +21,6 @@ Klaus Jaensch
 }
 \keyword{Emu}
 \keyword{database}
-\keyword{emuSX}
+\keyword{emuR}
 \keyword{schema}
 
