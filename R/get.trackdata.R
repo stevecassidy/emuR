@@ -251,5 +251,5 @@
 # ae.db = load.database('~/Desktop/ae/')
 # class(ae.db) = 'emuDB'
 # nSegl = query.database(ae.db, 'Phonetic=n')
-get.trackdata(ae.db, seglist = nSegl, ssffTrackName = 'dft')
+# get.trackdata(ae.db, seglist = nSegl, ssffTrackName = 'dft')
 
