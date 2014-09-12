@@ -6,12 +6,11 @@
 
 "get.bundle.stub.emuDB" <- function(dbObj, bundleName = NULL)
 {
-  
   # loop through session and sapply through bundles
   foundSessionBundles = NULL
   for (i in 1:length(dbObj$sessions)){
-    foundBool = sapply(ae.db$sessions[[i]]$bundles, function(x){x$name == bundleName})
-    foundSessionBundles = c(foundSessionBundles, ae.db$sessions[[i]]$bundles[foundBool])
+    foundBool = sapply(dbObj$sessions[[i]]$bundles, function(x){x$name == bundleName})
+    foundSessionBundles = c(foundSessionBundles, dbObj$sessions[[i]]$bundles[foundBool])
   }
   
   # check if 0 or more than one bundles where found
