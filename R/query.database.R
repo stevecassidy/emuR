@@ -621,6 +621,7 @@ query.database.eql.KONJA<-function(database,q){
     p=0
     items=database[['items']]
     labels=database[['labels']]
+    resultLevel=NULL
     while(p>=0){
       p=get.string.position(string=qTrim,searchStr='&',pos=startPos,literalQuote="'")
       if(p==-1){
@@ -632,6 +633,13 @@ query.database.eql.KONJA<-function(database,q){
       }
       #cat(condStr,"\n")
       res=query.database.eql.EA(database,condStr,items=items,labels=labels)
+      # set resultLevel of first term
+      if(is.null(resultLevel)){
+        termResLevel=res[['resultLevel']]
+        if(!is.null(termResLevel)){
+          resultLevel=termResLevel
+        }
+      }
       seqIts=res[['items']]
       nRes=nrow(seqIts)
       if(nRes==0){
@@ -642,9 +650,9 @@ query.database.eql.KONJA<-function(database,q){
         items=sqldf("SELECT i.* FROM items i,seqIts s WHERE i.id=s.seqStartId")
         labels=sqldf("SELECT l.* FROM labels l,seqIts s WHERE l.itemID=s.seqStartId")
       }
-      
-     
     }
+    res[['items']][,'level']=resultLevel
+    res[['resultLevel']]=resultLevel
     return(res)
 }
 
