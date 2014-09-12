@@ -1,13 +1,11 @@
-"get.trackdata" <- function(dbObj, ...)
-{
+"get.trackdata" <- function(dbObj, ...){
   UseMethod("get.trackdata")
   
 }
 
 "get.trackdata.emuDB" <- function(dbObj, seglist = NULL, ssffTrackName = NULL,
                                   cut = NULL, npoints = NULL, OnTheFlyFunctionName = NULL, OnTheFlyParas = NULL, 
-                                  OnTheFlyOptLogFilePath = NULL, NrOfAllocationRows = 100000, verbose = TRUE)
-{
+                                  OnTheFlyOptLogFilePath = NULL, NrOfAllocationRows = 100000, verbose = TRUE){
   
   #########################
   # get track definition
@@ -60,20 +58,20 @@
   
   ###############################
   # set up function formals + pb
-  #   if(!is.null(OnTheFlyFunctionName)){
-  #     funcFormals = formals(OnTheFlyFunctionName)
-  #     funcFormals[names(OnTheFlyParas)] = OnTheFlyParas
-  #     funcFormals$ToFile = FALSE
-  #     funcFormals$optLogFilePath = OnTheFlyOptLogFilePath
-  #     cat('\n  INFO: applying', OnTheFlyFunctionName, 'to', length(Seglist$utts), 'files\n')
-  #     
-  #     pb <- txtProgressBar(min = 0, max = length(Seglist$utts), style = 3)
-  #   }else{
-  if(verbose){
-    cat('\n  INFO: parsing', length(seglist$utts), trackDef[[1]]$fileExtension, 'files\n')
-    pb <- txtProgressBar(min = 0, max = length(seglist$utts), style = 3)
+  if(!is.null(OnTheFlyFunctionName)){
+    funcFormals = formals(OnTheFlyFunctionName)
+    funcFormals[names(OnTheFlyParas)] = OnTheFlyParas
+    funcFormals$ToFile = FALSE
+    funcFormals$optLogFilePath = OnTheFlyOptLogFilePath
+    cat('\n  INFO: applying', OnTheFlyFunctionName, 'to', length(Seglist$utts), 'files\n')
+    
+    pb <- txtProgressBar(min = 0, max = length(Seglist$utts), style = 3)
+  }else{
+    if(verbose){
+      cat('\n  INFO: parsing', length(seglist$utts), trackDef[[1]]$fileExtension, 'files\n')
+      pb <- txtProgressBar(min = 0, max = length(seglist$utts), style = 3)
+    }
   }
-  #   }
   
   
   # loop through bundle names
@@ -86,16 +84,16 @@
     ################
     #get data object
     
-    #     if(!is.null(OnTheFlyFunctionName)){
-    #       setTxtProgressBar(pb, i)
-    #       funcFormals$listOfFiles = Seglist$utts[i]
-    #       curDObj = do.call(OnTheFlyFunctionName,funcFormals)
-    #     }else{
-    curDObj <- read.AsspDataObj(fname)
-    if(verbose){
+    if(!is.null(OnTheFlyFunctionName)){
       setTxtProgressBar(pb, i)
+      funcFormals$listOfFiles = Seglist$utts[i]
+      curDObj = do.call(OnTheFlyFunctionName,funcFormals)
+    }else{
+      curDObj <- read.AsspDataObj(fname)
+      if(verbose){
+        setTxtProgressBar(pb, i)
+      }
     }
-    #     }
     
     # set origFreq 
     origFreq <- attr(curDObj, "origFreq")
@@ -253,5 +251,5 @@
 # ae.db = load.database('~/Desktop/ae/')
 # class(ae.db) = 'emuDB'
 # nSegl = query.database(ae.db, 'Phonetic=n')
-# get.trackdata(ae.db, seglist = nSegl, ssffTrackName = 'dft')
+get.trackdata(ae.db, seglist = nSegl, ssffTrackName = 'dft')
 
