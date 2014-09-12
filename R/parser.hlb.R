@@ -96,7 +96,18 @@ parse.hlb.file <- function(hlbFilePath=NULL,levelDefinitions,levels) {
               # merge labels
               mergedLabels=exItem[['labels']]
               for(itLbl in currItem[['labels']]){
-                mergedLabels[[length(mergedLabels)+1]]=itLbl
+                for(exLabel in exItem[['labels']]){
+                  if(exLabel[['name']]==itLbl[['name']]){
+                    # label exists, check equality
+                    if(exLabel[['value']]!=itLbl[['value']]){
+                      stop("Labels of attribute level '",exLabel[['name']],"' differ: '",exLabel[['value']],"' '",itLbl[['value']],"'\n")
+                    }
+                  }else{
+                    # merge
+                    mergedLabels[[length(mergedLabels)+1]]=itLbl
+                  }
+                }
+               
               }
               
               if(cl=='emuR.annotation.model.IntervalItem'){
