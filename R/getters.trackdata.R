@@ -1,6 +1,6 @@
 "get.bundle.stub" <- function(dbObj, ...)
 {
-  UseMethod("get.bundle")
+  UseMethod("get.bundle.stub")
   
 }
 
