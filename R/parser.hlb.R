@@ -93,10 +93,16 @@ parse.hlb.file <- function(hlbFilePath=NULL,levelDefinitions,levels) {
               currItem=currentitems[[i]]
               exType=exItem$type
               cl=class(exItem)[[1]]
+              # merge labels
+              mergedLabels=exItem[['labels']]
+              for(itLbl in currItem[['labels']]){
+                mergedLabels[[length(mergedLabels)+1]]=itLbl
+              }
+              
               if(cl=='emuR.annotation.model.IntervalItem'){
-                newItems[[i]]=create.interval.item(id=currItem$id,sampleStart=exItem$sampleStart,sampleDur=exItem$sampleDur,labels=exItem$labels)
+                newItems[[i]]=create.interval.item(id=currItem$id,sampleStart=exItem$sampleStart,sampleDur=exItem$sampleDur,labels=mergedLabels)
               }else if(cl=='emuR.annotation.model.EventItem'){
-                newItems[[i]]=create.event.item(id=currItem$id,samplePoint=exItem$samplePoint,labels=exItem$labels)
+                newItems[[i]]=create.event.item(id=currItem$id,samplePoint=exItem$samplePoint,labels=mergedLabels)
               }
             }
             newTier$items=newItems
