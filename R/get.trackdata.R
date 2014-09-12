@@ -11,7 +11,6 @@
   # get track definition
   trackDefFound = sapply(dbObj$schema$ssffTracks, function(x){ x$name == ssffTrackName})
   trackDef = dbObj$schema$ssffTracks[trackDefFound]
-  
   # check if correct nr of trackDefs where found
   if(length(trackDef) != 1){
     if(length(trackDef) < 1 ){
@@ -41,7 +40,7 @@
     funcFormals$ToFile = FALSE
     curDObj = do.call(OnTheFlyFunctionName,funcFormals)
   }else{
-    curBndl <- get.bundle.stub(dbObj, seglist$utts[i])
+    curBndl <- get.bundle.stub(dbObj, seglist$utts[1])
     fname <- curBndl$signalpaths[grepl(paste(trackDef[[1]]$fileExtension, '$', sep = ''), curBndl$signalpaths)][[1]] # should mybe check if more then one found...
     curDObj <- read.AsspDataObj(fname)
   }
@@ -217,7 +216,7 @@
   
   if((!is.null(cut) && (npoints == 1 || is.null(npoints))) || (emusegs.type(seglist) == 'event' && (npoints == 1 || is.null(npoints)))){
     resObj = as.data.frame(data)
-    colnames(resObj) = paste(colName, seq(1:ncol(resObj)), sep = '')    
+    colnames(resObj) = paste(trackDef[[1]]$columnName, seq(1:ncol(resObj)), sep = '')    
   }else{
     rownames(data) <- timeStampRowNames
     colnames(data) <- paste("T", 1:ncol(data), sep = "")
