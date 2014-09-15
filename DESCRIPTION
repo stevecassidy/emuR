@@ -11,10 +11,13 @@ Description: Provides many special purpose functions for display and analysis
     of speech data.
 License: GPL (>= 2)
 Depends:
-    R (>= 2.13),
+    R (>= 3.0),
     stats,
     methods,
-    MASS
+    MASS,
+    wrassp
+Suggests:
+    testthat(>= 0.7.1.99),
 LazyLoad: yes
 LazyData: yes
 ZipData: no
