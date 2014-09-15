@@ -2426,8 +2426,11 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,verbose=TRUE){
   # load database schema and metadata
   # lazy currently ignored
   db=load.database.from.legacy.emu(emuTplPath,showProgress=verbose)
+  if(verbose){
+    cat("\n")
+  }
   store.database(db,targetDir,showProgress=verbose)
-  activeButtons=list(saveBundle=TRUE)
+  #activeButtons=list(saveBundle=TRUE)
 }
 
 ##' Convert legacy EMU database and store in new format to directory
@@ -2450,6 +2453,9 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,verbose=TRUE){
 convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,verbose=TRUE){
   # load database schema and metadata
   db=load.database.from.legacy.emu.by.name(dbName,showProgress=verbose)
+  if(verbose){
+    cat("\n")
+  }
   # save in new format
   store.database(db,targetDir,showProgress=verbose)
   #activeButtons=list(saveBundle=TRUE)
@@ -2673,6 +2679,7 @@ calculate.postions.of.links<-function(items,links){
 ##' }
 load.emuDB <- function(databaseDir,verbose=TRUE){
   progress=0
+ 
   db=list()
   class(db)<-'emuR.database'
   # check database dir
@@ -2729,7 +2736,9 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   db[['schema']]=schema
   db[['name']]=schema[['name']]
   db[['basePath']]=databaseDir
-  
+  if(verbose){
+    cat("INFO: Loading EMU database from ",databaseDir,"...\n")
+  }
   db=initialize.database.dataframes(db)
   
   sessions=list()
@@ -2737,7 +2746,6 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   sessPattern=paste0('^[0-9]{4}',session.suffix,'$')
   sessDirs=dir(databaseDir,pattern=sessPattern)
  
-  
   if(verbose){
     # calculate bundle count
     bundleCount=0
