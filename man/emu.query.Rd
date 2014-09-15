@@ -3,7 +3,7 @@
 \alias{emu.query}
 \title{emu.query}
 \usage{
-emu.query()
+emu.query(...)
 }
 \description{
 stub function to tell user that a new version is beeing coming
