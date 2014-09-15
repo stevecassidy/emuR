@@ -1,6 +1,9 @@
 require(httpuv)
 require(base64enc)
 
+serve<-function(x,...){
+  UseMethod('serve',x)
+}
 
 ##' 
 ##' Serve EMU database to EMU-Webapp
@@ -14,20 +17,20 @@ require(base64enc)
 ##' @import httpuv rjson base64enc
 ##' @export
 ##' @author Klaus Jaensch
-##' @keywords emuR emuLVC database websocket Emu
+##' @keywords emuR EMU-webapp database websocket Emu
 ##' @examples
 ##' \dontrun{ 
 ##' ## Serve database object ae (opens default HTTP/websocket port 8080)
 ##' 
-##' ae=serve.database(ae)
+##' ae=serve(ae)
 ##' 
 ##' ## serve database object ae, open HTTP/websocket port 9000
 ##' 
-##' ae=serve.database(ae,port=9000)
+##' ae=serve(ae,port=9000)
 ##' 
 ##' }
 ##' 
-serve.database=function(database,port=8080,debug=FALSE,debugLevel=0){
+serve.emuR.database=function(database,port=8080,debug=FALSE,debugLevel=0){
     if(debug && debugLevel==0){
       debugLevel=2
     }
