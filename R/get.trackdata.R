@@ -3,9 +3,44 @@
   
 }
 
-"get.trackdata.emuDB" <- function(dbObj, seglist = NULL, ssffTrackName = NULL,
-                                  cut = NULL, npoints = NULL, OnTheFlyFunctionName = NULL, OnTheFlyParas = NULL, 
-                                  OnTheFlyOptLogFilePath = NULL, NrOfAllocationRows = 100000, verbose = TRUE){
+"get.trackdata.emuDB" <- function(dbObj = NULL, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
+                                  npoints = NULL, OnTheFlyFunctionName = NULL, OnTheFlyParas = NULL, 
+                                  OnTheFlyOptLogFilePath = NULL, NrOfAllocationRows = 10000, verbose = TRUE){
+  
+  #########################
+  # parameter checks
+  
+  # check if all values for minimal call are set
+  if( is.null(dbObj) || is.null(seglist) || is.null(ssffTrackName)) {
+    stop("dbObj, seglist and ssffTrackName have to all be set!\n")
+  }
+  
+  # check if cut value is correct
+  if(!is.null(cut)){
+    if(cut < 0 || cut > 1){
+      stop('Bad value given for cut argument. Cut can only be a value between 0 and 1!')
+    }
+    if(emusegs.type(seglist) == 'event'){
+      stop("Cut value should not be set if emusegs.type(Seglist) == 'event'!")
+    }
+  }
+  
+  # check if npoints value is correct
+  if(!is.null(npoints)){
+    if(is.null(cut) && emusegs.type(seglist) != 'event'){
+      stop('Cut argument hast to be set or seglist has to be of type event if npoints argument is used.')
+    }
+  }
+  
+  # check if OnTheFlyFunctionName is set if OnTheFlyParas is
+  if(is.null(OnTheFlyFunctionName) && !is.null(OnTheFlyParas)){
+    stop('OnTheFlyFunctionName has to be set if OnTheFlyParas is set!')
+  }
+
+  # check if both OnTheFlyFunctionName and OnTheFlyParas are set if OnTheFlyOptLogFilePath is 
+  if( !is.null(OnTheFlyOptLogFilePath) && (is.null(OnTheFlyFunctionName) || is.null(OnTheFlyParas))){
+    stop('Both OnTheFlyFunctionName and OnTheFlyParas have to be set for you to be able to use the OnTheFlyOptLogFilePath parameter!')
+  }
   
   #########################
   # get track definition
