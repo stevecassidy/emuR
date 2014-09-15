@@ -1,11 +1,54 @@
-"get.trackdata" <- function(dbObj, ...){
+##' Extract trackdata information from a given emuDB object that 
+##' corresponds to the entries in a segment list.
+##' 
+##' This is the emuR equivalent of the depricated \code{emu.track()} 
+##' function. It utilizes the wrassp package for signal processing and 
+##' SSFF/audio file handling. It reads time relevant data from a given 
+##' segmentlist, extracts the specified trackdata and places it into a 
+##' trackdata object (analogous to the depricated emu.track).
+##' 
+##' @title get.trackdata(): get trackdata from emuDB object
+##' @param dbObj emuDB object that the trackdata will be extracted from 
+##' @param seglist seglist obtained by querying the emuDB object
+##' @param ssffTrackName the name of track that one wishes to extract (see 
+##' \code{dbObj$DBconfig$ssffTracks} for the defined ssffTracks of the 
+##' dbObj). If the parameter \code{onTheFlyFunctionName} is set then 
+##' this corresponds to the column name af the AsspDataObj.
+##' @param cut An optional cut time for segment data, ranges between 
+##' 0 and 1, a value of 0.5 will extract data only at the segment midpoint.
+##' @param npoints An optional number of points to retrieve for each segment or event. 
+##' For segments this requires a cut= argument and data is extracted around the cut time. 
+##' For events data is extracted around the event time. If npoints is an odd number the 
+##' samples are centered around the cut-time-sample, if not they are sqewed to the
+##' right by one sample.
+##' @param onTheFlyFunctionName name of wrassp function to do on-the-fly calculation 
+##' @param onTheFlyParas a list parameters that will be given to the function 
+##' passed in by the onTheFlyFunctionName parameter. This list can easily be 
+##' generated using the \code{formals} function and then setting the according 
+##' parameter one wishes to change.     
+##' @param onTheFlyOptLogFilePath path to log file for on-the-fly function
+##' @param nrOfAllocationRows If the size limit of the data matrix is reached 
+##' a further nrOfAllocationRows more rows will be allocated (this will lead 
+##' performance drops). 
+##' @param verbose show progress bars and other infos
+##' @return If \code{dcut} is not set (the default) an object of type trackdata 
+##' is returned. If \code{dcut} is set and \code{npoints} is not, or the seglist 
+##' is of type event and npoints is not set a data.frame is returned
+##' @author Raphael Winkelmann
+##' @seealso \code{\link{formals}}, \code{\link{wrasspOutputInfos}}, \code{\link{trackdata}}
+##' @keywords misc
+##' @import wrassp
+##' @export
+"get.trackdata" <- function(dbObj, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
+                            npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParas = NULL, 
+                            onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, verbose = TRUE){
   UseMethod("get.trackdata")
-  
 }
 
+##' @export
 "get.trackdata.emuDB" <- function(dbObj = NULL, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
-                                  npoints = NULL, OnTheFlyFunctionName = NULL, OnTheFlyParas = NULL, 
-                                  OnTheFlyOptLogFilePath = NULL, NrOfAllocationRows = 10000, verbose = TRUE){
+                                  npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParas = NULL, 
+                                  onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, verbose = TRUE){
   
   #########################
   # parameter checks
@@ -32,20 +75,22 @@
     }
   }
   
-  # check if OnTheFlyFunctionName is set if OnTheFlyParas is
-  if(is.null(OnTheFlyFunctionName) && !is.null(OnTheFlyParas)){
-    stop('OnTheFlyFunctionName has to be set if OnTheFlyParas is set!')
+  # check if onTheFlyFunctionName is set if onTheFlyParas is
+  if(is.null(onTheFlyFunctionName) && !is.null(onTheFlyParas)){
+    stop('onTheFlyFunctionName has to be set if onTheFlyParas is set!')
   }
-
-  # check if both OnTheFlyFunctionName and OnTheFlyParas are set if OnTheFlyOptLogFilePath is 
-  if( !is.null(OnTheFlyOptLogFilePath) && (is.null(OnTheFlyFunctionName) || is.null(OnTheFlyParas))){
-    stop('Both OnTheFlyFunctionName and OnTheFlyParas have to be set for you to be able to use the OnTheFlyOptLogFilePath parameter!')
+  
+  # check if both onTheFlyFunctionName and onTheFlyParas are set if onTheFlyOptLogFilePath is 
+  if( !is.null(onTheFlyOptLogFilePath) && (is.null(onTheFlyFunctionName) || is.null(onTheFlyParas))){
+    stop('Both onTheFlyFunctionName and onTheFlyParas have to be set for you to be able to use the onTheFlyOptLogFilePath parameter!')
   }
   
   #########################
   # get track definition
+  if(is.null(onTheFlyFunctionName)){
   trackDefFound = sapply(dbObj$schema$ssffTracks, function(x){ x$name == ssffTrackName})
   trackDef = dbObj$schema$ssffTracks[trackDefFound]
+  
   # check if correct nr of trackDefs where found
   if(length(trackDef) != 1){
     if(length(trackDef) < 1 ){
@@ -53,6 +98,12 @@
     }else{
       stop('The emuDB object ', dbObj$schema$name, ' has multiple ssffTrackDefinitions called ', ssffTrackName, '! This means the DB has an invalid _DBconfig.json')
     }
+  }
+  }else{
+    trackDef = list()
+    trackDef[[1]] = list()
+    trackDef[[1]]$name = ssffTrackName
+    trackDef[[1]]$columnName =  ssffTrackName
   }
   
   ###################################
@@ -69,37 +120,40 @@
   
   ########################
   # preallocate data (needs first element to be read)
-  if(!is.null(OnTheFlyFunctionName)){
+  
+  curBndl <- get.bundle.stub(dbObj, seglist$utts[1])
+  
+  if(!is.null(onTheFlyFunctionName)){
     funcFormals = NULL
-    funcFormals$listOfFiles = seglist$utts[1]
+    funcFormals$listOfFiles = curBndl$mediaFilePath
     funcFormals$ToFile = FALSE
-    curDObj = do.call(OnTheFlyFunctionName,funcFormals)
+    curDObj = do.call(onTheFlyFunctionName,funcFormals)
   }else{
-    curBndl <- get.bundle.stub(dbObj, seglist$utts[1])
     fname <- curBndl$signalpaths[grepl(paste(trackDef[[1]]$fileExtension, '$', sep = ''), curBndl$signalpaths)][[1]] # should mybe check if more then one found...
     curDObj <- read.AsspDataObj(fname)
   }
   tmpData <- eval(parse(text = paste("curDObj$", trackDef[[1]]$columnName, sep = "")))
   if(verbose){
-    cat('\n  INFO: preallocating data matrix with:', ncol(tmpData), ',', NrOfAllocationRows, 
+    cat('\n  INFO: preallocating data matrix with:', ncol(tmpData), ',', nrOfAllocationRows, 
         'columns and rows.')
   }
-  data <- matrix(ncol = ncol(tmpData), nrow = NrOfAllocationRows) # preallocate
-  timeStampRowNames = numeric(NrOfAllocationRows) - 1 # preallocate rownames vector. -1 to set default val other than 0
+  data <- matrix(ncol = ncol(tmpData), nrow = nrOfAllocationRows) # preallocate
+  timeStampRowNames = numeric(nrOfAllocationRows) - 1 # preallocate rownames vector. -1 to set default val other than 0
   
   
   
   
   ###############################
   # set up function formals + pb
-  if(!is.null(OnTheFlyFunctionName)){
-    funcFormals = formals(OnTheFlyFunctionName)
-    funcFormals[names(OnTheFlyParas)] = OnTheFlyParas
+  if(!is.null(onTheFlyFunctionName)){
+    funcFormals = formals(onTheFlyFunctionName)
+    funcFormals[names(onTheFlyParas)] = onTheFlyParas
     funcFormals$ToFile = FALSE
-    funcFormals$optLogFilePath = OnTheFlyOptLogFilePath
-    cat('\n  INFO: applying', OnTheFlyFunctionName, 'to', length(Seglist$utts), 'files\n')
-    
-    pb <- txtProgressBar(min = 0, max = length(Seglist$utts), style = 3)
+    funcFormals$optLogFilePath = onTheFlyOptLogFilePath
+    if(verbose){
+      cat('\n  INFO: applying', onTheFlyFunctionName, 'to', length(seglist$utts), 'files\n')
+      pb <- txtProgressBar(min = 0, max = length(seglist$utts), style = 3)
+    }
   }else{
     if(verbose){
       cat('\n  INFO: parsing', length(seglist$utts), trackDef[[1]]$fileExtension, 'files\n')
@@ -118,10 +172,12 @@
     ################
     #get data object
     
-    if(!is.null(OnTheFlyFunctionName)){
-      setTxtProgressBar(pb, i)
-      funcFormals$listOfFiles = Seglist$utts[i]
-      curDObj = do.call(OnTheFlyFunctionName,funcFormals)
+    if(!is.null(onTheFlyFunctionName)){
+      funcFormals$listOfFiles = curBndl$mediaFilePath
+      curDObj = do.call(onTheFlyFunctionName, funcFormals)
+      if(verbose){
+        setTxtProgressBar(pb, i)
+      }
     }else{
       curDObj <- read.AsspDataObj(fname)
       if(verbose){
@@ -229,8 +285,8 @@
       if(verbose){
         cat('\n  INFO: allocating more space in data matrix')
       }
-      data = rbind(data, matrix(ncol = ncol(data), nrow = NrOfAllocationRows))
-      timeStampRowNames = c(timeStampRowNames, numeric(NrOfAllocationRows) - 1)
+      data = rbind(data, matrix(ncol = ncol(data), nrow = nrOfAllocationRows))
+      timeStampRowNames = c(timeStampRowNames, numeric(nrOfAllocationRows) - 1)
     }
     
     data[curIndexStart:curIndexEnd,] = curData
@@ -261,7 +317,9 @@
     
     if(any(trackDef[[1]]$columnName %in% c("dft", "css", "lps", "cep"))){
       if(!is.null(origFreq)){
-        cat('\n  INFO: adding fs attribute to trackdata$data fields')
+        if(verbose){
+          cat('\n  INFO: adding fs attribute to trackdata$data fields')
+        }
         attr(resObj$data, "fs") <- seq(0, origFreq/2, length=ncol(resObj$data))
         class(resObj$data) <- c(class(resObj$data), "spectral")
       }else{
@@ -271,7 +329,7 @@
   }
   
   # close progress bar if open
-  if(!is.null(OnTheFlyFunctionName) && !verbose){
+  if(exists('pb')){
     close(pb)
   }
   
@@ -286,4 +344,5 @@
 # class(ae.db) = 'emuDB'
 # nSegl = query.database(ae.db, 'Phonetic=n')
 # get.trackdata(ae.db, seglist = nSegl, ssffTrackName = 'dft')
+#td = get.trackdata(ae.db, nSegl, wrasspOutputInfos[['acfana']]$tracks[1], onTheFlyFunctionName = 'acfana', verbose=F)
 
