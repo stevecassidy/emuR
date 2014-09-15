@@ -12,7 +12,7 @@ test_load_ae_database<-function(){
     legacyDbEmuAeTpl <- system.file("extdata/legacy_emu/db/ae","ae.tpl", package="emuR")
     aeTmpDir=tempfile('test_emu_ae')
     convert.legacyEmuDB.to.emuDB(emuTplPath=legacyDbEmuAeTpl,targetDir=aeTmpDir,verbose=FALSE)
-    .test_emu_ae_db<<-load.database(file.path(aeTmpDir,'ae'),showProgress=FALSE)
+    .test_emu_ae_db<<-load.emuDB(file.path(aeTmpDir,'ae'),verbose=FALSE)
     #return(.test_emu_ae_db)
   } 
  return(.test_emu_ae_db)

@@ -27,7 +27,7 @@ convert.legacyEmuDB.to.emuDB("/homes/mylogin/ae/ae.tpl","/homes/mylogin/EMUnew/a
 Klaus Jaensch
 }
 \seealso{
-\code{\link{load.database}}
+\code{\link{load.emuDB}}
 }
 \keyword{Emu}
 \keyword{database}

@@ -29,7 +29,7 @@ convert.legacyEmuDB.by.name.to.emuDB("ae","/homes/mylogin/EMUnew/")
 Klaus Jaensch
 }
 \seealso{
-\code{\link{convert.legacyEmuDB.to.emuDB}} \code{\link{load.database}}
+\code{\link{convert.legacyEmuDB.to.emuDB}} \code{\link{load.emuDB}}
 }
 \keyword{Emu}
 \keyword{database}

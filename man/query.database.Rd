@@ -36,7 +36,7 @@ query.database(ae,"[Syllable=S ^ Phoneme=t]")
 Klaus Jaensch
 }
 \seealso{
-\code{\link{load.database}}
+\code{\link{load.emuDB}}
 }
 \keyword{EQL}
 \keyword{Emu}

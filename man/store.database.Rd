@@ -29,7 +29,7 @@ store.database(ae,"/homes/mylogin/EMUnew/")
 Klaus Jaensch
 }
 \seealso{
-\code{\link{load.database}}
+\code{\link{load.emuDB}}
 }
 \keyword{Emu}
 \keyword{database}

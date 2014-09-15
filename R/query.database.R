@@ -935,7 +935,7 @@ query.database.with.eql<-function(database,query){
 ##' @author Klaus Jaensch
 ##' @import sqldf stringr
 ##' @export
-##' @seealso \code{\link{load.database}}
+##' @seealso \code{\link{load.emuDB}}
 ##' @keywords emuR database query Emu EQL 
 ##' @examples
 ##' \dontrun{

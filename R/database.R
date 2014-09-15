@@ -2411,7 +2411,7 @@ unmarshal.from.persistence <- function(x){
 ##' @param targetDir target directory
 ##' @param verbose be verbose
 ##' @author Klaus Jaensch
-##' @seealso \code{\link{load.database}}
+##' @seealso \code{\link{load.emuDB}}
 ##' @export
 ##' @keywords emuR database schema Emu
 ##' @examples
@@ -2436,7 +2436,7 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,verbose=TRUE){
 ##' @param targetDir target directory
 ##' @param verbose be verbose
 ##' @author Klaus Jaensch
-##' @seealso \code{\link{convert.legacyEmuDB.to.emuDB}} \code{\link{load.database}} 
+##' @seealso \code{\link{convert.legacyEmuDB.to.emuDB}} \code{\link{load.emuDB}} 
 ##' @export
 ##' @keywords emuR database schema Emu
 ##' @examples
@@ -2516,7 +2516,7 @@ store.bundle.annotation <- function(db,bundle){
 ##' @import stringr uuid rjson
 ##' @export
 ##' @keywords emuR database Emu
-##' @seealso  \code{\link{load.database}}
+##' @seealso  \code{\link{load.emuDB}}
 ##' @examples
 ##' \dontrun{
 ##' # Store database object ae to directory /homes/mylogin/EMUnew/
@@ -2658,16 +2658,21 @@ calculate.postions.of.links<-function(items,links){
 ##' Load EMU database
 ##' 
 ##' @param databaseDir directory of the EMU database
-##' @param showProgress show progress bar
+##' @param verbose be verbose
 ##' @return object of class emuR.database
 ##' @author Klaus Jaensch
 ##' @import rjson
 ##' @export
 ##' @keywords emuR database schema Emu 
+##' @examples
+##' \dontrun{
+##' ## Load database 'ae' in directory /homes/mylogin/EMUnew/ae
 ##' 
-load.database <- function(databaseDir,showProgress=FALSE){
+##' ae=load.emuDB("ae","/homes/mylogin/EMUnew/ae")
+##' 
+##' }
+load.emuDB <- function(databaseDir,verbose=TRUE){
   progress=0
-  verboseLevel=0
   db=list()
   class(db)<-'emuR.database'
   # check database dir
@@ -2733,7 +2738,7 @@ load.database <- function(databaseDir,showProgress=FALSE){
   sessDirs=dir(databaseDir,pattern=sessPattern)
  
   
-  if(showProgress){
+  if(verbose){
     # calculate bundle count
     bundleCount=0
     for(sd in sessDirs){
@@ -2741,7 +2746,7 @@ load.database <- function(databaseDir,showProgress=FALSE){
       bundleDirs=dir(absSd,pattern=paste0('.*',bundle.dir.suffix,'$'))
       bundleCount=bundleCount+length(bundleDirs)
     }
-    pb=txtProgressBar(min=0,max=bundleCount+2)
+    pb=txtProgressBar(min=0,max=bundleCount+2,style=3)
     setTxtProgressBar(pb,progress)
   }
   
@@ -2823,9 +2828,6 @@ load.database <- function(databaseDir,showProgress=FALSE){
                 stop('Unsupported column class ',colClass,' of column ',colNm,'\n')
               }
             }
-            if(verboseLevel>10){
-              cat("Incremented items\n")
-            }
           }
           seqIdx=seqIdx+1L
           
@@ -2892,9 +2894,6 @@ load.database <- function(databaseDir,showProgress=FALSE){
                       stop('Unsupported column class ',colClass,' of column ',colNm,'\n')
                     }
                   }
-                  if(verboseLevel>10){
-                    cat("Incremented labels\n")
-                  }
                 }
                 rLbl=lbl[['value']]
                 db[['labels']][['itemID']][lrow]=id
@@ -2926,9 +2925,6 @@ load.database <- function(databaseDir,showProgress=FALSE){
               stop('Unsupported column class ',colClass,' of column ',colNm,'\n')
             }
           }
-          if(verboseLevel>10){
-            cat("Incremented links\n")
-          }
         }
         db[['links']][['bundle']][row]=bName
         db[['links']][['fromID']][row]=as.integer(lk[['fromID']])
@@ -2947,7 +2943,7 @@ load.database <- function(databaseDir,showProgress=FALSE){
       bundles[[bName]]=bundle
       
       progress=progress+1L
-      if(showProgress){
+      if(verbose){
         setTxtProgressBar(pb,progress)
       }
     }
@@ -2963,7 +2959,7 @@ load.database <- function(databaseDir,showProgress=FALSE){
   tmpDf=data.frame(db[['items']],stringsAsFactors = FALSE)
   db[['items']]=tmpDf[1:itemsIdx,]
   progress=progress+1L
-  if(showProgress){
+  if(verbose){
     setTxtProgressBar(pb,progress)
   }
 
@@ -2971,7 +2967,7 @@ load.database <- function(databaseDir,showProgress=FALSE){
   tmpLblsDf=data.frame(db[['labels']],stringsAsFactors = FALSE)
   db[['labels']]=tmpLblsDf[1:labelsIdx,]
   progress=progress+1L
-  if(showProgress){
+  if(verbose){
     setTxtProgressBar(pb,progress)
   }
 
@@ -2979,19 +2975,19 @@ load.database <- function(databaseDir,showProgress=FALSE){
   tmpLksdf=data.frame(db[['links']],stringsAsFactors = FALSE)
   db[['links']]=tmpLksdf[1:linksIdx,]
   progress=progress+1L
-  if(showProgress){
+  if(verbose){
     setTxtProgressBar(pb,progress)
   }
 
   # assume no redunant links in new format 
   linksForQuery=build.redundant.links.all(db)
   progress=progress+1L
-  if(showProgress){
+  if(verbose){
     setTxtProgressBar(pb,progress)
   }
   db[['linksExt']]=calculate.postions.of.links(db[['items']],linksForQuery)
   progress=progress+1L
-  if(showProgress){
+  if(verbose){
     setTxtProgressBar(pb,progress)
   }
   return(db)
