@@ -349,7 +349,7 @@ convert.query.result.to.seglist<-function(database,result){
       }
     }
   }
-  segList=make.seglist(labels=labels, start=start, end=end, utts=bundles, query=result[['queryStr']], type=slType, database=database[['schema']][['name']])
+  segList=make.seglist(labels=labels, start=start, end=end, utts=bundles, query=result[['queryStr']], type=slType, database=database[['DBconfig']][['name']])
   return(segList)
 }
 
@@ -384,7 +384,7 @@ query.database.eql.FUNKA<-function(database,q,items=NULL){
       param1=str_trim(params[[1]])
       param2=str_trim(params[[2]])
       # check attribute names
-      aNms=get.attribute.names(database[['schema']])
+      aNms=get.attribute.names(database[['DBconfig']])
       if(! (param1 %in% aNms)){
         stop("Unknown level attribute name: '",param1,"'. Database attribute names are: ",paste(aNms,collapse=','),"\n")
       }
@@ -532,7 +532,7 @@ query.database.eql.ETTIKETTA<-function(database,q,labels=NULL){
       }
       # TODO check if level exists
       #cat("Level: '",lvlName,"'\n",sep='')
-      aNms=get.attribute.names(database[['schema']])
+      aNms=get.attribute.names(database[['DBconfig']])
       if(! (lvlName %in% aNms)){
         
         stop("Unknown level attribute name: '",lvlName,"'. Database attribute names are: ",paste(aNms,collapse=','),"\n")

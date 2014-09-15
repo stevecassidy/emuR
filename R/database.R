@@ -118,8 +118,8 @@ create.EMUwebAppConfig <- function(perspectives){
 #                     methods=list()
 #                     )
 
-create.database <- function(name=name,basePath=NULL,schema,sessions=NULL,primaryExtension=NULL){
-  o <- list(name=name,basePath=basePath,schema=schema,sessions=sessions,primaryExtension=primaryExtension)
+create.database <- function(name=name,basePath=NULL,DBconfig,sessions=NULL,primaryExtension=NULL){
+  o <- list(name=name,basePath=basePath,DBconfig=DBconfig,sessions=sessions,primaryExtension=primaryExtension)
   class(o) <- c('emuR.database','list')
   invisible(o)
 }
@@ -135,7 +135,7 @@ as.emuR.database<-function(o,class){
 }
 
 print.database <- function(database){
-  print(database[['schema']])
+  print(database[['DBconfig']])
   print(database[['sessions']])
 }
 
@@ -171,9 +171,9 @@ remove.redundant.links<-function(database,links){
   # build SQL query from link definitions
   items=database[['items']]
   sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.bundleId=l.fromID AND t.bundleId=l.toID AND ("
-  ldCnt=length(database[['schema']][['linkDefinitions']])
+  ldCnt=length(database[['DBconfig']][['linkDefinitions']])
   for(i in 1:ldCnt){
-    ld=database[['schema']][['linkDefinitions']][[i]]
+    ld=database[['DBconfig']][['linkDefinitions']][[i]]
     sqlQuery=paste0(sqlQuery,'(f.level=\'',ld[['superlevelName']],'\' AND t.level=\'',ld[['sublevelName']],'\')')
     if(i<ldCnt){
       sqlQuery=paste0(sqlQuery,' OR ')
@@ -193,9 +193,9 @@ remove.database.redundant.links<-function(database){
   items=database[['items']]
   links=database[['links']]
   sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.bundleId=l.fromID AND t.bundleId=l.toID AND ("
-  ldCnt=length(database[['schema']][['linkDefinitions']])
+  ldCnt=length(database[['DBconfig']][['linkDefinitions']])
   for(i in 1:ldCnt){
-    ld=database[['schema']][['linkDefinitions']][[i]]
+    ld=database[['DBconfig']][['linkDefinitions']][[i]]
     sqlQuery=paste0(sqlQuery,'(f.level=\'',ld[['superlevelName']],'\' AND t.level=\'',ld[['sublevelName']],'\')')
     if(i<ldCnt){
       sqlQuery=paste0(sqlQuery,' OR ')
@@ -207,7 +207,7 @@ remove.database.redundant.links<-function(database){
   return(database)
 }
 
-get.link.level.children<-function(schema,superlevelName){
+get.link.level.children<-function(DBconfig,superlevelName){
   subLds=list()
   for(ld in schema[['linkDefinitions']]){
     if(ld[['superlevelName']]==superlevelName){
@@ -378,7 +378,7 @@ build.redundant.links.all<-function(database,bundleName=NULL){
   # link data model
   #
  
-  lfs=build.link.defs(database[['schema']])
+  lfs=build.link.defs(database[['DBconfig']])
   maxLfLen=0
   for(lf in lfs){
     lfLen=length(lf)
@@ -396,7 +396,7 @@ build.redundant.links<-function(database,fromLevel,toLevel){
   # link data model. For queries we build links for particular start and end level.
   #
   
-  lfs=build.level.partial.pathes(database[['schema']],fromLevel,toLevel)
+  lfs=build.level.partial.pathes(database[['DBconfig']],fromLevel,toLevel)
  
   return(build.redundant.links.for.pathes(database,lfs) )
 }
@@ -484,7 +484,7 @@ build.redundant.links.for.pathes<-function(database,lfs,bundleName=NULL){
 }
 
 get.level.name.for.attribute<-function(db,attributeName){
-  for(ld in db[['schema']][['levelDefinitions']]){
+  for(ld in db[['DBconfig']][['levelDefinitions']]){
     for(ad in ld[['attributeDefinitions']]){
       if(ad[['name']]==attributeName){
         return(ld[['name']])
@@ -498,9 +498,9 @@ move.bundle.levels.to.data.frame <-function(db,bundle,replace=TRUE){
   # do not use this function to append multiple bundles (performance is bad)
   # growing data.frames with rbind() is unefficient
 
-  schema=db[['schema']]
+  DBconfig=db[['DBconfig']]
   row=1 
-  #bdf=data.table(matrix(ncol=length(db[['schema']][['itemColNames']]),nrow=0))
+  #bdf=data.table(matrix(ncol=length(db[['DBconfig']][['itemColNames']]),nrow=0))
   # caclculate bundle items length
   itCount=0
   for(lvl in bundle[['levels']]){
@@ -508,10 +508,10 @@ move.bundle.levels.to.data.frame <-function(db,bundle,replace=TRUE){
     itCount=itCount+lvlItCount
   }
   bdf=data.frame(id=character(itCount),bundle=character(itCount),level=character(itCount),bundleId=integer(itCount),type=character(itCount),seqIdx=integer(itCount),sampleRate=integer(itCount),samplePoint=integer(itCount),sampleStart=integer(itCount),sampleDur=integer(itCount),label=character(itCount),stringsAsFactors=FALSE)
-  #colnames(bdf)<-db[['schema']][['itemColNames']]
+  #colnames(bdf)<-db[['DBconfig']][['itemColNames']]
   ldf=NULL
   lrow=1
-  maxLbls=db[['schema']][['maxNumberOfLabels']]
+  maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
   lblColNames=c('itemID','bundle','labelIdx','name','label')
   ldf=data.frame(matrix(ncol=length(lblColNames),nrow=0),stringsAsFactors=FALSE)
   colnames(ldf)<-lblColNames
@@ -606,8 +606,8 @@ move.bundle.levels.to.data.frame <-function(db,bundle,replace=TRUE){
 
 append.bundle.to.tmp.list <-function(db,bundle){
  
-  schema=db[['schema']]
-  maxLbls=db[['schema']][['maxNumberOfLabels']]
+  schema=db[['DBconfig']]
+  maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
   bName=bundle[['name']]
   for(lvl in bundle[['levels']]){
     
@@ -747,8 +747,8 @@ append.bundle.to.tmp.list <-function(db,bundle){
 append.bundle.to.tmp.list.by.ref <-function(dbWr,bundle){
   
   
-  schema=dbWr[['db']][['schema']]
-  maxLbls=dbWr[['db']][['schema']][['maxNumberOfLabels']]
+  DBconfig=dbWr[['db']][['DBconfig']]
+  maxLbls=dbWr[['db']][['DBconfig']][['maxNumberOfLabels']]
   bName=bundle[['name']]
   for(lvl in bundle[['levels']]){
     
@@ -844,7 +844,7 @@ append.bundle.to.tmp.list.by.ref <-function(dbWr,bundle){
 
 get.bundle.levels.s3 <-function(db,bundleName){
   
-  levelDefinitions=db[['schema']][['levelDefinitions']]
+  levelDefinitions=db[['DBconfig']][['levelDefinitions']]
   find.levelDefinition<-function(name){
     for(lvlDef in levelDefinitions){
       if(name == lvlDef[['name']]){
@@ -1011,7 +1011,7 @@ convert.bundle.single.data.framed <- function(db,b,replace=TRUE){
 ## 
 get.bundle <- function(db,bundleName){
   
-  schema=db[['schema']]
+  schema=db[['DBconfig']]
   bundle=get.bundle.stub(db,bundleName)
   if(!is.null(bundle)){
     bundle=get.bundle.s3(db,bundle)
@@ -1038,11 +1038,11 @@ get.bundle.stub<-function(db,bundleName){
 ## @param bundle bundle stub
 ## @return bundle in S3 format
 ## @author Klaus Jaensch
-## @keywords emuR database schema Emu bundle
+## @keywords emuR database DBconfig Emu bundle
 ## 
 get.bundle.s3 <- function(db,bundle){
   
-  schema=db[['schema']]
+  schema=db[['DBconfig']]
   bName=bundle[['name']]
   # convert levels to s3
   bundle[['levels']]=get.bundle.levels.s3(db,bName)
@@ -1285,10 +1285,10 @@ find.file.in.emu.path.pattern=function(emuPathPattern,fileName,basePath=NULL){
 initialize.database.dataframes<-function(db){
   
   baseColNms <- c('id','bundle','level','bundleId','type','seqIdx','sampleRate','samplePoint','sampleStart','sampleDur','label')
-  maxLbls=db[['schema']][['maxNumberOfLabels']]
+  maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
   
   colNms=baseColNms
-  db[['schema']][['itemColNames']]=colNms
+  db[['DBconfig']][['itemColNames']]=colNms
   
 
 
@@ -1784,10 +1784,10 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     cat("Loaded database schema.\n")
   }
   progress=progress+1L
-  db=create.database(name=dbd[['name']],basePath=tplBaseDir,schema=dbd)
+  db=create.database(name=dbd[['name']],basePath=tplBaseDir,DBconfig=dbd)
   db=initialize.database.dataframes(db)
   
-  schema=db[['schema']]
+  schema=db[['DBconfig']]
   # load primary track file list first
   # and find samples track to get sample rate
   primaryFileList = NULL
@@ -1858,8 +1858,8 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     
     # "inlining" of append.bundle.to.tmp.list improves performance for very large databases
     # (db object is not copied for each call)
-    schema=db[['schema']]
-    maxLbls=db[['schema']][['maxNumberOfLabels']]
+    schema=db[['DBconfig']]
+    maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
     bName=bundle[['name']]
     for(lvl in bundle[['levels']]){
       
@@ -2146,7 +2146,7 @@ query.segments <- function(db){
 # }
 
 extractTrackdata <- function(db=NULL,segmentList=NULL,trackName=NULL){
-  schema=db[['schema']]
+  schema=db[['DBconfig']]
   signalExt=NULL
   for(tr in schema[['tracks']]){
     if(tr[['name']]==trackName){
@@ -2267,16 +2267,16 @@ emuR.persist.filters[['bundle']][[3]]=c('mediaFilePath')
 # TODO sampleRate required !!
 emuR.persist.filters[['bundle']][[4]]=c('levels','*','sampleRate')
 
-emuR.persist.filters[['schema']]=list()
-emuR.persist.filters[['schema']][[1]]=c('annotationDescriptors')
-emuR.persist.filters[['schema']][[2]]=c('tracks')
-emuR.persist.filters[['schema']][[3]]=c('flags')
-emuR.persist.filters[['schema']][[4]]=c('ssffTracks','basePath')
-emuR.persist.filters[['schema']][[5]]=c('mediafileBasePathPattern')
-emuR.persist.filters[['schema']][[6]]=c('maxNumberOfLabels')
-emuR.persist.filters[['schema']][[7]]=c('itemColNames')
-emuR.persist.filters[['schema']][[8]]=c('basePath')
-emuR.persist.filters[['schema']][[9]]=c('schemaPath')
+emuR.persist.filters[['DBconfig']]=list()
+emuR.persist.filters[['DBconfig']][[1]]=c('annotationDescriptors')
+emuR.persist.filters[['DBconfig']][[2]]=c('tracks')
+emuR.persist.filters[['DBconfig']][[3]]=c('flags')
+emuR.persist.filters[['DBconfig']][[4]]=c('ssffTracks','basePath')
+emuR.persist.filters[['DBconfig']][[5]]=c('mediafileBasePathPattern')
+emuR.persist.filters[['DBconfig']][[6]]=c('maxNumberOfLabels')
+emuR.persist.filters[['DBconfig']][[7]]=c('itemColNames')
+emuR.persist.filters[['DBconfig']][[8]]=c('basePath')
+emuR.persist.filters[['DBconfig']][[9]]=c('DBconfigPath')
 
 marshal.for.persistence <- function(x, filter=NULL){
   if (is.list(x)) {
@@ -2483,7 +2483,7 @@ store.bundle.annotation <- function(db,bundle){
       # session found
       #cat("Store bundle in session ",s[['name']],"\n")
       
-      #bundleDf=convert.bundle.data.framed(db[['schema']],bundle)
+      #bundleDf=convert.bundle.data.framed(db[['DBconfig']],bundle)
       
       # insert in loaded db
       s[['bundles']][[bName]]=bundle
@@ -2553,14 +2553,14 @@ store.database <- function(db,targetDir,rewriteSSFFTracks=TRUE,showProgress=TRUE
   dir.create(pp)
   
   # set editable
-  db[['schema']][['EMUwebAppConfig']][['activeButtons']]=list(saveBundle=TRUE)
+  db[['DBconfig']][['EMUwebAppConfig']][['activeButtons']]=list(saveBundle=TRUE)
 
   # store db schema file
   dbCfgNm=paste0(db[['name']],database.schema.suffix)
   dbCfgPath=file.path(pp,dbCfgNm)
   
-  persistFilter=emuR.persist.filters[['schema']]
-  sp=marshal.for.persistence(db[['schema']],persistFilter)
+  persistFilter=emuR.persist.filters[['DBconfig']]
+  sp=marshal.for.persistence(db[['DBconfig']],persistFilter)
   sJSON=rjson::toJSON(sp)
   psJSON=jsonlite::prettify(sJSON)
   writeLines(psJSON,dbCfgPath)
@@ -2593,9 +2593,9 @@ store.database <- function(db,targetDir,rewriteSSFFTracks=TRUE,showProgress=TRUE
       if(is.null(bdf)){
         bdf=list(name=bn)
       }
-        #b=load.annotation.for.bundle(db[['schema']],bn,db[['basePath']])
+        #b=load.annotation.for.bundle(db[['DBconfig']],bn,db[['basePath']])
       #}else{
-        #b=convert.bundle.s3(db[['schema']],bdf)
+        #b=convert.bundle.s3(db[['DBconfig']],bdf)
         b=get.bundle.s3(db=db,bundle=bdf)
       #}
       bDir=paste0(b[['name']],bundle.dir.suffix)
@@ -2610,7 +2610,7 @@ store.database <- function(db,targetDir,rewriteSSFFTracks=TRUE,showProgress=TRUE
         nsfp=file.path(bfp,bn)
         # check if SSFF type
         isSSFFFile=FALSE
-        for(ssffTrDef in db[['schema']][['ssffTracks']]){
+        for(ssffTrDef in db[['DBconfig']][['ssffTracks']]){
           ssffTrFileExt=ssffTrDef[['fileExtension']]
           fileExtPatt=paste0('[.]',ssffTrFileExt,'$')
           if(length(grep(fileExtPatt,sf))==1){
@@ -2733,7 +2733,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
     }
   }
   schema[['maxNumberOfLabels']]=maxLbls
-  db[['schema']]=schema
+  db[['DBconfig']]=schema
   db[['name']]=schema[['name']]
   db[['basePath']]=databaseDir
   if(verbose){
@@ -2812,8 +2812,8 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
      
       #db=append.bundle.to.tmp.list(db,bundle)
       
-      schema=db[['schema']]
-      maxLbls=db[['schema']][['maxNumberOfLabels']]
+      schema=db[['DBconfig']]
+      maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
       bName=bundle[['name']]
       for(lvl in bundle[['levels']]){
         

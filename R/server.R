@@ -128,9 +128,9 @@ serve.emuR.database=function(database,port=8080,debug=FALSE,debugLevel=0){
           }
           
         }else if(jr$type == 'GETGLOBALDBCONFIG'){
-          persistFilter=emuR.persist.filters[['schema']]
-          sp=marshal.for.persistence(database[['schema']],persistFilter)
-          #sp=WS[['server']][['emuDb']][['schema']]
+          persistFilter=emuR.persist.filters[['DBconfig']]
+          sp=marshal.for.persistence(database[['DBconfig']],persistFilter)
+          #sp=WS[['server']][['emuDb']][['DBconfig']]
           if(debugLevel >= 4){
             #cat("Send config: ",sp,"\n")
           }
@@ -171,7 +171,7 @@ serve.emuR.database=function(database,port=8080,debug=FALSE,debugLevel=0){
           if(debugLevel>2){
             cat("Requested bundle: ",uttCode,"\n")
           }
-          sc=database[['schema']]
+          sc=database[['DBconfig']]
           if(debugLevel>3){
             cat("Convert bundle to S3 format",uttCode,"\n")
           }
