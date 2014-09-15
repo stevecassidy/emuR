@@ -112,13 +112,7 @@ serve.emuR.database=function(database,port=8080,debug=FALSE,debugLevel=0){
           }
           
         }
-        if( jr$type == 'disconnect'){
-          # break emuR server loop
-          if(debugLevel>=2){
-            cat("Received disconnect command.\n")
-          }
-          emuRserverRunning<<-FALSE
-        }else if(jr$type == 'GETPROTOCOL'){
+        if(jr$type == 'GETPROTOCOL'){
           protocolData=list(protocol='EMU-webApp-websocket-protocol',version='0.0.1')
           response=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,data=protocolData)
           responseJSON=rjson::toJSON(response) 
@@ -282,6 +276,12 @@ serve.emuR.database=function(database,port=8080,debug=FALSE,debugLevel=0){
           result=ws$send(responseBundleJSON)
           # restore warn level
           options(warn=warnOptionSave)
+        }else if(jr[['type']]=='DISCONNECTWARNING'){
+          response=list(status=list(type='SUCCESS'),callbackID=jr[['callbackID']],responseContent='status',contentType='text/json')
+          responseJSON=rjson::toJSON(response)
+          result=ws$send(responseJSON)
+          emuRserverRunning<<-FALSE
+          ws$close()
         }
       }
       ws$onMessage(serverReceive)
