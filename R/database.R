@@ -2409,8 +2409,7 @@ unmarshal.from.persistence <- function(x){
 ##' 
 ##' @param emuTplPath EMU template file path
 ##' @param targetDir target directory
-##' @param showProgress show progress bar
-##' @return object of class emuR.database
+##' @param verbose be verbose
 ##' @author Klaus Jaensch
 ##' @seealso \code{\link{load.database}}
 ##' @export
@@ -2419,45 +2418,41 @@ unmarshal.from.persistence <- function(x){
 ##' \dontrun{
 ##' ## Convert legacy EMU database specified by EMU template file /homes/mylogin/ae/ae.tpl to directory /homes/mylogin/EMUnew/ae
 ##'
-##' convert.database.from.legacy.emu("/homes/mylogin/ae/ae.tpl","/homes/mylogin/EMUnew/ae")
+##' convert.legacyEmuDB.to.emuDB("/homes/mylogin/ae/ae.tpl","/homes/mylogin/EMUnew/ae")
 ##'
 ##' }
 ##' 
-convert.database.from.legacy.emu <- function(emuTplPath,targetDir,showProgress=TRUE){
+convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,verbose=TRUE){
   # load database schema and metadata
   # lazy currently ignored
-  db=load.database.from.legacy.emu(emuTplPath,showProgress=showProgress)
-  store.database(db,targetDir,showProgress=showProgress)
+  db=load.database.from.legacy.emu(emuTplPath,showProgress=verbose)
+  store.database(db,targetDir,showProgress=verbose)
   activeButtons=list(saveBundle=TRUE)
-  return(db)
 }
 
 ##' Convert legacy EMU database and store in new format to directory
-##' Loading by name only works if databse was used with legacy EMU.
+##' Loading by name only works if database was used with legacy EMU.
 ##' @param dbName legacy EMU database name
 ##' @param targetDir target directory
-##' @param showProgress show progress bar
-##' @return object of class emuR.database
+##' @param verbose be verbose
 ##' @author Klaus Jaensch
-##' @seealso \code{\link{convert.database.from.legacy.emu}} \code{\link{load.database}} 
+##' @seealso \code{\link{convert.legacyEmuDB.to.emuDB}} \code{\link{load.database}} 
 ##' @export
 ##' @keywords emuR database schema Emu
 ##' @examples
 ##' \dontrun{
 ##' ## Load database "ae", convert and save in new format to directory /homes/mylogin/EMUnew/
 ##' 
-##' ae=convert.database.from.legacy.emu.by.name("ae","/homes/mylogin/EMUnew/")
+##' convert.legacyEmuDB.by.name.to.emuDB("ae","/homes/mylogin/EMUnew/")
 ##' 
 ##' }
 ##' 
-convert.database.from.legacy.emu.by.name <- function(dbName,targetDir,showProgress=TRUE){
+convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,verbose=TRUE){
   # load database schema and metadata
-  db=load.database.from.legacy.emu.by.name(dbName,showProgress=showProgress)
-  cat("\n")
+  db=load.database.from.legacy.emu.by.name(dbName,showProgress=verbose)
   # save in new format
-  store.database(db,targetDir,showProgress=showProgress)
+  store.database(db,targetDir,showProgress=verbose)
   #activeButtons=list(saveBundle=TRUE)
-  return(db)
 }
 
 ## Store EMU database bundle to file

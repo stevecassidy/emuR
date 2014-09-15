@@ -11,7 +11,7 @@ test_load_ae_database<-function(){
   if(is.null(.test_emu_ae_db)){
     legacyDbEmuAeTpl <- system.file("extdata/legacy_emu/db/ae","ae.tpl", package="emuR")
     aeTmpDir=tempfile('test_emu_ae')
-    convert.database.from.legacy.emu(emuTplPath=legacyDbEmuAeTpl,targetDir=aeTmpDir,showProgress=FALSE)
+    convert.legacyEmuDB.to.emuDB(emuTplPath=legacyDbEmuAeTpl,targetDir=aeTmpDir,verbose=FALSE)
     .test_emu_ae_db<<-load.database(file.path(aeTmpDir,'ae'),showProgress=FALSE)
     #return(.test_emu_ae_db)
   } 
@@ -147,6 +147,17 @@ test_that("Query using Num function",{
   expect_that(nrow(r1Its),equals(6))
   #expect_that(r1Its[1,'seqStartId'],is_identical_to('ae_msajc023_103'))
   #expect_that(r1Its[2,'seqStartId'],is_identical_to('ae_msajc057_158'))
+  
+})
+
+test_that("Query using and operator",{
+  ae=test_load_ae_database()
+  sl1=query.database(ae,'Text=them & Accent=W',resultType='emusegs')
+  
+  expect_that(nrow(sl1),equals(1))
+  expect_that('[.data.frame'(sl1,1,'labels'),is_identical_to(I('them')))
+  #expect_that(labels.emusegs,is_identical_to(I('more->customers')))
+  expect_that('[.data.frame'(sl1,1,'utts'),is_identical_to(I('msajc012')))
   
 })
 
