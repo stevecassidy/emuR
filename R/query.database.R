@@ -925,13 +925,20 @@ query.database.with.eql<-function(database,query){
   stop("Unknown syntax error.")
 }
 
+"query"<-function(x,...){
+  UseMethod("query",x)
+}
+
+#query.default <- query
+
+
 ##' Query EMU database
 ##' @description Query an EMU database
 ##' @param database object of class emuR.database
 ##' @param query EQL query string
 ##' @param queryLang query language
 ##' @param resultType type (class name) of result
-##' @return result set object of class resultType (default EMU seglist 'emusegs')
+##' @return result set object of class resultType (e.g. EMU seglist 'emusegs')
 ##' @author Klaus Jaensch
 ##' @import sqldf stringr
 ##' @export
@@ -941,28 +948,31 @@ query.database.with.eql<-function(database,query){
 ##' \dontrun{
 ##' ## Query database object ae with EQL query [Phonetic=t -> Phonetic=s] and store result seglist in variable segListTs
 ##' 
-##' seglistTs=query.database(ae,"[Phonetic=t -> Phonetic=s]")
+##' seglistTs=query(ae,"[Phonetic=t -> Phonetic=s]",resultType='emusegs')
 ##' 
 ##' ## Query seglist from database object ae with EQL query [Syllable=S ^ Phoneme=t]
 ##' 
-##' query.database(ae,"[Syllable=S ^ Phoneme=t]")
+##' query(ae,"[Syllable=S ^ Phoneme=t]",resultType='emusegs')
 ##' 
 ##' }
-query.database<-function(database,query,queryLang='EQL2',resultType='emusegs'){
-  
-  if(queryLang=='EQL2'){
-    if(is.null(resultType)){
-      return(query.database.with.eql(database,query))
-    }else{
-      if(resultType=='emusegs'){
-        return(query.database.with.eql.seglist(database,query))
-      }else{
+query.emuR.database<-function(database,query,queryLang='EQL2',resultType=NULL){
+  dbClass=class(database)
+  if(dbClass=='emuR.database'){
+    if(queryLang=='EQL2'){
+      if(is.null(resultType)){
         return(query.database.with.eql(database,query))
+      }else{
+        if(resultType=='emusegs'){
+          return(query.database.with.eql.seglist(database,query))
+        }else{
+          return(query.database.with.eql(database,query))
+        }
       }
+    }else{
+      stop("Unknown query language '",queryLang,"'.")
     }
   }else{
-    stop("Unknown query language '",queryLang,"'.")
+    NextMethod()
   }
-  
 }
 

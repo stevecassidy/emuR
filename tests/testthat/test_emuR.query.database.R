@@ -25,11 +25,11 @@ test_that("Load example database ae",{
 })
 
 test_that("Query labels",{
-#   r1=query.database.with.eql(andosl,"Text = chill")
+#   r1=query.with.eql(andosl,"Text = chill")
 #   expect_that(nrow(r1[['items']]),equals(2))
 #   
 #   # sequence as seglist
-#   sl1=query.database.seglist(andosl,"[Text=chill -> Text=wind]")
+#   sl1=query.seglist(andosl,"[Text=chill -> Text=wind]")
 #   expect_that(nrow(sl1),equals(2))
 #   expect_that(sl1[1,'labels'][['labels']],is_identical_to(I('chill->wind')))
 #   expect_that(sl1[2,'labels'][['labels']],is_identical_to(I('chill->wind')))
@@ -44,11 +44,11 @@ test_that("Query labels",{
   #convert.database.from.legacy.emu(emuTplPath=legacyDbEmuAeTpl,targetDir=aeTmpDir)
   #ae<<-load.database(file.path(aeTmpDir,'ae'))
   expect_that(ae[['name']],is_equivalent_to('ae'))
-#   r1=query.database.with.eql(andosl,"Text = more")
+#   r1=query.with.eql(andosl,"Text = more")
 #   expect_that(nrow(r1[['items']]),equals(8))
 #   
   # sequence as seglist
-  sl1=query.database(ae,"[Text=more -> Text=customers]")
+  sl1=query(ae,"[Text=more -> Text=customers]",resultType='emusegs')
   expect_that(class(sl1),is_identical_to(c('emusegs','data.frame')))
   expect_that(nrow(sl1),equals(1))
   expect_that('[.data.frame'(sl1,1,'labels'),is_identical_to(I('more->customers')))
@@ -59,27 +59,27 @@ test_that("Query labels",{
 
 # 
 test_that("Query sequence",{
-# #   r1=query.database.with.eql(andosl,"[[[Phoneme='tS' ^ Phonetic='t'] -> Phoneme=a:] -> Phoneme=n]")
+# #   r1=query.with.eql(andosl,"[[[Phoneme='tS' ^ Phonetic='t'] -> Phoneme=a:] -> Phoneme=n]")
 # #   r1Its=r1[['items']]
 # #   expect_that(nrow(r1Its),equals(1))
 # #   expect_that(r1Its[1,'seqStartId'],is_identical_to('andosl_msajc020_97'))  
 # #   expect_that(r1Its[1,'seqEndId'],is_identical_to('andosl_msajc020_106'))
   ae=test_load_ae_database()
 
-  r1=query.database(ae,"[[[Phoneme='tS' ^ Phonetic='t'] -> Phoneme=I] -> Phoneme=l]",resultType=NULL)
+  r1=query(ae,"[[[Phoneme='tS' ^ Phonetic='t'] -> Phoneme=I] -> Phoneme=l]",resultType=NULL)
   r1Its=r1[['items']]
   expect_that(nrow(r1Its),equals(1))
   expect_that(r1Its[1,'seqStartId'],is_identical_to('ae_msajc012_121'))  
   expect_that(r1Its[1,'seqEndId'],is_identical_to('ae_msajc012_123'))
   
-  sl1=query.database(ae,"[[[Phoneme='tS' ^ Phonetic='t'] -> Phoneme=I] -> Phoneme=l]")
+  sl1=query(ae,"[[[Phoneme='tS' ^ Phonetic='t'] -> Phoneme=I] -> Phoneme=l]",resultType='emusegs')
   expect_that(nrow(sl1),equals(1))
   expect_that('[.data.frame'(sl1,1,'labels'),is_identical_to(I('tS->I->l')))
   expect_that('[.data.frame'(sl1,1,'utts'),is_identical_to(I('msajc012')))
  })
 # 
 test_that("Query combined sequence dominance",{
-# # r1=query.database.with.eql(andosl,"[[Syllable=W -> Syllable=W] ^ [Phoneme='n' -> Phoneme='S']]")
+# # r1=query.with.eql(andosl,"[[Syllable=W -> Syllable=W] ^ [Phoneme='n' -> Phoneme='S']]")
 # # r1Its=r1[['items']]
 # # expect_that(nrow(r1Its),equals(6))
 # # expect_that(r1Its[1,'seqStartId'],is_identical_to('andosl_msadb020_59'))
@@ -96,7 +96,7 @@ test_that("Query combined sequence dominance",{
 # # expect_that(r1Its[6,'seqEndId'],is_identical_to('andosl_msajc063_73'))
 
 ae=test_load_ae_database()
-r1=query.database(ae,"[[Syllable=W->Syllable=W] ^ [Phoneme=@->Phoneme=s]]",resultType=NULL)
+r1=query(ae,"[[Syllable=W->Syllable=W] ^ [Phoneme=@->Phoneme=s]]",resultType=NULL)
 r1Its=r1[['items']]
 expect_that(nrow(r1Its),equals(2))
 expect_that(r1Its[1,'seqStartId'],is_identical_to('ae_msajc015_131'))
@@ -108,7 +108,7 @@ expect_that(r1Its[2,'seqEndId'],is_identical_to('ae_msajc015_142'))
 # 
 test_that("Query using Start function",{
   ae=test_load_ae_database()
-  r1=query.database(ae,"Phoneme = w & Start(Word, Phoneme)=1",resultType=NULL)
+  r1=query(ae,"Phoneme = w & Start(Word, Phoneme)=1",resultType=NULL)
   
   r1Its=r1[['items']]
   expect_that(nrow(r1Its),equals(4))
@@ -117,7 +117,7 @@ test_that("Query using Start function",{
   expect_that(r1Its[3,'seqStartId'],is_identical_to('ae_msajc015_164'))
   expect_that(r1Its[4,'seqStartId'],is_identical_to('ae_msajc015_177'))
   
-  r2=query.database.with.eql(ae,"Phoneme = p & Start(Word, Phoneme)=0")
+  r2=query(ae,"Phoneme = p & Start(Word, Phoneme)=0",resultType=NULL)
   
   r2Its=r2[['items']]
   expect_that(nrow(r2Its),equals(3))
@@ -129,7 +129,7 @@ test_that("Query using Start function",{
 
 test_that("Query using End function",{
   ae=test_load_ae_database()
-  r1=query.database(ae,"Phoneme = n & End(Word, Phoneme)=1",resultType=NULL)
+  r1=query(ae,"Phoneme = n & End(Word, Phoneme)=1",resultType=NULL)
   
   r1Its=r1[['items']]
   expect_that(nrow(r1Its),equals(2))
@@ -141,7 +141,7 @@ test_that("Query using End function",{
 test_that("Query using Num function",{
   ae=test_load_ae_database()
   # query words with exactly four phonemes
-  r1=query.database(ae,"Num(Word, Phoneme)=4",resultType=NULL)
+  r1=query(ae,"Num(Word, Phoneme)=4",resultType=NULL)
   
   r1Its=r1[['items']]
   expect_that(nrow(r1Its),equals(6))
@@ -152,7 +152,7 @@ test_that("Query using Num function",{
 
 test_that("Query using and operator",{
   ae=test_load_ae_database()
-  sl1=query.database(ae,'Text=them & Accent=W',resultType='emusegs')
+  sl1=query(ae,'Text=them & Accent=W',resultType='emusegs')
   
   expect_that(nrow(sl1),equals(1))
   expect_that('[.data.frame'(sl1,1,'labels'),is_identical_to(I('them')))
@@ -171,7 +171,7 @@ test_that("Check Phonetic tier seglist",{
   #tslQuery=emusegs.query(tsl)
   tslQuery=attr(tsl,'query')
   # reprduce the original query
-  sl=query.database(ae,tslQuery)
+  sl=query(ae,tslQuery,resultType='emusegs')
   sr=ae[['sessions']][[1]][['bundles']][[1]][['sampleRate']]
   halfSampleTime=1/sr/2
   # we have to accept numeric deviations caused by double precision calculations
