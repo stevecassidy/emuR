@@ -13,7 +13,8 @@
 ##' @param ssffTrackName the name of track that one wishes to extract (see 
 ##' \code{dbObj$DBconfig$ssffTracks} for the defined ssffTracks of the 
 ##' dbObj). If the parameter \code{onTheFlyFunctionName} is set then 
-##' this corresponds to the column name af the AsspDataObj.
+##' this corresponds to the column name af the AsspDataObj (see
+##' wrasspOutputInfos$<wrassp-function-name>$tracks).
 ##' @param cut An optional cut time for segment data, ranges between 
 ##' 0 and 1, a value of 0.5 will extract data only at the segment midpoint.
 ##' @param npoints An optional number of points to retrieve for each segment or event. 
