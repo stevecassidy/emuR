@@ -89,15 +89,15 @@
   #########################
   # get track definition
   if(is.null(onTheFlyFunctionName)){
-  trackDefFound = sapply(dbObj$schema$ssffTracks, function(x){ x$name == ssffTrackName})
-  trackDef = dbObj$schema$ssffTracks[trackDefFound]
+  trackDefFound = sapply(dbObj$DBconfig$ssffTracks, function(x){ x$name == ssffTrackName})
+  trackDef = dbObj$DBconfig$ssffTracks[trackDefFound]
   
   # check if correct nr of trackDefs where found
   if(length(trackDef) != 1){
     if(length(trackDef) < 1 ){
-      stop('The emuDB object ', dbObj$schema$name, ' does not have any ssffTrackDefinitions called ', ssffTrackName)
+      stop('The emuDB object ', dbObj$DBconfig$name, ' does not have any ssffTrackDefinitions called ', ssffTrackName)
     }else{
-      stop('The emuDB object ', dbObj$schema$name, ' has multiple ssffTrackDefinitions called ', ssffTrackName, '! This means the DB has an invalid _DBconfig.json')
+      stop('The emuDB object ', dbObj$DBconfig$name, ' has multiple ssffTrackDefinitions called ', ssffTrackName, '! This means the DB has an invalid _DBconfig.json')
     }
   }
   }else{
