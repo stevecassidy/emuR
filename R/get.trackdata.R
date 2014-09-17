@@ -341,9 +341,9 @@
 #######################
 # FOR DEVELOPMENT
 
-# ae.db = load.database('~/Desktop/ae/')
-# class(ae.db) = 'emuDB'
-# nSegl = query.database(ae.db, 'Phonetic=n')
-# get.trackdata(ae.db, seglist = nSegl, ssffTrackName = 'dft')
-#td = get.trackdata(ae.db, nSegl, wrasspOutputInfos[['acfana']]$tracks[1], onTheFlyFunctionName = 'acfana', verbose=F)
+# aus.db = load.emuDB('~/Desktop/AUS/AUS/')
+# class(aus.db) = 'emuDB'
+# nSegl = query(aus.db, 'Phonetic=n')
+# get.trackdata(aus.db, seglist = nSegl, ssffTrackName = 'dft')
+# td = get.trackdata(aus.db, nSegl, wrasspOutputInfos[['acfana']]$tracks[1], onTheFlyFunctionName = 'acfana', verbose=F)
 

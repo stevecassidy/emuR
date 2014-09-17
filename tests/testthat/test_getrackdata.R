@@ -2,11 +2,10 @@
 ##'
 ##' @author Raphael Winkelmann
 context("testing get.trackdata function")
-require('emuSX') # SIC will not be necessary after merge
 
 # load database 
 path2extdata = system.file("extdata", package = "emuR")
-aeDB = load.database(paste(path2extdata, '/emuDBs/ae/', sep = '')) # SIC! This function will be renamed shortly...
+aeDB = load.emuDB(paste(path2extdata, '/emuDBs/ae/', sep = ''), verbose = F)
 
 class(aeDB) <- 'emuDB' # SIC! override until new object class available after merge
 
