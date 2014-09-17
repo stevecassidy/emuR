@@ -7,7 +7,7 @@
 ##' @export
 "emu.track" <- function (...) 
 {
-  stop('emu.track is not available in the emuR package. Please use the new emu.track2() function instead.')
+  stop('emu.track() is no longer available! Please use the S3 method get.trackdata() of the emuDB class!')
 }
 
 
@@ -20,7 +20,7 @@
 ##' @export
 "emu.track2" <- function (...) 
 {
-  stop('emu.track2 is no longer available! Please look at the get.trackdata method for the emuDB  S3 class')
+  stop('emu.track2() is no longer available! Please use the S3 method get.trackdata() of the emuDB S3 class!')
 }
 
 #############################################
