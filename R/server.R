@@ -9,7 +9,7 @@ serve<-function(x,...){
 ##' Serve EMU database to EMU-Webapp
 ##' 
 ##' @description Starts a websocket server and listens on commands from a running EMU-Webapplication browser GUI instance. The server runs in a loop and blocks the R console. Stop the server with the 'Clear' button of the webapp GUI. The server is also stopped when the browser is closed or the webapplication page is reloaded. Communication is defined by EMU-webApp-websocket-protocol version 0.0.1
-##' @param database a emuR database object
+##' @param database a emuDB database object
 ##' @param port the port number to listen on (default: 8080)
 ##' @param debug TRUE to enable debugging (default: no debugging messages)
 ##' @param debugLevel integer higher values generate more detailed debug output
@@ -17,7 +17,7 @@ serve<-function(x,...){
 ##' @import httpuv rjson base64enc
 ##' @export
 ##' @author Klaus Jaensch
-##' @keywords emuR EMU-webapp database websocket Emu
+##' @keywords emuDB EMU-webapp database websocket Emu
 ##' @examples
 ##' \dontrun{ 
 ##' ## Serve database object ae (opens default HTTP/websocket port 8080)
@@ -30,13 +30,13 @@ serve<-function(x,...){
 ##' 
 ##' }
 ##' 
-serve.emuR.database=function(database,port=8080,debug=FALSE,debugLevel=0){
+serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
     if(debug && debugLevel==0){
       debugLevel=2
     }
-    emuRserverRunning=FALSE
+    emuDBserverRunning=FALSE
    
-    if(is(database,'emuR.database')){
+    if(is(database,'emuDB')){
        
       # create dummy bundle list
       ulNms=attr(database$sessions[[1]]$bundles,'names')
@@ -46,7 +46,7 @@ serve.emuR.database=function(database,port=8080,debug=FALSE,debugLevel=0){
       }
     }
     else{
-      stop("Supported object classes for database: 'emuR.database'");
+      stop("Supported object classes for database: 'emuDB'");
     }
     
     httpRequest = function(req){

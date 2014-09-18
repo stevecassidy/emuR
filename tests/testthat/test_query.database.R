@@ -9,7 +9,7 @@ context("emuR queries")
 ## "private" function does not work with R CMD check !
 test_load_ae_database<-function(){
   if(is.null(.test_emu_ae_db)){
-    legacyDbEmuAeTpl <- system.file("extdata/legacy_emu/db/ae","ae.tpl", package="emuR")
+    legacyDbEmuAeTpl <- system.file("extdata/legacy_emu/DBs/ae","ae.tpl", package="emuR")
     aeTmpDir=tempfile('test_emu_ae')
     convert.legacyEmuDB.to.emuDB(emuTplPath=legacyDbEmuAeTpl,targetDir=aeTmpDir,verbose=FALSE)
     .test_emu_ae_db<<-load.emuDB(file.path(aeTmpDir,'ae'),verbose=FALSE)

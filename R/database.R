@@ -15,23 +15,23 @@ vector.increment=100000
 
 create.schema.track <- function(basePath=NULL,name,columnName=name,unitSuffix=NULL,extension=NULL,hasDeepStructure=FALSE){
   o <- list(basePath=basePath,name=name,columnName=columnName,unitSuffix=unitSuffix,fileExtension=extension)
-  class(o) <- 'emuR.schema.track'
+  class(o) <- 'emuDB.schema.track'
   invisible(o)
 }
 
 create.schema.annotationDescriptor <- function(name=NULL,basePath=NULL,extension=NULL,type=NULL,timeFactor=NULL,levelDefinitions=NULL){
   o <- list(name=name,basePath=basePath,extension=extension,type=type,timeFactor=timeFactor,levelDefinitions=levelDefinitions)
-  class(o) <- 'emuR.schema.annotationDescriptor'
+  class(o) <- 'emuDB.schema.annotationDescriptor'
   invisible(o)
 }
 
-## Create emuR attribute definition object
+## Create emuDB attribute definition object
 ## 
 ## @param name name of the level
 ## @param type level type (ITEM,EVENT,SEGMENT)
-## @return object of class emuR.schema.attributeDefinition
+## @return object of class emuDB.schema.attributeDefinition
 ## @author Klaus Jaensch
-## @keywords emuR attribute level Emu
+## @keywords emuDB attribute level Emu
 ## 
 create.schema.attributeDefinition <- function(name,type='string'){
   o <- list(name=name,type=type)
@@ -39,14 +39,14 @@ create.schema.attributeDefinition <- function(name,type='string'){
   invisible(o)
 }
 
-## Create emuR level definition object
+## Create emuDB level definition object
 ## 
 ## @param name name of the level
 ## @param type level type (ITEM,EVENT,SEGMENT)
 ## @param attributeDefinitions list of attribute definitions
-## @return object of class emuR.levelDefinition
+## @return object of class emuDB.levelDefinition
 ## @author Klaus Jaensch
-## @keywords emuR level Emu
+## @keywords emuDB level Emu
 ## 
 create.schema.levelDefinition <- function(name,type=NULL,attributeDefinitions=NULL){
   if(is.null(attributeDefinitions)){
@@ -54,31 +54,31 @@ create.schema.levelDefinition <- function(name,type=NULL,attributeDefinitions=NU
     attributeDefinitions=list(defAttrDef)
   }
   o <- list(name=name,type=type,attributeDefinitions=attributeDefinitions)
-  class(o) <- 'emuR.schema.levelDefinition'
+  class(o) <- 'emuDB.schema.levelDefinition'
   invisible(o)
 }
 
-## Create emuR link definition object
+## Create emuDB link definition object
 ## Represents the hierarchical information of EMU hlb files
 ## 
 ## @param name name of the link (optional)
 ## @param type link type ("ONE_TO_ONE", "ONE_TO_MANY", "MANY_TO_MANY")
 ## @param superlevelName name of the super level (link from)
 ## @param sublevelName name of the sublevel (link to)
-## @return object of class emuR.schema.linkDefinition
+## @return object of class emuDB.schema.linkDefinition
 ## @author Klaus Jaensch
-## @keywords emuR databse schema link Emu
+## @keywords emuDB databse schema link Emu
 ## 
 create.schema.linkDefinition <- function(name=NULL,type,superlevelName,sublevelName){
   o <- list(name=name,type=type,superlevelName=superlevelName,sublevelName=sublevelName)
-  class(o) <- 'emuR.schema.linkDefinition'
+  class(o) <- 'emuDB.schema.linkDefinition'
   invisible(o)
 }
 
 create.schema.databaseDefinition <- function(name,UUID,mediafileBasePathPattern,mediafileExtension,ssffTracks,levelDefinitions,linkDefinitions,EMUwebAppConfig,annotationDescriptors,tracks,flags=NULL){
   o <- list(name=name,UUID=UUID,mediafileBasePathPattern=mediafileBasePathPattern,mediafileExtension=mediafileExtension,ssffTracks=ssffTracks,levelDefinitions=levelDefinitions,linkDefinitions=linkDefinitions,EMUwebAppConfig=EMUwebAppConfig,annotationDescriptors=annotationDescriptors,tracks=tracks,flags=flags)
-  class(o) <- c('list','emuR.schema.databaseDefinition')
-  #rTypes=list(levelDefinitions=c('list','emuR.schema.levelDefinition',linkDefinitions=c('list','emuR.schema.linkDefinition')
+  class(o) <- c('list','emuDB.schema.databaseDefinition')
+  #rTypes=list(levelDefinitions=c('list','emuDB.schema.levelDefinition',linkDefinitions=c('list','emuDB.schema.linkDefinition')
   #attr(o,'ips.persist')<-list(rTypes=rTypes)
   invisible(o)
 }
@@ -86,46 +86,46 @@ create.schema.databaseDefinition <- function(name,UUID,mediafileBasePathPattern,
 
 
 
-#emuR.schema.EMUwebAppConfig.signalCanvases.assign <- function(spec,osci){
+#emuDB.schema.EMUwebAppConfig.signalCanvases.assign <- function(spec,osci){
 #  o <- list(SPEC=spec,OSCI=osci)
-#  class(o) <- 'emuR.EMUwebAppConfig.assign'
+#  class(o) <- 'emuDB.EMUwebAppConfig.assign'
 #  invisible(o)
 #}
 create.EMUwebAppConfig.signalCanvas <- function(order,assign,contourLims){
   o <- list(order=order,assign=assign,contourLims=contourLims)
-  class(o) <- 'emuR.EMUwebAppConfig.signalCanvas'
+  class(o) <- 'emuDB.EMUwebAppConfig.signalCanvas'
   invisible(o)
 }
 create.EMUwebAppConfig.levelCanvas <- function(order){
   o <- list(order=order)
-  class(o) <- 'emuR.EMUwebAppConfig.levelCanvas'
+  class(o) <- 'emuDB.EMUwebAppConfig.levelCanvas'
   invisible(o)
 }
 create.EMUwebAppConfig.perspective <- function(name,signalCanvases,levelCanvases,twoDimCanvases){
   o <- list(name=name,signalCanvases=signalCanvases,levelCanvases=levelCanvases,twoDimCanvases=twoDimCanvases)
-  class(o) <- 'emuR.EMUwebAppConfig.perspective'
+  class(o) <- 'emuDB.EMUwebAppConfig.perspective'
   invisible(o)
 }
 create.EMUwebAppConfig <- function(perspectives){
   o <- list(perspectives=perspectives)
-  class(o) <- 'emuR.EMUwebAppConfig'
+  class(o) <- 'emuDB.EMUwebAppConfig'
   invisible(o)
 }
 
 
-#setRefClass("emuR.database",
+#setRefClass("emuDB",
 #                     fields=list(name='character',basePath='character',schema='list',sessions='list',primaryextension='character',loadBundles='function',annotation='data.frame'),
 #                     methods=list()
 #                     )
 
 create.database <- function(name=name,basePath=NULL,DBconfig,sessions=NULL,primaryExtension=NULL){
   o <- list(name=name,basePath=basePath,DBconfig=DBconfig,sessions=sessions,primaryExtension=primaryExtension)
-  class(o) <- c('emuR.database','list')
+  class(o) <- c('emuDB','list')
   invisible(o)
 }
 
-as.emuR.database<-function(o,class){
-  if(class=='emuR.database'){
+"as.emuDB"<-function(o,class){
+  if(class=='emuDB'){
     return(o)
   }
   if(class=='list'){
@@ -134,12 +134,8 @@ as.emuR.database<-function(o,class){
   }
 }
 
-print.database <- function(database){
-  print(database[['DBconfig']])
-  print(database[['sessions']])
-}
 
-# Create emuR bundle object
+# Create emuDB bundle object
 # @description A bundle typically contains media files and annoations of an utterance
 # @param name name of the bundle
 # @param annotates annotated signal file relative path
@@ -147,10 +143,10 @@ print.database <- function(database){
 # @param signalpaths pathes of signal files
 # @param mediaFilePath path patter of samples track
 # @param levels list of annotation levels
-# @param links list of links containing the hierarchical information of teh annotation levels
-# @return object of class emuR.bundle
+# @param links list of links containing the hierarchical information of the annotation levels
+# @return object of class emuDB.bundle
 # @author Klaus Jaensch
-# @keywords emuR bundle Emu
+# @keywords emuDB bundle Emu
 # 
 create.bundle <- function(name,annotates=NULL,sampleRate,signalpaths=list(),mediaFilePath=NULL,levels=list(),links=list()){
   o <- list(name=name,annotates=annotates,sampleRate=sampleRate,signalpaths=signalpaths,mediaFilePath=mediaFilePath,files=signalpaths,levels=levels,links=links)
@@ -158,7 +154,7 @@ create.bundle <- function(name,annotates=NULL,sampleRate,signalpaths=list(),medi
 }
 
 as.bundle <- function(bundleData){
-  class(bundleData) <- 'emuR.bundle'
+  class(bundleData) <- 'emuDB.bundle'
   attr(bundleData,'ips.persist')<-list(typesJSON=list(levels='array'))
   invisible(bundleData)
 }
@@ -1007,7 +1003,7 @@ convert.bundle.single.data.framed <- function(db,b,replace=TRUE){
 ## @param bundleName name of bundle
 ## @return bundle in S3 format
 ## @author Klaus Jaensch
-## @keywords emuR database schema Emu bundle
+## @keywords emuDB database schema Emu bundle
 ## 
 get.bundle <- function(db,bundleName){
   
@@ -1038,7 +1034,7 @@ get.bundle.stub<-function(db,bundleName){
 ## @param bundle bundle stub
 ## @return bundle in S3 format
 ## @author Klaus Jaensch
-## @keywords emuR database DBconfig Emu bundle
+## @keywords emuDB database DBconfig Emu bundle
 ## 
 get.bundle.s3 <- function(db,bundle){
   
@@ -1055,7 +1051,7 @@ get.bundle.s3 <- function(db,bundle){
 
 
 
-emuR.print.bundle <- function(utt){
+emuDB.print.bundle <- function(utt){
   cat("code=",utt[['name']],"\n")
   cat("signalurls:\n")
   for(mf in utt[['signalpaths']]){
@@ -1067,9 +1063,9 @@ emuR.print.bundle <- function(utt){
   }
 }
 
-emuR.session <- function(name=NULL,path=NULL,bundles=NULL){
+emuDB.session <- function(name=NULL,path=NULL,bundles=NULL){
   o <- list(name=name,path=path,bundles=bundles)
-  class(o) <- 'emuR.session'
+  class(o) <- 'emuDB.session'
   invisible(o)
 }
 
@@ -1158,7 +1154,7 @@ is.relative.file.path<-function(nativeFilePathStr,forRunningPlatform=FALSE){
 ## @param parsedEmuPathPattern character vector containing the parsed segments of the path. Each segment is a dierctory or a wildacrd asterisk.
 ## @return character vector of absolute path directories 
 ## @author Klaus Jaensch
-## @keywords emuR bundle Emu
+## @keywords emuDB bundle Emu
 ## 
 list.trackdirs<-function(emuPath=NULL,parsedEmuPathPattern=NULL){
  if(is.null(parsedEmuPathPattern)){
@@ -1315,13 +1311,13 @@ initialize.database.dataframes<-function(db){
   return(db)
 }
 
-## Create emuR database schema object from EMU template (.tpl) file
+## Create emuDB database schema object from EMU template (.tpl) file
 ## 
 ## @param tplPath EMU template file path
-## @return object of class emuR.schema.db
+## @return object of class emuDB.schema.db
 ## @author Klaus Jaensch
 ## @import stringr uuid wrassp
-## @keywords emuR database schema Emu 
+## @keywords emuDB database schema Emu 
 ## 
 load.database.schema.from.emu.template=function(tplPath){
   LEVEL_CMD='level'
@@ -1742,7 +1738,7 @@ load.annotation.for.legacy.bundle=function(schema,uttCode,basePath=NULL){
 ## @param dbName legacy EMU database name
 ## @param verboseLevel integer setting the verbosity level
 ## @param showProgress show progress bar
-## @return object of class emuR.database
+## @return object of class emuDB
 ## @author Klaus Jaensch
 ## @import stringr wrassp
 ## 
@@ -1762,7 +1758,7 @@ load.database.from.legacy.emu.by.name=function(dbName,verboseLevel=0,showProgres
 ## @param emuTplPath EMU template file path
 ## @param verboseLevel integer setting the verbosity level
 ## @param showProgress show progress bar
-## @return object of class emuR.database
+## @return object of class emuDB
 ## @author Klaus Jaensch
 ## @import stringr wrassp
 ## 
@@ -2052,7 +2048,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
   # Emu does not divide utterances in sessions
   # we create a dummy container session to satisfy new db data model
   # (db: list of sessions, session: list of bundles (utterances))
-  containerSession=emuR.session(name='0000',bundles=utts)
+  containerSession=emuDB.session(name='0000',bundles=utts)
   #db$sessions[[1]]$bundles = utts
   db[['sessions']][['0000']]=containerSession
   db=remove.database.redundant.links(db)
@@ -2105,12 +2101,12 @@ query.segments <- function(db){
           #cat("Item ",i$label,"\n")
           idx=length(ul)+1L
           ll[[idx]]=i[['label']]
-          if(inherits(i,'emuR.annotation.model.PointItem')){
+          if(inherits(i,'emuDB.annotation.model.PointItem')){
             #cat("Event: ",i$label,i$samplePoint,"\n")
             sl[[idx]]=(i[['samplePoint']]*1000)/sampleRate
             el[[idx]]=0
             
-          }else if(inherits(i,'emuR.annotation.model.IntervalItem')){
+          }else if(inherits(i,'emuDB.annotation.model.IntervalItem')){
             #cat("Interval: ",i$label,i$sampleStart,i$sampleDur,"\n")
             sl[[idx]]=(i[['sampleStart']]*1000)/sampleRate
             el[[idx]]=((i[['sampleStart']]+i[['sampleDur']])*1000)/sampleRate
@@ -2413,7 +2409,7 @@ unmarshal.from.persistence <- function(x){
 ##' @author Klaus Jaensch
 ##' @seealso \code{\link{load.emuDB}}
 ##' @export
-##' @keywords emuR database schema Emu
+##' @keywords emuDB database schema Emu
 ##' @examples
 ##' \dontrun{
 ##' ## Convert legacy EMU database specified by EMU template file /homes/mylogin/ae/ae.tpl to directory /homes/mylogin/EMUnew/ae
@@ -2441,7 +2437,7 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,verbose=TRUE){
 ##' @author Klaus Jaensch
 ##' @seealso \code{\link{convert.legacyEmuDB.to.emuDB}} \code{\link{load.emuDB}} 
 ##' @export
-##' @keywords emuR database schema Emu
+##' @keywords emuDB database schema Emu
 ##' @examples
 ##' \dontrun{
 ##' ## Load database "ae", convert and save in new format to directory /homes/mylogin/EMUnew/
@@ -2466,7 +2462,7 @@ convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,verbose=TRUE){
 ## @param db EMU database (in R workspace)
 ## @param bundle the bundle to save
 ## @import rjson
-## @keywords emuR database Emu 
+## @keywords emuDB database Emu 
 ## 
 store.bundle.annotation <- function(db,bundle){
   dbDir=db[['basePath']]
@@ -2521,7 +2517,7 @@ store.bundle.annotation <- function(db,bundle){
 ##' @author Klaus Jaensch
 ##' @import stringr uuid rjson
 ##' @export
-##' @keywords emuR database Emu
+##' @keywords emuDB database Emu
 ##' @seealso  \code{\link{load.emuDB}}
 ##' @examples
 ##' \dontrun{
@@ -2665,11 +2661,11 @@ calculate.postions.of.links<-function(items,links){
 ##' 
 ##' @param databaseDir directory of the EMU database
 ##' @param verbose be verbose
-##' @return object of class emuR.database
+##' @return object of class emuDB
 ##' @author Klaus Jaensch
 ##' @import rjson
 ##' @export
-##' @keywords emuR database schema Emu 
+##' @keywords emuDB database schema Emu 
 ##' @examples
 ##' \dontrun{
 ##' ## Load database 'ae' in directory /homes/mylogin/EMUnew/ae
@@ -2681,7 +2677,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   progress=0
  
   db=list()
-  class(db)<-'emuR.database'
+  class(db)<-'emuDB'
   # check database dir
   if(!file.exists(databaseDir)){
     stop("Database dir ",databaseDir," does not exist!")
@@ -2786,7 +2782,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
           annoJSONLns=readLines(absBf,encoding="UTF-8")
           annoJSON=paste(annoJSONLns,collapse='')
           bundle=rjson::fromJSON(annoJSON)
-          #class(bundle) <- 'emuR.bundle'
+          #class(bundle) <- 'emuDB.bundle'
           bundle=as.bundle(bundle)
           namedLevels=set.list.names(bundle[['levels']],'name')
           bundle[['levels']]=namedLevels
@@ -2957,7 +2953,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
     }
     sessSuffixPattern=paste0(session.suffix,'$')
     sNm=gsub(sessSuffixPattern,'',sd)
-    s=emuR.session(name=sNm,path=absSd,bundles=bundles)
+    s=emuDB.session(name=sNm,path=absSd,bundles=bundles)
     sessions[[sNm]]=s
     
   }

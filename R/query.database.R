@@ -68,7 +68,7 @@ create.condition<-function(op1,opr,op2){
 
 create.subtree<-function(items,links,resultLevel=NULL,projectionItems=NULL){
   o=list(items=items,links=links,resultLevel=resultLevel,projectionItems=projectionItems)
-  class(o)<-'emuR.query.result'
+  class(o)<-'emuDB.query.result'
   return(o)
 }
 
@@ -861,13 +861,13 @@ query.database.eql.in.bracket<-function(database,q){
 
 ## Query EMU database
 ## 
-## @param database object of class emuR.database
+## @param database object of class emuDB
 ## @param query EQL query string
 ## @return EMU seglist
 ## @author Klaus Jaensch
 ## @import sqldf stringr
 ## @export
-## @keywords emuR database query Emu EQL 
+## @keywords emuDB database query Emu EQL 
 ## 
 query.database.with.eql.seglist<-function(database,query){
 
@@ -883,13 +883,13 @@ query.database.with.eql.seglist<-function(database,query){
 
 ## Query EMU database
 ## 
-## @param database object of class emuR.database
+## @param database object of class emuDB
 ## @param query EQL query string
 ## @return result set object
 ## @author Klaus Jaensch
 ## @import sqldf stringr
 ## @export
-## @keywords emuR database query Emu EQL 
+## @keywords emuDB database query Emu EQL 
 ## 
 query.database.with.eql<-function(database,query){
   parseRes=list()
@@ -934,7 +934,7 @@ query.database.with.eql<-function(database,query){
 
 ##' Query EMU database
 ##' @description Query an EMU database
-##' @param database object of class emuR.database
+##' @param database object of class emuDB
 ##' @param query EQL query string
 ##' @param queryLang query language
 ##' @param resultType type (class name) of result
@@ -943,7 +943,7 @@ query.database.with.eql<-function(database,query){
 ##' @import sqldf stringr
 ##' @export
 ##' @seealso \code{\link{load.emuDB}}
-##' @keywords emuR database query Emu EQL 
+##' @keywords emuDB database query Emu EQL 
 ##' @examples
 ##' \dontrun{
 ##' ## Query database object ae with EQL query [Phonetic=t -> Phonetic=s] and store result seglist in variable segListTs
@@ -955,9 +955,9 @@ query.database.with.eql<-function(database,query){
 ##' query(ae,"[Syllable=S ^ Phoneme=t]",resultType='emusegs')
 ##' 
 ##' }
-query.emuR.database<-function(database,query,queryLang='EQL2',resultType=NULL){
+"query.emuDB"<-function(database,query,queryLang='EQL2',resultType=NULL){
   dbClass=class(database)
-  if(dbClass=='emuR.database'){
+  if(dbClass=='emuDB'){
     if(queryLang=='EQL2'){
       if(is.null(resultType)){
         return(query.database.with.eql(database,query))

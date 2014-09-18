@@ -6,7 +6,7 @@ require(stringr)
 ## @param hlbFilePath file path to EMU HLB file
 ## @param levelDefinitions list of annotation level definitions
 ## @param levels list of already existing annotation levels
-## @return emuR.database database object including parsed hlb file
+## @return emuDB database object including parsed hlb file
 ## @import stringr
 ## @author Klaus Jaensch
 ## @keywords emuR Emu hierarchy hlb

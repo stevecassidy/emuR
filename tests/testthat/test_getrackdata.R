@@ -5,9 +5,7 @@ context("testing get.trackdata function")
 
 # load database 
 path2extdata = system.file("extdata", package = "emuR")
-aeDB = load.emuDB(paste(path2extdata, '/emuDBs/ae/', sep = ''), verbose = F)
-
-class(aeDB) <- 'emuDB' # SIC! override until new object class available after merge
+aeDB = load.emuDB(paste(path2extdata, '/emu/DBs/ae/', sep = ''), verbose = F)
 
 # get segmentlist of type segment
 path2segl <- list.files(system.file("extdata", package = "emuR"), pattern = glob2rx("ae-n.seg"), full.names = TRUE)
