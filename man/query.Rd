@@ -3,10 +3,10 @@
 \alias{query}
 \title{Query EMU database}
 \usage{
-query(database, query, queryLang = NULL, resultType = NULL)
+query(dbObj, query, queryLang = NULL, resultType = NULL)
 }
 \arguments{
-\item{database}{object of class emuDB}
+\item{dbObj}{object of class emuDB}
 
 \item{query}{EQL query string}
 

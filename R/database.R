@@ -67,7 +67,7 @@ create.schema.levelDefinition <- function(name,type=NULL,attributeDefinitions=NU
 ## @param sublevelName name of the sublevel (link to)
 ## @return object of class emuDB.schema.linkDefinition
 ## @author Klaus Jaensch
-## @keywords emuDB databse schema link Emu
+## @keywords emuDB database schema link Emu
 ## 
 create.schema.linkDefinition <- function(name=NULL,type,superlevelName,sublevelName){
   o <- list(name=name,type=type,superlevelName=superlevelName,sublevelName=sublevelName)

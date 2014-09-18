@@ -927,7 +927,7 @@ query.database.with.eql<-function(database,query){
 
 ##' Query EMU database
 ##' @description Query an EMU database
-##' @param database object of class emuDB
+##' @param dbObj object of class emuDB
 ##' @param query EQL query string
 ##' @param queryLang query language
 ##' @param resultType type (class name) of result
@@ -948,7 +948,7 @@ query.database.with.eql<-function(database,query){
 ##' 
 ##' }
 ##' @export
-"query"<-function(database,query,queryLang=NULL,resultType=NULL){
+"query"<-function(dbObj,query,queryLang=NULL,resultType=NULL){
   UseMethod("query")
 }
 
@@ -956,17 +956,17 @@ query.database.with.eql<-function(database,query){
 
 
 ##' @export
-"query.emuDB"<-function(database,query,queryLang='EQL2',resultType=NULL){
-  dbClass=class(database)
+"query.emuDB"<-function(dbObj,query,queryLang='EQL2',resultType=NULL){
+  dbClass=class(dbObj)
   if(dbClass=='emuDB'){
     if(queryLang=='EQL2'){
       if(is.null(resultType)){
-        return(query.database.with.eql(database,query))
+        return(query.database.with.eql(dbObj,query))
       }else{
         if(resultType=='emusegs'){
-          return(query.database.with.eql.seglist(database,query))
+          return(query.database.with.eql.seglist(dbObj,query))
         }else{
-          return(query.database.with.eql(database,query))
+          return(query.database.with.eql(dbObj,query))
         }
       }
     }else{
