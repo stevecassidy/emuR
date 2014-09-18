@@ -1,11 +1,7 @@
 require(httpuv)
 require(base64enc)
 
-serve<-function(x,...){
-  UseMethod('serve',x)
-}
 
-##' 
 ##' Serve EMU database to EMU-Webapp
 ##' 
 ##' @description Starts a websocket server and listens on commands from a running EMU-Webapplication browser GUI instance. The server runs in a loop and blocks the R console. Stop the server with the 'Clear' button of the webapp GUI. The server is also stopped when the browser is closed or the webapplication page is reloaded. Communication is defined by EMU-webApp-websocket-protocol version 0.0.1
@@ -30,6 +26,11 @@ serve<-function(x,...){
 ##' 
 ##' }
 ##' 
+serve<-function(database,port=8080,debug=FALSE,debugLevel=0){
+  UseMethod('serve')
+}
+
+##' @export
 serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
     if(debug && debugLevel==0){
       debugLevel=2
