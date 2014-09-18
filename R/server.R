@@ -1,10 +1,6 @@
 require(httpuv)
 require(base64enc)
 
-serve<-function(x,...){
-  UseMethod('serve',x)
-}
-
 ##' 
 ##' Serve EMU database to EMU-Webapp
 ##' 
@@ -30,6 +26,11 @@ serve<-function(x,...){
 ##' 
 ##' }
 ##' 
+serve<-function(database,port=8080,debug=FALSE,debugLevel=0){
+  UseMethod('serve')
+}
+
+##' @export
 serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
     if(debug && debugLevel==0){
       debugLevel=2
