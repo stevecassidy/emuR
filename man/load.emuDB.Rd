@@ -11,7 +11,7 @@ load.emuDB(databaseDir, verbose = TRUE)
 \item{verbose}{be verbose}
 }
 \value{
-object of class emuR.database
+object of class emuDB
 }
 \description{
 Load EMU database
@@ -29,6 +29,6 @@ Klaus Jaensch
 }
 \keyword{Emu}
 \keyword{database}
-\keyword{emuR}
+\keyword{emuDB}
 \keyword{schema}
 
