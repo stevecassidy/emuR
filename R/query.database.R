@@ -925,13 +925,6 @@ query.database.with.eql<-function(database,query){
   stop("Unknown syntax error.")
 }
 
-"query"<-function(x,...){
-  UseMethod("query",x)
-}
-
-#query.default <- query
-
-
 ##' Query EMU database
 ##' @description Query an EMU database
 ##' @param database object of class emuDB
@@ -955,6 +948,14 @@ query.database.with.eql<-function(database,query){
 ##' query(ae,"[Syllable=S ^ Phoneme=t]",resultType='emusegs')
 ##' 
 ##' }
+"query"<-function(database,query,queryLang='EQL2',resultType=NULL){
+  UseMethod("query")
+}
+
+#query.default <- query
+
+
+##' @export
 "query.emuDB"<-function(database,query,queryLang='EQL2',resultType=NULL){
   dbClass=class(database)
   if(dbClass=='emuDB'){
