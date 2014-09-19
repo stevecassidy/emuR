@@ -503,13 +503,13 @@ move.bundle.levels.to.data.frame <-function(db,bundle,replace=TRUE){
     lvlItCount=length(lvl[['items']])
     itCount=itCount+lvlItCount
   }
-  bdf=data.frame(id=character(itCount),bundle=character(itCount),level=character(itCount),bundleId=integer(itCount),type=character(itCount),seqIdx=integer(itCount),sampleRate=integer(itCount),samplePoint=integer(itCount),sampleStart=integer(itCount),sampleDur=integer(itCount),label=character(itCount),stringsAsFactors=FALSE)
+  bdf=data.frame(id=character(itCount),bundle=character(itCount),level=character(itCount),bundleId=integer(itCount),type=character(itCount),seqIdx=integer(itCount),sampleRate=numeric(itCount),samplePoint=integer(itCount),sampleStart=integer(itCount),sampleDur=integer(itCount),label=character(itCount),stringsAsFactors=FALSE)
   #colnames(bdf)<-db[['DBconfig']][['itemColNames']]
   ldf=NULL
   lrow=1
   maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
   lblColNames=c('itemID','bundle','labelIdx','name','label')
-  ldf=data.frame(matrix(ncol=length(lblColNames),nrow=0),stringsAsFactors=FALSE)
+  ldf=data.frame(itemID=character(0),bundle=character(0),labelIdx=integer(0),name=character(0),label=character(0),stringsAsFactors=FALSE)
   colnames(ldf)<-lblColNames
   
   for(lvl in bundle[['levels']]){
@@ -931,7 +931,7 @@ convert.bundle.links.to.data.frame <-function(links){
 move.bundle.links.to.data.frame <-function(db,bundle,replace=TRUE){
   
   row=1
-  db[['links']]=data.frame(bundle=character(0),fromID=integer(0),toID=integer(0),label=character(0),stringsAsFactors=FALSE)
+  bdf=data.frame(bundle=character(0),fromID=integer(0),toID=integer(0),label=character(0),stringsAsFactors=FALSE)
   bName=bundle[['name']]
   row=0
   for(lk in bundle[['links']]){
@@ -942,18 +942,24 @@ move.bundle.links.to.data.frame <-function(db,bundle,replace=TRUE){
     lbl=lk[['label']]
     if(!is.null(lbl)){
       bdf[row,'label']=lbl
+    }else{
+      bdf[row,'label']=NA
     }
   }
   if(replace){
     # remove old bundle data
-    otherBundlesSelector=db[['links']][['bundle']]==bName
+    otherBundlesSelector=db[['links']][['bundle']]!=bName
     db[['links']]=db[['links']][otherBundlesSelector,]
-    otherBundlesSelector=db[['linksExt']][['bundle']]==bName
+    otherBundlesSelector=db[['linksExt']][['bundle']]!=bName
     db[['linksExt']]=db[['linksExt']][otherBundlesSelector,]
   }
+
   db[['links']]=rbind(db[['links']],bdf)
-  redLinks=build.redundant.links.all(database = db,bundleName=bName)
-  db[['linksExt']]=rbind(db[['linksExt']],redLinks)
+  redLinksBundle=build.redundant.links.all(database = db,bundleName=bName)
+  #TODO  put level and links method together and use only items of the bundle
+  redExtLinksBundle=calculate.postions.of.links(db[['items']],redLinksBundle)
+  db[['linksExt']]=rbind(db[['linksExt']],redExtLinksBundle)
+  
   return(db)
 }
 
@@ -2500,6 +2506,7 @@ store.bundle.annotation <- function(db,bundle){
       pbpJSON=jsonlite::prettify(bpJSON)
       writeLines(pbpJSON,bndFilePth)
       db=move.bundle.levels.to.data.frame(db=db,bundle=bundle,replace=TRUE)
+
       db=move.bundle.links.to.data.frame(db=db,bundle=bundle,replace=TRUE)
     }
   }

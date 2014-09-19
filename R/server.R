@@ -251,6 +251,7 @@ serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
             result=ws$send(responseBundleJSON)
             return('sent-error')
           }
+          #res=store.bundle.annotation(database,bundle)
           res=tryCatch(store.bundle.annotation(database,bundle),error=function(e) e)
           if(inherits(res,'error')){
             
@@ -269,7 +270,7 @@ serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
           }else if(is.null(res)){
             cat("Error: function store.bundle.annotation returned NULL result\n")
           }else{
-            database=res
+            database<<-res
             responseBundle=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
           }
           responseBundleJSON=rjson::toJSON(responseBundle)
