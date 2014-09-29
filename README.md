@@ -9,7 +9,7 @@ The new R library for the Emu Speech Database System
 ## Installation
 * make sure the following dependencies are installed: [wrassp](https://github.com/IPS-LMU/wrassp), [tikzDevice](http://cran.r-project.org/web/packages/tikzDevice/index.html)
 
-* Download & extract then install the package with: 
+* Download & extract the package from GitHub. Then install it with the following command: 
 ```r
 install.packages("path/to/emuR", repos = NULL, type="source")
 ```
