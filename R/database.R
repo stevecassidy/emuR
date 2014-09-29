@@ -981,6 +981,8 @@ get.bundle.links.s3 <-function(db,bundleName){
       lbl=linksDf[row,'label']
       if(!is.null(lbl) && !is.na(lbl)){
         links[[row]][['label']]=lbl
+      }else{
+        links[[row]][['label']]=NA
       }
     }
   }
