@@ -1,4 +1,5 @@
 require(testthat)
+require(compare)
 require(wrassp)
 require(emuR)
 
@@ -112,6 +113,37 @@ test_that("Test ae samples",{
 
 test_that("Test ae modify",{
   ae=test_load_ae_database()
-  # TODO
+  b015=get.bundle(ae,'msajc015')
+  # select arbitrary item
+  b015m=b015
+  phoneticLvlIt10=b015m[['levels']][['Phonetic']][['items']][[10]]
+  lblOrg=phoneticLvlIt10[['labels']][[1]][['value']]
+  b015m[['levels']][['Phonetic']][['items']][[10]][['labels']][[1]][['value']]='test!!'
+  aem=store.bundle.annotation(ae,b015m)
+  
+  # items should not be equal
+  cm1=compare(ae$items,aem$items,allowAll=TRUE)
+  expect_false(cm1$result)
+  # links are not changed, should be equal to original
+  cml1=compare(ae$links,aem$links,allowAll=TRUE)
+  expect_true(cml1$result)
+  cmle1=compare(ae$linksExt,aem$linksExt,allowAll=TRUE)
+  expect_true(cmle1$result)
+  
+  # store original bundle
+  aem2=store.bundle.annotation(ae,b015)
+  # shuld be equla to original
+  cm2=compare(ae$items,aem2$items,allowAll=TRUE)
+  expect_true(cm2$result)
+  
+  # links are not changed, should be equal to original
+  cml2=compare(ae$links,aem2$links,allowAll=TRUE)
+  expect_true(cml2$result)
+  cmle2=compare(ae$linksExt,aem2$linksExt,allowAll=TRUE)
+  expect_true(cmle2$result)
+  
+  # TODO move segment boundaries, change links,etc...
+  
+  
   
 })
