@@ -966,7 +966,7 @@ query.database.with.eql<-function(database,query){
         if(resultType=='emusegs'){
           return(query.database.with.eql.seglist(dbObj,query))
         }else{
-          return(query.database.with.eql(dbObj,query))
+          stop("Unknown result type: '",resultType,"'. Supported result types: 'emusegs', NULL")
         }
       }
     }else{
