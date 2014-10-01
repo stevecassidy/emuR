@@ -26,12 +26,21 @@ create.database.schema.from.TextGrid = function(tgPath, dbName){
   # parse TextGrid
   tgAnnot = parse.textgrid(tgPath, 44100) # sampleRate hardcoded because it does not matter
   
+  # create level definitions
+  levelDefinitions = list()
+  
   # generate defaultLvlOrder
   defaultLvlOrder=list()
+  levIdx = 1
   for(lev in tgAnnot){
     if(lev$type == 'SEGMENT' || lev$type == 'EVENT'){
       defaultLvlOrder[[length(defaultLvlOrder)+1L]]=lev$name
     }
+    # add new leveDef.
+    levelDefinitions[[levIdx]] = list(name = lev$name, 
+                                      type = lev$type, 
+                                      attributeDefinitions = create.schema.attributeDefinition(lev$name))  
+    levIdx = levIdx + 1
   }
   
   # create signalCanvas config
@@ -47,13 +56,15 @@ create.database.schema.from.TextGrid = function(tgPath, dbName){
   # create EMUwebAppConfig 
   waCfg = create.EMUwebAppConfig(perspectives=list(defPersp))
   
+  
+  
   # generate full schema list
   dbSchema = create.schema.databaseDefinition(name = dbName,
                                             UUID = UUIDgenerate(),
                                             mediafileBasePathPattern = '',
                                             mediafileExtension = 'wav',
                                             ssffTracks = list(),
-                                            levelDefinitions = list(),
+                                            levelDefinitions = levelDefinitions,
                                             linkDefinitions = list(),
                                             EMUwebAppConfig = waCfg,
                                             annotationDescriptors = list(),
@@ -67,6 +78,6 @@ create.database.schema.from.TextGrid = function(tgPath, dbName){
 }
 
 # FOR DEVELOPMENT
-tgPath = "/Library/Frameworks/R.framework/Versions/3.1/Resources/library/emuR/extdata/legacy_emu/DBs//ae/labels/msajc003.TextGrid"
-schemaFromTg = create.database.schema.from.TextGrid(tgPath, 'test12')
+# tgPath = "/Library/Frameworks/R.framework/Versions/3.1/Resources/library/emuR/extdata/legacy_emu/DBs//ae/labels/msajc003.TextGrid"
+# schemaFromTg = create.database.schema.from.TextGrid(tgPath, 'test12')
 # print(schemaFromTg)
