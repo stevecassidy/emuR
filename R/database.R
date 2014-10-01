@@ -48,12 +48,12 @@ create.schema.attributeDefinition <- function(name,type='string'){
 ## @author Klaus Jaensch
 ## @keywords emuDB level Emu
 ## 
-create.schema.levelDefinition <- function(name,type=NULL,attributeDefinitions=NULL){
+create.schema.levelDefinition <- function(name,type=NULL,attributeDefinitions=NULL,labelGroups=NULL){
   if(is.null(attributeDefinitions)){
     defAttrDef=create.schema.attributeDefinition(name=name)
     attributeDefinitions=list(defAttrDef)
   }
-  o <- list(name=name,type=type,attributeDefinitions=attributeDefinitions)
+  o <- list(name=name,type=type,attributeDefinitions=attributeDefinitions,labelGroups=labelGroups)
   class(o) <- 'emuDB.schema.levelDefinition'
   invisible(o)
 }
@@ -157,6 +157,45 @@ as.bundle <- function(bundleData){
   class(bundleData) <- 'emuDB.bundle'
   attr(bundleData,'ips.persist')<-list(typesJSON=list(levels='array'))
   invisible(bundleData)
+}
+
+
+validate.bundle<-function(db,bundle){
+  # validate sequence and overlaps
+  for(level in bundle[['levels']]){
+    levelType=level[['type']]
+    sp=-1
+      for(item in level[['items']]){
+      
+        if(levelType=='SEGMENT'){
+          start=item[['sampleStart']]
+          if(start<=sp){
+            return(FALSE)
+          }
+          dur=item[['sampleDur']]
+          if(dur<0){
+            return(FALSE)
+          }
+          sp=start+dur
+        }else if(levelType=='EVENT'){
+          point=item[['samplePoint']]
+          if(point<=sp){
+            return(FALSE)
+          }
+          sp=point
+        }else if(levelType=='ITEM'){
+          # 
+        }
+        
+        
+      }
+    # check for cross links  
+    for(link in links){
+      # TODO
+    }
+    
+  }
+  return(TRUE)
 }
 
 remove.redundant.links<-function(database,links){
@@ -522,7 +561,7 @@ move.bundle.levels.to.data.frame <-function(db,bundle,replace=TRUE){
       bdf[row,'bundle']=bName
       itemId=it[['id']]
       if(is.null(itemId)){
-        # for instance aetobi has no .hlb files and tehrefore no links and item ids
+        # for instance aetobi has no .hlb files and therefore no links and item ids
         id=paste(db[['name']],bName,sep='_')
         itemId=NA
       }else{
@@ -971,19 +1010,20 @@ get.bundle.links.s3 <-function(db,bundleName){
   linksDf=db[['links']][bundleSelector,]
   nrows=nrow(linksDf)
   
-  links=vector(mode='list',length=nrows)
+  #links=vector(mode='list',length=nrows)
+  links=list()
   if(nrows>0){
     for(row in 1:nrows){
+      link=list()
+      link[['fromID']]=linksDf[row,'fromID']
       
-      links[[row]][['fromID']]=linksDf[row,'fromID']
-      
-      links[[row]][['toID']]=linksDf[row,'toID']
+      link[['toID']]=linksDf[row,'toID']
       lbl=linksDf[row,'label']
       if(!is.null(lbl) && !is.na(lbl)){
-        links[[row]][['label']]=lbl
-      }else{
-        links[[row]][['label']]=NA
+        link[['label']]=lbl
       }
+      links[[row]]=link
+     
     }
   }
   return(links)
@@ -1412,7 +1452,7 @@ load.database.schema.from.emu.template=function(tplPath){
               if(td[['name']]==tierName){
                 # replace 
               
-                levelDefinitions[[i]]=create.schema.levelDefinition(name=td[['name']],type=type,attributeDefinitions=td[['attributeDefinitions']]);
+                levelDefinitions[[i]]=create.schema.levelDefinition(name=td[['name']],type=type,attributeDefinitions=td[['attributeDefinitions']],labelGroups=td[['labelGroups']]);
                 replaced=TRUE
                 break;
               }
@@ -1492,20 +1532,21 @@ load.database.schema.from.emu.template=function(tplPath){
             }
           }else if(command==LEGAL_CMD){
             if(lineTokenCount<=3){
-              stop("Expected legal directive \"legal levelName className label1 label2 ... labeln\"")
+              stop("Expected legal directive \"legal levelName groupName label1 label2 ... labeln\"")
             }
             levelName=lineTokens[2]
-            labelClassName=lineTokens[3]
+            labelGroupName=lineTokens[3]
            
-            classLabels=c()
+            groupLabels=c()
             for(i in 4:lineTokenCount){
-              classLabels=c(classLabels,lineTokens[i])
+              groupLabels=c(groupLabels,lineTokens[i])
             }
             
             for(i in 1:length(levelDefinitions)){
               td=levelDefinitions[[i]]
               if(td[['name']]==levelName){
-                td[['labelClasses']][[labelClassName]]=list(name=labelClassName,labels=classLabels)
+               
+                levelDefinitions[[i]][['labelGroups']][[length(levelDefinitions[[i]][['labelGroups']])+1]]=list(name=labelGroupName,values=groupLabels)
                 break
               }
             }

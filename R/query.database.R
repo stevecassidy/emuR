@@ -575,6 +575,12 @@ query.database.eql.ETTIKETTA<-function(database,q,labels=NULL){
       
       labelAltsUq=c()
       # unquote labels
+      # BNF: ETIKETT = ETIKETTIERUNG | (“'“,ETIKETTIERUNG,“'“);
+      # Suggestion for improvement:
+      # labelGroups (legacy EMU 'legal' directive) MUST NOT be quoted, to distinguish labelGroups from ordinary label or label pattern:
+      # BNF__: ETIKETT = LABEL_GROUP_NAME | ETIKETTIERUNG | (“'“,ETIKETTIERUNG,“'“);
+      #        ETIKETTIERUNG = {ALPHA|DIGIT}
+      
       for(labelAlt in labelAlts){
         label=NULL
         if(substr(labelAlt,1,1)=="'"){
@@ -583,10 +589,32 @@ query.database.eql.ETTIKETTA<-function(database,q,labels=NULL){
             stop("Syntax error: expected closing single quote at end of label '",labelAlt,"'\n")
           }
           label=substr(labelAlt,2,lblTrimLen-1)
+          labelAltsUq=c(labelAltsUq,label)
         }else{
-          label=labelAlt
+          # check for labelGroup
+          lvlDefs=database[['DBconfig']][['levelDefinitions']]
+          isLabelGroup=FALSE
+          for(lvlDef in lvlDefs){
+            if(lvlName==lvlDef[['name']]){
+              lblGrps=lvlDef[['labelGroups']]
+              for(lblGrp in lblGrps){
+                if(labelAlt==lblGrp[['name']]){
+                  # is label group, expand
+                  for(lblGrpVal in lblGrp[['values']]){
+                    labelAltsUq=c(labelAltsUq,lblGrpVal)
+                  }
+                  isLabelGroup=TRUE
+                }
+              }
+            }
+          }
+          if(!isLabelGroup){
+            # ordinary label
+            label=labelAlt
+            labelAltsUq=c(labelAltsUq,label)
+          }
         }
-        labelAltsUq=c(labelAltsUq,label)
+        
       }
       cond=NULL
       #if(length(labelAltsUq)==1){
