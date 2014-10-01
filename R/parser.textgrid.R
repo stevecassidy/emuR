@@ -224,7 +224,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
                            !is.null(currentSegmentLabel)){
                         #cat("New segment\n");
                         sampleDur=currentSegmentEnd-currentSegmentStart
-                        labels=list(name=currentTierName,value=currentSegmentLabel)
+                        labels=list(list(name=currentTierName,value=currentSegmentLabel))
                         currentSegment=create.interval.item(sampleStart=currentSegmentStart,sampleDur=sampleDur,labels=labels);
                         currentTier$items[[length(currentTier$items)+1]] <- currentSegment
                         
