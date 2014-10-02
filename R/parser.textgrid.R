@@ -12,6 +12,8 @@ require(stringr)
 ## @keywords emuR TextGrid Praat Emu
 ## 
 parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
+  itemCounter = 1
+  
   FILE_TYPE_KEY="File type"
   OBJECT_CLASS_KEY="Object class"
   TIERS_SIZE_KEY="size"
@@ -225,7 +227,8 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
                         #cat("New segment\n");
                         sampleDur=currentSegmentEnd-currentSegmentStart
                         labels=list(list(name=currentTierName,value=currentSegmentLabel))
-                        currentSegment=create.interval.item(sampleStart=currentSegmentStart,sampleDur=sampleDur,labels=labels);
+                        currentSegment=create.interval.item(id = itemCounter, sampleStart=currentSegmentStart,sampleDur=sampleDur,labels=labels);
+                        itemCounter = itemCounter + 1
                         currentTier$items[[length(currentTier$items)+1]] <- currentSegment
                         
                         currentSegment=NULL;
@@ -285,6 +288,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
                       labels=list(name=currentTierName,value=currentPointLabel)
                     
                       currentPoint=create.event.item(samplePoint=currentPointSample,labels=labels)
+                      itemCounter = itemCounter + 1
                       currentTier$items[[length(currentTier$items)+1]]=currentPoint
                       
                       currentPointIndex=NULL;
@@ -308,3 +312,8 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
   }
   return(levels)
 }
+
+# FOR DEVELOPMENT
+# tgPath = "/Library/Frameworks/R.framework/Versions/3.1/Resources/library/emuR/extdata/legacy_emu/DBs//ae/labels/msajc003.TextGrid"
+res = parse.textgrid(tgPath, 20000)
+# print(res)
