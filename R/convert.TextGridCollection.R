@@ -19,42 +19,44 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName, tgExt='Tex
   # create empty database
   db = create.database(name = dbd$name, basePath = '', DBconfig = dbd)
   db = initialize.database.dataframes(db)
-
+  
   # allBundles object to hold bundles without levels and links
   allBundles = list()
   
   # loop through fpl
-  i = 1
+  for(i in 1:dim(fpl)[1]){
+    #   i = 1
+    
+    # get sampleRate of audio file
+    asspObj = read.AsspDataObj(fpl[i,1])
+    
+    # parse TextGrid
+    levels = parse.textgrid(fpl[i,2],  attributes(asspObj)$sampleRate) # SIC check parser -> still seems to have + 1 bug
+    
+    bndlName = basename(file_path_sans_ext(fpl[i,2]))
+    
+    # create bundle
+    bundle = create.bundle(name = bndlName,
+                           annotates = paste0('0000_ses/', bndlName, '_bndl/', bndlName, '.', audioExt),
+                           sampleRate = attr(asspObj,'sampleRate'),
+                           levels = levels,
+                           signalpaths = list(fpl[i,1]),
+                           mediaFilePath = fpl[i,1],
+                           links = list())
+    
+    # this will be slow for large DBs
+    db = append.bundle.to.tmp.list(db, bundle)
+    
+    # remove levels and links and append to allBundles
+    bundle[['levels']] = NULL
+    bundle[['links']] = NULL
+    
+    bName=bundle[['name']]
+    
+    allBundles[[bndlName]]=bundle
+    
+  }
   
-  # get sampleRate of audio file
-  asspObj = read.AsspDataObj(fpl[i,1])
-  
-  # parse TextGrid
-  levels = parse.textgrid(fpl[i,2],  attributes(asspObj)$sampleRate) # SIC check parser -> still seems to have + 1 bug
-  
-  bndlName = basename(file_path_sans_ext(fpl[i,2]))
-  
-  # create bundle
-  bundle = create.bundle(name = bndlName,
-                         annotates = paste0('0000_ses/', bndlName, '_bndl/', bndlName, '.', audioExt),
-                         sampleRate = attr(asspObj,'sampleRate'),
-                         levels = levels,
-                         signalpaths = list(fpl[i,1]),
-                         mediaFilePath = fpl[i,1],
-                         links = list())
-  
-  # this will be slow for large DBs
-  db = append.bundle.to.tmp.list(db, bundle)
-  
-  # remove levels and links and append to allBundles
-  bundle[['levels']] = NULL
-  bundle[['links']] = NULL
-  
-  bName=bundle[['name']]
-  
-  allBundles[[bndlName]]=bundle
-  
-
   # reassign items as dataframe
   itemsIdx=db[['itemsIdx']]
   db[['items']]=data.frame(id=db[['items']][['id']][1:itemsIdx],bundle=db[['items']][['bundle']][1:itemsIdx],level=db[['items']][['level']][1:itemsIdx],bundleId=db[['items']][['bundleId']][1:itemsIdx],type=db[['items']][['type']][1:itemsIdx],seqIdx=db[['items']][['seqIdx']][1:itemsIdx],sampleRate=db[['items']][['sampleRate']][1:itemsIdx],samplePoint=db[['items']][['samplePoint']][1:itemsIdx],sampleStart=db[['items']][['sampleStart']][1:itemsIdx],sampleDur=db[['items']][['sampleDur']][1:itemsIdx],label=db[['items']][['label']][1:itemsIdx],stringsAsFactors=FALSE)
