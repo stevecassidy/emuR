@@ -56,7 +56,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
   
   for(line in tg){
     trimmedLine=str_trim(line)
-    #cat("Trimmed line: ",trimmedLine,"\n")
+#     cat("Trimmed line: ",trimmedLine,"\n")
     if(is.null(fileType)){
       p=parse.line.to.key.value(line,doubleQuoted=TRUE)
       if(! is.null(p)){
@@ -266,7 +266,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
                     #cat("inside point: \n")
                     p=parse.line.to.key.value(line,doubleQuoted=TRUE)
                     if((!is.null(p)) && (!is.null(currentPointIndex))){
-                      if(p[1]=="time"){
+                      if(p[1]=="time" || p[1]=="number"){
                         timePointStr=p[2];
                         timePoint=as(timePointStr,"numeric")
                         samplePoint=round(timePoint*sampleRate)
@@ -285,7 +285,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
                          !is.null(currentPointSample) &&
                          !is.null(currentPointLabel)){
                       
-                      labels=list(name=currentTierName,value=currentPointLabel)
+                      labels=list(list(name=currentTierName,value=currentPointLabel))
                     
                       currentPoint=create.event.item(samplePoint=currentPointSample,labels=labels)
                       itemCounter = itemCounter + 1
@@ -315,5 +315,5 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
 
 # FOR DEVELOPMENT
 # tgPath = "/Library/Frameworks/R.framework/Versions/3.1/Resources/library/emuR/extdata/legacy_emu/DBs//ae/labels/msajc003.TextGrid"
-res = parse.textgrid(tgPath, 20000)
+# res = parse.textgrid(tgPath, 20000)
 # print(res)

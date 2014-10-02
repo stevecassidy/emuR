@@ -71,8 +71,6 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName, tgExt='Tex
   containerSession=emuDB.session(name='0000', bundles=allBundles)
   db[['sessions']][['0000']]=containerSession
   
-  
-  
   return(db)
 }
 
