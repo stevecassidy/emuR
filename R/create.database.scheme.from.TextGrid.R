@@ -79,5 +79,5 @@ create.database.schema.from.TextGrid = function(tgPath, dbName){
 
 # FOR DEVELOPMENT
 # tgPath = "/Library/Frameworks/R.framework/Versions/3.1/Resources/library/emuR/extdata/legacy_emu/DBs//ae/labels/msajc003.TextGrid"
-schemaFromTg = create.database.schema.from.TextGrid(tgPath, 'test12')
+# schemaFromTg = create.database.schema.from.TextGrid(tgPath, 'test12')
 # print(schemaFromTg)
