@@ -2576,7 +2576,7 @@ store.database <- function(db,targetDir,rewriteSSFFTracks=TRUE,showProgress=TRUE
         sessBundleCount=length(s[['bundles']])
         bundleCount=bundleCount+sessBundleCount
     }
-    cat("INFO: Store EMU database containing",bundleCount,"bundles...\n")
+    cat("INFO: Storing EMU database containing",bundleCount,"bundles...\n")
     pb=txtProgressBar(min=0,max=bundleCount+1L,style=3)
     setTxtProgressBar(pb,progress)
   }
