@@ -33,7 +33,7 @@ create.schema.annotationDescriptor <- function(name=NULL,basePath=NULL,extension
 ## @author Klaus Jaensch
 ## @keywords emuDB attribute level Emu
 ## 
-create.schema.attributeDefinition <- function(name,type='string'){
+create.schema.attributeDefinition <- function(name, type='STRING'){
   o <- list(name=name,type=type)
   class(o) <- c('create.schema.attributeDefinition','list')
   invisible(o)
