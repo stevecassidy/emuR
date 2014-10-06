@@ -35,7 +35,7 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
   }
   
   # gereate schema from first TextGrid in fpl
-  dbd = create.database.schema.from.TextGrid(fpl[1,2], dbName)
+  dbd = create.DBconfig.from.TextGrid(fpl[1,2], dbName)
   
   
   # create empty database
@@ -52,7 +52,7 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
     asspObj = read.AsspDataObj(fpl[i,1])
     
     # parse TextGrid
-    levels = parse.textgrid(fpl[i,2],  attributes(asspObj)$sampleRate) # SIC check parser -> still seems to have + 1 bug
+    levels = parse.textgrid(fpl[i,2], attributes(asspObj)$sampleRate) # SIC check parser -> still seems to have + 1 bug
     
     bndlName = basename(file_path_sans_ext(fpl[i,2]))
     

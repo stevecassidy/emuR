@@ -2,7 +2,7 @@
 	"name" : "ae",
 	"UUID" : "9859f7b1-3536-4083-8fac-94e9aa7c252a",
 	"mediafileExtension" : "wav",
-	"ssffTracks" : [
+	"ssffTrackDefinitions" : [
 		{
 			"name" : "dft",
 			"columnName" : "dft",

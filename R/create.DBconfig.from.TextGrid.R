@@ -1,4 +1,4 @@
-##' Create emuDB database schema object from a TextGrid file
+##' Create emuDB DBconfig object from a TextGrid file
 ##' 
 ##' @param tgPath path to TextGrid file
 ##' @param dbName name of the database
@@ -7,7 +7,7 @@
 ##' @import stringr uuid wrassp
 ##' @keywords emuDB database schema Emu TextGrid
 ## 
-create.database.schema.from.TextGrid = function(tgPath, dbName){
+create.DBconfig.from.TextGrid = function(tgPath, dbName){
 
   ####################
   # check parameters
@@ -63,7 +63,7 @@ create.database.schema.from.TextGrid = function(tgPath, dbName){
                                             UUID = UUIDgenerate(),
                                             mediafileBasePathPattern = '',
                                             mediafileExtension = 'wav',
-                                            ssffTracks = list(),
+                                            ssffTrackDefinitions = list(),
                                             levelDefinitions = levelDefinitions,
                                             linkDefinitions = list(),
                                             EMUwebAppConfig = waCfg,

@@ -7,6 +7,7 @@
 ## @param path2rootDir path to root directory (CAUTION: think of DB size and search space!) 
 ## @param ext1 first extention to look for
 ## @param ext2 second extention to pair base names of first extention with
+##
 create.filePairList <- function(path2rootDir, ext1, ext2){
   # PathToDbRootFolder is valid path
   if(!file.exists(path2rootDir)){
