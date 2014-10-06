@@ -2418,7 +2418,8 @@ unmarshal.from.persistence <- function(x){
 ##' @keywords emuDB database schema Emu
 ##' @examples
 ##' \dontrun{
-##' ## Convert legacy EMU database specified by EMU template file /homes/mylogin/ae/ae.tpl to directory /homes/mylogin/EMUnew/ae
+##' ## Convert legacy EMU database specified by EMU 
+##' ## template file /homes/mylogin/ae/ae.tpl to directory /homes/mylogin/EMUnew/ae
 ##'
 ##' convert.legacyEmuDB.to.emuDB("/homes/mylogin/ae/ae.tpl","/homes/mylogin/EMUnew/ae")
 ##'

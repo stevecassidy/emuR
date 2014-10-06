@@ -64,7 +64,9 @@
 ##'         
 ##'         # Plot the data as time signal and formant card
 ##'         dplot(seg.fm[,1:2], seg.lab, normalise=TRUE, main = "Formants over vowel duration")
-##'         eplot(seg.fm.5[,1:2], seg.lab, dopoints=TRUE, doellipse=FALSE, main = "F1/F2 of vowel midpoint", form=TRUE, xlab = "F2 in Hz", ylab = "F1 in Hz")
+##'         eplot(seg.fm.5[,1:2], seg.lab, dopoints=TRUE, 
+##'               doellipse=FALSE, main = "F1/F2 of vowel midpoint", form=TRUE, 
+##'               xlab = "F2 in Hz", ylab = "F1 in Hz")
 ##'         
 ##'         # emu.requery
 ##'         # An EMU query and ...

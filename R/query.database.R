@@ -938,7 +938,8 @@ query.database.with.eql<-function(database,query){
 ##' @keywords emuDB database query Emu EQL 
 ##' @examples
 ##' \dontrun{
-##' ## Query database object ae with EQL query [Phonetic=t -> Phonetic=s] and store result seglist in variable segListTs
+##' ## Query database object ae with EQL query [Phonetic=t -> Phonetic=s] 
+##' ## and store result seglist in variable segListTs
 ##' 
 ##' seglistTs=query(ae,"[Phonetic=t -> Phonetic=s]",resultType='emusegs')
 ##' 
