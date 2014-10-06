@@ -99,7 +99,9 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
   db[['sessions']][['0000']]=containerSession
   
   # store newly generated emuDB
-  cat('\n') # hack to have newline after pb
+  if(showProgress){
+    cat('\n') # hack to have newline after pb
+  }
   store.database(db, targetDir, showProgress = showProgress)
 }
 
