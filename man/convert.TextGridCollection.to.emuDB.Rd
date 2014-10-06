@@ -17,13 +17,15 @@ convert.TextGridCollection.to.emuDB(path2rootDir, dbName, targetDir,
 
 \item{audioExt}{extention of audio files (default=wav meaning filesnames of the form baseName.wav).}
 
-\item{showProgress}{show progress bar flag
-NOTE: Currently the only supported format accross all components of the new EMU system is the 'wav' audio format .}
+\item{showProgress}{show progress bar flag}
 }
 \description{
 Converts a TextGridCollection to a emuDB by first generating a file pair list
 containing the paths to .TextGrid + .wav (default extentions) files with the same base
 name. It then generates a emuDB DBconfig from the first TextGrid in this file pair list.
 After this it converts all file pairs to the new format.
+}
+\author{
+Raphael Winkelmann
 }
 

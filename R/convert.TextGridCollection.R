@@ -11,8 +11,8 @@
 ##' @param tgExt extention of TextGrid files (default=TextGrid meaning filesnames of the form baseName.TextGrid)
 ##' @param audioExt extention of audio files (default=wav meaning filesnames of the form baseName.wav).
 ##' @param showProgress show progress bar flag
-##' NOTE: Currently the only supported format accross all components of the new EMU system is the 'wav' audio format .
-##' 
+##' @export
+##' @author Raphael Winkelmann
 ##' 
 convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName, 
                                                 targetDir, tgExt = 'TextGrid', 
