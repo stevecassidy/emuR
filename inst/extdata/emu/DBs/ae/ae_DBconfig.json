@@ -2,7 +2,7 @@
 	"name" : "ae",
 	"UUID" : "9859f7b1-3536-4083-8fac-94e9aa7c252a",
 	"mediafileExtension" : "wav",
-	"ssffTracks" : [
+	"ssffTrackDefinitions" : [
 		{
 			"name" : "dft",
 			"columnName" : "dft",
@@ -21,7 +21,7 @@
 			"attributeDefinitions" : [
 				{
 					"name" : "Utterance",
-					"type" : "string"
+					"type" : "STRING"
 				}
 			]
 		},
@@ -31,7 +31,7 @@
 			"attributeDefinitions" : [
 				{
 					"name" : "Intonational",
-					"type" : "string"
+					"type" : "STRING"
 				}
 			]
 		},
@@ -41,7 +41,7 @@
 			"attributeDefinitions" : [
 				{
 					"name" : "Intermediate",
-					"type" : "string"
+					"type" : "STRING"
 				}
 			]
 		},
@@ -51,15 +51,15 @@
 			"attributeDefinitions" : [
 				{
 					"name" : "Word",
-					"type" : "string"
+					"type" : "STRING"
 				},
 				{
 					"name" : "Accent",
-					"type" : "string"
+					"type" : "STRING"
 				},
 				{
 					"name" : "Text",
-					"type" : "string"
+					"type" : "STRING"
 				}
 			]
 		},
@@ -69,7 +69,7 @@
 			"attributeDefinitions" : [
 				{
 					"name" : "Syllable",
-					"type" : "string"
+					"type" : "STRING"
 				}
 			]
 		},
@@ -79,7 +79,7 @@
 			"attributeDefinitions" : [
 				{
 					"name" : "Phoneme",
-					"type" : "string"
+					"type" : "STRING"
 				}
 			]
 		},
@@ -89,7 +89,7 @@
 			"attributeDefinitions" : [
 				{
 					"name" : "Phonetic",
-					"type" : "string"
+					"type" : "STRING"
 				}
 			]
 		},
@@ -99,7 +99,7 @@
 			"attributeDefinitions" : [
 				{
 					"name" : "Tone",
-					"type" : "string"
+					"type" : "STRING"
 				}
 			]
 		},
@@ -109,7 +109,7 @@
 			"attributeDefinitions" : [
 				{
 					"name" : "Foot",
-					"type" : "string"
+					"type" : "STRING"
 				}
 			]
 		}

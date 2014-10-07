@@ -11,7 +11,7 @@
 ##' @param dbObj emuDB object that the trackdata will be extracted from 
 ##' @param seglist seglist obtained by querying the emuDB object
 ##' @param ssffTrackName the name of track that one wishes to extract (see 
-##' \code{dbObj$DBconfig$ssffTracks} for the defined ssffTracks of the 
+##' \code{dbObj$DBconfig$ssffTrackDefinitions} for the defined ssffTracks of the 
 ##' dbObj). If the parameter \code{onTheFlyFunctionName} is set then 
 ##' this corresponds to the column name af the AsspDataObj (see
 ##' wrasspOutputInfos$<wrassp-function-name>$tracks).
@@ -89,8 +89,8 @@
   #########################
   # get track definition
   if(is.null(onTheFlyFunctionName)){
-  trackDefFound = sapply(dbObj$DBconfig$ssffTracks, function(x){ x$name == ssffTrackName})
-  trackDef = dbObj$DBconfig$ssffTracks[trackDefFound]
+  trackDefFound = sapply(dbObj$DBconfig$ssffTrackDefinitions, function(x){ x$name == ssffTrackName})
+  trackDef = dbObj$DBconfig$ssffTrackDefinitions[trackDefFound]
   
   # check if correct nr of trackDefs where found
   if(length(trackDef) != 1){

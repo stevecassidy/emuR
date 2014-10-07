@@ -189,8 +189,8 @@ serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
             
             mediaFile=list(encoding="BASE64",data=audioBase64)
             
-            ssffTracks=list()
-            for(ssffTr in sc$ssffTracks){
+            ssffTrackDefinitions=list()
+            for(ssffTr in sc$ssffTrackDefinitions){
               fe=ssffTr$fileExtension
               feRe=paste0('[.]',fe,'$')
               for(sp in b$signalpaths){
@@ -200,13 +200,13 @@ serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
                   mfDataBase64=base64encode(mfData)
                   close(mf)
                   ssffDatObj=list(encoding="BASE64",data=mfDataBase64,ssffTrackName=ssffTr$name)
-                  ssffTracks[[length(ssffTracks)+1]]=ssffDatObj
+                  ssffTrackDefinitions[[length(ssffTrackDefinitions)+1]]=ssffDatObj
                 }
               }
             }
             
             anno=marshal.for.persistence(b,emuR.persist.filters[['bundle']])
-            data=list(mediaFile=mediaFile,ssffFiles=ssffTracks,annotation=anno)
+            data=list(mediaFile=mediaFile,ssffFiles=ssffTrackDefinitions,annotation=anno)
             
             responseBundle=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,responseContent='bundle',contentType='text/json',data=data)
           }

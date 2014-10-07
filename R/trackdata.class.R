@@ -305,10 +305,12 @@
 ##'  plot(coutts.rms, labels=labels, type="l", bty="n")
 ##' # as above, double line-thickness, green, line type 3, no box, 
 ##' # time start 0 ms with x and y axis labels
-##'  plot(coutts.rms, labels=labels, type="l", lwd=2, col="green", lty=3,  bty="n", timestart=0, xlab="Time (ms)", ylab="Amplitude")
+##'  plot(coutts.rms, labels=labels, type="l", lwd=2, 
+##'       col="green", lty=3,  bty="n", timestart=0, xlab="Time (ms)", ylab="Amplitude")
 ##' # as above with a different plotting symbol for the points
 ##' par(mfrow=c(2,3))
-##'  plot(coutts.rms, labels=labels, type="b", lwd=2, col="green", timestart=0, bty="n", contig=FALSE, pch=20)
+##'  plot(coutts.rms, labels=labels, type="b", lwd=2, col="green", 
+##'       timestart=0, bty="n", contig=FALSE, pch=20)
 ##'  
 ##' 
 ##' 

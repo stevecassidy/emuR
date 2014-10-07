@@ -22,7 +22,8 @@ Query an EMU database
 }
 \examples{
 \dontrun{
-## Query database object ae with EQL query [Phonetic=t -> Phonetic=s] and store result seglist in variable segListTs
+## Query database object ae with EQL query [Phonetic=t -> Phonetic=s]
+## and store result seglist in variable segListTs
 
 seglistTs=query(ae,"[Phonetic=t -> Phonetic=s]",resultType='emusegs')
 

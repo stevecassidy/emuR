@@ -33,7 +33,7 @@ create.schema.annotationDescriptor <- function(name=NULL,basePath=NULL,extension
 ## @author Klaus Jaensch
 ## @keywords emuDB attribute level Emu
 ## 
-create.schema.attributeDefinition <- function(name,type='string'){
+create.schema.attributeDefinition <- function(name, type='STRING'){
   o <- list(name=name,type=type)
   class(o) <- c('create.schema.attributeDefinition','list')
   invisible(o)
@@ -75,8 +75,8 @@ create.schema.linkDefinition <- function(name=NULL,type,superlevelName,sublevelN
   invisible(o)
 }
 
-create.schema.databaseDefinition <- function(name,UUID,mediafileBasePathPattern,mediafileExtension,ssffTracks,levelDefinitions,linkDefinitions,EMUwebAppConfig,annotationDescriptors,tracks,flags=NULL){
-  o <- list(name=name,UUID=UUID,mediafileBasePathPattern=mediafileBasePathPattern,mediafileExtension=mediafileExtension,ssffTracks=ssffTracks,levelDefinitions=levelDefinitions,linkDefinitions=linkDefinitions,EMUwebAppConfig=EMUwebAppConfig,annotationDescriptors=annotationDescriptors,tracks=tracks,flags=flags)
+create.schema.databaseDefinition <- function(name,UUID,mediafileBasePathPattern,mediafileExtension,ssffTrackDefinitions,levelDefinitions,linkDefinitions,EMUwebAppConfig,annotationDescriptors,tracks,flags=NULL){
+  o <- list(name=name,UUID=UUID,mediafileBasePathPattern=mediafileBasePathPattern,mediafileExtension=mediafileExtension,ssffTrackDefinitions=ssffTrackDefinitions,levelDefinitions=levelDefinitions,linkDefinitions=linkDefinitions,EMUwebAppConfig=EMUwebAppConfig,annotationDescriptors=annotationDescriptors,tracks=tracks,flags=flags)
   class(o) <- c('list','emuDB.schema.databaseDefinition')
   #rTypes=list(levelDefinitions=c('list','emuDB.schema.levelDefinition',linkDefinitions=c('list','emuDB.schema.linkDefinition')
   #attr(o,'ips.persist')<-list(rTypes=rTypes)
@@ -1596,7 +1596,7 @@ load.database.schema.from.emu.template=function(tplPath){
     }
   }
  
-  ssffTracks=list()
+  ssffTrackDefinitions=list()
   assign=list()
   mediafileBasePathPattern=NULL
   mediafileExtension=NULL
@@ -1615,7 +1615,7 @@ load.database.schema.from.emu.template=function(tplPath){
     }else{
       #ssffTracks[[n]]=tr
       #array !
-      ssffTracks[[length(ssffTracks)+1L]]=tr
+      ssffTrackDefinitions[[length(ssffTrackDefinitions)+1L]]=tr
       # default assign all to spectrum TODO
       
     }
@@ -1629,7 +1629,7 @@ load.database.schema.from.emu.template=function(tplPath){
   # assign all SSFF tracks to sonagram
   assign=list()
   contourLims=list()
-  for(ssffTrack in ssffTracks){
+  for(ssffTrack in ssffTrackDefinitions){
     #cat(ssffTrack$name,"\n")
     # TODO dirty workaround
     # detect formant tracks by number of channels
@@ -1654,7 +1654,7 @@ load.database.schema.from.emu.template=function(tplPath){
   defPersp=create.EMUwebAppConfig.perspective(name='default',signalCanvases=sc,levelCanvases=list(order=defaultLvlOrder),twoDimCanvases=list(order=list()))
   waCfg=create.EMUwebAppConfig(perspectives=list(defPersp))
   #waCfg$activeButtons=list(saveBundle=TRUE)
-  dbSchema=create.schema.databaseDefinition(name=dbName,UUID=uuid,mediafileBasePathPattern=mediafileBasePathPattern,mediafileExtension=mediafileExtension,ssffTracks=ssffTracks,levelDefinitions=levelDefinitions,linkDefinitions=linkDefinitions,EMUwebAppConfig=waCfg,annotationDescriptors=annotationDescriptors,tracks=tracks,flags=flags);
+  dbSchema=create.schema.databaseDefinition(name=dbName,UUID=uuid,mediafileBasePathPattern=mediafileBasePathPattern,mediafileExtension=mediafileExtension,ssffTrackDefinitions=ssffTrackDefinitions,levelDefinitions=levelDefinitions,linkDefinitions=linkDefinitions,EMUwebAppConfig=waCfg,annotationDescriptors=annotationDescriptors,tracks=tracks,flags=flags);
   
   # get max label array size
   maxLbls=0
@@ -2328,7 +2328,7 @@ emuR.persist.filters[['DBconfig']]=list()
 emuR.persist.filters[['DBconfig']][[1]]=c('annotationDescriptors')
 emuR.persist.filters[['DBconfig']][[2]]=c('tracks')
 emuR.persist.filters[['DBconfig']][[3]]=c('flags')
-emuR.persist.filters[['DBconfig']][[4]]=c('ssffTracks','basePath')
+emuR.persist.filters[['DBconfig']][[4]]=c('ssffTrackDefinitions','basePath')
 emuR.persist.filters[['DBconfig']][[5]]=c('mediafileBasePathPattern')
 emuR.persist.filters[['DBconfig']][[6]]=c('maxNumberOfLabels')
 emuR.persist.filters[['DBconfig']][[7]]=c('itemColNames')
@@ -2473,7 +2473,8 @@ unmarshal.from.persistence <- function(x){
 ##' @keywords emuDB database schema Emu
 ##' @examples
 ##' \dontrun{
-##' ## Convert legacy EMU database specified by EMU template file /homes/mylogin/ae/ae.tpl to directory /homes/mylogin/EMUnew/ae
+##' ## Convert legacy EMU database specified by EMU 
+##' ## template file /homes/mylogin/ae/ae.tpl to directory /homes/mylogin/EMUnew/ae
 ##'
 ##' convert.legacyEmuDB.to.emuDB("/homes/mylogin/ae/ae.tpl","/homes/mylogin/EMUnew/ae")
 ##'
@@ -2631,7 +2632,7 @@ store.database <- function(db,targetDir,rewriteSSFFTracks=TRUE,showProgress=TRUE
         sessBundleCount=length(s[['bundles']])
         bundleCount=bundleCount+sessBundleCount
     }
-    cat("INFO: Store EMU database containing",bundleCount,"bundles...\n")
+    cat("INFO: Storing EMU database containing",bundleCount,"bundles...\n")
     pb=txtProgressBar(min=0,max=bundleCount+1L,style=3)
     setTxtProgressBar(pb,progress)
   }
@@ -2668,7 +2669,7 @@ store.database <- function(db,targetDir,rewriteSSFFTracks=TRUE,showProgress=TRUE
         nsfp=file.path(bfp,bn)
         # check if SSFF type
         isSSFFFile=FALSE
-        for(ssffTrDef in db[['DBconfig']][['ssffTracks']]){
+        for(ssffTrDef in db[['DBconfig']][['ssffTrackDefinitions']]){
           ssffTrFileExt=ssffTrDef[['fileExtension']]
           fileExtPatt=paste0('[.]',ssffTrFileExt,'$')
           if(length(grep(fileExtPatt,sf))==1){
@@ -2855,7 +2856,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
           bundle[['mediaFilePath']]=file.path(databaseDir,bundle[['annotates']])
         }else{
           
-          for(ssffTr in schema[['ssffTracks']]){
+          for(ssffTr in schema[['ssffTrackDefinitions']]){
             ssffExt=ssffTr[['fileExtension']]
             ssffFn=paste0(bName,'.',ssffExt)
             

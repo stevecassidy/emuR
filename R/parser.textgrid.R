@@ -12,6 +12,8 @@ require(stringr)
 ## @keywords emuR TextGrid Praat Emu
 ## 
 parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
+  itemCounter = 1
+  
   FILE_TYPE_KEY="File type"
   OBJECT_CLASS_KEY="Object class"
   TIERS_SIZE_KEY="size"
@@ -54,7 +56,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
   
   for(line in tg){
     trimmedLine=str_trim(line)
-    #cat("Trimmed line: ",trimmedLine,"\n")
+#     cat("Trimmed line: ",trimmedLine,"\n")
     if(is.null(fileType)){
       p=parse.line.to.key.value(line,doubleQuoted=TRUE)
       if(! is.null(p)){
@@ -224,8 +226,9 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
                            !is.null(currentSegmentLabel)){
                         #cat("New segment\n");
                         sampleDur=currentSegmentEnd-currentSegmentStart
-                        labels=list(name=currentTierName,value=currentSegmentLabel)
-                        currentSegment=create.interval.item(sampleStart=currentSegmentStart,sampleDur=sampleDur,labels=labels);
+                        labels=list(list(name=currentTierName,value=currentSegmentLabel))
+                        currentSegment=create.interval.item(id = itemCounter, sampleStart=currentSegmentStart,sampleDur=sampleDur,labels=labels);
+                        itemCounter = itemCounter + 1
                         currentTier$items[[length(currentTier$items)+1]] <- currentSegment
                         
                         currentSegment=NULL;
@@ -263,7 +266,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
                     #cat("inside point: \n")
                     p=parse.line.to.key.value(line,doubleQuoted=TRUE)
                     if((!is.null(p)) && (!is.null(currentPointIndex))){
-                      if(p[1]=="time"){
+                      if(p[1]=="time" || p[1]=="number"){
                         timePointStr=p[2];
                         timePoint=as(timePointStr,"numeric")
                         samplePoint=round(timePoint*sampleRate)
@@ -282,9 +285,10 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
                          !is.null(currentPointSample) &&
                          !is.null(currentPointLabel)){
                       
-                      labels=list(name=currentTierName,value=currentPointLabel)
+                      labels=list(list(name=currentTierName,value=currentPointLabel))
                     
                       currentPoint=create.event.item(samplePoint=currentPointSample,labels=labels)
+                      itemCounter = itemCounter + 1
                       currentTier$items[[length(currentTier$items)+1]]=currentPoint
                       
                       currentPointIndex=NULL;
@@ -308,3 +312,8 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
   }
   return(levels)
 }
+
+# FOR DEVELOPMENT
+# tgPath = "/Library/Frameworks/R.framework/Versions/3.1/Resources/library/emuR/extdata/legacy_emu/DBs//ae/labels/msajc003.TextGrid"
+# res = parse.textgrid(tgPath, 20000)
+# print(res)

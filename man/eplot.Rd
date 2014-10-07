@@ -75,11 +75,16 @@ data(vowlax)
 
    eplot(data, phonetic, form=TRUE, main="F1 x F2 plane", centroid=TRUE)
    eplot(data, phonetic, form=TRUE, main="F1 x F2 plane", dopoints=TRUE)
-   eplot(data, phonetic, form=TRUE, main="F1 x F2 plane in Bark", dopoints=TRUE, scaling="bark")
-   eplot(data, phonetic, form=TRUE, main="F1 x F2 plane in Bark b/w with linetype", col=FALSE, lty=TRUE, dopoints=TRUE, scaling="bark")
-   eplot(data, phonetic, form=TRUE, main="F1 x F2 plane", doellipse=FALSE, dopoints=TRUE)
-   eplot(data, phonetic, form=TRUE, dopoints=TRUE, prob=0.5, main="F1 x F2 plane, 50\% confidence intervals")
-   eplot(data, phonetic, form=TRUE, dopoints=TRUE, nsdev=2, main="F1 x F2 plane, 2 standard deviations")
+   eplot(data, phonetic, form=TRUE, main="F1 x F2 plane in Bark",
+         dopoints=TRUE, scaling="bark")
+   eplot(data, phonetic, form=TRUE, main="F1 x F2 plane in Bark b/w with linetype",
+         col=FALSE, lty=TRUE, dopoints=TRUE, scaling="bark")
+   eplot(data, phonetic, form=TRUE, main="F1 x F2 plane",
+         doellipse=FALSE, dopoints=TRUE)
+   eplot(data, phonetic, form=TRUE, dopoints=TRUE,
+         prob=0.5, main="F1 x F2 plane, 50\% confidence intervals")
+   eplot(data, phonetic, form=TRUE, dopoints=TRUE,
+         nsdev=2, main="F1 x F2 plane, 2 standard deviations")
 
 
    temp <- phonetic \%in\% c("a", "O")
@@ -87,7 +92,8 @@ data(vowlax)
 
 
    temp <- phonetic=="O"
-   eplot(data[temp,], phonetic[temp], word[temp], form=TRUE, dopoints=TRUE, main="[O] only showing word labels")
+   eplot(data[temp,], phonetic[temp], word[temp], form=TRUE,
+         dopoints=TRUE, main="[O] only showing word labels")
 }
 \author{
 Jonathan Harrington jmh@ipds.uni-kiel.de, Steve Cassidy, Gordon
