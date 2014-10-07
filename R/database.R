@@ -227,18 +227,23 @@ remove.database.redundant.links<-function(database){
   # build SQL query from link definitions
   items=database[['items']]
   links=database[['links']]
-  sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.bundleId=l.fromID AND t.bundleId=l.toID AND ("
-  ldCnt=length(database[['DBconfig']][['linkDefinitions']])
-  for(i in 1:ldCnt){
-    ld=database[['DBconfig']][['linkDefinitions']][[i]]
-    sqlQuery=paste0(sqlQuery,'(f.level=\'',ld[['superlevelName']],'\' AND t.level=\'',ld[['sublevelName']],'\')')
-    if(i<ldCnt){
-      sqlQuery=paste0(sqlQuery,' OR ')
+  linksCnt=nrow(links)
+  if(linksCnt>0){
+    sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.bundleId=l.fromID AND t.bundleId=l.toID AND ("
+    ldCnt=length(database[['DBconfig']][['linkDefinitions']])
+    if(ldCnt>0){
+      for(i in 1:ldCnt){
+        ld=database[['DBconfig']][['linkDefinitions']][[i]]
+        sqlQuery=paste0(sqlQuery,'(f.level=\'',ld[['superlevelName']],'\' AND t.level=\'',ld[['sublevelName']],'\')')
+        if(i<ldCnt){
+          sqlQuery=paste0(sqlQuery,' OR ')
+        }
+      }
+      sqlQuery=paste0(sqlQuery,')')
+      #cat(sqlQuery,"\n")
+      database[['links']]=sqldf(sqlQuery)
     }
   }
-  sqlQuery=paste0(sqlQuery,')')
-  #cat(sqlQuery,"\n")
-  database[['links']]=sqldf(sqlQuery)
   return(database)
 }
 
@@ -447,6 +452,9 @@ build.redundant.links.for.pathes<-function(database,lfs,bundleName=NULL){
   }
   items=database[['items']]
   links=database[['links']]
+  if(nrow(links)==0){
+    return(links)
+  }
   sqlQuery="SELECT DISTINCT f.bundle,f.bundleId AS fromID,t.bundleId AS toID FROM items f,items t"
   sqlQuery=paste0(sqlQuery,' WHERE f.bundle=t.bundle AND ')
   if(!is.null(bundleName)){
@@ -1691,7 +1699,7 @@ load.annotation.for.legacy.bundle=function(schema,uttCode,basePath=NULL){
       signalpaths[[length(signalpaths)+1L]]=sFile
     }
   }
-  
+  idCnt=0
   levels=list()
   links=list()
   
@@ -1713,9 +1721,11 @@ load.annotation.for.legacy.bundle=function(schema,uttCode,basePath=NULL){
         #cat("Anno: ",annoPath,"\n")
         if(extension!='hlb'){
           # parse lab file
-          labTier=parse.esps.label.file(labFilePath=annoPath,tierName=ad[['name']],sampleRate=sampleRate)
+          labTier=parse.esps.label.file(labFilePath=annoPath,tierName=ad[['name']],sampleRate=sampleRate,idCnt=idCnt)
           if(!is.null(labTier)){
             levels[[labTier[['name']]]] <- labTier
+            labTierItemCnt=length(labTier[['items']])
+            idCnt=idCnt+labTierItemCnt
           }
         }
       }
@@ -2695,6 +2705,10 @@ store.database <- function(db,targetDir,rewriteSSFFTracks=TRUE,showProgress=TRUE
 }
 
 calculate.postions.of.links<-function(items,links){
+  if(nrow(links)==0){
+    # return empty links data frame
+    return(links)
+  }
   # for all position related functions we need to calculate the sequence indices of dominated items grouped to one dominance item 
   # Extend links table with sequence index of the targeted (dominated) item
   #links2=sqldf("SELECT k.*,i.seqIdx FROM links k,items i WHERE i.bundle=k.bundle AND k.toID=i.bundleId")
@@ -3011,7 +3025,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   
   itemsIdx=db[['itemsIdx']]
   tmpDf=data.frame(db[['items']],stringsAsFactors = FALSE)
-  db[['items']]=tmpDf[1:itemsIdx,]
+  db[['items']]=tmpDf[0:itemsIdx,]
   progress=progress+1L
   if(verbose){
     setTxtProgressBar(pb,progress)
@@ -3019,7 +3033,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
 
   labelsIdx=db[['labelsIdx']]
   tmpLblsDf=data.frame(db[['labels']],stringsAsFactors = FALSE)
-  db[['labels']]=tmpLblsDf[1:labelsIdx,]
+  db[['labels']]=tmpLblsDf[0:labelsIdx,]
   progress=progress+1L
   if(verbose){
     setTxtProgressBar(pb,progress)
@@ -3027,7 +3041,8 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
 
   linksIdx=db[['linksIdx']]
   tmpLksdf=data.frame(db[['links']],stringsAsFactors = FALSE)
-  db[['links']]=tmpLksdf[1:linksIdx,]
+  
+  db[['links']]=tmpLksdf[0:linksIdx,]
   progress=progress+1L
   if(verbose){
     setTxtProgressBar(pb,progress)

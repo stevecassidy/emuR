@@ -288,26 +288,34 @@ convert.query.result.to.seglist<-function(database,result){
     # query seglist data except labels
     # for this data the information in start end item of the sequence is sufficient
     # the CASE WHEN THEN ELSE END terms are necessary to get the start end end samples of sequences which are not segment levels and therefore have no time information  
-    segListData=sqldf("SELECT s.id || e.id AS id,s.bundle,s.bundleId AS startBundleId ,e.bundleId AS endBundleId,s.type, \
+    hasLinks=(nrow(links)>0)
+    
+    q="SELECT s.id || e.id AS id,s.bundle,s.bundleId AS startBundleId ,e.bundleId AS endBundleId,s.type, \
                 CASE s.type \
                      WHEN 'SEGMENT' THEN s.sampleStart \
-                     WHEN 'EVENT' THEN s.samplePoint \
-                     ELSE (SELECT i.sampleStart FROM items i WHERE i.bundle=s.bundle AND i.type='SEGMENT' AND EXISTS (SELECT * FROM links l WHERE s.bundleId=l.fromID AND i.bundleId=l.toID AND i.bundle=l.bundle AND l.toSeqIdx=0)) \
-                     END AS sampleStart, \
+                     WHEN 'EVENT' THEN s.samplePoint ";
+    if(hasLinks){
+      q=paste0(q," ELSE (SELECT i.sampleStart FROM items i WHERE i.bundle=s.bundle AND i.type='SEGMENT' AND EXISTS (SELECT * FROM links l WHERE s.bundleId=l.fromID AND i.bundleId=l.toID AND i.bundle=l.bundle AND l.toSeqIdx=0)) ")
+    }
+    q=paste0(q," END AS sampleStart, \
                 CASE s.type \
                     WHEN 'SEGMENT' THEN (e.sampleStart+e.sampleDur) \
-                    WHEN 'EVENT' THEN 0
-                    ELSE (SELECT i.sampleStart+i.sampleDur FROM items i WHERE i.bundle=s.bundle AND i.type='SEGMENT'  AND EXISTS (SELECT * FROM links l WHERE s.bundleId=l.fromID AND i.bundleId=l.toID AND i.bundle=l.bundle AND l.toSeqIdx+1=l.toSeqLen)) \
-                    END AS sampleEnd, \
+                    WHEN 'EVENT' THEN 0 ")  
+    if(hasLinks){
+      q=paste0(q," ELSE (SELECT i.sampleStart+i.sampleDur FROM items i WHERE i.bundle=s.bundle AND i.type='SEGMENT'  AND EXISTS (SELECT * FROM links l WHERE s.bundleId=l.fromID AND i.bundleId=l.toID AND i.bundle=l.bundle AND l.toSeqIdx+1=l.toSeqLen)) ")
+    }
+    q=paste0(q,"END AS sampleEnd, \
                 CASE s.type \
                     WHEN 'SEGMENT' THEN s.sampleRate \
-                    WHEN 'EVENT' THEN s.sampleRate \
-                    ELSE (SELECT i.sampleRate FROM items i WHERE i.bundle=s.bundle AND i.type='SEGMENT' AND EXISTS (SELECT * FROM links l WHERE s.bundleId=l.fromID AND i.bundleId=l.toID AND i.bundle=l.bundle AND l.toSeqIdx=0)) \
-                    END AS sampleRate \
+                    WHEN 'EVENT' THEN s.sampleRate ")
+    if(hasLinks){
+      q=paste0(q," ELSE (SELECT i.sampleRate FROM items i WHERE i.bundle=s.bundle AND i.type='SEGMENT' AND EXISTS (SELECT * FROM links l WHERE s.bundleId=l.fromID AND i.bundleId=l.toID AND i.bundle=l.bundle AND l.toSeqIdx=0)) ")
+    }
+    q=paste0(q," END AS sampleRate \
                 FROM items s,items e,its r \
                 WHERE s.id=r.seqStartId AND e.id=r.seqEndId AND e.bundle=s.bundle AND e.level=s.level \
                 ORDER BY id")
-    
+    segListData=sqldf(q)
     # Note: CASE s.type WHEN 'SEGMENT' OR 'EVENT' did not work.
     
     if(itCount>0){

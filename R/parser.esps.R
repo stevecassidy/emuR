@@ -11,7 +11,7 @@ require(stringr)
 ## @author Klaus Jaensch
 ## @keywords emuR ESPS lab Emu
 ## 
-parse.esps.label.file <- function(labFilePath=NULL,tierName,sampleRate,encoding="UTF-8") {
+parse.esps.label.file <- function(labFilePath=NULL,tierName,sampleRate,encoding="UTF-8",idCnt=0) {
   SIGNAL_KEY="signal"
   NUMBER_OF_FIELDS_KEY="nfields"
   SEPARATOR_KEY="separator"
@@ -97,13 +97,15 @@ parse.esps.label.file <- function(labFilePath=NULL,tierName,sampleRate,encoding=
             # duration calculation according to partitur format
             # the sum of all durations is not equal to the complete sample count
             duration=samplePoint-intervalStartPoint-1
-            currItem=create.interval.item(sampleStart=intervalStartPoint,sampleDur=duration,labels=labelAttrs)
+            currItem=create.interval.item(id=idCnt,sampleStart=intervalStartPoint,sampleDur=duration,labels=labelAttrs)
+            idCnt=idCnt+1
             itemList[[length(itemList)+1]] <- currItem
             intervalStartPoint=samplePoint
             
           }else{
             samplePoint=round(timeStampInSamples)
-            currItem=create.event.item(samplePoint=samplePoint,labels=labelAttrs)
+            currItem=create.event.item(id=idCnt,samplePoint=samplePoint,labels=labelAttrs)
+            idCnt=idCnt+1
             itemList[[length(itemList)+1]] <- currItem
           }
           
