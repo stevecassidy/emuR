@@ -63,7 +63,7 @@ parse.hlb.file <- function(hlbFilePath=NULL,levelDefinitions,levels) {
               labitemsCount=length(labitems)
               currentitemsCount=length(currentitems)
               if(labitemsCount!=currentitemsCount){
-                stop("Tier: ",currentTierName,": count of items in hlb file (",currentitemsCount,") differs from count in ESPS label file (",labitemsCount,")");
+                stop("Tier: ",currentTierName,": count of items (",currentitemsCount,") in HLB file '",hlbFilePath,"'' differs from count in ESPS label file (",labitemsCount,")");
               }
               #newTier=clone.bundle.level(t);
               newTier=t
@@ -142,7 +142,7 @@ parse.hlb.file <- function(hlbFilePath=NULL,levelDefinitions,levels) {
           label=lineTokens[[2]]
           labels=NULL
           if(!is.null(items[[idStr]])){
-            stop("Duplicate item id: ",id," !\n")
+            stop("Duplicate item id: ",id," in HLB file: '",hlbFilePath,"'' !\n")
           }
           
           attrs=list()
