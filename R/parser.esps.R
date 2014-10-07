@@ -11,7 +11,7 @@ require(stringr)
 ## @author Klaus Jaensch
 ## @keywords emuR ESPS lab Emu
 ## 
-parse.esps.label.file <- function(labFilePath=NULL,tierName,sampleRate,encoding="UTF-8",idCnt=0) {
+parse.esps.label.file <- function(labFilePath=NULL,tierName,tierType=NULL,sampleRate,encoding="UTF-8",idCnt=0) {
   SIGNAL_KEY="signal"
   NUMBER_OF_FIELDS_KEY="nfields"
   SEPARATOR_KEY="separator"
@@ -22,7 +22,7 @@ parse.esps.label.file <- function(labFilePath=NULL,tierName,sampleRate,encoding=
   fileToRead=NULL
   inHeaderSection=TRUE
   intervalMode=FALSE
-  tierType='EVENT'
+  #tierType='EVENT'
   #tierType='event'
   firstDataLine=TRUE
   #currItem=NULL
@@ -82,17 +82,25 @@ parse.esps.label.file <- function(labFilePath=NULL,tierName,sampleRate,encoding=
         #samplePoint=round(timeStamp*sampleRate)
        
         #cat('label:',timeStamp,color,label,"\n")
-        if(firstDataLine && label==INTERVAL_FLAG_VALUE){
-          # 
-          intervalMode=TRUE
-          samplePoint=floor(timeStampInSamples)
-          intervalStartPoint=samplePoint
+        if(firstDataLine){
           
+          if(is.null(tierType)){
+            if(label==INTERVAL_FLAG_VALUE){
+              tierType='SEGMENT'
+            }else{
+              tierType='EVENT'
+            }
+          }
+        }
+        
+        if(firstDataLine & tierType=='SEGMENT'){
+            samplePoint=floor(timeStampInSamples)
+            intervalStartPoint=samplePoint
         }else{
           labelAttrs=list(list(name=tierName,value=label))
           #labelAttrs[[tierName]]=label
           
-          if(intervalMode){
+          if(tierType=='SEGMENT'){
             samplePoint=floor(timeStampInSamples)
             # duration calculation according to partitur format
             # the sum of all durations is not equal to the complete sample count
@@ -117,9 +125,9 @@ parse.esps.label.file <- function(labFilePath=NULL,tierName,sampleRate,encoding=
   #if(!is.null(labCon)){
   #close(labCon)
   #}
-  if(intervalMode){
-    tierType='SEGMENT'
-  }
+  #if(intervalMode){
+  #  tierType='SEGMENT'
+  #}
   labTier=create.bundle.level(name=tierName,type=tierType,sampleRate=sampleRate,items=itemList);
   return(labTier)
 }

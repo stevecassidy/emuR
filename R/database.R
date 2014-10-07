@@ -1723,7 +1723,7 @@ load.annotation.for.legacy.bundle=function(schema,uttCode,basePath=NULL){
         #cat("Anno: ",annoPath,"\n")
         if(extension!='hlb'){
           # parse lab file
-          labTier=parse.esps.label.file(labFilePath=annoPath,tierName=ad[['name']],sampleRate=sampleRate,idCnt=idCnt)
+          labTier=parse.esps.label.file(labFilePath=annoPath,tierName=ad[['name']],tierType=ad[['type']],sampleRate=sampleRate,idCnt=idCnt)
           if(!is.null(labTier)){
             levels[[labTier[['name']]]] <- labTier
             labTierItemCnt=length(labTier[['items']])
