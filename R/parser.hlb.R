@@ -99,7 +99,12 @@ parse.hlb.file <- function(hlbFilePath=NULL,levelDefinitions,levels) {
                 for(exLabel in exItem[['labels']]){
                   if(exLabel[['name']]==itLbl[['name']]){
                     # label exists, check equality
-                    if(exLabel[['value']]!=itLbl[['value']]){
+                    exLblVal=exLabel[['value']]
+                    if(is.null(exLblVal)){
+                      exLblVal=''
+                    }
+                    itLblVal=itLbl[['value']]
+                    if(exLblVal!=itLblVal){
                       stop("Labels of attribute level '",exLabel[['name']],"' differ: '",exLabel[['value']],"' '",itLbl[['value']],"'\n")
                     }
                   }else{

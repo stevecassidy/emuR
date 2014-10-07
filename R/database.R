@@ -1988,9 +1988,13 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
         lbls=it[['labels']]
         lblsLen=length(lbls)
         lbl0=it[['labels']][[1]][['value']]
-        db[['items']][['label']][row]=lbl0
+        if(is.null(lbl0)){
+          db[['items']][['label']][row]=''
+        }else{
+          db[['items']][['label']][row]=lbl0
+        }
         for(i in 1:maxLbls){
-          rLbl=NA
+          rLbl=''
           if(lblsLen>=i){
             lbl=lbls[[i]]
             if(!is.null(lbl)){
@@ -2014,6 +2018,9 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
                 }
               }
               rLbl=lbl[['value']]
+              if(is.null(rLbl)){
+                rLbl=''
+              }
               db[['labels']][['itemID']][lrow]=id
               db[['labels']][['bundle']][lrow]=bName
               db[['labels']][['labelIdx']][lrow]=i-1L
