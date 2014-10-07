@@ -1305,29 +1305,31 @@ list.legacy.emu.databases<-function(){
 }
 
 list.file.matching.emu.path.pattern=function(basePath,pathPattern,filePattern=NULL){
-dirList=list.trackdirs(pathPattern)
-fileList=c()
-for(dir in dirList){
-  fqDir=dir
-  if(is.relative.file.path(dir)){
-    fqDir=file.path(basePath,dir)
+  if(is.relative.file.path(pathPattern)){
+    absPathPattern=file.path(basePath,pathPattern)
+  }else{
+    absPathPattern=pathPattern
   }
-  pFileList = list.files(fqDir, pattern=filePattern, recursive=T, full.names=T)
-  fileList=c(fileList,pFileList)
-}
-return(fileList)
+  dirList=list.trackdirs(absPathPattern)
+  fileList=c()
+  for(dir in dirList){
+    pFileList = list.files(dir, pattern=filePattern, recursive=T, full.names=T)
+    fileList=c(fileList,pFileList)
+  }
+  return(fileList)
 }
 
 find.file.in.emu.path.pattern=function(emuPathPattern,fileName,basePath=NULL){
-  dirList=list.trackdirs(emuPathPattern)
+  if(is.relative.file.path(emuPathPattern)){
+    absPathPattern=file.path(basePath,emuPathPattern)
+  }else{
+    absPathPattern=emuPathPattern
+  }
+  dirList=list.trackdirs(absPathPattern)
   for(dir in dirList){
-    fqDir=dir
-    if(is.relative.file.path(dir)){
-      fqDir=file.path(basePath,dir)
-    }
-    tfp=paste0(fqDir,'/',fileName)
+    tfp=paste0(dir,'/',fileName)
     if(file.exists(tfp)){
-     return(tfp)
+      return(tfp)
     }
   }
   return(NULL)
