@@ -24,7 +24,7 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
   }
   
   # gernerate file pail list
-  fpl = create.filePairList(path2rootDir, audioExt, tgExt)
+  fpl = create.filePairList(path2rootDir, path2rootDir, audioExt, tgExt)
 
   progress = 0
   
