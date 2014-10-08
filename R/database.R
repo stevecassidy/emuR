@@ -160,44 +160,6 @@ as.bundle <- function(bundleData){
 }
 
 
-validate.bundle<-function(db,bundle){
-  # validate sequence and overlaps
-  for(level in bundle[['levels']]){
-    levelType=level[['type']]
-    sp=-1
-      for(item in level[['items']]){
-      
-        if(levelType=='SEGMENT'){
-          start=item[['sampleStart']]
-          if(start<=sp){
-            return(FALSE)
-          }
-          dur=item[['sampleDur']]
-          if(dur<0){
-            return(FALSE)
-          }
-          sp=start+dur
-        }else if(levelType=='EVENT'){
-          point=item[['samplePoint']]
-          if(point<=sp){
-            return(FALSE)
-          }
-          sp=point
-        }else if(levelType=='ITEM'){
-          # 
-        }
-        
-        
-      }
-    # check for cross links  
-    for(link in links){
-      # TODO
-    }
-    
-  }
-  return(TRUE)
-}
-
 remove.redundant.links<-function(database,links){
   # Legacy EMU and query functions link collections contain links for each possible connection between levels
   # We consider links that do not follow link definition constraints as redundant and therefore we remove them from the
