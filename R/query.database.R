@@ -603,15 +603,17 @@ query.database.eql.ETTIKETTA<-function(database,q,labels=NULL){
           lvlDefs=database[['DBconfig']][['levelDefinitions']]
           isLabelGroup=FALSE
           for(lvlDef in lvlDefs){
-            if(lvlName==lvlDef[['name']]){
-              lblGrps=lvlDef[['labelGroups']]
-              for(lblGrp in lblGrps){
-                if(labelAlt==lblGrp[['name']]){
-                  # is label group, expand
-                  for(lblGrpVal in lblGrp[['values']]){
-                    labelAltsUq=c(labelAltsUq,lblGrpVal)
+            for(attrDef in lvlDef[['attributeDefinitions']]){
+              if(lvlName==attrDef[['name']]){
+                lblGrps=attrDef[['labelGroups']]
+                for(lblGrp in lblGrps){
+                  if(labelAlt==lblGrp[['name']]){
+                    # is label group, expand
+                    for(lblGrpVal in lblGrp[['values']]){
+                      labelAltsUq=c(labelAltsUq,lblGrpVal)
+                    }
+                    isLabelGroup=TRUE
                   }
-                  isLabelGroup=TRUE
                 }
               }
             }

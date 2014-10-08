@@ -33,8 +33,8 @@ create.schema.annotationDescriptor <- function(name=NULL,basePath=NULL,extension
 ## @author Klaus Jaensch
 ## @keywords emuDB attribute level Emu
 ## 
-create.schema.attributeDefinition <- function(name, type='STRING'){
-  o <- list(name=name,type=type)
+create.schema.attributeDefinition <- function(name, type='STRING',labelGroups=NULL){
+  o <- list(name=name,type=type,labelGroups=labelGroups)
   class(o) <- c('create.schema.attributeDefinition','list')
   invisible(o)
 }
@@ -48,12 +48,12 @@ create.schema.attributeDefinition <- function(name, type='STRING'){
 ## @author Klaus Jaensch
 ## @keywords emuDB level Emu
 ## 
-create.schema.levelDefinition <- function(name,type=NULL,attributeDefinitions=NULL,labelGroups=NULL){
+create.schema.levelDefinition <- function(name,type=NULL,attributeDefinitions=NULL){
   if(is.null(attributeDefinitions)){
     defAttrDef=create.schema.attributeDefinition(name=name)
     attributeDefinitions=list(defAttrDef)
   }
-  o <- list(name=name,type=type,attributeDefinitions=attributeDefinitions,labelGroups=labelGroups)
+  o <- list(name=name,type=type,attributeDefinitions=attributeDefinitions)
   class(o) <- 'emuDB.schema.levelDefinition'
   invisible(o)
 }
@@ -1424,7 +1424,7 @@ load.database.schema.from.emu.template=function(tplPath){
               if(td[['name']]==tierName){
                 # replace 
               
-                levelDefinitions[[i]]=create.schema.levelDefinition(name=td[['name']],type=type,attributeDefinitions=td[['attributeDefinitions']],labelGroups=td[['labelGroups']]);
+                levelDefinitions[[i]]=create.schema.levelDefinition(name=td[['name']],type=type,attributeDefinitions=td[['attributeDefinitions']]);
                 replaced=TRUE
                 break;
               }
@@ -1506,7 +1506,7 @@ load.database.schema.from.emu.template=function(tplPath){
             if(lineTokenCount<=3){
               stop("Expected legal directive \"legal levelName groupName label1 label2 ... labeln\"")
             }
-            levelName=lineTokens[2]
+            attrName=lineTokens[2]
             labelGroupName=lineTokens[3]
            
             groupLabels=c()
@@ -1514,11 +1514,21 @@ load.database.schema.from.emu.template=function(tplPath){
               groupLabels=c(groupLabels,lineTokens[i])
             }
             
+            set=FALSE
             for(i in 1:length(levelDefinitions)){
               td=levelDefinitions[[i]]
-              if(td[['name']]==levelName){
-               
-                levelDefinitions[[i]][['labelGroups']][[length(levelDefinitions[[i]][['labelGroups']])+1]]=list(name=labelGroupName,values=groupLabels)
+              ads=td[['attributeDefinitions']]
+              for(j in length(ads)){
+                ad=ads[[j]]
+                if(ad[['name']]==attrName){
+                  lblGrIdx=length(ad[['labelGroups']])+1
+                  # TODO uncomment  if problem wit single string elemnts with rjson is fixed 
+                  #levelDefinitions[[i]][['attributeDefinitions']][[j]][['labelGroups']][[lblGrIdx]]=list(name=labelGroupName,type='STRING',values=groupLabels)
+                  set=TRUE
+                  break
+                }
+              }
+              if(set){
                 break
               }
             }
