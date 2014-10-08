@@ -275,7 +275,7 @@
     if(curStartDataIdx > 0 && curEndDataIdx <= dim(tmpData)[1]){
       curData[,] <- tmpData[curStartDataIdx:curEndDataIdx,]
     }else{
-      entry= paste(Seglist[i,], collapse = " ")
+      entry= paste(seglist[i,], collapse = " ")
       stop('Can not extract following segmentlist entry: ', entry, ' start and/or end times out of bounds')
     }
     
