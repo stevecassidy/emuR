@@ -282,7 +282,7 @@
     ##############################
     # Check if enough space (expand data matrix if necessary) 
     # then append to data matrix 
-    if(length(data)<curIndexEnd){
+    if(dim(data)[1]<curIndexEnd){
       if(verbose){
         cat('\n  INFO: allocating more space in data matrix')
       }
