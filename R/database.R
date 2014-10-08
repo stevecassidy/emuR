@@ -2420,7 +2420,12 @@ marshal.for.persistence <- function(x, filter=NULL){
     
     return(cloneList)
   }else{
-    return(x);
+    #if(is.character(x) & length(x)==1){
+    #  # Or use jsonlite::toJSON(...,auto_unbox=TRUE)
+    #  return(jsonlite::unbox(x))
+    #}else{
+      return(x)
+    #}
   }
 }
 
@@ -2502,7 +2507,7 @@ convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,verbose=TRUE){
 ## 
 ## @param db EMU database (in R workspace)
 ## @param bundle the bundle to save
-## @import rjson
+## @import jsonlite
 ## @keywords emuDB database Emu 
 ## 
 store.bundle.annotation <- function(db,bundle){
@@ -2537,8 +2542,7 @@ store.bundle.annotation <- function(db,bundle){
       bndFilePth=file.path(bndlPth,bndlFileNm)
       pFilter=emuR.persist.filters[['bundle']]
       bp=marshal.for.persistence(bundle,pFilter)
-      bpJSON=rjson::toJSON(bp)
-      pbpJSON=jsonlite::prettify(bpJSON)
+      pbpJSON=jsonlite::toJSON(bp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
       writeLines(pbpJSON,bndFilePth)
       db=move.bundle.levels.to.data.frame(db=db,bundle=bundle,replace=TRUE)
 
@@ -2557,7 +2561,7 @@ store.bundle.annotation <- function(db,bundle){
 ##' @param rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC)
 ##' @param showProgress show progress bar
 ##' @author Klaus Jaensch
-##' @import stringr uuid rjson
+##' @import stringr uuid jsonlite
 ##' @export
 ##' @keywords emuDB database Emu
 ##' @seealso  \code{\link{load.emuDB}}
@@ -2599,8 +2603,7 @@ store.database <- function(db,targetDir,rewriteSSFFTracks=TRUE,showProgress=TRUE
   
   persistFilter=emuR.persist.filters[['DBconfig']]
   sp=marshal.for.persistence(db[['DBconfig']],persistFilter)
-  sJSON=rjson::toJSON(sp)
-  psJSON=jsonlite::prettify(sJSON)
+  psJSON=jsonlite::toJSON(sp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
   writeLines(psJSON,dbCfgPath)
   progress=progress+1L
   
@@ -2672,8 +2675,7 @@ store.database <- function(db,targetDir,rewriteSSFFTracks=TRUE,showProgress=TRUE
       # and metadata (annotations)
       ban=str_c(b[['name']],bundle.annotation.suffix,'.json')
       baJSONPath=file.path(bfp,ban)
-      bpJSON=rjson::toJSON(bp)
-      pbpJSON=jsonlite::prettify(bpJSON)   
+      pbpJSON=jsonlite::toJSON(bp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
       writeLines(pbpJSON,baJSONPath)
       
       progress=progress+1L
@@ -2709,7 +2711,7 @@ calculate.postions.of.links<-function(items,links){
 ##' @param verbose be verbose
 ##' @return object of class emuDB
 ##' @author Klaus Jaensch
-##' @import rjson
+##' @import jsonlite
 ##' @export
 ##' @keywords emuDB database schema Emu 
 ##' @examples
@@ -2752,18 +2754,10 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   # with warn=TRUE and some files
   # R complains about incomplete (last) line
   # See https://stat.ethz.ch/pipermail/r-help/2006-July/108654.html
+  # TODO does problem with jsonlite still exist ?
   dbCfgJSONLns=readLines(dbCfgPath,warn=FALSE)
   dbCfgJSON=paste(dbCfgJSONLns,collapse='')
-  dbCfgPersisted=rjson::fromJSON(dbCfgJSON)
-  # Quick and dirty workaround for rjson bug with one-element arrays:
-  # assumes excatly one perspective!!
-  orderCv=dbCfgPersisted[['EMUwebAppConfig']][['perspectives']][[1]][['levelCanvases']][['order']]
-  orderL=list()
-  for(orderC in orderCv){
-    orderL[[length(orderL)+1L]]=orderC
-    #cat("Order: ",orderC,"\n")
-  }
-  dbCfgPersisted[['EMUwebAppConfig']][['perspectives']][[1]][['levelCanvases']][['order']]=orderL
+  dbCfgPersisted=jsonlite::fromJSON(dbCfgJSON,simplifyVector=FALSE)
   
   schema=unmarshal.from.persistence(dbCfgPersisted)
   # get max label array size
@@ -2827,7 +2821,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
           # and metadata (annotations)
           annoJSONLns=readLines(absBf,encoding="UTF-8")
           annoJSON=paste(annoJSONLns,collapse='')
-          bundle=rjson::fromJSON(annoJSON)
+          bundle=jsonlite::fromJSON(annoJSON,simplifyVector=FALSE)
           #class(bundle) <- 'emuDB.bundle'
           bundle=as.bundle(bundle)
           namedLevels=set.list.names(bundle[['levels']],'name')

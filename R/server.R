@@ -9,7 +9,7 @@ require(base64enc)
 ##' @param debug TRUE to enable debugging (default: no debugging messages)
 ##' @param debugLevel integer higher values generate more detailed debug output
 ##' @return the possibly modified Emu database object
-##' @import httpuv rjson base64enc
+##' @import httpuv jsonlite base64enc
 ##' @export
 ##' @author Klaus Jaensch
 ##' @keywords emuDB EMU-webapp database websocket Emu
@@ -74,7 +74,7 @@ serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
       sendError = function(ws,errMsg,callbackID){
         status=list(type='ERROR',details=errMsg);
         response=list(callbackID=callbackID,status)
-        responseJSON=rjson::toJSON(response)
+        responseJSON=jsonlite::toJSON(response,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
         result=ws$send(responseJSON)
       } 
       
@@ -89,7 +89,7 @@ serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
         }else{
           D = DATA
         }
-        jr=rjson::fromJSON(D)
+        jr=jsonlite::fromJSON(D,simplifyVector = FALSE)
         if(debugLevel >= 2 ){
           cat("Received command from emuLVC: ",jr$type,"\n")
           if(debugLevel >= 3){
@@ -115,7 +115,7 @@ serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
         if(jr$type == 'GETPROTOCOL'){
           protocolData=list(protocol='EMU-webApp-websocket-protocol',version='0.0.1')
           response=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,data=protocolData)
-          responseJSON=rjson::toJSON(response) 
+          responseJSON=jsonlite::toJSON(response,auto_unbox=TRUE,force=TRUE,pretty=TRUE) 
           result=ws$send(responseJSON)
           if(debugLevel >= 2){
             cat("Sent protocol. \n")
@@ -129,7 +129,7 @@ serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
             #cat("Send config: ",sp,"\n")
           }
           response=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,data=sp)
-          responseJSON=rjson::toJSON(response) 
+          responseJSON=jsonlite::toJSON(response,auto_unbox=TRUE,force=TRUE,pretty=TRUE) 
           result=ws$send(responseJSON)
           if(debugLevel >= 2){
             if(debugLevel >=4){
@@ -141,7 +141,7 @@ serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
         }else if(jr$type == 'GETDOUSERMANAGEMENT'){
           # R server mode is single user mode 
           response=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,data="NO")
-          responseJSON=rjson::toJSON(response) 
+          responseJSON=jsonlite::toJSON(response,auto_unbox=TRUE,force=TRUE,pretty=TRUE) 
           result=ws$send(responseJSON)
           if(debugLevel >= 2){
             cat("Sent user managment: no. \n")
@@ -151,7 +151,7 @@ serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
         }else if(jr$type == 'GETBUNDLELIST'){
         
           response=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,dataType='uttList',data=emuRuttList)
-          responseJSON=rjson::toJSON(response)
+          responseJSON=jsonlite::toJSON(response,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
           
           if(debugLevel >= 5)cat(responseJSON,"\n")
            result=ws$send(responseJSON)
@@ -210,7 +210,7 @@ serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
             
             responseBundle=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,responseContent='bundle',contentType='text/json',data=data)
           }
-          responseBundleJSON=rjson::toJSON(responseBundle)
+          responseBundleJSON=jsonlite::toJSON(responseBundle,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
           result=ws$send(responseBundleJSON)
           if(debugLevel >= 2){
             if(debugLevel >=8){
@@ -247,7 +247,7 @@ serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
             }
             cat(m,"\n")
             responseBundle=list(status=list(type='ERROR',message=m),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
-            responseBundleJSON=rjson::toJSON(responseBundle)
+            responseBundleJSON=jsonlite::toJSON(responseBundle,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
             result=ws$send(responseBundleJSON)
             return('sent-error')
           }
@@ -273,13 +273,13 @@ serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
             database<<-res
             responseBundle=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
           }
-          responseBundleJSON=rjson::toJSON(responseBundle)
+          responseBundleJSON=jsonlite::toJSON(responseBundle,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
           result=ws$send(responseBundleJSON)
           # restore warn level
           options(warn=warnOptionSave)
         }else if(jr[['type']]=='DISCONNECTWARNING'){
           response=list(status=list(type='SUCCESS'),callbackID=jr[['callbackID']],responseContent='status',contentType='text/json')
-          responseJSON=rjson::toJSON(response)
+          responseJSON=jsonlite::toJSON(response,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
           result=ws$send(responseJSON)
           emuRserverRunning<<-FALSE
           ws$close()
