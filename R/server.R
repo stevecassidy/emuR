@@ -183,7 +183,7 @@ serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
               cat("Mediafile: ",mediaFilePath," for ",b$name,"\n")
             }
             audioFile <- file(mediaFilePath, "rb")
-            audioFileData=readBin(audioFile, what="raw", n=1e6)
+            audioFileData=readBin(audioFile, raw(), n=file.info(mediaFilePath)$size)
             audioBase64=base64encode(audioFileData)
             close(audioFile)
             
@@ -196,7 +196,7 @@ serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
               for(sp in b$signalpaths){
                 if(length(grep(feRe,sp))==1){
                   mf<- file(sp, "rb")
-                  mfData=readBin(mf, what="raw", n=1e6)
+                  mfData=readBin(mf, raw(), n=file.info(sp)$size)
                   mfDataBase64=base64encode(mfData)
                   close(mf)
                   ssffDatObj=list(encoding="BASE64",data=mfDataBase64,ssffTrackName=ssffTr$name)

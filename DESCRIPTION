@@ -19,7 +19,8 @@ Depends:
 Imports:
     rjson,jsonlite,uuid,stringr,sqldf,httpuv,base64enc,wrassp
 Suggests:
-    testthat(>= 0.7.1.99),compare(>= 0.2.4)
+    testthat(>= 0.7.1.99),
+    compare(>= 0.2.4)
 LazyLoad: yes
 LazyData: yes
 ZipData: no
