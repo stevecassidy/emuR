@@ -17,6 +17,6 @@ add.files.to.emuDB <- function(emuDB, path2rootDir, fileExt){
 ####################
 # For Development
 
-#convert.legacyEmuDB.to.emuDB('~/emuDBs/ae/ae.tpl', '~/Desktop/')
+# convert.legacyEmuDB.to.emuDB('~/emuDBs/ae/ae.tpl', '~/Desktop/')
 # ae.emu = load.emuDB('~/Desktop/ae/')
-add.files.to.emuDB(ae.emu, '~/Desktop/aeNewFiles/', 'fms')
+# add.files.to.emuDB(ae.emu, '~/Desktop/aeNewFiles/', 'fms')
