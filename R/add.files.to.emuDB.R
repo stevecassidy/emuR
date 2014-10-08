@@ -1,7 +1,7 @@
 add.files.to.emuDB <- function(emuDB, path2rootDir, fileExt){
   
   # gernerate file pail list
-  fpl = create.filePairList(emuDB$basePath, path2rootDir, ae.emu$DBconfig$mediafileExtension, fileExt)
+  fpl = create.filePairList(emuDB$basePath, path2rootDir, emuDB$DBconfig$mediafileExtension, fileExt)
   
   # extract dirnames
   fpl[,1] = dirname(fpl[,1])
