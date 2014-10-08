@@ -56,17 +56,16 @@ test_that("Query labels",{
   expect_that('[.data.frame'(sl1,1,'utts'),is_identical_to(I('msajc057')))
 })
 
-# TODO uncomment !
-# test_that("Query label groups",{
-#   
-#   ae=test_load_ae_database()
-#   sl1=query(ae,"Phoneme=nasal",resultType='emusegs')
-#   # TODO check some items
-#   expect_that(nrow(sl1),equals(23))
-#   sl2=query(ae,"Phonetic=nasal",resultType='emusegs')
-#   # TODO check some items
-#   expect_that(nrow(sl2),equals(19))
-# })
+test_that("Query label groups",{
+  
+  ae=test_load_ae_database()
+  sl1=query(ae,"Phoneme=nasal",resultType='emusegs')
+  # TODO check some items
+  expect_that(nrow(sl1),equals(23))
+  sl2=query(ae,"Phonetic=nasal",resultType='emusegs')
+  # TODO check some items
+  expect_that(nrow(sl2),equals(19))
+})
 
 # 
 test_that("Query sequence",{

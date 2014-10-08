@@ -1509,9 +1509,9 @@ load.database.schema.from.emu.template=function(tplPath){
             attrName=lineTokens[2]
             labelGroupName=lineTokens[3]
            
-            groupLabels=c()
+            groupLabels=list()
             for(i in 4:lineTokenCount){
-              groupLabels=c(groupLabels,lineTokens[i])
+              groupLabels[[length(groupLabels)+1]]=lineTokens[i]
             }
             
             set=FALSE
@@ -1522,8 +1522,7 @@ load.database.schema.from.emu.template=function(tplPath){
                 ad=ads[[j]]
                 if(ad[['name']]==attrName){
                   lblGrIdx=length(ad[['labelGroups']])+1
-                  # TODO uncomment  if problem wit single string elemnts with rjson is fixed 
-                  #levelDefinitions[[i]][['attributeDefinitions']][[j]][['labelGroups']][[lblGrIdx]]=list(name=labelGroupName,type='STRING',values=groupLabels)
+                  levelDefinitions[[i]][['attributeDefinitions']][[j]][['labelGroups']][[lblGrIdx]]=list(name=labelGroupName,values=groupLabels)
                   set=TRUE
                   break
                 }
