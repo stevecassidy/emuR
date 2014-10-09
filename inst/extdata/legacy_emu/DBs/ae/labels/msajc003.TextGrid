@@ -551,25 +551,25 @@ item []:
         xmax = 2.90445 
         points: size = 7 
         points [1]:
-            number = 0.418082 
+            number = 0.419082 
             mark = "H*" 
         points [2]:
-            number = 0.930588 
+            number = 0.931588 
             mark = "H*" 
         points [3]:
-            number = 1.105992 
+            number = 1.106992 
             mark = "L-" 
         points [4]:
-            number = 1.91175 
+            number = 1.912750 
             mark = "H*" 
         points [5]:
-            number = 2.229668 
+            number = 2.230668 
             mark = "H*" 
         points [6]:
-            number = 2.542105 
+            number = 2.543105 
             mark = "L-" 
         points [7]:
-            number = 2.576642 
+            number = 2.577642 
             mark = "L%" 
     item [11]:
         class = "IntervalTier" 
