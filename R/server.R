@@ -224,10 +224,37 @@ serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
           if(debugLevel>3){
             #cat("Save bundle ",names(jr$data),"\n");
             cat("Save bundle ",uttCode,"\n");
-            for(ssffFile in jr[['ssffFiles']]){
-              cat("SSFF file: ",ssffFile,"\n")
-              # TODO save SSFF file
-            }
+            
+          }
+          ssffFiles=jr[['data']][['ssffFiles']]
+          oldBundle=get.bundle(database,uttCode)
+          if(is.null(oldBundle)){
+            # error
+            m=paste('Could not load bundle ',uttCode)
+            responseBundle=list(status=list(type='ERROR',message=m),callbackID=jr[['callbackID']],responseContent='status',contentType='text/json')
+          }else{
+          for(ssffFile in ssffFiles){
+            #cat("SSFF file: ",ssffFile[['ssffTrackName']],"\n")
+            for(ssffTrackDef in database[['DBconfig']][['ssffTrackDefinitions']]){
+              if(ssffTrackDef[['name']]==ssffFile[['ssffTrackName']]){
+                  ssffTrackExt=ssffTrackDef[['fileExtension']]
+                  extPatt=paste0('[.]',ssffTrackExt,'$')
+                  # TODO store signal paths in a better way!
+                  for(sp in oldBundle[['signalpaths']]){
+                    if(grepl(extPatt,sp)){
+                      # store
+                      if(debugLevel>3){
+                        cat("Writing SSFF track ",ssffFile[['ssffTrackName']]," to file: ",sp,"\n")
+                      }
+                      # Hmm. does not work: missing file argument
+                      #base64decode(ssffFile[['data']],output=sp)
+                    
+                      ssffTrackBin=base64decode(ssffFile[['data']])
+                      writeBin(ssffTrackBin,sp)
+                    }
+                  }
+              }
+            } 
           }
           bundleData=jr[['data']][['annotation']]
           bundle=as.bundle(bundleData=bundleData)
@@ -272,6 +299,7 @@ serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
           }else{
             database<<-res
             responseBundle=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
+          }
           }
           responseBundleJSON=jsonlite::toJSON(responseBundle,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
           result=ws$send(responseBundleJSON)
