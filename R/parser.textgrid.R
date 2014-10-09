@@ -198,7 +198,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
                       if(p[1] == "xmin"){
                         minTimeStr=p[2]
                         minTime=as(minTimeStr,"numeric")
-                        startSample=round(minTime*sampleRate)
+                        startSample = floor(minTime * sampleRate)
                         currentSegmentStart=startSample
                         #long minFrames=timeToFrames(minTime);
                         #currentSegment.setBegin(minFrames);
@@ -209,7 +209,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
                         #currentSegment.setEnd(maxFrames);
                         #if(DEBUG)System.out.println("Segment: "+currentSegment);
                         maxTime=as(maxTimeStr,"numeric")
-                        currentSegmentEnd=round(maxTime*sampleRate)
+                        currentSegmentEnd = floor(maxTime * sampleRate)
                         
                         
                       }else if(p[1]=="text"){
@@ -225,7 +225,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
                            !is.null(currentSegmentEnd) &&
                            !is.null(currentSegmentLabel)){
                         #cat("New segment\n");
-                        sampleDur=currentSegmentEnd-currentSegmentStart
+                        sampleDur = currentSegmentEnd - currentSegmentStart - 1
                         labels=list(list(name=currentTierName,value=currentSegmentLabel))
                         currentSegment=create.interval.item(id = itemCounter, sampleStart=currentSegmentStart,sampleDur=sampleDur,labels=labels);
                         itemCounter = itemCounter + 1
@@ -269,7 +269,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
                       if(p[1]=="time" || p[1]=="number"){
                         timePointStr=p[2];
                         timePoint=as(timePointStr,"numeric")
-                        samplePoint=round(timePoint*sampleRate)
+                        samplePoint = floor(timePoint * sampleRate)
                         currentPointSample=samplePoint
                        #cat("point sample: ",currentPointSample,"\n")
                         #    long frames=timeToFrames(time);
@@ -314,6 +314,6 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
 }
 
 # FOR DEVELOPMENT
-# tgPath = "/Library/Frameworks/R.framework/Versions/3.1/Resources/library/emuR/extdata/legacy_emu/DBs//ae/labels/msajc003.TextGrid"
-# res = parse.textgrid(tgPath, 20000)
+tgPath = "/Library/Frameworks/R.framework/Versions/3.1/Resources/library/emuR/extdata/legacy_emu/DBs//ae/labels/msajc003.TextGrid"
+res = parse.textgrid(tgPath, 20000)
 # print(res)
