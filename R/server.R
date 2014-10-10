@@ -15,7 +15,7 @@ require(base64enc)
 ##' @keywords emuDB EMU-webapp database websocket Emu
 ##' @examples
 ##' \dontrun{ 
-##' ## Serve database object ae (opens default HTTP/websocket port 8080)
+##' ## Serve database object ae (opens default HTTP/websocket port 17890)
 ##' 
 ##' ae=serve(ae)
 ##' 
@@ -25,7 +25,7 @@ require(base64enc)
 ##' 
 ##' }
 ##' 
-serve<-function(database,port=8080,debug=FALSE,debugLevel=0){
+serve<-function(database,port=17890,debug=FALSE,debugLevel=0){
   UseMethod('serve')
 }
 
