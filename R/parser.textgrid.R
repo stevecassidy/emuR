@@ -287,7 +287,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
                       
                       labels=list(list(name=currentTierName,value=currentPointLabel))
                     
-                      currentPoint=create.event.item(samplePoint=currentPointSample,labels=labels)
+                      currentPoint=create.event.item(id=itemCounter, samplePoint=currentPointSample,labels=labels)
                       itemCounter = itemCounter + 1
                       currentTier$items[[length(currentTier$items)+1]]=currentPoint
                       

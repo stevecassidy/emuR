@@ -53,3 +53,15 @@ test_that("correct EVENT values are parsed and calculated", {
   expect_that(tgObj$Tone$items[[7]]$labels[[1]]$name, equals('Tone'))
   expect_that(tgObj$Tone$items[[7]]$labels[[1]]$value, equals('L%'))
 })  
+
+##############################
+test_that("SEGMENTs & EVENTs have correct IDs", {
+  # increment IDs for EVENTs
+  expect_equal(tgObj$Tone$items[[2]]$id, tgObj$Tone$items[[1]]$id + 1)
+  expect_equal(tgObj$Tone$items[[3]]$id, tgObj$Tone$items[[2]]$id + 1)
+  
+  # increment ids for SEGMENTs
+  expect_equal(tgObj$Phonetic$items[[2]]$id, tgObj$Phonetic$items[[1]]$id + 1)
+  expect_equal(tgObj$Phonetic$items[[3]]$id, tgObj$Phonetic$items[[2]]$id + 1)
+  
+})  
