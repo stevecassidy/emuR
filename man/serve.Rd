@@ -3,7 +3,7 @@
 \alias{serve}
 \title{Serve EMU database to EMU-Webapp}
 \usage{
-serve(database, port = 8080, debug = FALSE, debugLevel = 0)
+serve(database, port = 17890, debug = FALSE, debugLevel = 0)
 }
 \arguments{
 \item{database}{a emuDB database object}
@@ -22,7 +22,7 @@ Starts a websocket server and listens on commands from a running EMU-Webapplicat
 }
 \examples{
 \dontrun{
-## Serve database object ae (opens default HTTP/websocket port 8080)
+## Serve database object ae (opens default HTTP/websocket port 17890)
 
 ae=serve(ae)
 
