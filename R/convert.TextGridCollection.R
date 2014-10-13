@@ -65,6 +65,13 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
                            mediaFilePath = fpl[i,1],
                            links = list())
     
+    # validate bundle
+    valRes = validate.listFrom.bundle(dbd, bundle)
+    
+    if(valRes$type != 'SUCCESS'){
+      stop('Parsed TextGrid did not pass validator! The validator message is: ', valRes$message)
+    }
+    
     # this will be slow for large DBs
     db = append.bundle.to.tmp.list(db, bundle)
     
@@ -109,5 +116,6 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
 
 
 # FOR DEVELOPMENT
-# path2rootDir = system.file("extdata/legacy_emu/DBs/", package = "emuR")
-# convert.TextGridCollection.to.emuDB(path2rootDir, 'test12', '~/Desktop/')
+unlink('~/Desktop/test12/', recursive = T)
+path2rootDir = system.file("extdata/legacy_emu/DBs/", package = "emuR")
+convert.TextGridCollection.to.emuDB(path2rootDir, 'test12', '~/Desktop/')
