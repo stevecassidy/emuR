@@ -3,6 +3,8 @@
 ##' @author Raphael Winkelmann
 context("testing validate.XXX.bundle functions")
 
+sampleRate = 20000
+
 path2aeLabels = system.file("extdata/legacy_emu/DBs/ae/labels/", package = "emuR")
 
 path2tg = paste(path2aeLabels, 'msajc003.TextGrid', sep='/')
@@ -11,14 +13,14 @@ path2tg = paste(path2aeLabels, 'msajc003.TextGrid', sep='/')
 dbd = create.DBconfig.from.TextGrid(path2tg, 'testhatDBconfig')
 
 # parse TextGrid
-levels = parse.textgrid(path2tg, attributes(asspObj)$sampleRate)
+levels = parse.textgrid(path2tg, sampleRate)
 
 bndlName = basename(file_path_sans_ext(path2tg))
 
 # create bundle
 bundle = create.bundle(name = bndlName,
                        annotates = paste0('0000_ses/', bndlName, '_bndl/', bndlName, '.wav'),
-                       sampleRate = 20000,
+                       sampleRate = sampleRate,
                        levels = levels,
                        signalpaths = list('UNKNOWN'),
                        mediaFilePath = 'UNKNOWN',
