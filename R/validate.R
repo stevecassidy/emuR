@@ -85,5 +85,5 @@ validate.dfForm.bundle<-function(DBconfig, bundle){
 
 
 ## FOR DEVELOPMENT
-retVal = validate.listFrom.bundle(dbd, bundle)
-print(retVal)
+# retVal = validate.listFrom.bundle(dbd, bundle)
+# print(retVal)

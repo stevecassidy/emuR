@@ -116,6 +116,6 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
 
 
 # FOR DEVELOPMENT
-unlink('~/Desktop/test12/', recursive = T)
-path2rootDir = system.file("extdata/legacy_emu/DBs/", package = "emuR")
-convert.TextGridCollection.to.emuDB(path2rootDir, 'test12', '~/Desktop/')
+#unlink('~/Desktop/test12/', recursive = T)
+#path2rootDir = system.file("extdata/legacy_emu/DBs/", package = "emuR")
+#convert.TextGridCollection.to.emuDB(path2rootDir, 'test12', '~/Desktop/')

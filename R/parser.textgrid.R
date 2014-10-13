@@ -314,6 +314,6 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
 }
 
 # FOR DEVELOPMENT
-tgPath = "/Library/Frameworks/R.framework/Versions/3.1/Resources/library/emuR/extdata/legacy_emu/DBs//ae/labels/msajc003.TextGrid"
-res = parse.textgrid(tgPath, 20000)
+# tgPath = "/Library/Frameworks/R.framework/Versions/3.1/Resources/library/emuR/extdata/legacy_emu/DBs//ae/labels/msajc003.TextGrid"
+# res = parse.textgrid(tgPath, 20000)
 # print(res)
