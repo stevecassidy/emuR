@@ -33,7 +33,7 @@ test_that("Data types are correct",{
   expect_that(ae[['name']],is_equivalent_to('ae'))
   items=ae[['items']]
   expect_that(class(items[['seqIdx']]),is_equivalent_to('integer'))
-  expect_that(class(items[['bundleId']]),is_equivalent_to('integer'))
+  expect_that(class(items[['itemID']]),is_equivalent_to('integer'))
   expect_that(class(items[['sampleRate']]),is_equivalent_to('numeric'))
   expect_that(class(items[['samplePoint']]),is_equivalent_to('integer'))
   expect_that(class(items[['sampleStart']]),is_equivalent_to('integer'))

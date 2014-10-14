@@ -148,8 +148,8 @@ create.database <- function(name=name,basePath=NULL,DBconfig,sessions=NULL,prima
 # @author Klaus Jaensch
 # @keywords emuDB bundle Emu
 # 
-create.bundle <- function(name,annotates=NULL,sampleRate,signalpaths=list(),mediaFilePath=NULL,levels=list(),links=list()){
-  o <- list(name=name,annotates=annotates,sampleRate=sampleRate,signalpaths=signalpaths,mediaFilePath=mediaFilePath,files=signalpaths,levels=levels,links=links)
+create.bundle <- function(name,bundleId,annotates=NULL,sampleRate,signalpaths=list(),mediaFilePath=NULL,levels=list(),links=list()){
+  o <- list(name=name,bundleId=bundleId,annotates=annotates,sampleRate=sampleRate,signalpaths=signalpaths,mediaFilePath=mediaFilePath,files=signalpaths,levels=levels,links=links)
   return(as.bundle(o))
 }
 
@@ -167,7 +167,7 @@ remove.redundant.links<-function(database,links){
   #
   # build SQL query from link definitions
   items=database[['items']]
-  sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.bundleId=l.fromID AND t.bundleId=l.toID AND ("
+  sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.itemID=l.fromID AND t.itemID=l.toID AND ("
   ldCnt=length(database[['DBconfig']][['linkDefinitions']])
   for(i in 1:ldCnt){
     ld=database[['DBconfig']][['linkDefinitions']][[i]]
@@ -191,7 +191,7 @@ remove.database.redundant.links<-function(database){
   links=database[['links']]
   linksCnt=nrow(links)
   if(linksCnt>0){
-    sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.bundleId=l.fromID AND t.bundleId=l.toID AND ("
+    sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.itemID=l.fromID AND t.itemID=l.toID AND ("
     ldCnt=length(database[['DBconfig']][['linkDefinitions']])
     if(ldCnt>0){
       for(i in 1:ldCnt){
@@ -417,7 +417,7 @@ build.redundant.links.for.pathes<-function(database,lfs,bundleName=NULL){
   if(nrow(links)==0){
     return(links)
   }
-  sqlQuery="SELECT DISTINCT f.bundle,f.bundleId AS fromID,t.bundleId AS toID FROM items f,items t"
+  sqlQuery="SELECT DISTINCT f.bundle,f.itemID AS fromID,t.itemID AS toID FROM items f,items t"
   sqlQuery=paste0(sqlQuery,' WHERE f.bundle=t.bundle AND ')
   if(!is.null(bundleName)){
      # only for one bundle
@@ -454,20 +454,20 @@ build.redundant.links.for.pathes<-function(database,lfs,bundleName=NULL){
     }
     sqlQuery=paste0(sqlQuery," WHERE ")
     if(lfLen==2){
-      sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=t.bundle AND f.bundleID=l1.fromID AND t.bundleId=l1.toID")
+      sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=t.bundle AND f.itemID=l1.fromID AND t.itemID=l1.toID")
       #cat(sLf,eLf,"\n")
     }else{
       # TODO start and end connection
       # from start to first in-between item 
       eLf=lf[2]
       #cat(sLf,eLf,"\n")
-      sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=i2.bundle AND f.bundleID=l1.fromID AND i2.bundleId=l1.toID AND f.level='",sLf,"' AND i2.level='",eLf,"' AND ")
+      sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=i2.bundle AND f.itemID=l1.fromID AND i2.itemID=l1.toID AND f.level='",sLf,"' AND i2.level='",eLf,"' AND ")
       if(lfLen>3){
         for(j in 2:(lfLen-2)){
           sLf=lf[j]
           eLf=lf[j+1L] 
           #cat(sLf,eLf,"\n")
-          sqlQuery=paste0(sqlQuery,"l",j,".bundle=i",j,".bundle AND l",j,".bundle=i",(j+1),".bundle AND i",j,".bundleID=l",j,".fromID AND i",(j+1L),".bundleId=l",j,".toID AND i",j,".level='",sLf,"' AND i",(j+1L),".level='",eLf,"' AND ")
+          sqlQuery=paste0(sqlQuery,"l",j,".bundle=i",j,".bundle AND l",j,".bundle=i",(j+1),".bundle AND i",j,".itemID=l",j,".fromID AND i",(j+1L),".itemID=l",j,".toID AND i",j,".level='",sLf,"' AND i",(j+1L),".level='",eLf,"' AND ")
         }
       }
       # from last in-between item to end item
@@ -475,7 +475,7 @@ build.redundant.links.for.pathes<-function(database,lfs,bundleName=NULL){
       eLf=lf[lfLen]
       #cat(sLf,eLf,(lfLen-1),"\n")
       j=lfLen-1
-      sqlQuery=paste0(sqlQuery,"l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND i",j,".bundleID=l",j,".fromID AND t.bundleId=l",j,".toID AND i",j,".level='",sLf,"' AND t.level='",eLf,"'")
+      sqlQuery=paste0(sqlQuery,"l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND i",j,".itemID=l",j,".fromID AND t.itemID=l",j,".toID AND i",j,".level='",sLf,"' AND t.level='",eLf,"'")
     }
     sqlQuery=paste0(sqlQuery,"))")
     if(i<lfsLen){
@@ -512,7 +512,7 @@ move.bundle.levels.to.data.frame <-function(db,bundle,replace=TRUE){
     lvlItCount=length(lvl[['items']])
     itCount=itCount+lvlItCount
   }
-  bdf=data.frame(id=character(itCount),bundle=character(itCount),level=character(itCount),bundleId=integer(itCount),type=character(itCount),seqIdx=integer(itCount),sampleRate=numeric(itCount),samplePoint=integer(itCount),sampleStart=integer(itCount),sampleDur=integer(itCount),label=character(itCount),stringsAsFactors=FALSE)
+  bdf=data.frame(id=character(itCount),bundle=character(itCount),level=character(itCount),itemID=integer(itCount),type=character(itCount),seqIdx=integer(itCount),sampleRate=numeric(itCount),samplePoint=integer(itCount),sampleStart=integer(itCount),sampleDur=integer(itCount),label=character(itCount),stringsAsFactors=FALSE)
   #colnames(bdf)<-db[['DBconfig']][['itemColNames']]
   ldf=NULL
   lrow=1
@@ -538,7 +538,7 @@ move.bundle.levels.to.data.frame <-function(db,bundle,replace=TRUE){
         id=paste(db[['name']],bName,it['id'],sep='_')
       }
       bdf[row,'id']=id
-      bdf[row,'bundleId']=itemId
+      bdf[row,'itemID']=itemId
       bdf[row,'level']=lvl[['name']]
       bdf[row,'type']=lvl[['type']]
       if(!is.null(bundle[['sampleRate']])){
@@ -650,7 +650,7 @@ append.bundle.to.tmp.list <-function(db,bundle){
         id=paste(db[['name']],bName,it['id'],sep='_')
       }
       db[['items']][['id']][row]=id
-      db[['items']][['bundleId']][row]=itemId
+      db[['items']][['itemID']][row]=itemId
       db[['items']][['level']][row]=lvl[['name']]
       db[['items']][['type']][row]=lvl[['type']]
       if(!is.null(bundle[['sampleRate']])){
@@ -778,7 +778,7 @@ append.bundle.to.tmp.list.by.ref <-function(dbWr,bundle){
         id=paste(dbWr[['db']][['name']],bName,it['id'],sep='_')
       }
       dbWr[['db']][['items']][['id']][row]=id
-      dbWr[['db']][['items']][['bundleId']][row]=itemId
+      dbWr[['db']][['items']][['itemID']][row]=itemId
       dbWr[['db']][['items']][['level']][row]=lvl[['name']]
       dbWr[['db']][['items']][['type']][row]=lvl[['type']]
       if(!is.null(bundle[['sampleRate']])){
@@ -887,7 +887,7 @@ get.bundle.levels.s3 <-function(db,bundleName){
     }
     cLvl=create.bundle.level(name=rLvl,type=items[r,'type'],sampleRate=sr,items=lvlItems)
   }
-      id=items[r,'bundleId']
+      id=items[r,'itemID']
       type=items[r,'type']
     
       attrDefs=lvlDef[['attributeDefinitions']]
@@ -1099,6 +1099,8 @@ convert.emuTrackPath <- function(absEmuTrackPath){
   for(epDir in epSpl){
     #if(epDir!='*'){
     if(!grepl('*',epDir)){
+      # Bug this condition block is never reached!!
+      # The regex substitution is done is list.trackdirs
       lastIsAsterisk=FALSE
       #if(epDir==''){
       #  cDir='/'
@@ -1127,6 +1129,61 @@ convert.emuTrackPath <- function(absEmuTrackPath){
     pp=c(pp,cDir)
   }
   return(pp)
+}
+
+parse.emuTrackPath <- function(absEmuTrackPath){
+  # Emu track path may have asterisks for pattern matching e.g.
+  # wav E:/KielCorpusRead/*/*/*/*
+  # to use this pattern with R regex we have to convert to regular expression
+  epSpl=strsplit(absEmuTrackPath,'/+')[[1]]
+  topo=list()
+  wildcardDirLevelCount=0
+  pp=list()
+  cDir=NULL
+  lastIsAsterisk=FALSE
+  for(epDir in epSpl){
+    #if(epDir!='*'){
+    if(!grepl('[*]',epDir)){
+      lastIsAsterisk=FALSE
+      #if(epDir==''){
+      #  cDir='/'
+      #}else{
+      if(epDir!=''){
+        if(is.null(cDir)){
+          cDir=epDir
+        }else{
+          sep='/'
+          if(length(gl <- grep('/$', cDir))){
+            sep=''
+          }
+          cDir=paste(cDir,epDir,sep=sep)
+        }
+      }else{
+        cDir='/'
+      }
+    }else{
+      lastIsAsterisk=TRUE
+     
+      if(!is.null(cDir)){
+        pp[[length(pp)+1]]=list(dir=cDir,pattern=FALSE)
+      } 
+      cDir=NULL
+      
+      #epDirRegexPattern=
+      pp[[length(pp)+1]]=list(dir=epDir,pattern=TRUE)
+      wildcardDirLevelCount=wildcardDirLevelCount+1
+     
+    
+    }
+  }
+  if(!lastIsAsterisk){
+    #pp=c(pp,cDir)
+    pp[[length(pp)+1]]=list(dir=cDir,pattern=FALSE)
+  }
+  topo[['dirs']]=pp
+  topo[['patternCount']]=wildcardDirLevelCount
+  
+  return(topo)
 }
 
 is.relative.file.path<-function(nativeFilePathStr,forRunningPlatform=FALSE){
@@ -1298,9 +1355,12 @@ find.file.in.emu.path.pattern=function(emuPathPattern,fileName,basePath=NULL){
 }
 
 
+
+
+
 initialize.database.dataframes<-function(db){
   
-  baseColNms <- c('id','bundle','level','bundleId','type','seqIdx','sampleRate','samplePoint','sampleStart','sampleDur','label')
+  baseColNms <- c('id','bundle','level','itemID','type','seqIdx','sampleRate','samplePoint','sampleStart','sampleDur','label')
   maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
   
   colNms=baseColNms
@@ -1309,7 +1369,7 @@ initialize.database.dataframes<-function(db){
 
 
   # items 
-  db[['items']]=list(id=character(vector.increment),bundle=character(vector.increment),level=character(vector.increment),bundleId=integer(vector.increment),type=character(vector.increment),seqIdx=integer(vector.increment),sampleRate=numeric(vector.increment),samplePoint=integer(vector.increment),sampleStart=integer(vector.increment),sampleDur=integer(vector.increment),label=character(vector.increment))
+  db[['items']]=list(id=character(vector.increment),bundle=character(vector.increment),level=character(vector.increment),itemID=integer(vector.increment),type=character(vector.increment),seqIdx=integer(vector.increment),sampleRate=numeric(vector.increment),samplePoint=integer(vector.increment),sampleStart=integer(vector.increment),sampleDur=integer(vector.increment),label=character(vector.increment))
   #db[['items']]=matrix(nrow=itCount,ncol=length(colNms))w
   #colnames(db[['items']])=colNms
   db[['itemsIdx']]=0L
@@ -1641,20 +1701,26 @@ load.database.schema.from.emu.template=function(tplPath){
 
 
 ## @import stringr wrassp
-load.annotation.for.legacy.bundle=function(schema,uttCode,basePath=NULL){
+load.annotation.for.legacy.bundle=function(schema,bundleId,basePath=NULL){
+  
+  newBundleId=convert.legacy.bundle.id(bundleId)
+  
   # determine samplerate
   # fallback is primary file
   sampleRateReferenceFile=NULL
   sampleTrackFile=NULL
   if(!is.null(schema[['mediafileBasePathPattern']]) && ! is.null(schema[['mediafileExtension']])){
     # use samples track to determine sample rate
-    sampleTrackFile=paste0(uttCode,'.',schema[['mediafileExtension']]) 
-    # resolve wildcards
-    sampleRateReferenceFile=find.file.in.emu.path.pattern(emuPathPattern=schema[['mediafileBasePathPattern']],fileName=sampleTrackFile,basePath)
+    
+    ## resolve wildcards
+    #sampleRateReferenceFile=find.file.in.emu.path.pattern(emuPathPattern=schema[['mediafileBasePathPattern']],fileName=sampleTrackFile,basePath)
+    sampleRateReferenceFile=get.legacy.file.path(basePath,emuPath=schema[['mediafileBasePathPattern']],bundleId,fileExtension=schema[['mediafileExtension']])
   }
   if(is.null(sampleRateReferenceFile)){
-    stop("Could not determine media sample rate of bundle ",uttCode,"\n")
+    stop("Could not determine media sample rate of bundle ID ",paste(bundleId,collapse='_'),"\n")
   }else{
+    # TODO ASSP does not return good error messages if an IO error (not exist, permission dnied ,etc...) occurs
+    # TODO test file access first
   #cat("Determine sample rate from file: ",sampleRateReferenceFile,"\n")
   pfAssp=read.AsspDataObj(sampleRateReferenceFile,0,4000)
   sampleRate=attr(pfAssp,'sampleRate')
@@ -1665,9 +1731,9 @@ load.annotation.for.legacy.bundle=function(schema,uttCode,basePath=NULL){
   signalpaths=list() 
   for(tr in schema[['tracks']]){
    #cat("Track: ",tr$name," ",tr$fileExtension,"\n")
-    sigFilename=str_c(uttCode,'.',tr[['fileExtension']])
-    sFile=find.file.in.emu.path.pattern(tr[['basePath']],sigFilename,basePath)
-   
+    #sigFilename=str_c(uttCode,'.',tr[['fileExtension']])
+    #sFile=find.file.in.emu.path.pattern(tr[['basePath']],sigFilename,basePath)
+    sFile=get.legacy.file.path(basePath=basePath,emuPath=tr[['basePath']],bundleId,fileExtension=tr[['fileExtension']])
     if(!is.null(sFile)){
       signalpaths[[length(signalpaths)+1L]]=sFile
     }
@@ -1688,8 +1754,9 @@ load.annotation.for.legacy.bundle=function(schema,uttCode,basePath=NULL){
       annoBasePath=ad[['basePath']]
       # Emu: assume that files reside in this directory (no recursive search)
       
-      annoFilename=str_c(uttCode,'.',extension)
-      annoPath=find.file.in.emu.path.pattern(annoBasePath,annoFilename,basePath)
+      #annoFilename=str_c(uttCode,'.',extension)
+      #annoPath=find.file.in.emu.path.pattern(annoBasePath,annoFilename,basePath)
+      annoPath=get.legacy.file.path(basePath=basePath,emuPath=ad[['basePath']],bundleId,fileExtension=extension)
       if(!is.null(annoPath)){
         #cat("Anno: ",annoPath,"\n")
         if(extension!='hlb'){
@@ -1709,20 +1776,20 @@ load.annotation.for.legacy.bundle=function(schema,uttCode,basePath=NULL){
   for(ad in schema[['annotationDescriptors']]){
     extension=ad[['extension']]
     #cat("Anno ext: ",extension,ad$basePath,"\n")
-    annoBasePath=NULL
+    #annoBasePath=NULL
     if(is.null(ad[['basePath']])){
       #annoBasePath=schema$
       # TODO use same as primary track
     }else{
       annoBasePathEmu=ad[['basePath']]
       # resolve wildcards
-      annoFilename=str_c(uttCode,'.',extension)
-      annoPath=find.file.in.emu.path.pattern(annoBasePathEmu,annoFilename,basePath)
-      if(!is.null(annoPath)){
+      #annoFilename=str_c(uttCode,'.',extension)
+      #annoPath=find.file.in.emu.path.pattern(annoBasePathEmu,annoFilename,basePath)
+      #if(!is.null(annoPath)){
         #cat("Anno: ",annoPath,"\n")
         if(extension=='hlb'){
           #cat("Parse hlb file:",annoPath,"\n")
-          
+          hlbFilePath=get.legacy.file.path(basePath=basePath,emuPath=annoBasePathEmu,bundleId,fileExtension=extension)
           hlbParseResult=parse.hlb.file(hlbFilePath=annoPath,levelDefinitions=schema[['levelDefinitions']],levels=levels);
           hlbTiers=hlbParseResult[['hlbTiers']]
           links=hlbParseResult[['links']]
@@ -1741,7 +1808,7 @@ load.annotation.for.legacy.bundle=function(schema,uttCode,basePath=NULL){
           }
           levels=sortedLevels
         }
-      }
+      #}
     }
     
   }
@@ -1760,8 +1827,11 @@ load.annotation.for.legacy.bundle=function(schema,uttCode,basePath=NULL){
       }
     }
   }
-  annotates=paste0('0000_ses/',uttCode,bundle.dir.suffix,'/',sampleTrackFile)
-  bundle=create.bundle(name=uttCode,annotates=annotates,sampleRate=bundleSampleRate,levels=levels,signalpaths=signalpaths,mediaFilePath=sampleRateReferenceFile,links=links)
+  #annotates=paste0('0000_ses/',uttCode,bundle.dir.suffix,'/',sampleTrackFile)
+ 
+  sampleTrackFile=paste0(newBundleId[2],'.',schema[['mediafileExtension']]) 
+  annotates=paste0(newBundleId[1],session.suffix,'/',newBundleId[2],bundle.dir.suffix,'/',sampleTrackFile)
+  bundle=create.bundle(name=newBundleId[2],bundleId=bundleId,annotates=annotates,sampleRate=bundleSampleRate,levels=levels,signalpaths=signalpaths,mediaFilePath=sampleRateReferenceFile,links=links)
   return(bundle)
 }
 
@@ -1823,8 +1893,8 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
   primaryBasePath=NULL
   primaryFileExtension=NULL
   
-  pattern='*'
-  
+  #pattern='*'
+  primaryFileSuffixPattern=NULL
   # find primary and sample track paths
   for(tr in schema[['tracks']]){
     #cat("Track: ",tr$name," ",tr$fileExtension,"\n")
@@ -1832,9 +1902,9 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
       
       primaryFileExtension=tr[['fileExtension']]
       primaryBasePath=tr[['basePath']]
-      if(!is.null(tr[['unitSuffix']])){
-        pattern=str_c(pattern,tr[['unitSuffix']])
-      }
+      #if(!is.null(tr[['unitSuffix']])){
+      #  pattern=str_c(pattern,tr[['unitSuffix']])
+      #}
     }
   }
   
@@ -1848,16 +1918,13 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     }
     
   }
-  pattern=str_c(pattern,'.',primaryFileExtension)
+  #pattern=str_c(pattern,'[.]',primaryFileExtension)
+  primaryFileSuffixPattern=paste0('[.]',primaryFileExtension,'$')
+  #primaryFileList=list.file.matching.emu.path.pattern(db[['basePath']],primaryBasePath,filePattern=pattern)
+  bundleIdsList=get.legacy.emu.bundles(db[['basePath']],primaryBasePath,primaryFileSuffixPattern)
   
-  primaryFileList=list.file.matching.emu.path.pattern(db[['basePath']],primaryBasePath,filePattern=pattern)
-  
-  # TODO load other tracks
-  
-  # build utterance list
-  # TODO lazy loading of annotations/ASSP objects
-  utts=list()
-  bundlesCount=length(primaryFileList)
+
+  bundlesCount=length(bundleIdsList)
   #utts=vector(mode='list',length=bundlesCount)
   us=1:bundlesCount
   if(showProgress){
@@ -1866,14 +1933,24 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     
     setTxtProgressBar(pb,progress)
   }
-  uttNames=c()
+  #uttNames=c()
 
   db[['itemsIdx']]=0L
   db[['labelsIdx']]=0L
   db[['linksIdx']]=0L
   
   for(ui in us){
-    ptrFilePath=primaryFileList[ui]
+    bundleId=bundleIdsList[[ui]]
+    newBundleId=convert.legacy.bundle.id(bundleId)
+    sessionId=newBundleId[1]
+    
+    if(is.null(db[['sessions']][[sessionId]])){
+      # create session if needed
+      db[['sessions']][[sessionId]]=list(name=sessionId,bundles=list())
+      
+    }
+    ptrFilePath=get.legacy.file.path(db[['basePath']],primaryBasePath,bundleId,primaryFileExtension)
+    #ptrFilePath=primaryFileList[ui]
     #cat("Primary track file path: ",ptrFilePath,"\n")
     
     ptrFileBasename=basename(ptrFilePath)
@@ -1881,8 +1958,8 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     cutLen=str_length(primaryFileExtension)+1L
     cutPos=str_length(ptrFileBasename)-cutLen
     #cat("Cut: ",ptrFileBasename,cutLen,cutPos,"\n")
-    uttCode=substr(ptrFileBasename,1,cutPos)
-    bundle=load.annotation.for.legacy.bundle(schema,uttCode,db[['basePath']])
+    #uttCode=substr(ptrFileBasename,1,cutPos)
+    bundle=load.annotation.for.legacy.bundle(schema,bundleId,db[['basePath']])
     
     # "inlining" of append.bundle.to.tmp.list improves performance for very large databases
     # (db object is not copied for each call)
@@ -1928,7 +2005,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
           id=paste(db[['name']],bName,it['id'],sep='_')
         }
         db[['items']][['id']][row]=id
-        db[['items']][['bundleId']][row]=itemId
+        db[['items']][['itemID']][row]=itemId
         db[['items']][['level']][row]=lvl[['name']]
         db[['items']][['type']][row]=lvl[['type']]
         if(!is.null(bundle[['sampleRate']])){
@@ -2041,9 +2118,11 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     
     bName=bundle[['name']]
     
-    utts[[uttCode]]=bundle
+    #utts[[uttCode]]=bundle
+    db[['sessions']][[sessionId]][['bundles']][[bName]]=bundle
+   
     if(verboseLevel>5){
-      cat("Loaded bundle ",uttCode,"(",ui," of ",bundlesCount,")\n")
+      cat("Loaded bundle ",bName,"(",ui," of ",bundlesCount,")\n")
     }
     progress=progress+1L
     if(showProgress){
@@ -2052,7 +2131,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
   }
   itemsIdx=db[['itemsIdx']]
   
-  db[['items']]=data.frame(id=db[['items']][['id']][0:itemsIdx],bundle=db[['items']][['bundle']][0:itemsIdx],level=db[['items']][['level']][0:itemsIdx],bundleId=db[['items']][['bundleId']][1:itemsIdx],type=db[['items']][['type']][1:itemsIdx],seqIdx=db[['items']][['seqIdx']][1:itemsIdx],sampleRate=db[['items']][['sampleRate']][1:itemsIdx],samplePoint=db[['items']][['samplePoint']][1:itemsIdx],sampleStart=db[['items']][['sampleStart']][1:itemsIdx],sampleDur=db[['items']][['sampleDur']][1:itemsIdx],label=db[['items']][['label']][1:itemsIdx],stringsAsFactors=FALSE)
+  db[['items']]=data.frame(id=db[['items']][['id']][0:itemsIdx],bundle=db[['items']][['bundle']][0:itemsIdx],level=db[['items']][['level']][0:itemsIdx],itemID=db[['items']][['itemID']][1:itemsIdx],type=db[['items']][['type']][1:itemsIdx],seqIdx=db[['items']][['seqIdx']][1:itemsIdx],sampleRate=db[['items']][['sampleRate']][1:itemsIdx],samplePoint=db[['items']][['samplePoint']][1:itemsIdx],sampleStart=db[['items']][['sampleStart']][1:itemsIdx],sampleDur=db[['items']][['sampleDur']][1:itemsIdx],label=db[['items']][['label']][1:itemsIdx],stringsAsFactors=FALSE)
   #tmpDf=data.frame(db[['items']],stringsAsFactors = FALSE)
   #db[['items']]=tmpDf[1:itemsIdx,]
   progress=progress+1L
@@ -2084,12 +2163,12 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
   #db[['links']]=tmpDf[1:linksIdx,]
   #tmpDf=NULL
 
-  # Emu does not divide utterances in sessions
-  # we create a dummy container session to satisfy new db data model
-  # (db: list of sessions, session: list of bundles (utterances))
-  containerSession=emuDB.session(name='0000',bundles=utts)
-  #db$sessions[[1]]$bundles = utts
-  db[['sessions']][['0000']]=containerSession
+  ## Emu does not divide utterances in sessions
+  ## we create a dummy container session to satisfy new db data model
+  ## (db: list of sessions, session: list of bundles (utterances))
+  #containerSession=emuDB.session(name='0000',bundles=utts)
+  ##db$sessions[[1]]$bundles = utts
+  #db[['sessions']][['0000']]=containerSession
   db=remove.database.redundant.links(db)
   progress=progress+1L
   if(showProgress){
@@ -2694,8 +2773,8 @@ calculate.postions.of.links<-function(items,links){
   }
   # for all position related functions we need to calculate the sequence indices of dominated items grouped to one dominance item 
   # Extend links table with sequence index of the targeted (dominated) item
-  #links2=sqldf("SELECT k.*,i.seqIdx FROM links k,items i WHERE i.bundle=k.bundle AND k.toID=i.bundleId")
-  links2=sqldf("SELECT k.*,i.seqIdx,i.level AS toLevel,i.type FROM links k,items i WHERE i.bundle=k.bundle AND k.toID=i.bundleId")
+  #links2=sqldf("SELECT k.*,i.seqIdx FROM links k,items i WHERE i.bundle=k.bundle AND k.toID=i.itemID")
+  links2=sqldf("SELECT k.*,i.seqIdx,i.level AS toLevel,i.type FROM links k,items i WHERE i.bundle=k.bundle AND k.toID=i.itemID")
   # extend links table with relative sequence index
   links3=sqldf("SELECT k.*,k.seqIdx-(SELECT MIN(m.seqIdx) FROM links2 m WHERE m.fromID=k.fromID AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.bundle,m.fromID,m.toLevel) AS toSeqIdx FROM links2 k")
   # Add length of dominance group sequence
@@ -2885,7 +2964,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
             id=paste(db[['name']],bName,it['id'],sep='_')
           }
           db[['items']][['id']][row]=id
-          db[['items']][['bundleId']][row]=as.integer(itemId)
+          db[['items']][['itemID']][row]=as.integer(itemId)
           db[['items']][['level']][row]=lvl[['name']]
           db[['items']][['type']][row]=lvl[['type']]
           if(!is.null(bundle[['sampleRate']])){

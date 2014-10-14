@@ -290,26 +290,26 @@ convert.query.result.to.seglist<-function(database,result){
     # the CASE WHEN THEN ELSE END terms are necessary to get the start end end samples of sequences which are not segment levels and therefore have no time information  
     hasLinks=(nrow(links)>0)
     
-    q="SELECT s.id || e.id AS id,s.bundle,s.bundleId AS startBundleId ,e.bundleId AS endBundleId,s.type, \
+    q="SELECT s.id || e.id AS id,s.bundle,s.itemID AS startitemID ,e.itemID AS enditemID,s.type, \
                 CASE s.type \
                      WHEN 'SEGMENT' THEN s.sampleStart \
                      WHEN 'EVENT' THEN s.samplePoint ";
     if(hasLinks){
-      q=paste0(q," ELSE (SELECT i.sampleStart FROM items i WHERE i.bundle=s.bundle AND i.type='SEGMENT' AND EXISTS (SELECT * FROM links l WHERE s.bundleId=l.fromID AND i.bundleId=l.toID AND i.bundle=l.bundle AND l.toSeqIdx=0)) ")
+      q=paste0(q," ELSE (SELECT i.sampleStart FROM items i WHERE i.bundle=s.bundle AND i.type='SEGMENT' AND EXISTS (SELECT * FROM links l WHERE s.itemID=l.fromID AND i.itemID=l.toID AND i.bundle=l.bundle AND l.toSeqIdx=0)) ")
     }
     q=paste0(q," END AS sampleStart, \
                 CASE s.type \
                     WHEN 'SEGMENT' THEN (e.sampleStart+e.sampleDur) \
                     WHEN 'EVENT' THEN 0 ")  
     if(hasLinks){
-      q=paste0(q," ELSE (SELECT i.sampleStart+i.sampleDur FROM items i WHERE i.bundle=s.bundle AND i.type='SEGMENT'  AND EXISTS (SELECT * FROM links l WHERE s.bundleId=l.fromID AND i.bundleId=l.toID AND i.bundle=l.bundle AND l.toSeqIdx+1=l.toSeqLen)) ")
+      q=paste0(q," ELSE (SELECT i.sampleStart+i.sampleDur FROM items i WHERE i.bundle=s.bundle AND i.type='SEGMENT'  AND EXISTS (SELECT * FROM links l WHERE s.itemID=l.fromID AND i.itemID=l.toID AND i.bundle=l.bundle AND l.toSeqIdx+1=l.toSeqLen)) ")
     }
     q=paste0(q,"END AS sampleEnd, \
                 CASE s.type \
                     WHEN 'SEGMENT' THEN s.sampleRate \
                     WHEN 'EVENT' THEN s.sampleRate ")
     if(hasLinks){
-      q=paste0(q," ELSE (SELECT i.sampleRate FROM items i WHERE i.bundle=s.bundle AND i.type='SEGMENT' AND EXISTS (SELECT * FROM links l WHERE s.bundleId=l.fromID AND i.bundleId=l.toID AND i.bundle=l.bundle AND l.toSeqIdx=0)) ")
+      q=paste0(q," ELSE (SELECT i.sampleRate FROM items i WHERE i.bundle=s.bundle AND i.type='SEGMENT' AND EXISTS (SELECT * FROM links l WHERE s.itemID=l.fromID AND i.itemID=l.toID AND i.bundle=l.bundle AND l.toSeqIdx=0)) ")
     }
     q=paste0(q," END AS sampleRate \
                 FROM items s,items e,its r \
@@ -437,7 +437,7 @@ query.database.eql.FUNKA<-function(database,q,items=NULL){
         }else{
           stop("Syntax error: Expected function value 0 or 1 after '=' in function term: '",qTrim,"'\n")
         }
-        sqlQStr=paste0("SELECT DISTINCT i.id AS seqStartId, i.id AS seqEndId,1 AS seqLen,'",param2,"' AS level FROM items i,allItems d WHERE i.level='",level2,"' AND d.level='",level1,"' AND EXISTS (SELECT * FROM links k WHERE k.bundle=i.bundle AND k.bundle=d.bundle AND k.fromID=d.bundleId AND k.toID=i.bundleId AND k.toSeqIdx",cond,"0)") 
+        sqlQStr=paste0("SELECT DISTINCT i.id AS seqStartId, i.id AS seqEndId,1 AS seqLen,'",param2,"' AS level FROM items i,allItems d WHERE i.level='",level2,"' AND d.level='",level1,"' AND EXISTS (SELECT * FROM links k WHERE k.bundle=i.bundle AND k.bundle=d.bundle AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toSeqIdx",cond,"0)") 
         itemsAsSeqs=sqldf(sqlQStr)
         resultLevel=param2
       }else if(funcName=='Medial'){
@@ -452,7 +452,7 @@ query.database.eql.FUNKA<-function(database,q,items=NULL){
         }else{
           stop("Syntax error: Expected function value 0 or 1 after '=' in function term: '",qTrim,"'\n")
         }
-        sqlQStr=paste0("SELECT DISTINCT i.id AS seqStartId, i.id AS seqEndId,1 AS seqLen,'",param2,"' AS level FROM items i,allItems d WHERE i.level='",level2,"' AND d.level='",level1,"' AND EXISTS (SELECT * FROM links k WHERE k.bundle=i.bundle AND k.bundle=d.bundle AND k.fromID=d.bundleId AND k.toID=i.bundleId AND (k.toSeqIdx",cond,"0 ",bOp," k.toSeqIdx+1",cond,"k.toSeqLen))") 
+        sqlQStr=paste0("SELECT DISTINCT i.id AS seqStartId, i.id AS seqEndId,1 AS seqLen,'",param2,"' AS level FROM items i,allItems d WHERE i.level='",level2,"' AND d.level='",level1,"' AND EXISTS (SELECT * FROM links k WHERE k.bundle=i.bundle AND k.bundle=d.bundle AND k.fromID=d.itemID AND k.toID=i.itemID AND (k.toSeqIdx",cond,"0 ",bOp," k.toSeqIdx+1",cond,"k.toSeqLen))") 
         itemsAsSeqs=sqldf(sqlQStr)
         resultLevel=param2
       }else if(funcName=='End'){
@@ -464,18 +464,18 @@ query.database.eql.FUNKA<-function(database,q,items=NULL){
         }else{
           stop("Syntax error: Expected function value 0 or 1 after '=' in function term: '",qTrim,"'\n")
         }
-        sqlQStr=paste0("SELECT DISTINCT i.id AS seqStartId, i.id AS seqEndId,1 AS seqLen,'",param2,"' AS level FROM items i,allItems d WHERE i.level='",level2,"' AND d.level='",level1,"' AND EXISTS (SELECT * FROM links k WHERE k.bundle=i.bundle AND k.bundle=d.bundle AND k.fromID=d.bundleId AND k.toID=i.bundleId AND k.toSeqIdx+1",cond,"k.toSeqLen)") 
+        sqlQStr=paste0("SELECT DISTINCT i.id AS seqStartId, i.id AS seqEndId,1 AS seqLen,'",param2,"' AS level FROM items i,allItems d WHERE i.level='",level2,"' AND d.level='",level1,"' AND EXISTS (SELECT * FROM links k WHERE k.bundle=i.bundle AND k.bundle=d.bundle AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toSeqIdx+1",cond,"k.toSeqLen)") 
         itemsAsSeqs=sqldf(sqlQStr)
         resultLevel=param2
       }else if(funcName=='Num'){
         # BNF: NUMA = 'Num','(',EBENE,',',EBENE,')',VOP,INTPN;
         # Note return value level is param1 here
-       # sqlQStr=paste0("SELECT d.id AS seqStartId, d.id AS seqEndId FROM allItems i,items d WHERE i.level='",param2,"' AND d.level='",param1,"' AND EXISTS (SELECT * FROM links k WHERE k.bundle=i.bundle AND k.bundle=d.bundle AND k.fromID=d.bundleId AND k.toID=i.bundleId AND k.toLevel=i.level AND k.toSeqLen=",funcValue,")")
+       # sqlQStr=paste0("SELECT d.id AS seqStartId, d.id AS seqEndId FROM allItems i,items d WHERE i.level='",param2,"' AND d.level='",param1,"' AND EXISTS (SELECT * FROM links k WHERE k.bundle=i.bundle AND k.bundle=d.bundle AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toLevel=i.level AND k.toSeqLen=",funcValue,")")
         #numChilds=as.integer(funcValue)
         #if(is.na(numChilds)){
          # stop("Syntax error: Expected integer value after '=' in function term: '",qTrim,"'\n")
         #}
-        sqlQStr=paste0("SELECT DISTINCT d.id AS seqStartId, d.id AS seqEndId,1 AS seqLen,'",param1,"' AS level FROM allItems i,items d WHERE i.level='",level2,"' AND d.level='",level1,"' AND EXISTS (SELECT * FROM links k WHERE k.bundle=i.bundle AND k.bundle=d.bundle AND k.fromID=d.bundleId AND k.toID=i.bundleId AND k.toLevel=i.level AND k.toSeqLen",funcValueTerm,")") 
+        sqlQStr=paste0("SELECT DISTINCT d.id AS seqStartId, d.id AS seqEndId,1 AS seqLen,'",param1,"' AS level FROM allItems i,items d WHERE i.level='",level2,"' AND d.level='",level1,"' AND EXISTS (SELECT * FROM links k WHERE k.bundle=i.bundle AND k.bundle=d.bundle AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toLevel=i.level AND k.toSeqLen",funcValueTerm,")") 
         itemsAsSeqs=sqldf(sqlQStr)
         resultLevel=param1
       }else{
@@ -786,9 +786,9 @@ query.database.eql.in.bracket<-function(database,q){
       domQueryStrCond0=paste0("ils.id=lid.seqStartId AND irs.id=rid.seqStartId AND ile.id=lid.seqEndId AND ire.id=rid.seqEndId AND ",itemsSameBundleCond)
       # The query has now the corners of the dominance "trapeze" in ils,ile,irs,ire
       # Check sequence start item of left result on existence of a link to the start item of the right sequence 
-      domQueryStrCond1=paste0("EXISTS (SELECT * FROM links k WHERE ",linkSameBundleCond1," AND ((k.fromID=ils.bundleId AND k.toID=irs.bundleId) OR (k.toID=ils.bundleId AND k.fromID=irs.bundleId)))")
+      domQueryStrCond1=paste0("EXISTS (SELECT * FROM links k WHERE ",linkSameBundleCond1," AND ((k.fromID=ils.itemID AND k.toID=irs.itemID) OR (k.toID=ils.itemID AND k.fromID=irs.itemID)))")
       # ... and sequence end item of left result on existence of a link to the end item of the right sequence 
-      domQueryStrCond2=paste0("EXISTS (SELECT * FROM links m WHERE ",linkSameBundleCond2," AND ((m.fromID=ile.bundleId AND m.toID=ire.bundleId) OR (m.toID=ile.bundleId AND m.fromID=ire.bundleId)))")
+      domQueryStrCond2=paste0("EXISTS (SELECT * FROM links m WHERE ",linkSameBundleCond2," AND ((m.fromID=ile.itemID AND m.toID=ire.itemID) OR (m.toID=ile.itemID AND m.fromID=ire.itemID)))")
       
       # concatenate the query string
       domQueryStrTail=paste0(" FROM ",domQueryFromStr," WHERE ", domQueryStrCond0, " AND ", domQueryStrCond1," AND ",domQueryStrCond2)
