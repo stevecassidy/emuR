@@ -4,7 +4,7 @@
 \title{get.trackdata(): get trackdata from emuDB object}
 \usage{
 get.trackdata(dbObj, seglist = NULL, ssffTrackName = NULL, cut = NULL,
-  npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParas = NULL,
+  npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParams = NULL,
   onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000,
   verbose = TRUE)
 }
@@ -30,7 +30,7 @@ right by one sample.}
 
 \item{onTheFlyFunctionName}{name of wrassp function to do on-the-fly calculation}
 
-\item{onTheFlyParas}{a list parameters that will be given to the function
+\item{onTheFlyParams}{a list parameters that will be given to the function
 passed in by the onTheFlyFunctionName parameter. This list can easily be
 generated using the \code{formals} function and then setting the according
 parameter one wishes to change.}

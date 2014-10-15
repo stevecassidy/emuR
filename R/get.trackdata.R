@@ -23,7 +23,7 @@
 ##' samples are centered around the cut-time-sample, if not they are sqewed to the
 ##' right by one sample.
 ##' @param onTheFlyFunctionName name of wrassp function to do on-the-fly calculation 
-##' @param onTheFlyParas a list parameters that will be given to the function 
+##' @param onTheFlyParams a list parameters that will be given to the function 
 ##' passed in by the onTheFlyFunctionName parameter. This list can easily be 
 ##' generated using the \code{formals} function and then setting the according 
 ##' parameter one wishes to change.     
@@ -41,14 +41,14 @@
 ##' @import wrassp
 ##' @export
 "get.trackdata" <- function(dbObj, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
-                            npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParas = NULL, 
+                            npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
                             onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, verbose = TRUE){
   UseMethod("get.trackdata")
 }
 
 ##' @export
 "get.trackdata.emuDB" <- function(dbObj = NULL, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
-                                  npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParas = NULL, 
+                                  npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
                                   onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, verbose = TRUE){
   
   #########################
@@ -76,14 +76,14 @@
     }
   }
   
-  # check if onTheFlyFunctionName is set if onTheFlyParas is
-  if(is.null(onTheFlyFunctionName) && !is.null(onTheFlyParas)){
-    stop('onTheFlyFunctionName has to be set if onTheFlyParas is set!')
+  # check if onTheFlyFunctionName is set if onTheFlyParams is
+  if(is.null(onTheFlyFunctionName) && !is.null(onTheFlyParams)){
+    stop('onTheFlyFunctionName has to be set if onTheFlyParams is set!')
   }
   
-  # check if both onTheFlyFunctionName and onTheFlyParas are set if onTheFlyOptLogFilePath is 
-  if( !is.null(onTheFlyOptLogFilePath) && (is.null(onTheFlyFunctionName) || is.null(onTheFlyParas))){
-    stop('Both onTheFlyFunctionName and onTheFlyParas have to be set for you to be able to use the onTheFlyOptLogFilePath parameter!')
+  # check if both onTheFlyFunctionName and onTheFlyParams are set if onTheFlyOptLogFilePath is 
+  if( !is.null(onTheFlyOptLogFilePath) && (is.null(onTheFlyFunctionName) || is.null(onTheFlyParams))){
+    stop('Both onTheFlyFunctionName and onTheFlyParams have to be set for you to be able to use the onTheFlyOptLogFilePath parameter!')
   }
   
   #########################
@@ -127,7 +127,7 @@
   if(!is.null(onTheFlyFunctionName)){
     funcFormals = NULL
     funcFormals$listOfFiles = curBndl$mediaFilePath
-    funcFormals$ToFile = FALSE
+    funcFormals$toFile = FALSE
     curDObj = do.call(onTheFlyFunctionName,funcFormals)
   }else{
     fname <- curBndl$signalpaths[grepl(paste(trackDef[[1]]$fileExtension, '$', sep = ''), curBndl$signalpaths)][[1]] # should mybe check if more then one found...
@@ -148,8 +148,8 @@
   # set up function formals + pb
   if(!is.null(onTheFlyFunctionName)){
     funcFormals = formals(onTheFlyFunctionName)
-    funcFormals[names(onTheFlyParas)] = onTheFlyParas
-    funcFormals$ToFile = FALSE
+    funcFormals[names(onTheFlyParams)] = onTheFlyParams
+    funcFormals$toFile = FALSE
     funcFormals$optLogFilePath = onTheFlyOptLogFilePath
     if(verbose){
       cat('\n  INFO: applying', onTheFlyFunctionName, 'to', length(seglist$utts), 'files\n')
