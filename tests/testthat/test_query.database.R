@@ -79,8 +79,8 @@ test_that("Query sequence",{
   r1=query(ae,"[[[Phoneme='tS' ^ Phonetic='t'] -> Phoneme=I] -> Phoneme=l]",resultType=NULL)
   r1Its=r1[['items']]
   expect_that(nrow(r1Its),equals(1))
-  expect_that(r1Its[1,'seqStartId'],is_identical_to('ae_msajc012_121'))  
-  expect_that(r1Its[1,'seqEndId'],is_identical_to('ae_msajc012_123'))
+  expect_that(r1Its[1,'seqStartId'],is_identical_to('ae_0000_msajc012_121'))  
+  expect_that(r1Its[1,'seqEndId'],is_identical_to('ae_0000_msajc012_123'))
   
   sl1=query(ae,"[[[Phoneme='tS' ^ Phonetic='t'] -> Phoneme=I] -> Phoneme=l]",resultType='emusegs')
   expect_that(nrow(sl1),equals(1))
@@ -109,10 +109,10 @@ ae=test_load_ae_database()
 r1=query(ae,"[[Syllable=W->Syllable=W] ^ [Phoneme=@->Phoneme=s]]",resultType=NULL)
 r1Its=r1[['items']]
 expect_that(nrow(r1Its),equals(2))
-expect_that(r1Its[1,'seqStartId'],is_identical_to('ae_msajc015_131'))
-expect_that(r1Its[1,'seqEndId'],is_identical_to('ae_msajc015_132'))
-expect_that(r1Its[2,'seqStartId'],is_identical_to('ae_msajc015_141'))
-expect_that(r1Its[2,'seqEndId'],is_identical_to('ae_msajc015_142'))
+expect_that(r1Its[1,'seqStartId'],is_identical_to('ae_0000_msajc015_131'))
+expect_that(r1Its[1,'seqEndId'],is_identical_to('ae_0000_msajc015_132'))
+expect_that(r1Its[2,'seqStartId'],is_identical_to('ae_0000_msajc015_141'))
+expect_that(r1Its[2,'seqEndId'],is_identical_to('ae_0000_msajc015_142'))
 # 
 })
 # 
@@ -122,18 +122,18 @@ test_that("Query using Start function",{
   
   r1Its=r1[['items']]
   expect_that(nrow(r1Its),equals(4))
-  expect_that(r1Its[1,'seqStartId'],is_identical_to('ae_msajc003_128'))
-  expect_that(r1Its[2,'seqStartId'],is_identical_to('ae_msajc012_124'))
-  expect_that(r1Its[3,'seqStartId'],is_identical_to('ae_msajc015_164'))
-  expect_that(r1Its[4,'seqStartId'],is_identical_to('ae_msajc015_177'))
+  expect_that(r1Its[1,'seqStartId'],is_identical_to('ae_0000_msajc003_128'))
+  expect_that(r1Its[2,'seqStartId'],is_identical_to('ae_0000_msajc012_124'))
+  expect_that(r1Its[3,'seqStartId'],is_identical_to('ae_0000_msajc015_164'))
+  expect_that(r1Its[4,'seqStartId'],is_identical_to('ae_0000_msajc015_177'))
   
   r2=query(ae,"Phoneme = p & Start(Word, Phoneme)=0",resultType=NULL)
   
   r2Its=r2[['items']]
   expect_that(nrow(r2Its),equals(3))
-  expect_that(r2Its[1,'seqStartId'],is_identical_to('ae_msajc015_147'))
-  expect_that(r2Its[2,'seqStartId'],is_identical_to('ae_msajc022_122'))
-  expect_that(r2Its[3,'seqStartId'],is_identical_to('ae_msajc057_136'))
+  expect_that(r2Its[1,'seqStartId'],is_identical_to('ae_0000_msajc015_147'))
+  expect_that(r2Its[2,'seqStartId'],is_identical_to('ae_0000_msajc022_122'))
+  expect_that(r2Its[3,'seqStartId'],is_identical_to('ae_0000_msajc057_136'))
 #  
 })
 
@@ -143,8 +143,8 @@ test_that("Query using End function",{
   
   r1Its=r1[['items']]
   expect_that(nrow(r1Its),equals(2))
-  expect_that(r1Its[1,'seqStartId'],is_identical_to('ae_msajc023_103'))
-  expect_that(r1Its[2,'seqStartId'],is_identical_to('ae_msajc057_158'))
+  expect_that(r1Its[1,'seqStartId'],is_identical_to('ae_0000_msajc023_103'))
+  expect_that(r1Its[2,'seqStartId'],is_identical_to('ae_0000_msajc057_158'))
 
 })
 
@@ -155,8 +155,8 @@ test_that("Query using Num function",{
   
   r1Its=r1[['items']]
   expect_that(nrow(r1Its),equals(6))
-  #expect_that(r1Its[1,'seqStartId'],is_identical_to('ae_msajc023_103'))
-  #expect_that(r1Its[2,'seqStartId'],is_identical_to('ae_msajc057_158'))
+  #expect_that(r1Its[1,'seqStartId'],is_identical_to('ae_0000_msajc023_103'))
+  #expect_that(r1Its[2,'seqStartId'],is_identical_to('ae_0000_msajc057_158'))
   
 })
 

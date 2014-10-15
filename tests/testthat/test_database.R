@@ -113,7 +113,7 @@ test_that("Test ae samples",{
 
 test_that("Test ae modify",{
   ae=test_load_ae_database()
-  b015=get.bundle(ae,'msajc015')
+  b015=get.bundle(ae,'0000','msajc015')
   # select arbitrary item
   b015m=b015
   phoneticLvlIt10=b015m[['levels']][['Phonetic']][['items']][[10]]

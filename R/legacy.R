@@ -52,24 +52,27 @@ build.legacy.bundle.list<-function(parsedEmuPath,currentPath=NULL,fileSuffixPatt
   
 }
 
-convert.legacy.bundle.id<-function(bundleId){
+convert.legacy.bundle.id<-function(legacybundleID){
   # takes character vector of legacy globpattern dirs and bundle name
   # and converts to session and bundle
-  # example: bundleID: "BLOCK10","SES1000","foo_42" -> "BLOCK10_SES1000","foo_42"
+  # examples: 
+  # legacybundleID: "BLOCK10","SES1000","foo_42" -> "BLOCK10_SES1000","foo_42"
+  # legacybundleID: "SES1000","foo_42" -> "SES1000","foo_42"
+  # legacybundleID: "foo_42" -> "0000","foo_42"
   
-  bundleIdLen=length(bundleId)
-  globPatternCount=bundleIdLen-1
+  legacybundleIDLen=length(legacybundleID)
+  globPatternCount=legacybundleIDLen-1
   
   if(globPatternCount>0){
     # collapse globpattern matches to one session ID
-    s=paste(bundleId[1:globPatternCount],collapse='_')
+    s=paste(legacybundleID[1:globPatternCount],collapse='_')
     
   }else{
     # no glob patterns, put all bundles to dummy session
     s='0000'
     
   }
-  return(c(s,bundleId[bundleIdLen]))
+  return(c(s,legacybundleID[legacybundleIDLen]))
 }
 
 convert.legacy.bundle.list.to.sessions<-function(bl){
@@ -103,7 +106,7 @@ get.legacy.emu.bundles=function(basePath,pathPattern,primaryFileSuffixPattern=NU
   return(bl)
 }
 
-get.legacy.file.path=function(basePath,emuPath,bundleId,fileExtension){
+get.legacy.file.path=function(basePath,emuPath,legacybundleID,fileExtension){
   if(is.relative.file.path(emuPath)){
     absPathPattern=file.path(basePath,emuPath)
   }else{
@@ -116,7 +119,7 @@ get.legacy.file.path=function(basePath,emuPath,bundleId,fileExtension){
    
     if(pdl[['pattern']]){
       # substitute
-      dir=bundleId[bIdIdx]
+      dir=legacybundleID[bIdIdx]
       bIdIdx=bIdIdx+1
     }else{
       dir=pdl[['dir']]
@@ -127,6 +130,6 @@ get.legacy.file.path=function(basePath,emuPath,bundleId,fileExtension){
       path=file.path(path,dir)
     }
   }
-  filename=paste0(bundleId[bIdIdx],'.',fileExtension)
+  filename=paste0(legacybundleID[bIdIdx],'.',fileExtension)
   return(file.path(path,filename))
 }
