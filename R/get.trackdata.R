@@ -127,7 +127,7 @@
   if(!is.null(onTheFlyFunctionName)){
     funcFormals = NULL
     funcFormals$listOfFiles = curBndl$mediaFilePath
-    funcFormals$ToFile = FALSE
+    funcFormals$toFile = FALSE
     curDObj = do.call(onTheFlyFunctionName,funcFormals)
   }else{
     fname <- curBndl$signalpaths[grepl(paste(trackDef[[1]]$fileExtension, '$', sep = ''), curBndl$signalpaths)][[1]] # should mybe check if more then one found...
@@ -149,7 +149,7 @@
   if(!is.null(onTheFlyFunctionName)){
     funcFormals = formals(onTheFlyFunctionName)
     funcFormals[names(onTheFlyParas)] = onTheFlyParas
-    funcFormals$ToFile = FALSE
+    funcFormals$toFile = FALSE
     funcFormals$optLogFilePath = onTheFlyOptLogFilePath
     if(verbose){
       cat('\n  INFO: applying', onTheFlyFunctionName, 'to', length(seglist$utts), 'files\n')
