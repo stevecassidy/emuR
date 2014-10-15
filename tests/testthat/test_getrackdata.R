@@ -46,7 +46,7 @@ test_that("bad calls", {
   expect_error(get.trackdata(aeDB, n, cut=2, verbose=F)) # cut > 1 error
   expect_error(get.trackdata(aeDB, n, cut=-1, verbose=F)) # cut < 0 error
   expect_error(get.trackdata(aeDB, n, 'fm', npoints=3, verbose=F)) # npoint with no cut argument error
-  expect_error(get.trackdata(aeDB, n, 'fm', onTheFlyParas = formals(open), verbose=F)) # no onTheFlyFunctionName error
+  expect_error(get.trackdata(aeDB, n, 'fm', onTheFlyParams = formals(open), verbose=F)) # no onTheFlyFunctionName error
   expect_error(get.trackdata(aeDB, n, 'fm', onTheFlyOptLogFilePath = '/path/to/bla/', verbose=F)) # onTheFlyOptLogFilePath error
 })
 
