@@ -30,7 +30,7 @@ serve<-function(database,port=17890,debug=FALSE,debugLevel=0){
 }
 
 ##' @export
-serve.emuDB=function(database,port=8080,debug=FALSE,debugLevel=0){
+serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
     if(debug && debugLevel==0){
       debugLevel=2
     }
