@@ -15,7 +15,8 @@ Depends:
     stats,
     methods,
     MASS,
-    wrassp (>= 0.0.5)
+    wrassp (>= 0.0.5),
+    tools
 Imports:
     jsonlite,uuid,stringr,sqldf,httpuv,base64enc,wrassp
 Suggests:
