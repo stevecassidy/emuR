@@ -53,7 +53,7 @@ test_that("Query labels",{
   expect_that(nrow(sl1),equals(1))
   expect_that('[.data.frame'(sl1,1,'labels'),is_identical_to(I('more->customers')))
   #expect_that(labels.emusegs,is_identical_to(I('more->customers')))
-  expect_that('[.data.frame'(sl1,1,'utts'),is_identical_to(I('msajc057')))
+  expect_that('[.data.frame'(sl1,1,'utts'),is_identical_to(I('0000:msajc057')))
 })
 
 test_that("Query label groups",{
@@ -85,7 +85,7 @@ test_that("Query sequence",{
   sl1=query(ae,"[[[Phoneme='tS' ^ Phonetic='t'] -> Phoneme=I] -> Phoneme=l]",resultType='emusegs')
   expect_that(nrow(sl1),equals(1))
   expect_that('[.data.frame'(sl1,1,'labels'),is_identical_to(I('tS->I->l')))
-  expect_that('[.data.frame'(sl1,1,'utts'),is_identical_to(I('msajc012')))
+  expect_that('[.data.frame'(sl1,1,'utts'),is_identical_to(I('0000:msajc012')))
  })
 # 
 test_that("Query combined sequence dominance",{
@@ -167,7 +167,7 @@ test_that("Query using and operator",{
   expect_that(nrow(sl1),equals(1))
   expect_that('[.data.frame'(sl1,1,'labels'),is_identical_to(I('them')))
   #expect_that(labels.emusegs,is_identical_to(I('more->customers')))
-  expect_that('[.data.frame'(sl1,1,'utts'),is_identical_to(I('msajc012')))
+  expect_that('[.data.frame'(sl1,1,'utts'),is_identical_to(I('0000:msajc012')))
   
 })
 
@@ -189,7 +189,7 @@ test_that("Check Phonetic tier seglist",{
   tolSec=halfSampleTime+.Machine[['double.eps']]
   tolMs=tolSec*1000
   # compare legacy meu generated and new seglist
-  eq=equal.emusegs(tsl,sl,tolerance =tolMs )
+  eq=equal.emusegs(sl,tsl,tolerance =tolMs,uttsPrefix2='0000:')
   expect_true(eq)
  
 })

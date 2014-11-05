@@ -169,7 +169,7 @@ list.seq.item.ids<-function(resSeq){
   return(sqIts)
 }
 
-equal.emusegs<-function(seglist1,seglist2,compareAttributes=TRUE,tolerance=0.0){
+equal.emusegs<-function(seglist1,seglist2,compareAttributes=TRUE,tolerance=0.0,uttsPrefix2=''){
   if(!inherits(seglist1,"emusegs")){
     stop("seglist1 is not of class emusegs")
   }
@@ -186,7 +186,7 @@ equal.emusegs<-function(seglist1,seglist2,compareAttributes=TRUE,tolerance=0.0){
     return(FALSE)
   }
   if(compareAttributes){
-    attrEq=((attr(seglist1,'query')==attr(seglist2,'query'))&(attr(seglist1,'database')==attr(seglist2,'database')))
+    attrEq=((attr(seglist1,'query')==attr(seglist2,'query'))&attr(seglist1,'database')==attr(seglist2,'database'))
     if(!attrEq){
       return(FALSE)
     }
@@ -213,8 +213,8 @@ equal.emusegs<-function(seglist1,seglist2,compareAttributes=TRUE,tolerance=0.0){
     e2='[[.data.frame'(sl2,i,'end')
     u1='[[.data.frame'(sl1,i,'utts')
     u2='[[.data.frame'(sl2,i,'utts')
-    
-    if(l1!=l2 | u1!=u2){
+    u2Sess=paste0(uttsPrefix2,u2)
+    if(l1!=l2 | u1!=u2Sess){
       return(FALSE)
     }
     sdAbs=abs(s2-s1)
@@ -335,8 +335,16 @@ convert.query.result.to.seglist<-function(database,result){
         }
         
         labels=c(labels,label)
+       
         bundle=segListData[itIdx,'bundle']
-        bundles=c(bundles,bundle)
+        
+        #if(database[['bundleNamesUnique']]){
+        #  bundleIDStr=bundle
+        #}else{
+          session=segListData[itIdx,'session']
+          bundleIDStr=paste(session,bundle,sep = ':')
+        #}
+        bundles=c(bundles,bundleIDStr)
         
         # calculate start end times in milliseconds     
         type=segListData[itIdx,'type']
@@ -394,10 +402,20 @@ query.database.eql.FUNKA<-function(database,q,items=NULL){
       # check attribute names
       aNms=get.attribute.names(database[['DBconfig']])
       if(! (param1 %in% aNms)){
-        stop("Unknown level attribute name: '",param1,"'. Database attribute names are: ",paste(aNms,collapse=','),"\n")
+        msg=paste0("Unknown level attribute name: '",param1,"'.")
+        if(length(aNms)>0){
+          msg=paste0(msg," Database attribute names are: ",paste(aNms,collapse=','))
+        }
+        msg=paste0(msg,"\n")
+        stop(msg)
       }
       if(! (param2 %in% aNms)){
-        stop("Unknown level attribute name: '",param2,"'. Database attribute names are: ",paste(aNms,collapse=','),"\n")
+        msg=paste0("Unknown level attribute name: '",param2,"'.")
+        if(length(aNms)>0){
+          msg=paste0(msg," Database attribute names are: ",paste(aNms,collapse=','))
+        }
+        msg=paste0(msg,"\n")
+        stop(msg)
       }
       
       funcValueTerm=str_trim(substring(qTrim,prbClose+1))
