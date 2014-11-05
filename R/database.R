@@ -75,7 +75,7 @@ create.schema.linkDefinition <- function(name=NULL,type,superlevelName,sublevelN
   invisible(o)
 }
 
-create.schema.databaseDefinition <- function(name,UUID,mediafileBasePathPattern,mediafileExtension,ssffTrackDefinitions,levelDefinitions,linkDefinitions,EMUwebAppConfig,annotationDescriptors,tracks,flags=NULL){
+create.schema.databaseDefinition <- function(name,UUID=uuid::UUIDgenerate(),mediafileBasePathPattern=NULL,mediafileExtension=NULL,ssffTrackDefinitions=NULL,levelDefinitions=NULL,linkDefinitions=NULL,EMUwebAppConfig=NULL,annotationDescriptors=NULL,tracks=NULL,flags=NULL){
   o <- list(name=name,UUID=UUID,mediafileBasePathPattern=mediafileBasePathPattern,mediafileExtension=mediafileExtension,ssffTrackDefinitions=ssffTrackDefinitions,levelDefinitions=levelDefinitions,linkDefinitions=linkDefinitions,EMUwebAppConfig=EMUwebAppConfig,annotationDescriptors=annotationDescriptors,tracks=tracks,flags=flags)
   class(o) <- c('list','emuDB.schema.databaseDefinition')
   #rTypes=list(levelDefinitions=c('list','emuDB.schema.levelDefinition',linkDefinitions=c('list','emuDB.schema.linkDefinition')
@@ -118,7 +118,7 @@ create.EMUwebAppConfig <- function(perspectives){
 #                     methods=list()
 #                     )
 
-create.database <- function(name=name,basePath=NULL,DBconfig,sessions=NULL,primaryExtension=NULL){
+create.database <- function(name=name,basePath=NULL,DBconfig=create.schema.databaseDefinition(name = name),sessions=NULL,primaryExtension=NULL){
   o <- list(name=name,basePath=basePath,DBconfig=DBconfig,sessions=sessions,primaryExtension=primaryExtension)
   class(o) <- c('emuDB','list')
   invisible(o)
@@ -1425,12 +1425,21 @@ load.database.schema.from.emu.template=function(tplPath){
   }
   tplBasename = basename(tplPath)
   dbName=gsub("[.][tT][pP][lL]$","",tplBasename)
+ 
   # read
   tpl = try(readLines(tplPath))
   if(class(tpl) == "try-error") {
     stop("read tpl: cannot read from file ", tplPath)
   }
-
+  # check if file (not directory)
+  tplFInfo = try(file.info(tplPath))
+  if(class(tplFInfo) == "try-error" | is.null(tplFInfo)) {
+    stop("check template file: cannot get file info: ", tplPath)
+  }
+  if(tplFInfo[['isdir']]){
+    stop(tplPath," is a directory. Expected a legacy EMU template file path.")
+  }
+  
   tracks=list()
   flags=list()
   levelDefinitions=list()
@@ -1879,22 +1888,16 @@ load.database.from.legacy.emu.by.name=function(dbName,verboseLevel=0,showProgres
 ## 
 load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TRUE){
   progress=0
-  tplBaseDir=NULL
-  if(file.exists(emuTplPath)){
-    tplFileinfo=file.info(emuTplPath)
-    if(tplFileinfo[['isdir']]){
-      stop('Expected EMU template file, but ',emuTplPath,' is a directory!')
-    }
-    tplBaseDir=dirname(emuTplPath)
-  }else{
-    stop('Template file "',emuTplPath,'" does not exist!');
-  }
 
   dbd=load.database.schema.from.emu.template(emuTplPath)
   if(verboseLevel>0){
     cat("Loaded database schema.\n")
   }
   progress=progress+1L
+ 
+  tplBaseDir=NULL
+  tplBaseDir=dirname(emuTplPath)
+  
   db=create.database(name=dbd[['name']],basePath=tplBaseDir,DBconfig=dbd)
   db=initialize.database.dataframes(db)
   
@@ -2882,18 +2885,20 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   sessPattern=paste0('^.*',session.suffix,'$')
   sessDirs=dir(databaseDir,pattern=sessPattern)
  
+  # calculate bundle count
+  bundleCount=0
+  for(sd in sessDirs){
+    absSd=file.path(databaseDir,sd)
+    bundleDirs=dir(absSd,pattern=paste0('.*',bundle.dir.suffix,'$'))
+    bundleCount=bundleCount+length(bundleDirs)
+  }
   if(verbose){
-    # calculate bundle count
-    bundleCount=0
-    for(sd in sessDirs){
-      absSd=file.path(databaseDir,sd)
-      bundleDirs=dir(absSd,pattern=paste0('.*',bundle.dir.suffix,'$'))
-      bundleCount=bundleCount+length(bundleDirs)
-    }
     pb=txtProgressBar(min=0,max=bundleCount+2,style=3)
     setTxtProgressBar(pb,progress)
   }
-  
+  bundleNames=character(bundleCount)
+  db[['bundleNamesUnique']]=TRUE
+  bundleIdx=0
   for(sd in sessDirs){
     sessionName=gsub(pattern = paste0(session.suffix,'$'),replacement = '',x = sd)
     bundles=list()
@@ -3090,6 +3095,15 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
       bundle[['levels']]=NULL
       bundle[['links']]=NULL
       bundles[[bName]]=bundle
+      
+      bundleIdx=bundleIdx+1
+      if(db[['bundleNamesUnique']]){
+        if(bName %in% bundleNames){
+          db[['bundleNamesUnique']]=FALSE
+        }else{
+          bundleNames[bundleIdx]=bName
+        }
+      }
       
       progress=progress+1L
       if(verbose){
