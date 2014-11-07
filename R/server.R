@@ -35,15 +35,30 @@ serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
       debugLevel=2
     }
     emuDBserverRunning=FALSE
-   
+    bundleCount=0
     if(is(database,'emuDB')){
-       
-      # create dummy bundle list
-      ulNms=attr(database$sessions[[1]]$bundles,'names')
-      emuRuttList=list()
-      for(ulNm in ulNms){
-        emuRuttList[[length(emuRuttList)+1]]=list(name=ulNm)
+      for(s in database[['sessions']]){
+        sName=s[['name']]
+        bundleCount=bundleCount+length(s[['bundles']])
       }
+      bundlesDf=data.frame(name=character(bundleCount),session=character(bundleCount),stringsAsFactors = FALSE)
+      ## create dummy bundle list
+      #ulNms=attr(database$sessions[[1]]$bundles,'names')
+      #emuRuttList=list()
+      #for(ulNm in ulNms){
+        #emuRuttList[[length(emuRuttList)+1]]=list(name=ulNm)
+      #}
+      idx=1
+      for(s in database[['sessions']]){
+        sName=s[['name']]
+        for(b in s[['bundles']]){
+          bundlesDf[idx,'session']=sName
+          bundlesDf[idx,'name']=b[['name']]
+          idx=idx+1
+        }
+      }
+      
+      
     }
     else{
       stop("Supported object classes for database: 'emuDB'");
@@ -58,6 +73,7 @@ serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
     }
     
     serverEstablished = function(ws){
+     
       if(debugLevel>0){
         cat("emuR websocket service established\n")
       }
@@ -150,13 +166,13 @@ serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
           
         }else if(jr$type == 'GETBUNDLELIST'){
         
-          response=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,dataType='uttList',data=emuRuttList)
+          response=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,dataType='uttList',data=bundlesDf)
           responseJSON=jsonlite::toJSON(response,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
           
           if(debugLevel >= 5)cat(responseJSON,"\n")
            result=ws$send(responseJSON)
           if(debugLevel >= 2){
-            cat("Sent utterance list with length: ",length(emuRuttList)," \n")
+            cat("Sent utterance list with length: ",nrow(bundlesDf)," \n")
           }
           
         }else if(jr$type == 'GETBUNDLE'){
