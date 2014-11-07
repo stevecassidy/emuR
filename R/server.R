@@ -74,15 +74,15 @@ serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
     
     serverEstablished = function(ws){
      
-      if(debugLevel>0){
+      #if(debugLevel>0){
         cat("emuR websocket service established\n")
-      }
+      #}
       
       serverClosed = function(ws){
        
-        if(debugLevel>0){
+        #if(debugLevel>0){
           cat("emuR websocket service closed\n")
-        }
+        #}
         emuRserverRunning<<-FALSE
        
       }
@@ -327,6 +327,7 @@ serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
           result=ws$send(responseJSON)
           emuRserverRunning<<-FALSE
           ws$close()
+          cat("emuR websocket service closed by EMU-Webapp\n")
         }
       }
       ws$onMessage(serverReceive)
@@ -336,8 +337,9 @@ serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
     app=list(call=httpRequest,onHeaders=onHeaders,onWSOpen=serverEstablished)
     
     sh = startServer(host="0.0.0.0",port=port,app=app)
-    cat("EMU-Webapp server listening on port",port,",server handle:",sh,"\n")
-    cat("Server can be stopped by pressing EMU-Webapp 'clear' button or reloading the page.")
+    cat("EMU-Webapp server handle:",sh,"\n")
+    cat("Server connection URL: http://localhost:",port,"\n",sep='')
+    cat("Server can be stopped by pressing EMU-Webapp 'clear' button or reloading the page.\n")
     emuRserverRunning=TRUE
    
     while(emuRserverRunning) {
