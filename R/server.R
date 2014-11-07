@@ -320,10 +320,8 @@ serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
     app=list(call=httpRequest,onHeaders=onHeaders,onWSOpen=serverEstablished)
     
     sh = startServer(host="0.0.0.0",port=port,app=app)
-    if(debugLevel>0){
-      cat("HTTP Websocket handle: ",sh,"\n")
-    }
-   
+    cat("EMU-Webapp server listening on port",port,",server handle:",sh,"\n")
+    cat("Server can be stopped by pressing EMU-Webapp 'clear' button or reloading the page.")
     emuRserverRunning=TRUE
    
     while(emuRserverRunning) {
