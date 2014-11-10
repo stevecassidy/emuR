@@ -178,17 +178,19 @@ serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
         }else if(jr$type == 'GETBUNDLE'){
           
           uttCode=jr$name   
+          bundleSess=jr[['session']]
+          #cat("data:",jr[['data']],"\n")
           if(debugLevel>2){
-            cat("Requested bundle: ",uttCode,"\n")
+            cat("Requested bundle:",uttCode,",session:",bundleSess,"\n")
           }
           sc=database[['DBconfig']]
           if(debugLevel>3){
             cat("Convert bundle to S3 format",uttCode,"\n")
           }
-          b=get.bundle(database,uttCode)
+          b=get.bundle(database,bundleSess,uttCode)
           if(is.null(b)){
             # error
-            m=paste('Could not load bundle ',uttCode)
+            m=paste('Could not load bundle ',uttCode,' of session ',bundleSess)
             responseBundle=list(status=list(type='ERROR',message=m),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
           }else{
             
@@ -236,23 +238,31 @@ serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
           }
           
         }else if(jr$type == 'SAVEBUNDLE'){
+          jrData=jr[['data']]
+          jrAnnotation=jrData[['annotation']]
+          bundleSession=jrData[['session']]
           uttCode=jr$data$annotation$name
           if(debugLevel>3){
             #cat("Save bundle ",names(jr$data),"\n");
-            cat("Save bundle ",uttCode,"\n");
+            cat("Save bundle ",uttCode," from session ",bundleSession,"\n");
             
           }
           ssffFiles=jr[['data']][['ssffFiles']]
-          oldBundle=get.bundle(database,uttCode)
+          oldBundle=get.bundle(database,bundleSession,uttCode)
+          
+          # warnings as errors
+          warnOptionSave=getOption('warn')
+          options('warn'=2)
+          
           if(is.null(oldBundle)){
             # error
-            m=paste('Could not load bundle ',uttCode)
+            m=paste('Could not load bundle ',bundleSession,uttCode)
             responseBundle=list(status=list(type='ERROR',message=m),callbackID=jr[['callbackID']],responseContent='status',contentType='text/json')
           }else{
-          for(ssffFile in ssffFiles){
-            #cat("SSFF file: ",ssffFile[['ssffTrackName']],"\n")
-            for(ssffTrackDef in database[['DBconfig']][['ssffTrackDefinitions']]){
-              if(ssffTrackDef[['name']]==ssffFile[['ssffTrackName']]){
+            for(ssffFile in ssffFiles){
+              #cat("SSFF file: ",ssffFile[['ssffTrackName']],"\n")
+              for(ssffTrackDef in database[['DBconfig']][['ssffTrackDefinitions']]){
+                if(ssffTrackDef[['name']]==ssffFile[['ssffTrackName']]){
                   ssffTrackExt=ssffTrackDef[['fileExtension']]
                   extPatt=paste0('[.]',ssffTrackExt,'$')
                   # TODO store signal paths in a better way!
@@ -264,58 +274,57 @@ serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
                       }
                       # Hmm. does not work: missing file argument
                       #base64decode(ssffFile[['data']],output=sp)
-                    
+                      
                       ssffTrackBin=base64decode(ssffFile[['data']])
                       writeBin(ssffTrackBin,sp)
                     }
                   }
-              }
-            } 
-          }
-          bundleData=jr[['data']][['annotation']]
-          bundle=as.bundle(bundleData=bundleData)
-          responseBundleJSON=NULL
-          # warnings as errors
-          warnOptionSave=getOption('warn')
-          options('warn'=2)
-          sendErr<-function(e){
-            
-            # add the error to the message..
-            m=e[['message']]
-            # ..and the last warning, if available
-            wns=warnings()
-            wMsgs=names(wns)
-            if(length(wMsgs)){
-              m=paste(m,wMsgs[[1]])
+                }
+              } 
             }
-            cat(m,"\n")
-            responseBundle=list(status=list(type='ERROR',message=m),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
-            responseBundleJSON=jsonlite::toJSON(responseBundle,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-            result=ws$send(responseBundleJSON)
-            return('sent-error')
-          }
-          #res=store.bundle.annotation(database,bundle)
-          res=tryCatch(store.bundle.annotation(database,bundle),error=function(e) e)
-          if(inherits(res,'error')){
+            bundleData=jr[['data']][['annotation']]
+            bundle=as.bundle(bundleData=bundleData)
+            bundle[['sessionName']]=bundleSession
+            responseBundleJSON=NULL
             
-            # prepare e amessage to send to server. 
-            # Add the error to the message...
-            m=res[['message']]
-            # print to console
-            cat('Error: ',m,"\n")
-            ## ...and the last warning, if available (the error message alone is often not sufficient to describe the problem)
-            #wns=warnings()
-            #wMsgs=names(wns)
-            #if(length(wMsgs)){
-            #  m=paste(m,wMsgs[[1]],sep=',')
-            #}
-            responseBundle=list(status=list(type='ERROR',message=m),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
-          }else if(is.null(res)){
-            cat("Error: function store.bundle.annotation returned NULL result\n")
-          }else{
-            database<<-res
-            responseBundle=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
-          }
+            sendErr<-function(e){
+              
+              # add the error to the message..
+              m=e[['message']]
+              # ..and the last warning, if available
+              wns=warnings()
+              wMsgs=names(wns)
+              if(length(wMsgs)){
+                m=paste(m,wMsgs[[1]])
+              }
+              cat(m,"\n")
+              responseBundle=list(status=list(type='ERROR',message=m),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
+              responseBundleJSON=jsonlite::toJSON(responseBundle,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+              result=ws$send(responseBundleJSON)
+              return('sent-error')
+            }
+            #res=store.bundle.annotation(database,bundle)
+            res=tryCatch(store.bundle.annotation(database,bundle),error=function(e) e)
+            if(inherits(res,'error')){
+              
+              # prepare e amessage to send to server. 
+              # Add the error to the message...
+              m=res[['message']]
+              # print to console
+              cat('Error: ',m,"\n")
+              ## ...and the last warning, if available (the error message alone is often not sufficient to describe the problem)
+              #wns=warnings()
+              #wMsgs=names(wns)
+              #if(length(wMsgs)){
+              #  m=paste(m,wMsgs[[1]],sep=',')
+              #}
+              responseBundle=list(status=list(type='ERROR',message=m),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
+            }else if(is.null(res)){
+              cat("Error: function store.bundle.annotation returned NULL result\n")
+            }else{
+              database<<-res
+              responseBundle=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
+            }
           }
           responseBundleJSON=jsonlite::toJSON(responseBundle,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
           result=ws$send(responseBundleJSON)
