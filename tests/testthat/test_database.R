@@ -3,7 +3,7 @@ require(compare)
 require(wrassp)
 require(emuR)
 
-context("emuR database")
+context("testing database functions")
 
 .aeSampleRate=20000
 

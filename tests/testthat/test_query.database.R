@@ -2,7 +2,7 @@ require(testthat)
 require(wrassp)
 require(emuR)
 
-context("emuR queries")
+context("testing queries")
 
 .test_emu_ae_db=NULL
 
