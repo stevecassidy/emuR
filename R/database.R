@@ -211,7 +211,7 @@ remove.database.redundant.links<-function(database){
   return(database)
 }
 
-get.link.level.children<-function(DBconfig,superlevelName){
+get.link.level.children<-function(schema,superlevelName){
   subLds=list()
   for(ld in schema[['linkDefinitions']]){
     if(ld[['superlevelName']]==superlevelName){
