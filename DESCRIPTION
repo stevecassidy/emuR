@@ -1,5 +1,5 @@
 Package: emuR
-Version: 0.0.3
+Version: 0.0.4
 Title: Interface to the Emu Speech Database System
 Date: 2014-07-17
 Authors@R: c(person("Steve", "Cassidy", role = c("aut", "cre"), email =
