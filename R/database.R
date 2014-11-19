@@ -420,7 +420,7 @@ build.redundant.links.for.pathes<-function(database,lfs,sessionName='0000',bundl
     return(links)
   }
   sqlQuery="SELECT DISTINCT f.session,f.bundle,f.itemID AS fromID,t.itemID AS toID FROM items f,items t"
-  sqlQuery=paste0(sqlQuery,' WHERE f.session=t.session AND f.bundle=t.bundle AND ')
+  sqlQuery=paste0(sqlQuery,' WHERE f.bundle=t.bundle AND f.session=t.session AND ')
  
   if(!is.null(sessionName) & !is.null(bundleName)){
      # only for one bundle
@@ -438,7 +438,7 @@ build.redundant.links.for.pathes<-function(database,lfs,sessionName='0000',bundl
   lfsLen=length(lfs)
   for(i in 1:lfsLen){
     lf=lfs[[i]]
-    #cat("Path: ",lf,"\n")
+    cat("Path: ",lf,"\n")
     lfLen=length(lf)
     sLf=lf[1]
     eLf=lf[lfLen]
@@ -457,20 +457,22 @@ build.redundant.links.for.pathes<-function(database,lfs,sessionName='0000',bundl
     }
     sqlQuery=paste0(sqlQuery," WHERE ")
     if(lfLen==2){
-      sqlQuery=paste0(sqlQuery,"l1.session=f.session AND l1.session=t.session AND l1.bundle=f.bundle AND l1.bundle=t.bundle AND f.itemID=l1.fromID AND t.itemID=l1.toID")
+      #sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=t.bundle AND l1.session=f.session AND l1.session=t.session AND f.itemID=l1.fromID AND t.itemID=l1.toID")
+      sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=t.bundle AND f.itemID=l1.fromID AND t.itemID=l1.toID")
       #cat(sLf,eLf,"\n")
     }else{
       # TODO start and end connection
       # from start to first in-between item 
       eLf=lf[2]
       #cat(sLf,eLf,"\n")
-      sqlQuery=paste0(sqlQuery,"l1.session=f.session AND l1.session=i2.session AND l1.bundle=f.bundle AND l1.bundle=i2.bundle AND f.itemID=l1.fromID AND i2.itemID=l1.toID AND f.level='",sLf,"' AND i2.level='",eLf,"' AND ")
+      #sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=i2.bundle AND l1.session=f.session AND l1.session=i2.session AND f.itemID=l1.fromID AND i2.itemID=l1.toID AND f.level='",sLf,"' AND i2.level='",eLf,"' AND ")
+      sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=i2.bundle AND f.itemID=l1.fromID AND i2.itemID=l1.toID AND f.level='",sLf,"' AND i2.level='",eLf,"' AND ")
       if(lfLen>3){
         for(j in 2:(lfLen-2)){
           sLf=lf[j]
           eLf=lf[j+1L] 
           #cat(sLf,eLf,"\n")
-          sqlQuery=paste0(sqlQuery,"l",j,".session=i",j,".session AND l",j,".session=i",(j+1),".session AND l",j,".bundle=i",j,".bundle AND l",j,".bundle=i",(j+1),".bundle AND i",j,".itemID=l",j,".fromID AND i",(j+1L),".itemID=l",j,".toID AND i",j,".level='",sLf,"' AND i",(j+1L),".level='",eLf,"' AND ")
+          #sqlQuery=paste0(sqlQuery,"l",j,".bundle=i",j,".bundle AND l",j,".bundle=i",(j+1),".bundle AND l",j,".session=i",j,".session AND l",j,".session=i",(j+1),".session AND i",j,".itemID=l",j,".fromID AND i",(j+1L),".itemID=l",j,".toID AND i",j,".level='",sLf,"' AND i",(j+1L),".level='",eLf,"' AND ")
         }
       }
       # from last in-between item to end item
@@ -478,7 +480,8 @@ build.redundant.links.for.pathes<-function(database,lfs,sessionName='0000',bundl
       eLf=lf[lfLen]
       #cat(sLf,eLf,(lfLen-1),"\n")
       j=lfLen-1
-      sqlQuery=paste0(sqlQuery,"l",j,".session=i",j,".session AND l",j,".session=t.session AND l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND i",j,".itemID=l",j,".fromID AND t.itemID=l",j,".toID AND i",j,".level='",sLf,"' AND t.level='",eLf,"'")
+      #sqlQuery=paste0(sqlQuery,"l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND l",j,".session=i",j,".session AND l",j,".session=t.session AND i",j,".itemID=l",j,".fromID AND t.itemID=l",j,".toID AND i",j,".level='",sLf,"' AND t.level='",eLf,"'")
+      sqlQuery=paste0(sqlQuery,"l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND i",j,".itemID=l",j,".fromID AND t.itemID=l",j,".toID AND i",j,".level='",sLf,"' AND t.level='",eLf,"'")
     }
     sqlQuery=paste0(sqlQuery,"))")
     if(i<lfsLen){
@@ -2187,18 +2190,37 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
   #containerSession=emuDB.session(name='0000',bundles=utts)
   ##db$sessions[[1]]$bundles = utts
   #db[['sessions']][['0000']]=containerSession
+  
+  if(verboseLevel>3){
+    cat('Removing redunant links...\n')
+  }
   db=remove.database.redundant.links(db)
+  if(verboseLevel>3){
+    cat('Removed redundant links.\n')
+  }
   progress=progress+1L
   if(showProgress){
     setTxtProgressBar(pb,progress)
+  }
+  if(verboseLevel>3){
+    cat('Build redundant links...\n')
   }
   redLinks=build.redundant.links.all(db)
+  if(verboseLevel>3){
+    cat('Build redundant links.\n')
+  }
   progress=progress+1L
   if(showProgress){
     setTxtProgressBar(pb,progress)
   }
-  
-  db[['linksExt']]=calculate.postions.of.links(db[['items']],redLinks)
+  if(verboseLevel>3){
+    cat('Extending links table...\n')
+  }
+  #db[['linksExt']]=calculate.postions.of.links(db[['items']],redLinks)
+  db[['linksExt']]=calculate.postions.of.links(db[['items']],db[['links']])
+  if(verboseLevel>3){
+    cat('Links tabel extended.\n')
+  }
   progress=progress+1L
   if(showProgress){
     setTxtProgressBar(pb,progress)
