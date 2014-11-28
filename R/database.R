@@ -438,7 +438,7 @@ build.redundant.links.for.pathes<-function(database,lfs,sessionName='0000',bundl
   lfsLen=length(lfs)
   for(i in 1:lfsLen){
     lf=lfs[[i]]
-    cat("Path: ",lf,"\n")
+    #cat("Path: ",lf,"\n")
     lfLen=length(lf)
     sLf=lf[1]
     eLf=lf[lfLen]
@@ -457,22 +457,22 @@ build.redundant.links.for.pathes<-function(database,lfs,sessionName='0000',bundl
     }
     sqlQuery=paste0(sqlQuery," WHERE ")
     if(lfLen==2){
-      #sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=t.bundle AND l1.session=f.session AND l1.session=t.session AND f.itemID=l1.fromID AND t.itemID=l1.toID")
-      sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=t.bundle AND f.itemID=l1.fromID AND t.itemID=l1.toID")
+      sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=t.bundle AND l1.session=f.session AND l1.session=t.session AND f.itemID=l1.fromID AND t.itemID=l1.toID")
+      #sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=t.bundle AND f.itemID=l1.fromID AND t.itemID=l1.toID")
       #cat(sLf,eLf,"\n")
     }else{
       # TODO start and end connection
       # from start to first in-between item 
       eLf=lf[2]
       #cat(sLf,eLf,"\n")
-      #sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=i2.bundle AND l1.session=f.session AND l1.session=i2.session AND f.itemID=l1.fromID AND i2.itemID=l1.toID AND f.level='",sLf,"' AND i2.level='",eLf,"' AND ")
-      sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=i2.bundle AND f.itemID=l1.fromID AND i2.itemID=l1.toID AND f.level='",sLf,"' AND i2.level='",eLf,"' AND ")
+      sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=i2.bundle AND l1.session=f.session AND l1.session=i2.session AND f.itemID=l1.fromID AND i2.itemID=l1.toID AND f.level='",sLf,"' AND i2.level='",eLf,"' AND ")
+      #sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=i2.bundle AND f.itemID=l1.fromID AND i2.itemID=l1.toID AND f.level='",sLf,"' AND i2.level='",eLf,"' AND ")
       if(lfLen>3){
         for(j in 2:(lfLen-2)){
           sLf=lf[j]
           eLf=lf[j+1L] 
           #cat(sLf,eLf,"\n")
-          #sqlQuery=paste0(sqlQuery,"l",j,".bundle=i",j,".bundle AND l",j,".bundle=i",(j+1),".bundle AND l",j,".session=i",j,".session AND l",j,".session=i",(j+1),".session AND i",j,".itemID=l",j,".fromID AND i",(j+1L),".itemID=l",j,".toID AND i",j,".level='",sLf,"' AND i",(j+1L),".level='",eLf,"' AND ")
+          sqlQuery=paste0(sqlQuery,"l",j,".bundle=i",j,".bundle AND l",j,".bundle=i",(j+1),".bundle AND l",j,".session=i",j,".session AND l",j,".session=i",(j+1),".session AND i",j,".itemID=l",j,".fromID AND i",(j+1L),".itemID=l",j,".toID AND i",j,".level='",sLf,"' AND i",(j+1L),".level='",eLf,"' AND ")
         }
       }
       # from last in-between item to end item
@@ -480,8 +480,8 @@ build.redundant.links.for.pathes<-function(database,lfs,sessionName='0000',bundl
       eLf=lf[lfLen]
       #cat(sLf,eLf,(lfLen-1),"\n")
       j=lfLen-1
-      #sqlQuery=paste0(sqlQuery,"l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND l",j,".session=i",j,".session AND l",j,".session=t.session AND i",j,".itemID=l",j,".fromID AND t.itemID=l",j,".toID AND i",j,".level='",sLf,"' AND t.level='",eLf,"'")
-      sqlQuery=paste0(sqlQuery,"l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND i",j,".itemID=l",j,".fromID AND t.itemID=l",j,".toID AND i",j,".level='",sLf,"' AND t.level='",eLf,"'")
+      sqlQuery=paste0(sqlQuery,"l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND l",j,".session=i",j,".session AND l",j,".session=t.session AND i",j,".itemID=l",j,".fromID AND t.itemID=l",j,".toID AND i",j,".level='",sLf,"' AND t.level='",eLf,"'")
+      #sqlQuery=paste0(sqlQuery,"l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND i",j,".itemID=l",j,".fromID AND t.itemID=l",j,".toID AND i",j,".level='",sLf,"' AND t.level='",eLf,"'")
     }
     sqlQuery=paste0(sqlQuery,"))")
     if(i<lfsLen){
@@ -490,7 +490,11 @@ build.redundant.links.for.pathes<-function(database,lfs,sessionName='0000',bundl
   }
   sqlQuery=paste0(sqlQuery,")")
   #cat(sqlQuery,"\n")
-  nls=sqldf(sqlQuery)
+  # since version 2.8.x of sqlite the query is very slow without indices
+  buildIndexItemsSql='CREATE INDEX items_idx ON items(session,bundle,level,itemID)'
+  buildIndexLinksSql='CREATE INDEX links_idx ON links(session,bundle,fromID,toID)'
+  comQuery=c(buildIndexItemsSql,buildIndexLinksSql,sqlQuery)
+  nls=sqldf(comQuery)
   return(nls)
 }
 
@@ -2214,12 +2218,12 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     setTxtProgressBar(pb,progress)
   }
   if(verboseLevel>3){
-    cat('Extending links table...\n')
+   cat('Extending links table...\n')
   }
-  #db[['linksExt']]=calculate.postions.of.links(db[['items']],redLinks)
-  db[['linksExt']]=calculate.postions.of.links(db[['items']],db[['links']])
+  db[['linksExt']]=calculate.postions.of.links(db[['items']],redLinks)
+  #db[['linksExt']]=calculate.postions.of.links(db[['items']],db[['links']])
   if(verboseLevel>3){
-    cat('Links tabel extended.\n')
+   cat('Links tabel extended.\n')
   }
   progress=progress+1L
   if(showProgress){
@@ -2819,11 +2823,18 @@ calculate.postions.of.links<-function(items,links){
   # for all position related functions we need to calculate the sequence indices of dominated items grouped to one dominance item 
   # Extend links table with sequence index of the targeted (dominated) item
   #links2=sqldf("SELECT k.*,i.seqIdx FROM links k,items i WHERE i.bundle=k.bundle AND k.toID=i.itemID")
-  links2=sqldf("SELECT k.*,i.seqIdx,i.level AS toLevel,i.type FROM links k,items i WHERE i.session=k.session AND i.bundle=k.bundle AND k.toID=i.itemID")
+  
+  # since version 2.8.x of sqlite the query is very slow without indices
+  itemsIdxSql='CREATE INDEX items_idx ON items(session,bundle,level,itemID,seqIdx)'
+  linksIdxSql='CREATE INDEX links_idx ON links(session,bundle,fromID,toID)'
+ 
+  links2=sqldf(c(itemsIdxSql,linksIdxSql,"SELECT k.*,i.seqIdx,i.level AS toLevel,i.type FROM links k,items i WHERE i.session=k.session AND i.bundle=k.bundle AND k.toID=i.itemID"))
   # extend links table with relative sequence index
-  links3=sqldf("SELECT k.*,k.seqIdx-(SELECT MIN(m.seqIdx) FROM links2 m WHERE m.fromID=k.fromID AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.session,m.bundle,m.fromID,m.toLevel) AS toSeqIdx FROM links2 k")
+  links2IdxSql='CREATE INDEX links2_idx ON links2(session,bundle,fromID,toID,toLevel,type)'
+  links3=sqldf(c(itemsIdxSql,links2IdxSql,"SELECT k.*,k.seqIdx-(SELECT MIN(m.seqIdx) FROM links2 m WHERE m.fromID=k.fromID AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.session,m.bundle,m.fromID,m.toLevel) AS toSeqIdx FROM links2 k"))
   # Add length of dominance group sequence
-  links4=sqldf("SELECT k.*,(SELECT MAX(m.seqIdx)-MIN(m.seqIdx)+1 FROM links3 m WHERE m.fromID=k.fromID AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.session,m.bundle,m.fromID,m.toLevel) AS toSeqLen FROM links3 k")
+  links3IdxSql='CREATE INDEX links3_idx ON links3(session,bundle,fromID,toID,toLevel,type)'
+  links4=sqldf(c(itemsIdxSql,links3IdxSql,"SELECT k.*,(SELECT MAX(m.seqIdx)-MIN(m.seqIdx)+1 FROM links3 m WHERE m.fromID=k.fromID AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.session,m.bundle,m.fromID,m.toLevel) AS toSeqLen FROM links3 k"))
   return(links4)
   #}
 }
