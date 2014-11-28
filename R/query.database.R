@@ -144,8 +144,10 @@ query.database.level.label<-function(ldf,levelName,conditionText){
   itemsMatch=query.labels(levelSubset,conditionText)
   itemsAsSeqs=NULL
   if(nrow(itemsMatch)>0){
+    itemsIdxSql='CREATE INDEX itemsMatch_idx ON itemsMatch(itemID)'
+   
     itemsAsSeqQStr=paste0("SELECT itemID AS seqStartId, itemID AS seqEndId,1 AS seqLen,'",levelName,"' AS level FROM itemsMatch")
-    itemsAsSeqs=sqldf(itemsAsSeqQStr)
+    itemsAsSeqs=sqldf(c(itemsIdxSql,itemsAsSeqQStr))
   }else{
     itemsAsSeqs=EMPTY_RESULT_DF
   }
@@ -157,17 +159,17 @@ query.database.level.label<-function(ldf,levelName,conditionText){
 }
 
 
-list.seq.items<-function(resSeq){
-  sqIts=sqldf("SELECT i.* FROM items i,items s,items e,resSeq r WHERE s.id=r.seqStartId AND e.id=r.seqEndId AND i.session=s.session AND i.bundle=s.bundle AND i.level=s.level AND i.seqIdx>=s.seqIdx AND i.seqIdx<=e.seqIdx")
-  return(sqIts)
-}
+#list.seq.items<-function(resSeq){
+#  sqIts=sqldf("SELECT i.* FROM items i,items s,items e,resSeq r WHERE s.id=r.seqStartId AND e.id=r.seqEndId AND i.session=s.session AND i.bundle=s.bundle AND i.level=s.level AND i.seqIdx>=s.seqIdx AND i.seqIdx<=e.seqIdx")
+#  return(sqIts)
+#}
 
 
-list.seq.item.ids<-function(resSeq){
-  cat("Seqs:",nrow(resSeq),"\n")
-  sqIts=sqldf("SELECT i.id FROM items i,items s,items e,resSeq r WHERE s.id=r.seqStartId AND e.id=r.seqEndId AND i.session=s.session AND i.bundle=s.bundle AND i.level=s.level AND i.seqIdx>=s.seqIdx AND i.seqIdx<=e.seqIdx")
-  return(sqIts)
-}
+#list.seq.item.ids<-function(resSeq){
+#  cat("Seqs:",nrow(resSeq),"\n")
+#  sqIts=sqldf("SELECT i.id FROM items i,items s,items e,resSeq r WHERE s.id=r.seqStartId AND e.id=r.seqEndId AND i.session=s.session AND i.bundle=s.bundle AND i.level=s.level AND i.seqIdx>=s.seqIdx AND i.seqIdx<=e.seqIdx")
+#  return(sqIts)
+#}
 
 equal.emusegs<-function(seglist1,seglist2,compareAttributes=TRUE,tolerance=0.0,uttsPrefix2=''){
   if(!inherits(seglist1,"emusegs")){
@@ -254,6 +256,7 @@ convert.query.result.to.seglist<-function(database,result){
     lblsDf=database[['labels']]   
     
     # get max length
+    #itemsIdxSql='CREATE INDEX items_idx ON items(seqLen)'
     maxSeqLenDf=sqldf("SELECT max(seqLen) AS maxSeqLen FROM its")
     maxSeqLen=maxSeqLenDf[1,'maxSeqLen']
     #cat("Max seq len: ",maxSeqLen,"\n")
@@ -812,7 +815,12 @@ query.database.eql.in.bracket<-function(database,q){
       domQueryStrTail=paste0(" FROM ",domQueryFromStr," WHERE ", domQueryStrCond0, " AND ", domQueryStrCond1," AND ",domQueryStrCond2)
       lrDomQueryStr=paste0("SELECT DISTINCT ",lDomQuerySelectStr,",",rDomQuerySelectStr,domQueryStrTail)
       #cat("dominance query string: ",domQueryStr,"\n")
-      lrExpRes=sqldf(lrDomQueryStr)
+      itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx)'
+      rResIdxSql='CREATE INDEX rResIts_idx ON rResIts(seqStartId,seqEndId,seqLen,level)'
+      lResIdxSql='CREATE INDEX lResIts_idx ON lResIts(seqStartId,seqEndId,seqLen,level)'
+      linksIdxSql='CREATE INDEX links_idx ON links(session,bundle,fromID,toID)'
+      
+      lrExpRes=sqldf(c(itemsIdxSql,lResIdxSql,rResIdxSql,linksIdxSql,lrDomQueryStr))
       lExpRes=data.frame(seqStartId=lrExpRes[,'seqStartId'],seqEndId=lrExpRes[,'seqEndId'],seqLen=lrExpRes[,'seqLen'],level=lrExpRes[,'level'],stringsAsFactors = FALSE)
       lPrjIts=NULL
       rPrjIts=NULL
