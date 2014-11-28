@@ -723,7 +723,7 @@ query.database.eql.in.bracket<-function(database,q){
   domPos=get.string.position.outside.brackets(qTrim,'^',literalQuote="'",bracket=c('[',']'))
   if(seqPos!=-1 || domPos!=-1){
     items=database[['items']]
-    links=database[['links']]
+    links=database[['linksExt']]
     # parse DOMA or SEQA
     lExpRes=NULL
     prjIts=NULL
