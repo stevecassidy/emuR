@@ -821,7 +821,11 @@ query.database.eql.in.bracket<-function(database,q){
       linksIdxSql='CREATE INDEX links_idx ON links(session,bundle,fromID,toID)'
       
       lrExpRes=sqldf(c(itemsIdxSql,lResIdxSql,rResIdxSql,linksIdxSql,lrDomQueryStr))
-      lExpRes=data.frame(seqStartId=lrExpRes[,'seqStartId'],seqEndId=lrExpRes[,'seqEndId'],seqLen=lrExpRes[,'seqLen'],level=lrExpRes[,'level'],stringsAsFactors = FALSE)
+      #lExpRes=data.frame(seqStartId=lrExpRes[,'seqStartId'],seqEndId=lrExpRes[,'seqEndId'],seqLen=lrExpRes[,'seqLen'],level=lrExpRes[,'level'],stringsAsFactors = FALSE)
+      # lrExpRes might have double items, use a distinct select to create the data.frame for left term
+      # Fix for issue #12
+      lExpRes=sqldf("SELECT DISTINCT seqStartId,seqEndId,seqLen,level FROM lrExpRes")
+      
       lPrjIts=NULL
       rPrjIts=NULL
       if(nrow(lrExpRes)>0){
