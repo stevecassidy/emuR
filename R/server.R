@@ -65,11 +65,21 @@ serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
     }
     
     httpRequest = function(req){
-      # not used
+      # Only 
+      # Rook conform answer  
+      body = paste('<p>http protocol not supported, please use ws protocol.</p>')
+      list(
+        status = 501L,
+        headers = list(
+          'Content-Type' = 'text/html'
+        ),
+        body = body
+      )
     }
     
     onHeaders<-function(req){
-      return(NULL)
+      # following httuv docs we shoul return NULL here to proceed but that terminates the R session!
+      #return(NULL)
     }
     
     serverEstablished = function(ws){
