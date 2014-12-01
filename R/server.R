@@ -347,7 +347,7 @@ serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
     
     sh = startServer(host="0.0.0.0",port=port,app=app)
     cat("EMU-Webapp server handle:",sh,"\n")
-    cat("Server connection URL: http://localhost:",port,"\n",sep='')
+    cat("Server connection URL: ws://localhost:",port,"\n",sep='')
     cat("Server can be stopped by pressing EMU-Webapp 'clear' button or reloading the page.\n")
     emuRserverRunning=TRUE
    
