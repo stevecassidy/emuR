@@ -116,6 +116,17 @@ expect_that(r1Its[2,'seqEndId'],is_identical_to('ae_0000_msajc015_142'))
 # 
 })
 # 
+
+test_that("Query dominance over more than one level",{
+  
+  ae=test_load_ae_database()
+  r1=query(ae,"[ Syllable=S ^ Phonetic=p ]",resultType=NULL)
+  r1Its=r1[['items']]
+  expect_that(nrow(r1Its),equals(2))
+  
+})
+# 
+
 test_that("Query using Start function",{
   ae=test_load_ae_database()
   r1=query(ae,"Phoneme = w & Start(Word, Phoneme)=1",resultType=NULL)
