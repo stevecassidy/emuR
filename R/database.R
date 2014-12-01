@@ -1790,11 +1790,15 @@ load.annotation.for.legacy.bundle=function(schema,legacyBundleID,basePath=NULL){
         #cat("Anno: ",annoPath,"\n")
         if(extension!='hlb'){
           # parse lab file
+          if(file.exists(annoPath)){
           labTier=parse.esps.label.file(labFilePath=annoPath,tierName=ad[['name']],tierType=ad[['type']],sampleRate=sampleRate,idCnt=idCnt)
           if(!is.null(labTier)){
             levels[[labTier[['name']]]] <- labTier
             labTierItemCnt=length(labTier[['items']])
             idCnt=idCnt+labTierItemCnt
+          }
+          }else{
+            # warning ??
           }
         }
       }
@@ -1819,6 +1823,7 @@ load.annotation.for.legacy.bundle=function(schema,legacyBundleID,basePath=NULL){
         if(extension=='hlb'){
           #cat("Parse hlb file:",annoPath,"\n")
           hlbFilePath=get.legacy.file.path(basePath=basePath,emuPath=annoBasePathEmu,legacyBundleID,fileExtension=extension)
+          if(file.exists(hlbFilePath)){
           hlbParseResult=parse.hlb.file(hlbFilePath=annoPath,levelDefinitions=schema[['levelDefinitions']],levels=levels);
           hlbTiers=hlbParseResult[['hlbTiers']]
           links=hlbParseResult[['links']]
@@ -1836,6 +1841,9 @@ load.annotation.for.legacy.bundle=function(schema,legacyBundleID,basePath=NULL){
             }
           }
           levels=sortedLevels
+          }else{
+            #cat("Warning: HLB file: ",hlbFilePath," does not exist!\n")
+          }
         }
       #}
     }
