@@ -125,7 +125,15 @@ test_that("Query dominance over more than one level",{
   expect_that(nrow(r1Its),equals(2))
   
 })
-# 
+
+test_that("Distinct result set for dominance query",{
+  
+  ae=test_load_ae_database()
+  r1=query(ae,"[ Syllable=S ^ Phonetic=s]")
+  r1Its=r1[['items']]
+  expect_that(nrow(r1Its),equals(9))
+
+})
 
 test_that("Query using Start function",{
   ae=test_load_ae_database()
