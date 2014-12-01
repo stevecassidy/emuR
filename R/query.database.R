@@ -823,6 +823,7 @@ query.database.eql.in.bracket<-function(database,q){
       lrExpRes=sqldf(c(itemsIdxSql,lResIdxSql,rResIdxSql,linksIdxSql,lrDomQueryStr))
       #lExpRes=data.frame(seqStartId=lrExpRes[,'seqStartId'],seqEndId=lrExpRes[,'seqEndId'],seqLen=lrExpRes[,'seqLen'],level=lrExpRes[,'level'],stringsAsFactors = FALSE)
       # lrExpRes might have double items, use a distinct select to create the data.frame for left term
+      # for example in the query "[ Syllable=S ^ Phonetic=s ]" on ae there exists one Syllable S which dominates two Phonetic s items 
       # Fix for issue #12
       lExpRes=sqldf("SELECT DISTINCT seqStartId,seqEndId,seqLen,level FROM lrExpRes")
       
