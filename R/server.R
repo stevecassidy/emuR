@@ -354,8 +354,23 @@ serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
     }
     
     app=list(call=httpRequest,onHeaders=onHeaders,onWSOpen=serverEstablished)
-    
-    sh = startServer(host="0.0.0.0",port=port,app=app)
+    sh=tryCatch(startServer(host="0.0.0.0",port=port,app=app),error=function(e) e)
+    if(inherits(sh,'error')){  
+      if(is.null(.emuR.server.serverHandle)){
+        cat("Error starting server.\n")
+        return()
+      }else{
+        cat("Trying to stop orphaned server (handle: ",.emuR.server.serverHandle,")\n")
+        stopServer(.emuR.server.serverHandle)
+        sh=tryCatch(startServer(host="0.0.0.0",port=port,app=app),error=function(e) e)
+        if(inherits(sh,'error')){
+          cat("Error starting server (second try).\n")
+          return()
+        }
+      }
+    }
+    # store handle global for recovery after crash otr terminated R session
+    .emuR.server.serverHandle<<-sh
     cat("EMU-Webapp server handle:",sh,"\n")
     cat("Server connection URL: ws://localhost:",port,"\n",sep='')
     cat("Server can be stopped by pressing EMU-Webapp 'clear' button or reloading the page.\n")
@@ -368,6 +383,8 @@ serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
       
     }
     stopServer(sh)
+    # regular shutdown, remove handle 
+    .emuR.server.serverHandle<<-NULL
     if(debugLevel>0){
       cat("Closed emuR websocket HTTP service\n")
     }
