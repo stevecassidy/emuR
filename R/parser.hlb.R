@@ -105,7 +105,7 @@ parse.hlb.file <- function(hlbFilePath=NULL,levelDefinitions,levels) {
                     }
                     itLblVal=itLbl[['value']]
                     if(exLblVal!=itLblVal){
-                      stop("Labels of attribute level '",exLabel[['name']],"' differ: '",exLabel[['value']],"' '",itLbl[['value']],"'\n")
+                      stop("Labels of attribute level '",exLabel[['name']],"' differ: '",exLabel[['value']],"' '",itLbl[['value']],"' in HLB file: '",hlbFilePath,"'.\n")
                     }
                   }else{
                     # merge
