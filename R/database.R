@@ -1667,7 +1667,7 @@ load.database.schema.from.emu.template=function(tplPath){
     }
     if(n=='samples'){
       if(e!='wav'){
-        cat("WARNING! Media file type with extension ",e," not supported by EMU-Webapp.")
+        cat("WARNING! Media file type with extension ",e," not supported by EMU-Webapp.\n")
       }
       mediafileExtension=e
       mediafileBasePathPattern=tr[['basePath']]
