@@ -117,7 +117,7 @@ serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
         }
         jr=jsonlite::fromJSON(D,simplifyVector = FALSE)
         if(debugLevel >= 2 ){
-          cat("Received command from emuLVC: ",jr$type,"\n")
+          cat("Received command from EMU-Webapp: ",jr[['type']],"\n")
           if(debugLevel >= 3){
             jrNms=names(jr)
             
@@ -134,7 +134,7 @@ serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
         }
         if(!is.null(jr$type)){
           if(debugLevel >= 2 ){
-            cat("Received type from emuLVC: ",jr$type,"\n")
+            cat("Received type from EMU-Webapp: ",jr[['type']],"\n")
           }
           
         }
