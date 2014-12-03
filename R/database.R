@@ -2634,6 +2634,9 @@ convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,verbose=TRUE){
   # save in new format
   store.database(db,targetDir,showProgress=verbose)
   #activeButtons=list(saveBundle=TRUE)
+  if(verbose){
+    cat("\n")
+  }
 }
 
 ## Store EMU database bundle to file
