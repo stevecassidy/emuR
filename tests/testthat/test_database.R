@@ -20,6 +20,15 @@ test_load_ae_database<-function(){
   } 
  return(.test_emu_ae_db)
 }
+
+test_that("function get.legacy.file.path()",{
+  primaryTrackFilePath=get.legacy.file.path("/path/to/db",'BLOCK*/SES*',c('BLOCK30','SES3042','0001abc'),'wav')
+  expect_equal(primaryTrackFilePath,"/path/to/db/BLOCK30/SES3042/0001abc.wav")
+  
+  signalTrackFilePath=get.legacy.file.path("/path/to/db",'F0',c('BLOCK30','SES3042','0001abc'),'f0')
+  expect_equal(signalTrackFilePath,"/path/to/db/F0/0001abc.f0")
+})
+
 test_that("Load example database ae",{
 
   ae=test_load_ae_database()

@@ -130,6 +130,6 @@ get.legacy.file.path=function(basePath,emuPath,legacybundleID,fileExtension){
       path=file.path(path,dir)
     }
   }
-  filename=paste0(legacybundleID[bIdIdx],'.',fileExtension)
+  filename=paste0(legacybundleID[length(legacybundleID)],'.',fileExtension)
   return(file.path(path,filename))
 }
