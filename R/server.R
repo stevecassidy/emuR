@@ -355,25 +355,24 @@ serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
     
     app=list(call=httpRequest,onHeaders=onHeaders,onWSOpen=serverEstablished)
     sh=tryCatch(startServer(host="0.0.0.0",port=port,app=app),error=function(e) e)
-    if(inherits(sh,'error')){  
-      if(is.null(.emuR.server.serverHandle)){
-        cat("Error starting server.\n")
-        return()
-      }else{
+    if(inherits(sh,'error')){
+      if(exists('.emuR.server.serverHandle') & !is.null(.emuR.server.serverHandle)){
         cat("Trying to stop orphaned server (handle: ",.emuR.server.serverHandle,")\n")
         stopServer(.emuR.server.serverHandle)
         sh=tryCatch(startServer(host="0.0.0.0",port=port,app=app),error=function(e) e)
         if(inherits(sh,'error')){
-          cat("Error starting server (second try).\n")
-          return()
+          stop("Error starting server (second try): ",sh,"\n")
         }
+      }else{
+        stop("Error starting server: ",sh,"\n")
       }
     }
     # store handle global for recovery after crash otr terminated R session
     .emuR.server.serverHandle<<-sh
-    cat("EMU-Webapp server handle:",sh,"\n")
+   
     cat("Server connection URL: ws://localhost:",port,"\n",sep='')
     cat("Server can be stopped by pressing EMU-Webapp 'clear' button or reloading the page.\n")
+    #cat("EMU-Webapp server handle:",sh,"\n")
     emuRserverRunning=TRUE
    
     while(emuRserverRunning) {
