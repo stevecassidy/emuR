@@ -2604,8 +2604,13 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,verbose=TRUE){
   if(verbose){
     cat("\n")
   }
-  store.database(db,targetDir,showProgress=verbose)
-  #activeButtons=list(saveBundle=TRUE)
+  # store loaded database 
+  # ignore missing and rewrite SSFF track files for legacy db
+  storeOptions=list(ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=TRUE)
+  store.database(db,targetDir,options=storeOptions,showProgress=verbose)
+  if(verbose){
+    cat("\n")
+  }
 }
 
 ##' Convert legacy EMU database and store in new format to directory
@@ -2716,9 +2721,13 @@ store.bundle.annotation <- function(db,bundle){
 
 store.database <- function(db,targetDir,options=list(),showProgress=TRUE){
   
-  rewriteSSFFTracks=TRUE
+  rewriteSSFFTracks=FALSE
   if(!is.null(options[['rewriteSSFTracks']])){
     rewriteSSFFTracks=options[['rewriteSSFTracks']]
+  }
+  ignoreMissingSSFFTrackFiles=FALSE
+  if(!is.null(options[['ignoreMissingSSFFTrackFiles']])){
+    ignoreMissingSSFFTrackFiles=options[['ignoreMissingSSFFTrackFiles']]
   }
   progress=0
   # check target dir
@@ -2805,7 +2814,9 @@ store.database <- function(db,targetDir,options=list(),showProgress=TRUE){
             break
           }
         }
-        if(rewriteSSFFTracks && isSSFFFile){
+        if(file.exists(sf)){
+          
+          if(rewriteSSFFTracks && isSSFFFile){
             # is SSFF track
             # read/write instead of copy to get rid of big endian encoded SSFF files (SPARC)
             pfAssp=read.AsspDataObj(sf)
@@ -2815,6 +2826,11 @@ store.database <- function(db,targetDir,options=list(),showProgress=TRUE){
             # media file (likely a wav file)
             file.copy(from=sf,to=nsfp)
             #cat("Copied: ",sf," to ",nsfp,"\n")
+          }
+        }else{
+          if(!ignoreMissingSSFFTrackFiles){
+            stop("SSFF track file :'",sf,"' does not exist!")
+          }
         }
       }
       
