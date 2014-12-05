@@ -369,9 +369,9 @@ serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
     }
     # store handle global for recovery after crash otr terminated R session
     .emuR.server.serverHandle<<-sh
-   
+    
     cat("Server connection URL: ws://localhost:",port,"\n",sep='')
-    cat("Server can be stopped by pressing EMU-Webapp 'clear' button or reloading the page.\n")
+    cat("To stop the server press EMU-Webapp 'clear' button or reload the page in your browser.\n")
     #cat("EMU-Webapp server handle:",sh,"\n")
     emuRserverRunning=TRUE
    
