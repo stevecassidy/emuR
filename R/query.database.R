@@ -1047,3 +1047,58 @@ query.database.with.eql<-function(database,query){
   }
 }
 
+
+##' Requery EMU database
+##' @description Requery an EMU database
+##' @param dbObj object of class emuDB
+##' @param segs segment list
+##' @param level level of input segment list
+##' @param targetlevel target level
+##' @param justlabels labels only
+##' @param sequence integer which determins sibling position relative to segment in segs 
+##' @param longerok TODO ??
+##' @param resultType type (class name) of result
+##' @return result set object of class resultType (e.g. EMU seglist 'emusegs')
+##' @author Klaus Jaensch
+##' @import sqldf stringr
+##' @seealso \code{\link{load.emuDB}}
+##' @keywords emuDB database query Emu EQL 
+##' @examples
+##' \dontrun{
+##' ## Requery phonetic context of syllable
+##' 
+##' requery(ae,sl1,level='Syllable',targetlevel='Phonetic')
+##' 
+##' ## Requery previous element on phonetic level
+##' 
+##' requery(ae,sl2,level='Phonetic',sequence=-1)
+##' 
+##' }
+"requery"<-function(dbObj,segs, level,targetlevel=level, justlabels=FALSE, sequence=0, longerok=FALSE,resultType=NULL){
+  UseMethod("requery")
+}
+
+
+
+"requery.emuDB"<-function(dbObj,segs, level, targetlevel=level, justlabels=FALSE, sequence=0, longerok=FALSE,resultType=NULL){
+  stop("Not yet implemented!")
+  dbClass=class(dbObj)
+  if(dbClass=='emuDB'){
+    if(queryLang=='EQL2'){
+      if(is.null(resultType)){
+        return(requery.database.with.eql(dbObj,query))
+      }else{
+        if(resultType=='emusegs'){
+          return(requery.database.with.eql.seglist(dbObj,query))
+        }else{
+          stop("Unknown result type: '",resultType,"'. Supported result types: 'emusegs', NULL")
+        }
+      }
+    }else{
+      stop("Unknown query language '",queryLang,"'.")
+    }
+  }else{
+    NextMethod()
+  }
+}
+
