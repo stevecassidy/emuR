@@ -2694,9 +2694,12 @@ store.bundle.annotation <- function(db,bundle){
 
 ##' Store EMU database to directory
 ##' 
+##' options is a list of key value pairs:
+##' rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: TRUE
+##' 
 ##' @param db EMU database (in R workspace)
 ##' @param targetDir target directory
-##' @param rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC)
+##' @param options list of options
 ##' @param showProgress show progress bar
 ##' @author Klaus Jaensch
 ##' @import stringr uuid jsonlite
@@ -2711,7 +2714,12 @@ store.bundle.annotation <- function(db,bundle){
 ##' 
 ##' }
 
-store.database <- function(db,targetDir,rewriteSSFFTracks=TRUE,showProgress=TRUE){
+store.database <- function(db,targetDir,options=list(),showProgress=TRUE){
+  
+  rewriteSSFFTracks=TRUE
+  if(!is.null(options[['rewriteSSFTracks']])){
+    rewriteSSFFTracks=options[['rewriteSSFTracks']]
+  }
   progress=0
   # check target dir
   if(file.exists(targetDir)){
