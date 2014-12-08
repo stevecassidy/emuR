@@ -2960,13 +2960,26 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
     bundleDirs=dir(absSd,pattern=paste0('.*',bundle.dir.suffix,'$'))
     bundleCount=bundleCount+length(bundleDirs)
   }
-  if(verbose){
-    pb=txtProgressBar(min=0,max=bundleCount+2,style=3)
+  
+  # progress distribution  
+  
+  # progress part to build a data frame 1%
+  ppBuildDataFrame=as.integer(bundleCount/1L)
+  # thress data frames items, labels and links
+  ppBuildDataFrames=ppBuildDataFrame*3L
+  # progress part to build redundant links 10%
+  ppBuildRedLinks=as.integer(bundleCount/10L)
+  # progress part to calaculate ext links 10%
+  ppBuildExtLinks=as.integer(bundleCount/10L)
+  pMax=bundleCount+ppBuildDataFrames+ppBuildRedLinks+ppBuildExtLinks
+  
+  if(verbose){ 
+    pb=txtProgressBar(min=0L,max=pMax,style=3)
     setTxtProgressBar(pb,progress)
   }
   bundleNames=character(bundleCount)
   db[['bundleNamesUnique']]=TRUE
-  bundleIdx=0
+  bundleIdx=0L
   for(sd in sessDirs){
     sessionName=gsub(pattern = paste0(session.suffix,'$'),replacement = '',x = sd)
     bundles=list()
@@ -3189,7 +3202,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   itemsIdx=db[['itemsIdx']]
   tmpDf=data.frame(db[['items']],stringsAsFactors = FALSE)
   db[['items']]=tmpDf[0:itemsIdx,]
-  progress=progress+1L
+  progress=progress+ppBuildDataFrame
   if(verbose){
     setTxtProgressBar(pb,progress)
   }
@@ -3197,7 +3210,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   labelsIdx=db[['labelsIdx']]
   tmpLblsDf=data.frame(db[['labels']],stringsAsFactors = FALSE)
   db[['labels']]=tmpLblsDf[0:labelsIdx,]
-  progress=progress+1L
+  progress=progress+ppBuildDataFrame
   if(verbose){
     setTxtProgressBar(pb,progress)
   }
@@ -3206,19 +3219,19 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   tmpLksdf=data.frame(db[['links']],stringsAsFactors = FALSE)
   
   db[['links']]=tmpLksdf[0:linksIdx,]
-  progress=progress+1L
+  progress=progress+ppBuildDataFrame
   if(verbose){
     setTxtProgressBar(pb,progress)
   }
 
   # assume no redunant links in new format 
   linksForQuery=build.redundant.links.all(db)
-  progress=progress+1L
+  progress=progress+ppBuildRedLinks
   if(verbose){
     setTxtProgressBar(pb,progress)
   }
   db[['linksExt']]=calculate.postions.of.links(db[['items']],linksForQuery)
-  progress=progress+1L
+  progress=progress+ppBuildExtLinks
   if(verbose){
     setTxtProgressBar(pb,progress)
   }
