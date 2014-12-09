@@ -2012,7 +2012,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
                 }
                 rLbl=lbl[['value']]
                 db[['labels']][['itemID']][lrow]=id
-                db[['labels']][['session']]=sessionName
+                db[['labels']][['session']][lrow]=sessionName
                 db[['labels']][['bundle']][lrow]=bName
                 db[['labels']][['labelIdx']][lrow]=i-1L
                 db[['labels']][['name']][lrow]=lbl[['name']]
