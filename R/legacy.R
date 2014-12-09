@@ -887,6 +887,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
   progress=progress+1L
   if(showProgress){
     setTxtProgressBar(pb,progress)
+    cat("\n")
   }
   
   if(verboseLevel>0){
@@ -919,16 +920,11 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,verbose=TRUE){
   # load database schema and metadata
   # lazy currently ignored
   db=load.database.from.legacy.emu(emuTplPath,showProgress=verbose)
-  if(verbose){
-    cat("\n")
-  }
   # store loaded database 
   # ignore missing and rewrite SSFF track files for legacy db
   storeOptions=list(ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=TRUE)
   store.database(db,targetDir,options=storeOptions,showProgress=verbose)
-  if(verbose){
-    cat("\n")
-  }
+  
 }
 
 ##' Convert legacy EMU database and store in new format to directory
@@ -951,13 +947,8 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,verbose=TRUE){
 convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,verbose=TRUE){
   # load database schema and metadata
   db=load.database.from.legacy.emu.by.name(dbName,showProgress=verbose)
-  if(verbose){
-    cat("\n")
-  }
   # save in new format
   store.database(db,targetDir,showProgress=verbose)
   #activeButtons=list(saveBundle=TRUE)
-  if(verbose){
-    cat("\n")
-  }
+ 
 }

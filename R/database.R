@@ -1725,6 +1725,10 @@ store.database <- function(db,targetDir,options=list(),showProgress=TRUE){
     }
      
   }
+  if(showProgress){
+    setTxtProgressBar(pb,progress)
+    cat("\n")
+  }
   
 }
 
@@ -2112,6 +2116,8 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   progress=progress+ppBuildExtLinks
   if(verbose){
     setTxtProgressBar(pb,progress)
+    
+    cat("\n")
   }
   return(db)
   
