@@ -303,6 +303,41 @@ list.emuTemplatePathes<-function(){
   }
 }
 
+##' List known database names from legacy EMU installation
+##' @return character vector with database names
+##' @author Klaus Jaensch
+##' @seealso \code{\link{list.legacy.emu.databases}} \code{\link{convert.legacyEmuDB.by.name.to.emuDB}} 
+##' @export
+##' @keywords database legacy Emu
+##' @examples
+##' \dontrun{
+##' ## List legacy EMU known database names
+##' 
+##' list.legacy.emu.database.names()
+##' 
+##' }
+##' 
+list.legacy.emu.database.names<-function(){
+  return(names(list.legacy.emu.databases()))
+}
+
+##' List known databases from legacy EMU installation
+##' Reads EMU_TEMPLATE_PATH variable from environment or from file ${HOME}/.emu/emu-conf or ${USERPROFILE}/.emu/Emu/emu-conf
+##' and searches for *.tlp template files in this path. The basename of the template file is the database name.
+##' @return named list with pathes to database template files. The names of the list are the database names
+##' @author Klaus Jaensch
+##' @seealso \code{\link{list.legacy.emu.database.names}}
+##' @export
+##' @keywords database legacy Emu
+##' @examples
+##' \dontrun{
+##' ## List legacy EMU known databases
+##' 
+##' list.legacy.emu.databases()
+##' 
+##' }
+##' 
+
 list.legacy.emu.databases<-function(){
   lEmuDbs=list()
   templPathes=list.emuTemplatePathes()
