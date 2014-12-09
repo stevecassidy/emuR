@@ -260,32 +260,46 @@ list.trackdirs<-function(emuPath=NULL,parsedEmuPathPattern=NULL){
 list.emuTemplatePathes<-function(){
   # check if path is set
   emuTemplatePath=Sys.getenv('EMU_TEMPLATE_PATH')
-  if(is.null(emuTemplatePath) || ''==emuTemplatePath){
+  if(is.null(emuTemplatePath) | ''==emuTemplatePath){
+    emuConfFile=NULL
     homePath=Sys.getenv('HOME')
-    emuUserDir=file.path(homePath,'.emu')
+    if(!is.null(homePath) & '' != homePath){
+      emuConfFile=file.path(homePath,'.emu','emu-conf')
+      if(!file.exists(emuConfFile)){
+        emuConfFile=file.path(homePath,'.emu','Emu','emu-conf')
+      }
+    }
+    osInfo=Sys.info()
+    isWindos=FALSE
+    if(!is.null(osInfo)){
+      isWindos=('Windows'==osInfo[['sysname']])
+    }
+    if(isWindos & (is.null(emuConfFile) | !file.exists(emuConfFile))){
+      # Windows 7
+      userProfile=Sys.getenv('USERPROFILE')
+      emuConfFile=file.path(userProfile,'.emu','Emu','emu-conf')
+      #cat("emu conf",emuConfFile,"\n")
+    }
     
-    if(file.exists(emuUserDir)){
-      emuConfFile=file.path(emuUserDir,'emu-conf')
+    if(!is.null(emuConfFile) & file.exists(emuConfFile)){
       
-      if(file.exists(emuConfFile)){
+      lc = try(readLines(emuConfFile,warn=FALSE))
+      if(class(lc) == "try-error") {
+        stop("Cannot read ",emuConfFile)
+      }
+      for(l in lc){
         
-        lc = try(readLines(emuConfFile))
-        if(class(lc) == "try-error") {
-          stop("Cannot read ",emuConfFile)
-        }
-        for(l in lc){
-          
-          kv=parse.line.to.key.value(l)
-          if(!is.null(kv)){
-            if(kv[1]=='#EMU_TEMPLATE_PATH'){
-              etpSpl=strsplit(kv[2],':')
-              return(etpSpl[[1]])
-              
-            }
+        kv=parse.line.to.key.value(l)
+        if(!is.null(kv)){
+          if(kv[1]=='#EMU_TEMPLATE_PATH'){
+            etpSpl=strsplit(kv[2],.Platform[['path.sep']])
+            return(etpSpl[[1]])
+            
           }
         }
       }
     }
+    
   }
 }
 
