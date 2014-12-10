@@ -318,7 +318,11 @@ convert.query.result.to.seglist<-function(database,result){
                 FROM items s,items e,its r \
                 WHERE s.id=r.seqStartId AND e.id=r.seqEndId AND e.session=s.session AND e.bundle=s.bundle AND e.level=s.level \
                 ORDER BY id")
-    segListData=sqldf(q)
+    
+    itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx)'
+    resIdxSql='CREATE INDEX its_idx ON its(seqStartId,seqEndId,seqLen,level)'
+    linksIdxSql='CREATE INDEX links_idx ON links(session,bundle,fromID,toID)'
+    segListData=sqldf(c(itemsIdxSql,resIdxSql,linksIdxSql,q))
     # Note: CASE s.type WHEN 'SEGMENT' OR 'EVENT' did not work.
     
     if(itCount>0){
@@ -815,18 +819,35 @@ query.database.eql.in.bracket<-function(database,q){
       domQueryStrTail=paste0(" FROM ",domQueryFromStr," WHERE ", domQueryStrCond0, " AND ", domQueryStrCond1," AND ",domQueryStrCond2)
       lrDomQueryStr=paste0("SELECT DISTINCT ",lDomQuerySelectStr,",",rDomQuerySelectStr,domQueryStrTail)
       #cat("dominance query string: ",domQueryStr,"\n")
+      #
+      # Experimenting with SQLITE indices ...
+     #cat("left res its:",nrow(lResIts)," right res its: ",nrow(rResIts),"\n")
       itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx)'
-      rResIdxSql='CREATE INDEX rResIts_idx ON rResIts(seqStartId,seqEndId,seqLen,level)'
       lResIdxSql='CREATE INDEX lResIts_idx ON lResIts(seqStartId,seqEndId,seqLen,level)'
+      #rResIdxSql='CREATE INDEX rResIts_idx ON rResIts(seqStartId,seqEndId,seqLen,level)' 
       linksIdxSql='CREATE INDEX links_idx ON links(session,bundle,fromID,toID)'
       
-      lrExpRes=sqldf(c(itemsIdxSql,lResIdxSql,rResIdxSql,linksIdxSql,lrDomQueryStr))
+#       idcSql=c('CREATE INDEX items_id_idx ON items(id)','CREATE INDEX items_sb_idx ON items(session,bundle)',
+#                'CREATE INDEX links_sb_idx ON links(session,bundle)',
+#                'CREATE INDEX links_fromID_idx ON links(fromID)',
+#                'CREATE INDEX links_toID_idx ON links(toID)'
+#                # this indices cause a dramatic performance regression (Why???)  
+#                #'CREATE INDEX rResIts_se_idx ON rResIts(seqStartId,seqEndId)',
+#               #'CREATE INDEX lResIts_se_idx ON lResIts(seqStartId,seqEndId)'
+#               )
+# 
+#      
+    # myserious: query is much slower if rResIts_Idx is calculated as well
+      lrExpRes=sqldf(c(itemsIdxSql,linksIdxSql,lResIdxSql,lrDomQueryStr))
+      #lrExpRes=sqldf(c(idcSql,lrDomQueryStr))
+      
       #lExpRes=data.frame(seqStartId=lrExpRes[,'seqStartId'],seqEndId=lrExpRes[,'seqEndId'],seqLen=lrExpRes[,'seqLen'],level=lrExpRes[,'level'],stringsAsFactors = FALSE)
       # lrExpRes might have double items, use a distinct select to create the data.frame for left term
       # for example in the query "[ Syllable=S ^ Phonetic=s ]" on ae there exists one Syllable S which dominates two Phonetic s items 
       # Fix for issue #12
+      lrExpResIdxSql='CREATE INDEX lrExpRes_idx ON lrExpRes(seqStartId,seqEndId,seqLen,level)'
+      #lExpRes=sqldf(c(lrExpResIdxSql,"SELECT DISTINCT seqStartId,seqEndId,seqLen,level FROM lrExpRes"))
       lExpRes=sqldf("SELECT DISTINCT seqStartId,seqEndId,seqLen,level FROM lrExpRes")
-      
       lPrjIts=NULL
       rPrjIts=NULL
       if(nrow(lrExpRes)>0){
