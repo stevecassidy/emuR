@@ -823,7 +823,7 @@ query.database.eql.in.bracket<-function(database,q){
       # Experimenting with SQLITE indices ...
      #cat("left res its:",nrow(lResIts)," right res its: ",nrow(rResIts),"\n")
       itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx)'
-      lResIdxSql='CREATE INDEX lResIts_idx ON lResIts(seqStartId,seqEndId,seqLen,level)'
+      #lResIdxSql='CREATE INDEX lResIts_idx ON lResIts(seqStartId,seqEndId,seqLen,level)'
       #rResIdxSql='CREATE INDEX rResIts_idx ON rResIts(seqStartId,seqEndId,seqLen,level)' 
       linksIdxSql='CREATE INDEX links_idx ON links(session,bundle,fromID,toID)'
       
@@ -838,7 +838,7 @@ query.database.eql.in.bracket<-function(database,q){
 # 
 #      
     # myserious: query is much slower if rResIts_Idx is calculated as well
-      lrExpRes=sqldf(c(itemsIdxSql,linksIdxSql,lResIdxSql,lrDomQueryStr))
+      lrExpRes=sqldf(c(itemsIdxSql,linksIdxSql,lrDomQueryStr))
       #lrExpRes=sqldf(c(idcSql,lrDomQueryStr))
       
       #lExpRes=data.frame(seqStartId=lrExpRes[,'seqStartId'],seqEndId=lrExpRes[,'seqEndId'],seqLen=lrExpRes[,'seqLen'],level=lrExpRes[,'level'],stringsAsFactors = FALSE)
