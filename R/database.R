@@ -169,7 +169,7 @@ remove.redundant.links<-function(database,links){
   #
   # build SQL query from link definitions
   items=database[['items']]
-  sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.itemID=l.fromID AND t.itemID=l.toID AND ("
+  sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.session=t.session AND l.session=f.session AND f.itemID=l.fromID AND t.itemID=l.toID AND ("
   ldCnt=length(database[['DBconfig']][['linkDefinitions']])
   for(i in 1:ldCnt){
     ld=database[['DBconfig']][['linkDefinitions']][[i]]
@@ -193,7 +193,7 @@ remove.database.redundant.links<-function(database){
   links=database[['links']]
   linksCnt=nrow(links)
   if(linksCnt>0){
-    sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.itemID=l.fromID AND t.itemID=l.toID AND ("
+    sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.session=t.session AND l.session=f.session AND f.itemID=l.fromID AND t.itemID=l.toID AND ("
     ldCnt=length(database[['DBconfig']][['linkDefinitions']])
     if(ldCnt>0){
       for(i in 1:ldCnt){
