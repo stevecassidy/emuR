@@ -890,7 +890,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
   #db[['sessions']][['0000']]=containerSession
   
   if(verboseLevel>3){
-    cat('Removing redunant links...\n')
+    cat('Removing redundant links...\n')
   }
   db=remove.database.redundant.links(db)
   if(verboseLevel>3){
@@ -917,7 +917,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
   db[['linksExt']]=calculate.postions.of.links(db[['items']],redLinks)
   #db[['linksExt']]=calculate.postions.of.links(db[['items']],db[['links']])
   if(verboseLevel>3){
-    cat('Links tabel extended.\n')
+    cat('Links table extended.\n')
   }
   progress=progress+1L
   if(showProgress){
