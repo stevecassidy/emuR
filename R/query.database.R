@@ -797,8 +797,9 @@ query.database.eql.in.bracket<-function(database,q){
       }
       
       # right seq items
-      #rSeqIts=list.seq.items(rResIts) 
-      rSeqIts=sqldf("SELECT i.* FROM items i,items s,items e,rResIts r WHERE s.id=r.seqStartId AND e.id=r.seqEndId AND i.session=s.session AND i.bundle=s.bundle AND i.level=s.level AND i.seqIdx>=s.seqIdx AND i.seqIdx<=e.seqIdx")
+      #rSeqIts=list.seq.items(rResIts)
+      itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx)'
+      rSeqIts=sqldf(c(itemsIdxSql,"SELECT i.* FROM items i,items s,items e,rResIts r WHERE s.id=r.seqStartId AND e.id=r.seqEndId AND i.session=s.session AND i.bundle=s.bundle AND i.level=s.level AND i.seqIdx>=s.seqIdx AND i.seqIdx<=e.seqIdx"))
       lSeqRes=EMPTY_RESULT_DF
       
       # build dominance SQL query string 
@@ -822,7 +823,7 @@ query.database.eql.in.bracket<-function(database,q){
       #
       # Experimenting with SQLITE indices ...
      #cat("left res its:",nrow(lResIts)," right res its: ",nrow(rResIts),"\n")
-      itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx)'
+      
       #lResIdxSql='CREATE INDEX lResIts_idx ON lResIts(seqStartId,seqEndId,seqLen,level)'
       #rResIdxSql='CREATE INDEX rResIts_idx ON rResIts(seqStartId,seqEndId,seqLen,level)' 
       linksIdxSql='CREATE INDEX links_idx ON links(session,bundle,fromID,toID)'
@@ -837,7 +838,7 @@ query.database.eql.in.bracket<-function(database,q){
 #               )
 # 
 #      
-    # myserious: query is much slower if rResIts_Idx is calculated as well
+    # mysterious: query is much slower if rResIts_Idx is calculated as well
       lrExpRes=sqldf(c(itemsIdxSql,linksIdxSql,lrDomQueryStr))
       #lrExpRes=sqldf(c(idcSql,lrDomQueryStr))
       
