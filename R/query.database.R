@@ -253,11 +253,16 @@ convert.query.result.to.seglist<-function(database,result){
   itCount=nrow(its)
   if(itCount>0){
     links=database[['linksExt']]
-    lblsDf=database[['labels']]   
+    lblsDf=database[['labels']]  
     
+    itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx,type,sampleRate,sampleStart,sampleDur,samplePoint)'
+    resIdxSql='CREATE INDEX its_idx ON its(seqStartId,seqEndId,seqLen,level)'
+    
+    #labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,name)'
+    labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,name)'
     # get max length
     #itemsIdxSql='CREATE INDEX items_idx ON items(seqLen)'
-    maxSeqLenDf=sqldf("SELECT max(seqLen) AS maxSeqLen FROM its")
+    maxSeqLenDf=sqldf(c(resIdxSql,"SELECT max(seqLen) AS maxSeqLen FROM its"))
     maxSeqLen=maxSeqLenDf[1,'maxSeqLen']
     #cat("Max seq len: ",maxSeqLen,"\n")
     
@@ -272,7 +277,7 @@ convert.query.result.to.seglist<-function(database,result){
     fromStr='FROM items s,items e,its q,'
     whereStr='WHERE s.id=q.seqStartId AND e.id=q.seqEndId AND '
     for(seqIdx in 1:maxSeqLen){
-      selectStr=paste0(selectStr,'(SELECT l.label FROM lblsDf l WHERE l.itemID=i',seqIdx,'.id AND name=q.level) AS lbl',seqIdx)
+      selectStr=paste0(selectStr,'(SELECT l.label FROM lblsDf l WHERE l.itemID=i',seqIdx,'.id AND l.name=q.level) AS lbl',seqIdx)
       #selectLblStr=paste0(selectLblStr,)
       fromStr=paste0(fromStr,'items i',seqIdx)
       offset=seqIdx-1
@@ -286,11 +291,13 @@ convert.query.result.to.seglist<-function(database,result){
     
     seqLblQStr=paste0(selectStr,' ',fromStr,' ',whereStr,' ORDER BY id')
     #cat(seqLblQStr,"\n")
-    seqLbls=sqldf(seqLblQStr)
+    #st=system.time((seqLbls=sqldf(c(itemsIdxSql,resIdxSql,labelsIdxSql,seqLblQStr))))
+    #cat(st,"\n")
+    seqLbls=sqldf(c(itemsIdxSql,resIdxSql,labelsIdxSql,seqLblQStr))
     
     # query seglist data except labels
     # for this data the information in start end item of the sequence is sufficient
-    # the CASE WHEN THEN ELSE END terms are necessary to get the start end end samples of sequences which are not segment levels and therefore have no time information  
+    # the CASE WHEN THEN ELSE END terms are necessary to get the start and end samples of sequences which are not segment levels and therefore have no time information  
     hasLinks=(nrow(links)>0)
     
     q="SELECT s.id || e.id AS id,s.session,s.bundle,s.itemID AS startitemID ,e.itemID AS enditemID,s.type, \
@@ -319,10 +326,18 @@ convert.query.result.to.seglist<-function(database,result){
                 WHERE s.id=r.seqStartId AND e.id=r.seqEndId AND e.session=s.session AND e.bundle=s.bundle AND e.level=s.level \
                 ORDER BY id")
     
-    itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx)'
-    resIdxSql='CREATE INDEX its_idx ON its(seqStartId,seqEndId,seqLen,level)'
-    linksIdxSql='CREATE INDEX links_idx ON links(session,bundle,fromID,toID)'
-    segListData=sqldf(c(itemsIdxSql,resIdxSql,linksIdxSql,q))
+    #itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx,type)' # very slow !!
+    itemsIdxSql='CREATE INDEX items_idx ON items(type,session,bundle,level,itemID,seqIdx)'
+    linksIdxSql='CREATE INDEX links_idx ON links(session,bundle,fromID,toID,toSeqIdx,toSeqLen)'
+    if(hasLinks){
+    #st=system.time((segListData=sqldf(c(itemsIdxSql,linksIdxSql,resIdxSql,q))))
+    #cat(st," (with links)\n")
+    segListData=sqldf(c(itemsIdxSql,linksIdxSql,resIdxSql,q))
+    }else{
+      #st=system.time((segListData=sqldf(c(itemsIdxSql,resIdxSql,q))))
+      #cat(st," (without links)\n")
+      segListData=sqldf(c(itemsIdxSql,resIdxSql,q))
+    }
     # Note: CASE s.type WHEN 'SEGMENT' OR 'EVENT' did not work.
     
     if(itCount>0){
