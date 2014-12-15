@@ -148,20 +148,23 @@ get.string.position.outside.brackets <- function(string,search,pos=1,literalQuot
 ## @param line line
 ## @param separator separator char
 ## @param doubleQuoted TRUE if expecting double quoted value
+## @param initialTrim remove leading+trailing whitespaces before procceeding (default=TRUE)
 ## @return character vector conating key and value
 ## @import stringr
-parse.line.to.key.value=function(line,separator='=',doubleQuoted=FALSE){ 
-  trimmedLine=str_trim(line)
-  #cat("Trimmed line: ",trimmedLine,"\n",sep='');
-  #eqSignI=str_locate(trimmedLine,'=')[1]
+parse.line.to.key.value=function(line,separator='=',doubleQuoted=FALSE, initialTrim=TRUE){ 
+  if(initialTrim){
+    line=str_trim(line)
+  }
+  #cat("Trimmed line: ",line,"\n",sep='');
+  #eqSignI=str_locate(line,'=')[1]
   # cat("Pos: ",eqSignI,"\n")
-  eqSignI=get.char.position(trimmedLine,separator)
+  eqSignI=get.char.position(line,separator)
   if(eqSignI==-1){
     return(NULL)
   }
-  left=str_sub(trimmedLine,end=eqSignI-1)
+  left=str_sub(line,end=eqSignI-1)
   key=str_trim(left)
-  right=str_sub(trimmedLine,start=eqSignI+1)
+  right=str_sub(line,start=eqSignI+1)
   value=str_trim(right)
   if(doubleQuoted){
     value=sub('^\"','',value);

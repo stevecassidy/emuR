@@ -7,61 +7,91 @@ path2tg = system.file("extdata/legacy_emu/DBs/ae/labels/msajc003.TextGrid", pack
 
 sR = 20000 # sample rate for audio files of ae
 
-tgObj = parse.textgrid(path2tg, sR)
+itemsTableName = "emuR_emuDB_items_tmp"
+
+labelsTableName ="emuR_emuDB_labels_tmp"
+
+linksTableName = "emuR_emuDB_links_tmp"
+
+# Create an ephemeral in-memory RSQLite database
+con <- dbConnect(RSQLite::SQLite(), ":memory:")
+
+initialize_database_tables(con, itemsTableName, labelsTableName, linksTableName)
+
+parse.textgrid(path2tg, sR, db='ae', bundle="msajc003", session="0000", conn = con, itemsTableName, labelsTableName)
+
 
 ##############################
-test_that("correct SEGMENT values are parsed and calculated", {
-  # first segment
-  expect_that(tgObj$Phonetic$items[[1]]$sampleStart, equals(0))
+test_that("correct SEGMENT values are parsed and calculated in SQLite items table", {
+  # get Phonetic table
+  res <- dbSendQuery(con, paste0("SELECT * FROM ", itemsTableName," WHERE level = 'Phonetic'"))
+  phoneticTbl = dbFetch(res)
+  dbClearResult(res)
   
+  expect_that(phoneticTbl[1,]$type, equals('SEGMENT'))
+  
+  # first segment of Phonetic
+  expect_that(phoneticTbl[1,]$sampleStart, equals(0))
+
   # second segment
-  expect_that(tgObj$Phonetic$items[[2]]$sampleStart, equals(3749))
-  expect_that(tgObj$Phonetic$items[[2]]$sampleDur, equals(1389))
-  expect_that(tgObj$Phonetic$items[[2]]$labels[[1]]$name, equals('Phonetic'))
-  expect_that(tgObj$Phonetic$items[[2]]$labels[[1]]$value, equals('V'))
+  expect_that(phoneticTbl[2,]$sampleStart, equals(3749))
+  expect_that(phoneticTbl[2,]$sampleDur, equals(1389))
+  expect_that(phoneticTbl[2,]$label, equals('V'))
   
   # 18th segment
-  expect_that(tgObj$Phonetic$items[[18]]$sampleStart, equals(30124))
-  expect_that(tgObj$Phonetic$items[[18]]$sampleDur, equals(844))
-  expect_that(tgObj$Phonetic$items[[18]]$labels[[1]]$name, equals('Phonetic'))
-  expect_that(tgObj$Phonetic$items[[18]]$labels[[1]]$value, equals('@'))
+  expect_that(phoneticTbl[18,]$sampleStart, equals(30124))
+  expect_that(phoneticTbl[18,]$sampleDur, equals(844))
+  expect_that(phoneticTbl[18,]$label, equals('@'))
   
   # 35th segment
-  expect_that(tgObj$Phonetic$items[[35]]$sampleStart, equals(50126))
-  expect_that(tgObj$Phonetic$items[[35]]$sampleDur, equals(1962))
-  expect_that(tgObj$Phonetic$items[[35]]$labels[[1]]$name, equals('Phonetic'))
-  expect_that(tgObj$Phonetic$items[[35]]$labels[[1]]$value, equals('l'))
-  
-  
+  expect_that(phoneticTbl[35,]$sampleStart, equals(50126))
+  expect_that(phoneticTbl[35,]$sampleDur, equals(1962))
+  expect_that(phoneticTbl[35,]$label, equals('l'))
 })
 
 ##############################
-test_that("correct EVENT values are parsed and calculated", {
+test_that("correct EVENT values are parsed and calculated in SQLite items table", {
 
-  # second segment
-  expect_that(tgObj$Tone$items[[1]]$samplePoint, equals(8381))
-  expect_that(tgObj$Tone$items[[1]]$labels[[1]]$name, equals('Tone'))
-  expect_that(tgObj$Tone$items[[1]]$labels[[1]]$value, equals('H*'))
+  # get Tone table
+  res <- dbSendQuery(con, paste0("SELECT * FROM ", itemsTableName," WHERE level = 'Tone'"))
+  toneTbl = dbFetch(res)
+  dbClearResult(res)
+  
+  # first event
+  expect_that(toneTbl[1,]$samplePoint, equals(8381))
+  expect_that(toneTbl[1,]$label, equals('H*'))
 
-  # 4th segment
-  expect_that(tgObj$Tone$items[[4]]$samplePoint, equals(38255))
-  expect_that(tgObj$Tone$items[[4]]$labels[[1]]$name, equals('Tone'))
-  expect_that(tgObj$Tone$items[[4]]$labels[[1]]$value, equals('H*'))
+  # 4th event
+  expect_that(toneTbl[4,]$samplePoint, equals(38255))
+  expect_that(toneTbl[4,]$label, equals('H*'))
 
-  # 7th segment
-  expect_that(tgObj$Tone$items[[7]]$samplePoint, equals(51552))
-  expect_that(tgObj$Tone$items[[7]]$labels[[1]]$name, equals('Tone'))
-  expect_that(tgObj$Tone$items[[7]]$labels[[1]]$value, equals('L%'))
+  # 7th event
+  expect_that(toneTbl[7,]$samplePoint, equals(51552))
+  expect_that(toneTbl[7,]$label, equals('L%'))
+
 })  
 
 ##############################
-test_that("SEGMENTs & EVENTs have correct IDs", {
+test_that("SEGMENTs & EVENTs have correct itemIDs in SQLite tables", {
+  # get Phonetic table
+  res <- dbSendQuery(con, paste0("SELECT * FROM ", itemsTableName," WHERE level = 'Phonetic'"))
+  phoneticTbl = dbFetch(res)
+  dbClearResult(res)
+  
+  # get Tone table
+  res <- dbSendQuery(con, paste0("SELECT * FROM ", itemsTableName," WHERE level = 'Tone'"))
+  toneTbl = dbFetch(res)
+  dbClearResult(res)
+    
   # increment IDs for EVENTs
-  expect_equal(tgObj$Tone$items[[2]]$id, tgObj$Tone$items[[1]]$id + 1)
-  expect_equal(tgObj$Tone$items[[3]]$id, tgObj$Tone$items[[2]]$id + 1)
+  expect_equal(toneTbl[2,]$itemID, toneTbl[1,]$itemID + 1)
+  expect_equal(toneTbl[3,]$itemID, toneTbl[2,]$itemID + 1)
   
   # increment ids for SEGMENTs
-  expect_equal(tgObj$Phonetic$items[[2]]$id, tgObj$Phonetic$items[[1]]$id + 1)
-  expect_equal(tgObj$Phonetic$items[[3]]$id, tgObj$Phonetic$items[[2]]$id + 1)
-  
-})  
+  expect_equal(phoneticTbl[2,]$itemID, phoneticTbl[1,]$itemID + 1)
+  expect_equal(phoneticTbl[3,]$itemID, phoneticTbl[2,]$itemID + 1)
+
+})
+
+# Disconnect from the database
+dbDisconnect(con)
