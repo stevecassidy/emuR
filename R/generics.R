@@ -55,12 +55,7 @@
 }
 
 
-##' Summary.trackdata
-##' 
-##' see function
-##' 
-##' 
-##' @keywords internal
+
 ##' @export
 `Summary.trackdata` <- function (x,..., na.rm=TRUE) 
 {
