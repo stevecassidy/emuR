@@ -7,12 +7,12 @@ require(stringr)
 ## @param sampleRate sample rate of correponding signal file
 ## @param encoding text encoding (default UTF-8)
 ## @return an annoation object
-## @author Klaus Jaensch
+## @author Klaus Jaensch, Raphael Winkelmann
 ## @import stringr
 ## @keywords emuR TextGrid Praat Emu
 ## 
-parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
-  itemCounter = 1
+parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, bundle, session="0000", conn, itemsTableName, linksTableName) {
+  itemCounterGlobal = 1
   
   FILE_TYPE_KEY="File type"
   OBJECT_CLASS_KEY="Object class"
@@ -54,11 +54,14 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
     stop("read.TextGrid: cannot read from file ", textGridCon)
   }
   
+  # remove all trailing/leading white spaces
+  tg = gsub("^\\s+|\\s+$", "", tg)
+  
   for(line in tg){
-    trimmedLine=str_trim(line)
-#     cat("Trimmed line: ",trimmedLine,"\n")
+#     line=str_trim(line)
+#     cat("Trimmed line: ",line,"\n")
     if(is.null(fileType)){
-      p=parse.line.to.key.value(line,doubleQuoted=TRUE)
+      p=parse.line.to.key.value(line,doubleQuoted=TRUE, initialTrim=FALSE)
       if(! is.null(p)){
         if(p[1]==FILE_TYPE_KEY){
           #cat("Found file type: ",p[2],"\n")
@@ -67,7 +70,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
       }
     }else{
       if(is.null(objectClass)){
-        p=parse.line.to.key.value(line,doubleQuoted=TRUE)
+        p=parse.line.to.key.value(line,doubleQuoted=TRUE, initialTrim=FALSE)
         if(! is.null(p)){
           if(p[1]==OBJECT_CLASS_KEY){
             #cat("Found object class: ",p[2],"\n")
@@ -85,16 +88,16 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
           #}else{
           if(is.null(tiersCount)){
             
-            p=parse.line.to.key.value(line)
+            p=parse.line.to.key.value(line, initialTrim=FALSE)
             if((!is.null(p)) && (p[1]=='size')){
               tiersCount=p[2]
               
             }
           }else{
             ## we have tiersCount tiers
-            if(length(grep("^item",trimmedLine))==1){
+            if(length(grep("^item",line))==1){
               
-              tierIndexStr=sub('item\\s*','',trimmedLine);
+              tierIndexStr=sub('item\\s*','',line);
               #cat("Tier indxstr: ",tierIndexStr,"\n")
               tierIndexStr=sub('\\s*:$','',tierIndexStr);
               if(length(grep('\\[\\s*[0-9]+\\s*\\]',tierIndexStr))==1){
@@ -129,7 +132,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
               }
             }else {
               if(is.null(currentTierClass)){
-                p=parse.line.to.key.value(line,doubleQuoted=TRUE)
+                p=parse.line.to.key.value(line,doubleQuoted=TRUE, initialTrim=FALSE)
                 if((! is.null(p)) && ('class' == p[1])){
                   currentTierClass=p[2];
                   if(currentTierClass==TIER_CLASS_VAL_INTERVAL){
@@ -146,7 +149,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
                 }
               }
               if(is.null(currentTierName)){
-                p=parse.line.to.key.value(line,doubleQuoted=TRUE)
+                p=parse.line.to.key.value(line,doubleQuoted=TRUE, initialTrim=FALSE)
                 if((! is.null(p)) && ('name' == p[1])){
                   currentTierName=p[2];
                   currentTier$name=currentTierName;
@@ -157,24 +160,24 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
               if(! is.null(currentTierClass)){
                 if(currentTierClass==TIER_CLASS_VAL_INTERVAL){
                   #currentTier.setType(Tier.Type.INTERVAL);
-                  #cat("Interval tier check line 2 : ",trimmedLine,"\n")
+                  #cat("Interval tier check line 2 : ",line,"\n")
                   # find size (and other properties)
-                  if((is.null(currentTierSize)) && (length(grep('^intervals[[:space:]]*:.*',trimmedLine))==1)){
+                  if((is.null(currentTierSize)) && (length(grep('^intervals[[:space:]]*:.*',line))==1)){
                     
-                    intervalsPropertyStr=str_trim(sub('^intervals[[:space:]]*:','',trimmedLine))
+                    intervalsPropertyStr=str_trim(sub('^intervals[[:space:]]*:','',line))
                     #cat("Intervals prop str: ",intervalsPropertyStr,"\n")
-                    intervalsProperty=parse.line.to.key.value(intervalsPropertyStr);
+                    intervalsProperty=parse.line.to.key.value(intervalsPropertyStr,initialTrim=FALSE);
                     if((!is.null(intervalsProperty)) && (intervalsProperty[1]=='size')){
                       currentTierSize=intervalsProperty[2]
                       # cat("intervals: size=",currentTierSize,"\n");
                       
                     }
                   }
-                  #cat("grep('intervals[[:space:]]*[[][[:space:]]*[0-9]+[[:space:]]*[]][[:space:]]*[:][[:space:]]*'",trimmedLine,"\n");
-                  if(length(grep('intervals[[:space:]]*[[][[:space:]]*[0-9]+[[:space:]]*[]][[:space:]]*[:][[:space:]]*',trimmedLine))==1){
+                  #cat("grep('intervals[[:space:]]*[[][[:space:]]*[0-9]+[[:space:]]*[]][[:space:]]*[:][[:space:]]*'",line,"\n");
+                  if(length(grep('intervals[[:space:]]*[[][[:space:]]*[0-9]+[[:space:]]*[]][[:space:]]*[:][[:space:]]*',line))==1){
                     
                     #cat("Interval !!\n");
-                    segmentIndexStr=sub("intervals[[:space:]]*[[][[:space:]]*","",trimmedLine);
+                    segmentIndexStr=sub("intervals[[:space:]]*[[][[:space:]]*","",line);
                     segmentIndexStr=sub("[[:space:]]*[]][[:space:]]*[:][[:space:]]*","",segmentIndexStr);
                     currentElementIndex=segmentIndexStr;
                     
@@ -193,7 +196,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
                     #if(DEBUG)System.out.println("Interval: "+currentElementIndex);
                     
                   }else{
-                    p=parse.line.to.key.value(line,doubleQuoted=TRUE)
+                    p=parse.line.to.key.value(line,doubleQuoted=TRUE, initialTrim=FALSE)
                     if((!is.null(p)) && (!is.null(currentSegmentIndex))){
                       if(p[1] == "xmin"){
                         minTimeStr=p[2]
@@ -227,8 +230,26 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
                         #cat("New segment\n");
                         sampleDur = currentSegmentEnd - currentSegmentStart - 1
                         labels=list(list(name=currentTierName,value=currentSegmentLabel))
-                        currentSegment=create.interval.item(id = itemCounter, sampleStart=currentSegmentStart,sampleDur=sampleDur,labels=labels);
-                        itemCounter = itemCounter + 1
+                        currentSegment=create.interval.item(id = itemCounterGlobal, sampleStart=currentSegmentStart,sampleDur=sampleDur,labels=labels);
+                        
+                        # item entry
+                        itemId = paste0(db, '_', session, '_', bundle, '_', itemCounterGlobal)
+
+                        curItem = data.frame(id=itemId, session=session, bundle=bundle, level=currentTierName,
+                                           itemID=itemCounterGlobal, type='SEGMENT', seqIdx=length(currentTier$items) + 1, sampleRate=sampleRate, 
+                                           samplePoint=NA, sampleStart=currentSegmentStart, sampleDur=sampleDur, label=currentSegmentLabel, stringsAsFactors=FALSE)
+                        
+                        dbWriteTable(conn, "emuR_emuDB_items_tmp", curItem, append=T)
+                        
+                        # label entry
+                        label = data.frame(itemID=character(), session=character(), bundle=character(),
+                                            labelIdx=integer(), name=character(), label=character(), stringsAsFactors=FALSE)
+                        
+#                         dbWriteTable(conn, "emuR_emuDB_labels_tmp", label)
+                        
+                        # no link entry because TextGrids don't have hierarchical infos
+
+                        itemCounterGlobal = itemCounterGlobal + 1
                         currentTier$items[[length(currentTier$items)+1]] <- currentSegment
                         
                         currentSegment=NULL;
@@ -244,19 +265,19 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
                   #currentTier.setType(Tier.Type.POINT);
                   
                   # find size (and other properties)
-                  if((is.null(currentTierSize)) && (length(grep('^points[[:space:]]*[:].*',trimmedLine))==1)){
+                  if((is.null(currentTierSize)) && (length(grep('^points[[:space:]]*[:].*',line))==1)){
                     
-                    intervalsPropertyStr=str_trim(sub('^points[[:space:]]*[:]','',trimmedLine))
+                    intervalsPropertyStr=str_trim(sub('^points[[:space:]]*[:]','',line))
                     #cat("Ivp:",intervalsPropertyStr,"\n")
-                    intervalsProperty=parse.line.to.key.value(intervalsPropertyStr);
+                    intervalsProperty=parse.line.to.key.value(intervalsPropertyStr, initialTrim=FALSE);
                     if((!is.null(intervalsProperty)) && (intervalsProperty[1]=='size')){
                       currentTierSize=intervalsProperty[2]
                       #cat("points: size=",currentTierSize,"\n");
                       
                     }
                   }
-                  if(length(grep("points[[:space:]]*[[][[:space:]]*[0-9]+[[:space:]]*[]][[:space:]]*[:][[:space:]]*",trimmedLine))==1){
-                    pointIndexStr=sub("points[[:space:]]*[[][[:space:]]*","",trimmedLine);
+                  if(length(grep("points[[:space:]]*[[][[:space:]]*[0-9]+[[:space:]]*[]][[:space:]]*[:][[:space:]]*",line))==1){
+                    pointIndexStr=sub("points[[:space:]]*[[][[:space:]]*","",line);
                     pointIndexStr=sub("[[:space:]]*[]][[:space:]]*[:][[:space:]]*","",pointIndexStr);
                     currentPointIndex=as.integer(pointIndexStr)
                     currentElementIndex=currentPointIndex
@@ -264,7 +285,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
                     currentPointSample=NULL;
                   }else{
                     #cat("inside point: \n")
-                    p=parse.line.to.key.value(line,doubleQuoted=TRUE)
+                    p=parse.line.to.key.value(line,doubleQuoted=TRUE, initialTrim=FALSE)
                     if((!is.null(p)) && (!is.null(currentPointIndex))){
                       if(p[1]=="time" || p[1]=="number"){
                         timePointStr=p[2];
@@ -287,8 +308,19 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
                       
                       labels=list(list(name=currentTierName,value=currentPointLabel))
                     
-                      currentPoint=create.event.item(id=itemCounter, samplePoint=currentPointSample,labels=labels)
-                      itemCounter = itemCounter + 1
+                      currentPoint=create.event.item(id=itemCounterGlobal, samplePoint=currentPointSample,labels=labels)
+                      
+                      # item entry
+                      itemId = paste0(db, '_', session, '_', bundle, '_', itemCounterGlobal)
+                      
+                      curItem = data.frame(id=itemId, session=session, bundle=bundle, level=currentTierName,
+                                           itemID=itemCounterGlobal, type='EVENT', seqIdx=length(currentTier$items) + 1, sampleRate=sampleRate, 
+                                           samplePoint=currentPointSample, sampleStart=NA, sampleDur=NA, label=currentPointLabel, stringsAsFactors=FALSE)
+                      
+                      dbWriteTable(conn, "emuR_emuDB_items_tmp", curItem, append=T)
+                      
+                      
+                      itemCounterGlobal = itemCounterGlobal + 1
                       currentTier$items[[length(currentTier$items)+1]]=currentPoint
                       
                       currentPointIndex=NULL;
@@ -304,16 +336,15 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate,encoding="UTF-8") {
       }
     }
   }
-  if(!is.null(currentTier)){
-    levels[[currentTier[['name']]]] <- currentTier
-  }
+#   if(!is.null(currentTier)){
+#     levels[[currentTier[['name']]]] <- currentTier
+#   }
   if(inherits(textGridCon,"connection")){
     close(textGridCon)
   }
-  return(levels)
+#   return(levels)
 }
 
 # FOR DEVELOPMENT
-# tgPath = "/Library/Frameworks/R.framework/Versions/3.1/Resources/library/emuR/extdata/legacy_emu/DBs//ae/labels/msajc003.TextGrid"
-# res = parse.textgrid(tgPath, 20000)
-# print(res)
+library('testthat')
+test_file('tests/testthat/test_parse.textgrid.R')

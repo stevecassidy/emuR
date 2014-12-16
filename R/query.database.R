@@ -1139,7 +1139,7 @@ query.database.with.eql<-function(database,query){
 }
 
 
-
+  
 "requery.emuDB"<-function(dbObj,segs, level, targetlevel=level, justlabels=FALSE, sequence=0, longerok=FALSE,resultType=NULL){
   stop("Not yet implemented!")
   dbClass=class(dbObj)
