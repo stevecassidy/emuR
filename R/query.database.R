@@ -417,7 +417,7 @@ query.database.eql.FUNKA<-function(database,q,items=NULL){
       paramsLen=length(params)
       # all functions require exactly two params
       if(paramsLen!=2){
-        stop("Syntax error: Function '",funcName,"' requires exactly two parameters in '",q,"'\n")
+        stop("Syntax error: All EQL functions require exactly two parameters in '",q,"'\n")
       }
       param1=str_trim(params[[1]])
       param2=str_trim(params[[2]])
