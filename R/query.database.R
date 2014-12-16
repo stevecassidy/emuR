@@ -469,7 +469,6 @@ query.database.eql.FUNKA<-function(database,q,items=NULL){
       itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx)'
       linksIdxSql='CREATE INDEX links_idx ON links(session,bundle,fromID,toID,toSeqIdx,toSeqLen)'
       if(funcName=='Start'){
-        # TODO assume 1 as function value for now
         cond=NULL
         if(funcValue=='0'){
           cond='!='
