@@ -442,6 +442,7 @@ query.database.eql.FUNKA<-function(database,q,items=NULL){
       
       funcValueTerm=str_trim(substring(qTrim,prbClose+1))
       
+      
       funcName=str_trim(substr(qTrim,1,prbOpen-1))
       # BNF: POSA = POSFKT,'(',EBENE,',',EBENE,')','=','0'| '1';
       links=database[['linksExt']]
@@ -464,9 +465,9 @@ query.database.eql.FUNKA<-function(database,q,items=NULL){
         }else{
           stop("Syntax error: function ",funcName," requires function value in: '",qTrim,"'\n")
         }
-      }
-      # TODO parse funcValueTerm for Num function
-      
+      } 
+      itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx)'
+      linksIdxSql='CREATE INDEX links_idx ON links(session,bundle,fromID,toID,toSeqIdx,toSeqLen)'
       if(funcName=='Start'){
         # TODO assume 1 as function value for now
         cond=NULL
@@ -478,7 +479,7 @@ query.database.eql.FUNKA<-function(database,q,items=NULL){
           stop("Syntax error: Expected function value 0 or 1 after '=' in function term: '",qTrim,"'\n")
         }
         sqlQStr=paste0("SELECT DISTINCT i.id AS seqStartId, i.id AS seqEndId,1 AS seqLen,'",param2,"' AS level FROM items i,allItems d WHERE i.level='",level2,"' AND d.level='",level1,"' AND EXISTS (SELECT * FROM links k WHERE k.session=i.session AND k.bundle=i.bundle AND k.session=d.session AND k.bundle=d.bundle AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toSeqIdx",cond,"0)") 
-        itemsAsSeqs=sqldf(sqlQStr)
+        itemsAsSeqs=sqldf(c(itemsIdxSql,linksIdxSql,sqlQStr))
         resultLevel=param2
       }else if(funcName=='Medial'){
         cond=NULL
@@ -493,7 +494,7 @@ query.database.eql.FUNKA<-function(database,q,items=NULL){
           stop("Syntax error: Expected function value 0 or 1 after '=' in function term: '",qTrim,"'\n")
         }
         sqlQStr=paste0("SELECT DISTINCT i.id AS seqStartId, i.id AS seqEndId,1 AS seqLen,'",param2,"' AS level FROM items i,allItems d WHERE i.level='",level2,"' AND d.level='",level1,"' AND EXISTS (SELECT * FROM links k WHERE k.session=i.session AND k.bundle=i.bundle AND k.session=d.session AND k.bundle=d.bundle AND k.fromID=d.itemID AND k.toID=i.itemID AND (k.toSeqIdx",cond,"0 ",bOp," k.toSeqIdx+1",cond,"k.toSeqLen))") 
-        itemsAsSeqs=sqldf(sqlQStr)
+        itemsAsSeqs=sqldf(c(itemsIdxSql,linksIdxSql,sqlQStr))
         resultLevel=param2
       }else if(funcName=='End'){
         cond=NULL
@@ -505,9 +506,32 @@ query.database.eql.FUNKA<-function(database,q,items=NULL){
           stop("Syntax error: Expected function value 0 or 1 after '=' in function term: '",qTrim,"'\n")
         }
         sqlQStr=paste0("SELECT DISTINCT i.id AS seqStartId, i.id AS seqEndId,1 AS seqLen,'",param2,"' AS level FROM items i,allItems d WHERE i.level='",level2,"' AND d.level='",level1,"' AND EXISTS (SELECT * FROM links k WHERE k.session=i.session AND k.bundle=i.bundle AND k.session=d.session AND k.bundle=d.bundle AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toSeqIdx+1",cond,"k.toSeqLen)") 
-        itemsAsSeqs=sqldf(sqlQStr)
+        itemsAsSeqs=sqldf(c(itemsIdxSql,linksIdxSql,sqlQStr))
         resultLevel=param2
       }else if(funcName=='Num'){
+        funcVal=NULL
+        funcOpr=NULL
+        for(opr in c('==','!=','<=','>=','=','>','<')){
+          p=get.string.position(string=funcValueTerm,searchStr=opr)
+          if(p==1){
+            oprLen=nchar(opr)
+            funcOpr=substr(funcValueTerm,1,oprLen)
+            funcValStr=str_trim(substring(funcValueTerm,oprLen+1))
+            funcVal=as.integer(funcValStr)
+            if(is.na(funcVal)){
+              stop("Syntax error: Could not parse Num function value as integer: '",funcValStr,"'\n")
+            }
+            break
+            }
+          }
+        if(is.null(funcOpr) | is.null(funcVal)){
+        stop("Syntax error: Unknown operator and/or value for Num  function: '",funcValueTerm,"'\n")
+      }
+        if(funcOpr=='=='){
+          sqlRuncOpr='='
+        }else{
+          sqlFuncOpr=funcOpr
+        }
         # BNF: NUMA = 'Num','(',EBENE,',',EBENE,')',VOP,INTPN;
         # Note return value level is param1 here
        # sqlQStr=paste0("SELECT d.id AS seqStartId, d.id AS seqEndId FROM allItems i,items d WHERE i.level='",param2,"' AND d.level='",param1,"' AND EXISTS (SELECT * FROM links k WHERE k.bundle=i.bundle AND k.bundle=d.bundle AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toLevel=i.level AND k.toSeqLen=",funcValue,")")
@@ -515,11 +539,11 @@ query.database.eql.FUNKA<-function(database,q,items=NULL){
         #if(is.na(numChilds)){
          # stop("Syntax error: Expected integer value after '=' in function term: '",qTrim,"'\n")
         #}
-        sqlQStr=paste0("SELECT DISTINCT d.id AS seqStartId, d.id AS seqEndId,1 AS seqLen,'",param1,"' AS level FROM allItems i,items d WHERE i.level='",level2,"' AND d.level='",level1,"' AND EXISTS (SELECT * FROM links k WHERE  k.session=i.session AND k.session=d.session AND k.bundle=i.bundle AND k.bundle=d.bundle AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toLevel=i.level AND k.toSeqLen",funcValueTerm,")") 
-        itemsAsSeqs=sqldf(sqlQStr)
+        sqlQStr=paste0("SELECT DISTINCT d.id AS seqStartId, d.id AS seqEndId,1 AS seqLen,'",param1,"' AS level FROM allItems i,items d WHERE i.level='",level2,"' AND d.level='",level1,"' AND EXISTS (SELECT * FROM links k WHERE  k.session=i.session AND k.session=d.session AND k.bundle=i.bundle AND k.bundle=d.bundle AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toLevel=i.level AND k.toSeqLen",sqlFuncOpr,funcVal,")") 
+        itemsAsSeqs=sqldf(c(itemsIdxSql,linksIdxSql,sqlQStr))
         resultLevel=param1
       }else{
-        stop("Unknwon function: '",funcName,"'")
+        stop("Syntax error: Unknwon function: '",funcName,"'")
       }
       res=create.subtree(items=itemsAsSeqs,links=NULL,resultLevel=resultLevel)
     }
