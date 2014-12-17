@@ -557,6 +557,54 @@ load.annotation.for.legacy.bundle=function(schema,legacyBundleID,basePath=NULL){
   return(bundle)
 }
 
+remove.redundant.links<-function(database,links){
+  # Legacy EMU and query functions link collections contain links for each possible connection between levels
+  # We consider links that do not follow link definition constraints as redundant and therefore we remove them from the
+  # link data model
+  #
+  # build SQL query from link definitions
+  items=database[['items']]
+  sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.session=t.session AND l.session=f.session AND f.itemID=l.fromID AND t.itemID=l.toID AND ("
+  ldCnt=length(database[['DBconfig']][['linkDefinitions']])
+  for(i in 1:ldCnt){
+    ld=database[['DBconfig']][['linkDefinitions']][[i]]
+    sqlQuery=paste0(sqlQuery,'(f.level=\'',ld[['superlevelName']],'\' AND t.level=\'',ld[['sublevelName']],'\')')
+    if(i<ldCnt){
+      sqlQuery=paste0(sqlQuery,' OR ')
+    }
+  }
+  sqlQuery=paste0(sqlQuery,')')
+  #cat(sqlQuery,"\n")
+  return(sqldf(sqlQuery))
+}
+
+remove.database.redundant.links<-function(database){
+  # Legacy EMU and query functions link collections contain links for each possible connection between levels
+  # We consider links that do not follow link definition constraints as redundant and therefore we remove them from the
+  # link data model
+  #
+  # build SQL query from link definitions
+  items=database[['items']]
+  links=database[['links']]
+  linksCnt=nrow(links)
+  if(linksCnt>0){
+    sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.session=t.session AND l.session=f.session AND f.itemID=l.fromID AND t.itemID=l.toID AND ("
+    ldCnt=length(database[['DBconfig']][['linkDefinitions']])
+    if(ldCnt>0){
+      for(i in 1:ldCnt){
+        ld=database[['DBconfig']][['linkDefinitions']][[i]]
+        sqlQuery=paste0(sqlQuery,'(f.level=\'',ld[['superlevelName']],'\' AND t.level=\'',ld[['sublevelName']],'\')')
+        if(i<ldCnt){
+          sqlQuery=paste0(sqlQuery,' OR ')
+        }
+      }
+      sqlQuery=paste0(sqlQuery,')')
+      #cat(sqlQuery,"\n")
+      database[['links']]=sqldf(sqlQuery)
+    }
+  }
+  return(database)
+}
 
 ## Load legacy EMU database by name
 ## 
