@@ -96,11 +96,35 @@ test_that("SEGMENTs & EVENTs have correct itemIDs in SQLite tables", {
 
 ##############################
 test_that("SQLite label table has correct values", {
-  # get labels table
-  res <- dbSendQuery(con, paste0("SELECT * FROM ", labelsTableName))
-  lablesTable = dbFetch(res)
+  # get Phonetic table
+  res <- dbSendQuery(con, paste0("SELECT * FROM ", labelsTableName, " WHERE name = 'Phonetic'"))
+  phoneticsTable = dbFetch(res)
   dbClearResult(res)
-  print(lablesTable)
+
+  # get Tone table
+  res <- dbSendQuery(con, paste0("SELECT * FROM ", labelsTableName, " WHERE name = 'Tone'"))
+  toneTbl = dbFetch(res)
+  dbClearResult(res)
+  
+  
+  # check phoneticsTable are ok
+  expect_equal(phoneticsTable[1,]$itemID, 'ae_0000_msajc003_86')
+  expect_equal(phoneticsTable[1,]$session, '0000')
+  expect_equal(phoneticsTable[1,]$bundle, 'msajc003')
+  expect_equal(sum(phoneticsTable[1,]$labelIdx), 0)
+  expect_equal(phoneticsTable[1,]$name, 'Phonetic')
+  expect_equal(phoneticsTable[1,]$label, '')
+  expect_equal(paste0(phoneticsTable$label, collapse = ''), 'VmVNstH@:frEnzSi:w@zkH@nsId@dbju:dH@f@l')
+  
+  # check toneTbl are ok
+  expect_equal(toneTbl[1,]$itemID, 'ae_0000_msajc003_122')
+  expect_equal(toneTbl[1,]$session, '0000')
+  expect_equal(toneTbl[1,]$bundle, 'msajc003')
+  expect_equal(sum(toneTbl[1,]$labelIdx), 0)
+  expect_equal(toneTbl[1,]$name, 'Tone')
+  expect_equal(toneTbl[1,]$label, 'H*')
+  expect_equal(paste0(toneTbl$label, collapse = ''), 'H*H*L-H*H*L-L%')
+
 })
 
 # Disconnect from the database

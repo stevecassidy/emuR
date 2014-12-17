@@ -232,7 +232,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
                         labels=list(list(name=currentTierName,value=currentSegmentLabel))
                         currentSegment=create.interval.item(id = itemCounterGlobal, sampleStart=currentSegmentStart,sampleDur=sampleDur,labels=labels);
                         
-                        # item entry
+                        # item entry:
                         itemId = paste0(db, '_', session, '_', bundle, '_', itemCounterGlobal)
 
                         curItem = data.frame(id=itemId, session=session, bundle=bundle, level=currentTierName,
@@ -240,14 +240,15 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
                                            samplePoint=NA, sampleStart=currentSegmentStart, sampleDur=sampleDur, label=currentSegmentLabel, stringsAsFactors=FALSE)
                         
                         
-                        dbWriteTable(conn, itemsTableName, curItem, append=T)
+                        dbWriteTable(conn, itemsTableName, curItem, append = T)
                         
-                        # label entry
-                        label = data.frame(itemID=character(), session=character(), bundle=character(),
-                                            labelIdx=integer(), name=character(), label=character(), stringsAsFactors=FALSE)
+                        # label entry:
+                        label = data.frame(itemID=itemId, session=session, bundle=bundle,
+                                            labelIdx=0, name=currentTierName, label=currentSegmentLabel, stringsAsFactors=FALSE)
                         
-#                         dbWriteTable(conn, "emuR_emuDB_labels_tmp", label)
+                        dbWriteTable(conn, labelsTableName, label, append = T)
                         
+                        # links entry:
                         # no link entry because TextGrids don't have hierarchical infos
 
                         itemCounterGlobal = itemCounterGlobal + 1
@@ -318,8 +319,16 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
                                            itemID=itemCounterGlobal, type='EVENT', seqIdx=length(currentTier$items) + 1, sampleRate=sampleRate, 
                                            samplePoint=currentPointSample, sampleStart=NA, sampleDur=NA, label=currentPointLabel, stringsAsFactors=FALSE)
                       
-                      dbWriteTable(conn, "emuR_emuDB_items_tmp", curItem, append=T)
+                      dbWriteTable(conn, itemsTableName, curItem, append=T)
                       
+                      # label entry:
+                      label = data.frame(itemID=itemId, session=session, bundle=bundle,
+                                         labelIdx=0, name=currentTierName, label=currentPointLabel, stringsAsFactors=FALSE)
+                      
+                      dbWriteTable(conn, labelsTableName, label, append = T)
+                      
+                      # links entry:
+                      # no link entry because TextGrids don't have hierarchical infos
                       
                       itemCounterGlobal = itemCounterGlobal + 1
                       currentTier$items[[length(currentTier$items)+1]]=currentPoint
@@ -347,5 +356,5 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
 }
 
 # FOR DEVELOPMENT
-#library('testthat')
-#test_file('tests/testthat/test_parse.textgrid.R')
+library('testthat')
+test_file('tests/testthat/test_parse.textgrid.R')
