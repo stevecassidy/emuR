@@ -11,7 +11,7 @@ require(stringr)
 ## @import stringr
 ## @keywords emuR TextGrid Praat Emu
 ## 
-parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, bundle, session="0000", conn, itemsTableName, linksTableName) {
+parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, bundle, session="0000", conn, itemsTableName, labelsTableName) {
   itemCounterGlobal = 1
   
   FILE_TYPE_KEY="File type"
@@ -239,7 +239,8 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
                                            itemID=itemCounterGlobal, type='SEGMENT', seqIdx=length(currentTier$items) + 1, sampleRate=sampleRate, 
                                            samplePoint=NA, sampleStart=currentSegmentStart, sampleDur=sampleDur, label=currentSegmentLabel, stringsAsFactors=FALSE)
                         
-                        dbWriteTable(conn, "emuR_emuDB_items_tmp", curItem, append=T)
+                        
+                        dbWriteTable(conn, itemsTableName, curItem, append=T)
                         
                         # label entry
                         label = data.frame(itemID=character(), session=character(), bundle=character(),

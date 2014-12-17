@@ -18,7 +18,7 @@ con <- dbConnect(RSQLite::SQLite(), ":memory:")
 
 initialize_database_tables(con, itemsTableName, labelsTableName, linksTableName)
 
-parse.textgrid(path2tg, sR, db='ae', bundle="msajc003", session="0000", conn = con, itemsTableName, labelsTableName)
+parse.textgrid(path2tg, sR, db='ae', bundle="msajc003", session="0000", conn = con, itemsTableName=itemsTableName, labelsTableName=labelsTableName)
 
 
 ##############################
@@ -91,6 +91,16 @@ test_that("SEGMENTs & EVENTs have correct itemIDs in SQLite tables", {
   expect_equal(phoneticTbl[2,]$itemID, phoneticTbl[1,]$itemID + 1)
   expect_equal(phoneticTbl[3,]$itemID, phoneticTbl[2,]$itemID + 1)
 
+})
+
+
+##############################
+test_that("SQLite label table has correct values", {
+  # get labels table
+  res <- dbSendQuery(con, paste0("SELECT * FROM ", labelsTableName))
+  lablesTable = dbFetch(res)
+  dbClearResult(res)
+  print(lablesTable)
 })
 
 # Disconnect from the database
