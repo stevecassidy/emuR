@@ -41,6 +41,16 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
   currentTierName=NULL
   currentTierSize=NULL
   
+  preallocItemDf = data.frame(id='', session='', bundle='', level='',
+                            itemID=-1, type='', seqIdx=-1, sampleRate=-1, 
+                            samplePoint=-1, sampleStart=-1, sampleDur=-1, label='', stringsAsFactors=FALSE)
+  
+  preallocLabelDf = data.frame(itemID='', session='', bundle='',
+                               labelIdx=-1, name='', label='', stringsAsFactors=FALSE)
+  
+  
+  
+  
   
   # check arguments
   if(is.null(textGridCon)) {
@@ -109,16 +119,16 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
                 #cat("Tier indx:",tierIndex,"\n")
                 #cat("Tiers1: ",length(tiers),"\n")
                 #if(!is.null(currentTier)){
-                  #cat("Tiers2: ",length(tiers),"\n")
-                  # TODO use tier name !!!
-                  #levels[[currentTier[['name']]]]=currentTier
+                #cat("Tiers2: ",length(tiers),"\n")
+                # TODO use tier name !!!
+                #levels[[currentTier[['name']]]]=currentTier
                 #}
                 #currentTier=create.bundle.level(sampleRate=sampleRate)
                 
                 #tiers[[length(tiers)+1]] <- currentTier                       
                 #    currentTier=new Tier();
                 #    
-
+                
                 
                 # reset level/tier attributes
                 itemCounterLevel = 1
@@ -240,23 +250,23 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
                         
                         # item entry:
                         itemId = paste0(db, '_', session, '_', bundle, '_', itemCounterGlobal)
-
-                        curItem = data.frame(id=itemId, session=session, bundle=bundle, level=currentTierName,
-                                           itemID=itemCounterGlobal, type='SEGMENT', seqIdx=itemCounterLevel, sampleRate=sampleRate, 
-                                           samplePoint=NA, sampleStart=currentSegmentStart, sampleDur=sampleDur, label=currentSegmentLabel, stringsAsFactors=FALSE)
+                                                
+                        preallocItemDf[1,] = c(itemId, session, bundle, currentTierName,
+                                             itemCounterGlobal, 'SEGMENT', itemCounterLevel, sampleRate, 
+                                             NA, currentSegmentStart, sampleDur, currentSegmentLabel)
                         
                         
-                        dbWriteTable(conn, itemsTableName, curItem, append = T)
+                        dbWriteTable(conn, itemsTableName, preallocItemDf, append = T)
                         
-                        # label entry:
-                        label = data.frame(itemID=itemId, session=session, bundle=bundle,
-                                            labelIdx=0, name=currentTierName, label=currentSegmentLabel, stringsAsFactors=FALSE)
+                        # label entry:                        
+                        preallocLabelDf[1,] = c(itemId, session, bundle,
+                                                0, currentTierName, currentSegmentLabel)
                         
-                        dbWriteTable(conn, labelsTableName, label, append = T)
+                        dbWriteTable(conn, labelsTableName, preallocLabelDf, append = T)
                         
                         # links entry:
                         # no link entry because TextGrids don't have hierarchical infos
-
+                        
                         # increase counters
                         itemCounterGlobal = itemCounterGlobal + 1
                         itemCounterLevel = itemCounterLevel + 1
@@ -302,12 +312,12 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
                         timePoint=as(timePointStr,"numeric")
                         samplePoint = floor(timePoint * sampleRate)
                         currentPointSample=samplePoint
-                       #cat("point sample: ",currentPointSample,"\n")
+                        #cat("point sample: ",currentPointSample,"\n")
                         #    long frames=timeToFrames(time);
                         #    currentMark.setPosition(frames);
                       }else if(p[1]=="mark"){
                         currentPointLabel=p[2]
-                       # cat("point label: ",currentPointLabel,"\n")
+                        # cat("point label: ",currentPointLabel,"\n")
                       }else if(p[1]=="text"){
                         currentPointLabel=p[2]
                       }
@@ -320,18 +330,19 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
                       
                       # item entry
                       itemId = paste0(db, '_', session, '_', bundle, '_', itemCounterGlobal)
+                                            
+                      preallocItemDf[1,] = c(itemId, session, bundle, currentTierName,
+                                           itemCounterGlobal, 'EVENT', itemCounterLevel, sampleRate, 
+                                           currentPointSample, NA, NA, currentPointLabel)
                       
-                      curItem = data.frame(id=itemId, session=session, bundle=bundle, level=currentTierName,
-                                           itemID=itemCounterGlobal, type='EVENT', seqIdx=itemCounterLevel, sampleRate=sampleRate, 
-                                           samplePoint=currentPointSample, sampleStart=NA, sampleDur=NA, label=currentPointLabel, stringsAsFactors=FALSE)
+                      dbWriteTable(conn, itemsTableName, preallocItemDf, append=T)
                       
-                      dbWriteTable(conn, itemsTableName, curItem, append=T)
+                      # label entry:                      
+                      preallocLabelDf[1,] = c(itemId, session, bundle,
+                                              0, currentTierName, currentPointLabel)
                       
-                      # label entry:
-                      label = data.frame(itemID=itemId, session=session, bundle=bundle,
-                                         labelIdx=0, name=currentTierName, label=currentPointLabel, stringsAsFactors=FALSE)
                       
-                      dbWriteTable(conn, labelsTableName, label, append = T)
+                      dbWriteTable(conn, labelsTableName, preallocLabelDf, append = T)
                       
                       # links entry:
                       # no link entry because TextGrids don't have hierarchical infos
@@ -339,7 +350,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
                       # increase counters
                       itemCounterGlobal = itemCounterGlobal + 1
                       itemCounterLevel = itemCounterLevel + 1
-                                            
+                      
                       currentPointIndex=NULL;
                       currentPointLabel=NULL;
                       currentPointSample=NULL;
