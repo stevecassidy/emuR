@@ -1467,8 +1467,52 @@ set.list.names <-function(list,nameProperty){
   
 }
 
-unmarshal.from.persistence <- function(x){
-  # TODO !!
+apply.class<-function(val,path,class){
+  if(is.null(val)){
+    return(NULL)
+  }
+  if(is.null(path)){
+    class(val)<-c(class,class(val))
+  }else{
+    pLen=length(path)
+    if(pLen==0){
+      class(val)<-c(class,class(val))
+    }else{
+      
+      pathElem=path[1]
+      restpath=c()
+      
+      if(pLen>1){
+        restpath=path[2:pLen]
+      }
+      if(pathElem=='*'){
+        newVal=list()
+        for(ch in val){
+          newVal[[length(newVal)+1]]=apply.class(ch,restpath,class)
+        }
+        val=newVal
+      }else{
+        val[[pathElem]]=apply.class(val[[pathElem]],restpath,class)
+      }
+    }
+  }
+  return(val)
+}
+
+unmarshal.from.persistence <- function(x,classMap=list()){
+  classNames=names(classMap)
+  for(cn in classNames){
+    pathes=classMap[[cn]]
+    pathesLen=length(pathes)
+    if(pathesLen==0){
+      x=apply.class(x,c(),cn)
+    }else{
+      for(path in pathes){
+        x=apply.class(x,path,cn)
+      }
+    }
+  }  
+  
   return(x);
 }
 
