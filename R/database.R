@@ -83,7 +83,26 @@ create.schema.databaseDefinition <- function(name,UUID=uuid::UUIDgenerate(),medi
   invisible(o)
 }
 
+summary.emuDB.schema.databaseDefinition<-function(schema,header=TRUE){
+  cat("Level definitions:\n")
+  for(ld in schema[['levelDefinitions']]){
+    print(ld)
+  }
+  cat("\n")
+  cat("Link definitions:\n")
+  for(ld in schema[['linkDefinitions']]){
+    print(ld)
+  }
+  
+}
 
+print.emuDB.schema.levelDefinition<-function(levelDefinition){
+    cat(levelDefinition[['name']],"\ttype:\t",levelDefinition[['type']],"\n")
+}
+
+print.emuDB.schema.linkDefinition<-function(linkDefinition){
+  cat(linkDefinition[['superlevelName']],"\t->\t",linkDefinition[['sublevelName']],"\n")
+}
 
 
 #emuDB.schema.EMUwebAppConfig.signalCanvases.assign <- function(spec,osci){
@@ -122,6 +141,30 @@ create.database <- function(name=name,basePath=NULL,DBconfig=create.schema.datab
   o <- list(name=name,basePath=basePath,DBconfig=DBconfig,sessions=sessions,primaryExtension=primaryExtension)
   class(o) <- c('emuDB','list')
   invisible(o)
+}
+
+
+build.dataframe.table<-function(list,propNames){
+  
+}
+
+summary.emuDB<-function(db){
+ 
+  cat("Name:\t",db[['name']],"\n")
+  cat("Directory:\t",db[['basePath']],"\n")
+  cat("\n")  
+  summary(db[['DBconfig']])
+  #cat("SSFF track definitions:\n")
+  # TODO 
+  
+  cat("\n")
+  cat("Sessions:",length(db[['sessions']]),"\n")
+  bndlCnt=0
+  for(s in db[['sessions']]){
+    bndlCnt=bndlCnt+length(s[['bundles']])
+  }
+  cat("Bundles:",bndlCnt,"\n")
+  
 }
 
 "as.emuDB"<-function(o,class){
