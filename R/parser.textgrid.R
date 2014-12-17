@@ -13,6 +13,7 @@ require(stringr)
 ## 
 parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, bundle, session="0000", conn, itemsTableName, labelsTableName) {
   itemCounterGlobal = 1
+  itemCounterLevel = 1
   
   FILE_TYPE_KEY="File type"
   OBJECT_CLASS_KEY="Object class"
@@ -39,8 +40,9 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
   currentTierClass=NULL
   currentTierName=NULL
   currentTierSize=NULL
-  levels=list()
   
+  
+  # check arguments
   if(is.null(textGridCon)) {
     stop("Argument textGridCon must not be NULL\n")
   }
@@ -48,18 +50,17 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
     stop("Samplerate must be greater than zero\n")
   }
   
-  # read
+  # read TextGrid
   tg = try(readLines(textGridCon))
   if(class(tg) == "try-error") {
     stop("read.TextGrid: cannot read from file ", textGridCon)
   }
   
-  # remove all trailing/leading white spaces
+  # remove all trailing/leading white spaces (for speed improvment)
   tg = gsub("^\\s+|\\s+$", "", tg)
   
   for(line in tg){
-#     line=str_trim(line)
-#     cat("Trimmed line: ",line,"\n")
+    # check for fileType
     if(is.null(fileType)){
       p=parse.line.to.key.value(line,doubleQuoted=TRUE, initialTrim=FALSE)
       if(! is.null(p)){
@@ -69,6 +70,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
         }
       }
     }else{
+      # check for objectClass
       if(is.null(objectClass)){
         p=parse.line.to.key.value(line,doubleQuoted=TRUE, initialTrim=FALSE)
         if(! is.null(p)){
@@ -78,8 +80,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
           }
         }
       }else{
-        # we have file type and object class
-        
+        # if we have both the file type and the object class        
         if((fileType==FILE_TYPE_VAL_OO_TEXTFILE) && (objectClass==OBJECT_CLASS_VAL_TEXTGRID)){
           
           #if(!hasTiers){
@@ -90,11 +91,11 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
             
             p=parse.line.to.key.value(line, initialTrim=FALSE)
             if((!is.null(p)) && (p[1]=='size')){
+              #cat("Found number of tiers (size=X): ",p[2],"\n")
               tiersCount=p[2]
-              
             }
           }else{
-            ## we have tiersCount tiers
+            ## if we have tiersCount tiers
             if(length(grep("^item",line))==1){
               
               tierIndexStr=sub('item\\s*','',line);
@@ -107,15 +108,20 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
                 tierIndex=tierIndexStr;
                 #cat("Tier indx:",tierIndex,"\n")
                 #cat("Tiers1: ",length(tiers),"\n")
-                if(!is.null(currentTier)){
+                #if(!is.null(currentTier)){
                   #cat("Tiers2: ",length(tiers),"\n")
                   # TODO use tier name !!!
-                  levels[[currentTier[['name']]]]=currentTier
-                }
-                currentTier=create.bundle.level(sampleRate=sampleRate)
+                  #levels[[currentTier[['name']]]]=currentTier
+                #}
+                #currentTier=create.bundle.level(sampleRate=sampleRate)
+                
                 #tiers[[length(tiers)+1]] <- currentTier                       
                 #    currentTier=new Tier();
                 #    
+
+                
+                # reset level/tier attributes
+                itemCounterLevel = 1
                 currentTierClass=NULL;
                 currentTierName=NULL;
                 currentTierSize=NULL;
@@ -128,19 +134,19 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
                 currentPointIndex=NULL;
                 currentPointSample=NULL;
                 currentPointLabel=NULL;
-                #    if(DEBUG)System.out.println("Tier index: "+tierIndex);
               }
             }else {
+              # check for currentTierClass
               if(is.null(currentTierClass)){
                 p=parse.line.to.key.value(line,doubleQuoted=TRUE, initialTrim=FALSE)
                 if((! is.null(p)) && ('class' == p[1])){
                   currentTierClass=p[2];
                   if(currentTierClass==TIER_CLASS_VAL_INTERVAL){
-                    currentTier$type='SEGMENT';
+                    #currentTier$type='SEGMENT';
                     #annotation.getTiers().add(currentTier);
                     
                   }else if(currentTierClass==TIER_CLASS_VAL_TEXT){
-                    currentTier$type='EVENT';
+                    #currentTier$type='EVENT';
                     #annotation.getTiers().add(currentTier);
                     
                   }else{
@@ -148,16 +154,18 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
                   }
                 }
               }
+              # check for currentTierName
               if(is.null(currentTierName)){
                 p=parse.line.to.key.value(line,doubleQuoted=TRUE, initialTrim=FALSE)
                 if((! is.null(p)) && ('name' == p[1])){
                   currentTierName=p[2];
-                  currentTier$name=currentTierName;
+                  #currentTier$name=currentTierName;
                   #cat("Tier name:",currentTierName,currentTier$TierName,tiers[[length(tiers)]]$TierName,"\n")
                   
                 }
               }
-              if(! is.null(currentTierClass)){
+              # if we have the currentTierClass
+              if(!is.null(currentTierClass)){
                 if(currentTierClass==TIER_CLASS_VAL_INTERVAL){
                   #currentTier.setType(Tier.Type.INTERVAL);
                   #cat("Interval tier check line 2 : ",line,"\n")
@@ -169,7 +177,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
                     intervalsProperty=parse.line.to.key.value(intervalsPropertyStr,initialTrim=FALSE);
                     if((!is.null(intervalsProperty)) && (intervalsProperty[1]=='size')){
                       currentTierSize=intervalsProperty[2]
-                      # cat("intervals: size=",currentTierSize,"\n");
+                      #cat("intervals: size=",currentTierSize,"\n");
                       
                     }
                   }
@@ -183,7 +191,6 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
                     
                     #currentSegment=emuR.annotation.model.IntervalItem()
                     
-                    
                     currentSegmentIndex=segmentIndexStr;
                     currentSegmentStart=NULL;
                     currentSegmentEnd=NULL;
@@ -196,7 +203,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
                     #if(DEBUG)System.out.println("Interval: "+currentElementIndex);
                     
                   }else{
-                    p=parse.line.to.key.value(line,doubleQuoted=TRUE, initialTrim=FALSE)
+                    p=parse.line.to.key.value(line, doubleQuoted=TRUE, initialTrim=FALSE)
                     if((!is.null(p)) && (!is.null(currentSegmentIndex))){
                       if(p[1] == "xmin"){
                         minTimeStr=p[2]
@@ -230,13 +237,12 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
                         #cat("New segment\n");
                         sampleDur = currentSegmentEnd - currentSegmentStart - 1
                         labels=list(list(name=currentTierName,value=currentSegmentLabel))
-                        currentSegment=create.interval.item(id = itemCounterGlobal, sampleStart=currentSegmentStart,sampleDur=sampleDur,labels=labels);
                         
                         # item entry:
                         itemId = paste0(db, '_', session, '_', bundle, '_', itemCounterGlobal)
 
                         curItem = data.frame(id=itemId, session=session, bundle=bundle, level=currentTierName,
-                                           itemID=itemCounterGlobal, type='SEGMENT', seqIdx=length(currentTier$items) + 1, sampleRate=sampleRate, 
+                                           itemID=itemCounterGlobal, type='SEGMENT', seqIdx=itemCounterLevel, sampleRate=sampleRate, 
                                            samplePoint=NA, sampleStart=currentSegmentStart, sampleDur=sampleDur, label=currentSegmentLabel, stringsAsFactors=FALSE)
                         
                         
@@ -251,8 +257,10 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
                         # links entry:
                         # no link entry because TextGrids don't have hierarchical infos
 
+                        # increase counters
                         itemCounterGlobal = itemCounterGlobal + 1
-                        currentTier$items[[length(currentTier$items)+1]] <- currentSegment
+                        itemCounterLevel = itemCounterLevel + 1
+                        
                         
                         currentSegment=NULL;
                         currentSegmentIndex=NULL;
@@ -309,14 +317,12 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
                          !is.null(currentPointLabel)){
                       
                       labels=list(list(name=currentTierName,value=currentPointLabel))
-                    
-                      currentPoint=create.event.item(id=itemCounterGlobal, samplePoint=currentPointSample,labels=labels)
                       
                       # item entry
                       itemId = paste0(db, '_', session, '_', bundle, '_', itemCounterGlobal)
                       
                       curItem = data.frame(id=itemId, session=session, bundle=bundle, level=currentTierName,
-                                           itemID=itemCounterGlobal, type='EVENT', seqIdx=length(currentTier$items) + 1, sampleRate=sampleRate, 
+                                           itemID=itemCounterGlobal, type='EVENT', seqIdx=itemCounterLevel, sampleRate=sampleRate, 
                                            samplePoint=currentPointSample, sampleStart=NA, sampleDur=NA, label=currentPointLabel, stringsAsFactors=FALSE)
                       
                       dbWriteTable(conn, itemsTableName, curItem, append=T)
@@ -330,9 +336,10 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
                       # links entry:
                       # no link entry because TextGrids don't have hierarchical infos
                       
+                      # increase counters
                       itemCounterGlobal = itemCounterGlobal + 1
-                      currentTier$items[[length(currentTier$items)+1]]=currentPoint
-                      
+                      itemCounterLevel = itemCounterLevel + 1
+                                            
                       currentPointIndex=NULL;
                       currentPointLabel=NULL;
                       currentPointSample=NULL;
@@ -346,15 +353,11 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
       }
     }
   }
-#   if(!is.null(currentTier)){
-#     levels[[currentTier[['name']]]] <- currentTier
-#   }
   if(inherits(textGridCon,"connection")){
     close(textGridCon)
   }
-#   return(levels)
 }
 
 # FOR DEVELOPMENT
-library('testthat')
-test_file('tests/testthat/test_parse.textgrid.R')
+#library('testthat')
+#test_file('tests/testthat/test_parse.textgrid.R')
