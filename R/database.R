@@ -1775,7 +1775,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   schema[['maxNumberOfLabels']]=maxLbls
   db[['DBconfig']]=schema
   db[['name']]=schema[['name']]
-  db[['basePath']]=databaseDir
+  db[['basePath']]=normalizePath(databaseDir)
   if(verbose){
     cat("INFO: Loading EMU database from ",databaseDir,"...\n")
   }
