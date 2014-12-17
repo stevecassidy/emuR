@@ -5,13 +5,50 @@ require(stringr)
 ## 
 ## @param textGridCon TextGrid file connection
 ## @param sampleRate sample rate of correponding signal file
-## @param encoding text encoding (default UTF-8)
+## @param encoding text encoding (currently the only excepted is the default UTF-8)
 ## @return an annoation object
 ## @author Klaus Jaensch, Raphael Winkelmann
 ## @import stringr
 ## @keywords emuR TextGrid Praat Emu
 ## 
-parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, bundle, session="0000", conn, itemsTableName, labelsTableName) {
+parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", 
+                           db=NULL, bundle=NULL, session="0000", conn=NULL, 
+                           itemsTableName=NULL, labelsTableName=NULL) {
+  
+  #####################
+  # check arguments (TODO better checks for classes and the like...)
+  
+  if(is.null(textGridCon)) {
+    stop("Argument textGridCon must not be NULL\n")
+  }
+  if(sampleRate <=0 ){
+    stop("Samplerate must be greater than zero\n")
+  }
+  if(encoding != "UTF-8"){
+    stop("The only encoding that is currently supported is UTF-8\n")
+  }
+  if(is.null(db)){
+    stop("Argument db must not be NULL!\n")
+  }
+  if(is.null(bundle)){
+    stop("Argument bundle must not be NULL!\n")
+  }
+  if(is.null(session)){
+    stop("Argument session must not be NULL!\n")
+  }  
+  if(is.null(conn)){
+    stop("Argument conn must not be NULL!\n")
+  }
+  if(is.null(itemsTableName)){
+    stop("Argument itemsTableName must not be NULL!\n")
+  }
+  if(is.null(labelsTableName)){
+    stop("Argument labelsTableName must not be NULL!\n")
+  }
+    
+  #
+  #####################
+  
   itemCounterGlobal = 1
   itemCounterLevel = 1
   
@@ -49,16 +86,6 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", db, b
                                labelIdx=-1, name='', label='', stringsAsFactors=FALSE)
   
   
-  
-  
-  
-  # check arguments
-  if(is.null(textGridCon)) {
-    stop("Argument textGridCon must not be NULL\n")
-  }
-  if(sampleRate <=0 ){
-    stop("Samplerate must be greater than zero\n")
-  }
   
   # read TextGrid
   tg = try(readLines(textGridCon))
