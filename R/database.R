@@ -1341,6 +1341,13 @@ emuR.persist.filters[['DBconfig']][[7]]=c('itemColNames')
 emuR.persist.filters[['DBconfig']][[8]]=c('basePath')
 emuR.persist.filters[['DBconfig']][[9]]=c('DBconfigPath')
 
+emuR.persist.class=list()
+emuR.persist.class[['DBconfig']]=list()
+emuR.persist.class[['DBconfig']][['emuDB.schema.databaseDefinition']]=character(0)
+emuR.persist.class[['DBconfig']][['emuDB.schema.levelDefinition']]=list(c('levelDefinitions','*'))
+emuR.persist.class[['DBconfig']][['emuDB.schema.linkDefinition']]=list(c('linkDefinitions','*'))
+emuR.persist.class[['DBconfig']][['emuDB.schema.attributeDefinition']]=list(c('levelDefinitions','*','attributeDefinitions','*'))
+
 marshal.for.persistence <- function(x, filter=NULL){
   if (is.list(x)) {
     
@@ -1807,7 +1814,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   dbCfgJSON=paste(dbCfgJSONLns,collapse='')
   dbCfgPersisted=jsonlite::fromJSON(dbCfgJSON,simplifyVector=FALSE)
   
-  schema=unmarshal.from.persistence(dbCfgPersisted)
+  schema=unmarshal.from.persistence(dbCfgPersisted,emuR.persist.class[['DBconfig']])
   # get max label array size
   maxLbls=0
   for(lvlDef in schema[['levelDefinitions']]){
