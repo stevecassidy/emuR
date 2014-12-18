@@ -242,6 +242,32 @@ get.level.names<-function(schema){
   return(lNames)
 }
 
+get.level.name.by.attribute.name<-function(schema,attributeName){
+  for(lvlD in schema[['levelDefinitions']]){
+    aNames=character(0)
+    for(ad in lvlD[['attributeDefinitions']]){
+      aNames=c(aNames,ad[['name']])
+      if(attributeName %in% aNames){
+        return(lvlD[['name']])
+      }
+    }
+  }
+  return(NULL)
+}
+
+get.attribute.names.by.name<-function(schema,levelName){
+  aNames=character(0)
+  for(lvlD in schema[['levelDefinitions']]){
+    if(lvlD[['name']]==levelName){
+      for(ad in lvlD[['attributeDefinitions']]){
+        aNames=c(aNames,ad[['name']])
+      }
+      break
+    }
+  }
+  return(aNames)
+}
+
 get.all.attribute.names<-function(schema){
   aNames=character(0)
   for(lvlD in schema[['levelDefinitions']]){
