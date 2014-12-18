@@ -781,46 +781,53 @@ query.database.eql.in.bracket<-function(database,q){
     
     # get items on dominance compare levels
     lResIts=lRes[['items']]
-    lResLvl=lRes[['resultLevel']]
+    lResAttrName=lRes[['resultLevel']]
+    lResLvl=get.level.name.by.attribute.name(database[['DBconfig']],lResAttrName)
     lResPIts=lRes[['projectionItems']]
+    
+    rResAttrName=rRes[['resultLevel']]
+    rResLvl=get.level.name.by.attribute.name(database[['DBconfig']],rResAttrName)
+    if(domPos!=-1 & lResLvl==rResLvl){
+      stop("Dominance query on same levels impossible.\nLeft level: ",lResLvl," (attr:",lResAttrName,") equals right level: ",lResLvl," (attr:",rResAttrName,")\n")
+    }
     
     lLvlItems=NULL
     # sqldf cannot handle empty data frames 
     lResItsNrows=nrow(lResIts)
     if(lResItsNrows==0){
-      res=create.subtree(items=lResIts,links=NULL,resultLevel=lResLvl,projectionItems=lResPIts)
+      res=create.subtree(items=lResIts,links=NULL,resultLevel=lResAttrName,projectionItems=lResPIts)
       return(res)
     }
     #else{
-    #  lqStr=paste0("SELECT i.* FROM lResIts ls,items i WHERE i.id=ls.seqStartId AND level='",lResLvl,"'")
+    #  lqStr=paste0("SELECT i.* FROM lResIts ls,items i WHERE i.id=ls.seqStartId AND level='",lResAttrName,"'")
     #  #lqStr=paste0("SELECT i.* FROM lResIts ls,items i WHERE i.id=ls.seqStartId")
     #  lLvlItems=sqldf(lqStr)
     #}
     rResIts=rRes[['items']]
-    rResLvl=rRes[['resultLevel']]
-    rResPIts=rRes[['projectionItems']]
     
+    rResPIts=rRes[['projectionItems']]
+   
     rLvlItems=NULL
     # sqldf cannot handle empty data frames 
     rResItsNrows=nrow(rResIts)
     if(rResItsNrows==0){
-      res=create.subtree(items=rResIts,links=NULL,resultLevel=lResLvl,projectionItems=rResPIts)
+      res=create.subtree(items=rResIts,links=NULL,resultLevel=lResAttrName,projectionItems=rResPIts)
       return(res)
     }
     #else{
-    #  rqStr=paste0("SELECT i.* FROM rResIts rs,items i WHERE i.id=rs.seqStartId AND level='",rResLvl,"'")
+    #  rqStr=paste0("SELECT i.* FROM rResIts rs,items i WHERE i.id=rs.seqStartId AND level='",rResAttrName,"'")
     #  #rqStr=paste0("SELECT i.* FROM rResIts rs,items i WHERE i.id=rs.seqStartId")
     #  rLvlItems=sqldf(rqStr)
     #}
     #lLvlItemsNrows=nrow(lLvlItems)
     #rLvlItemsNrows=nrow(rLvlItems)
     #if(lLvlItemsNrows==0){    
-    #  res=create.subtree(items=,lLvlItems,links=NULL,resultLevel=lResLvl,projectionItems=NULL)
+    #  res=create.subtree(items=,lLvlItems,links=NULL,resultLevel=lResAttrName,projectionItems=NULL)
     #  return(res)
     #} 
     #if( rLvlItemsNrows==0){
     #  
-    #  res=create.subtree(items=rLvlItems,links=NULL,resultLevel=lResLvl,projectionItems=NULL)
+    #  res=create.subtree(items=rLvlItems,links=NULL,resultLevel=lResAttrName,projectionItems=NULL)
     #  return(res)
     #}
     
@@ -830,7 +837,7 @@ query.database.eql.in.bracket<-function(database,q){
       
       linksNrows=nrow(links)
       if(linksNrows==0){
-        res=create.subtree(items=EMPTY_RESULT_DF,links=NULL,resultLevel=lResLvl,projectionItems=NULL)
+        res=create.subtree(items=EMPTY_RESULT_DF,links=NULL,resultLevel=lResAttrName,projectionItems=NULL)
         return(res)
       }
       
@@ -935,11 +942,11 @@ query.database.eql.in.bracket<-function(database,q){
     if(seqPos!=-1){
       # parse SEQA
       # query the result level of left term
-      if(lResLvl!=rResLvl){
-        stop("Levels of sequence query '",qTrim,"' do not match. (",lResLvl," not equal ",rResLvl,")")
+      if(lResAttrName!=rResAttrName){
+        stop("Levels of sequence query '",qTrim,"' do not match. (",lResAttrName," not equal ",rResAttrName,")")
       }
-      #seqQueryStr=paste0("SELECT lid.seqStartId,rid.seqEndId FROM lResIts lid, rResIts rid,items il, items ir WHERE il.id=lid.seqEndId AND ir.id=rid.seqStartId AND il.level='",lResLvl,"' AND il.level=ir.level AND il.bundle=ir.bundle AND ir.seqIdx=il.seqIdx+1")
-      #lrSeqQueryStr=paste0("SELECT lid.seqStartId,lid.seqEndId AS leId,rid.seqStartId AS rsId,rid.seqEndId FROM lResIts lid, rResIts rid,items il, items ir WHERE il.id=lid.seqEndId AND ir.id=rid.seqStartId AND il.level='",lResLvl,"' AND il.level=ir.level AND il.bundle=ir.bundle AND ir.seqIdx=il.seqIdx+1")
+      #seqQueryStr=paste0("SELECT lid.seqStartId,rid.seqEndId FROM lResIts lid, rResIts rid,items il, items ir WHERE il.id=lid.seqEndId AND ir.id=rid.seqStartId AND il.level='",lResAttrName,"' AND il.level=ir.level AND il.bundle=ir.bundle AND ir.seqIdx=il.seqIdx+1")
+      #lrSeqQueryStr=paste0("SELECT lid.seqStartId,lid.seqEndId AS leId,rid.seqStartId AS rsId,rid.seqEndId FROM lResIts lid, rResIts rid,items il, items ir WHERE il.id=lid.seqEndId AND ir.id=rid.seqStartId AND il.level='",lResAttrName,"' AND il.level=ir.level AND il.bundle=ir.bundle AND ir.seqIdx=il.seqIdx+1")
       lrSeqQueryStr=paste0("SELECT lid.seqStartId,lid.seqEndId AS leId,rid.seqStartId AS rsId,rid.seqEndId,lid.seqLen+rid.seqLen AS seqLen,lid.level FROM lResIts lid, rResIts rid,items il, items ir WHERE il.id=lid.seqEndId AND ir.id=rid.seqStartId AND il.level=ir.level AND il.session=ir.session AND il.bundle=ir.bundle AND ir.seqIdx=il.seqIdx+1")
       lrExpRes=sqldf(lrSeqQueryStr)
       
@@ -982,7 +989,7 @@ query.database.eql.in.bracket<-function(database,q){
     
     # links of result tree ? No.
     
-    res=create.subtree(items=lExpRes,links=NULL,resultLevel=lResLvl,projectionItems=prjIts)
+    res=create.subtree(items=lExpRes,links=NULL,resultLevel=lResAttrName,projectionItems=prjIts)
     return(res)
   }
   stop("Syntax error: Expected sequence '->' or domination '^' operator.")
