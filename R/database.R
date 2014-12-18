@@ -242,7 +242,7 @@ get.level.names<-function(schema){
   return(lNames)
 }
 
-get.attribute.names<-function(schema){
+get.all.attribute.names<-function(schema){
   aNames=character(0)
   for(lvlD in schema[['levelDefinitions']]){
     for(ad in lvlD[['attributeDefinitions']]){

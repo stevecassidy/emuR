@@ -422,7 +422,7 @@ query.database.eql.FUNKA<-function(database,q,items=NULL){
       param1=str_trim(params[[1]])
       param2=str_trim(params[[2]])
       # check attribute names
-      aNms=get.attribute.names(database[['DBconfig']])
+      aNms=get.all.attribute.names(database[['DBconfig']])
       if(! (param1 %in% aNms)){
         msg=paste0("Unknown level attribute name: '",param1,"'.")
         if(length(aNms)>0){
@@ -603,7 +603,7 @@ query.database.eql.ETTIKETTA<-function(database,q,labels=NULL){
       }
       # TODO check if level exists
       #cat("Level: '",lvlName,"'\n",sep='')
-      aNms=get.attribute.names(database[['DBconfig']])
+      aNms=get.all.attribute.names(database[['DBconfig']])
       if(! (lvlName %in% aNms)){
         
         stop("Unknown level attribute name: '",lvlName,"'. Database attribute names are: ",paste(aNms,collapse=','),"\n")
