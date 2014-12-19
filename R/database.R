@@ -84,9 +84,16 @@ create.schema.databaseDefinition <- function(name,UUID=uuid::UUIDgenerate(),medi
 }
 
 summary.emuDB.schema.databaseDefinition<-function(schema,header=TRUE){
+ 
   cat("Level definitions:\n")
   for(ld in schema[['levelDefinitions']]){
     print(ld)
+    cat("\tAttribute definitions:\n")
+    for(ad in ld[['attributeDefinitions']]){
+      cat("\t")
+      print(ad)
+    }
+    cat("\n")
   }
   cat("\n")
   cat("Link definitions:\n")
@@ -94,10 +101,15 @@ summary.emuDB.schema.databaseDefinition<-function(schema,header=TRUE){
     print(ld)
   }
   
+  
 }
 
 print.emuDB.schema.levelDefinition<-function(levelDefinition){
     cat(levelDefinition[['name']],"\ttype:\t",levelDefinition[['type']],"\n")
+}
+
+print.emuDB.schema.attributeDefinition<-function(attributeDefinition){
+  cat(attributeDefinition[['name']],"\ttype:\t",attributeDefinition[['type']],"\n")
 }
 
 print.emuDB.schema.linkDefinition<-function(linkDefinition){
@@ -152,18 +164,18 @@ summary.emuDB<-function(db){
  
   cat("Name:\t",db[['name']],"\n")
   cat("Directory:\t",db[['basePath']],"\n")
-  cat("\n")  
-  summary(db[['DBconfig']])
-  #cat("SSFF track definitions:\n")
-  # TODO 
-  
-  cat("\n")
-  cat("Sessions:",length(db[['sessions']]),"\n")
+  cat("Session count:",length(db[['sessions']]),"\n")
   bndlCnt=0
   for(s in db[['sessions']]){
     bndlCnt=bndlCnt+length(s[['bundles']])
   }
-  cat("Bundles:",bndlCnt,"\n")
+  cat("Bundle count:",bndlCnt,"\n")
+  cat("Annotation item count: ",nrow(db[['items']]),", links count: ",nrow(db[['links']]),"\n")
+  cat("\nDatabase configuration:\n\n")
+  summary(db[['DBconfig']])
+  #cat("SSFF track definitions:\n")
+  # TODO 
+
   
 }
 
