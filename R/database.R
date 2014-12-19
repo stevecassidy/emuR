@@ -1666,11 +1666,11 @@ store.bundle.annotation <- function(db,bundle){
 ##' \dontrun{
 ##' # Store database object ae to directory /homes/mylogin/EMUnew/
 ##' 
-##' store.database(ae,"/homes/mylogin/EMUnew/")
+##' store.emuDB(ae,"/homes/mylogin/EMUnew/")
 ##' 
 ##' }
 
-store.database <- function(db,targetDir,options=list(),showProgress=TRUE){
+store.emuDB <- function(db,targetDir,options=list(),showProgress=TRUE){
   
   rewriteSSFFTracks=FALSE
   if(!is.null(options[['rewriteSSFTracks']])){

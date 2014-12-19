@@ -1006,7 +1006,7 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,verbose=TRUE){
   # store loaded database 
   # ignore missing and rewrite SSFF track files for legacy db
   storeOptions=list(ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=TRUE)
-  store.database(db,targetDir,options=storeOptions,showProgress=verbose)
+  store.emuDB(db,targetDir,options=storeOptions,showProgress=verbose)
   
 }
 
@@ -1031,7 +1031,7 @@ convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,verbose=TRUE){
   # load database schema and metadata
   db=load.database.from.legacy.emu.by.name(dbName,showProgress=verbose)
   # save in new format
-  store.database(db,targetDir,showProgress=verbose)
+  store.emuDB(db,targetDir,showProgress=verbose)
   #activeButtons=list(saveBundle=TRUE)
  
 }

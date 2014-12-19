@@ -131,13 +131,10 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
   # Disconnect from the database
   dbDisconnect(con)
   
-  store.database(db, targetDir, showProgress = showProgress)
+  store.emuDB(db, targetDir, showProgress = showProgress)
 }
 
-##'
-##'
-##'
-##'
+
 initialize_database_tables <- function(conn, itemsTableName, labelTableName, linksTableName){
   
   
