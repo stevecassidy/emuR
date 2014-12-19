@@ -8,7 +8,7 @@
 ##' @keywords emuDB database schema Emu TextGrid
 ## 
 create.DBconfig.from.TextGrid = function(tgPath, dbName){
-
+  
   ####################
   # check parameters
   
@@ -24,24 +24,45 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName){
   ####################
   
   # parse TextGrid
-  tgAnnot = parse.textgrid(tgPath, 44100) # sampleRate hardcoded because it does not matter
+  itemsTableName = "emuR_emuDB_items_tmp"
+  
+  labelsTableName ="emuR_emuDB_labels_tmp"
+  
+  linksTableName = "emuR_emuDB_links_tmp"
+  
+  # Create an ephemeral in-memory RSQLite database
+  con <- dbConnect(RSQLite::SQLite(), ":memory:")
+  
+  initialize_database_tables(con, itemsTableName, labelsTableName, linksTableName)
+  
+  parse.textgrid(path2tg, sR, db='ae', bundle="msajc003", session="0000", conn = con, itemsTableName=itemsTableName, labelsTableName=labelsTableName)
+  
+  #   tgAnnot = parse.textgrid(tgPath, 44100) # sampleRate hardcoded because it does not matter
+  
+  res <- dbSendQuery(con, paste0("SELECT DISTINCT level, type FROM ", itemsTableName))
+  levels = dbFetch(res)
+  dbClearResult(res)
   
   # create level definitions
   levelDefinitions = list()
   
   # generate defaultLvlOrder
   defaultLvlOrder=list()
-  levIdx = 1
-  for(lev in tgAnnot){
+  levIdx = 1  
+  for(lineIdx in 1:dim(levels)[1]){
+    lev = levels[lineIdx,]
     if(lev$type == 'SEGMENT' || lev$type == 'EVENT'){
-      defaultLvlOrder[[length(defaultLvlOrder)+1L]]=lev$name
+      defaultLvlOrder[[length(defaultLvlOrder)+1L]]=lev$level
+    }else{
+      stop('what?')
     }
     # add new leveDef.
-    levelDefinitions[[levIdx]] = list(name = lev$name, 
+    levelDefinitions[[levIdx]] = list(name = lev$level, 
                                       type = lev$type, 
-                                      attributeDefinitions = list(create.schema.attributeDefinition(lev$name)))
+                                      attributeDefinitions = list(create.schema.attributeDefinition(lev$level)))
     levIdx = levIdx + 1
   }
+  
   
   # create signalCanvas config
   sc = create.EMUwebAppConfig.signalCanvas(order = c("OSCI","SPEC"), 
@@ -50,9 +71,9 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName){
   
   # create perspective
   defPersp = create.EMUwebAppConfig.perspective(name = 'default', 
-                                              signalCanvases = sc, 
-                                              levelCanvases = list(order = defaultLvlOrder), 
-                                              twoDimCanvases = list(order = list()))
+                                                signalCanvases = sc, 
+                                                levelCanvases = list(order = defaultLvlOrder), 
+                                                twoDimCanvases = list(order = list()))
   # create EMUwebAppConfig 
   waCfg = create.EMUwebAppConfig(perspectives=list(defPersp))
   
@@ -60,24 +81,26 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName){
   
   # generate full schema list
   dbSchema = create.schema.databaseDefinition(name = dbName,
-                                            UUID = UUIDgenerate(),
-                                            mediafileBasePathPattern = '',
-                                            mediafileExtension = 'wav',
-                                            ssffTrackDefinitions = list(),
-                                            levelDefinitions = levelDefinitions,
-                                            linkDefinitions = list(),
-                                            EMUwebAppConfig = waCfg,
-                                            annotationDescriptors = list(),
-                                            tracks = list(),
-                                            flags=list());
+                                              UUID = UUIDgenerate(),
+                                              mediafileBasePathPattern = '',
+                                              mediafileExtension = 'wav',
+                                              ssffTrackDefinitions = list(),
+                                              levelDefinitions = levelDefinitions,
+                                              linkDefinitions = list(),
+                                              EMUwebAppConfig = waCfg,
+                                              annotationDescriptors = list(),
+                                              tracks = list(),
+                                              flags=list());
   
   # hardcoded maxNumberOfLabels (always 1 in TextGrids)
   dbSchema$maxNumberOfLabels = 1
   
+  # Disconnect from the database
+  dbDisconnect(con)
   return(dbSchema)
 }
 
 # FOR DEVELOPMENT
-# tgPath = "/Library/Frameworks/R.framework/Versions/3.1/Resources/library/emuR/extdata/legacy_emu/DBs//ae/labels/msajc003.TextGrid"
-# schemaFromTg = create.database.schema.from.TextGrid(tgPath, 'test12')
-# print(schemaFromTg)
+# library('testthat')
+# test_file('tests/testthat/test_create.DBconfig.from.TextGrid.R')
+
