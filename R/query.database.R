@@ -312,7 +312,7 @@ convert.query.result.to.seglist<-function(database,result){
                     WHEN 'SEGMENT' THEN (e.sampleStart+e.sampleDur) \
                     WHEN 'EVENT' THEN 0 ")  
     if(hasLinks){
-      q=paste0(q," ELSE (SELECT i.sampleStart+i.sampleDur FROM items i WHERE i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT'  AND EXISTS (SELECT * FROM links l WHERE s.itemID=l.fromID AND i.itemID=l.toID AND i.session=l.session AND i.bundle=l.bundle AND l.toSeqIdx+1=l.toSeqLen)) ")
+      q=paste0(q," ELSE (SELECT i.sampleStart+i.sampleDur FROM items i WHERE i.session=e.session AND i.bundle=e.bundle AND i.type='SEGMENT'  AND EXISTS (SELECT * FROM links l WHERE e.itemID=l.fromID AND i.itemID=l.toID AND i.session=l.session AND i.bundle=l.bundle AND l.toSeqIdx+1=l.toSeqLen)) ")
     }
     q=paste0(q,"END AS sampleEnd, \
                 CASE s.type \
