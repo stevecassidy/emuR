@@ -1869,7 +1869,9 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   # progress part to calaculate ext links 10%
   ppBuildExtLinks=as.integer(bundleCount/10L)
   pMax=bundleCount+ppBuildDataFrames+ppBuildRedLinks+ppBuildExtLinks
-  
+  if(pMax==0){
+    pMax=1
+  }
   if(verbose){ 
     pb=txtProgressBar(min=0L,max=pMax,style=3)
     setTxtProgressBar(pb,progress)
