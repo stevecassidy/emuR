@@ -1589,6 +1589,43 @@ store.bundle.annotation <- function(db,bundle){
 }
 
 
+create.emuDB<-function(name,targetDir,mediaFileExtension='wav'){
+  path=file.path(targetDir,name)
+  dbConfig=create.schema.databaseDefinition(name=name,mediafileExtension = mediaFileExtension)
+  db=create.database(name=name,basePath=path,DBconfig = dbConfig)
+  store.emuDB(db,targetDir)
+  db=load.emuDB(path)
+  return(db)
+}
+
+##' Import media files to EMU database
+##' @description Import media files to EMU database
+##' @param dbObj object of class emuDB
+##' @param dir directory containing mediafiles or session directories
+##' @author Klaus Jaensch
+##' @import sqldf stringr
+##' @seealso \code{\link{create.emuDB}}
+##' @keywords emuDB database Emu
+##' @examples
+##' \dontrun{
+##' ## Add mediafiles from directory
+##' 
+##'  import.mediaFiles(emuDB,'0000',dir="/data/mymedia")
+##' 
+##' }
+"import.mediaFiles"<-function(dbObj,targetSessionName='0000',dir){
+  UseMethod("import.mediaFiles")
+}
+
+"import.mediaFiles.emuDB"<-function(dbObj,targetSessionName='0000',dir){
+  dbClass=class(dbObj)
+  if(dbClass=='emuDB'){
+   stop("Sorry. Not implemented yet!!")
+  }else{
+    NextMethod()
+  }
+}
+
 
 ##' Store EMU database to directory
 ##' 
