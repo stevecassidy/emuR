@@ -70,7 +70,7 @@ most of the EBNF was adapted from [@john:2012a]
 | SEQA | ='[',(KONJA|SEQA|DOMA),'->',(KONJA|SEQA|DOMA),']'; (*Ebenen müssen linear assoziert sein*) |
 | KONJA | = {'['},EA,{'&',EA},{']'}; (*Ebenen müssen linear assoziert sein*) |
 | EA | = ETIKETTA \| FUNKA; |
-| ETIKETTA | = ['#'],EBENE,('='\|'=='\|'!='\|'=~'\|'!~'),ETIKETTALTERNATIVEN; |
+| ETIKETTA | = ['#'],EBENE,('=' \| '==' \| '!=' \| '=~' \| '!~'),ETIKETTALTERNATIVEN; |
 | FUNKA | = POSA \| NUMA; |
 | POSA | = POSFKT, '(',EBENE,',',EBENE,')','=','0'\| '1'; (*Ebenen müssen hierarchisch oder autosegmentell assoziiert sein*) (*zweite Ebene gibt Semantik vor*) |
 | NUMA | = 'Num','(',EBENE,',',EBENE,')',VOP,INTPN; (*Ebenen müssen hierarchisch oder autosegmentell assoziiert sein*) (*erste Ebene gibt Semantik vor*) |
