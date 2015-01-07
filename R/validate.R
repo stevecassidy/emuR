@@ -126,7 +126,7 @@ validate.sqlTableRep.bundle <- function(dbd, bundle ,conn, itemsTableName, label
   tmp = dbFetch(res)
   dbClearResult(res)
   
-  warning('CAUTION NOT VALIDATING: SEQUENCE + OVERLAPS / LINKS')
+  #warning('CAUTION NOT VALIDATING: SEQUENCE + OVERLAPS / LINKS')
   
   
   

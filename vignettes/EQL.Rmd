@@ -1,0 +1,284 @@
+---
+title: "Version 2 of the Emu Query Language"
+author: "Raphael Winkelmann & Klaus Jänsch"
+affiliation: "Institute Of Phonetic And Speech Processing (LMU Munich)"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+bibliography: vignettes.bib
+vignette: >
+  %\VignetteIndexEntry{Version 2 of the Emu Query Language}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+# WARNING: DOCUMENT STILL BEING WRITTEN!
+
+# Introduction
+
+This document formaly introduces and defines version 2 of the **E**mu 
+**Q**uery **L**anguage (**EQL**).
+
+# Extended Backus–Naur Form (EBNF)
+
+most of the EBNF was adapted from [@john:2012a]
+
+## Terminale Symbole der EQL (Operatoren) und ihre Bedeutung nach absteigenden Bindungsgrad (Priorität).
+
+| Operator | Bedeutung |
+| --- | --- |
+| # | Ergebnismodifizierer |
+| , | Parameterlistentrenner |
+| = | Gleichheit |
+| != | Ungleichheit |
+| &gt | mehr als |
+| >= | gleich und mehr als |
+| < | weniger als |
+| &gt= | gleich und weniger als |
+| \| | Alternative |
+| & | gleichrangige Konjunktion |
+| ^ | Dominanzkonjunktion |
+| -> | Sequenzoperator |
+
+## Terminale Symbole der EQL (Klammern) und ihre Bedeutung.
+
+| Klammer | Bedeutung |
+| --- | --- |
+| ' | Sonderzeichenanfangs- und Endklammer |
+| ( | Parameterlistenanfangsklammer |
+| ) | Parameterlistenendklammer |
+| [ | Sequenzabfragenanfangsklammer |
+| ] | Sequenzabfragenendklammer |
+
+## Terminale Symbole der EQL (Funktionen) und ihre Bedeutung
+
+| Funktionskopf | Bedeutung |
+| --- | --- |
+| Start | Anfang | 
+| Medial |Medial |
+| End | Final |
+| Num | Anzahl |
+
+## Vollständige Formale Beschreibung der EMU Query Language
+
+| X | Y |
+| --- | --- |
+| EQL | = KONJA \| SEQA \| DOMA; |
+| DOMA | ='[',(KONJA|DOMA|SEQA),'ˆ',(KONJA|DOMA|SEQA),']'; (*Ebenen müssen hierarchisch oder autosegmentell assoziert sein*) |
+| SEQA | ='[',(KONJA|SEQA|DOMA),'->',(KONJA|SEQA|DOMA),']'; (*Ebenen müssen linear assoziert sein*) |
+| KONJA | = EA,{'&',EA}; (*Ebenen müssen linear assoziert sein*) |
+| EA | = ETIKETTA \| FUNKA; |
+| ETIKETTA | = ['#'],EBENE,('='\| '!='),ETIKETTALTERNATIVEN; |
+| FUNKA | = POSA \| NUMA; |
+| POSA | = POSFKT, '(',EBENE,',',EBENE,')','=','0'\| '1'; (*Ebenen müssen hierarchisch oder autosegmentell assoziiert sein*) (*zweite Ebene gibt Semantik vor*) |
+| NUMA | = 'Num','(',EBENE,',',EBENE,')',VOP,INTPN; (*Ebenen müssen hierarchisch oder autosegmentell assoziiert sein*) (*erste Ebene gibt Semantik vor*) |
+| ETIKETTALTERNATIVEN | = ETIKETT , {'|',ETIKETT}; |
+| ETIKETT | = ETIKETTIERUNG \| (“'“,ETIKETTIERUNG,“'“); (*EBENE sind Ebenen aus der Etikettierungsstruktur der Datenbank*) (*ETIKETTIERUNG ist eine freiwählbare Zeichenkette bzw. eine legal labels Klasse aus dem Etikettierungsschema.*)
+
+
+
+| POSFKT = | 'Start'\|'Medial'\|'End'; |
+| VOP =  | '=' \| '!=' \| '>' \| '<' \| '<=' \| '>='; |
+| INTPN = | '0' \| INTP; |
+| INTP = | DIGIT-'0',{DIGIT}; |
+| DIGIT = | '0'\|'1'\|'2'\|'3'\|'4'\|'5'\|'6'\|'7'\|'8'\|'9'; |
+
+# Examples
+
+## examples adapted from emuquery.pdf
+
+### Einfache Abfragen (Ein Argument)
+
+- Alle m Einheiten der Phonetic-Ebene: **[Phonetic = m]**
+- m oder n Einheiten der Phonetic-Ebene **[Phonetic = m | n]**
+- Alle Einheiten ausser m oder n **[Phonetic != m | n]**
+- Beliebige (alle) Silben (Hier nimmt man an, dass es keine mit x etikettierte Silbe gibt) **[Syllable !=x ]**
+
+### Reihenfolge (Sequence) Abfragen **->**
+#### Einfache Reihenfolgen
+  
+Hier werden die Argumente mit **->** (folgt) verbunden.
+
+- Syntax: **[L = a -> L = b]**
+- Semantik: Die a Einheit von Level L kommt vor der b Einheit von Level L Bedingung: Die Argumente muessen von der gleichen, oder parallelen Ebenen sein
+
+- Eine Reihenfolge von m I Segmenten auf der Phonetic-Ebene **[#Phonetic = m -> #Phonetic = I]**
+[Phonetic = m -> Phonetic = I]
+(Die Segment-Liste hat die Startzeit von m und die Endzeit von I)
+Wie oben – aber hier wollen wir nur den m Segment haben [#Phonetic = m -> Phonetic = I]
+(Startzeit von m, Endzeit von m)
+Wie oben – aber hier wollen wir nur den I Segment [Phonetic = m -> # Phonetic = I]
+
+2.2. Mehrfache Reihenfolgen
+Hier handelt es sich um eine Reihenfolge von Argumenten, a1, a2, a3, a4, ... Das muss so geklammert werden:
+[[[[a1-> a2] ->a3]->a4] ->a5]
+Alle Reihenfolgen von [m I n]
+[[Phonetic = m -> Phonetic = I] -> Phonetic = n]
+alle Reihenfolgen von ‘john could lend’ (aus der Text-Ebene)
+[ [Text = john -> Text = could ] -> Text = lend]
+‘the’, dann beliebige zwei Woerter, dann ‘managed’ (alle aus der Text-Ebene)
+[ [ [Text = the -> Text != x ] -> Text !=x ] -> Text = managed]
+
+
+3. Boolean &
+Syntax: Semantik: Bedingungen:
+[L1=a &L2=b&L3=c&L4=d&...Ln=n]
+alle a Einheiten aus Level 1 die auch die b, c, d..n Eigenschaften besitzten Die Argumente muessen aus der gleichen, oder parallelen, Ebenen sein.
+S Silben die auch mit L+H* etikettiert worden sind
+[Syllable = S & Pitch_Accent=L+H*]
+Der Text aller Funktionswoerter
+[Text !=x & Word = F]
+Der Text aller Inhalts-Woerter die auch akzentuiert (S) sind (oder: alle akzentuierten Inhalts-Woerter)
+[Text!=x & Word=C & Accent=S]4. Domination
+Syntax: Semantik: Bedingung:
+[L1=a^ L2=b]
+a wird von b dominiert oder a dominiert b L1 dominiert L2 oder L2 dominiert L1
+4.1 Einfache Domination
+Alle /p/ Phoneme in S Silben
+[Phoneme = p ^ Syllable = S]
+Alle Silben, die einen /p/ Phonem enthalten
+[Syllable !=x ^ Phoneme = p]
+oder
+[Phoneme = p ^ #Syllable !=x]
+Alle Silben, die weder /k/ noch /p/ noch /t/ enthalten
+[Syllable!=x ^ Phoneme != p | t | k] oder
+[Phoneme != p | t | k ^ # Syllable !=x ]
+4.2 Mehrfache Domination
+Hier handelt es sich um eine Reihenfolge von Argumenten, a1, a2, a3, a4, ... Das muss so geklammert werden:
+[[[[a1^ a2] ^a3]^a4] ^a5]
+H* Silben die einen /p/ Phonem enthalten, und die von den Woertern ‘price’ oder ‘space’ dominiert sind
+[[Pitch_Accent=H* ^ Phoneme=p] ^ Text = price|space]
+Das selbe – wir wollen aber die entsprechenden Woerter haben
+[[Pitch_Accent=H* ^ Phoneme=p] ^ #Text = price|space]
+5. Position
+5.1 Einfache Verwendung
+Syntax: Semantik: Bedingung: Hinweis:
+Start(La, Lb) = 1
+Lb kommt am Anfang von La vor
+La dominiert Lb
+Die einfache Verwendung erzeugt die Segment-Liste von Lb
+zB:
+Wort-anfangs-Silben
+[Start(Word, Syllable)=1]
+Wort-anfangs-phoneme
+[Start(Word, Phoneme)=1]
+Silben, die nicht am Anfang des Wortes sind
+[Start(Word, Syllable)=0]
+Es gibt auch Medial(La, Lb) und End(La, Lb)
+Wort-finale-silben
+[End(Word, Syllable)=1] usw.
+5.2 Position und Boolean &
+Syntax: Semantik: Bedingung:
+L = e & Start(La, Lb) = 1
+Die Einheit e aus Ebene L kommt am Anfang von La vor
+La dominiert Lb
+(L und Lb sind aus der selben Ebene oder sie sind parallel zueinander).
+Die L und Lb Ebenen, die mit & verbunden sind, sind in diesen Beispielen unterstrichen
+zB:
+alle /p/ Phoneme am Anfang einer Syllable
+[Phoneme = p & Start(Syllable, Phoneme)=1]
+Alle wort-finalen /m/ Phoneme
+[Phoneme = m & End(Word, Phoneme)=1]
+Alle nicht-wort-finalen S-Silben die auch mit einem L+H* Tonakzent etikettiert worden sind
+[Syllable =S & Pitch_Accent=L+H* & (Word, Syllable)=0]
+5.3 Position und Boolean ^
+Syntax/Semantik wie bei 5.2, nur:
+Wenn L und Lb verschiedener Ebenen sind (L dominiert Lb, oder Lb dominiert L) muss ^ statt & verwendet werden:
+/p/ Phoneme, die in der ersten Silbe des Wortes vorkommen
+[Phoneme = p ^ Start(Word, Syllable)=1]
+Alle Phoneme, die nicht in der letzten Silbe des Wortes vorkommen
+[Phoneme !=x ^ End(Word, Syllable)=0]
+6. Anzahl
+6.1 Einfache Verwendung
+Syntax: Semantik: Bedingung: Hinweis: Position)
+Num(La, Lb) = n
+La enthaelt n Lb Einheiten
+La dominiert Lb. n ist eine Zahl
+Die einfache Verwendung erzeugt die Segment-Liste von La (nicht von Lb, wie bei
+4-silbige Woerter
+[Num(Word, Syllable)=4]
+Es gibt auch > (mehr als), < (weniger als) != gleicht nicht
+Silben, die mehr als 6 Phoneme haben
+[Num(Syllable, Phoneme)>6]
+usw.
+6.2 Anzahl und Boolean &
+Syntax: Semantik: Bedingung:
+L = e & Num(La, Lb) = n
+Die Einheit e aus Ebene L wird von La dominiert; und La enthaelt n Lb Einheiten La dominiert Lb
+(L und La (nicht Lb!) sind aus der selben Ebene oder sie sind parallel zueeinander).
+Die L und La Ebenen, die mit & verbunden sind, sind in diesen Beispielen unterstrichen
+Der Text aller Woerter, die aus mehr als 11 Phonemen bestehen:
+[Text!=x & Num(Text, Phoneme) > 11 ] =
+[Text!=x & Num(Word, Phoneme) > 11 ]
+Die H* Ton-Akzente in Silben von 5 Phonemen:
+[Pitch_Accent = H* & Num(Syllable, Phoneme) = 5]
+6.3 Anzahl und ^
+Syntax/Semantik wie bei 6.2, nur:
+Wenn L und La verschiedener Ebenen sind (L dominiert La, oder La dominiert L) muss ^ statt & verwendet werden:
+alle m Phoneme in 4-silbigen Woertern [Phoneme=m ^ Num(Word, Syllable)=4]
+alle W-Silben in Woertern von 3 oder weniger Silben
+[Syllable = W ^ Num(Word, Syllable) < 3]
+Alle Woerter, die Silben mit 4 Phonemen enthalten
+[Text!=x ^ Num(Syllable, Phoneme) = 4]
+7. Kombinationen
+7.1 ^ und -> (Domination und Nachfolge)
+Bedingung
+Die Reihenfolge -> darf nur parallele (oder die selben) Ebenen verbinden! (Siehe 2.) (Diese sind in den Beispielen unterstrichen)
+a1-> a2
+[[a1 ^ a2] -> a3] [a1 -> [a2 ^ a3]]
+m kommt vor I und m ist in einer S-Silbe [[Phoneme = m -> Phoneme = I] ^ Syllable=S]
+s kommt vor p und p ist in einer W-Silbe [Phoneme = s -> [Phoneme = p ^ Syllable = W]]
+alle S-Silben, die einen p enthalten, und die vor einer S-Silben vorkommen [[Syllable = S ^ Phoneme = p] -> Syllable = S]
+aber jetzt wir wollen den p
+also: p ist in einer S-Silbe und diese S-Silbe kommt vor einer S-Silbe [[Phoneme = p ^ Syllable = S] -> Syllable = S]
+ist verboten!
+weil Phoneme = p und Syllable = S nicht aus der selben/parallelen Ebene sind daher:
+[[Syllable = S ^ #Phoneme=p] -> Syllable = S]
+7.2 ^ und -> und & (Domination und Nachfolge und Boolean &)
+Woerter, die mit einem Schwa beginnen:
+[Text!=x ^ Phoneme = @ & Start(Text, Phoneme)=1]
+Ein wortanfangs m in einer starken Silbe, der vor einem I kommt [[Phoneme = m & Start(Word, Phoneme)=1 -> Phoneme=I] ^ Syllable=S]
+das selbe aber wir moechten dessen Text haben:
+[[[Phoneme = m & Start(Word, Phoneme)=1 -> Phoneme=I] ^ Syllable=S] ^ #Text!=x]
+Der Text aller dreisilbigen Woerter, die ein schwa in der ersten Silbe enthaelten; diese dreisilbigen Woerter muessen auch vor ‘the’ kommen
+Der Text aller dreisilbigen Woerter
+1. Text!=x & Num(Text, Syllable)=3
+Schwa kommt in der ersten Silbe vor
+2. Phoneme=@ ^ Start(Word, Syllable)=1
+Der Text ist ‘the’
+3. Text = the
+[1 ^ 2]
+[[1 ^ 2] -> 3]
+[[Text!=x & Num(Text, Syllable) =3 ^ [Phoneme=@ ^ Start(Word, Syllable)=1]] -> Text=the ]
+Fragen
+1. m oder n Phoneme die in der Mitte des Wortes vorkommen.
+2. [H] phonetische Segmente, dann irgendein Segment, dann entweder [I] oder [U]. 3. Silben, die nicht in der Mitte des Wortes vorkommen.
+4. Der Text aller Woerter, die zwei Silben enthalten.
+5. Der Text aller akzentuierten Woerter, die ‘the’ folgen
+6. S-Silben die aus 5 Phonemen bestehen
+7. W-Silben, die ein /@/ Phonem enthalten.
+8. Der Text von Woertern, die entweder ein L* oder L+H* Ton-Akzent enthalten.
+9. H* Ton-Akzente von wortfinalen Silben, die in Woertern von drei Silben vorkommen
+.
+10. Alle Phoneme, die die Phonetic-Einheit [H] dominieren, die in der Silbenanfangsposition vorkommen; und die sich in akzentuierten (S) Woerten befinden.
+b
+Antworten
+1. m oder n Phoneme die in der Mitte des Wortes vorkommen. [Phoneme = m | n & Medial(Word, Phoneme)=1]
+2. [H] phonetische Segmente, dann irgendein Segment, dann entweder [I] oder [U].
+[ [Phonetic = H -> Phonetic !=x ] -> Phonetic = I | U ]
+3. Silben, die nicht in der Mitte des Wortes vorkommen.
+[Syllable!=x & Medial(Word, Syllable)=0]
+4. Der Text aller Woerter, die zwei Silben enthalten.
+[Text!=x & Num(Text, Syllable)=2]
+5. Der Text aller akzentuierte Woerter, die ‘the’ folgen
+[Text = the -> #Text!=x & Accent = S]
+6. S-Silben die aus 5 Phonemen bestehen
+[Syllable = S ^ Num(Word, Phoneme)=5]
+7. W-Silben, die ein /@/ Phonem enthalten.
+[Syllable = W ^ Phoneme=@]
+8. Der Text von Woertern, die entweder ein L* oder L+H* Ton-Akzent enthalten.
+[Text!=x ^ Pitch_Accent = L* | L+H*]
+9. H* Ton-Akzente von wortfinalen Silben, die in Woertern von drei Silben vorkommen
+[Pitch_Accent = H* & End(Word, Syllable)=1 ^ Num(Word, Syllable) =3]
+.
+10. Alle Phoneme, die die Phonetic-Einheit [H] dominieren, die in der Silbenanfangsposition vorkommen; und die sich in akzentuierten (S) Woerten befinden.
+[[[Phoneme!=x ^ Phonetic = H] ^ Start(Word, Syllable)=1] ^ Accent = S]

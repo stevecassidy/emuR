@@ -186,6 +186,5 @@ initialize_database_tables <- function(conn, itemsTableName, labelTableName, lin
 }
 
 # FOR DEVELOPMENT
-#library('testthat')
-#test_file('tests/testthat/test_convert.TextGridCollection.R')
-
+library('testthat')
+test_file('tests/testthat/test_convert.TextGridCollection.R')

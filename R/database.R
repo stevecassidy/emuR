@@ -83,7 +83,38 @@ create.schema.databaseDefinition <- function(name,UUID=uuid::UUIDgenerate(),medi
   invisible(o)
 }
 
+summary.emuDB.schema.databaseDefinition<-function(schema,header=TRUE){
+ 
+  cat("Level definitions:\n")
+  for(ld in schema[['levelDefinitions']]){
+    print(ld)
+    cat("\tAttribute definitions:\n")
+    for(ad in ld[['attributeDefinitions']]){
+      cat("\t")
+      print(ad)
+    }
+    cat("\n")
+  }
+  cat("\n")
+  cat("Link definitions:\n")
+  for(ld in schema[['linkDefinitions']]){
+    print(ld)
+  }
+  
+  
+}
 
+print.emuDB.schema.levelDefinition<-function(levelDefinition){
+    cat(levelDefinition[['name']],"\ttype:\t",levelDefinition[['type']],"\n")
+}
+
+print.emuDB.schema.attributeDefinition<-function(attributeDefinition){
+  cat(attributeDefinition[['name']],"\ttype:\t",attributeDefinition[['type']],"\n")
+}
+
+print.emuDB.schema.linkDefinition<-function(linkDefinition){
+  cat(linkDefinition[['superlevelName']],"\t->\t",linkDefinition[['sublevelName']],"\n")
+}
 
 
 #emuDB.schema.EMUwebAppConfig.signalCanvases.assign <- function(spec,osci){
@@ -122,6 +153,30 @@ create.database <- function(name=name,basePath=NULL,DBconfig=create.schema.datab
   o <- list(name=name,basePath=basePath,DBconfig=DBconfig,sessions=sessions,primaryExtension=primaryExtension)
   class(o) <- c('emuDB','list')
   invisible(o)
+}
+
+
+build.dataframe.table<-function(list,propNames){
+  
+}
+
+summary.emuDB<-function(db){
+ 
+  cat("Name:\t",db[['name']],"\n")
+  cat("Directory:\t",db[['basePath']],"\n")
+  cat("Session count:",length(db[['sessions']]),"\n")
+  bndlCnt=0
+  for(s in db[['sessions']]){
+    bndlCnt=bndlCnt+length(s[['bundles']])
+  }
+  cat("Bundle count:",bndlCnt,"\n")
+  cat("Annotation item count: ",nrow(db[['items']]),", links count: ",nrow(db[['links']]),"\n")
+  cat("\nDatabase configuration:\n\n")
+  summary(db[['DBconfig']])
+  #cat("SSFF track definitions:\n")
+  # TODO 
+
+  
 }
 
 "as.emuDB"<-function(o,class){
@@ -199,7 +254,33 @@ get.level.names<-function(schema){
   return(lNames)
 }
 
-get.attribute.names<-function(schema){
+get.level.name.by.attribute.name<-function(schema,attributeName){
+  for(lvlD in schema[['levelDefinitions']]){
+    aNames=character(0)
+    for(ad in lvlD[['attributeDefinitions']]){
+      aNames=c(aNames,ad[['name']])
+      if(attributeName %in% aNames){
+        return(lvlD[['name']])
+      }
+    }
+  }
+  return(NULL)
+}
+
+get.attribute.names.by.name<-function(schema,levelName){
+  aNames=character(0)
+  for(lvlD in schema[['levelDefinitions']]){
+    if(lvlD[['name']]==levelName){
+      for(ad in lvlD[['attributeDefinitions']]){
+        aNames=c(aNames,ad[['name']])
+      }
+      break
+    }
+  }
+  return(aNames)
+}
+
+get.all.attribute.names<-function(schema){
   aNames=character(0)
   for(lvlD in schema[['levelDefinitions']]){
     for(ad in lvlD[['attributeDefinitions']]){
@@ -1135,76 +1216,6 @@ initialize.database.dataframes<-function(db){
 
 
 
-
-
-
-  
-
-
-# emuR.database.fromDirectory=function(baseDir,blockDirPattern=NULL,sessionDirPattern=NULL,primaryUnitSuffix=NULL,primaryFileExtension="wav",name=NULL){
-#  TODO !!
-#   return(database) 
-#  
-# } 
-
-query.segments <- function(db){
-  ll=list()
-  sl=list()
-  el=list()
-  ul=list()
-  idx=1
-  for(s in db[['sessions']]){
-    #cat("Session ",s$code,"\n")
-    for(b in s[['bundles']]){
-      #cat("bundle: ",b$name,"\n")
-      for(t in b[['levels']]){
-        #cat("level: ",t$name,"\n")
-        sampleRate=t[['sampleRate']]
-        if(t[['name']]=='Phonetic'){
-        for(i in t[['items']]){
-          #cat("Item ",i$label,"\n")
-          idx=length(ul)+1L
-          ll[[idx]]=i[['label']]
-          if(inherits(i,'emuDB.annotation.model.PointItem')){
-            #cat("Event: ",i$label,i$samplePoint,"\n")
-            sl[[idx]]=(i[['samplePoint']]*1000)/sampleRate
-            el[[idx]]=0
-            
-          }else if(inherits(i,'emuDB.annotation.model.IntervalItem')){
-            #cat("Interval: ",i$label,i$sampleStart,i$sampleDur,"\n")
-            sl[[idx]]=(i[['sampleStart']]*1000)/sampleRate
-            el[[idx]]=((i[['sampleStart']]+i[['sampleDur']])*1000)/sampleRate
-          }else{
-            #cat("Item: ",i$label,"\n")
-            sl[[idx]]=0
-            el[[idx]]=0
-          }
-         # test for Raphaels extractSegs version
-          #ul[[idx]]=paste0("file:///homes/klausj/WORK/EmuDbs/ae/signals/",b$name,'.wav');
-          ul[[idx]]=b[['name']]
-        }
-        }
-      }
-    }
-    
-  }
-  
-  segl=make.seglist(ll,sl,el,ul,NULL,NULL,NULL)
-  return(segl)
-}
-
-
-# get.bundle <- function(db,uttName){
-#   for(s in db[['sessions']]){
-#     for(u in s[['bundles']]){
-#       if(u[['name']]==uttName){
-#         return(u);
-#       }
-#     }
-#   }
-#   return(NULL);
-# }
-
 extractTrackdata <- function(db=NULL,segmentList=NULL,trackName=NULL){
   schema=db[['DBconfig']]
   signalExt=NULL
@@ -1341,6 +1352,13 @@ emuR.persist.filters[['DBconfig']][[7]]=c('itemColNames')
 emuR.persist.filters[['DBconfig']][[8]]=c('basePath')
 emuR.persist.filters[['DBconfig']][[9]]=c('DBconfigPath')
 
+emuR.persist.class=list()
+emuR.persist.class[['DBconfig']]=list()
+emuR.persist.class[['DBconfig']][['emuDB.schema.databaseDefinition']]=character(0)
+emuR.persist.class[['DBconfig']][['emuDB.schema.levelDefinition']]=list(c('levelDefinitions','*'))
+emuR.persist.class[['DBconfig']][['emuDB.schema.linkDefinition']]=list(c('linkDefinitions','*'))
+emuR.persist.class[['DBconfig']][['emuDB.schema.attributeDefinition']]=list(c('levelDefinitions','*','attributeDefinitions','*'))
+
 marshal.for.persistence <- function(x, filter=NULL){
   if (is.list(x)) {
     
@@ -1467,8 +1485,52 @@ set.list.names <-function(list,nameProperty){
   
 }
 
-unmarshal.from.persistence <- function(x){
-  # TODO !!
+apply.class<-function(val,path,class){
+  if(is.null(val)){
+    return(NULL)
+  }
+  if(is.null(path)){
+    class(val)<-c(class,class(val))
+  }else{
+    pLen=length(path)
+    if(pLen==0){
+      class(val)<-c(class,class(val))
+    }else{
+      
+      pathElem=path[1]
+      restpath=c()
+      
+      if(pLen>1){
+        restpath=path[2:pLen]
+      }
+      if(pathElem=='*'){
+        newVal=list()
+        for(ch in val){
+          newVal[[length(newVal)+1]]=apply.class(ch,restpath,class)
+        }
+        val=newVal
+      }else{
+        val[[pathElem]]=apply.class(val[[pathElem]],restpath,class)
+      }
+    }
+  }
+  return(val)
+}
+
+unmarshal.from.persistence <- function(x,classMap=list()){
+  classNames=names(classMap)
+  for(cn in classNames){
+    pathes=classMap[[cn]]
+    pathesLen=length(pathes)
+    if(pathesLen==0){
+      x=apply.class(x,c(),cn)
+    }else{
+      for(path in pathes){
+        x=apply.class(x,path,cn)
+      }
+    }
+  }  
+  
   return(x);
 }
 
@@ -1527,6 +1589,43 @@ store.bundle.annotation <- function(db,bundle){
 }
 
 
+create.emuDB<-function(name,targetDir,mediaFileExtension='wav'){
+  path=file.path(targetDir,name)
+  dbConfig=create.schema.databaseDefinition(name=name,mediafileExtension = mediaFileExtension)
+  db=create.database(name=name,basePath=path,DBconfig = dbConfig)
+  store.emuDB(db,targetDir)
+  db=load.emuDB(path)
+  return(db)
+}
+
+##' Import media files to EMU database
+##' @description Import media files to EMU database
+##' @param dbObj object of class emuDB
+##' @param dir directory containing mediafiles or session directories
+##' @author Klaus Jaensch
+##' @import sqldf stringr
+##' @seealso \code{\link{create.emuDB}}
+##' @keywords emuDB database Emu
+##' @examples
+##' \dontrun{
+##' ## Add mediafiles from directory
+##' 
+##'  import.mediaFiles(emuDB,'0000',dir="/data/mymedia")
+##' 
+##' }
+"import.mediaFiles"<-function(dbObj,targetSessionName='0000',dir){
+  UseMethod("import.mediaFiles")
+}
+
+"import.mediaFiles.emuDB"<-function(dbObj,targetSessionName='0000',dir){
+  dbClass=class(dbObj)
+  if(dbClass=='emuDB'){
+   stop("Sorry. Not implemented yet!!")
+  }else{
+    NextMethod()
+  }
+}
+
 
 ##' Store EMU database to directory
 ##' 
@@ -1546,11 +1645,11 @@ store.bundle.annotation <- function(db,bundle){
 ##' \dontrun{
 ##' # Store database object ae to directory /homes/mylogin/EMUnew/
 ##' 
-##' store.database(ae,"/homes/mylogin/EMUnew/")
+##' store.emuDB(ae,"/homes/mylogin/EMUnew/")
 ##' 
 ##' }
 
-store.database <- function(db,targetDir,options=list(),showProgress=TRUE){
+store.emuDB <- function(db,targetDir,options=list(),showProgress=TRUE){
   
   rewriteSSFFTracks=FALSE
   if(!is.null(options[['rewriteSSFTracks']])){
@@ -1763,7 +1862,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   dbCfgJSON=paste(dbCfgJSONLns,collapse='')
   dbCfgPersisted=jsonlite::fromJSON(dbCfgJSON,simplifyVector=FALSE)
   
-  schema=unmarshal.from.persistence(dbCfgPersisted)
+  schema=unmarshal.from.persistence(dbCfgPersisted,emuR.persist.class[['DBconfig']])
   # get max label array size
   maxLbls=0
   for(lvlDef in schema[['levelDefinitions']]){
@@ -1775,7 +1874,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   schema[['maxNumberOfLabels']]=maxLbls
   db[['DBconfig']]=schema
   db[['name']]=schema[['name']]
-  db[['basePath']]=databaseDir
+  db[['basePath']]=normalizePath(databaseDir)
   if(verbose){
     cat("INFO: Loading EMU database from ",databaseDir,"...\n")
   }
@@ -1807,7 +1906,9 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   # progress part to calaculate ext links 10%
   ppBuildExtLinks=as.integer(bundleCount/10L)
   pMax=bundleCount+ppBuildDataFrames+ppBuildRedLinks+ppBuildExtLinks
-  
+  if(pMax==0){
+    pMax=1
+  }
   if(verbose){ 
     pb=txtProgressBar(min=0L,max=pMax,style=3)
     setTxtProgressBar(pb,progress)
@@ -2075,3 +2176,6 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   return(db)
   
 }
+
+
+
