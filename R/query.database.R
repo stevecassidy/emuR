@@ -991,8 +991,10 @@ query.database.eql.in.bracket<-function(database,q){
     
     res=create.subtree(items=lExpRes,links=NULL,resultLevel=lResAttrName,projectionItems=prjIts)
     return(res)
+  }else{
+    query.database.with.eql(database,qTrim)
   }
-  stop("Syntax error: Expected sequence '->' or domination '^' operator.")
+  #stop("Syntax error: Expected sequence '->' or domination '^' operator.")
 }
 
 ## Query EMU database
