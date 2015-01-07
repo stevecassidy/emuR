@@ -122,7 +122,9 @@
   ########################
   # preallocate data (needs first element to be read)
   
-  curBndl <- get.bundle.stub(dbObj, seglist$utts[1])
+  
+  splUtt = str_split(seglist$utts[1], ':')[[1]]
+  curBndl <- dbObj$sessions[[splUtt[1]]]$bundles[[splUtt[2]]]
   
   if(!is.null(onTheFlyFunctionName)){
     funcFormals = NULL
@@ -166,8 +168,10 @@
   # loop through bundle names
   curIndexStart = 1
   for (i in 1:length(seglist$utts)){
+
+    splUtt = str_split(seglist$utts[i], ':')[[1]]
+    curBndl <- dbObj$sessions[[splUtt[1]]]$bundles[[splUtt[2]]]
     
-    curBndl <- get.bundle.stub(dbObj, seglist$utts[i])
     fname <- curBndl$signalpaths[grepl(paste(trackDef[[1]]$fileExtension, '$', sep = ''), curBndl$signalpaths)][[1]] # should mybe check if more then one found...
     
     ################
@@ -341,9 +345,5 @@
 #######################
 # FOR DEVELOPMENT
 
-# aus.db = load.emuDB('~/Desktop/AUS/AUS/')
-# class(aus.db) = 'emuDB'
-# nSegl = query(aus.db, 'Phonetic=n')
-# get.trackdata(aus.db, seglist = nSegl, ssffTrackName = 'dft')
-# td = get.trackdata(aus.db, nSegl, wrasspOutputInfos[['acfana']]$tracks[1], onTheFlyFunctionName = 'acfana', verbose=F)
-
+library('testthat')
+test_file('tests/testthat/test_get.trackdata.R')
