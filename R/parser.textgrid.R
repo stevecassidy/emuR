@@ -399,3 +399,4 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
 # FOR DEVELOPMENT
 #library('testthat')
 #test_file('tests/testthat/test_parse.textgrid.R')
+

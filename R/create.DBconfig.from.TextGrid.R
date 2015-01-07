@@ -35,8 +35,8 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName){
   
   initialize_database_tables(con, itemsTableName, labelsTableName, linksTableName)
   
-  parse.textgrid(path2tg, sR, db='ae', bundle="msajc003", session="0000", conn = con, itemsTableName=itemsTableName, labelsTableName=labelsTableName)
   
+  parse.textgrid(tgPath, 20000, db='ae', bundle="msajc003", session="0000", conn = con, itemsTableName=itemsTableName, labelsTableName=labelsTableName) # sampleRate doesn't matter!! -> hardcoded
   #   tgAnnot = parse.textgrid(tgPath, 44100) # sampleRate hardcoded because it does not matter
   
   res <- dbSendQuery(con, paste0("SELECT DISTINCT level, type FROM ", itemsTableName))
@@ -103,4 +103,3 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName){
 # FOR DEVELOPMENT
 # library('testthat')
 # test_file('tests/testthat/test_create.DBconfig.from.TextGrid.R')
-

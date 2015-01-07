@@ -3,10 +3,23 @@
 ##' @author Raphael Winkelmann
 context("testing convert.TextGridCollection.to.emuDB function")
 
-path2root = system.file("extdata/legacy_emu/DBs/", package = "emuR")
+path2root = system.file("extdata/legacy_emu/DBs/ae/", package = "emuR")
+
+path2tmpDir = tempdir()
+
+path2newDb = paste0(path2tmpDir, 'convert_TextGridCollection_testDB') 
+
+unlink(path2newDb, recursive = T)
+
+##############################
+# test_that("bad calls cause errors", {
+#   expect_error(convert.TextGridCollection.to.emuDB('alskfjaslödkfj'))
+# })
 
 ##############################
 test_that("bad calls cause errors", {
-  expect_error(convert.TextGridCollection.to.emuDB('alskfjaslödkfj'))
+  convert.TextGridCollection.to.emuDB(path2rootDir = path2root, 
+                                                   dbName = 'convert_TextGridCollection_testDB',
+                                                   path2newDb, showProgress=F)
 })
 
