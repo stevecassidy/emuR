@@ -723,6 +723,7 @@ query.database.eql.KONJA<-function(database,q){
     items=database[['items']]
     labels=database[['labels']]
     resultLevel=NULL
+    projection=FALSE
     while(p>=0){
       p=get.string.position(string=qTrim,searchStr='&',pos=startPos,literalQuote="'")
       if(p==-1){
@@ -741,6 +742,8 @@ query.database.eql.KONJA<-function(database,q){
           resultLevel=termResLevel
         }
       }
+      
+      
       seqIts=res[['items']]
       nRes=nrow(seqIts)
       if(nRes==0){
@@ -750,9 +753,18 @@ query.database.eql.KONJA<-function(database,q){
         # Proceed with items matching current condition
         items=sqldf("SELECT i.* FROM items i,seqIts s WHERE i.id=s.seqStartId")
         labels=sqldf("SELECT l.* FROM labels l,seqIts s WHERE l.itemID=s.seqStartId")
+        if(!is.null(res[['projectionItems']])){
+          # if one of the boolean terms is marked with the hashtag the whole term is marked 
+          projection=TRUE
+        }
       }
     }
     res[['items']][,'level']=resultLevel
+    items=res[['items']]
+    if(projection){      
+      qStr="SELECT i.seqStartId,i.seqEndId,i.seqStartId AS pSeqStartId ,i.seqEndId AS pSeqEndId,i.seqLen AS pSeqLen,i.level AS pLevel FROM items i"
+      res[['projectionItems']]=sqldf(qStr)
+    }
     res[['resultLevel']]=resultLevel
     return(res)
 }
