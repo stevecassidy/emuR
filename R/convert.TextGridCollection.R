@@ -66,9 +66,8 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
     # extract bundle name
     bndlName = basename(file_path_sans_ext(fpl[i,2]))
     print(bndlName)
-    # parse TextGrid
-    #     levels = parse.textgrid(fpl[i,2], attributes(asspObj)$sampleRate)
     
+    # parse TextGrid
     parse.textgrid(fpl[i,2], attributes(asspObj)$sampleRate, db='ae', bundle=bndlName, session="0000", 
                    conn = con, itemsTableName=itemsTableName, labelsTableName=labelsTableName)
     
@@ -80,6 +79,14 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
       stop('Parsed TextGrid did not pass validator! The validator message is: ', valRes$message)
     }
     
+    # create bundle and append
+    allBundles[[bndlName]] = create.bundle(name = bndlName,
+                                           annotates = paste0('0000_ses/', bndlName, '_bndl/', bndlName, '.', audioExt),
+                                           sampleRate = attr(asspObj,'sampleRate'),
+                                           levels = list(),
+                                           signalpaths = list(unname(fpl[i,1])),
+                                           mediaFilePath = unname(fpl[i,1]),
+                                           links = list())
     
     
     # update pb
@@ -94,6 +101,9 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
   db[['labels']]=dbReadTable(con, labelsTableName)
   db[['links']]=dbReadTable(con, linksTableName)
   
+  # create dummy container with bundles
+  db[['sessions']][['0000']]=emuDB.session(name='0000', bundles=allBundles)
+  
   # store newly generated emuDB
   if(showProgress){
     cat('\n') # hack to have newline after pb
@@ -103,19 +113,9 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
   dbDisconnect(con)
   
   # store
-  store.database(db, targetDir, showProgress = showProgress)
+  store.emuDB(db, targetDir, showProgress = showProgress)
   
   
-  
-  #     
-  #     # create bundle
-  #     bundle = create.bundle(name = bndlName,
-  #                            annotates = paste0('0000_ses/', bndlName, '_bndl/', bndlName, '.', audioExt),
-  #                            sampleRate = attr(asspObj,'sampleRate'),
-  #                            levels = levels,
-  #                            signalpaths = list(fpl[i,1]),
-  #                            mediaFilePath = fpl[i,1],
-  #                            links = list())
   #     
   #     # validate bundle
   #     valRes = validate.listFrom.bundle(dbd, bundle)
@@ -153,9 +153,7 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
   #   linksIdx=db[['linksIdx']]
   #   db[['links']]=data.frame(bundle=db[['links']][['bundle']][1:linksIdx],fromID=db[['links']][['fromID']][1:linksIdx],toID=db[['links']][['toID']][1:linksIdx],label=db[['links']][['label']][1:linksIdx],stringsAsFactors=FALSE)
   #   
-  #   # create dummy container
-  #   containerSession=emuDB.session(name='0000', bundles=allBundles)
-  #   db[['sessions']][['0000']]=containerSession
+  
   
 }
 
