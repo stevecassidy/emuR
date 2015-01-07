@@ -68,7 +68,7 @@ most of the EBNF was adapted from [@john:2012a]
 | EQL | = KONJA \| SEQA \| DOMA; |
 | DOMA | ='[',(KONJA|DOMA|SEQA),'ˆ',(KONJA|DOMA|SEQA),']'; (*Ebenen müssen hierarchisch oder autosegmentell assoziert sein*) |
 | SEQA | ='[',(KONJA|SEQA|DOMA),'->',(KONJA|SEQA|DOMA),']'; (*Ebenen müssen linear assoziert sein*) |
-| KONJA | = EA,{'&',EA}; (*Ebenen müssen linear assoziert sein*) |
+| KONJA | = {'['},EA,{'&',EA},{']'}; (*Ebenen müssen linear assoziert sein*) |
 | EA | = ETIKETTA \| FUNKA; |
 | ETIKETTA | = ['#'],EBENE,('='\|'=='\|'!='\|'=~'\|'!~'),ETIKETTALTERNATIVEN; |
 | FUNKA | = POSA \| NUMA; |
