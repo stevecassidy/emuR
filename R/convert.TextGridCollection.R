@@ -29,7 +29,7 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
   progress = 0
   
   if(showProgress){
-    cat("INFO: Loading TextGridCollection containing", length(fpl[,1]), "bundles...\n")
+    cat("INFO: Loading TextGridCollection containing", length(fpl[,1]), "file pairs...\n")
     pb = txtProgressBar(min = 0, max = length(fpl[,1]), initial = progress, style=3)
     setTxtProgressBar(pb, progress)
   }
@@ -65,7 +65,6 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
     
     # extract bundle name
     bndlName = basename(file_path_sans_ext(fpl[i,2]))
-    print(bndlName)
     
     # parse TextGrid
     parse.textgrid(fpl[i,2], attributes(asspObj)$sampleRate, db='ae', bundle=bndlName, session="0000", 
@@ -114,45 +113,6 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
   
   # store
   store.emuDB(db, targetDir, showProgress = showProgress)
-  
-  
-  #     
-  #     # validate bundle
-  #     valRes = validate.listFrom.bundle(dbd, bundle)
-  #     
-  #     if(valRes$type != 'SUCCESS'){
-  #       stop('Parsed TextGrid did not pass validator! The validator message is: ', valRes$message)
-  #     }
-  #     
-  #     # this will be slow for large DBs
-  #     db = append.bundle.to.tmp.list(db, bundle)
-  #     
-  #     # remove levels and links and append to allBundles
-  #     bundle[['levels']] = NULL
-  #     bundle[['links']] = NULL
-  #     
-  #     bName=bundle[['name']]
-  #     
-  #     allBundles[[bndlName]]=bundle
-  #     
-  #     # update pb
-  #     if(showProgress){
-  #       setTxtProgressBar(pb, i)
-  #     }
-  #     
-  #   }
-  #   # reassign items as dataframe
-  #   itemsIdx=db[['itemsIdx']]
-  #   db[['items']]=data.frame(id=db[['items']][['id']][1:itemsIdx],bundle=db[['items']][['bundle']][1:itemsIdx],level=db[['items']][['level']][1:itemsIdx],bundleId=db[['items']][['bundleId']][1:itemsIdx],type=db[['items']][['type']][1:itemsIdx],seqIdx=db[['items']][['seqIdx']][1:itemsIdx],sampleRate=db[['items']][['sampleRate']][1:itemsIdx],samplePoint=db[['items']][['samplePoint']][1:itemsIdx],sampleStart=db[['items']][['sampleStart']][1:itemsIdx],sampleDur=db[['items']][['sampleDur']][1:itemsIdx],label=db[['items']][['label']][1:itemsIdx],stringsAsFactors=FALSE)
-  #   
-  #   # reassign labels as dataframe
-  #   labelsIdx=db[['labelsIdx']]
-  #   db[['labels']]=data.frame(itemID=db[['labels']][['itemID']][1:labelsIdx],bundle=db[['labels']][['bundle']][1:labelsIdx],labelIdx=db[['labels']][['labelIdx']][1:labelsIdx],name=db[['labels']][['name']][1:labelsIdx],label=db[['labels']][['label']][1:labelsIdx],stringsAsFactors=FALSE)
-  #   
-  #   # reassign links as dataframe
-  #   linksIdx=db[['linksIdx']]
-  #   db[['links']]=data.frame(bundle=db[['links']][['bundle']][1:linksIdx],fromID=db[['links']][['fromID']][1:linksIdx],toID=db[['links']][['toID']][1:linksIdx],label=db[['links']][['label']][1:linksIdx],stringsAsFactors=FALSE)
-  #   
   
   
 }
