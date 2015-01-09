@@ -131,6 +131,7 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
 ##'
 initialize_database_tables <- function(conn, itemsTableName, labelTableName, linksTableName){
   
+  # TODO: Move function to different location!
   
   # initialize empty tables (items, labels, links)
   items = data.frame(id=character(), session=character(), bundle=character(), level=character(),
