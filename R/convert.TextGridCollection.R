@@ -82,8 +82,9 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
     
     # create bundle and append
     allBundles[[bndlName]] = create.bundle(name = bndlName,
-                                           annotates = paste0('0000_ses/', bndlName, '_bndl/', bndlName, '.', audioExt),
-                                           sampleRate = attr(asspObj,'sampleRate'),
+                                           sessionName = '0000',
+                                           annotates = paste0(bndlName, '.', audioExt),
+                                           sampleRate = attr(asspObj, 'sampleRate'),
                                            levels = list(),
                                            signalpaths = list(unname(fpl[i,1])),
                                            mediaFilePath = unname(fpl[i,1]),
@@ -153,5 +154,5 @@ initialize_database_tables <- function(conn, itemsTableName, labelTableName, lin
 }
 
 # FOR DEVELOPMENT
-# library('testthat')
-# test_file('tests/testthat/test_convert.TextGridCollection.R')
+library('testthat')
+test_file('tests/testthat/test_convert.TextGridCollection.R')
