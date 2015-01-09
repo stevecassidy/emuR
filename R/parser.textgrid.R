@@ -78,12 +78,12 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
   currentTierName=NULL
   currentTierSize=NULL
   
-  preallocItemDf = data.frame(id='', session='', bundle='', level='',
-                              itemID=-1, type='', seqIdx=-1, sampleRate=-1, 
-                              samplePoint=-1, sampleStart=-1, sampleDur=-1, label='', stringsAsFactors=FALSE)
-  
-  preallocLabelDf = data.frame(itemID='', session='', bundle='',
-                               labelIdx=-1, name='', label='', stringsAsFactors=FALSE)
+#   preallocItemDf = data.frame(id='', session='', bundle='', level='',
+#                               itemID=-1, type='', seqIdx=-1, sampleRate=-1, 
+#                               samplePoint=-1, sampleStart=-1, sampleDur=-1, label='', stringsAsFactors=FALSE)
+#   
+#   preallocLabelDf = data.frame(itemID='', session='', bundle='',
+#                                labelIdx=-1, name='', label='', stringsAsFactors=FALSE)
   
   
   
