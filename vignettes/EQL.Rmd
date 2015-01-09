@@ -28,8 +28,11 @@ most of the EBNF was adapted from [@john:2012a]
 | --- | --- |
 | # | Ergebnismodifizierer |
 | , | Parameterlistentrenner |
-| = | Gleichheit |
+| == | Gleichheit |
 | != | Ungleichheit |
+| =~ | Regular expression match
+| !~ | Regular expression not match
+| = | Gleichheit |
 | &gt | mehr als |
 | >= | gleich und mehr als |
 | < | weniger als |
@@ -65,9 +68,9 @@ most of the EBNF was adapted from [@john:2012a]
 | EQL | = KONJA \| SEQA \| DOMA; |
 | DOMA | ='[',(KONJA|DOMA|SEQA),'ˆ',(KONJA|DOMA|SEQA),']'; (*Ebenen müssen hierarchisch oder autosegmentell assoziert sein*) |
 | SEQA | ='[',(KONJA|SEQA|DOMA),'->',(KONJA|SEQA|DOMA),']'; (*Ebenen müssen linear assoziert sein*) |
-| KONJA | = EA,{'&',EA}; (*Ebenen müssen linear assoziert sein*) |
+| KONJA | = {'['},EA,{'&',EA},{']'}; (*Ebenen müssen linear assoziert sein*) |
 | EA | = ETIKETTA \| FUNKA; |
-| ETIKETTA | = ['#'],EBENE,('='\| '!='),ETIKETTALTERNATIVEN; |
+| ETIKETTA | = ['#'],EBENE,('=' \| '==' \| '!=' \| '=~' \| '!~'),ETIKETTALTERNATIVEN; |
 | FUNKA | = POSA \| NUMA; |
 | POSA | = POSFKT, '(',EBENE,',',EBENE,')','=','0'\| '1'; (*Ebenen müssen hierarchisch oder autosegmentell assoziiert sein*) (*zweite Ebene gibt Semantik vor*) |
 | NUMA | = 'Num','(',EBENE,',',EBENE,')',VOP,INTPN; (*Ebenen müssen hierarchisch oder autosegmentell assoziiert sein*) (*erste Ebene gibt Semantik vor*) |
@@ -77,7 +80,7 @@ most of the EBNF was adapted from [@john:2012a]
 
 
 | POSFKT = | 'Start'\|'Medial'\|'End'; |
-| VOP =  | '=' \| '!=' \| '>' \| '<' \| '<=' \| '>='; |
+| VOP =  | '=' \| '==' \| '!=' \| '>' \| '<' \| '<=' \| '>='; |
 | INTPN = | '0' \| INTP; |
 | INTP = | DIGIT-'0',{DIGIT}; |
 | DIGIT = | '0'\|'1'\|'2'\|'3'\|'4'\|'5'\|'6'\|'7'\|'8'\|'9'; |
