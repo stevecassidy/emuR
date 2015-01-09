@@ -45,7 +45,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
   if(is.null(labelsTableName)){
     stop("Argument labelsTableName must not be NULL!\n")
   }
-    
+  
   #
   #####################
   
@@ -79,8 +79,8 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
   currentTierSize=NULL
   
   preallocItemDf = data.frame(id='', session='', bundle='', level='',
-                            itemID=-1, type='', seqIdx=-1, sampleRate=-1, 
-                            samplePoint=-1, sampleStart=-1, sampleDur=-1, label='', stringsAsFactors=FALSE)
+                              itemID=-1, type='', seqIdx=-1, sampleRate=-1, 
+                              samplePoint=-1, sampleStart=-1, sampleDur=-1, label='', stringsAsFactors=FALSE)
   
   preallocLabelDf = data.frame(itemID='', session='', bundle='',
                                labelIdx=-1, name='', label='', stringsAsFactors=FALSE)
@@ -275,21 +275,34 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
                         sampleDur = currentSegmentEnd - currentSegmentStart - 1
                         labels=list(list(name=currentTierName,value=currentSegmentLabel))
                         
-                        # item entry:
                         itemId = paste0(db, '_', session, '_', bundle, '_', itemCounterGlobal)
-                                                
-                        preallocItemDf[1,] = c(itemId, session, bundle, currentTierName,
-                                             itemCounterGlobal, 'SEGMENT', itemCounterLevel, sampleRate, 
-                                             NA, currentSegmentStart, sampleDur, currentSegmentLabel)
+                        
+                        # item entry:
+                        
+                        #                         preallocItemDf[1,] = c(itemId, session, bundle, currentTierName,
+                        #                                                itemCounterGlobal, 'SEGMENT', itemCounterLevel, sampleRate, 
+                        #                                                NA, currentSegmentStart, sampleDur, currentSegmentLabel)
+                        #
+                        #                         dbWriteTable(conn, itemsTableName, preallocItemDf, append = T)
                         
                         
-                        dbWriteTable(conn, itemsTableName, preallocItemDf, append = T)
+                        
+                        dbSendQuery(conn, paste0("INSERT INTO ",itemsTableName  ," VALUES"," ('", itemId, "', '", session, "', '", bundle, 
+                                                 "', '", currentTierName,"', ", itemCounterGlobal, ", '", "SEGMENT", 
+                                                 "', ", itemCounterLevel, ", ", sampleRate, ", ", "NULL", ", ", currentSegmentStart, 
+                                                 ", ", sampleDur, ", '", gsub("'","''", currentSegmentLabel), "')"))
+                        
+                        
                         
                         # label entry:                        
-                        preallocLabelDf[1,] = c(itemId, session, bundle,
-                                                0, currentTierName, currentSegmentLabel)
+                        #                         preallocLabelDf[1,] = c(itemId, session, bundle,
+                        #                                                 0, currentTierName, currentSegmentLabel)
+                        #
+                        #                         dbWriteTable(conn, labelsTableName, preallocLabelDf, append = T)
                         
-                        dbWriteTable(conn, labelsTableName, preallocLabelDf, append = T)
+                        dbSendQuery(conn, paste0("INSERT INTO ", labelsTableName, " VALUES","('", 
+                                                 itemId, "', '", session, "', '", bundle, 
+                                                 "', ", 0,", '", currentTierName, "', '", gsub("'","''", currentSegmentLabel), "')"))
                         
                         # links entry:
                         # no link entry because TextGrids don't have hierarchical infos
@@ -357,19 +370,31 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
                       
                       # item entry
                       itemId = paste0(db, '_', session, '_', bundle, '_', itemCounterGlobal)
-                                            
-                      preallocItemDf[1,] = c(itemId, session, bundle, currentTierName,
-                                           itemCounterGlobal, 'EVENT', itemCounterLevel, sampleRate, 
-                                           currentPointSample, NA, NA, currentPointLabel)
                       
-                      dbWriteTable(conn, itemsTableName, preallocItemDf, append=T)
+                      #                       preallocItemDf[1,] = c(itemId, session, bundle, currentTierName,
+                      #                                              itemCounterGlobal, 'EVENT', itemCounterLevel, sampleRate, 
+                      #                                              currentPointSample, NA, NA, currentPointLabel)
+                      #                       
+                      #                       dbWriteTable(conn, itemsTableName, preallocItemDf, append=T)
                       
-                      # label entry:                      
-                      preallocLabelDf[1,] = c(itemId, session, bundle,
-                                              0, currentTierName, currentPointLabel)
+                      dbSendQuery(conn, paste0("INSERT INTO ",itemsTableName  ," VALUES"," ('", itemId, "', '", session, "', '", bundle, 
+                                               "', '", currentTierName,"', ", itemCounterGlobal, ", '", "EVENT", 
+                                               "', ", itemCounterLevel, ", ", sampleRate, ", ", currentPointSample, ", ", "NULL", 
+                                               ", ", "NULL", ", '", gsub("'","''", currentPointLabel), "')"))
                       
                       
-                      dbWriteTable(conn, labelsTableName, preallocLabelDf, append = T)
+                      # label entry:       
+                      
+                      #                       preallocLabelDf[1,] = c(itemId, session, bundle,
+                      #                                               0, currentTierName, currentPointLabel)
+                      #                       
+                      #                       dbWriteTable(conn, labelsTableName, preallocLabelDf, append = T)
+                      
+                      dbSendQuery(conn, paste0("INSERT INTO ", labelsTableName, " VALUES","('", 
+                                               itemId, "', '", session, "', '", bundle, 
+                                               "', ", 0,", '", currentTierName, "', '", gsub("'","''", currentPointLabel), "')"))              
+                      
+                      
                       
                       # links entry:
                       # no link entry because TextGrids don't have hierarchical infos
@@ -397,6 +422,6 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
 }
 
 # FOR DEVELOPMENT
-#library('testthat')
-#test_file('tests/testthat/test_parse.textgrid.R')
+# library('testthat')
+# test_file('tests/testthat/test_parse.textgrid.R')
 
