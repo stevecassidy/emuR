@@ -1,7 +1,11 @@
 ##' testthat tests for convert.TextGridCollection.to.emuDB
 ##'
 ##' @author Raphael Winkelmann
+
+require(RSQLite)
+
 context("testing convert.TextGridCollection.to.emuDB function")
+
 
 path2root = system.file("extdata/legacy_emu/DBs/ae/", package = "emuR")
 

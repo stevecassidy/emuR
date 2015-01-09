@@ -1,3 +1,5 @@
+require(RSQLite)
+
 ##' Convert a TextGridCollection (.TextGrid + .wav) to emuDB
 ##' 
 ##' Converts a TextGridCollection to a emuDB by first generating a file pair list 
@@ -117,9 +119,15 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
   
 }
 
-##'
-##' SIC!! This function should probably be somewhere else
-##'
+##' Initialize empty database tables 
+##' 
+##' Initialize empty database tables that in the sql database 
+##' specified by the conn argument. The tables are items, labels, links
+##' 
+##' @param conn sql DB connection
+##' @param itemsTableName SQL table name of items table
+##' @param labelTableName SQL table name of label table
+##' @author Raphael Winkelmann
 ##'
 initialize_database_tables <- function(conn, itemsTableName, labelTableName, linksTableName){
   
@@ -129,17 +137,17 @@ initialize_database_tables <- function(conn, itemsTableName, labelTableName, lin
                      itemID=integer(), type=character(), seqIdx=integer(), sampleRate=numeric(), 
                      samplePoint=integer(), sampleStart=integer(), sampleDur=integer(), label=character(), stringsAsFactors=FALSE)
   
-  dbWriteTable(conn, "emuR_emuDB_items_tmp", items)
+  RSQLite::dbWriteTable(conn, "emuR_emuDB_items_tmp", items)
   
   labels = data.frame(itemID=character(), session=character(), bundle=character(),
                       labelIdx=integer(), name=character(), label=character(), stringsAsFactors=FALSE)
   
-  dbWriteTable(conn, "emuR_emuDB_labels_tmp", labels)
+  RSQLite::dbWriteTable(conn, "emuR_emuDB_labels_tmp", labels)
   
   links = data.frame(session=character(), bundle=character(), fromID=integer(),
                      toID=integer(), label=character(), stringsAsFactors=FALSE)
   
-  dbWriteTable(conn, "emuR_emuDB_links_tmp", links)
+  RSQLite::dbWriteTable(conn, "emuR_emuDB_links_tmp", links)
   
 }
 

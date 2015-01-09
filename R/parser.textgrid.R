@@ -1,5 +1,5 @@
 require(stringr)
-
+require(RSQLite)
 
 ## Parser for Praat TextGrid files
 ## 
@@ -8,7 +8,7 @@ require(stringr)
 ## @param encoding text encoding (currently the only excepted is the default UTF-8)
 ## @return an annoation object
 ## @author Klaus Jaensch, Raphael Winkelmann
-## @import stringr
+## @import stringr RSQLite
 ## @keywords emuR TextGrid Praat Emu
 ## 
 parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", 

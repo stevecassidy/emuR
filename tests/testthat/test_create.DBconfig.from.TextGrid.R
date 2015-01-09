@@ -1,12 +1,13 @@
 ##' testthat tests for convert.TextGridCollection.to.emuDB
 ##'
 ##' @author Raphael Winkelmann
+require(RSQLite)
+
 context("testing create.DBconfig.from.TextGrid function")
 
 path2tg = system.file("extdata/legacy_emu/DBs/ae/labels/msajc003.TextGrid", package = "emuR")
 
 dbName = 'test12'
-
 conf = create.DBconfig.from.TextGrid(path2tg, dbName)
 
 ##############################

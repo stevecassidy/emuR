@@ -1,10 +1,12 @@
+require(RSQLite)
+
 ##' Create emuDB DBconfig object from a TextGrid file
 ##' 
 ##' @param tgPath path to TextGrid file
 ##' @param dbName name of the database
 ##' @return object of class emuDB.schema.db
 ##' @author Raphael Winkelmann
-##' @import stringr uuid wrassp
+##' @import stringr uuid wrassp RSQLite
 ##' @keywords emuDB database schema Emu TextGrid
 ## 
 create.DBconfig.from.TextGrid = function(tgPath, dbName){
@@ -31,7 +33,7 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName){
   linksTableName = "emuR_emuDB_links_tmp"
   
   # Create an ephemeral in-memory RSQLite database
-  con <- dbConnect(RSQLite::SQLite(), ":memory:")
+  con <- RSQLite::dbConnect(RSQLite::SQLite(), ":memory:")
   
   initialize_database_tables(con, itemsTableName, labelsTableName, linksTableName)
   
@@ -39,9 +41,9 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName){
   parse.textgrid(tgPath, 20000, db='ae', bundle="msajc003", session="0000", conn = con, itemsTableName=itemsTableName, labelsTableName=labelsTableName) # sampleRate doesn't matter!! -> hardcoded
   #   tgAnnot = parse.textgrid(tgPath, 44100) # sampleRate hardcoded because it does not matter
   
-  res <- dbSendQuery(con, paste0("SELECT DISTINCT level, type FROM ", itemsTableName))
-  levels = dbFetch(res)
-  dbClearResult(res)
+  res <- RSQLite::dbSendQuery(con, paste0("SELECT DISTINCT level, type FROM ", itemsTableName))
+  levels = RSQLite::dbFetch(res)
+  RSQLite::dbClearResult(res)
   
   # create level definitions
   levelDefinitions = list()
@@ -96,7 +98,7 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName){
   dbSchema$maxNumberOfLabels = 1
   
   # Disconnect from the database
-  dbDisconnect(con)
+  RSQLite::dbDisconnect(con)
   return(dbSchema)
 }
 
