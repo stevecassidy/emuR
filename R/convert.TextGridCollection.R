@@ -1,9 +1,9 @@
 require(RSQLite)
 
-##' Convert a TextGridCollection (.TextGrid + .wav) to emuDB
+##' Convert a TextGridCollection (.wav & .TextGrid files) to a emuDB
 ##' 
 ##' Converts a TextGridCollection to a emuDB by first generating a file pair list 
-##' containing the paths to .TextGrid + .wav (default extentions) files with the same base
+##' containing the paths to the .wav & .TextGrid (default extentions) files with the same base
 ##' name. It then generates a emuDB DBconfig from the first TextGrid in this file pair list. 
 ##' After this it converts all file pairs to the new format.
 ##' 
@@ -13,6 +13,7 @@ require(RSQLite)
 ##' @param tgExt extention of TextGrid files (default=TextGrid meaning filesnames of the form baseName.TextGrid)
 ##' @param audioExt extention of audio files (default=wav meaning filesnames of the form baseName.wav).
 ##' @param showProgress show progress bar flag
+##' @seealso create.filePairList
 ##' @export
 ##' @author Raphael Winkelmann
 ##' 
@@ -65,8 +66,9 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
     # get sampleRate of audio file
     asspObj = read.AsspDataObj(fpl[i,1])
     
-    # extract bundle name
-    bndlName = basename(file_path_sans_ext(fpl[i,2]))
+    # create bundle name
+#     bndlName = basename(file_path_sans_ext(fpl[i,2]))
+    bndlName = gsub('^_', '', gsub(.Platform$file.sep, '_', gsub(normalizePath(path2rootDir),'',file_path_sans_ext(normalizePath(fpl[i,1])))))
     
     # parse TextGrid
     parse.textgrid(fpl[i,2], attributes(asspObj)$sampleRate, db='ae', bundle=bndlName, session="0000", 
@@ -83,7 +85,7 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
     # create bundle and append
     allBundles[[bndlName]] = create.bundle(name = bndlName,
                                            sessionName = '0000',
-                                           annotates = paste0(bndlName, '.', audioExt),
+                                           annotates = paste0(basename(file_path_sans_ext(fpl[i,2])),'.', audioExt),
                                            sampleRate = attr(asspObj, 'sampleRate'),
                                            levels = list(),
                                            signalpaths = list(unname(fpl[i,1])),

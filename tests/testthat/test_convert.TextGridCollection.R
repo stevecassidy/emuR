@@ -74,11 +74,11 @@ test_that("correct emuDB is created", {
   
   test_that("emuDB _annot.json is correct", {
     # read config
-    annotJSONLns=readLines(file.path(path2newDb, '0000_ses/msajc003_bndl/msajc003_annot.json'),warn=FALSE)
+    annotJSONLns=readLines(file.path(path2newDb, '0000_ses/signals_msajc003_bndl/signals_msajc003_annot.json'),warn=FALSE)
     annotJSON=paste(annotJSONLns,collapse='')
     annotPersisted=jsonlite::fromJSON(annotJSON,simplifyVector=FALSE)
     # general stuff
-    expect_equal(annotPersisted$name, 'msajc003')
+    expect_equal(annotPersisted$name, 'signals_msajc003')
     expect_equal(annotPersisted$annotates, 'msajc003.wav')
     expect_equal(length(annotPersisted$links), 0)
     expect_equal(length(annotPersisted$levels), 11)
