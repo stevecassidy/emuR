@@ -139,17 +139,17 @@ initialize_database_tables <- function(conn, itemsTableName, labelTableName, lin
                      itemID=integer(), type=character(), seqIdx=integer(), sampleRate=numeric(), 
                      samplePoint=integer(), sampleStart=integer(), sampleDur=integer(), label=character(), stringsAsFactors=FALSE)
   
-  RSQLite::dbWriteTable(conn, "emuR_emuDB_items_tmp", items)
+  dbWriteTable(conn, "emuR_emuDB_items_tmp", items)
   
   labels = data.frame(itemID=character(), session=character(), bundle=character(),
                       labelIdx=integer(), name=character(), label=character(), stringsAsFactors=FALSE)
   
-  RSQLite::dbWriteTable(conn, "emuR_emuDB_labels_tmp", labels)
+  dbWriteTable(conn, "emuR_emuDB_labels_tmp", labels)
   
   links = data.frame(session=character(), bundle=character(), fromID=integer(),
                      toID=integer(), label=character(), stringsAsFactors=FALSE)
   
-  RSQLite::dbWriteTable(conn, "emuR_emuDB_links_tmp", links)
+  dbWriteTable(conn, "emuR_emuDB_links_tmp", links)
   
 }
 
