@@ -88,9 +88,9 @@ validate.dfForm.bundle <- function(DBconfig, itemsDf, labelsDf, linksDf){
 validate.sqlTableRep.bundle <- function(dbd, bundle ,conn, itemsTableName, labelsTableName, linksTableName){
   
   # check that levels with same name are present
-  res <- RSQLite::dbSendQuery(conn, paste0("SELECT DISTINCT level FROM ", itemsTableName, " WHERE bundle = '", bundle,"'"))
-  levelNames = RSQLite::dbFetch(res)$level
-  RSQLite::dbClearResult(res)
+  res <- dbSendQuery(conn, paste0("SELECT DISTINCT level FROM ", itemsTableName, " WHERE bundle = '", bundle,"'"))
+  levelNames = dbFetch(res)$level
+  dbClearResult(res)
   
   levelDefNames = sapply(dbd$levelDefinitions, function(l) l$name)
   delta1 = setdiff(levelNames, levelDefNames)
@@ -109,9 +109,9 @@ validate.sqlTableRep.bundle <- function(dbd, bundle ,conn, itemsTableName, label
   }
   
   # check that levels have same types
-  res <- RSQLite::dbSendQuery(conn, paste0("SELECT DISTINCT level, type FROM ", itemsTableName, " WHERE bundle = '", bundle,"'"))
-  levelTypes = RSQLite::dbFetch(res)$type
-  RSQLite::dbClearResult(res)
+  res <- dbSendQuery(conn, paste0("SELECT DISTINCT level, type FROM ", itemsTableName, " WHERE bundle = '", bundle,"'"))
+  levelTypes = dbFetch(res)$type
+  dbClearResult(res)
 
   levelDefTypes = sapply(dbd$levelDefinitions, function(l) l$type)
   
@@ -122,9 +122,9 @@ validate.sqlTableRep.bundle <- function(dbd, bundle ,conn, itemsTableName, label
   }  
   
   # validate sequence and overlaps in items of type SEGMENTS
-  res <- RSQLite::dbSendQuery(conn, paste0("SELECT DISTINCT * FROM ", itemsTableName, " WHERE bundle = '", bundle,"'", " AND type = 'SEGMENT'"))
-  tmp = RSQLite::dbFetch(res)
-  RSQLite::dbClearResult(res)
+  res <- dbSendQuery(conn, paste0("SELECT DISTINCT * FROM ", itemsTableName, " WHERE bundle = '", bundle,"'", " AND type = 'SEGMENT'"))
+  tmp = dbFetch(res)
+  dbClearResult(res)
   
   #warning('CAUTION NOT VALIDATING: SEQUENCE + OVERLAPS / LINKS')
   
