@@ -3,12 +3,17 @@
 \alias{query}
 \title{Query EMU database}
 \usage{
-query(dbObj, query, queryLang = NULL, resultType = NULL)
+query(dbObj, query, sessionPattern = NULL, bundlePattern = NULL,
+  queryLang = NULL, resultType = NULL)
 }
 \arguments{
 \item{dbObj}{object of class emuDB}
 
 \item{query}{EQL query string}
+
+\item{sessionPattern}{A (glob) pattern matching sessions to be searched from the database}
+
+\item{bundlePattern}{A (glob) pattern matching bundles to be searched from the database}
 
 \item{queryLang}{query language}
 

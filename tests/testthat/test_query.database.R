@@ -153,6 +153,28 @@ test_that("Query using Start function",{
   expect_that(r2Its[1,'seqStartId'],is_identical_to('ae_0000_msajc015_147'))
   expect_that(r2Its[2,'seqStartId'],is_identical_to('ae_0000_msajc022_122'))
   expect_that(r2Its[3,'seqStartId'],is_identical_to('ae_0000_msajc057_136'))
+  
+  # and some bundle pattern tests
+  r3=query(ae,"Phoneme = p & Start(Word, Phoneme)=0",bundlePattern='msajc0??',resultType=NULL)
+  
+  r3Its=r3[['items']]
+  expect_that(nrow(r3Its),equals(3))
+  expect_that(r3Its[1,'seqStartId'],is_identical_to('ae_0000_msajc015_147'))
+  expect_that(r3Its[2,'seqStartId'],is_identical_to('ae_0000_msajc022_122'))
+  expect_that(r3Its[3,'seqStartId'],is_identical_to('ae_0000_msajc057_136'))
+  
+  r4=query(ae,"Phoneme = p & Start(Word, Phoneme)=0",bundlePattern='msajc02?',resultType=NULL)
+  
+  r4Its=r4[['items']]
+  expect_that(nrow(r4Its),equals(1))
+  expect_that(r4Its[1,'seqStartId'],is_identical_to('ae_0000_msajc022_122'))
+  
+  r5=query(ae,"Phoneme = p & Start(Word, Phoneme)=0",bundlePattern='*7',resultType=NULL)
+  
+  r5Its=r5[['items']]
+  expect_that(nrow(r5Its),equals(1))
+  expect_that(r5Its[1,'seqStartId'],is_identical_to('ae_0000_msajc057_136'))
+  
 #  
 })
 
