@@ -6,6 +6,10 @@ require(wrassp)
 
 # constants
 
+# API level of database object format
+# increment this value if the internal database object format changes  
+apiLevel=1
+
 session.suffix='_ses'
 bundle.dir.suffix='_bndl'
 bundle.annotation.suffix='_annot'
@@ -1650,7 +1654,12 @@ create.emuDB<-function(name,targetDir,mediaFileExtension='wav'){
 ##' }
 
 store.emuDB <- function(db,targetDir,options=list(),showProgress=TRUE){
-  
+  dbApiLevel=db[['apiLevel']]
+  if(is.null(dbApiLevel)){
+    stop("Database API level differs from R package API level: ",apiLevel,"\nPlease reload the database: db=reload(db)")
+  }else if(dbApiLevel!=apiLevel){
+    stop("Database API level: ",dbApiLevel," differs from R package API level: ",apiLevel,"\nPlease reload the database: db=reload(db)")
+  }
   rewriteSSFFTracks=FALSE
   if(!is.null(options[['rewriteSSFTracks']])){
     rewriteSSFFTracks=options[['rewriteSSFTracks']]
@@ -1829,6 +1838,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
  
   db=list()
   class(db)<-'emuDB'
+  db[['apiLevel']]=apiLevel
   # check database dir
   if(!file.exists(databaseDir)){
     stop("Database dir ",databaseDir," does not exist!")
@@ -2178,4 +2188,27 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
 }
 
 
+##' Reload EMU database
+##' @description Reload an EMU database from disk storage
+##' @param db object of class emuDB
 
+##' @return refreshed database object
+##' @author Klaus Jaensch
+##' @import sqldf stringr
+##' @seealso \code{\link{load.emuDB}}
+##' @keywords emuDB database query Emu
+##' @examples
+##' \dontrun{
+##' ## Reload database object ae
+##' 
+##' ae=reload(ae)
+##' 
+##' }
+"reload"<-function(db){
+  UseMethod("reload")
+}
+
+
+"reload.emuDB"<-function(db){
+  return(load.emuDB(db[['basePath']]))
+}
