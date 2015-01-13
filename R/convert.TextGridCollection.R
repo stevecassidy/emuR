@@ -1,7 +1,9 @@
-##' Convert a TextGridCollection (.TextGrid + .wav) to emuDB
+require(RSQLite)
+
+##' Convert a TextGridCollection (.wav & .TextGrid files) to a emuDB
 ##' 
 ##' Converts a TextGridCollection to a emuDB by first generating a file pair list 
-##' containing the paths to .TextGrid + .wav (default extentions) files with the same base
+##' containing the paths to the .wav & .TextGrid (default extentions) files with the same base
 ##' name. It then generates a emuDB DBconfig from the first TextGrid in this file pair list. 
 ##' After this it converts all file pairs to the new format.
 ##' 
@@ -11,6 +13,7 @@
 ##' @param tgExt extention of TextGrid files (default=TextGrid meaning filesnames of the form baseName.TextGrid)
 ##' @param audioExt extention of audio files (default=wav meaning filesnames of the form baseName.wav).
 ##' @param showProgress show progress bar flag
+##' @seealso create.filePairList
 ##' @export
 ##' @author Raphael Winkelmann
 ##' 
@@ -29,7 +32,7 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
   progress = 0
   
   if(showProgress){
-    cat("INFO: Loading TextGridCollection containing", length(fpl[,1]), "bundles...\n")
+    cat("INFO: Loading TextGridCollection containing", length(fpl[,1]), "file pairs...\n")
     pb = txtProgressBar(min = 0, max = length(fpl[,1]), initial = progress, style=3)
     setTxtProgressBar(pb, progress)
   }
@@ -40,19 +43,19 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
   
   # create empty database
   db = create.database(name = dbd$name, basePath = '', DBconfig = dbd)
-  # db = initialize.database.dataframes(db)
+  
+  itemsTableName = "emuR_emuDB_items_tmp"
+  
+  labelsTableName ="emuR_emuDB_labels_tmp"
+  
+  linksTableName = "emuR_emuDB_links_tmp"
+  
   
   # Create an ephemeral in-memory RSQLite database
   con <- dbConnect(RSQLite::SQLite(), ":memory:")
   
-  initialize_database_tables(con, "emuR_emuDB_items_tmp", "emuR_emuDB_labels_tmp", "emuR_emuDB_links_tmp")
+  initialize_database_tables(con, itemsTableName, labelsTableName, linksTableName)
   
-  
-  print(dbReadTable(con, "emuR_emuDB_items_tmp"))
-  print(dbReadTable(con, "emuR_emuDB_labels_tmp"))
-  print(dbReadTable(con, "emuR_emuDB_links_tmp"))
-  
-  return(1);
   
   # allBundles object to hold bundles without levels and links
   allBundles = list()
@@ -63,80 +66,75 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
     # get sampleRate of audio file
     asspObj = read.AsspDataObj(fpl[i,1])
     
-    # parse TextGrid
-    levels = parse.textgrid(fpl[i,2], attributes(asspObj)$sampleRate) # SIC check parser -> still seems to have + 1 bug
+    # create bundle name
+#     bndlName = basename(file_path_sans_ext(fpl[i,2]))
+    bndlName = gsub('^_', '', gsub(.Platform$file.sep, '_', gsub(normalizePath(path2rootDir),'',file_path_sans_ext(normalizePath(fpl[i,1])))))
     
+    # parse TextGrid
+    parse.textgrid(fpl[i,2], attributes(asspObj)$sampleRate, db='ae', bundle=bndlName, session="0000", 
+                   conn = con, itemsTableName=itemsTableName, labelsTableName=labelsTableName)
+    
+    # validate bundle
+    valRes = validate.sqlTableRep.bundle(dbd, bndlName, conn = con, itemsTableName = itemsTableName, 
+                                         labelsTableName = labelsTableName, linksTableName=linksTableName)
+    
+    if(valRes$type != 'SUCCESS'){
+      stop('Parsed TextGrid did not pass validator! The validator message is: ', valRes$message)
+    }
+    
+    # create bundle and append
+    allBundles[[bndlName]] = create.bundle(name = bndlName,
+                                           sessionName = '0000',
+                                           annotates = paste0(basename(file_path_sans_ext(fpl[i,2])),'.', audioExt),
+                                           sampleRate = attr(asspObj, 'sampleRate'),
+                                           levels = list(),
+                                           signalpaths = list(unname(fpl[i,1])),
+                                           mediaFilePath = unname(fpl[i,1]),
+                                           links = list())
+    
+    
+    # update pb
+    if(showProgress){
+      setTxtProgressBar(pb, i)
+    }
     
   }
   
-  #     bndlName = basename(file_path_sans_ext(fpl[i,2]))
-  #     
-  #     # create bundle
-  #     bundle = create.bundle(name = bndlName,
-  #                            annotates = paste0('0000_ses/', bndlName, '_bndl/', bndlName, '.', audioExt),
-  #                            sampleRate = attr(asspObj,'sampleRate'),
-  #                            levels = levels,
-  #                            signalpaths = list(fpl[i,1]),
-  #                            mediaFilePath = fpl[i,1],
-  #                            links = list())
-  #     
-  #     # validate bundle
-  #     valRes = validate.listFrom.bundle(dbd, bundle)
-  #     
-  #     if(valRes$type != 'SUCCESS'){
-  #       stop('Parsed TextGrid did not pass validator! The validator message is: ', valRes$message)
-  #     }
-  #     
-  #     # this will be slow for large DBs
-  #     db = append.bundle.to.tmp.list(db, bundle)
-  #     
-  #     # remove levels and links and append to allBundles
-  #     bundle[['levels']] = NULL
-  #     bundle[['links']] = NULL
-  #     
-  #     bName=bundle[['name']]
-  #     
-  #     allBundles[[bndlName]]=bundle
-  #     
-  #     # update pb
-  #     if(showProgress){
-  #       setTxtProgressBar(pb, i)
-  #     }
-  #     
-  #   }
-  #   # reassign items as dataframe
-  #   itemsIdx=db[['itemsIdx']]
-  #   db[['items']]=data.frame(id=db[['items']][['id']][1:itemsIdx],bundle=db[['items']][['bundle']][1:itemsIdx],level=db[['items']][['level']][1:itemsIdx],bundleId=db[['items']][['bundleId']][1:itemsIdx],type=db[['items']][['type']][1:itemsIdx],seqIdx=db[['items']][['seqIdx']][1:itemsIdx],sampleRate=db[['items']][['sampleRate']][1:itemsIdx],samplePoint=db[['items']][['samplePoint']][1:itemsIdx],sampleStart=db[['items']][['sampleStart']][1:itemsIdx],sampleDur=db[['items']][['sampleDur']][1:itemsIdx],label=db[['items']][['label']][1:itemsIdx],stringsAsFactors=FALSE)
-  #   
-  #   # reassign labels as dataframe
-  #   labelsIdx=db[['labelsIdx']]
-  #   db[['labels']]=data.frame(itemID=db[['labels']][['itemID']][1:labelsIdx],bundle=db[['labels']][['bundle']][1:labelsIdx],labelIdx=db[['labels']][['labelIdx']][1:labelsIdx],name=db[['labels']][['name']][1:labelsIdx],label=db[['labels']][['label']][1:labelsIdx],stringsAsFactors=FALSE)
-  #   
-  #   # reassign links as dataframe
-  #   linksIdx=db[['linksIdx']]
-  #   db[['links']]=data.frame(bundle=db[['links']][['bundle']][1:linksIdx],fromID=db[['links']][['fromID']][1:linksIdx],toID=db[['links']][['toID']][1:linksIdx],label=db[['links']][['label']][1:linksIdx],stringsAsFactors=FALSE)
-  #   
-  #   # create dummy container
-  #   containerSession=emuDB.session(name='0000', bundles=allBundles)
-  #   db[['sessions']][['0000']]=containerSession
+  # extract dataframes and assign them to db Obj
+  db[['items']]=dbReadTable(con, itemsTableName)
+  db[['labels']]=dbReadTable(con, labelsTableName)
+  db[['links']]=dbReadTable(con, linksTableName)
+  
+  # create dummy container with bundles
+  db[['sessions']][['0000']]=emuDB.session(name='0000', bundles=allBundles)
   
   # store newly generated emuDB
   if(showProgress){
     cat('\n') # hack to have newline after pb
   }
   
-  # Clear the result
-  #   dbClearResult(res)
-  
   # Disconnect from the database
   dbDisconnect(con)
   
+  # store
   store.emuDB(db, targetDir, showProgress = showProgress)
+  
+  
 }
 
-
+##' Initialize empty database tables 
+##' 
+##' Initialize empty database tables that in the sql database 
+##' specified by the conn argument. The tables are items, labels, links
+##' 
+##' @param conn sql DB connection
+##' @param itemsTableName SQL table name of items table
+##' @param labelTableName SQL table name of label table
+##' @author Raphael Winkelmann
+##'
 initialize_database_tables <- function(conn, itemsTableName, labelTableName, linksTableName){
   
+  # TODO: Move function to different location!
   
   # initialize empty tables (items, labels, links)
   items = data.frame(id=character(), session=character(), bundle=character(), level=character(),
@@ -158,6 +156,5 @@ initialize_database_tables <- function(conn, itemsTableName, labelTableName, lin
 }
 
 # FOR DEVELOPMENT
-#unlink('~/Desktop/test12/', recursive = T)
-#path2rootDir = system.file("extdata/legacy_emu/DBs/", package = "emuR")
-#convert.TextGridCollection.to.emuDB(path2rootDir, 'test12', '~/Desktop/')
+# library('testthat')
+# test_file('tests/testthat/test_convert.TextGridCollection.R')

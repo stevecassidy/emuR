@@ -1,7 +1,39 @@
-# ##' testthat tests for validate.listFrom.bundle
+# ##' testthat tests for validation of bundles
 # ##'
 # ##' @author Raphael Winkelmann
-# context("testing validate.XXX.bundle functions")
+context("testing validate.XXX.bundle functions")
+
+path2tg = system.file("extdata/legacy_emu/DBs/ae/labels/msajc003.TextGrid", package = "emuR")
+
+dbd = create.DBconfig.from.TextGrid(path2tg, 'ae')
+
+sR = 20000 # sample rate for audio files of ae
+
+itemsTableName = "emuR_emuDB_items_tmp"
+
+labelsTableName ="emuR_emuDB_labels_tmp"
+
+linksTableName = "emuR_emuDB_links_tmp"
+
+# Create an ephemeral in-memory RSQLite database
+con <- dbConnect(RSQLite::SQLite(), ":memory:")
+
+initialize_database_tables(con, itemsTableName, labelsTableName, linksTableName)
+
+parse.textgrid(path2tg, sR, db='ae', bundle="msajc003", session="0000", conn = con, itemsTableName=itemsTableName, labelsTableName=labelsTableName)
+
+
+#################################
+test_that("unaltered bundle (sqlTableRep) validates successfully", {
+  res = validate.sqlTableRep.bundle(dbd, "msajc003", con, itemsTableName, labelsTableName, linksTableName)
+  expect_equal(res$type, 'SUCCESS')
+  expect_equal(res$message, '')
+})
+
+
+# Disconnect from the database
+dbDisconnect(con)
+
 # 
 # sampleRate = 20000
 # 
