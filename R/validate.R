@@ -88,9 +88,9 @@ validate.dfForm.bundle <- function(DBconfig, itemsDf, labelsDf, linksDf){
 validate.sqlTableRep.bundle <- function(dbd, bundle ,conn, itemsTableName, labelsTableName, linksTableName){
   
   # check that levels with same name are present
-  res <- RSQLite::dbSendQuery(conn, paste0("SELECT DISTINCT level FROM ", itemsTableName, " WHERE bundle = '", bundle,"'"))
-  levelNames = RSQLite::dbFetch(res)$level
-  RSQLite::dbClearResult(res)
+  res <- dbSendQuery(conn, paste0("SELECT DISTINCT level FROM ", itemsTableName, " WHERE bundle = '", bundle,"'"))
+  levelNames = dbFetch(res)$level
+  dbClearResult(res)
   
   levelDefNames = sapply(dbd$levelDefinitions, function(l) l$name)
   delta1 = setdiff(levelNames, levelDefNames)
@@ -100,31 +100,31 @@ validate.sqlTableRep.bundle <- function(dbd, bundle ,conn, itemsTableName, label
     if(length(delta1) != 0){
       return(list(type = 'ERROR',
                   message = paste('Following levels where found that do not match any levelDefinition:', paste(delta1), ';',
-                                  'in bundle:', bundle$name)))
+                                  'in bundle:', bundle)))
     }else{
       return(list(type = 'ERROR',
                   message = paste('Following levelDefinition where not found:', paste(delta2), ';',
-                                  'in bundle:', bundle$name)))      
+                                  'in bundle:', bundle)))      
     }
   }
   
   # check that levels have same types
-  res <- RSQLite::dbSendQuery(conn, paste0("SELECT DISTINCT level, type FROM ", itemsTableName, " WHERE bundle = '", bundle,"'"))
-  levelTypes = RSQLite::dbFetch(res)$type
-  RSQLite::dbClearResult(res)
+  res <- dbSendQuery(conn, paste0("SELECT DISTINCT level, type FROM ", itemsTableName, " WHERE bundle = '", bundle,"'"))
+  levelTypes = dbFetch(res)$type
+  dbClearResult(res)
 
   levelDefTypes = sapply(dbd$levelDefinitions, function(l) l$type)
   
   if(!all(levelTypes == levelDefTypes)){
     return(list(type = 'ERROR',
                 message = paste('Following level types differ from those defined:', paste(levelNames[levelTypes != levelDefTypes], collapse = ', '), ';',
-                                'in bundle:', bundle$name)))
+                                'in bundle:', bundle)))
   }  
   
   # validate sequence and overlaps in items of type SEGMENTS
-  res <- RSQLite::dbSendQuery(conn, paste0("SELECT DISTINCT * FROM ", itemsTableName, " WHERE bundle = '", bundle,"'", " AND type = 'SEGMENT'"))
-  tmp = RSQLite::dbFetch(res)
-  RSQLite::dbClearResult(res)
+  res <- dbSendQuery(conn, paste0("SELECT DISTINCT * FROM ", itemsTableName, " WHERE bundle = '", bundle,"'", " AND type = 'SEGMENT'"))
+  tmp = dbFetch(res)
+  dbClearResult(res)
   
   #warning('CAUTION NOT VALIDATING: SEQUENCE + OVERLAPS / LINKS')
   
