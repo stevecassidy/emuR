@@ -3,7 +3,7 @@
 \alias{summary.emusegs}
 \title{summary emusegs}
 \usage{
-\method{summary}{emusegs}(object, ...)
+summary.emusegs(object, ...)
 }
 \arguments{
 \item{object}{the segmentlist}

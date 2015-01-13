@@ -3,7 +3,7 @@
 \alias{summary.trackdata}
 \title{summary trackdata}
 \usage{
-\method{summary}{trackdata}(object, ...)
+summary.trackdata(object, ...)
 }
 \arguments{
 \item{object}{track data object}
