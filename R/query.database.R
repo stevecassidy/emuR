@@ -1216,6 +1216,14 @@ query.database.with.eql<-function(database,query){
 }
 
 
+print.emuDB.query.result<-function(queryResult){
+  cat("Item sequences:\n")
+  print(queryResult[['items']])
+  cat("\nResult level: ",queryResult[['resultLevel']],"\n")
+  cat("Query was: ",queryResult[['queryStr']],"\n")
+  
+}
+
 ##' Requery EMU database
 ##' @description Requery an EMU database
 ##' @param dbObj object of class emuDB
