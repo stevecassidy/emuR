@@ -122,16 +122,16 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
   
 }
 
-##' Initialize empty database tables 
-##' 
-##' Initialize empty database tables that in the sql database 
-##' specified by the conn argument. The tables are items, labels, links
-##' 
-##' @param conn sql DB connection
-##' @param itemsTableName SQL table name of items table
-##' @param labelTableName SQL table name of label table
-##' @author Raphael Winkelmann
-##'
+## Initialize empty database tables 
+## 
+## Initialize empty database tables that in the sql database 
+## specified by the conn argument. The tables are items, labels, links
+## 
+## @param conn sql DB connection
+## @param itemsTableName SQL table name of items table
+## @param labelTableName SQL table name of label table
+## @author Raphael Winkelmann
+##
 initialize_database_tables <- function(conn, itemsTableName, labelTableName, linksTableName){
   
   # TODO: Move function to different location!
