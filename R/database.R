@@ -8,7 +8,7 @@ require(wrassp)
 
 # API level of database object format
 # increment this value if the internal database object format changes  
-apiLevel=1
+emuDB.apiLevel=1
 
 session.suffix='_ses'
 bundle.dir.suffix='_bndl'
@@ -154,7 +154,7 @@ create.EMUwebAppConfig <- function(perspectives){
 #                     )
 
 create.database <- function(name=name,basePath=NULL,DBconfig=create.schema.databaseDefinition(name = name),sessions=NULL,primaryExtension=NULL){
-  o <- list(name=name,basePath=basePath,DBconfig=DBconfig,sessions=sessions,primaryExtension=primaryExtension)
+  o <- list(name=name,basePath=basePath,DBconfig=DBconfig,sessions=sessions,primaryExtension=primaryExtension,apiLevel=emuDB.apiLevel)
   class(o) <- c('emuDB','list')
   invisible(o)
 }
@@ -1657,7 +1657,7 @@ store.emuDB <- function(db,targetDir,options=list(),showProgress=TRUE){
   dbApiLevel=db[['apiLevel']]
   if(is.null(dbApiLevel)){
     stop("Database API level differs from R package API level: ",apiLevel,"\nPlease reload the database: db=reload(db)")
-  }else if(dbApiLevel!=apiLevel){
+  }else if(dbApiLevel!=emuDB.apiLevel){
     stop("Database API level: ",dbApiLevel," differs from R package API level: ",apiLevel,"\nPlease reload the database: db=reload(db)")
   }
   rewriteSSFFTracks=FALSE
@@ -1838,7 +1838,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
  
   db=list()
   class(db)<-'emuDB'
-  db[['apiLevel']]=apiLevel
+  db[['apiLevel']]=emuDB.apiLevel
   # check database dir
   if(!file.exists(databaseDir)){
     stop("Database dir ",databaseDir," does not exist!")
