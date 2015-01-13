@@ -27,7 +27,7 @@ test_that("bad calls cause errors", {
   # existing targetDir causes errors
   expect_error(convert.TextGridCollection.to.emuDB(path2rootDir = path2root, 
                                                    dbName = emuDBname,
-                                                   path2tmpDir, showProgress=T))
+                                                   path2tmpDir, showProgress=F))
   # clean up
   unlink(path2newDb, recursive = T)
   
@@ -38,7 +38,7 @@ test_that("correct emuDB is created", {
   
   convert.TextGridCollection.to.emuDB(path2rootDir = path2root, 
                                       dbName = emuDBname,
-                                      path2tmpDir, showProgress=T)
+                                      path2tmpDir, showProgress=F)
   
   test_that("emuDB has correct file format on disc", {
     # 2 files in top level
