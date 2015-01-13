@@ -100,11 +100,11 @@ validate.sqlTableRep.bundle <- function(dbd, bundle ,conn, itemsTableName, label
     if(length(delta1) != 0){
       return(list(type = 'ERROR',
                   message = paste('Following levels where found that do not match any levelDefinition:', paste(delta1), ';',
-                                  'in bundle:', bundle$name)))
+                                  'in bundle:', bundle)))
     }else{
       return(list(type = 'ERROR',
                   message = paste('Following levelDefinition where not found:', paste(delta2), ';',
-                                  'in bundle:', bundle$name)))      
+                                  'in bundle:', bundle)))      
     }
   }
   
@@ -118,7 +118,7 @@ validate.sqlTableRep.bundle <- function(dbd, bundle ,conn, itemsTableName, label
   if(!all(levelTypes == levelDefTypes)){
     return(list(type = 'ERROR',
                 message = paste('Following level types differ from those defined:', paste(levelNames[levelTypes != levelDefTypes], collapse = ', '), ';',
-                                'in bundle:', bundle$name)))
+                                'in bundle:', bundle)))
   }  
   
   # validate sequence and overlaps in items of type SEGMENTS
