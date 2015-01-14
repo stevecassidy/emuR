@@ -17,6 +17,6 @@ add.files.to.emuDB <- function(emuDB, path2rootDir, fileExt){
 
 #########################
 # FOR DEVELOPMENT
-library('testthat')
-test_file('tests/testthat/test_add.files.to.emuDB.R')
+# library('testthat')
+# test_file('tests/testthat/test_add.files.to.emuDB.R')
 
