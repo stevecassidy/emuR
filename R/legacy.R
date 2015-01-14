@@ -1000,12 +1000,34 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
 ##' }
 ##' 
 convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,verbose=TRUE){
-  # load database schema and metadata
-  # lazy currently ignored
+ 
+  # pre check target dir
+  if(file.exists(targetDir)){
+    tdInfo=file.info(targetDir)
+    if(!tdInfo[['isdir']]){
+      stop(targetDir," exists and is not a directory.")
+    }
+  }
+  
+  # load database schema and metadata to get db name
+  dbConfig=load.database.schema.from.emu.template(emuTplPath)
+  # database dir
+  pp=file.path(targetDir,dbConfig[['name']])
+  
+  # check existence of database dir
+  if(file.exists(pp)){
+    stop("Database storage dir ",pp," already exists.")
+  }
+  
+  # load legacy Emu db
   db=load.database.from.legacy.emu(emuTplPath,showProgress=verbose)
-  # store loaded database 
-  # ignore missing and rewrite SSFF track files for legacy db
+  
+ 
+  # ignore missing SSFF track files
+  # rewrite SSFF track files
   storeOptions=list(ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=TRUE)
+  
+  # store loaded database 
   store.emuDB(db,targetDir,options=storeOptions,showProgress=verbose)
   
 }
@@ -1028,6 +1050,22 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,verbose=TRUE){
 ##' }
 ##' 
 convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,verbose=TRUE){
+  # pre check target dir
+  if(file.exists(targetDir)){
+    tdInfo=file.info(targetDir)
+    if(!tdInfo[['isdir']]){
+      stop(targetDir," exists and is not a directory.")
+    }
+  }
+  
+  # database dir
+  pp=file.path(targetDir,dbName)
+  
+  # check existence of database dir
+  if(file.exists(pp)){
+    stop("Database storage dir ",pp," already exists.")
+  }
+  
   # load database schema and metadata
   db=load.database.from.legacy.emu.by.name(dbName,showProgress=verbose)
   # save in new format
