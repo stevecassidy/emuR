@@ -79,7 +79,7 @@ create.schema.linkDefinition <- function(name=NULL,type,superlevelName,sublevelN
   invisible(o)
 }
 
-create.schema.databaseDefinition <- function(name,UUID=uuid::UUIDgenerate(),mediafileBasePathPattern=NULL,mediafileExtension=NULL,ssffTrackDefinitions=NULL,levelDefinitions=NULL,linkDefinitions=NULL,EMUwebAppConfig=NULL,annotationDescriptors=NULL,tracks=NULL,flags=NULL){
+create.schema.databaseDefinition <- function(name,UUID=uuid::UUIDgenerate(),mediafileBasePathPattern=NULL,mediafileExtension=NULL,ssffTrackDefinitions=list(),levelDefinitions=list(),linkDefinitions=list(),EMUwebAppConfig=NULL,annotationDescriptors=NULL,tracks=NULL,flags=NULL){
   o <- list(name=name,UUID=UUID,mediafileBasePathPattern=mediafileBasePathPattern,mediafileExtension=mediafileExtension,ssffTrackDefinitions=ssffTrackDefinitions,levelDefinitions=levelDefinitions,linkDefinitions=linkDefinitions,EMUwebAppConfig=EMUwebAppConfig,annotationDescriptors=annotationDescriptors,tracks=tracks,flags=flags)
   class(o) <- c('list','emuDB.schema.databaseDefinition')
   #rTypes=list(levelDefinitions=c('list','emuDB.schema.levelDefinition',linkDefinitions=c('list','emuDB.schema.linkDefinition')
@@ -202,7 +202,7 @@ summary.emuDB<-function(db){
 # @param annotates annotated signal file relative path
 # @param sampleRate sample rate
 # @param signalpaths pathes of signal files
-# @param mediaFilePath path patter of samples track
+# @param mediaFilePath path pattern of samples track
 # @param levels list of annotation levels
 # @param links list of links containing the hierarchical information of the annotation levels
 # @return object of class emuDB.bundle
@@ -1138,7 +1138,7 @@ emuDB.print.bundle <- function(utt){
   }
 }
 
-emuDB.session <- function(name=NULL,path=NULL,bundles=NULL){
+emuDB.session <- function(name,path=NULL,bundles=list){
   o <- list(name=name,path=path,bundles=bundles)
   class(o) <- 'emuDB.session'
   invisible(o)
@@ -1602,10 +1602,15 @@ create.emuDB<-function(name,targetDir,mediaFileExtension='wav'){
   return(db)
 }
 
+add.bundle<-function(db,sessionName,bundle){
+  db[['sessionName']]
+}
+
 ##' Import media files to EMU database
 ##' @description Import media files to EMU database
 ##' @param dbObj object of class emuDB
 ##' @param dir directory containing mediafiles or session directories
+##' @return modified database object
 ##' @author Klaus Jaensch
 ##' @import sqldf stringr
 ##' @seealso \code{\link{create.emuDB}}
@@ -1617,14 +1622,60 @@ create.emuDB<-function(name,targetDir,mediaFileExtension='wav'){
 ##'  import.mediaFiles(emuDB,'0000',dir="/data/mymedia")
 ##' 
 ##' }
-"import.mediaFiles"<-function(dbObj,targetSessionName='0000',dir){
+"import.mediaFiles"<-function(dbObj,dir,targetSessionName='0000'){
   UseMethod("import.mediaFiles")
 }
 
-"import.mediaFiles.emuDB"<-function(dbObj,targetSessionName='0000',dir){
+"import.mediaFiles.emuDB"<-function(dbObj,dir,targetSessionName='0000'){
   dbClass=class(dbObj)
   if(dbClass=='emuDB'){
-   stop("Sorry. Not implemented yet!!")
+
+    dbCfg=dbObj[['DBconfig']]
+    if(is.null(dbCfg[['mediaFileExtension']])){
+      pattern=NULL
+      #stop("The DB has no media file extension defined.")
+    }else{
+      pattern=paste0('.*[.]',dbCfg[['mediaFileExtension']],'$')
+    }
+    mfList=list.files(dir,pattern=pattern)
+    if(length(mfList)>0){
+      # create session dir and session list object if required
+      sessDir=file.path(dbObj[['basePath']],paste0(targetSessionName,session.suffix))
+      if(!file.exists(sessDir)){
+        dir.create(sessDir)
+      }
+      if(is.null(dbObj[['sessions']][[targetSessionName]])){
+        dbObj[['sessions']][[targetSessionName]]=emuDB.session(name=targetSessionName,path = sessDir,bundles=list())
+      }
+    }
+    mediaAdded=FALSE
+    for(mf in mfList){
+      mfFullPath=file.path(dir,mf)
+      bundleName=sub('[.][^.]*$','',mf)
+      
+      bundleDir=file.path(sessDir,paste0(bundleName,bundle.dir.suffix))
+      dir.create(bundleDir)
+      newMediaFileFullPath=file.path(bundleDir,mf)
+      file.copy(from = mfFullPath,to=newMediaFileFullPath)
+      
+      pfAssp=read.AsspDataObj(newMediaFileFullPath,0,4000)
+      sampleRate=attr(pfAssp,'sampleRate')
+      b=create.bundle(name = bundleName,mediaFilePath = newMediaFileFullPath,annotates=mf,sampleRate=sampleRate)
+      dbObj[['sessions']][[targetSessionName]][['bundles']][[bundleName]]=b
+      # TODO generate empty annotation and SSFFtracks if required
+            
+      mediaAdded=TRUE
+    }
+    
+    perspectives=dbCfg[['EMUwebAppConfig']][['perspectives']]
+    # create an EMUwebapp default perspective if media has been added 
+    if(mediaAdded & (is.null(perspectives) | length(perspectives)==0)){
+      sc=create.EMUwebAppConfig.signalCanvas(order=c("OSCI","SPEC"),assign=list(),contourLims=list())
+      defPersp=create.EMUwebAppConfig.perspective(name='default',signalCanvases=sc,levelCanvases=list(order=list()),twoDimCanvases=list(order=list()))
+      dbObj[['DBconfig']][['EMUwebAppConfig']][['perspectives']]=list(defPersp)
+    }
+  
+    return(dbObj)
   }else{
     NextMethod()
   }

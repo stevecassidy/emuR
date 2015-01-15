@@ -4,12 +4,15 @@
 \alias{import.mediaFiles}
 \title{Import media files to EMU database}
 \usage{
-import.mediaFiles(dbObj, targetSessionName = "0000", dir)
+import.mediaFiles(dbObj, dir, targetSessionName = "0000")
 }
 \arguments{
 \item{dbObj}{object of class emuDB}
 
 \item{dir}{directory containing mediafiles or session directories}
+}
+\value{
+modified database object
 }
 \description{
 Import media files to EMU database
