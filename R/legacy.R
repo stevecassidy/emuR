@@ -981,8 +981,11 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
 }
 
 
-##' Convert legacy EMU database and store in new format to directory
-##' 
+##' @title Convert legacy EMU database and store it in new format
+##' @description If the legacy database template file could be found the database metadata and annoations are loaded. If load is successfull a new directory with the name of the database is created in the \code{targetDirectory}.
+##' @details Information of the legacy Emu template file is transferred to [dbname]_DBconfig.json file. Legacy Emu utterances are reorganized in sessions and bundles. 
+##' Media files (e.g. wav files) are copied, SSFF track files are rewritten. Annotations in Emu hierarchy (.hlb) files and ESPS label files are converted to a [bundleName]_annot.json file per bundle (utterance).
+##' Please note that only those files get copied, which are referenced by the template file. Additional files in the legacy database directories are ignored. The legacy Emu database is not modified.
 ##' @param emuTplPath EMU template file path
 ##' @param targetDir target directory
 ##' @param verbose be verbose
@@ -1032,8 +1035,9 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,verbose=TRUE){
   
 }
 
-##' Convert legacy EMU database and store in new format to directory
-##' Loading by name only works if database was used with legacy EMU.
+##' Convert legacy EMU database and store it in new format
+##' If the legacy database could be found it is loaded. If load is successfull a new directory with the name of the database is created in the \code{targetDirectory}
+##' Loading by name only works if database was used with legacy EMU. Use the function \code{\link{convert.legacyEmuDB.to.emuDB}} otherwise.
 ##' @param dbName legacy EMU database name
 ##' @param targetDir target directory
 ##' @param verbose be verbose
