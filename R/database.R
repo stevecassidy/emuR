@@ -1632,15 +1632,15 @@ add.bundle<-function(db,sessionName,bundle){
 ##'  import.mediaFiles(emuDB,'0000',dir="/data/mymedia")
 ##' 
 ##' }
-"import.mediaFiles"<-function(dbObj,dir,targetSessionName='0000'){
+"import.mediaFiles"<-function(db,dir,targetSessionName='0000'){
   UseMethod("import.mediaFiles")
 }
 
-"import.mediaFiles.emuDB"<-function(dbObj,dir,targetSessionName='0000'){
-  dbClass=class(dbObj)
+"import.mediaFiles.emuDB"<-function(db,dir,targetSessionName='0000'){
+  dbClass=class(db)
   if(dbClass=='emuDB'){
 
-    dbCfg=dbObj[['DBconfig']]
+    dbCfg=db[['DBconfig']]
     if(is.null(dbCfg[['mediaFileExtension']])){
       pattern=NULL
       #stop("The DB has no media file extension defined.")
@@ -1650,12 +1650,12 @@ add.bundle<-function(db,sessionName,bundle){
     mfList=list.files(dir,pattern=pattern)
     if(length(mfList)>0){
       # create session dir and session list object if required
-      sessDir=file.path(dbObj[['basePath']],paste0(targetSessionName,session.suffix))
+      sessDir=file.path(db[['basePath']],paste0(targetSessionName,session.suffix))
       if(!file.exists(sessDir)){
         dir.create(sessDir)
       }
-      if(is.null(dbObj[['sessions']][[targetSessionName]])){
-        dbObj[['sessions']][[targetSessionName]]=emuDB.session(name=targetSessionName,path = sessDir,bundles=list())
+      if(is.null(db[['sessions']][[targetSessionName]])){
+        db[['sessions']][[targetSessionName]]=emuDB.session(name=targetSessionName,path = sessDir,bundles=list())
       }
     }
     mediaAdded=FALSE
@@ -1670,10 +1670,24 @@ add.bundle<-function(db,sessionName,bundle){
       
       pfAssp=read.AsspDataObj(newMediaFileFullPath,0,4000)
       sampleRate=attr(pfAssp,'sampleRate')
-      b=create.bundle(name = bundleName,mediaFilePath = newMediaFileFullPath,annotates=mf,sampleRate=sampleRate)
-      dbObj[['sessions']][[targetSessionName]][['bundles']][[bundleName]]=b
+      b=create.bundle(name = bundleName,sessionName = targetSessionName,mediaFilePath = newMediaFileFullPath,annotates=mf,sampleRate=sampleRate)
+      db[['sessions']][[targetSessionName]][['bundles']][[bundleName]]=b
       # TODO generate empty annotation and SSFFtracks if required
-            
+      annoAdded=FALSE
+      for(ld in dbCfg[['levelDefinitions']]){
+       
+        b[['levels']]=list()
+        b[['levels']][[ld[['name']]]]=create.bundle.level(name=ld[['name']],type = ld[['type']],items = list())
+        
+        ## TODO TEST only
+        #labelAttrs=list(list(name=ld[['name']],value='Test Huhu!'))
+        #b[['levels']][[ld[['name']]]][['items']][[1]]=create.interval.item(id = 1,sampleStart = 0,sampleDur = 50000,labels = labelAttrs )
+        #db=move.bundle.levels.to.data.frame(db,b)
+        annoAdded=TRUE
+      }
+      if(annoAdded){
+        db=store.bundle.annotation(db,b)
+      }
       mediaAdded=TRUE
     }
     
@@ -1682,13 +1696,28 @@ add.bundle<-function(db,sessionName,bundle){
     if(mediaAdded & (is.null(perspectives) | length(perspectives)==0)){
       sc=create.EMUwebAppConfig.signalCanvas(order=c("OSCI","SPEC"),assign=list(),contourLims=list())
       defPersp=create.EMUwebAppConfig.perspective(name='default',signalCanvases=sc,levelCanvases=list(order=list()),twoDimCanvases=list(order=list()))
-      dbObj[['DBconfig']][['EMUwebAppConfig']][['perspectives']]=list(defPersp)
+      db[['DBconfig']][['EMUwebAppConfig']][['perspectives']]=list(defPersp)
     }
   
-    return(dbObj)
+    return(db)
   }else{
     NextMethod()
   }
+}
+
+
+.store.schema<-function(db,projectDir=NULL){
+  if(is.null(projectDir)){
+    projectDir=db[['basePath']]
+  }
+  # store db schema file
+  dbCfgNm=paste0(db[['name']],database.schema.suffix)
+  dbCfgPath=file.path(projectDir,dbCfgNm)
+  
+  persistFilter=emuR.persist.filters[['DBconfig']]
+  sp=marshal.for.persistence(db[['DBconfig']],persistFilter)
+  psJSON=jsonlite::toJSON(sp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+  writeLines(psJSON,dbCfgPath)
 }
 
 
@@ -1753,13 +1782,7 @@ store.emuDB <- function(db,targetDir,options=list(),showProgress=TRUE){
   db[['DBconfig']][['EMUwebAppConfig']][['activeButtons']]=list(saveBundle=TRUE)
 
   # store db schema file
-  dbCfgNm=paste0(db[['name']],database.schema.suffix)
-  dbCfgPath=file.path(pp,dbCfgNm)
-  
-  persistFilter=emuR.persist.filters[['DBconfig']]
-  sp=marshal.for.persistence(db[['DBconfig']],persistFilter)
-  psJSON=jsonlite::toJSON(sp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-  writeLines(psJSON,dbCfgPath)
+  .store.schema(db,projectDir=pp)
   progress=progress+1L
   
   bundleCount=0
