@@ -8,7 +8,7 @@ require(wrassp)
 
 # API level of database object format
 # increment this value if the internal database object format changes  
-emuDB.apiLevel=1
+emuDB.apiLevel=1L
 
 session.suffix='_ses'
 bundle.dir.suffix='_bndl'
