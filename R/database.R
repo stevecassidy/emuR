@@ -1616,6 +1616,35 @@ add.bundle<-function(db,sessionName,bundle){
   db[['sessionName']]
 }
 
+
+add.levelDefinition<-function(db,levelDefinition){
+  # check if level definition (name) already exists 
+  for(ld in db[['DBconfig']][['levelDefinitions']]){
+    if(ld[['name']]==levelDefinition[['name']]){
+      stop("Level definition:",levelDefinition[['name']]," already exists in database ",db[['name']])
+    }
+  }
+  # add
+  db[['DBconfig']][['levelDefinitions']][[length(db[['DBconfig']][['levelDefinitions']])+1]]=levelDefinition
+
+  # update transient values
+  db[['DBconfig']]=.update.transient.schema.values(db[['DBconfig']])
+  
+  # store to disk
+  .store.schema(db)
+  
+  # add levels to exsiting bundles
+  # not required!!
+  
+  #db=bundle.iterator(db,function(db,b){
+  #  bs3=get.bundle(sessionName,b[['name']])
+  #  bs3[['levels']][[levelDefinition[['name']]]]=create.bundle.level(name=levelDefinition[['name']],type = levelDefinition[['type']],items = list())
+  #})
+  
+  return(db)
+}
+
+
 ##' Import media files to EMU database
 ##' @description Import media files to EMU database
 ##' @param dbObj object of class emuDB
