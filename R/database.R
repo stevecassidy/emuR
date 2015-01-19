@@ -569,14 +569,14 @@ move.bundle.levels.to.data.frame <-function(db,bundle,replace=TRUE){
   #lblColNames=c('itemID','bundle','labelIdx','name','label')
   ldf=data.frame(itemID=character(0),session=character(0),bundle=character(0),labelIdx=integer(0),name=character(0),label=character(0),stringsAsFactors=FALSE)
   #colnames(ldf)<-lblColNames
-  
+  bName=bundle[['name']]
   for(lvl in bundle[['levels']]){
     
     seqIdx=0L
     for(it in lvl[['items']]){
       
       seqIdx=seqIdx+1L
-      bName=bundle[['name']]
+     
       bdf[row,'session']=sessionName
       bdf[row,'bundle']=bName
       itemId=it[['id']]
