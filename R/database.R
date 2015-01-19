@@ -1538,8 +1538,18 @@ unmarshal.from.persistence <- function(x,classMap=list()){
   return(x);
 }
 
-
-
+.update.transient.schema.values<-function(schema){
+  # get max label array size
+  maxLbls=0
+  for(lvlDef in schema[['levelDefinitions']]){
+    attrCnt=length(lvlDef[['attributeDefinitions']])
+    if(attrCnt > maxLbls){
+      maxLbls=attrCnt
+    }
+  }
+  schema[['maxNumberOfLabels']]=maxLbls
+  return(schema)
+}
 
 ## Store EMU database bundle to file
 ## 
@@ -1924,15 +1934,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   dbCfgPersisted=jsonlite::fromJSON(dbCfgJSON,simplifyVector=FALSE)
   
   schema=unmarshal.from.persistence(dbCfgPersisted,emuR.persist.class[['DBconfig']])
-  # get max label array size
-  maxLbls=0
-  for(lvlDef in schema[['levelDefinitions']]){
-    attrCnt=length(lvlDef[['attributeDefinitions']])
-    if(attrCnt > maxLbls){
-      maxLbls=attrCnt
-    }
-  }
-  schema[['maxNumberOfLabels']]=maxLbls
+  schema=.update.transient.schema.values(schema)
   db[['DBconfig']]=schema
   db[['name']]=schema[['name']]
   db[['basePath']]=normalizePath(databaseDir)
