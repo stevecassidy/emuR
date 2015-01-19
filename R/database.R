@@ -39,7 +39,7 @@ create.schema.annotationDescriptor <- function(name=NULL,basePath=NULL,extension
 ## 
 create.schema.attributeDefinition <- function(name, type='STRING',labelGroups=NULL){
   o <- list(name=name,type=type,labelGroups=labelGroups)
-  class(o) <- c('create.schema.attributeDefinition','list')
+  class(o) <- c('emuDB.schema.attributeDefinition','list')
   invisible(o)
 }
 
