@@ -1602,6 +1602,15 @@ store.bundle.annotation <- function(db,bundle){
   return(db)
 }
 
+bundle.iterator<-function(db,apply){
+  for(s in db[['sessions']]){
+    sessionName=s[['name']]
+    for(b in s[['bundles']]){
+      db=apply(db,b)
+    }
+  }
+  return(db)
+}
 
 create.emuDB<-function(name,targetDir,mediaFileExtension='wav'){
   path=file.path(targetDir,name)
