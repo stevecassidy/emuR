@@ -918,29 +918,30 @@ get.bundle.levels.s3 <-function(db,sessionName,bundleName){
   lvlDef=NULL
   lvlItems=list()
   levels=list()
+  # TODO create levels if nrows==0
   if(nrows>0){
-  for(r in 1:nrows){
-    rLvl=items[r,'level']
+    for(r in 1:nrows){
+      rLvl=items[r,'level']
       if(!is.null(cLvl) && cLvl[['name']]!=rLvl){
         cLvl[['items']]=lvlItems
         levels[[cLvl[['name']]]]=cLvl
         cLvl=NULL
       }
-    
-  if(is.null(cLvl)){
-    
-    lvlDef=find.levelDefinition(rLvl)
-    lvlItems=list()
-    sr=NULL
-    srDf=items[r,'sampleRate']
-    if(!is.na(srDf)){
-      sr=srDf
-    }
-    cLvl=create.bundle.level(name=rLvl,type=items[r,'type'],sampleRate=sr,items=lvlItems)
-  }
+      
+      if(is.null(cLvl)){
+        
+        lvlDef=find.levelDefinition(rLvl)
+        lvlItems=list()
+        sr=NULL
+        srDf=items[r,'sampleRate']
+        if(!is.na(srDf)){
+          sr=srDf
+        }
+        cLvl=create.bundle.level(name=rLvl,type=items[r,'type'],sampleRate=sr,items=lvlItems)
+      }
       id=items[r,'itemID']
       type=items[r,'type']
-    
+      
       attrDefs=lvlDef[['attributeDefinitions']]
       attrDefsLen=length(attrDefs)
       
@@ -948,16 +949,16 @@ get.bundle.levels.s3 <-function(db,sessionName,bundleName){
       itemLabelSelector=bundleLabels[['itemID']]==gid
       labelRows=bundleLabels[itemLabelSelector,]
       nLabelRows=nrow(labelRows)
-       labels=list()
+      labels=list()
       for(j in 1:nLabelRows){
-     
-      
-      lblNm=labelRows[j,'name']
-      labels[[j]]=list(name=lblNm,value=labelRows[j,'label'])
-    
+        
+        
+        lblNm=labelRows[j,'name']
+        labels[[j]]=list(name=lblNm,value=labelRows[j,'label'])
+        
       }
       
-    
+      
       if(type=='SEGMENT'){
         lvlItems[[length(lvlItems)+1L]]=create.interval.item(id=id,sampleStart=items[r,'sampleStart'],sampleDur=items[r,'sampleDur'],labels=labels)
       }else if(type=='EVENT'){
@@ -965,10 +966,10 @@ get.bundle.levels.s3 <-function(db,sessionName,bundleName){
       }else{
         lvlItems[[length(lvlItems)+1L]]=create.item(id=id,labels=labels)  
       }
-  }
-  # add last level
-  cLvl[['items']]=lvlItems
-  levels[[cLvl[['name']]]]=cLvl
+    }
+    # add last level
+    cLvl[['items']]=lvlItems
+    levels[[cLvl[['name']]]]=cLvl
   }
   return(levels)
 }
