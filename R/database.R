@@ -908,6 +908,13 @@ get.bundle.levels.s3 <-function(db,sessionName,bundleName){
       }
     }
   }
+  
+  # create all levels
+  levels=list()
+  for(ld in levelDefinitions){
+    levels[[ld[['name']]]]=create.bundle.level(name=ld[['name']],type=ld[['type']])
+  }
+  
   bundleSelector=(db[['items']][['session']]==sessionName & db[['items']][['bundle']]==bundleName)
   items=db[['items']][bundleSelector,]
   bundleSelector=(db[['labels']][['session']]==sessionName & db[['labels']][['bundle']]==bundleName)
@@ -917,8 +924,7 @@ get.bundle.levels.s3 <-function(db,sessionName,bundleName){
   cLvl=NULL
   lvlDef=NULL
   lvlItems=list()
-  levels=list()
-  # TODO create levels if nrows==0
+
   if(nrows>0){
     for(r in 1:nrows){
       rLvl=items[r,'level']
@@ -937,7 +943,12 @@ get.bundle.levels.s3 <-function(db,sessionName,bundleName){
         if(!is.na(srDf)){
           sr=srDf
         }
-        cLvl=create.bundle.level(name=rLvl,type=items[r,'type'],sampleRate=sr,items=lvlItems)
+        lvl=levels[[rLvl]]
+        if(lvl[['type']]!=items[r,'type']){
+          stop("Wrong item type ",items[r,'type']," for level ",rLvl," type ",lvl[['type']],"\n")
+        }
+        # create new level object 
+        cLvl=create.bundle.level(name=rLvl,type=lvl[['type']],sampleRate=sr,items=lvlItems)
       }
       id=items[r,'itemID']
       type=items[r,'type']
