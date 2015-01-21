@@ -160,54 +160,6 @@ create.database <- function(name,basePath=NULL,DBconfig=create.schema.databaseDe
 }
 
 
-
-
-emuDB3Class<-setRefClass("emuDB3",fields=list(
-  name='character',
-  basePath='character',
-  DBconfig='emuDB.schema.databaseDefinition',
-  sessions='listOrNULL',
-  primaryExtension='characterOrNULL',
-  apiLevel='integer'),
-  methods=list(initialize=function(name,basePath=NULL,DBconfig=create.schema.databaseDefinition(name = name),sessions=NULL,primaryExtension=NULL){
-    name<<-name
-    basePath<<-basePath
-    DBconfig<<-DBconfig
-    sessions<<-sessions
-    primaryExtension<<-primaryExtension
-    apiLevel<<-emuDB.apiLevel
-  },add.levelDefinition=function(levelDefinition){
-    # check if level definition (name) already exists 
-    for(ld in DBconfig[['levelDefinitions']]){
-      if(ld[['name']]==levelDefinition[['name']]){
-        stop("Level definition:",levelDefinition[['name']]," already exists in database")
-      }
-    }
-    # add
-    DBconfig[['levelDefinitions']][[length(DBconfig[['levelDefinitions']])+1]]<<-levelDefinition
-    
-    # update transient values
-    DBconfig<<-.update.transient.schema.values(DBconfig)
-    
-    # store to disk
-    # this ???
-    # TODO
-    #.store.schema(db)
-    
-    # add levels to exsiting bundles
-    # not required!!
-    
-    #db=bundle.iterator(db,function(db,b){
-    #  bs3=get.bundle(sessionName,b[['name']])
-    #  bs3[['levels']][[levelDefinition[['name']]]]=create.bundle.level(name=levelDefinition[['name']],type = levelDefinition[['type']],items = list())
-    #})
-    
-    #return(db)
-  }
-  )
-)
-
-
 build.dataframe.table<-function(list,propNames){
   
 }
