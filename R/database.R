@@ -1668,8 +1668,9 @@ add.levelDefinition<-function(db,levelDefinition){
 
 ##' Import media files to EMU database
 ##' @description Import media files to EMU database
-##' @param dbObj object of class emuDB
+##' @param db object of class emuDB
 ##' @param dir directory containing mediafiles or session directories
+##' @param targetSessionName name of session in which to create the new bundles 
 ##' @return modified database object
 ##' @author Klaus Jaensch
 ##' @import sqldf stringr
