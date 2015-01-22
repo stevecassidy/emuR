@@ -8,7 +8,7 @@ require(wrassp)
 
 # API level of database object format
 # increment this value if the internal database object format changes  
-emuDB.apiLevel=1L
+emuDB.apiLevel=2L
 
 session.suffix='_ses'
 bundle.dir.suffix='_bndl'
@@ -199,7 +199,7 @@ summary.emuDB<-function(db){
 # @param name name of the bundle
 # @param sessionName session ID of the bundle
 # @param legacyBundleID legacy bundle ID
-# @param annotates annotated signal file relative path
+# @param annotates annotated signal file
 # @param sampleRate sample rate
 # @param signalpaths pathes of signal files
 # @param mediaFilePath path pattern of samples track
@@ -2085,7 +2085,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
           bundle=as.bundle(bundle)
           namedLevels=set.list.names(bundle[['levels']],'name')
           bundle[['levels']]=namedLevels
-          bundle[['mediaFilePath']]=file.path(databaseDir,bundle[['annotates']])
+          bundle[['mediaFilePath']]=file.path(absBd,bundle[['annotates']])
         }else{
           
           for(ssffTr in schema[['ssffTrackDefinitions']]){

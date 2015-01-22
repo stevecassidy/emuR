@@ -552,7 +552,9 @@ load.annotation.for.legacy.bundle=function(schema,legacyBundleID,basePath=NULL){
   #annotates=paste0('0000_ses/',uttCode,bundle.dir.suffix,'/',sampleTrackFile)
   
   sampleTrackFile=paste0(bundleName,'.',schema[['mediafileExtension']]) 
-  annotates=paste0(sessionName,session.suffix,'/',newBundleId[2],bundle.dir.suffix,'/',sampleTrackFile)
+  #annotates=paste0(sessionName,session.suffix,'/',newBundleId[2],bundle.dir.suffix,'/',sampleTrackFile)
+  # bug #19
+  annotates=paste0(sampleTrackFile)
   bundle=create.bundle(name=bundleName,sessionName=sessionName,legacyBundleID=legacyBundleID,annotates=annotates,sampleRate=bundleSampleRate,levels=levels,signalpaths=signalpaths,mediaFilePath=sampleRateReferenceFile,links=links)
   return(bundle)
 }
