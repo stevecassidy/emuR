@@ -1668,6 +1668,86 @@ add.levelDefinition<-function(db,levelDefinition){
   return(db)
 }
 
+remove.levelDefinition<-function(db,levelDefinitionName){
+  # check if level definition (name)  exists 
+  if(!any(sapply(db[['DBconfig']][['levelDefinitions']],function(ld) ld[['name']]==levelDefinitionName))){
+    stop("Level definition:",levelDefinitionName," does not exist in database ",db[['name']])
+  }
+  # check if level is referenced by link defintion
+  for(lkd in db[['DBconfig']][['linkDefinitions']]){
+    if(lkd[['superlevelName']]==levelDefinitionName |  lkd[['sublevelName']]==levelDefinitionName){
+      lkdStr=toString(lkd)
+      stop("Cannot remove level definition ",levelDefinitionName,". It is referenced by link definition: ",lkdStr)
+    }
+  }
+  
+  
+  # check if level is empty
+  itsSelector=(db[['items']][['level']]==levelDefinitionName)
+  lvlIts=db[['items']][itsSelector,]
+  if(nrow(lvlIts)>0){
+    stop("Level is not empty. Remove items first to delete level ",levelDefinitionName)
+  }
+  
+  # do removal
+  newLvlDefs=list()
+  for(lvlDef in db[['DBconfig']][['levelDefinitions']]){
+    if(lvlDef[['name']]!=levelDefinitionName){
+      newLvlDefs[[length(newLvlDefs)+1]]=lvlDef
+    }
+  }
+  db[['DBconfig']][['levelDefinitions']]=newLvlDefs
+  
+  # update transient values
+  db[['DBconfig']]=.update.transient.schema.values(db[['DBconfig']])
+  
+  # store to disk
+  .store.schema(db)
+  
+  return(db)
+}
+
+add.linkDefinition<-function(db,linkDefinition){
+  # check existence of levels
+  
+  superFound=FALSE
+  for(ld in db[['DBconfig']][['levelDefinitions']]){
+    if(ld[['name']]==linkDefinition[['superlevelName']]){
+      superFound=TRUE
+    }
+  }
+  if(!superFound){
+    stop("Super level ",linkDefinition[['superlevelName']]," not found!")
+  }
+  
+  subFound=FALSE
+  for(ld in db[['DBconfig']][['levelDefinitions']]){
+    if(ld[['name']]==linkDefinition[['sublevelName']]){
+      subFound=TRUE
+    }
+   
+  }
+  if(!subFound){
+    stop("Sub level ",linkDefinition[['sublevelName']]," not found!")
+  }
+  
+  # check if link definition already exists 
+  for(lkd in db[['DBconfig']][['linkDefinitions']]){
+    if(lkd[['superlevelName']]==linkDefinition[['superlevelName']] & lkd[['sublevelName']]==linkDefinition[['sublevelName']]){
+      stop("Link definition:",lkd," already exists in database ",db[['name']])
+    }
+  }
+  
+  
+  
+  # add
+  db[['DBconfig']][['linkDefinitions']][[length(db[['DBconfig']][['linkDefinitions']])+1]]=linkDefinition
+  
+  # store to disk
+  .store.schema(db)
+  return(db)
+}
+
 
 ##' Import media files to EMU database
 ##' @description Import media files to EMU database
