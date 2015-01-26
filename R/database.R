@@ -1555,14 +1555,14 @@ unmarshal.from.persistence <- function(x,classMap=list()){
 
 .update.transient.schema.values<-function(schema){
   # get max label array size
-  maxLbls=0
-  for(lvlDef in schema[['levelDefinitions']]){
-    attrCnt=length(lvlDef[['attributeDefinitions']])
-    if(attrCnt > maxLbls){
-      maxLbls=attrCnt
-    }
-  }
-  schema[['maxNumberOfLabels']]=maxLbls
+#   maxLbls=0
+#   for(lvlDef in schema[['levelDefinitions']]){
+#     attrCnt=length(lvlDef[['attributeDefinitions']])
+#     if(attrCnt > maxLbls){
+#       maxLbls=attrCnt
+#     }
+#   }
+  schema[['maxNumberOfLabels']]=max(sapply(schema[['levelDefinitions']], function(ld) { length(ld[['attributeDefinitions']])} ))
   return(schema)
 }
 
