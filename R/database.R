@@ -117,7 +117,10 @@ print.emuDB.schema.attributeDefinition<-function(attributeDefinition){
 }
 
 print.emuDB.schema.linkDefinition<-function(linkDefinition){
-  cat(linkDefinition[['superlevelName']],"\t->\t",linkDefinition[['sublevelName']],"\n")
+  cat(toString(linkDefinition),"\n")
+}
+toString.emuDB.schema.linkDefinition<-function(linkDefinition){
+  paste(linkDefinition[['superlevelName']],'->',linkDefinition[['sublevelName']],linkDefinition[['type']],sep="\t")
 }
 
 
