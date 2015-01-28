@@ -2,8 +2,9 @@
 % Please edit documentation in R/legacy.R
 \name{convert.legacyEmuDB.by.name.to.emuDB}
 \alias{convert.legacyEmuDB.by.name.to.emuDB}
-\title{Convert legacy EMU database and store in new format to directory
-Loading by name only works if database was used with legacy EMU.}
+\title{Convert legacy EMU database and store it in new format
+If the legacy database could be found it is loaded. If load is successfull a new directory with the name of the database is created in the \code{targetDirectory}
+Loading by name only works if database was used with legacy EMU. Use the function \code{\link{convert.legacyEmuDB.to.emuDB}} otherwise.}
 \usage{
 convert.legacyEmuDB.by.name.to.emuDB(dbName, targetDir, verbose = TRUE)
 }
@@ -15,8 +16,9 @@ convert.legacyEmuDB.by.name.to.emuDB(dbName, targetDir, verbose = TRUE)
 \item{verbose}{be verbose}
 }
 \description{
-Convert legacy EMU database and store in new format to directory
-Loading by name only works if database was used with legacy EMU.
+Convert legacy EMU database and store it in new format
+If the legacy database could be found it is loaded. If load is successfull a new directory with the name of the database is created in the \code{targetDirectory}
+Loading by name only works if database was used with legacy EMU. Use the function \code{\link{convert.legacyEmuDB.to.emuDB}} otherwise.
 }
 \examples{
 \dontrun{

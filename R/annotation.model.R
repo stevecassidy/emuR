@@ -8,7 +8,7 @@
 ## @author Klaus Jaensch
 ## @keywords emuR Level Emu
 ## 
-create.bundle.level <- function(name=NULL,type=NULL,sampleRate=NULL,items=list()){
+create.bundle.level <- function(name,type=NULL,sampleRate=NULL,items=list()){
   o=list(name=name,type=type,sampleRate=sampleRate,items=items)
   class(o) <- 'emuR.annotation.model.Level'
   invisible(o)

@@ -4,12 +4,17 @@
 \alias{import.mediaFiles}
 \title{Import media files to EMU database}
 \usage{
-import.mediaFiles(dbObj, targetSessionName = "0000", dir)
+import.mediaFiles(db, dir, targetSessionName = "0000")
 }
 \arguments{
-\item{dbObj}{object of class emuDB}
+\item{db}{object of class emuDB}
 
 \item{dir}{directory containing mediafiles or session directories}
+
+\item{targetSessionName}{name of session in which to create the new bundles}
+}
+\value{
+modified database object
 }
 \description{
 Import media files to EMU database

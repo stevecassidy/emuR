@@ -2,7 +2,7 @@
 % Please edit documentation in R/legacy.R
 \name{convert.legacyEmuDB.to.emuDB}
 \alias{convert.legacyEmuDB.to.emuDB}
-\title{Convert legacy EMU database and store in new format to directory}
+\title{Convert legacy EMU database and store it in new format}
 \usage{
 convert.legacyEmuDB.to.emuDB(emuTplPath, targetDir, verbose = TRUE)
 }
@@ -14,7 +14,12 @@ convert.legacyEmuDB.to.emuDB(emuTplPath, targetDir, verbose = TRUE)
 \item{verbose}{be verbose}
 }
 \description{
-Convert legacy EMU database and store in new format to directory
+If the legacy database template file could be found the database metadata and annoations are loaded. If load is successfull a new directory with the name of the database is created in the \code{targetDirectory}.
+}
+\details{
+Information of the legacy Emu template file is transferred to [dbname]_DBconfig.json file. Legacy Emu utterances are reorganized in sessions and bundles.
+Media files (e.g. wav files) are copied, SSFF track files are rewritten. Annotations in Emu hierarchy (.hlb) files and ESPS label files are converted to a [bundleName]_annot.json file per bundle (utterance).
+Please note that only those files get copied, which are referenced by the template file. Additional files in the legacy database directories are ignored. The legacy Emu database is not modified.
 }
 \examples{
 \dontrun{

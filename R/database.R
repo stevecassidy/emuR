@@ -8,7 +8,7 @@ require(wrassp)
 
 # API level of database object format
 # increment this value if the internal database object format changes  
-emuDB.apiLevel=1
+emuDB.apiLevel=2L
 
 session.suffix='_ses'
 bundle.dir.suffix='_bndl'
@@ -39,7 +39,7 @@ create.schema.annotationDescriptor <- function(name=NULL,basePath=NULL,extension
 ## 
 create.schema.attributeDefinition <- function(name, type='STRING',labelGroups=NULL){
   o <- list(name=name,type=type,labelGroups=labelGroups)
-  class(o) <- c('create.schema.attributeDefinition','list')
+  class(o) <- c('emuDB.schema.attributeDefinition','list')
   invisible(o)
 }
 
@@ -79,7 +79,7 @@ create.schema.linkDefinition <- function(name=NULL,type,superlevelName,sublevelN
   invisible(o)
 }
 
-create.schema.databaseDefinition <- function(name,UUID=uuid::UUIDgenerate(),mediafileBasePathPattern=NULL,mediafileExtension=NULL,ssffTrackDefinitions=NULL,levelDefinitions=NULL,linkDefinitions=NULL,EMUwebAppConfig=NULL,annotationDescriptors=NULL,tracks=NULL,flags=NULL){
+create.schema.databaseDefinition <- function(name,UUID=uuid::UUIDgenerate(),mediafileBasePathPattern=NULL,mediafileExtension=NULL,ssffTrackDefinitions=list(),levelDefinitions=list(),linkDefinitions=list(),EMUwebAppConfig=NULL,annotationDescriptors=NULL,tracks=NULL,flags=NULL){
   o <- list(name=name,UUID=UUID,mediafileBasePathPattern=mediafileBasePathPattern,mediafileExtension=mediafileExtension,ssffTrackDefinitions=ssffTrackDefinitions,levelDefinitions=levelDefinitions,linkDefinitions=linkDefinitions,EMUwebAppConfig=EMUwebAppConfig,annotationDescriptors=annotationDescriptors,tracks=tracks,flags=flags)
   class(o) <- c('list','emuDB.schema.databaseDefinition')
   #rTypes=list(levelDefinitions=c('list','emuDB.schema.levelDefinition',linkDefinitions=c('list','emuDB.schema.linkDefinition')
@@ -153,7 +153,7 @@ create.EMUwebAppConfig <- function(perspectives){
 #                     methods=list()
 #                     )
 
-create.database <- function(name=name,basePath=NULL,DBconfig=create.schema.databaseDefinition(name = name),sessions=NULL,primaryExtension=NULL){
+create.database <- function(name,basePath=NULL,DBconfig=create.schema.databaseDefinition(name = name),sessions=NULL,primaryExtension=NULL){
   o <- list(name=name,basePath=basePath,DBconfig=DBconfig,sessions=sessions,primaryExtension=primaryExtension,apiLevel=emuDB.apiLevel)
   class(o) <- c('emuDB','list')
   invisible(o)
@@ -199,10 +199,10 @@ summary.emuDB<-function(db){
 # @param name name of the bundle
 # @param sessionName session ID of the bundle
 # @param legacyBundleID legacy bundle ID
-# @param annotates annotated signal file relative path
+# @param annotates annotated signal file
 # @param sampleRate sample rate
 # @param signalpaths pathes of signal files
-# @param mediaFilePath path patter of samples track
+# @param mediaFilePath path pattern of samples track
 # @param levels list of annotation levels
 # @param links list of links containing the hierarchical information of the annotation levels
 # @return object of class emuDB.bundle
@@ -569,14 +569,14 @@ move.bundle.levels.to.data.frame <-function(db,bundle,replace=TRUE){
   #lblColNames=c('itemID','bundle','labelIdx','name','label')
   ldf=data.frame(itemID=character(0),session=character(0),bundle=character(0),labelIdx=integer(0),name=character(0),label=character(0),stringsAsFactors=FALSE)
   #colnames(ldf)<-lblColNames
-  
+  bName=bundle[['name']]
   for(lvl in bundle[['levels']]){
     
     seqIdx=0L
     for(it in lvl[['items']]){
       
       seqIdx=seqIdx+1L
-      bName=bundle[['name']]
+     
       bdf[row,'session']=sessionName
       bdf[row,'bundle']=bName
       itemId=it[['id']]
@@ -908,6 +908,13 @@ get.bundle.levels.s3 <-function(db,sessionName,bundleName){
       }
     }
   }
+  
+  # create all levels
+  levels=list()
+  for(ld in levelDefinitions){
+    levels[[ld[['name']]]]=create.bundle.level(name=ld[['name']],type=ld[['type']])
+  }
+  
   bundleSelector=(db[['items']][['session']]==sessionName & db[['items']][['bundle']]==bundleName)
   items=db[['items']][bundleSelector,]
   bundleSelector=(db[['labels']][['session']]==sessionName & db[['labels']][['bundle']]==bundleName)
@@ -917,30 +924,35 @@ get.bundle.levels.s3 <-function(db,sessionName,bundleName){
   cLvl=NULL
   lvlDef=NULL
   lvlItems=list()
-  levels=list()
+
   if(nrows>0){
-  for(r in 1:nrows){
-    rLvl=items[r,'level']
+    for(r in 1:nrows){
+      rLvl=items[r,'level']
       if(!is.null(cLvl) && cLvl[['name']]!=rLvl){
         cLvl[['items']]=lvlItems
         levels[[cLvl[['name']]]]=cLvl
         cLvl=NULL
       }
-    
-  if(is.null(cLvl)){
-    
-    lvlDef=find.levelDefinition(rLvl)
-    lvlItems=list()
-    sr=NULL
-    srDf=items[r,'sampleRate']
-    if(!is.na(srDf)){
-      sr=srDf
-    }
-    cLvl=create.bundle.level(name=rLvl,type=items[r,'type'],sampleRate=sr,items=lvlItems)
-  }
+      
+      if(is.null(cLvl)){
+        
+        lvlDef=find.levelDefinition(rLvl)
+        lvlItems=list()
+        sr=NULL
+        srDf=items[r,'sampleRate']
+        if(!is.na(srDf)){
+          sr=srDf
+        }
+        lvl=levels[[rLvl]]
+        if(lvl[['type']]!=items[r,'type']){
+          stop("Wrong item type ",items[r,'type']," for level ",rLvl," type ",lvl[['type']],"\n")
+        }
+        # create new level object 
+        cLvl=create.bundle.level(name=rLvl,type=lvl[['type']],sampleRate=sr,items=lvlItems)
+      }
       id=items[r,'itemID']
       type=items[r,'type']
-    
+      
       attrDefs=lvlDef[['attributeDefinitions']]
       attrDefsLen=length(attrDefs)
       
@@ -948,16 +960,16 @@ get.bundle.levels.s3 <-function(db,sessionName,bundleName){
       itemLabelSelector=bundleLabels[['itemID']]==gid
       labelRows=bundleLabels[itemLabelSelector,]
       nLabelRows=nrow(labelRows)
-       labels=list()
+      labels=list()
       for(j in 1:nLabelRows){
-     
-      
-      lblNm=labelRows[j,'name']
-      labels[[j]]=list(name=lblNm,value=labelRows[j,'label'])
-    
+        
+        
+        lblNm=labelRows[j,'name']
+        labels[[j]]=list(name=lblNm,value=labelRows[j,'label'])
+        
       }
       
-    
+      
       if(type=='SEGMENT'){
         lvlItems[[length(lvlItems)+1L]]=create.interval.item(id=id,sampleStart=items[r,'sampleStart'],sampleDur=items[r,'sampleDur'],labels=labels)
       }else if(type=='EVENT'){
@@ -965,10 +977,10 @@ get.bundle.levels.s3 <-function(db,sessionName,bundleName){
       }else{
         lvlItems[[length(lvlItems)+1L]]=create.item(id=id,labels=labels)  
       }
-  }
-  # add last level
-  cLvl[['items']]=lvlItems
-  levels[[cLvl[['name']]]]=cLvl
+    }
+    # add last level
+    cLvl[['items']]=lvlItems
+    levels[[cLvl[['name']]]]=cLvl
   }
   return(levels)
 }
@@ -1138,7 +1150,7 @@ emuDB.print.bundle <- function(utt){
   }
 }
 
-emuDB.session <- function(name=NULL,path=NULL,bundles=NULL){
+emuDB.session <- function(name,path=NULL,bundles=list){
   o <- list(name=name,path=path,bundles=bundles)
   class(o) <- 'emuDB.session'
   invisible(o)
@@ -1538,8 +1550,18 @@ unmarshal.from.persistence <- function(x,classMap=list()){
   return(x);
 }
 
-
-
+.update.transient.schema.values<-function(schema){
+  # get max label array size
+  maxLbls=0
+  for(lvlDef in schema[['levelDefinitions']]){
+    attrCnt=length(lvlDef[['attributeDefinitions']])
+    if(attrCnt > maxLbls){
+      maxLbls=attrCnt
+    }
+  }
+  schema[['maxNumberOfLabels']]=maxLbls
+  return(schema)
+}
 
 ## Store EMU database bundle to file
 ## 
@@ -1592,6 +1614,15 @@ store.bundle.annotation <- function(db,bundle){
   return(db)
 }
 
+bundle.iterator<-function(db,apply){
+  for(s in db[['sessions']]){
+    sessionName=s[['name']]
+    for(b in s[['bundles']]){
+      db=apply(db,b)
+    }
+  }
+  return(db)
+}
 
 create.emuDB<-function(name,targetDir,mediaFileExtension='wav'){
   path=file.path(targetDir,name)
@@ -1602,10 +1633,45 @@ create.emuDB<-function(name,targetDir,mediaFileExtension='wav'){
   return(db)
 }
 
+add.bundle<-function(db,sessionName,bundle){
+  db[['sessionName']]
+}
+
+
+add.levelDefinition<-function(db,levelDefinition){
+  # check if level definition (name) already exists 
+  for(ld in db[['DBconfig']][['levelDefinitions']]){
+    if(ld[['name']]==levelDefinition[['name']]){
+      stop("Level definition:",levelDefinition[['name']]," already exists in database ",db[['name']])
+    }
+  }
+  # add
+  db[['DBconfig']][['levelDefinitions']][[length(db[['DBconfig']][['levelDefinitions']])+1]]=levelDefinition
+
+  # update transient values
+  db[['DBconfig']]=.update.transient.schema.values(db[['DBconfig']])
+  
+  # store to disk
+  .store.schema(db)
+  
+  # add levels to exsiting bundles
+  # not required!!
+  
+  #db=bundle.iterator(db,function(db,b){
+  #  bs3=get.bundle(sessionName,b[['name']])
+  #  bs3[['levels']][[levelDefinition[['name']]]]=create.bundle.level(name=levelDefinition[['name']],type = levelDefinition[['type']],items = list())
+  #})
+  
+  return(db)
+}
+
+
 ##' Import media files to EMU database
 ##' @description Import media files to EMU database
-##' @param dbObj object of class emuDB
+##' @param db object of class emuDB
 ##' @param dir directory containing mediafiles or session directories
+##' @param targetSessionName name of session in which to create the new bundles 
+##' @return modified database object
 ##' @author Klaus Jaensch
 ##' @import sqldf stringr
 ##' @seealso \code{\link{create.emuDB}}
@@ -1617,17 +1683,92 @@ create.emuDB<-function(name,targetDir,mediaFileExtension='wav'){
 ##'  import.mediaFiles(emuDB,'0000',dir="/data/mymedia")
 ##' 
 ##' }
-"import.mediaFiles"<-function(dbObj,targetSessionName='0000',dir){
+"import.mediaFiles"<-function(db,dir,targetSessionName='0000'){
   UseMethod("import.mediaFiles")
 }
 
-"import.mediaFiles.emuDB"<-function(dbObj,targetSessionName='0000',dir){
-  dbClass=class(dbObj)
+"import.mediaFiles.emuDB"<-function(db,dir,targetSessionName='0000'){
+  dbClass=class(db)
   if(dbClass=='emuDB'){
-   stop("Sorry. Not implemented yet!!")
+
+    dbCfg=db[['DBconfig']]
+    if(is.null(dbCfg[['mediaFileExtension']])){
+      pattern=NULL
+      #stop("The DB has no media file extension defined.")
+    }else{
+      pattern=paste0('.*[.]',dbCfg[['mediaFileExtension']],'$')
+    }
+    mfList=list.files(dir,pattern=pattern)
+    if(length(mfList)>0){
+      # create session dir and session list object if required
+      sessDir=file.path(db[['basePath']],paste0(targetSessionName,session.suffix))
+      if(!file.exists(sessDir)){
+        dir.create(sessDir)
+      }
+      if(is.null(db[['sessions']][[targetSessionName]])){
+        db[['sessions']][[targetSessionName]]=emuDB.session(name=targetSessionName,path = sessDir,bundles=list())
+      }
+    }
+    mediaAdded=FALSE
+    for(mf in mfList){
+      mfFullPath=file.path(dir,mf)
+      bundleName=sub('[.][^.]*$','',mf)
+      
+      bundleDir=file.path(sessDir,paste0(bundleName,bundle.dir.suffix))
+      dir.create(bundleDir)
+      newMediaFileFullPath=file.path(bundleDir,mf)
+      file.copy(from = mfFullPath,to=newMediaFileFullPath)
+      
+      pfAssp=read.AsspDataObj(newMediaFileFullPath,0,4000)
+      sampleRate=attr(pfAssp,'sampleRate')
+      b=create.bundle(name = bundleName,sessionName = targetSessionName,mediaFilePath = newMediaFileFullPath,annotates=mf,sampleRate=sampleRate)
+      db[['sessions']][[targetSessionName]][['bundles']][[bundleName]]=b
+      # TODO generate empty annotation and SSFFtracks if required
+      annoAdded=FALSE
+      for(ld in dbCfg[['levelDefinitions']]){
+       
+        b[['levels']]=list()
+        b[['levels']][[ld[['name']]]]=create.bundle.level(name=ld[['name']],type = ld[['type']],items = list())
+        
+        ## TODO TEST only
+        #labelAttrs=list(list(name=ld[['name']],value='Test Huhu!'))
+        #b[['levels']][[ld[['name']]]][['items']][[1]]=create.interval.item(id = 1,sampleStart = 0,sampleDur = 50000,labels = labelAttrs )
+        #db=move.bundle.levels.to.data.frame(db,b)
+        annoAdded=TRUE
+      }
+      if(annoAdded){
+        db=store.bundle.annotation(db,b)
+      }
+      mediaAdded=TRUE
+    }
+    
+    perspectives=dbCfg[['EMUwebAppConfig']][['perspectives']]
+    # create an EMUwebapp default perspective if media has been added 
+    if(mediaAdded & (is.null(perspectives) | length(perspectives)==0)){
+      sc=create.EMUwebAppConfig.signalCanvas(order=c("OSCI","SPEC"),assign=list(),contourLims=list())
+      defPersp=create.EMUwebAppConfig.perspective(name='default',signalCanvases=sc,levelCanvases=list(order=list()),twoDimCanvases=list(order=list()))
+      db[['DBconfig']][['EMUwebAppConfig']][['perspectives']]=list(defPersp)
+    }
+  
+    return(db)
   }else{
     NextMethod()
   }
+}
+
+
+.store.schema<-function(db,projectDir=NULL){
+  if(is.null(projectDir)){
+    projectDir=db[['basePath']]
+  }
+  # store db schema file
+  dbCfgNm=paste0(db[['name']],database.schema.suffix)
+  dbCfgPath=file.path(projectDir,dbCfgNm)
+  
+  persistFilter=emuR.persist.filters[['DBconfig']]
+  sp=marshal.for.persistence(db[['DBconfig']],persistFilter)
+  psJSON=jsonlite::toJSON(sp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+  writeLines(psJSON,dbCfgPath)
 }
 
 
@@ -1692,13 +1833,7 @@ store.emuDB <- function(db,targetDir,options=list(),showProgress=TRUE){
   db[['DBconfig']][['EMUwebAppConfig']][['activeButtons']]=list(saveBundle=TRUE)
 
   # store db schema file
-  dbCfgNm=paste0(db[['name']],database.schema.suffix)
-  dbCfgPath=file.path(pp,dbCfgNm)
-  
-  persistFilter=emuR.persist.filters[['DBconfig']]
-  sp=marshal.for.persistence(db[['DBconfig']],persistFilter)
-  psJSON=jsonlite::toJSON(sp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-  writeLines(psJSON,dbCfgPath)
+  .store.schema(db,projectDir=pp)
   progress=progress+1L
   
   bundleCount=0
@@ -1873,15 +2008,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   dbCfgPersisted=jsonlite::fromJSON(dbCfgJSON,simplifyVector=FALSE)
   
   schema=unmarshal.from.persistence(dbCfgPersisted,emuR.persist.class[['DBconfig']])
-  # get max label array size
-  maxLbls=0
-  for(lvlDef in schema[['levelDefinitions']]){
-    attrCnt=length(lvlDef[['attributeDefinitions']])
-    if(attrCnt > maxLbls){
-      maxLbls=attrCnt
-    }
-  }
-  schema[['maxNumberOfLabels']]=maxLbls
+  schema=.update.transient.schema.values(schema)
   db[['DBconfig']]=schema
   db[['name']]=schema[['name']]
   db[['basePath']]=normalizePath(databaseDir)
@@ -1958,7 +2085,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
           bundle=as.bundle(bundle)
           namedLevels=set.list.names(bundle[['levels']],'name')
           bundle[['levels']]=namedLevels
-          bundle[['mediaFilePath']]=file.path(databaseDir,bundle[['annotates']])
+          bundle[['mediaFilePath']]=file.path(absBd,bundle[['annotates']])
         }else{
           
           for(ssffTr in schema[['ssffTrackDefinitions']]){
