@@ -1,0 +1,33 @@
+---
+title: "autobuild tutorial"
+author: "Raphael Winkelmann"
+affiliation: "Institute Of Phonetic And Speech Processing (LMU Munich)"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+bibliography: vignettes.bib
+vignette: >
+  %\VignetteIndexEntry{autobuild tutorial}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+  
+# WARNING: DOCUMENT STILL BEING WRITTEN!
+  
+# Introduction
+  
+This document describes how to automatically build hierachies for a given 
+**emuDB**
+
+
+The available function are:
+
+- autobuild.linkFromTimes
+
+
+This function causes annotations at two levels *L1* and *L2* to be linked whenever the time(s) of the annotations at tier
+*U* are within those of ttier *T*.
+
+An important prereq: linkDefinition available!
+
+
+
