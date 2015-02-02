@@ -33,10 +33,10 @@ most of the EBNF was adapted from [@john:2012a]
 | =~ | Regular expression match
 | !~ | Regular expression not match
 | = | Gleichheit |
-| &gt | mehr als |
+| > | mehr als |
 | >= | gleich und mehr als |
 | < | weniger als |
-| &gt= | gleich und weniger als |
+| >= | gleich und weniger als |
 | \| | Alternative |
 | & | gleichrangige Konjunktion |
 | ^ | Dominanzkonjunktion |
@@ -49,8 +49,8 @@ most of the EBNF was adapted from [@john:2012a]
 | ' | Sonderzeichenanfangs- und Endklammer |
 | ( | Parameterlistenanfangsklammer |
 | ) | Parameterlistenendklammer |
-| [ | Sequenzabfragenanfangsklammer |
-| ] | Sequenzabfragenendklammer |
+| &#91; | Sequenzabfragenanfangsklammer |
+| &#93; | Sequenzabfragenendklammer |
 
 ## Terminale Symbole der EQL (Funktionen) und ihre Bedeutung
 
@@ -131,7 +131,8 @@ S Silben die auch mit L+H* etikettiert worden sind
 Der Text aller Funktionswoerter
 [Text !=x & Word = F]
 Der Text aller Inhalts-Woerter die auch akzentuiert (S) sind (oder: alle akzentuierten Inhalts-Woerter)
-[Text!=x & Word=C & Accent=S]4. Domination
+[Text!=x & Word=C & Accent=S]
+4. Domination
 Syntax: Semantik: Bedingung:
 [L1=a^ L2=b]
 a wird von b dominiert oder a dominiert b L1 dominiert L2 oder L2 dominiert L1
@@ -285,3 +286,114 @@ Antworten
 .
 10. Alle Phoneme, die die Phonetic-Einheit [H] dominieren, die in der Silbenanfangsposition vorkommen; und die sich in akzentuierten (S) Woerten befinden.
 [[[Phoneme!=x ^ Phonetic = H] ^ Start(Word, Syllable)=1] ^ Accent = S]
+
+
+# Differences and incompatibilities to legacy EMU query language (R package version 4.2)
+
+## Function call syntax and result type
+TODO
+
+## Bundle (utterance) names
+
+emuR package arranges bundles (utterances) in sessions. Converted legacy EMU databases have one default session '0000' containing all bundles. Therefore the 'utts' column of all segment lists is prefixed by the session name and starts with '0000:' for example '0000:msajc003'.   
+
+## Interpretation of the hash character '#' in logical AND combined terms
+#### emu
+```
+> emu.query('andosl','*','[Text=spring & #Accent=S]')
+moving data from Tcl to R
+Read 1 records
+segment  list from database:  andosl 
+query was:  [Text=spring & #Accent=S] 
+  labels    start      end     utts
+1 spring 2288.959 2704.466 msajc094
+
+> emu.query('andosl','*','[#Text=spring & #Accent=S]')
+moving data from Tcl to R
+Read 1 records
+segment  list from database:  andosl 
+query was:  [#Text=spring & #Accent=S] 
+  labels    start      end     utts
+1 spring 2288.959 2704.466 msajc094
+```
+The hash character has no effect to both queries
+
+#### emuR
+```
+> query(andosl,"[Text=spring & #Accent=S]",resultType='emusegs')
+segment  list from database:  andosl 
+query was:  [Text=spring & #Accent=S] 
+  labels    start      end          utts
+1      S 2288.975 2704.475 0000:msajc094
+```
+Returns the same segment (same item), but with the label of the hashed attribute name
+
+```
+> query(andosl,"[#Text=spring & #Accent=S]",resultType='emusegs')
+ Error in query.database.eql.KONJA(database, qTrim) : 
+  Only one hashtag allowed in linear query term: #Text=spring & #Accent=S 
+```
+
+EQL2 throws an error here, because to fulfill the request it would be necessary to return each item doubled to get both Text and Accent labels  
+
+## Probable bugs in legacy EMU EQL
+
+### Alternative labels in not equal conditional query
+#### (legacy) emu
+```
+> emu.query('ae','*',"[Text!=beautiful|futile ^ Phoneme=u:]")
+moving data from Tcl to R
+Read 4 records
+segment  list from database:  ae 
+query was:  [Text!=beautiful|futile ^ Phoneme=u:] 
+     labels    start      end     utts
+1       new  475.802  666.743 msajc057
+2    futile  571.999 1091.000 msajc010
+3        to 1091.000 1222.389 msajc010
+4 beautiful 2033.739 2604.489 msajc003
+```
+I assume that the OR operator '|' is ignored in connection with the not equal operator '!='
+
+#### emuR
+```
+> query(ae,"[Text!=beautiful|futile ^ Phoneme=u:]",resultType='emusegs')
+segment  list from database:  ae 
+query was:  [Text!=beautiful|futile ^ Phoneme=u:] 
+  labels    start      end          utts
+1     to 1091.025 1222.375 0000:msajc010
+2    new  475.825  666.725 0000:msajc057
+```
+
+### Crashes and compiler errors
+```
+> emu.query("andosl","*","[[Syllable=W -> Syllable=W] ^ [Phoneme=n-> Phoneme=S]]")
+*** stack smashing detected ***: /usr/lib/R/bin/exec/R terminated
+
+ *** caught segfault ***
+address 0x726f66ff, cause 'memory not mapped'
+```
+
+```
+> emu.query("andosl","*","[[Syllable=W -> Syllable=W] ^ [Phoneme=n->Phoneme=S]]")
+Error in structure(.External("dotTcl", ..., PACKAGE = "tcltk"), class = "tclObj") :
+  [tcl] Error in constructor: error compiling query: Expected closing bracket.
+```
+The errors are caused by missing blanks around the '->' operator. This query string works well: 
+'[[Syllable=W -> Syllable=W] ^ [Phoneme=n -> Phoneme=S]]'
+
+emuR accepts these queries without blanks.
+
+### Additional features
+
+emuR accepts also the double equal character string '==' as equal operator.
+
+emuR EQL2 has the capability to query labels by matching regular expressions using the '=~' (match) and '!~' (not match) operators.
+#### Example
+```
+> query(andosl,"Text=~.*tz.*",resultType='emusegs')
+segment  list from database:  andosl 
+query was:  Text=~.*tz.* 
+   labels    start      end          utts
+1 blitzed 1586.875 2112.475 0000:msadb081
+2 blitzed 1540.225 2022.475 0000:msajc081
+```
