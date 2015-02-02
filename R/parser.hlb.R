@@ -84,8 +84,8 @@ parse.hlb.file <- function(hlbFilePath=NULL,levelDefinitions,levels) {
             exItemsLen=length(exItems)
             currItemsLen=length(currentitems)
             if(exItemsLen!=currItemsLen){
-              # TODO more vrebose
-              stop("Existing item count mismatch.")
+              # TODO more verbose
+              stop("Existing item count mismatch: ",exItemsLen," != ",currItemsLen)
             }
             i=0
             for(i in 1:exItemsLen){
@@ -105,7 +105,7 @@ parse.hlb.file <- function(hlbFilePath=NULL,levelDefinitions,levels) {
                     }
                     itLblVal=itLbl[['value']]
                     if(exLblVal!=itLblVal){
-                      stop("Labels of attribute level '",exLabel[['name']],"' differ: '",exLabel[['value']],"' '",itLbl[['value']],"' in HLB file: '",hlbFilePath,"'.\n")
+                      stop("Labels of attribute level '",exLabel[['name']],"' differ: '",exLabel[['value']],"' '",itLbl[['value']],"' in HLB file: '",hlbFilePath,"' line ",lnr,".\n")
                     }
                   }else{
                     # merge
@@ -139,10 +139,13 @@ parse.hlb.file <- function(hlbFilePath=NULL,levelDefinitions,levels) {
           # 
           idStr=firstTk
           id=as.integer(idStr)
+          if(lineTokenCount<2){
+            stop("Missing label for id: ",id," in HLB file: '",hlbFilePath,"' line ",lnr," !\n")
+          }
           label=lineTokens[[2]]
           labels=NULL
           if(!is.null(items[[idStr]])){
-            stop("Duplicate item id: ",id," in HLB file: '",hlbFilePath,"'' !\n")
+            stop("Duplicate item id: ",id," in HLB file: '",hlbFilePath,"' line ",lnr," !\n")
           }
           
           attrs=list()
@@ -200,17 +203,17 @@ parse.hlb.file <- function(hlbFilePath=NULL,levelDefinitions,levels) {
                 #}
                 #cat("Comp: ",tk," ",tdLblName,"\n")
                 if(is.null(ldAttrDef)){
-                  stop("Label name ",tk," has no declaration in level definition. ",hlbFilePath,":line ",lnr,": ",line)
+                  stop("Label name ",tk," has no declaration in level definition. '",hlbFilePath,"' line ",lnr,": ",line)
                 }
                 
                 # This should never happen, the code can be removed safely
                 if(tdLblName!=tk){
-                  stop("Label name ",tk," does not match label name ",tdLblName," of level definition. ",hlbFilePath,":line ",lnr,": ",line)
+                  stop("Label name ",tk," does not match label name ",tdLblName," of level definition. '",hlbFilePath,"' line ",lnr,": ",line)
                 }
               }
               }
             }else{
-              stop("Missing label name in line ",lnr,": ",line)
+              stop("Missing label name in '",hlbFilePath,"' line ",lnr,": ",line)
             }
             break
           }
