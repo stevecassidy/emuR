@@ -21,7 +21,7 @@ This document describes how to automatically build hierachies for a given
 
 The available function are:
 
-- autobuild.linkFromTimes
+- autobuild.linkFromTimes()
 
 
 This function causes annotations at two levels *L1* and *L2* to be linked whenever the time(s) of the annotations at tier
