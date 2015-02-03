@@ -732,7 +732,9 @@ query.database.eql.ETTIKETTA<-function(database,q,labels=NULL){
       if(projectionLevel){
         rIts=res[['items']]
         # projection of the result items themself
-        res[['projectionItems']]=data.frame(seqStartId=rIts[,'seqStartId'],seqEndId=rIts[,'seqEndId'],seqLen=rIts[,'seqLen'],pSeqStartId=rIts[,'seqStartId'],pSeqEndId=rIts[,'seqEndId'],pSeqLen=rIts[,'seqLen'],pLevel=rIts[,'level'],stringsAsFactors = FALSE)
+        lvlNms=rep(lvlName,nrow(rIts))
+        res[['projectionItems']]=data.frame(seqStartId=rIts[,'seqStartId'],seqEndId=rIts[,'seqEndId'],seqLen=rIts[,'seqLen'],pSeqStartId=rIts[,'seqStartId'],pSeqEndId=rIts[,'seqEndId'],pSeqLen=rIts[,'seqLen'],pLevel=lvlNms,stringsAsFactors = FALSE)
+        res[['projectionAttrLevel']]=lvlName
       }
       return(res)
     }
@@ -760,16 +762,21 @@ query.database.eql.KONJA<-function(database,q){
     }
     resultLevel=NULL
     projection=FALSE
+    
+    # parse through all terms of and (&) operation
     while(p>=0){
+      # find ampersand '&' char
       p=get.string.position(string=qTrim,searchStr='&',pos=startPos,literalQuote="'")
       if(p==-1){
+        # get single term
         condStr=str_trim(substring(qTrim,startPos))
       }else{
+        # get leading term
         condStr=str_trim(substr(qTrim,startPos,p-1))
-        
+        # advance to next
         startPos=p+1
       }
-      #cat(condStr,"\n")
+      # execute query on term      
       res=query.database.eql.EA(database,condStr,items=items,labels=labels)
       # set resultLevel of first term
       if(is.null(resultLevel)){
@@ -778,7 +785,6 @@ query.database.eql.KONJA<-function(database,q){
           resultLevel=termResLevel
         }
       }
-      
       
       seqIts=res[['items']]
       nRes=nrow(seqIts)
@@ -790,15 +796,20 @@ query.database.eql.KONJA<-function(database,q){
         items=sqldf("SELECT i.* FROM items i,seqIts s WHERE i.id=s.seqStartId")
         labels=sqldf("SELECT l.* FROM labels l,seqIts s WHERE l.itemID=s.seqStartId")
         if(!is.null(res[['projectionItems']])){
+          # only one term can be marked with hashtag
+          if(projection){
+            stop("Only one hashtag allowed in linear query term: ",qTrim)
+          }
           # if one of the boolean terms is marked with the hashtag the whole term is marked 
           projection=TRUE
+          projectionAttrLevel=res[['projectionAttrLevel']]
         }
       }
     }
     res[['items']][,'level']=resultLevel
     items=res[['items']]
     if(projection){      
-      qStr="SELECT i.seqStartId,i.seqEndId,i.seqStartId AS pSeqStartId ,i.seqEndId AS pSeqEndId,i.seqLen AS pSeqLen,i.level AS pLevel FROM items i"
+      qStr=paste0('SELECT i.seqStartId,i.seqEndId,i.seqStartId AS pSeqStartId ,i.seqEndId AS pSeqEndId,i.seqLen AS pSeqLen,"',projectionAttrLevel,'" AS pLevel FROM items i')
       res[['projectionItems']]=sqldf(qStr)
     }
     res[['resultLevel']]=resultLevel
@@ -1224,57 +1235,57 @@ print.emuDB.query.result<-function(queryResult){
   
 }
 
-##' Requery EMU database
-##' @description Requery an EMU database
-##' @param dbObj object of class emuDB
-##' @param segs segment list
-##' @param level level of input segment list
-##' @param targetlevel target level
-##' @param justlabels labels only
-##' @param sequence integer which determins sibling position relative to segment in segs 
-##' @param longerok TODO ??
-##' @param resultType type (class name) of result
-##' @return result set object of class resultType (e.g. EMU seglist 'emusegs')
-##' @author Klaus Jaensch
-##' @import sqldf stringr
-##' @seealso \code{\link{load.emuDB}}
-##' @keywords emuDB database query Emu EQL 
-##' @examples
-##' \dontrun{
-##' ## Requery phonetic context of syllable
-##' 
-##' requery(ae,sl1,level='Syllable',targetlevel='Phonetic')
-##' 
-##' ## Requery previous element on phonetic level
-##' 
-##' requery(ae,sl2,level='Phonetic',sequence=-1)
-##' 
-##' }
-"requery"<-function(dbObj,segs, level,targetlevel=level, justlabels=FALSE, sequence=0, longerok=FALSE,resultType=NULL){
-  UseMethod("requery")
-}
-
-
-  
-"requery.emuDB"<-function(dbObj,segs, level, targetlevel=level, justlabels=FALSE, sequence=0, longerok=FALSE,resultType=NULL){
-  stop("Not yet implemented!")
-  dbClass=class(dbObj)
-  if(dbClass=='emuDB'){
-    if(queryLang=='EQL2'){
-      if(is.null(resultType)){
-        return(requery.database.with.eql(dbObj,query))
-      }else{
-        if(resultType=='emusegs'){
-          return(requery.database.with.eql.seglist(dbObj,query))
-        }else{
-          stop("Unknown result type: '",resultType,"'. Supported result types: 'emusegs', NULL")
-        }
-      }
-    }else{
-      stop("Unknown query language '",queryLang,"'.")
-    }
-  }else{
-    NextMethod()
-  }
-}
-
+# ##' Requery EMU database
+# ##' @description Requery an EMU database
+# ##' @param dbObj object of class emuDB
+# ##' @param segs segment list
+# ##' @param level level of input segment list
+# ##' @param targetlevel target level
+# ##' @param justlabels labels only
+# ##' @param sequence integer which determins sibling position relative to segment in segs 
+# ##' @param longerok TODO ??
+# ##' @param resultType type (class name) of result
+# ##' @return result set object of class resultType (e.g. EMU seglist 'emusegs')
+# ##' @author Klaus Jaensch
+# ##' @import sqldf stringr
+# ##' @seealso \code{\link{load.emuDB}}
+# ##' @keywords emuDB database query Emu EQL 
+# ##' @examples
+# ##' \dontrun{
+# ##' ## Requery phonetic context of syllable
+# ##' 
+# ##' requery(ae,sl1,level='Syllable',targetlevel='Phonetic')
+# ##' 
+# ##' ## Requery previous element on phonetic level
+# ##' 
+# ##' requery(ae,sl2,level='Phonetic',sequence=-1)
+# ##' 
+# ##' }
+# "requery"<-function(dbObj,segs, level,targetlevel=level, justlabels=FALSE, sequence=0, longerok=FALSE,resultType=NULL){
+#   UseMethod("requery")
+# }
+# 
+# 
+#   
+# "requery.emuDB"<-function(dbObj,segs, level, targetlevel=level, justlabels=FALSE, sequence=0, longerok=FALSE,resultType=NULL){
+#   stop("Not yet implemented!")
+#   dbClass=class(dbObj)
+#   if(dbClass=='emuDB'){
+#     if(queryLang=='EQL2'){
+#       if(is.null(resultType)){
+#         return(requery.database.with.eql(dbObj,query))
+#       }else{
+#         if(resultType=='emusegs'){
+#           return(requery.database.with.eql.seglist(dbObj,query))
+#         }else{
+#           stop("Unknown result type: '",resultType,"'. Supported result types: 'emusegs', NULL")
+#         }
+#       }
+#     }else{
+#       stop("Unknown query language '",queryLang,"'.")
+#     }
+#   }else{
+#     NextMethod()
+#   }
+# }
+# 
