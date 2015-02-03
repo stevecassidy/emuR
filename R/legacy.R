@@ -988,8 +988,14 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
 ##' @details Information of the legacy Emu template file is transferred to [dbname]_DBconfig.json file. Legacy Emu utterances are reorganized in sessions and bundles. 
 ##' Media files (e.g. wav files) are copied, SSFF track files are rewritten. Annotations in Emu hierarchy (.hlb) files and ESPS label files are converted to a [bundleName]_annot.json file per bundle (utterance).
 ##' Please note that only those files get copied, which are referenced by the template file. Additional files in the legacy database directories are ignored. The legacy Emu database is not modified.
+##' 
+##' options is a list of key value pairs:
+##' rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: TRUE
+##' ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: TRUE
+##' 
 ##' @param emuTplPath EMU template file path
 ##' @param targetDir target directory
+##' @param options list of options
 ##' @param verbose be verbose
 ##' @author Klaus Jaensch
 ##' @seealso \code{\link{load.emuDB}}
@@ -1004,7 +1010,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
 ##'
 ##' }
 ##' 
-convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,verbose=TRUE){
+convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,options=NULL,verbose=TRUE){
  
   # pre check target dir
   if(file.exists(targetDir)){
@@ -1027,21 +1033,29 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,verbose=TRUE){
   # load legacy Emu db
   db=load.database.from.legacy.emu(emuTplPath,showProgress=verbose)
   
- 
+  # default options
   # ignore missing SSFF track files
   # rewrite SSFF track files
-  storeOptions=list(ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=TRUE)
+  if(is.null(options)){
+    options=list(ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=TRUE)
+  }
   
   # store loaded database 
-  store.emuDB(db,targetDir,options=storeOptions,showProgress=verbose)
+  store.emuDB(db,targetDir,options=options,showProgress=verbose)
   
 }
 
 ##' Convert legacy EMU database and store it in new format
 ##' If the legacy database could be found it is loaded. If load is successfull a new directory with the name of the database is created in the \code{targetDirectory}
 ##' Loading by name only works if database was used with legacy EMU. Use the function \code{\link{convert.legacyEmuDB.to.emuDB}} otherwise.
+##'
+##' options is a list of key value pairs:
+##' rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: TRUE
+##' ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: TRUE
+##' 
 ##' @param dbName legacy EMU database name
 ##' @param targetDir target directory
+##' @param options list of options
 ##' @param verbose be verbose
 ##' @author Klaus Jaensch
 ##' @seealso \code{\link{convert.legacyEmuDB.to.emuDB}} \code{\link{load.emuDB}} 
@@ -1055,7 +1069,7 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,verbose=TRUE){
 ##' 
 ##' }
 ##' 
-convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,verbose=TRUE){
+convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,options=NULL,verbose=TRUE){
   # pre check target dir
   if(file.exists(targetDir)){
     tdInfo=file.info(targetDir)
@@ -1074,8 +1088,16 @@ convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,verbose=TRUE){
   
   # load database schema and metadata
   db=load.database.from.legacy.emu.by.name(dbName,showProgress=verbose)
+  
+  # default options
+  # ignore missing SSFF track files
+  # rewrite SSFF track files
+  if(is.null(options)){
+    options=list(ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=TRUE)
+  }
+  
   # save in new format
-  store.emuDB(db,targetDir,showProgress=verbose)
+  store.emuDB(db,targetDir,options=options,showProgress=verbose)
   #activeButtons=list(saveBundle=TRUE)
  
 }

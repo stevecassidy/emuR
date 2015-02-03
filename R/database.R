@@ -1858,7 +1858,8 @@ add.linkDefinition<-function(db,linkDefinition){
 ##' Store EMU database to directory
 ##' 
 ##' options is a list of key value pairs:
-##' rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: TRUE
+##' rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: FALSE
+##' ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: FALSE
 ##' 
 ##' @param db EMU database (in R workspace)
 ##' @param targetDir target directory
