@@ -3,8 +3,8 @@
 ##' Autobuild links between two time levels. The super-level has to be of the 
 ##' type SEGMENT and the sub-level either of type EVENT or of type SEGMENT. If
 ##' this is the case and a according link definition is present in db$DBconfig$linkDefintions,
-##' this function automatically links the events or segments of the sub-level to
-##' the super-levels segments which contain (time) these.
+##' this function automatically links the events or segments of the sub-level which occur
+##' within (startSample to (startSample + sampleDur)) the segments of the super-level to those segments.
 ##' 
 ##' @param db emuDB object to perform autobuild on
 ##' @param superlevelName name of level to link from (link definition required in db)
@@ -37,7 +37,7 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
   }
   
   if(!found){
-    stop('Did not find linkDefintion for: ', superlevelName, ' ', sublevelName, '. Defined linkDefinitions are: ', sapply(db$DBconfig$linkDefinitions, function(x){paste0(x$superlevelName, '->', x$sublevelName, '; ')}))
+    stop('Did not find linkDefintion for: ', superlevelName, '->', sublevelName, '. Defined linkDefinitions are: ', sapply(db$DBconfig$linkDefinitions, function(x){paste0(x$superlevelName, '->', x$sublevelName, '; ')}))
   }
   
   # table names
@@ -57,6 +57,7 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
   
   # query DB depending on type of sublevelDefinition 
   if(foundSubLevelDev$type == 'EVENT'){
+    # TODO check for duplicates
     res=dbSendQuery(con, paste0("INSERT INTO ", linksTableName, " (session, bundle, fromID, toID) ",
                                 " SELECT it1.session, it1.bundle, it1.itemID, it2.itemID", 
                                 " FROM ", itemsTableName, " as it1 JOIN ", itemsTableName, " as it2 ",
@@ -64,6 +65,7 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
                                 " AND it1.session = it2.session", " AND it1.bundle = it2.bundle",
                                 " AND it2.samplePoint >= it1.sampleStart", " AND it2.samplePoint <= (it1.sampleStart + it1.sampleDur)")) # only for EVENT sublevel
   }else{
+    # TODO check for duplicates
     dbSendQuery(con, paste0("INSERT INTO ", linksTableName, " (session, bundle, fromID, toID) ",
                             "SELECT it1.session, it1.bundle, it1.itemID, it2.itemID", 
                             " FROM ", itemsTableName, " as it1 JOIN ", itemsTableName, " as it2 ",
@@ -73,9 +75,9 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
   }
   
   # extract link dataframe and assign them to db Obj
-  db[['items']]=dbReadTable(con, itemsTableName)
+  db[['links']]=dbReadTable(con, linksTableName)
   
-  # store changes to disc if desired
+  # store changes to disc
   if(writeToDisc){
     store.emuDB(db, ae$basePath)
   }
@@ -88,5 +90,5 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
 }
 
 # FOR DEVELOPMENT 
-# library('testthat') 
-# test_file('tests/testthat/test_autobuild.R')
+library('testthat') 
+test_file('tests/testthat/test_autobuild.R')
