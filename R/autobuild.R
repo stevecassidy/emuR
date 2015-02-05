@@ -57,21 +57,26 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
   
   # query DB depending on type of sublevelDefinition 
   if(foundSubLevelDev$type == 'EVENT'){
-    # TODO check for duplicates
-    res=dbSendQuery(con, paste0("INSERT INTO ", linksTableName, " (session, bundle, fromID, toID) ",
-                                " SELECT it1.session, it1.bundle, it1.itemID, it2.itemID", 
-                                " FROM ", itemsTableName, " as it1 JOIN ", itemsTableName, " as it2 ",
-                                " WHERE it1.level = '", superlevelName, "'", " AND it2.level = '", sublevelName, "'", 
-                                " AND it1.session = it2.session", " AND it1.bundle = it2.bundle",
-                                " AND it2.samplePoint >= it1.sampleStart", " AND it2.samplePoint <= (it1.sampleStart + it1.sampleDur)")) # only for EVENT sublevel
-  }else{
-    # TODO check for duplicates
+    
     dbSendQuery(con, paste0("INSERT INTO ", linksTableName, " (session, bundle, fromID, toID) ",
-                            "SELECT it1.session, it1.bundle, it1.itemID, it2.itemID", 
+                            " SELECT * FROM",
+                            " (SELECT it1.session, it1.bundle, it1.itemID AS 'fromID', it2.itemID AS 'toID'", 
+                            " FROM ", itemsTableName, " AS 'it1' JOIN ", itemsTableName, " AS 'it2' ",
+                            " WHERE it1.level = '", superlevelName, "'", " AND it2.level = '", sublevelName, "'", 
+                            " AND it1.session = it2.session", " AND it1.bundle = it2.bundle",
+                            " AND it2.samplePoint >= it1.sampleStart", " AND it2.samplePoint <= (it1.sampleStart + it1.sampleDur)) AS res", # only for EVENT sublevel
+                            " WHERE NOT EXISTS (SELECT fromID, toID FROM ", linksTableName, " lt WHERE lt.fromID = res.fromID AND lt.toID = res.toID)"))
+    
+  }else{
+    
+    dbSendQuery(con, paste0("INSERT INTO ", linksTableName, " (session, bundle, fromID, toID) ",
+                            " SELECT * FROM",
+                            " (SELECT it1.session, it1.bundle, it1.itemID, it2.itemID", 
                             " FROM ", itemsTableName, " as it1 JOIN ", itemsTableName, " as it2 ",
                             " WHERE it1.level = '", superlevelName, "'", " AND it2.level = '", sublevelName, "'", 
                             " AND it1.session = it2.session", " AND it1.bundle = it2.bundle",
-                            " AND it2.sampleStart >= it1.sampleStart", " AND (it2.sampleStart + it2.sampleDur) <= (it1.sampleStart + it1.sampleDur)")) # only for SEGMENT sublevel    
+                            " AND it2.sampleStart >= it1.sampleStart", " AND (it2.sampleStart + it2.sampleDur) <= (it1.sampleStart + it1.sampleDur)) AS res", # only for SEGMENT sublevel
+                            " WHERE NOT EXISTS (SELECT fromID, toID FROM ", linksTableName, " lt WHERE lt.fromID = res.fromID AND lt.toID = res.toID)")) 
   }
   
   # extract link dataframe and assign them to db Obj
@@ -84,11 +89,11 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
   
   # Disconnect from the database
   dbDisconnect(con)
-
+  
   return(db)
   
 }
 
 # FOR DEVELOPMENT 
-# library('testthat') 
-# test_file('tests/testthat/test_autobuild.R')
+library('testthat') 
+test_file('tests/testthat/test_autobuild.R')
