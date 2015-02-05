@@ -5,13 +5,13 @@ require(stringr)
 ## @param labFilePath ESPS label file path
 ## @param tierName name of the tier
 ## @param sampleRate sample rate of corresponding signal file
-## @param encoding text encoding (default: UTF-8)
+## @param encoding text encoding (default: NULL -> R encoding "unknown")
 ## @return new tier containing parsed items
 ## @import stringr
 ## @author Klaus Jaensch
 ## @keywords emuR ESPS lab Emu
 ## 
-parse.esps.label.file <- function(labFilePath=NULL,tierName,tierType=NULL,sampleRate,encoding="UTF-8",idCnt=0) {
+parse.esps.label.file <- function(labFilePath=NULL,tierName,tierType=NULL,sampleRate,encoding=NULL,idCnt=0) {
   SIGNAL_KEY="signal"
   NUMBER_OF_FIELDS_KEY="nfields"
   SEPARATOR_KEY="separator"
@@ -42,7 +42,11 @@ parse.esps.label.file <- function(labFilePath=NULL,tierName,tierType=NULL,sample
   }
   
     # read
-    lc = try(readLines(fileToRead))
+    if(is.null(encoding)){
+      lc = try(readLines(fileToRead))
+    }else{
+      lc = try(readLines(fileToRead,encoding=encoding))
+    }
     if(class(lc) == "try-error") {
       stop("read.TextGrid: cannot read from file ", fileToRead)
     }

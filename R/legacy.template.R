@@ -6,7 +6,7 @@
 ## @import stringr uuid wrassp
 ## @keywords emuDB database schema Emu 
 ## 
-load.database.schema.from.emu.template=function(tplPath){
+load.database.schema.from.emu.template=function(tplPath,encoding=NULL){
   LEVEL_CMD='level'
   LABFILE_CMD='labfile'
   LABEL_CMD='label'
@@ -22,7 +22,11 @@ load.database.schema.from.emu.template=function(tplPath){
   dbName=gsub("[.][tT][pP][lL]$","",tplBasename)
   
   # read
-  tpl = try(readLines(tplPath))
+  if(is.null(encoding)){
+    tpl = try(readLines(tplPath))
+  }else{
+    tpl = try(readLines(tplPath,encoding=encoding))
+  }
   if(class(tpl) == "try-error") {
     stop("read tpl: cannot read from file ", tplPath)
   }

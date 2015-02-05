@@ -22,6 +22,7 @@ convert.legacyEmuDB.by.name.to.emuDB(dbName, targetDir, options = NULL,
 options is a list of key value pairs:
 rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: TRUE
 ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: TRUE
+##' sourceFileTextEncoding encoding of legacy database text files (template, label and hlb files) :default NULL (usess encoding of operating system platform)
 }
 \examples{
 \dontrun{

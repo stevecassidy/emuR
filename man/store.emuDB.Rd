@@ -4,7 +4,7 @@
 \alias{store.emuDB}
 \title{Store EMU database to directory}
 \usage{
-store.emuDB(db, targetDir, options = list(), showProgress = TRUE)
+store.emuDB(db, targetDir, options = NULL, showProgress = TRUE)
 }
 \arguments{
 \item{db}{EMU database (in R workspace)}
