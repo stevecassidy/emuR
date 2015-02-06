@@ -19,6 +19,7 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
   
   foundSuperLevelDev = NULL
   foundSubLevelDev = NULL
+  foundLinkDef = NULL
   
   # check if linkDefinition exists and levelDefinitions (LD) of superlevelName is of type SEGMENT and LD of subleveName is of type EVENT | SEGMENT 
   found = FALSE
@@ -31,6 +32,7 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
         found = TRUE
         foundSuperLevelDev = levDefSuper
         foundSubLevelDev = levDefSub
+        foundLinkDef = ld
         break
       }
     }
@@ -58,26 +60,44 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
   # query DB depending on type of sublevelDefinition 
   if(foundSubLevelDev$type == 'EVENT'){
     
-    dbSendQuery(con, paste0("INSERT INTO ", linksTableName, " (session, bundle, fromID, toID) ",
+    dbSendQuery(con, paste0("INSERT INTO ", linksTableName, " (session, bundle, fromID, toID)",
                             " SELECT * FROM",
                             " (SELECT it1.session, it1.bundle, it1.itemID AS 'fromID', it2.itemID AS 'toID'", 
                             " FROM ", itemsTableName, " AS 'it1' JOIN ", itemsTableName, " AS 'it2' ",
                             " WHERE it1.level = '", superlevelName, "'", " AND it2.level = '", sublevelName, "'", 
                             " AND it1.session = it2.session", " AND it1.bundle = it2.bundle",
-                            " AND it2.samplePoint >= it1.sampleStart", " AND it2.samplePoint <= (it1.sampleStart + it1.sampleDur)) AS res", # only for EVENT sublevel
+                            " AND (it2.samplePoint + 0 >= it1.sampleStart + 0) AND it2.samplePoint <= (it1.sampleStart + it1.sampleDur)) AS res", # + 0 added to ensure numeric comparison
                             " WHERE NOT EXISTS (SELECT lt.fromID, lt.toID FROM ", linksTableName, " lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.fromID = res.fromID AND lt.toID = res.toID)"))
-
     
   }else{
     
-    dbSendQuery(con, paste0("INSERT INTO ", linksTableName, " (session, bundle, fromID, toID) ",
-                            " SELECT * FROM",
-                            " (SELECT it1.session, it1.bundle, it1.itemID, it2.itemID", 
-                            " FROM ", itemsTableName, " as it1 JOIN ", itemsTableName, " as it2 ",
-                            " WHERE it1.level = '", superlevelName, "'", " AND it2.level = '", sublevelName, "'", 
-                            " AND it1.session = it2.session", " AND it1.bundle = it2.bundle",
-                            " AND it2.sampleStart >= it1.sampleStart", " AND (it2.sampleStart + it2.sampleDur) <= (it1.sampleStart + it1.sampleDur)) AS res", # only for SEGMENT sublevel
-                            " WHERE NOT EXISTS (SELECT lt.fromID, lt.toID FROM ", linksTableName, " lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.fromID = res.fromID AND lt.toID = res.toID)")) 
+    if(ld$type == "ONE_TO_MANY"){
+      
+      dbSendQuery(con, paste0("INSERT INTO ", linksTableName, " (session, bundle, fromID, toID)",
+                              " SELECT * FROM",
+                              " (SELECT it1.session, it1.bundle, it1.itemID AS 'fromID', it2.itemID AS 'toID'", 
+                              " FROM ", itemsTableName, " as it1 JOIN ", itemsTableName, " as it2",
+                              " WHERE (it1.level = '", superlevelName, "'", " AND it2.level = '", sublevelName, "'", 
+                              " AND it1.session = it2.session AND it1.bundle = it2.bundle",
+                              " AND (it2.sampleStart + 0 >= it1.sampleStart + 0)) AND ((it2.sampleStart + it2.sampleDur) <= (it1.sampleStart + it1.sampleDur))) AS res", # + 0 added to ensure numeric comparison
+                              " WHERE NOT EXISTS (SELECT lt.fromID, lt.toID FROM ", linksTableName, " lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.fromID = res.fromID AND lt.toID = res.toID)"))
+      
+    }else if(ld$type == "MANY_TO_MANY"){
+      
+      dbSendQuery(con, paste0("INSERT INTO ", linksTableName, " (session, bundle, fromID, toID)",
+                              " SELECT * FROM",
+                              " (SELECT it1.session, it1.bundle, it1.itemID AS 'fromID', it2.itemID AS 'toID'", 
+                              " FROM ", itemsTableName, " as it1 JOIN ", itemsTableName, " as it2",
+                              " WHERE (it1.level = '", superlevelName, "'", " AND it2.level = '", sublevelName, "'", 
+                              " AND it1.session = it2.session AND it1.bundle = it2.bundle",
+                              " AND (it2.sampleStart + 0 >= it1.sampleStart + 0)) AND ((it2.sampleStart + it2.sampleDur) <= (it1.sampleStart + it1.sampleDur))) AS res",
+                              " WHERE NOT EXISTS (SELECT lt.fromID, lt.toID FROM ", linksTableName, " lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.fromID = res.fromID AND lt.toID = res.toID)"))
+      
+    }else if(ld$type == "ONE_TO_ONE"){
+      
+      stop("ONE_TO_ONE not implemented yet")
+      
+    }
   }
   
   # extract link dataframe and assign them to db Obj
