@@ -65,7 +65,8 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
                             " WHERE it1.level = '", superlevelName, "'", " AND it2.level = '", sublevelName, "'", 
                             " AND it1.session = it2.session", " AND it1.bundle = it2.bundle",
                             " AND it2.samplePoint >= it1.sampleStart", " AND it2.samplePoint <= (it1.sampleStart + it1.sampleDur)) AS res", # only for EVENT sublevel
-                            " WHERE NOT EXISTS (SELECT fromID, toID FROM ", linksTableName, " lt WHERE lt.fromID = res.fromID AND lt.toID = res.toID)"))
+                            " WHERE NOT EXISTS (SELECT lt.fromID, lt.toID FROM ", linksTableName, " lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.fromID = res.fromID AND lt.toID = res.toID)"))
+
     
   }else{
     
@@ -76,7 +77,7 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
                             " WHERE it1.level = '", superlevelName, "'", " AND it2.level = '", sublevelName, "'", 
                             " AND it1.session = it2.session", " AND it1.bundle = it2.bundle",
                             " AND it2.sampleStart >= it1.sampleStart", " AND (it2.sampleStart + it2.sampleDur) <= (it1.sampleStart + it1.sampleDur)) AS res", # only for SEGMENT sublevel
-                            " WHERE NOT EXISTS (SELECT fromID, toID FROM ", linksTableName, " lt WHERE lt.fromID = res.fromID AND lt.toID = res.toID)")) 
+                            " WHERE NOT EXISTS (SELECT lt.fromID, lt.toID FROM ", linksTableName, " lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.fromID = res.fromID AND lt.toID = res.toID)")) 
   }
   
   # extract link dataframe and assign them to db Obj
