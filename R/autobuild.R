@@ -5,6 +5,8 @@
 ##' this is the case and a according link definition is present in db$DBconfig$linkDefintions,
 ##' this function automatically links the events or segments of the sub-level which occur
 ##' within (startSample to (startSample + sampleDur)) the segments of the super-level to those segments.
+##' The linkDefinition$type (ONE_TO_MANY, MANY_TO_MANY, ONE_TO_ONE) is relavant whether a link
+##' is genarated or not. See the emuR_autobuild vignette for more details. 
 ##' 
 ##' @param db emuDB object to perform autobuild on
 ##' @param superlevelName name of level to link from (link definition required in db)
@@ -62,11 +64,11 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
     
     dbSendQuery(con, paste0("INSERT INTO ", linksTableName, " (session, bundle, fromID, toID)",
                             " SELECT * FROM",
-                            " (SELECT it1.session, it1.bundle, it1.itemID AS 'fromID', it2.itemID AS 'toID'", 
-                            " FROM ", itemsTableName, " AS 'it1' JOIN ", itemsTableName, " AS 'it2' ",
-                            " WHERE it1.level = '", superlevelName, "'", " AND it2.level = '", sublevelName, "'", 
-                            " AND it1.session = it2.session", " AND it1.bundle = it2.bundle",
-                            " AND (it2.samplePoint + 0 >= it1.sampleStart + 0) AND it2.samplePoint <= (it1.sampleStart + it1.sampleDur)) AS res", # + 0 added to ensure numeric comparison
+                            " (SELECT super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
+                            " FROM ", itemsTableName, " AS 'super' JOIN ", itemsTableName, " AS 'sub' ",
+                            " WHERE super.level = '", superlevelName, "'", " AND sub.level = '", sublevelName, "'", 
+                            " AND super.session = sub.session", " AND super.bundle = sub.bundle",
+                            " AND (sub.samplePoint + 0 >= super.sampleStart + 0) AND sub.samplePoint <= (super.sampleStart + super.sampleDur)) AS res", # + 0 added to ensure numeric comparison
                             " WHERE NOT EXISTS (SELECT lt.fromID, lt.toID FROM ", linksTableName, " lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.fromID = res.fromID AND lt.toID = res.toID)"))
     
   }else{
@@ -75,27 +77,38 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
       
       dbSendQuery(con, paste0("INSERT INTO ", linksTableName, " (session, bundle, fromID, toID)",
                               " SELECT * FROM",
-                              " (SELECT it1.session, it1.bundle, it1.itemID AS 'fromID', it2.itemID AS 'toID'", 
-                              " FROM ", itemsTableName, " as it1 JOIN ", itemsTableName, " as it2",
-                              " WHERE (it1.level = '", superlevelName, "'", " AND it2.level = '", sublevelName, "'", 
-                              " AND it1.session = it2.session AND it1.bundle = it2.bundle",
-                              " AND (it2.sampleStart + 0 >= it1.sampleStart + 0)) AND ((it2.sampleStart + it2.sampleDur) <= (it1.sampleStart + it1.sampleDur))) AS res", # + 0 added to ensure numeric comparison
+                              " (SELECT super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
+                              " FROM ", itemsTableName, " as super JOIN ", itemsTableName, " as sub",
+                              " WHERE (super.level = '", superlevelName, "'", " AND sub.level = '", sublevelName, "'", 
+                              " AND super.session = sub.session AND super.bundle = sub.bundle",
+                              " AND (sub.sampleStart + 0 >= super.sampleStart + 0)) AND ((sub.sampleStart + sub.sampleDur) <= (super.sampleStart + super.sampleDur))) AS res", # + 0 added to ensure numeric comparison
                               " WHERE NOT EXISTS (SELECT lt.fromID, lt.toID FROM ", linksTableName, " lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.fromID = res.fromID AND lt.toID = res.toID)"))
       
     }else if(ld$type == "MANY_TO_MANY"){
       
       dbSendQuery(con, paste0("INSERT INTO ", linksTableName, " (session, bundle, fromID, toID)",
                               " SELECT * FROM",
-                              " (SELECT it1.session, it1.bundle, it1.itemID AS 'fromID', it2.itemID AS 'toID'", 
-                              " FROM ", itemsTableName, " as it1 JOIN ", itemsTableName, " as it2",
-                              " WHERE (it1.level = '", superlevelName, "'", " AND it2.level = '", sublevelName, "'", 
-                              " AND it1.session = it2.session AND it1.bundle = it2.bundle",
-                              " AND (it2.sampleStart + 0 >= it1.sampleStart + 0)) AND ((it2.sampleStart + it2.sampleDur) <= (it1.sampleStart + it1.sampleDur))) AS res",
+                              " (SELECT super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
+                              " FROM ", itemsTableName, " as super JOIN ", itemsTableName, " as sub",
+                              " WHERE super.level = '", superlevelName, "'", " AND sub.level = '", sublevelName, "'", 
+                              " AND super.session = sub.session AND super.bundle = sub.bundle",
+                              " AND (((sub.sampleStart + 0 >= super.sampleStart + 0) AND ((sub.sampleStart + sub.sampleDur) <= (super.sampleStart + super.sampleDur)))", # within
+                              " OR ((sub.sampleStart + 0 <= super.sampleStart + 0) AND ((sub.sampleStart + sub.sampleDur) >= (super.sampleStart + 0)) AND ((sub.sampleStart + sub.sampleDur) <= (super.sampleStart + super.sampleDur)))", # left overlap
+                              " OR ((sub.sampleStart + 0 >= super.sampleStart + 0) AND ((sub.sampleStart + 0) <= (super.sampleStart + super.sampleDur)) AND ((sub.sampleStart + sub.sampleDur) >= (super.sampleStart + super.sampleDur)))", # right overlap
+                              " OR ((sub.sampleStart + 0 <= super.sampleStart + 0) AND ((sub.sampleStart + sub.sampleDur) >= (super.sampleStart + super.sampleDur)))", # left and right overlap
+                              ")) AS res", # right overlap
                               " WHERE NOT EXISTS (SELECT lt.fromID, lt.toID FROM ", linksTableName, " lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.fromID = res.fromID AND lt.toID = res.toID)"))
       
     }else if(ld$type == "ONE_TO_ONE"){
-      
-      stop("ONE_TO_ONE not implemented yet")
+
+      dbSendQuery(con, paste0("INSERT INTO ", linksTableName, " (session, bundle, fromID, toID)",
+                              " SELECT * FROM",
+                              " (SELECT super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
+                              " FROM ", itemsTableName, " as super JOIN ", itemsTableName, " as sub",
+                              " WHERE (super.level = '", superlevelName, "'", " AND sub.level = '", sublevelName, "'", 
+                              " AND super.session = sub.session AND super.bundle = sub.bundle",
+                              " AND (sub.sampleStart + 0 = super.sampleStart + 0)) AND ((sub.sampleStart + sub.sampleDur) = (super.sampleStart + super.sampleDur))) AS res", # are exatly the same
+                              " WHERE NOT EXISTS (SELECT lt.fromID, lt.toID FROM ", linksTableName, " lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.fromID = res.fromID AND lt.toID = res.toID)"))
       
     }
   }
@@ -116,5 +129,5 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
 }
 
 # FOR DEVELOPMENT 
-library('testthat') 
-test_file('tests/testthat/test_autobuild.R')
+# library('testthat') 
+# test_file('tests/testthat/test_autobuild.R')
