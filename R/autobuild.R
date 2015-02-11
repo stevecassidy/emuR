@@ -118,7 +118,7 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
   
   # store changes to disc
   if(writeToDisc){
-    store.emuDB(db, ae$basePath)
+    store.emuDB(db, db$basePath)
   }
   
   # Disconnect from the database
