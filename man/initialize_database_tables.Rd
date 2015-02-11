@@ -12,9 +12,11 @@ initialize_database_tables(conn, itemsTableName, labelTableName, linksTableName)
 \item{itemsTableName}{SQL table name of items table}
 
 \item{labelTableName}{SQL table name of label table}
+
+\item{linksTableName}{SQL table name of links table}
 }
 \description{
-Initialize empty database tables that in the sql database
+Initialize empty database tables in the sql database
 specified by the conn argument. The tables are items, labels, links
 }
 \author{
