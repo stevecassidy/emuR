@@ -25,7 +25,7 @@ this is the case and a according link definition is present in db$DBconfig$linkD
 this function automatically links the events or segments of the sub-level which occur
 within (startSample to (startSample + sampleDur)) the segments of the super-level to those segments.
 The linkDefinition$type (ONE_TO_MANY, MANY_TO_MANY, ONE_TO_ONE) is relavant whether a link
-is genarated or not. See the emuR_autobuild vignette for more details.
+is genarated or not. See the autobuild vignette for more details.
 }
 \author{
 Raphael Winkelmann
