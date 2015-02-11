@@ -549,6 +549,12 @@ load.annotation.for.legacy.bundle=function(schema,legacyBundleID,basePath=NULL,e
       }
     }
   }
+  # set sample rate even if no annotation levels exist
+  # Bug fix #20
+  if(is.null(bundleSampleRate)){
+    bundleSampleRate=sampleRate
+  }
+  
   #annotates=paste0('0000_ses/',uttCode,bundle.dir.suffix,'/',sampleTrackFile)
   
   sampleTrackFile=paste0(bundleName,'.',schema[['mediafileExtension']]) 
