@@ -23,6 +23,8 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
   foundSubLevelDev = NULL
   foundLinkDef = NULL
   
+  newLevelAppendStr = '_AB'
+  
   # check if linkDefinition exists and levelDefinitions (LD) of superlevelName is of type SEGMENT and LD of subleveName is of type EVENT | SEGMENT 
   found = FALSE
   for(ld in db$DBconfig$linkDefinitions){
@@ -58,6 +60,13 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
   dbWriteTable(con, itemsTableName, db$items)
   dbWriteTable(con, labelsTableName, db$labels)
   dbWriteTable(con, linksTableName, db$links)
+  
+  # duplicate superlevel
+#   res = dbSendQuery(con, paste0("SELECT level || '", newLevelAppendStr, "' FROM ", itemsTableName, " AS it WHERE it.level = '", superlevelName, "'"))
+  
+  res = dbSendQuery(con, paste0("SELECT * FROM (SELECT bundle AS 'bndlMaxID', MAX(itemID) AS 'bndlMaxValue' FROM ", itemsTableName, " GROUP BY bundle) as maxIdRes"))
+  
+  print(dbFetch(res))
   
   # query DB depending on type of sublevelDefinition 
   if(foundSubLevelDev$type == 'EVENT'){
@@ -129,5 +138,5 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
 }
 
 # FOR DEVELOPMENT 
-# library('testthat') 
-# test_file('tests/testthat/test_autobuild.R')
+library('testthat') 
+test_file('tests/testthat/test_autobuild.R')
