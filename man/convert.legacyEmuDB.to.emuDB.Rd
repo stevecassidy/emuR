@@ -4,12 +4,15 @@
 \alias{convert.legacyEmuDB.to.emuDB}
 \title{Convert legacy EMU database and store it in new format}
 \usage{
-convert.legacyEmuDB.to.emuDB(emuTplPath, targetDir, verbose = TRUE)
+convert.legacyEmuDB.to.emuDB(emuTplPath, targetDir, options = NULL,
+  verbose = TRUE)
 }
 \arguments{
 \item{emuTplPath}{EMU template file path}
 
 \item{targetDir}{target directory}
+
+\item{options}{list of options}
 
 \item{verbose}{be verbose}
 }
@@ -20,6 +23,11 @@ If the legacy database template file could be found the database metadata and an
 Information of the legacy Emu template file is transferred to [dbname]_DBconfig.json file. Legacy Emu utterances are reorganized in sessions and bundles.
 Media files (e.g. wav files) are copied, SSFF track files are rewritten. Annotations in Emu hierarchy (.hlb) files and ESPS label files are converted to a [bundleName]_annot.json file per bundle (utterance).
 Please note that only those files get copied, which are referenced by the template file. Additional files in the legacy database directories are ignored. The legacy Emu database is not modified.
+
+options is a list of key value pairs:
+rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: TRUE
+ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: TRUE
+sourceFileTextEncoding encoding of legacy database text files (template, label and hlb files) :default NULL (usess encoding of operating system platform)
 }
 \examples{
 \dontrun{

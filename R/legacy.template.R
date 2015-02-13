@@ -6,7 +6,7 @@
 ## @import stringr uuid wrassp
 ## @keywords emuDB database schema Emu 
 ## 
-load.database.schema.from.emu.template=function(tplPath){
+load.database.schema.from.emu.template=function(tplPath,encoding=NULL){
   LEVEL_CMD='level'
   LABFILE_CMD='labfile'
   LABEL_CMD='label'
@@ -22,7 +22,11 @@ load.database.schema.from.emu.template=function(tplPath){
   dbName=gsub("[.][tT][pP][lL]$","",tplBasename)
   
   # read
-  tpl = try(readLines(tplPath))
+  if(is.null(encoding)){
+    tpl = try(readLines(tplPath))
+  }else{
+    tpl = try(readLines(tplPath,encoding=encoding))
+  }
   if(class(tpl) == "try-error") {
     stop("read tpl: cannot read from file ", tplPath)
   }
@@ -217,29 +221,25 @@ load.database.schema.from.emu.template=function(tplPath){
   tl=length(tracks)
   al=length(annotationDescriptors)
   
-  for(pd in pathDescriptors){
-    
-    #isTrack=FALSE
-    tss2=1:tl
-    for(ti2 in tss2){
-      
+  # apply pathes to tracks  
+  tss2=1:tl
+  for(ti2 in tss2){
+    for(pd in pathDescriptors){
       if(tracks[[ti2]][['fileExtension']] == pd[['key']]){
-        
         tracks[[ti2]][['basePath']]=pd[['basePath']]
-        #cat("set track path for key:",pd$key,"\n")
         break
       }
     }
-    
-    as=1:al
-    for(ai in as){
+  }
+  
+  # apply pathes to annotations
+  as=1:al
+  for(ai in as){
+    for(pd in pathDescriptors){
       if(annotationDescriptors[[ai]][['extension']] == pd[['key']]){
-        
         annotationDescriptors[[ai]][['basePath']]=pd[['basePath']]
-        #cat("set anno path for key:",pd$key,"\n")
         break
       }
-      
     }
   }
   

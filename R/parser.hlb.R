@@ -11,7 +11,7 @@ require(stringr)
 ## @author Klaus Jaensch
 ## @keywords emuR Emu hierarchy hlb
 ## 
-parse.hlb.file <- function(hlbFilePath=NULL,levelDefinitions,levels) {
+parse.hlb.file <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL) {
   
   EMU_HIERARCHY_HEADER = "**EMU hierarchical labels**"
   hlbTiers=list()
@@ -21,7 +21,11 @@ parse.hlb.file <- function(hlbFilePath=NULL,levelDefinitions,levels) {
     }
  
     # read
-    lines = try(readLines(hlbFilePath))
+    if(is.null(encoding)){
+      lines = try(readLines(hlbFilePath))
+    }else{
+      lines = try(readLines(hlbFilePath,encoding=encoding))
+    }
     if(class(lines) == "try-error") {
       stop("Cannot read from file ", hlbFilePath)
     }

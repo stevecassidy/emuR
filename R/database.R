@@ -1858,7 +1858,8 @@ add.linkDefinition<-function(db,linkDefinition){
 ##' Store EMU database to directory
 ##' 
 ##' options is a list of key value pairs:
-##' rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: TRUE
+##' rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: FALSE
+##' ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: FALSE
 ##' 
 ##' @param db EMU database (in R workspace)
 ##' @param targetDir target directory
@@ -1877,19 +1878,30 @@ add.linkDefinition<-function(db,linkDefinition){
 ##' 
 ##' }
 
-store.emuDB <- function(db,targetDir,options=list(),showProgress=TRUE){
+store.emuDB <- function(db,targetDir,options=NULL,showProgress=TRUE){
   dbApiLevel=db[['apiLevel']]
   if(is.null(dbApiLevel)){
     stop("Database API level differs from R package API level: ",apiLevel,"\nPlease reload the database: db=reload(db)")
   }else if(dbApiLevel!=emuDB.apiLevel){
     stop("Database API level: ",dbApiLevel," differs from R package API level: ",apiLevel,"\nPlease reload the database: db=reload(db)")
   }
+  
+  # default options
+  # ignore missing SSFF track files
+  # rewrite SSFF track files
+  mergedOptions=list(ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=TRUE)
+  if(!is.null(options)){
+    for(opt in names(options)){
+      mergedOptions[[opt]]=options[[opt]]
+    }
+  }
+  
   rewriteSSFFTracks=FALSE
-  if(!is.null(options[['rewriteSSFTracks']])){
+  if(!is.null(mergedOptions[['rewriteSSFTracks']])){
     rewriteSSFFTracks=options[['rewriteSSFTracks']]
   }
   ignoreMissingSSFFTrackFiles=FALSE
-  if(!is.null(options[['ignoreMissingSSFFTrackFiles']])){
+  if(!is.null(mergedOptions[['ignoreMissingSSFFTrackFiles']])){
     ignoreMissingSSFFTrackFiles=options[['ignoreMissingSSFFTrackFiles']]
   }
   progress=0

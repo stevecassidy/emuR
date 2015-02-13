@@ -27,8 +27,8 @@ This document describes how to automatically build hierachies for a given
 The available function are:
 
 - autobuild.linkFromTimes()
-- autobuild.???
-- autobuild.???
+- autobuild.MapLevels()
+- autobuild.Syllabify()
 
 
 
@@ -56,8 +56,8 @@ path2ae = system.file("extdata/emu/DBs/ae/", package = "emuR")
 ae = load.emuDB(path2ae, verbose = F)
 # plot the phonetic level
 # add linkDef.
-  tmpLinkDef = create.schema.linkDefinition(type='ONE_TO_MANY', superlevelName='Phonetic', sublevelName='Tone')
-  ae$DBconfig$linkDefinitions[[length(ae$DBconfig$linkDefinitions) + 1]] = tmpLinkDef 
+  #tmpLinkDef = create.schema.linkDefinition(type='ONE_TO_MANY', superlevelName='Phonetic', sublevelName='Tone')
+  #ae$DBconfig$linkDefinitions[[length(ae$DBconfig$linkDefinitions) + 1]] = tmpLinkDef 
 
 
 ```

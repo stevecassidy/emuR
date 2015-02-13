@@ -414,7 +414,7 @@ get.legacy.file.path=function(basePath,emuPath,legacybundleID,fileExtension){
 }
 
 ## @import stringr wrassp
-load.annotation.for.legacy.bundle=function(schema,legacyBundleID,basePath=NULL){
+load.annotation.for.legacy.bundle=function(schema,legacyBundleID,basePath=NULL,encoding=NULL){
   
   newBundleId=convert.legacy.bundle.id(legacyBundleID)
   bundleName=newBundleId[2]
@@ -476,7 +476,7 @@ load.annotation.for.legacy.bundle=function(schema,legacyBundleID,basePath=NULL){
         if(extension!='hlb'){
           # parse lab file
           if(file.exists(annoPath)){
-            labTier=parse.esps.label.file(labFilePath=annoPath,tierName=ad[['name']],tierType=ad[['type']],sampleRate=sampleRate,idCnt=idCnt)
+            labTier=parse.esps.label.file(labFilePath=annoPath,tierName=ad[['name']],tierType=ad[['type']],encoding=encoding,sampleRate=sampleRate,idCnt=idCnt)
             if(!is.null(labTier)){
               levels[[labTier[['name']]]] <- labTier
               labTierItemCnt=length(labTier[['items']])
@@ -509,7 +509,7 @@ load.annotation.for.legacy.bundle=function(schema,legacyBundleID,basePath=NULL){
         #cat("Parse hlb file:",annoPath,"\n")
         hlbFilePath=get.legacy.file.path(basePath=basePath,emuPath=annoBasePathEmu,legacyBundleID,fileExtension=extension)
         if(file.exists(hlbFilePath)){
-          hlbParseResult=parse.hlb.file(hlbFilePath=annoPath,levelDefinitions=schema[['levelDefinitions']],levels=levels);
+          hlbParseResult=parse.hlb.file(hlbFilePath=annoPath,levelDefinitions=schema[['levelDefinitions']],levels=levels,encoding=encoding);
           hlbTiers=hlbParseResult[['hlbTiers']]
           links=hlbParseResult[['links']]
           # sort levels
@@ -613,18 +613,19 @@ remove.database.redundant.links<-function(database){
 ## @param dbName legacy EMU database name
 ## @param verboseLevel integer setting the verbosity level
 ## @param showProgress show progress bar
+## @param encodign optional encoding of input files
 ## @return object of class emuDB
 ## @author Klaus Jaensch
 ## @import stringr wrassp
 ## 
-load.database.from.legacy.emu.by.name=function(dbName,verboseLevel=0,showProgress=TRUE){
+load.database.from.legacy.emu.by.name=function(dbName,verboseLevel=0,showProgress=TRUE,encoding=NULL){
   
   emuDbsList=list.legacy.emu.databases()
   emuTplPath=emuDbsList[[dbName]]
   if(is.null(emuTplPath)){
     stop("Legacy EMU database '",dbName,"' could not be found.")
   }
-  return(load.database.from.legacy.emu(emuTplPath=emuTplPath,verboseLevel=verboseLevel,showProgress=showProgress))
+  return(load.database.from.legacy.emu(emuTplPath=emuTplPath,verboseLevel=verboseLevel,showProgress=showProgress,encoding=encoding))
 }
 
 
@@ -633,14 +634,15 @@ load.database.from.legacy.emu.by.name=function(dbName,verboseLevel=0,showProgres
 ## @param emuTplPath EMU template file path
 ## @param verboseLevel integer setting the verbosity level
 ## @param showProgress show progress bar
+## @param encoding optionla encoding if input files
 ## @return object of class emuDB
 ## @author Klaus Jaensch
 ## @import stringr wrassp
 ## 
-load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TRUE){
+load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TRUE,encoding=NULL){
   progress=0
   
-  dbd=load.database.schema.from.emu.template(emuTplPath)
+  dbd=load.database.schema.from.emu.template(emuTplPath,encoding=encoding)
   if(verboseLevel>0){
     cat("Loaded database schema.\n")
   }
@@ -726,7 +728,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     cutPos=str_length(ptrFileBasename)-cutLen
     #cat("Cut: ",ptrFileBasename,cutLen,cutPos,"\n")
     #uttCode=substr(ptrFileBasename,1,cutPos)
-    bundle=load.annotation.for.legacy.bundle(schema,legacyBundleID,db[['basePath']])
+    bundle=load.annotation.for.legacy.bundle(schema,legacyBundleID,db[['basePath']],encoding=encoding)
     
     # "inlining" of append.bundle.to.tmp.list improves performance for very large databases
     # (db object is not copied for each call)
@@ -988,8 +990,15 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
 ##' @details Information of the legacy Emu template file is transferred to [dbname]_DBconfig.json file. Legacy Emu utterances are reorganized in sessions and bundles. 
 ##' Media files (e.g. wav files) are copied, SSFF track files are rewritten. Annotations in Emu hierarchy (.hlb) files and ESPS label files are converted to a [bundleName]_annot.json file per bundle (utterance).
 ##' Please note that only those files get copied, which are referenced by the template file. Additional files in the legacy database directories are ignored. The legacy Emu database is not modified.
+##' 
+##' options is a list of key value pairs:
+##' rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: TRUE
+##' ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: TRUE
+##' sourceFileTextEncoding encoding of legacy database text files (template, label and hlb files) :default NULL (usess encoding of operating system platform)
+##' 
 ##' @param emuTplPath EMU template file path
 ##' @param targetDir target directory
+##' @param options list of options
 ##' @param verbose be verbose
 ##' @author Klaus Jaensch
 ##' @seealso \code{\link{load.emuDB}}
@@ -1004,8 +1013,19 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
 ##'
 ##' }
 ##' 
-convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,verbose=TRUE){
+convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,options=NULL,verbose=TRUE){
  
+  # default options
+  # ignore missing SSFF track files
+  # rewrite SSFF track files
+  # encoding : platform 
+  mergedOptions=list(sourceFileTextEncoding=NULL,ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=TRUE)
+  if(!is.null(options)){
+    for(opt in names(options)){
+        mergedOptions[[opt]]=options[[opt]]
+    }
+  }
+  
   # pre check target dir
   if(file.exists(targetDir)){
     tdInfo=file.info(targetDir)
@@ -1015,7 +1035,7 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,verbose=TRUE){
   }
   
   # load database schema and metadata to get db name
-  dbConfig=load.database.schema.from.emu.template(emuTplPath)
+  dbConfig=load.database.schema.from.emu.template(emuTplPath,encoding=mergedOptions[['sourceFileTextEncoding']])
   # database dir
   pp=file.path(targetDir,dbConfig[['name']])
   
@@ -1023,25 +1043,27 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,verbose=TRUE){
   if(file.exists(pp)){
     stop("Database storage dir ",pp," already exists.")
   }
-  
+
   # load legacy Emu db
   db=load.database.from.legacy.emu(emuTplPath,showProgress=verbose)
   
- 
-  # ignore missing SSFF track files
-  # rewrite SSFF track files
-  storeOptions=list(ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=TRUE)
-  
   # store loaded database 
-  store.emuDB(db,targetDir,options=storeOptions,showProgress=verbose)
+  store.emuDB(db,targetDir,options=mergedOptions,showProgress=verbose)
   
 }
 
 ##' Convert legacy EMU database and store it in new format
 ##' If the legacy database could be found it is loaded. If load is successfull a new directory with the name of the database is created in the \code{targetDirectory}
 ##' Loading by name only works if database was used with legacy EMU. Use the function \code{\link{convert.legacyEmuDB.to.emuDB}} otherwise.
+##'
+##' options is a list of key value pairs:
+##' rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: TRUE
+##' ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: TRUE
+##' ##' sourceFileTextEncoding encoding of legacy database text files (template, label and hlb files) :default NULL (usess encoding of operating system platform)
+##' 
 ##' @param dbName legacy EMU database name
 ##' @param targetDir target directory
+##' @param options list of options
 ##' @param verbose be verbose
 ##' @author Klaus Jaensch
 ##' @seealso \code{\link{convert.legacyEmuDB.to.emuDB}} \code{\link{load.emuDB}} 
@@ -1055,7 +1077,19 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,verbose=TRUE){
 ##' 
 ##' }
 ##' 
-convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,verbose=TRUE){
+convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,options=NULL,verbose=TRUE){
+  
+  # default options
+  # ignore missing SSFF track files
+  # rewrite SSFF track files
+  # encoding : platform 
+  mergedOptions=list(sourceFileTextEncoding=NULL,ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=TRUE)
+  if(!is.null(options)){
+    for(opt in names(options)){
+      mergedOptions[[opt]]=options[[opt]]
+    }
+  }
+  
   # pre check target dir
   if(file.exists(targetDir)){
     tdInfo=file.info(targetDir)
@@ -1073,9 +1107,10 @@ convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,verbose=TRUE){
   }
   
   # load database schema and metadata
-  db=load.database.from.legacy.emu.by.name(dbName,showProgress=verbose)
+  db=load.database.from.legacy.emu.by.name(dbName,showProgress=verbose,encoding=mergedOptions[['sourceFileTextEncoding']])
+  
   # save in new format
-  store.emuDB(db,targetDir,showProgress=verbose)
+  store.emuDB(db,targetDir,options=mergedOptions,showProgress=verbose)
   #activeButtons=list(saveBundle=TRUE)
  
 }
