@@ -1888,21 +1888,13 @@ store.emuDB <- function(db,targetDir,options=NULL,showProgress=TRUE){
   # default options
   # ignore missing SSFF track files
   # rewrite SSFF track files
-  mergedOptions=list(ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=TRUE)
+  mergedOptions=list(ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=FALSE)
   if(!is.null(options)){
     for(opt in names(options)){
       mergedOptions[[opt]]=options[[opt]]
     }
   }
   
-  rewriteSSFFTracks=FALSE
-  if(!is.null(mergedOptions[['rewriteSSFTracks']])){
-    rewriteSSFFTracks=options[['rewriteSSFTracks']]
-  }
-  ignoreMissingSSFFTrackFiles=FALSE
-  if(!is.null(mergedOptions[['ignoreMissingSSFFTrackFiles']])){
-    ignoreMissingSSFFTrackFiles=options[['ignoreMissingSSFFTrackFiles']]
-  }
   progress=0
   # check target dir
   if(file.exists(targetDir)){
@@ -1984,7 +1976,7 @@ store.emuDB <- function(db,targetDir,options=NULL,showProgress=TRUE){
         }
         if(file.exists(sf)){
           
-          if(rewriteSSFFTracks && isSSFFFile){
+          if(mergedOptions[['rewriteSSFFTracks']] && isSSFFFile){
             # is SSFF track
             # read/write instead of copy to get rid of big endian encoded SSFF files (SPARC)
             pfAssp=read.AsspDataObj(sf)
@@ -1996,7 +1988,7 @@ store.emuDB <- function(db,targetDir,options=NULL,showProgress=TRUE){
             #cat("Copied: ",sf," to ",nsfp,"\n")
           }
         }else{
-          if(!ignoreMissingSSFFTrackFiles){
+          if(!mergedOptions[['ignoreMissingSSFFTrackFiles']]){
             stop("SSFF track file :'",sf,"' does not exist!")
           }
         }
