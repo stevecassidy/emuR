@@ -1757,7 +1757,6 @@ add.linkDefinition<-function(db,linkDefinition){
 ##' @return modified database object
 ##' @author Klaus Jaensch
 ##' @import sqldf stringr
-##' @seealso \code{\link{create.emuDB}}
 ##' @keywords emuDB database Emu
 ##' @examples
 ##' \dontrun{
