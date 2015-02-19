@@ -3,7 +3,27 @@ require(base64enc)
 
 ##' Serve EMU database to EMU-Webapp
 ##' 
-##' @description Starts a websocket server and listens on commands from a running EMU-Webapplication browser GUI instance. The server runs in a loop and blocks the R console. Stop the server with the 'Clear' button of the webapp GUI. The server is also stopped when the browser is closed or the webapplication page is reloaded. Communication is defined by EMU-webApp-websocket-protocol version 0.0.1
+##' @description Server for EMU-Webapp browser GUI \url{http://ips-lmu.github.io/EMU-webApp/}
+##' 
+##' Start instructions:
+##' 
+##' Call this function to start the server. Do not forget to (re-)assign the return value to reflect changes made in the Web application: \code{myDb=serve(myDb)}.
+##' 
+##' Start a suitable HTML5 capable Web-Browser (Google Chrome, Firefox,...).
+##' 
+##' Navigate to the EMU-Webapp URL: \url{http://ips-lmu.github.io/EMU-webApp/}.
+##' 
+##' Press the 'Connect' button in the EMU-webApp and connect with default URL.
+##' 
+##' EMU-webApp should load the bundle list and the first bundle of the given database (object).
+##' 
+##' Stop instructions:
+##' 
+##' Stop the server with the 'Clear' button of the webapp or the reload button of your browser.
+##' 
+##' The server can be interrupted with Ctrl-C if something wents wrong.
+##' 
+##' @details  Function opens a HTTP/websocket and waits in a loop for browser requests. The R console will be blocked. On successfull connection the server sends the session and bundle list of the given database object. The Web application requests bundle data for editing. If a bundle is modified with the EMU-webApp and the save button is pressed the server modifies the database object and saves the changes to disk. Communication is defined by EMU-webApp-websocket-protocol version 0.0.1
 ##' @param database a emuDB database object
 ##' @param port the port number to listen on (default: 17890)
 ##' @param debug TRUE to enable debugging (default: no debugging messages)
@@ -15,14 +35,10 @@ require(base64enc)
 ##' @keywords emuDB EMU-webapp database websocket Emu
 ##' @examples
 ##' \dontrun{ 
-##' ## Serve database object ae (opens default HTTP/websocket port 17890)
+##' ## Load an EMU database and serve it to the EMU-webApp (opens default HTTP/websocket port 17890)
 ##' 
-##' ae=serve(ae)
-##' 
-##' ## serve database object ae, open HTTP/websocket port 9000
-##' 
-##' ae=serve(ae,port=9000)
-##' 
+##' myDb=load.emuDB("/path/to/myDb")
+##' myDb=serve(myDb)
 ##' }
 ##' 
 serve<-function(database,port=17890,debug=FALSE,debugLevel=0){
@@ -369,7 +385,7 @@ serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
     }
     # store handle global for recovery after crash otr terminated R session
     .emuR.server.serverHandle<<-sh
-    
+    cat("Navigate your browser to the EMU-Webapp URL: http://ips-lmu.github.io/EMU-webApp/\n")
     cat("Server connection URL: ws://localhost:",port,"\n",sep='')
     cat("To stop the server press EMU-Webapp 'clear' button or reload the page in your browser.\n")
     #cat("EMU-Webapp server handle:",sh,"\n")
