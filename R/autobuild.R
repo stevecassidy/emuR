@@ -23,7 +23,7 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
   foundSubLevelDev = NULL
   foundLinkDef = NULL
   
-  backupLevelAppendStr = '_autob_BU'
+  backupLevelAppendStr = '-autobuildBackup'
   
   # check if linkDefinition exists and levelDefinitions (LD) of superlevelName is of type SEGMENT and LD of subleveName is of type EVENT | SEGMENT 
   found = FALSE
@@ -61,15 +61,30 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
   dbWriteTable(con, labelsTableName, db$labels)
   dbWriteTable(con, linksTableName, db$links)
   
-  # backup superlevel (duplicate new level with new ids ) SIC should do precheck if level exists
-  res = dbSendQuery(con, paste0("INSERT INTO ", itemsTableName,
-                                " SELECT '", db$name,"' || '_' || session || '_' || bundle || '_' || maxIdRes.bndlMaxID || '_' || (itemID + bndlMaxValue) AS id, session, bundle, level || '", backupLevelAppendStr, "' AS level, itemID + bndlMaxValue, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur, label",
-                                " FROM (SELECT bundle AS 'bndlMaxID', MAX(itemID) AS 'bndlMaxValue' FROM ", itemsTableName, " GROUP BY bundle) as maxIdRes JOIN ", 
-                                itemsTableName, " AS it WHERE maxIdRes.bndlMaxID = it.bundle AND level ='", superlevelName, "'"))
+  # check if backup links exist
+  res = dbSendQuery(con, paste0("SELECT * FROM ", itemsTableName, " WHERE level = '", paste0(superlevelName, backupLevelAppendStr), "'"))
+  t = dbFetch(res)
+  dbClearResult(res)
   
-  res = dbSendQuery(con, paste0("SELECT * FROM ", itemsTableName, " WHERE level = 'Phonetic_autob_BU'"))
-  print(dbFetch(res))
-  print(dbFetch(res))
+  if(dim(t)[1] !=0){
+    stop("Can not backup level! Items table already has entries belonging to level: ", paste0(superlevelName, backupLevelAppendStr))
+  }
+  
+  # backup items belonging to superlevel (=duplicate level with new ids)
+  dbSendQuery(con, paste0("INSERT INTO ", itemsTableName,
+                          " SELECT '", db$name,"' || '_' || session || '_' || bundle ||  '_' || (itemID + bndlMaxValue) AS id, session, bundle, level || '", backupLevelAppendStr, "' AS level, itemID + bndlMaxValue, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur, label",
+                          " FROM (SELECT bundle AS 'bndlMaxID', MAX(itemID) AS 'bndlMaxValue' FROM ", itemsTableName, " GROUP BY bundle) as maxIdRes JOIN ", 
+                          itemsTableName, " AS it WHERE maxIdRes.bndlMaxID = it.bundle AND level ='", superlevelName, "'"))
+
+  
+  # backup labels belonging to superlevel SIC fix names!
+  dbSendQuery(con, paste0("INSERT INTO ", labelsTableName,
+                          " SELECT newID AS itemID, lt.session AS session, lt.bundle AS bundle, lt.labelIdx AS labelIdx, lt.name || '", backupLevelAppendStr, "' AS name, lt.label AS label FROM ",
+                          " (SELECT id AS origID, '", db$name,"' || '_' || session || '_' || bundle || '_' || (itemID + bndlMaxValue) AS newID, session, bundle, level AS level, itemID + bndlMaxValue, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur, label",
+                          " FROM (SELECT bundle AS 'bndlMaxID', MAX(itemID) AS 'bndlMaxValue' FROM ", itemsTableName, " GROUP BY bundle) as maxIdRes JOIN ", 
+                          itemsTableName, " AS it WHERE maxIdRes.bndlMaxID = it.bundle AND level ='", superlevelName, "') AS bu JOIN ", labelsTableName, " AS lt",
+                          " WHERE bu.origID = lt.itemID"))
+  
   
   # query DB depending on type of sublevelDefinition 
   if(foundSubLevelDev$type == 'EVENT'){
@@ -128,9 +143,25 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
   # extract link dataframe and assign them to db Obj
   db[['links']]=dbReadTable(con, linksTableName)
   
+  # generate levelDefinition for backup level
+  foundSuperLevelDev$name = paste0(foundSuperLevelDev$name, backupLevelAppendStr)
+  for(i in 1:length(foundSuperLevelDev$attributeDefinitions)){
+    foundSuperLevelDev$attributeDefinitions[[i]]$name = paste0(foundSuperLevelDev$attributeDefinitions[[i]]$name, backupLevelAppendStr)
+  }
+  ae$DBconfig$linkDefinitions[[length(ae$DBconfig$linkDefinitions) + 1]] = foundSuperLevelDev
+  
+  # convert superlevel to ITEM level
+  res = dbSendQuery(con, paste0("UPDATE ",itemsTableName, " SET type = 'ITEM', samplePoint = null, sampleStart = null, sampleDur = null WHERE level ='", superlevelName,"'"))
+  dbClearResult(res)
+
+  # print resulting table
+#   res = dbSendQuery(con, paste0("SELECT * FROM ", labelsTableName, ""))
+#   print(dbReadTable(con, labelsTableName))
+  
   # store changes to disc
   if(writeToDisc){
-    store.emuDB(db, db$basePath)
+    # SIC check if error is gen.
+    stop('rewrite not possible yet!')
   }
   
   # Disconnect from the database
