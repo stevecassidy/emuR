@@ -167,6 +167,7 @@ build.dataframe.table<-function(list,propNames){
   
 }
 
+##' @export
 summary.emuDB<-function(db){
  
   cat("Name:\t",db[['name']],"\n")
