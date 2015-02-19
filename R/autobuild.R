@@ -23,7 +23,7 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
   foundSubLevelDev = NULL
   foundLinkDef = NULL
   
-  newLevelAppendStr = '_AB'
+  backupLevelAppendStr = '_autob_BU'
   
   # check if linkDefinition exists and levelDefinitions (LD) of superlevelName is of type SEGMENT and LD of subleveName is of type EVENT | SEGMENT 
   found = FALSE
@@ -61,11 +61,14 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
   dbWriteTable(con, labelsTableName, db$labels)
   dbWriteTable(con, linksTableName, db$links)
   
-  # duplicate superlevel
-#   res = dbSendQuery(con, paste0("SELECT level || '", newLevelAppendStr, "' FROM ", itemsTableName, " AS it WHERE it.level = '", superlevelName, "'"))
+  # backup superlevel (duplicate new level with new ids ) SIC should do precheck if level exists
+  res = dbSendQuery(con, paste0("INSERT INTO ", itemsTableName,
+                                " SELECT '", db$name,"' || '_' || session || '_' || bundle || '_' || maxIdRes.bndlMaxID || '_' || (itemID + bndlMaxValue) AS id, session, bundle, level || '", backupLevelAppendStr, "' AS level, itemID + bndlMaxValue, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur, label",
+                                " FROM (SELECT bundle AS 'bndlMaxID', MAX(itemID) AS 'bndlMaxValue' FROM ", itemsTableName, " GROUP BY bundle) as maxIdRes JOIN ", 
+                                itemsTableName, " AS it WHERE maxIdRes.bndlMaxID = it.bundle AND level ='", superlevelName, "'"))
   
-  res = dbSendQuery(con, paste0("SELECT * FROM (SELECT bundle AS 'bndlMaxID', MAX(itemID) AS 'bndlMaxValue' FROM ", itemsTableName, " GROUP BY bundle) as maxIdRes"))
-  
+  res = dbSendQuery(con, paste0("SELECT * FROM ", itemsTableName, " WHERE level = 'Phonetic_autob_BU'"))
+  print(dbFetch(res))
   print(dbFetch(res))
   
   # query DB depending on type of sublevelDefinition 
@@ -109,7 +112,7 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
                               " WHERE NOT EXISTS (SELECT lt.fromID, lt.toID FROM ", linksTableName, " lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.fromID = res.fromID AND lt.toID = res.toID)"))
       
     }else if(ld$type == "ONE_TO_ONE"){
-
+      
       dbSendQuery(con, paste0("INSERT INTO ", linksTableName, " (session, bundle, fromID, toID)",
                               " SELECT * FROM",
                               " (SELECT super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
