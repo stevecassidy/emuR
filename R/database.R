@@ -1857,9 +1857,11 @@ add.linkDefinition<-function(db,linkDefinition){
 
 ##' Store EMU database to directory
 ##' 
+##' @details 
 ##' options is a list of key value pairs:
 ##' rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: FALSE
 ##' ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: FALSE
+##' symbolicLinkSignalFiles if TRUE signal files are symbolic linked instead of copied. Implies: rewriteSSFFTracks=FALSE, Default: FALSE
 ##' 
 ##' @param db EMU database (in R workspace)
 ##' @param targetDir target directory
@@ -1889,7 +1891,7 @@ store.emuDB <- function(db,targetDir,options=NULL,showProgress=TRUE){
   # default options
   # ignore missing SSFF track files
   # rewrite SSFF track files
-  mergedOptions=list(ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=FALSE)
+  mergedOptions=list(ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=FALSE,symbolicLinkSignalFiles=FALSE)
   if(!is.null(options)){
     for(opt in names(options)){
       mergedOptions[[opt]]=options[[opt]]
@@ -1976,8 +1978,9 @@ store.emuDB <- function(db,targetDir,options=NULL,showProgress=TRUE){
           }
         }
         if(file.exists(sf)){
-          
-          if(mergedOptions[['rewriteSSFFTracks']] && isSSFFFile){
+          if(mergedOptions[['symbolicLinkSignalFiles']]){
+            file.symlink(from=sf,to=nsfp)
+          }else if(mergedOptions[['rewriteSSFFTracks']] && isSSFFFile){
             # is SSFF track
             # read/write instead of copy to get rid of big endian encoded SSFF files (SPARC)
             pfAssp=read.AsspDataObj(sf)
