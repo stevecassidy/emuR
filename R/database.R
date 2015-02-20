@@ -2066,10 +2066,7 @@ calculate.postions.of.links<-function(items,links){
 ##' }
 load.emuDB <- function(databaseDir,verbose=TRUE){
   progress=0
- 
-  db=list()
-  class(db)<-'emuDB'
-  db[['apiLevel']]=emuDB.apiLevel
+
   # check database dir
   if(!file.exists(databaseDir)){
     stop("Database dir ",databaseDir," does not exist!")
@@ -2103,11 +2100,13 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   dbCfgJSON=paste(dbCfgJSONLns,collapse='')
   dbCfgPersisted=jsonlite::fromJSON(dbCfgJSON,simplifyVector=FALSE)
   
+  # unmarshal schema object (set class names)
   schema=unmarshal.from.persistence(dbCfgPersisted,emuR.persist.class[['DBconfig']])
+  # set transient values
   schema=.update.transient.schema.values(schema)
-  db[['DBconfig']]=schema
-  db[['name']]=schema[['name']]
-  db[['basePath']]=normalizePath(databaseDir)
+  # create db object
+  db=create.database(name = schema[['name']],basePath = normalizePath(databaseDir),DBconfig = schema)
+  
   if(verbose){
     cat("INFO: Loading EMU database from ",databaseDir,"...\n")
   }
