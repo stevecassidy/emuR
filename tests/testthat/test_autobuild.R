@@ -7,7 +7,7 @@ path2ae = system.file("extdata/emu/DBs/ae/", package = "emuR")
 
 ae = load.emuDB(path2ae, verbose = F)
 
-##############################
+#############################
 test_that("bad calls to autobuild.linkFromTimes", {
   
   expect_error(autobuild.linkFromTimes(ae, 'Phoneti', 'Tone'))
@@ -182,4 +182,67 @@ test_that("correct links are present after autobuild.linkFromTimes with SEGMENTS
   res = autobuild.linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   expect_equal(dim(res$links)[1], 785)
   
+})
+
+##############################
+test_that("backup works correctly", {
+  # add linkDef.
+  tmpLinkDef = create.schema.linkDefinition(type='ONE_TO_ONE', superlevelName='Phonetic', sublevelName='Phonetic2')
+  ae$DBconfig$linkDefinitions[[length(ae$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
+  
+  # add levelDef.
+  tmpLevelDef = create.schema.levelDefinition(name = 'Phonetic2', type = 'SEGMENT', attributeDefinitions = list())
+  ae$DBconfig$levelDefinitions[[length(ae$DBconfig$levelDefinitions) + 1]] = tmpLevelDef
+  
+  # add item to Phonetic2 = exact match
+  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3749, 1389, 'testLabel12')
+  res = autobuild.linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE, TRUE)
+  
+  # same amount of of items
+  expect_equal(sum(res$items$level == 'Phonetic-autobuildBackup'), sum(res$items$level == 'Phonetic'))
+  # same labels
+  expect_equal(paste0(res$items[res$items$level =='Phonetic-autobuildBackup',]$label, collapse = ''), paste0(res$items[res$items$level =='Phonetic',]$label, collapse = ''))
+  # correct labels are stored in labels df
+  expect_equal(sum(res$labels$name == 'Phonetic-autobuildBackup'), sum(res$items$level == 'Phonetic'))
+  # new levelDefinition is present
+  expect_equal(res$DBconfig$levelDefinitions[[length(res$DBconfig$levelDefinitions)]]$name, 'Phonetic-autobuildBackup')
+  expect_equal(res$DBconfig$levelDefinitions[[length(res$DBconfig$levelDefinitions)]]$type, 'SEGMENT')
+  
+})
+
+##############################
+test_that("rewrite works correctly", {
+  
+  # pre clean
+  unlink(file.path(tempdir(),'ae'), recursive = TRUE)
+  
+  # store and reload DB to not overwrite original
+  store.emuDB(ae, targetDir = tempdir(), showProgress = F)
+  ae2 = load.emuDB(file.path(tempdir(),'ae'), verbose = F)
+  
+  # add linkDef.
+  tmpLinkDef = create.schema.linkDefinition(type='ONE_TO_ONE', superlevelName='Phonetic', sublevelName='Phonetic2')
+  ae2$DBconfig$linkDefinitions[[length(ae2$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
+  
+  # add levelDef.
+  tmpLevelDef = create.schema.levelDefinition(name = 'Phonetic2', type = 'SEGMENT', attributeDefinitions = list())
+  ae2$DBconfig$levelDefinitions[[length(ae2$DBconfig$levelDefinitions) + 1]] = tmpLevelDef
+  
+  ae2$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3750, 200, 'testLabel12')
+  ae2$labels[845, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 0, 'Phonetic2', 'testLabel12')
+  res = autobuild.linkFromTimes(ae2, 'Phonetic', 'Phonetic2', TRUE, TRUE)
+  
+  # _DBconfig.json has new definitions
+  dbJson = fromJSON(readLines(file.path(tempdir(), "ae", "ae_DBconfig.json")), simplifyVector=T)
+  expect_equal(dbJson$levelDefinitions$name[11], "Phonetic-autobuildBackup")
+  expect_equal(dbJson$linkDefinitions[10,]$type, "ONE_TO_ONE")
+  expect_equal(dbJson$linkDefinitions[10,]$superlevelName, "Phonetic")
+  expect_equal(dbJson$linkDefinitions[10,]$sublevelName, "Phonetic2")
+  
+  # annot.jsons has new fields
+  annotJson = fromJSON(readLines(file.path(tempdir(), "ae", "0000_ses", "msajc003_bndl", "msajc003_annot.json")), simplifyVector=T)
+  expect_equal(annotJson$levels$name[11], "Phonetic-autobuildBackup")
+  
+  # cleanup 
+  unlink(file.path(tempdir(),'ae'), recursive = TRUE)
 })
