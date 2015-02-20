@@ -1165,8 +1165,8 @@ query.database.with.eql<-function(database,query){
 
 ##' @export
 "query.emuDB"<-function(dbObj,query,sessionPattern=NULL,bundlePattern=NULL,queryLang='EQL2',resultType=NULL){
-  dbClass=class(dbObj)
-  if(dbClass=='emuDB'){
+  
+  if(inherits(dbObj,'emuDB')){
     if(queryLang=='EQL2'){
       dbObj[['queryItems']]=NULL
       dbObj[['queryLinksExt']]=NULL
