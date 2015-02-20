@@ -184,4 +184,28 @@ test_that("correct links are present after autobuild.linkFromTimes with SEGMENTS
   
 })
 
-# TODO test that backup works correctly
+##############################
+test_that("backup works correctly", {
+  # add linkDef.
+  tmpLinkDef = create.schema.linkDefinition(type='ONE_TO_ONE', superlevelName='Phonetic', sublevelName='Phonetic2')
+  ae$DBconfig$linkDefinitions[[length(ae$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
+  
+  # add levelDef.
+  tmpLevelDef = create.schema.levelDefinition(name = 'Phonetic2', type = 'SEGMENT', attributeDefinitions = list())
+  ae$DBconfig$levelDefinitions[[length(ae$DBconfig$levelDefinitions) + 1]] = tmpLevelDef
+  
+  # add item to Phonetic2 = exact match
+  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3749, 1389, 'testLabel12')
+  res = autobuild.linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE, TRUE)
+  
+  # same amount of of items
+  expect_equal(sum(res$items$level == 'Phonetic-autobuildBackup'), sum(res$items$level == 'Phonetic'))
+  # same labels
+  expect_equal(paste0(res$items[res$items$level =='Phonetic-autobuildBackup',]$label, collapse = ''), paste0(res$items[res$items$level =='Phonetic',]$label, collapse = ''))
+  # correct labels are stored in labels df
+  expect_equal(sum(res$labels$name == 'Phonetic-autobuildBackup'), sum(res$items$level == 'Phonetic'))
+  # new levelDefinition is present
+  expect_equal(res$DBconfig$levelDefinitions[[length(res$DBconfig$levelDefinitions)]]$name, 'Phonetic-autobuildBackup')
+  expect_equal(res$DBconfig$levelDefinitions[[length(res$DBconfig$levelDefinitions)]]$type, 'SEGMENT')
+  
+})
