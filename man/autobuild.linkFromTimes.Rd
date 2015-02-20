@@ -4,7 +4,8 @@
 \alias{autobuild.linkFromTimes}
 \title{Autobuild links between two levels using their time information}
 \usage{
-autobuild.linkFromTimes(db, superlevelName, sublevelName, writeToDisc = TRUE)
+autobuild.linkFromTimes(db, superlevelName, sublevelName, writeToDisc = TRUE,
+  convertSuperlevel = FALSE, backupLevelAppendStr = "-autobuildBackup")
 }
 \arguments{
 \item{db}{emuDB object to perform autobuild on}
@@ -14,6 +15,11 @@ autobuild.linkFromTimes(db, superlevelName, sublevelName, writeToDisc = TRUE)
 \item{sublevelName}{name of level to link to (link definition required in db)}
 
 \item{writeToDisc}{should changes be written to disk completing after autobuild}
+
+\item{convertSuperlevel}{if set to TRUE a backup of the superlevel will be created and the actural
+superlevel will be converted to a level of type ITEM}
+
+\item{backupLevelAppendStr}{string appended to level name for backup level}
 }
 \value{
 an emuDB object

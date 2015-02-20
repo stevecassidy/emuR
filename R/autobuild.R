@@ -12,6 +12,9 @@
 ##' @param superlevelName name of level to link from (link definition required in db)
 ##' @param sublevelName name of level to link to (link definition required in db)
 ##' @param writeToDisc should changes be written to disk completing after autobuild
+##' @param convertSuperlevel if set to TRUE a backup of the superlevel will be created and the actural
+##' superlevel will be converted to a level of type ITEM
+##' @param backupLevelAppendStr string appended to level name for backup level
 ##' @return an emuDB object
 ##' @author Raphael Winkelmann
 ##' @import RSQLite
@@ -163,13 +166,19 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
   }
   
   # print resulting table
-  #   res = dbSendQuery(con, paste0("SELECT * FROM ", labelsTableName, ""))
-  #   print(dbReadTable(con, labelsTableName))
-  
+#     res = dbSendQuery(con, paste0("SELECT * FROM ", labelsTableName, ""))
+#     print(dbReadTable(con, labelsTableName))
+    
   # store changes to disc
   if(writeToDisc){
-    # SIC check if error is gen.
-    stop('rewrite not possible yet!')
+    for(sess in db$sessions){
+      for(bndl in sess$bundles){
+        bndlRep=get.bundle(db, sess$name, bndl$name)
+        store.bundle.annotation(db,bndlRep)
+      }
+    }
+    # write DBconfig to disc
+    .store.schema(db)
   }
   
   # Disconnect from the database
