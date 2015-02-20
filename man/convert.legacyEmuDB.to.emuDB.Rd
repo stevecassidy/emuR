@@ -17,26 +17,43 @@ convert.legacyEmuDB.to.emuDB(emuTplPath, targetDir, options = NULL,
 \item{verbose}{be verbose}
 }
 \description{
-If the legacy database template file could be found the database metadata and annoations are loaded. If load is successfull a new directory with the name of the database is created in the \code{targetDirectory}.
+Converts an existing legacy EMU database to the new EMU format. Conversion is done in two steps. In the first step the legacy database configuration and the annotations are loaded.
+In the second step the target directory for the new database structure is created, the configuration and annoation files are stored in the new format and the signal files are copied.
 }
 \details{
-Information of the legacy Emu template file is transferred to [dbname]_DBconfig.json file. Legacy Emu utterances are reorganized in sessions and bundles.
-Media files (e.g. wav files) are copied, SSFF track files are rewritten. Annotations in Emu hierarchy (.hlb) files and ESPS label files are converted to a [bundleName]_annot.json file per bundle (utterance).
+The database will be stored if the legacy database template file could be found. The database metadata and annoations are loaded. If loading is successfull, a new directory with the name of the database is created in the \code{targetDirectory}. \code{targetDirectory} and its parent directories will be created if the do not exist. If the new database directory already exists the function stops wit an error.
+
+Information of the legacy Emu template file is transferred to [dbname]_DBconfig.json file. Some of the flags of the legacy EMU template files are ignored (lines of syntax: "set [flagName] [flagValue]", known ignored flag names are: 'LabelTracks','SpectrogramWhiteLevel','HierarchyViewLevels','SignalViewLevels').
+Legacy Emu utterances are reorganized in sessions and bundles. Session structure depends on wilcard path pattern of primary track. At least one default session with name '0000' will be created.
+Media files (e.g. wav files) are copied, SSFF track files are rewritten (read/write with ASSP (wrassp) library) by default. Annotations in Emu hierarchy (.hlb) files and ESPS label files are converted to a [bundleName]_annot.json file per bundle (utterance).
 Please note that only those files get copied, which are referenced by the template file. Additional files in the legacy database directories are ignored. The legacy Emu database is not modified.
 
 options is a list of key value pairs:
 
-rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: TRUE
-ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: TRUE
-sourceFileTextEncoding encoding of legacy database text files (template, label and hlb files) :default NULL (usess encoding of operating system platform)
-symbolicLinkSignalFiles if TRUE signal files are symbolic linked instead of copied. Implies: rewriteSSFFTracks=FALSE, Default: FALSE
+\code{rewriteSSFFTracks} if \code{TRUE} rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: \code{TRUE}
+
+\code{ignoreMissingSSFFTrackFiles} if \code{TRUE} missing SSFF track files are ignored, default: \code{TRUE}
+
+\code{sourceFileTextEncoding} encoding of legacy database text files (template, label and hlb files), possible values: NULL, "latin1", "UTF-8" "bytes" or "unknown" :default \code{NULL} (uses encoding of operating system platform)
+
+\code{symbolicLinkSignalFiles} if \code{TRUE} signal files are symbolic linked instead of copied. Implies: \code{rewriteSSFFTracks=FALSE}, Default: \code{FALSE}
 }
 \examples{
 \dontrun{
 ## Convert legacy EMU database specified by EMU
-## template file /homes/mylogin/ae/ae.tpl to directory /homes/mylogin/EMUnew/ae
+## template file /homes/mylogin/ae/ae.tpl to directory /homes/mylogin/EMUnew/
+## and load it afterwards
 
-convert.legacyEmuDB.to.emuDB("/homes/mylogin/ae/ae.tpl","/homes/mylogin/EMUnew/ae")
+convert.legacyEmuDB.to.emuDB("/homes/mylogin/ae/ae.tpl","/homes/mylogin/EMUnew/")
+ae=load.emuDB("/homes/mylogin/EMUnew/ae")
+
+## Convert database "ae" and do not rewrite SSFF tracks
+
+convert.legacyEmuDB.by.name.to.emuDB(
+"ae",
+"/homes/mylogin/EMUnew/",
+options=list(rewriteSSFFTracks=FALSE)
+)
 
 }
 }

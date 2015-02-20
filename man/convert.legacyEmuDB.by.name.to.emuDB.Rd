@@ -12,23 +12,17 @@ convert.legacyEmuDB.by.name.to.emuDB(dbName, targetDir, options = NULL,
 
 \item{targetDir}{target directory}
 
-\item{options}{list of options(see details)}
+\item{options}{list of options (see details of \code{\link{convert.legacyEmuDB.to.emuDB}})}
 
 \item{verbose}{be verbose}
 }
 \description{
-Convert legacy EMU database and store it in new format
+Converts an existing legacy EMU database to the new EMU format. Conversion is done in two steps. In the first step the legacy database configuration and the annotations are loaded.
+In the second step the target directory for the new database structure is created, the configuration and annoation files are stored in the new format and the signal files are copied.
 }
 \details{
-If the legacy database could be found it is loaded. If load is successfull a new directory with the name of the database is created in the \code{targetDirectory}
-Loading by name only works if database was used with legacy EMU. Use the function \code{\link{convert.legacyEmuDB.to.emuDB}} otherwise.
-
-options is a list of key value pairs:
-
-rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: TRUE
-ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: TRUE
-sourceFileTextEncoding encoding of legacy database text files (template, label and hlb files) :default NULL (usess encoding of operating system platform)
-symbolicLinkSignalFiles if TRUE signal files are symbolic linked instead of copied. Implies: rewriteSSFFTracks=FALSE, Default: FALSE
+This function first tries to get the path of the legacy template file from the given database name using \code{\link{list.legacy.emu.databases}}.
+If the database could be found the function \code{\link{convert.legacyEmuDB.to.emuDB}} is called.
 }
 \examples{
 \dontrun{
