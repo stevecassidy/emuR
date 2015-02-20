@@ -549,6 +549,12 @@ load.annotation.for.legacy.bundle=function(schema,legacyBundleID,basePath=NULL,e
       }
     }
   }
+  # set sample rate even if no annotation levels exist
+  # Bug fix #20
+  if(is.null(bundleSampleRate)){
+    bundleSampleRate=sampleRate
+  }
+  
   #annotates=paste0('0000_ses/',uttCode,bundle.dir.suffix,'/',sampleTrackFile)
   
   sampleTrackFile=paste0(bundleName,'.',schema[['mediafileExtension']]) 
@@ -992,13 +998,15 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
 ##' Please note that only those files get copied, which are referenced by the template file. Additional files in the legacy database directories are ignored. The legacy Emu database is not modified.
 ##' 
 ##' options is a list of key value pairs:
+##' 
 ##' rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: TRUE
 ##' ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: TRUE
 ##' sourceFileTextEncoding encoding of legacy database text files (template, label and hlb files) :default NULL (usess encoding of operating system platform)
+##' symbolicLinkSignalFiles if TRUE signal files are symbolic linked instead of copied. Implies: rewriteSSFFTracks=FALSE, Default: FALSE
 ##' 
 ##' @param emuTplPath EMU template file path
 ##' @param targetDir target directory
-##' @param options list of options
+##' @param options list of options (see details)
 ##' @param verbose be verbose
 ##' @author Klaus Jaensch
 ##' @seealso \code{\link{load.emuDB}}
@@ -1019,7 +1027,7 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,options=NULL,verbo
   # ignore missing SSFF track files
   # rewrite SSFF track files
   # encoding : platform 
-  mergedOptions=list(sourceFileTextEncoding=NULL,ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=TRUE)
+  mergedOptions=list(sourceFileTextEncoding=NULL,ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=TRUE,symbolicLinkSignalFiles=FALSE)
   if(!is.null(options)){
     for(opt in names(options)){
         mergedOptions[[opt]]=options[[opt]]
@@ -1053,17 +1061,19 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,options=NULL,verbo
 }
 
 ##' Convert legacy EMU database and store it in new format
-##' If the legacy database could be found it is loaded. If load is successfull a new directory with the name of the database is created in the \code{targetDirectory}
+##' @details If the legacy database could be found it is loaded. If load is successfull a new directory with the name of the database is created in the \code{targetDirectory}
 ##' Loading by name only works if database was used with legacy EMU. Use the function \code{\link{convert.legacyEmuDB.to.emuDB}} otherwise.
 ##'
 ##' options is a list of key value pairs:
+##' 
 ##' rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: TRUE
 ##' ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: TRUE
-##' ##' sourceFileTextEncoding encoding of legacy database text files (template, label and hlb files) :default NULL (usess encoding of operating system platform)
+##' sourceFileTextEncoding encoding of legacy database text files (template, label and hlb files) :default NULL (usess encoding of operating system platform)
+##' symbolicLinkSignalFiles if TRUE signal files are symbolic linked instead of copied. Implies: rewriteSSFFTracks=FALSE, Default: FALSE
 ##' 
 ##' @param dbName legacy EMU database name
 ##' @param targetDir target directory
-##' @param options list of options
+##' @param options list of options(see details)
 ##' @param verbose be verbose
 ##' @author Klaus Jaensch
 ##' @seealso \code{\link{convert.legacyEmuDB.to.emuDB}} \code{\link{load.emuDB}} 
@@ -1083,7 +1093,7 @@ convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,options=NULL,v
   # ignore missing SSFF track files
   # rewrite SSFF track files
   # encoding : platform 
-  mergedOptions=list(sourceFileTextEncoding=NULL,ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=TRUE)
+  mergedOptions=list(sourceFileTextEncoding=NULL,ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=TRUE,symbolicLinkSignalFiles=FALSE)
   if(!is.null(options)){
     for(opt in names(options)){
       mergedOptions[[opt]]=options[[opt]]

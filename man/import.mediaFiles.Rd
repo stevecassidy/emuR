@@ -30,9 +30,6 @@ Import media files to EMU database
 \author{
 Klaus Jaensch
 }
-\seealso{
-\code{\link{create.emuDB}}
-}
 \keyword{Emu}
 \keyword{database}
 \keyword{emuDB}

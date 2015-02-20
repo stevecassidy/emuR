@@ -167,6 +167,7 @@ build.dataframe.table<-function(list,propNames){
   
 }
 
+##' @export
 summary.emuDB<-function(db){
  
   cat("Name:\t",db[['name']],"\n")
@@ -1757,7 +1758,6 @@ add.linkDefinition<-function(db,linkDefinition){
 ##' @return modified database object
 ##' @author Klaus Jaensch
 ##' @import sqldf stringr
-##' @seealso \code{\link{create.emuDB}}
 ##' @keywords emuDB database Emu
 ##' @examples
 ##' \dontrun{
@@ -1857,9 +1857,11 @@ add.linkDefinition<-function(db,linkDefinition){
 
 ##' Store EMU database to directory
 ##' 
+##' @details 
 ##' options is a list of key value pairs:
 ##' rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: FALSE
 ##' ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: FALSE
+##' symbolicLinkSignalFiles if TRUE signal files are symbolic linked instead of copied. Implies: rewriteSSFFTracks=FALSE, Default: FALSE
 ##' 
 ##' @param db EMU database (in R workspace)
 ##' @param targetDir target directory
@@ -1889,21 +1891,13 @@ store.emuDB <- function(db,targetDir,options=NULL,showProgress=TRUE){
   # default options
   # ignore missing SSFF track files
   # rewrite SSFF track files
-  mergedOptions=list(ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=TRUE)
+  mergedOptions=list(ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=FALSE,symbolicLinkSignalFiles=FALSE)
   if(!is.null(options)){
     for(opt in names(options)){
       mergedOptions[[opt]]=options[[opt]]
     }
   }
   
-  rewriteSSFFTracks=FALSE
-  if(!is.null(mergedOptions[['rewriteSSFTracks']])){
-    rewriteSSFFTracks=options[['rewriteSSFTracks']]
-  }
-  ignoreMissingSSFFTrackFiles=FALSE
-  if(!is.null(mergedOptions[['ignoreMissingSSFFTrackFiles']])){
-    ignoreMissingSSFFTrackFiles=options[['ignoreMissingSSFFTrackFiles']]
-  }
   progress=0
   # check target dir
   if(file.exists(targetDir)){
@@ -1984,8 +1978,9 @@ store.emuDB <- function(db,targetDir,options=NULL,showProgress=TRUE){
           }
         }
         if(file.exists(sf)){
-          
-          if(rewriteSSFFTracks && isSSFFFile){
+          if(mergedOptions[['symbolicLinkSignalFiles']]){
+            file.symlink(from=sf,to=nsfp)
+          }else if(mergedOptions[['rewriteSSFFTracks']] && isSSFFFile){
             # is SSFF track
             # read/write instead of copy to get rid of big endian encoded SSFF files (SPARC)
             pfAssp=read.AsspDataObj(sf)
@@ -1997,7 +1992,7 @@ store.emuDB <- function(db,targetDir,options=NULL,showProgress=TRUE){
             #cat("Copied: ",sf," to ",nsfp,"\n")
           }
         }else{
-          if(!ignoreMissingSSFFTrackFiles){
+          if(!mergedOptions[['ignoreMissingSSFFTrackFiles']]){
             stop("SSFF track file :'",sf,"' does not exist!")
           }
         }

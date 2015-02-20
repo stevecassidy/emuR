@@ -12,7 +12,7 @@ convert.legacyEmuDB.to.emuDB(emuTplPath, targetDir, options = NULL,
 
 \item{targetDir}{target directory}
 
-\item{options}{list of options}
+\item{options}{list of options (see details)}
 
 \item{verbose}{be verbose}
 }
@@ -25,9 +25,11 @@ Media files (e.g. wav files) are copied, SSFF track files are rewritten. Annotat
 Please note that only those files get copied, which are referenced by the template file. Additional files in the legacy database directories are ignored. The legacy Emu database is not modified.
 
 options is a list of key value pairs:
+
 rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: TRUE
 ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: TRUE
 sourceFileTextEncoding encoding of legacy database text files (template, label and hlb files) :default NULL (usess encoding of operating system platform)
+symbolicLinkSignalFiles if TRUE signal files are symbolic linked instead of copied. Implies: rewriteSSFFTracks=FALSE, Default: FALSE
 }
 \examples{
 \dontrun{

@@ -35,6 +35,7 @@ parse.hlb.file <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NUL
     #if(lines[[1]]!=EMU_HIERARCHY_HEADER){
     # ALC EMU Db has trailing blank in header line 
     headerPattern=paste0(gsub('*','[*]',EMU_HIERARCHY_HEADER,fixed=TRUE),'[:blank:]*')
+  # check header
     if(!grepl(headerPattern,lines[[1]])){
       stop("No Emu Hlb file header found! ", hlbFilePath)
     }
@@ -44,12 +45,16 @@ parse.hlb.file <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NUL
   # assume max id value in line 2
   maxId=as.integer(lines[[2]])
   #cat("Max ID: ",maxId,"\n")
+  
+  # initialize vars
   currentTierName=NULL
   newTier=NULL
   currentLevelDef=NULL
   currentitems=list()
   currentExistingItems=NULL
   currentIdx=1
+  
+  # parse through lines
     for(lnr in 3:lineCount){
       line=lines[[lnr]]
       if(line==''){
@@ -60,6 +65,7 @@ parse.hlb.file <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NUL
             if(t$name==currentTierName){
               tierExists=TRUE
               # TODO check items
+              
               # for now I assume that every item in ESPS label file has corresponding item in hlb file and vice versa
                #merge
               labitems=t$items
@@ -160,11 +166,21 @@ parse.hlb.file <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NUL
           # add optional other labels
           if(lineTokenCount>=3){  
             for(ti in 3:lineTokenCount){
-              ldAttrDef=currentLevelDef$attributeDefinitions[[ti-1]]
-              l=lineTokens[[ti]]
-              #cat("adding label: ",l," line ",line,"\n")
-              #attrs[[ldAttrDef$name]]=l
-              attrs[[length(attrs)+1]]=list(name=ldAttrDef$name,value=l)
+              attrDefCnt=length(currentLevelDef[['attributeDefinitions']])
+            
+              # ALC db has not the same sequence of attributes in .tpl and .hlb files
+              # set the label key/values according to the order in HLB file 
+              for(attrIdx in 1:attrDefCnt){
+                ldAttrDef=currentLevelDef[['attributeDefinitions']][[attrIdx]]
+                #cat(attrDefSeq)
+                if(ldAttrDef[['name']]==attrDefSeq[ti-2]){
+                  l=lineTokens[[ti]]
+                  #cat("adding label: ",l," line ",line,"\n")
+                  #attrs[[ldAttrDef$name]]=l
+                  attrs[[attrIdx]]=list(name=ldAttrDef[['name']],value=l)
+                }
+              }
+  
             }
           }
           id=as.integer(firstTk)
@@ -187,10 +203,11 @@ parse.hlb.file <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NUL
             currentTierName=firstTk
             currentLevelDef=td
             if(lineTokenCount>=2){
-              
-              for(ti in 2:lineTokenCount-1){
+              attrDefSeq=c()
+              for(ti in 2:lineTokenCount){
                 lblNi=ti-1
                 tk=lineTokens[[ti]]
+               
                 ldAttrDef=NULL
                 if(tk!=currentTierName){
                   # ALC db has not the same sequence of attributes in .tpl and .hlb files
@@ -198,6 +215,8 @@ parse.hlb.file <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NUL
                   for(attrDef in td[['attributeDefinitions']]){
                     if(attrDef[['name']]==tk){
                       ldAttrDef=attrDef
+                      # create sequnece order of label names (keys) from HLB file 
+                      attrDefSeq=c(attrDefSeq,tk)
                       break
                     } 
                   }

@@ -16,9 +16,13 @@ store.emuDB(db, targetDir, options = NULL, showProgress = TRUE)
 \item{showProgress}{show progress bar}
 }
 \description{
+Store EMU database to directory
+}
+\details{
 options is a list of key value pairs:
 rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: FALSE
 ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: FALSE
+symbolicLinkSignalFiles if TRUE signal files are symbolic linked instead of copied. Implies: rewriteSSFFTracks=FALSE, Default: FALSE
 }
 \examples{
 \dontrun{
