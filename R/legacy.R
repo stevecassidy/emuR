@@ -998,6 +998,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
 ##' Please note that only those files get copied, which are referenced by the template file. Additional files in the legacy database directories are ignored. The legacy Emu database is not modified.
 ##' 
 ##' options is a list of key value pairs:
+##' 
 ##' rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: TRUE
 ##' ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: TRUE
 ##' sourceFileTextEncoding encoding of legacy database text files (template, label and hlb files) :default NULL (usess encoding of operating system platform)
@@ -1005,7 +1006,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
 ##' 
 ##' @param emuTplPath EMU template file path
 ##' @param targetDir target directory
-##' @param options list of options
+##' @param options list of options (see details)
 ##' @param verbose be verbose
 ##' @author Klaus Jaensch
 ##' @seealso \code{\link{load.emuDB}}
@@ -1064,6 +1065,7 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,options=NULL,verbo
 ##' Loading by name only works if database was used with legacy EMU. Use the function \code{\link{convert.legacyEmuDB.to.emuDB}} otherwise.
 ##'
 ##' options is a list of key value pairs:
+##' 
 ##' rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: TRUE
 ##' ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: TRUE
 ##' sourceFileTextEncoding encoding of legacy database text files (template, label and hlb files) :default NULL (usess encoding of operating system platform)
@@ -1071,7 +1073,7 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,options=NULL,verbo
 ##' 
 ##' @param dbName legacy EMU database name
 ##' @param targetDir target directory
-##' @param options list of options
+##' @param options list of options(see details)
 ##' @param verbose be verbose
 ##' @author Klaus Jaensch
 ##' @seealso \code{\link{convert.legacyEmuDB.to.emuDB}} \code{\link{load.emuDB}} 
