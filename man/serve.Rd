@@ -4,10 +4,13 @@
 \alias{serve}
 \title{Serve EMU database to EMU-Webapp}
 \usage{
-serve(database, port = 17890, debug = FALSE, debugLevel = 0)
+serve(database, host = "127.0.0.1", port = 17890, debug = FALSE,
+  debugLevel = 0)
 }
 \arguments{
 \item{database}{a emuDB database object}
+
+\item{host}{host IP to listen to (default: 127.0.0.1  (localhost))}
 
 \item{port}{the port number to listen on (default: 17890)}
 

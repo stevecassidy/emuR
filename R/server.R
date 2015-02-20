@@ -25,6 +25,7 @@ require(base64enc)
 ##' 
 ##' @details  Function opens a HTTP/websocket and waits in a loop for browser requests. The R console will be blocked. On successfull connection the server sends the session and bundle list of the given database object. The Web application requests bundle data for editing. If a bundle is modified with the EMU-webApp and the save button is pressed the server modifies the database object and saves the changes to disk. Communication is defined by EMU-webApp-websocket-protocol version 0.0.1
 ##' @param database a emuDB database object
+##' @param host host IP to listen to (default: 127.0.0.1  (localhost))
 ##' @param port the port number to listen on (default: 17890)
 ##' @param debug TRUE to enable debugging (default: no debugging messages)
 ##' @param debugLevel integer higher values generate more detailed debug output
@@ -41,12 +42,12 @@ require(base64enc)
 ##' myDb=serve(myDb)
 ##' }
 ##' 
-serve<-function(database,port=17890,debug=FALSE,debugLevel=0){
+serve<-function(database,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
   UseMethod('serve')
 }
 
 ##' @export
-serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
+serve.emuDB=function(database,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
     if(debug && debugLevel==0){
       debugLevel=2
     }
@@ -370,12 +371,12 @@ serve.emuDB=function(database,port=17890,debug=FALSE,debugLevel=0){
     }
     
     app=list(call=httpRequest,onHeaders=onHeaders,onWSOpen=serverEstablished)
-    sh=tryCatch(startServer(host="0.0.0.0",port=port,app=app),error=function(e) e)
+    sh=tryCatch(startServer(host=host,port=port,app=app),error=function(e) e)
     if(inherits(sh,'error')){
       if(exists('.emuR.server.serverHandle') & !is.null(.emuR.server.serverHandle)){
         cat("Trying to stop orphaned server (handle: ",.emuR.server.serverHandle,")\n")
         stopServer(.emuR.server.serverHandle)
-        sh=tryCatch(startServer(host="0.0.0.0",port=port,app=app),error=function(e) e)
+        sh=tryCatch(startServer(host=host,port=port,app=app),error=function(e) e)
         if(inherits(sh,'error')){
           stop("Error starting server (second try): ",sh,"\n")
         }
