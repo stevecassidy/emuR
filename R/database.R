@@ -167,20 +167,26 @@ build.dataframe.table<-function(list,propNames){
   
 }
 
+##' Print summary for EMU database object
+##' @description Gives an overview of an EMU database object
+##' Prints database name, base directory path and informations about annoation levels, attributes, links, and signal file tracks
+##' @param object EMU database object
+##' @param ... (not used)
+##' @method summary emuDB
 ##' @export
-summary.emuDB<-function(db){
+summary.emuDB<-function(object,...){
  
-  cat("Name:\t",db[['name']],"\n")
-  cat("Directory:\t",db[['basePath']],"\n")
-  cat("Session count:",length(db[['sessions']]),"\n")
+  cat("Name:\t",object[['name']],"\n")
+  cat("Directory:\t",object[['basePath']],"\n")
+  cat("Session count:",length(object[['sessions']]),"\n")
   bndlCnt=0
-  for(s in db[['sessions']]){
+  for(s in object[['sessions']]){
     bndlCnt=bndlCnt+length(s[['bundles']])
   }
   cat("Bundle count:",bndlCnt,"\n")
-  cat("Annotation item count: ",nrow(db[['items']]),", links count: ",nrow(db[['links']]),"\n")
+  cat("Annotation item count: ",nrow(object[['items']]),", links count: ",nrow(object[['links']]),"\n")
   cat("\nDatabase configuration:\n\n")
-  summary(db[['DBconfig']])
+  summary(object[['DBconfig']])
   #cat("SSFF track definitions:\n")
   # TODO 
 

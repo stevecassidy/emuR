@@ -2,9 +2,7 @@
 % Please edit documentation in R/legacy.R
 \name{list.legacy.emu.databases}
 \alias{list.legacy.emu.databases}
-\title{List known databases from legacy EMU installation
-Reads EMU_TEMPLATE_PATH variable from environment or from file ${HOME}/.emu/emu-conf or ${USERPROFILE}/.emu/Emu/emu-conf
-and searches for *.tlp template files in this path. The basename of the template file is the database name.}
+\title{List known databases from legacy EMU installation}
 \usage{
 list.legacy.emu.databases()
 }
@@ -12,7 +10,6 @@ list.legacy.emu.databases()
 named list with pathes to database template files. The names of the list are the database names
 }
 \description{
-List known databases from legacy EMU installation
 Reads EMU_TEMPLATE_PATH variable from environment or from file ${HOME}/.emu/emu-conf or ${USERPROFILE}/.emu/Emu/emu-conf
 and searches for *.tlp template files in this path. The basename of the template file is the database name.
 }
