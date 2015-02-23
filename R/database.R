@@ -145,7 +145,7 @@ create.EMUwebAppConfig.perspective <- function(name,signalCanvases,levelCanvases
   invisible(o)
 }
 create.EMUwebAppConfig <- function(perspectives){
-  o <- list(perspectives=perspectives)
+  o <- list(perspectives=perspectives,restrictions=list(showPerspectivesSidebar=TRUE))
   class(o) <- 'emuDB.EMUwebAppConfig'
   invisible(o)
 }
