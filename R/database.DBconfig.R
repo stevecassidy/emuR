@@ -23,6 +23,25 @@ get.levelDefinition <- function(DBconfig, name){
   return(res)
 }
 
+get.ssfftrack.names.used.by.webapp.config<-function(EMUwebAppConfig){
+  nms=c()
+  for(perspective in EMUwebAppConfig[['perspectives']]){
+    scvss=perspective[['signalCanvases']]
+    if(!is.null(scvss)){
+      for(cvsNm in scvss[['order']]){
+        if(cvsNm!='OSCI' & cvsNm!='SPEC'){
+          nms=c(nms,cvsNm)
+        }
+      }
+      for(ass in scvss[['assign']]){
+        nms=c(nms,ass[['ssffTrackName']])
+      }
+      
+    }
+  }
+  return(unique(nms))
+}
+
 # FOR DEVELOPMENT 
 #library('testthat') 
 #test_file('tests/testthat/test_database.DBconfig.R')
