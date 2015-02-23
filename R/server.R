@@ -234,18 +234,22 @@ serve.emuDB=function(database,host='127.0.0.1',port=17890,debug=FALSE,debugLevel
             
             mediaFile=list(encoding="BASE64",data=audioBase64)
             
+            ssffTrackNmsInUse=get.ssfftrack.names.used.by.webapp.config(database[['DBconfig']][['EMUwebAppConfig']])
             ssffTrackDefinitions=list()
-            for(ssffTr in sc$ssffTrackDefinitions){
-              fe=ssffTr$fileExtension
-              feRe=paste0('[.]',fe,'$')
-              for(sp in b$signalpaths){
-                if(length(grep(feRe,sp))==1){
-                  mf<- file(sp, "rb")
-                  mfData=readBin(mf, raw(), n=file.info(sp)$size)
-                  mfDataBase64=base64encode(mfData)
-                  close(mf)
-                  ssffDatObj=list(encoding="BASE64",data=mfDataBase64,ssffTrackName=ssffTr$name)
-                  ssffTrackDefinitions[[length(ssffTrackDefinitions)+1]]=ssffDatObj
+            for(ssffTr in sc[['ssffTrackDefinitions']]){
+              if(ssffTr[['name']] %in% ssffTrackNmsInUse){
+                fe=ssffTr[['fileExtension']]
+                feRe=paste0('[.]',fe,'$')
+                for(sp in b[['signalpaths']]){
+                  if(length(grep(feRe,sp))==1){
+                    mf<- file(sp, "rb")
+                    mfData=readBin(mf, raw(), n=file.info(sp)$size)
+                    mfDataBase64=base64encode(mfData)
+                    encoding="BASE64"
+                    close(mf)
+                    ssffDatObj=list(encoding=encoding,data=mfDataBase64,ssffTrackName=ssffTr[['name']])
+                    ssffTrackDefinitions[[length(ssffTrackDefinitions)+1]]=ssffDatObj
+                  }
                 }
               }
             }
