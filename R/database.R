@@ -2092,16 +2092,8 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   if(!file.exists(dbCfgPath)){
     stop("Could not find database info file: ",dbCfgPath,"\n")
   }
-  # with warn=TRUE and some files
-  # R complains about incomplete (last) line
-  # See https://stat.ethz.ch/pipermail/r-help/2006-July/108654.html
-  # TODO does problem with jsonlite still exist ?
-  dbCfgJSONLns=readLines(dbCfgPath,warn=FALSE)
-  dbCfgJSON=paste(dbCfgJSONLns,collapse='')
-  dbCfgPersisted=jsonlite::fromJSON(dbCfgJSON,simplifyVector=FALSE)
-  
-  # unmarshal schema object (set class names)
-  schema=unmarshal.from.persistence(dbCfgPersisted,emuR.persist.class[['DBconfig']])
+  # load DBconfig
+  schema=load.emuDB.DBconfig(dbCfgPath)
   # set transient values
   schema=.update.transient.schema.values(schema)
   # create db object
