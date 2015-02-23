@@ -1647,7 +1647,14 @@ add.bundle<-function(db,sessionName,bundle){
   db[['sessionName']]
 }
 
-
+# Add level definition to EMU database
+# 
+# @param db EMU database object
+# @param levelDefinition
+# @return object of class emuDB
+# @author Klaus Jaensch
+# @export
+# @keywords emuDB database schema Emu 
 add.levelDefinition<-function(db,levelDefinition){
   # check if level definition (name) already exists 
   for(ld in db[['DBconfig']][['levelDefinitions']]){
