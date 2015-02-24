@@ -27,6 +27,9 @@ test_that("correct SEGMENT values are parsed and calculated in SQLite items tabl
   phoneticTbl = dbFetch(res)
   dbClearResult(res)
   
+  # get labels table
+  labelsTbl = dbReadTable(con, labelsTableName)
+  
   expect_that(phoneticTbl[1,]$type, equals('SEGMENT'))
   
   # first segment of Phonetic
@@ -36,19 +39,19 @@ test_that("correct SEGMENT values are parsed and calculated in SQLite items tabl
   # second segment
   expect_that(phoneticTbl[2,]$sampleStart, equals(3749))
   expect_that(phoneticTbl[2,]$sampleDur, equals(1389))
-  expect_that(phoneticTbl[2,]$label, equals('V'))
+  expect_that(labelsTbl[labelsTbl$itemID == phoneticTbl[2,]$id,]$label, equals('V'))
   
   # 18th segment
   # item[16] = {id: XYZ, labels: [{name: ‘lab', value: ‘@'}], sampleStart: 30124, sampleDur: 844}
   expect_that(phoneticTbl[18,]$sampleStart, equals(30124))
   expect_that(phoneticTbl[18,]$sampleDur, equals(844))
-  expect_that(phoneticTbl[18,]$label, equals('@'))
+  expect_that(labelsTbl[labelsTbl$itemID == phoneticTbl[18,]$id,]$label, equals('@'))
   
   # 35th segment
   # item[33] = {id: XYZ, labels: [{name: ‘lab', value: ‘l'}], sampleStart: 50126, sampleDur: 1962}
   expect_that(phoneticTbl[35,]$sampleStart, equals(50126))
   expect_that(phoneticTbl[35,]$sampleDur, equals(1962))
-  expect_that(phoneticTbl[35,]$label, equals('l'))
+  expect_that(labelsTbl[labelsTbl$itemID == phoneticTbl[35,]$id,]$label, equals('l'))
 })
 
 ##############################
@@ -58,21 +61,25 @@ test_that("correct EVENT values are parsed and calculated in SQLite items table"
   res <- dbSendQuery(con, paste0("SELECT * FROM ", itemsTableName," WHERE level = 'Tone'"))
   toneTbl = dbFetch(res)
   dbClearResult(res)
+
+  # get labels table
+  labelsTbl = dbReadTable(con, labelsTableName)
+  
   
   # first event
   # item[0] = {id: XYZ, labels: [{name: ’tone', value: ‘H*'}], samplePoint: 8381}
   expect_that(toneTbl[1,]$samplePoint, equals(8381))
-  expect_that(toneTbl[1,]$label, equals('H*'))
+  expect_that(labelsTbl[labelsTbl$itemID == toneTbl[1,]$id,]$label, equals('H*'))
 
   # 4th event
   # item[3] = {id: XYZ, labels: [{name: ’tone', value: ‘H*'}], samplePoint: 38255}
   expect_that(toneTbl[4,]$samplePoint, equals(38255))
-  expect_that(toneTbl[4,]$label, equals('H*'))
+  expect_that(labelsTbl[labelsTbl$itemID == toneTbl[4,]$id,]$label, equals('H*'))
 
   # 7th event
   # item[6] = {id: XYZ, labels: [{name: ’tone', value: ‘L%'}], samplePoint: 51552}
   expect_that(toneTbl[7,]$samplePoint, equals(51552))
-  expect_that(toneTbl[7,]$label, equals('L%'))
+  expect_that(labelsTbl[labelsTbl$itemID == toneTbl[7,]$id,]$label, equals('L%'))
 
 })  
 
@@ -87,7 +94,10 @@ test_that("SEGMENTs & EVENTs have correct itemIDs in SQLite tables", {
   res <- dbSendQuery(con, paste0("SELECT * FROM ", itemsTableName," WHERE level = 'Tone'"))
   toneTbl = dbFetch(res)
   dbClearResult(res)
-    
+  
+  # get labels table
+  labelsTbl = dbReadTable(con, labelsTableName)
+  
   # increment IDs for EVENTs
   expect_equal(toneTbl[2,]$itemID, toneTbl[1,]$itemID + 1)
   expect_equal(toneTbl[3,]$itemID, toneTbl[2,]$itemID + 1)
@@ -110,6 +120,9 @@ test_that("SQLite label table has correct values", {
   res <- dbSendQuery(con, paste0("SELECT * FROM ", labelsTableName, " WHERE name = 'Tone'"))
   toneTbl = dbFetch(res)
   dbClearResult(res)
+  
+  # get labels table
+  labelsTbl = dbReadTable(con, labelsTableName)
   
   
   # check phoneticsTable are ok
