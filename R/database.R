@@ -23,11 +23,6 @@ create.database <- function(name,basePath=NULL,DBconfig=create.schema.databaseDe
   invisible(o)
 }
 
-
-build.dataframe.table<-function(list,propNames){
-  
-}
-
 ##' Print summary for EMU database object
 ##' @description Gives an overview of an EMU database object
 ##' Prints database name, base directory path and informations about annoation levels, attributes, links, and signal file tracks
