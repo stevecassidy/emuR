@@ -3,44 +3,6 @@ require(stringr)
 
 EMPTY_RESULT_DF=data.frame(seqStartId=character(0),seqEndId=character(0),seqLen=integer(0),level=character(0),stringsAsFactors = FALSE)
 
-# .get.item.by.id <- function(bundle,id){
-#   
-#   for(lvl in bundle$levels){
-#     for(item in lvl$items){
-#       if(item$id==id){
-#         return(item)
-#       }
-#     }
-#   }
-# }
-
-# is.level.name<-function(schema,str){
-#   
-# }
-# 
-# list.related.items <-function(bundle,item,direction='to',recursive=TRUE){
-#   relItems=list()
-#   itemId=item$id
-#   for(l in bundle$links){
-#     if(l$fromID==itemId){
-#       item=.get.item.by.id(bundle,l$toID)
-#       relItems[[length(relItems)+1]]=item
-#     }
-#   }
-#   
-#   resItems=relItems
-#   if(recursive){
-#     
-#     for(rItem in relItems){
-#       relSubItems=list.related.items(bundle,rItem,direction=direction)
-#       resItems=c(resItems,relSubItems)
-#     }
-#   }
-#   return(resItems)
-#   
-# }
-
-
 .create.condition.text<-function(opr,value){
   o=list(opr=opr,value=value)
   class(o)<-c('emuR.condition.text','emuR.condition')
