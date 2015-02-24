@@ -189,5 +189,5 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
 }
 
 # FOR DEVELOPMENT 
-library('testthat') 
-test_file('tests/testthat/test_autobuild.R')
+# library('testthat') 
+# test_file('tests/testthat/test_autobuild.R')
