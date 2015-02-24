@@ -235,7 +235,7 @@ move.bundle.levels.to.data.frame <-function(db,bundle,replace=TRUE){
     lvlItCount=length(lvl[['items']])
     itCount=itCount+lvlItCount
   }
-  bdf=data.frame(id=character(itCount),session=character(itCount),bundle=character(itCount),level=character(itCount),itemID=integer(itCount),type=character(itCount),seqIdx=integer(itCount),sampleRate=numeric(itCount),samplePoint=integer(itCount),sampleStart=integer(itCount),sampleDur=integer(itCount),label=character(itCount),stringsAsFactors=FALSE)
+  bdf=data.frame(id=character(itCount),session=character(itCount),bundle=character(itCount),level=character(itCount),itemID=integer(itCount),type=character(itCount),seqIdx=integer(itCount),sampleRate=numeric(itCount),samplePoint=integer(itCount),sampleStart=integer(itCount),sampleDur=integer(itCount),stringsAsFactors=FALSE)
   #colnames(bdf)<-db[['DBconfig']][['itemColNames']]
   ldf=NULL
   lrow=1
@@ -292,8 +292,8 @@ move.bundle.levels.to.data.frame <-function(db,bundle,replace=TRUE){
       # TODO get label column names from schema and set them as last columns
       lbls=it[['labels']]
       lblsLen=length(lbls)
-      lbl0=it[['labels']][[1]][['value']]
-      bdf[row,'label']=lbl0
+      #lbl0=it[['labels']][[1]][['value']]
+      #bdf[row,'label']=lbl0
       for(i in 1:maxLbls){
         rLbl=NA
         if(lblsLen>=i){
@@ -406,7 +406,7 @@ append.bundle.to.tmp.list <-function(db,bundle){
       lbls=it[['labels']]
       lblsLen=length(lbls)
       lbl0=it[['labels']][[1]][['value']]
-      db[['items']][['label']][row]=lbl0
+      #db[['items']][['label']][row]=lbl0
       for(i in 1:maxLbls){
         rLbl=NA
         if(lblsLen>=i){
@@ -533,8 +533,8 @@ append.bundle.to.tmp.list.by.ref <-function(dbWr,bundle){
       
       lbls=it[['labels']]
       lblsLen=length(lbls)
-      lbl0=it[['labels']][[1]][['value']]
-      dbWr[['db']][['items']][['label']][row]=lbl0
+     # lbl0=it[['labels']][[1]][['value']]
+      #dbWr[['db']][['items']][['label']][row]=lbl0
       for(i in 1:maxLbls){
         rLbl=NA
         if(lblsLen>=i){
@@ -873,7 +873,7 @@ is.relative.file.path<-function(nativeFilePathStr,forRunningPlatform=FALSE){
 
 initialize.database.dataframes<-function(db){
   
-  baseColNms <- c('id','bundle','level','itemID','type','seqIdx','sampleRate','samplePoint','sampleStart','sampleDur','label')
+  baseColNms <- c('id','bundle','level','itemID','type','seqIdx','sampleRate','samplePoint','sampleStart','sampleDur')
   maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
   
   colNms=baseColNms
@@ -882,7 +882,7 @@ initialize.database.dataframes<-function(db){
 
 
   # items 
-  db[['items']]=list(id=character(vector.increment),session=character(vector.increment),bundle=character(vector.increment),level=character(vector.increment),itemID=integer(vector.increment),type=character(vector.increment),seqIdx=integer(vector.increment),sampleRate=numeric(vector.increment),samplePoint=integer(vector.increment),sampleStart=integer(vector.increment),sampleDur=integer(vector.increment),label=character(vector.increment))
+  db[['items']]=list(id=character(vector.increment),session=character(vector.increment),bundle=character(vector.increment),level=character(vector.increment),itemID=integer(vector.increment),type=character(vector.increment),seqIdx=integer(vector.increment),sampleRate=numeric(vector.increment),samplePoint=integer(vector.increment),sampleStart=integer(vector.increment),sampleDur=integer(vector.increment))
   #db[['items']]=matrix(nrow=itCount,ncol=length(colNms))w
   #colnames(db[['items']])=colNms
   db[['itemsIdx']]=0L
@@ -1774,8 +1774,8 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
           
           lbls=it[['labels']]
           lblsLen=length(lbls)
-          lbl0=it[['labels']][[1]][['value']]
-          db[['items']][['label']][row]=lbl0
+          #lbl0=it[['labels']][[1]][['value']]
+          #db[['items']][['label']][row]=lbl0
           for(i in 1:maxLbls){
             rLbl=NA
             if(lblsLen>=i){
