@@ -285,7 +285,26 @@ build.ext.link.definitions<-function(schema){
   return(lds)
 }
 
+# persistence filters
+# the properties listed are not persisted to JSON files
+emuR.persist.filters.DBconfig=list()
+emuR.persist.filters.DBconfig[[1]]=c('annotationDescriptors')
+emuR.persist.filters.DBconfig[[2]]=c('tracks')
+emuR.persist.filters.DBconfig[[3]]=c('flags')
+emuR.persist.filters.DBconfig[[4]]=c('ssffTrackDefinitions','basePath')
+emuR.persist.filters.DBconfig[[5]]=c('mediafileBasePathPattern')
+emuR.persist.filters.DBconfig[[6]]=c('maxNumberOfLabels')
+emuR.persist.filters.DBconfig[[7]]=c('itemColNames')
+emuR.persist.filters.DBconfig[[8]]=c('basePath')
+emuR.persist.filters.DBconfig[[9]]=c('DBconfigPath')
 
+# persistent class hierarchy
+# the calss names are applied to the object hierarchy loaded from JSON file
+emuR.persist.class.DBconfig=list()
+emuR.persist.class.DBconfig[['emuDB.schema.databaseDefinition']]=character(0)
+emuR.persist.class.DBconfig[['emuDB.schema.levelDefinition']]=list(c('levelDefinitions','*'))
+emuR.persist.class.DBconfig[['emuDB.schema.linkDefinition']]=list(c('linkDefinitions','*'))
+emuR.persist.class.DBconfig[['emuDB.schema.attributeDefinition']]=list(c('levelDefinitions','*','attributeDefinitions','*'))
 
 load.emuDB.DBconfig<-function(DBconfigFilePath){
   # with warn=TRUE and some files
@@ -297,8 +316,22 @@ load.emuDB.DBconfig<-function(DBconfigFilePath){
   dbCfgPersisted=jsonlite::fromJSON(dbCfgJSON,simplifyVector=FALSE)
   
   # unmarshal schema object (set class names)
-  schema=unmarshal.from.persistence(dbCfgPersisted,emuR.persist.class[['DBconfig']])
+  schema=unmarshal.from.persistence(dbCfgPersisted,emuR.persist.class.DBconfig)
   return(schema)
+}
+
+.store.schema<-function(db,projectDir=NULL){
+  if(is.null(projectDir)){
+    projectDir=db[['basePath']]
+  }
+  # store db schema file
+  dbCfgNm=paste0(db[['name']],database.schema.suffix)
+  dbCfgPath=file.path(projectDir,dbCfgNm)
+  
+  persistFilter=emuR.persist.filters.DBconfig
+  sp=marshal.for.persistence(db[['DBconfig']],persistFilter)
+  psJSON=jsonlite::toJSON(sp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+  writeLines(psJSON,dbCfgPath)
 }
 
 get.levelDefinition <- function(DBconfig, name){

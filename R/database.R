@@ -17,6 +17,8 @@ database.schema.suffix='_DBconfig.json'
 
 vector.increment=100000
 
+
+
 create.database <- function(name,basePath=NULL,DBconfig=create.schema.databaseDefinition(name = name),sessions=NULL,primaryExtension=NULL){
   o <- list(name=name,basePath=basePath,DBconfig=DBconfig,sessions=sessions,primaryExtension=primaryExtension,apiLevel=emuDB.apiLevel)
   class(o) <- c('emuDB','list')
@@ -1018,149 +1020,8 @@ extractTrackdata <- function(db=NULL,segmentList=NULL,trackName=NULL){
   return(myTrackData)
 }
 
-emuR.persist.filters=list()
-emuR.persist.filters[['bundle']]=list()
-emuR.persist.filters[['bundle']][[1]]=c('files')
-emuR.persist.filters[['bundle']][[2]]=c('signalpaths')
-emuR.persist.filters[['bundle']][[3]]=c('mediaFilePath')
-emuR.persist.filters[['bundle']][[4]]=c('legacyBundleID')
-emuR.persist.filters[['bundle']][[5]]=c('sessionName')
 
-# TODO sampleRate required !!
-emuR.persist.filters[['bundle']][[6]]=c('levels','*','sampleRate')
 
-emuR.persist.filters[['DBconfig']]=list()
-emuR.persist.filters[['DBconfig']][[1]]=c('annotationDescriptors')
-emuR.persist.filters[['DBconfig']][[2]]=c('tracks')
-emuR.persist.filters[['DBconfig']][[3]]=c('flags')
-emuR.persist.filters[['DBconfig']][[4]]=c('ssffTrackDefinitions','basePath')
-emuR.persist.filters[['DBconfig']][[5]]=c('mediafileBasePathPattern')
-emuR.persist.filters[['DBconfig']][[6]]=c('maxNumberOfLabels')
-emuR.persist.filters[['DBconfig']][[7]]=c('itemColNames')
-emuR.persist.filters[['DBconfig']][[8]]=c('basePath')
-emuR.persist.filters[['DBconfig']][[9]]=c('DBconfigPath')
-
-emuR.persist.class=list()
-emuR.persist.class[['DBconfig']]=list()
-emuR.persist.class[['DBconfig']][['emuDB.schema.databaseDefinition']]=character(0)
-emuR.persist.class[['DBconfig']][['emuDB.schema.levelDefinition']]=list(c('levelDefinitions','*'))
-emuR.persist.class[['DBconfig']][['emuDB.schema.linkDefinition']]=list(c('linkDefinitions','*'))
-emuR.persist.class[['DBconfig']][['emuDB.schema.attributeDefinition']]=list(c('levelDefinitions','*','attributeDefinitions','*'))
-
-marshal.for.persistence <- function(x, filter=NULL){
-  if (is.list(x)) {
-    
-    cloneList=list()
-    class(cloneList) <- class(x)
-    nms=names(x)
-    if(is.null(nms)){
-      
-      # pass through
-      len=length(x)
-      if(len>0){
-        for (i in 1:len) {
-          cloneList[[i]]=marshal.for.persistence(x[[i]],filter=filter);
-        }
-      }
-    }else{
-      if(any(duplicated(nms))){
-        stop("Cannot handle list with duplicate names.")
-      }
-      # TODO if the value is null the key ist not in names
-      
-      persistAttr=attr(x,'ips.persist')
-      refNms=list()
-      refs=NULL
-      typesJSON=NULL
-      typesJSONnms=list()
-      if(!is.null(persistAttr)){
-        refs=persistAttr[['refs']]
-        if(!is.null(refs)){
-          refNms=names(refs)
-        }
-        typesJSON=persistAttr[['typesJSON']]
-        if(!is.null(typesJSON)){
-          typesJSONnms=names(typesJSON)
-          #cat(typesJSONnms,"\n")
-        }
-      }
-      childFilter=NULL
-      for(n in nms){
-        
-        dropProp=FALSE
-        if(!is.null(filter)){
-          for(ps in filter){
-            p=ps[1]
-            if(n==p | p=='*'){
-              lenP=length(ps)
-              if(lenP>1){
-                childSeq=2:lenP
-                if(is.null(childFilter)){
-                  childFilter=list()
-                }
-                childFilter[[length(childFilter)+1L]]=ps[childSeq]
-                #cat("Added child filter item: ",ps[childSeq],"\n")
-              }else{
-                
-                
-                if(!dropProp && n==p){
-                  # cat("Dropping property: ",n,"\n")
-                  dropProp=TRUE
-                }
-              }
-            }
-          }
-        }
-        if(!dropProp){
-          v=x[[n]]
-          if(n %in% refNms){
-            idFn=refs[[n]]
-            if(is.null(idFn)){
-              stop("No ID property given") 
-            }
-            # replace referenced object with ID
-            
-            # get target ID
-            vPersistAttr=attr(v,'ips.persist')
-            if(is.null(vPersistAttr)){
-              stop("No persistence info for object to convert to ID")
-            }
-            vLocIdProp=vPersistAttr[['localId']]
-            if(is.null(vLocIdProp)){
-              stop("No ID property found.")
-            }
-            vLocId=v[[vLocIdProp]]
-            #cat("ID field: ",idFn,vLocIdProp,vLocId,"\n")
-            cloneList[[idFn]]=vLocId
-          }else if(n %in% typesJSONnms){
-            typeJSON=typesJSON[[n]]
-            if(!is.null(typeJSON)){
-              if(typeJSON=='array'){
-                val=marshal.for.persistence(x[[n]],filter=childFilter)
-                # convert to array by deletion of names attribute
-                attr(val,'names') <-NULL
-                cloneList[[n]]=val
-                #cat("Array conversion of field ",n,"\n")
-              }
-            }
-            
-          }else{
-            cloneList[[n]]=marshal.for.persistence(x[[n]],filter=childFilter)
-          }
-        }
-      }
-    }
-    
-    return(cloneList)
-  }else{
-    #if(is.character(x) & length(x)==1){
-    #  # Or use jsonlite::toJSON(...,auto_unbox=TRUE)
-    #  return(jsonlite::unbox(x))
-    #}else{
-      return(x)
-    #}
-  }
-}
 
 set.list.names <-function(list,nameProperty){
   elemNames=c()
@@ -1205,22 +1066,7 @@ apply.class<-function(val,path,class){
   return(val)
 }
 
-unmarshal.from.persistence <- function(x,classMap=list()){
-  classNames=names(classMap)
-  for(cn in classNames){
-    pathes=classMap[[cn]]
-    pathesLen=length(pathes)
-    if(pathesLen==0){
-      x=apply.class(x,c(),cn)
-    }else{
-      for(path in pathes){
-        x=apply.class(x,path,cn)
-      }
-    }
-  }  
-  
-  return(x);
-}
+
 
 .update.transient.schema.values<-function(schema){
   # get max label array size
@@ -1234,6 +1080,16 @@ unmarshal.from.persistence <- function(x,classMap=list()){
   schema[['maxNumberOfLabels']]=max(sapply(schema[['levelDefinitions']], function(ld) { length(ld[['attributeDefinitions']])} ))
   return(schema)
 }
+
+# persistent filters for bundle annotations
+# Transient properties which are not stored to JSON
+emuR.persist.filters.bundle=list()
+emuR.persist.filters.bundle[[1]]=c('files')
+emuR.persist.filters.bundle[[2]]=c('signalpaths')
+emuR.persist.filters.bundle[[3]]=c('mediaFilePath')
+emuR.persist.filters.bundle[[4]]=c('legacyBundleID')
+emuR.persist.filters.bundle[[5]]=c('sessionName')
+emuR.persist.filters.bundle[[6]]=c('levels','*','sampleRate')
 
 ## Store EMU database bundle to file
 ## 
@@ -1274,7 +1130,7 @@ store.bundle.annotation <- function(db,bundle){
       
       bndlFileNm=paste0(bName,bundle.annotation.suffix,'.json')
       bndFilePth=file.path(bndlPth,bndlFileNm)
-      pFilter=emuR.persist.filters[['bundle']]
+      pFilter=emuR.persist.filters.bundle
       bp=marshal.for.persistence(bundle,pFilter)
       pbpJSON=jsonlite::toJSON(bp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
       writeLines(pbpJSON,bndFilePth)
@@ -1514,22 +1370,6 @@ add.linkDefinition<-function(db,linkDefinition){
   }
 }
 
-
-.store.schema<-function(db,projectDir=NULL){
-  if(is.null(projectDir)){
-    projectDir=db[['basePath']]
-  }
-  # store db schema file
-  dbCfgNm=paste0(db[['name']],database.schema.suffix)
-  dbCfgPath=file.path(projectDir,dbCfgNm)
-  
-  persistFilter=emuR.persist.filters[['DBconfig']]
-  sp=marshal.for.persistence(db[['DBconfig']],persistFilter)
-  psJSON=jsonlite::toJSON(sp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-  writeLines(psJSON,dbCfgPath)
-}
-
-
 ##' Store EMU database to directory
 ##' 
 ##' @details 
@@ -1635,7 +1475,7 @@ store.emuDB <- function(db,targetDir,options=NULL,showProgress=TRUE){
       bDir=paste0(b[['name']],bundle.dir.suffix)
       bfp=file.path(sfp,bDir)
       dir.create(bfp)
-      pFilter=emuR.persist.filters[['bundle']]
+      pFilter=emuR.persist.filters.bundle
       bp=marshal.for.persistence(b,pFilter)
   
       for(sf in b[['signalpaths']]){
