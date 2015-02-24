@@ -165,7 +165,7 @@ serve.emuDB=function(database,host='127.0.0.1',port=17890,debug=FALSE,debugLevel
           }
           
         }else if(jr$type == 'GETGLOBALDBCONFIG'){
-          persistFilter=emuR.persist.filters[['DBconfig']]
+          persistFilter=emuR.persist.filters.DBconfig
           sp=marshal.for.persistence(database[['DBconfig']],persistFilter)
           #sp=WS[['server']][['emuDb']][['DBconfig']]
           if(debugLevel >= 4){
@@ -254,7 +254,7 @@ serve.emuDB=function(database,host='127.0.0.1',port=17890,debug=FALSE,debugLevel
               }
             }
             
-            anno=marshal.for.persistence(b,emuR.persist.filters[['bundle']])
+            anno=marshal.for.persistence(b,emuR.persist.filters.bundle)
             data=list(mediaFile=mediaFile,ssffFiles=ssffTrackDefinitions,annotation=anno)
             
             responseBundle=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,responseContent='bundle',contentType='text/json',data=data)
