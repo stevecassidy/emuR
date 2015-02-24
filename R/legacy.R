@@ -809,12 +809,12 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
         
         lbls=it[['labels']]
         lblsLen=length(lbls)
-        lbl0=it[['labels']][[1]][['value']]
-        if(is.null(lbl0)){
-          db[['items']][['label']][row]=''
-        }else{
-          db[['items']][['label']][row]=lbl0
-        }
+        #lbl0=it[['labels']][[1]][['value']]
+#         if(is.null(lbl0)){
+#           db[['items']][['label']][row]=''
+#         }else{
+#           db[['items']][['label']][row]=lbl0
+#         }
         for(i in 1:maxLbls){
           rLbl=''
           if(lblsLen>=i){
@@ -907,7 +907,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
   }
   itemsIdx=db[['itemsIdx']]
   
-  db[['items']]=data.frame(id=db[['items']][['id']][0:itemsIdx],session=db[['items']][['session']][0:itemsIdx],bundle=db[['items']][['bundle']][0:itemsIdx],level=db[['items']][['level']][0:itemsIdx],itemID=db[['items']][['itemID']][1:itemsIdx],type=db[['items']][['type']][1:itemsIdx],seqIdx=db[['items']][['seqIdx']][1:itemsIdx],sampleRate=db[['items']][['sampleRate']][1:itemsIdx],samplePoint=db[['items']][['samplePoint']][1:itemsIdx],sampleStart=db[['items']][['sampleStart']][1:itemsIdx],sampleDur=db[['items']][['sampleDur']][1:itemsIdx],label=db[['items']][['label']][1:itemsIdx],stringsAsFactors=FALSE)
+  db[['items']]=data.frame(id=db[['items']][['id']][0:itemsIdx],session=db[['items']][['session']][0:itemsIdx],bundle=db[['items']][['bundle']][0:itemsIdx],level=db[['items']][['level']][0:itemsIdx],itemID=db[['items']][['itemID']][1:itemsIdx],type=db[['items']][['type']][1:itemsIdx],seqIdx=db[['items']][['seqIdx']][1:itemsIdx],sampleRate=db[['items']][['sampleRate']][1:itemsIdx],samplePoint=db[['items']][['samplePoint']][1:itemsIdx],sampleStart=db[['items']][['sampleStart']][1:itemsIdx],sampleDur=db[['items']][['sampleDur']][1:itemsIdx],stringsAsFactors=FALSE)
   #tmpDf=data.frame(db[['items']],stringsAsFactors = FALSE)
   #db[['items']]=tmpDf[1:itemsIdx,]
   progress=progress+1L

@@ -140,7 +140,7 @@ initialize_database_tables <- function(conn, itemsTableName, labelTableName, lin
   # initialize empty tables (items, labels, links)
   items = data.frame(id=character(), session=character(), bundle=character(), level=character(),
                      itemID=integer(), type=character(), seqIdx=integer(), sampleRate=numeric(), 
-                     samplePoint=integer(), sampleStart=integer(), sampleDur=integer(), label=character(), stringsAsFactors=FALSE)
+                     samplePoint=integer(), sampleStart=integer(), sampleDur=integer(), stringsAsFactors=FALSE)
   
   dbWriteTable(conn, "emuR_emuDB_items_tmp", items)
   

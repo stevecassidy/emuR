@@ -3,6 +3,8 @@
 ##' @author Raphael Winkelmann
 context("testing autobuild functions")
 
+require('jsonlite')
+
 path2ae = system.file("extdata/emu/DBs/ae/", package = "emuR")
 
 ae = load.emuDB(path2ae, verbose = F)
@@ -68,30 +70,30 @@ test_that("correct links are present after autobuild.linkFromTimes with SEGMENTS
   ae$DBconfig$levelDefinitions[[length(ae$DBconfig$levelDefinitions) + 1]] = tmpLevelDef
   
   # add item to Phonetic2 = left edge
-  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3749, 10, 'testLabel12')
+  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3749, 10)
   res = autobuild.linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   expect_equal(res$links[786,]$fromID, 147)
   expect_equal(res$links[786,]$toID, 999)
   
   # add item to Phonetic2 = exact match
-  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3749, 1389, 'testLabel12')
+  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3749, 1389)
   res = autobuild.linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   expect_equal(res$links[786,]$fromID, 147)
   expect_equal(res$links[786,]$toID, 999)
   
   # add item to Phonetic2 = completely within
-  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3800, 200, 'testLabel12')
+  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3800, 200)
   res = autobuild.linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   expect_equal(res$links[786,]$fromID, 147)
   expect_equal(res$links[786,]$toID, 999)
     
   # add item to Phonetic2 = left overlap
-  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3500, 1000, 'testLabel12')
+  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3500, 1000)
   res = autobuild.linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   expect_equal(dim(res$links)[1], 785)
   
   # add item to Phonetic2 = right overlap
-  ae$items[741, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3800, 2000, 'testLabel12')
+  ae$items[741, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3800, 2000)
   res = autobuild.linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   expect_equal(dim(res$links)[1], 785)
   
@@ -110,19 +112,19 @@ test_that("correct links are present after autobuild.linkFromTimes with SEGMENTS
   ae$DBconfig$levelDefinitions[[length(ae$DBconfig$levelDefinitions) + 1]] = tmpLevelDef
   
   # add item to Phonetic2 = completely within
-  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3800, 200, 'testLabel12')
+  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3800, 200)
   res = autobuild.linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   expect_equal(res$links[786,]$fromID, 147)
   expect_equal(res$links[786,]$toID, 999)
   
   # add item to Phonetic2 = left overlap
-  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3500, 1000, 'testLabel12')
+  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3500, 1000)
   res = autobuild.linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   expect_equal(res$links[786,]$fromID, 147)
   expect_equal(res$links[786,]$toID, 999)
   
   # add item to Phonetic2 = right overlap
-  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3800, 2000, 'testLabel12')
+  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3800, 2000)
   res = autobuild.linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   expect_equal(res$links[786,]$fromID, 147)
   expect_equal(res$links[786,]$toID, 999)
@@ -131,7 +133,7 @@ test_that("correct links are present after autobuild.linkFromTimes with SEGMENTS
   
   
   # add item to Phonetic2 = left and right overlap
-  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3500, 2000, 'testLabel12')
+  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3500, 2000)
   res = autobuild.linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   expect_equal(res$links[786,]$fromID, 147)
   expect_equal(res$links[786,]$toID, 999)
@@ -140,7 +142,7 @@ test_that("correct links are present after autobuild.linkFromTimes with SEGMENTS
   
   
   # add item to Phonetic2 = not within
-  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 200, 200, 'testLabel12')
+  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 200, 200)
   res = autobuild.linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   expect_equal(dim(res$links)[1], 785)
   
@@ -157,28 +159,28 @@ test_that("correct links are present after autobuild.linkFromTimes with SEGMENTS
   ae$DBconfig$levelDefinitions[[length(ae$DBconfig$levelDefinitions) + 1]] = tmpLevelDef
   
   # add item to Phonetic2 = exact match
-  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3749, 1389, 'testLabel12')
+  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3749, 1389)
   res = autobuild.linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   expect_equal(res$links[786,]$fromID, 147)
   expect_equal(res$links[786,]$toID, 999)
   
   # add item to Phonetic2 = left overlap
-  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3748, 1389, 'testLabel12')
+  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3748, 1389)
   res = autobuild.linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   expect_equal(dim(res$links)[1], 785)
 
   # add item to Phonetic2 = right overlap
-  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3749, 1390, 'testLabel12')
+  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3749, 1390)
   res = autobuild.linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   expect_equal(dim(res$links)[1], 785)
 
   # add item to Phonetic2 = within
-  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3750, 200, 'testLabel12')
+  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3750, 200)
   res = autobuild.linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   expect_equal(dim(res$links)[1], 785)
   
   # add item to Phonetic2 = not within
-  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 200, 200, 'testLabel12')
+  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 200, 200)
   res = autobuild.linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   expect_equal(dim(res$links)[1], 785)
   
@@ -195,7 +197,7 @@ test_that("backup works correctly", {
   ae$DBconfig$levelDefinitions[[length(ae$DBconfig$levelDefinitions) + 1]] = tmpLevelDef
   
   # add item to Phonetic2 = exact match
-  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3749, 1389, 'testLabel12')
+  ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3749, 1389)
   res = autobuild.linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE, TRUE)
   
   # same amount of of items
@@ -228,7 +230,7 @@ test_that("rewrite works correctly", {
   tmpLevelDef = create.schema.levelDefinition(name = 'Phonetic2', type = 'SEGMENT', attributeDefinitions = list())
   ae2$DBconfig$levelDefinitions[[length(ae2$DBconfig$levelDefinitions) + 1]] = tmpLevelDef
   
-  ae2$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3750, 200, 'testLabel12')
+  ae2$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3750, 200)
   ae2$labels[845, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 0, 'Phonetic2', 'testLabel12')
   res = autobuild.linkFromTimes(ae2, 'Phonetic', 'Phonetic2', TRUE, TRUE)
   

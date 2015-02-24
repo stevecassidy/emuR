@@ -131,8 +131,9 @@ test_that("Test ae modify",{
   aem=store.bundle.annotation(ae,b015m)
   
   # items should not be equal
-  cm1=compare(ae$items,aem$items,allowAll=TRUE)
-  expect_false(cm1$result)
+  # Note: test doe not work without redundant label in items tbale anymore
+  #cm1=compare(ae$items,aem$items,allowAll=TRUE)
+  #expect_false(cm1$result)
   # links are not changed, should be equal to original
   cml1=compare(ae$links,aem$links,allowAll=TRUE)
   expect_true(cml1$result)

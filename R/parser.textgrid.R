@@ -290,7 +290,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
                         dbSendQuery(conn, paste0("INSERT INTO ",itemsTableName  ," VALUES"," ('", itemId, "', '", session, "', '", bundle, 
                                                  "', '", currentTierName,"', ", itemCounterGlobal, ", '", "SEGMENT", 
                                                  "', ", itemCounterLevel, ", ", sampleRate, ", ", "NULL", ", ", currentSegmentStart, 
-                                                 ", ", sampleDur, ", '", gsub("'","''", currentSegmentLabel), "')"))
+                                                 ", ", sampleDur, ")"))
                         
                         
                         
@@ -380,7 +380,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
                       dbSendQuery(conn, paste0("INSERT INTO ",itemsTableName  ," VALUES"," ('", itemId, "', '", session, "', '", bundle, 
                                                "', '", currentTierName,"', ", itemCounterGlobal, ", '", "EVENT", 
                                                "', ", itemCounterLevel, ", ", sampleRate, ", ", currentPointSample, ", ", "NULL", 
-                                               ", ", "NULL", ", '", gsub("'","''", currentPointLabel), "')"))
+                                               ", ", "NULL", ")"))
                       
                       
                       # label entry:       

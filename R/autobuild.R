@@ -74,15 +74,15 @@ autobuild.linkFromTimes <- function(db, superlevelName, sublevelName, writeToDis
     
     # backup items belonging to superlevel (=duplicate level with new ids)
     dbSendQuery(con, paste0("INSERT INTO ", itemsTableName,
-                            " SELECT '", db$name,"' || '_' || session || '_' || bundle ||  '_' || (itemID + bndlMaxValue) AS id, session, bundle, level || '", backupLevelAppendStr, "' AS level, itemID + bndlMaxValue, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur, label",
+                            " SELECT '", db$name,"' || '_' || session || '_' || bundle ||  '_' || (itemID + bndlMaxValue) AS id, session, bundle, level || '", backupLevelAppendStr, "' AS level, itemID + bndlMaxValue, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur",
                             " FROM (SELECT bundle AS 'bndlMaxID', MAX(itemID) AS 'bndlMaxValue' FROM ", itemsTableName, " GROUP BY bundle) as maxIdRes JOIN ", 
                             itemsTableName, " AS it WHERE maxIdRes.bndlMaxID = it.bundle AND level ='", superlevelName, "'"))
     
     
-    # backup labels belonging to superlevel SIC fix names!
+    # backup labels belonging to superlevel
     dbSendQuery(con, paste0("INSERT INTO ", labelsTableName,
                             " SELECT newID AS itemID, lt.session AS session, lt.bundle AS bundle, lt.labelIdx AS labelIdx, lt.name || '", backupLevelAppendStr, "' AS name, lt.label AS label FROM ",
-                            " (SELECT id AS origID, '", db$name,"' || '_' || session || '_' || bundle || '_' || (itemID + bndlMaxValue) AS newID, session, bundle, level AS level, itemID + bndlMaxValue, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur, label",
+                            " (SELECT id AS origID, '", db$name,"' || '_' || session || '_' || bundle || '_' || (itemID + bndlMaxValue) AS newID, session, bundle, level AS level, itemID + bndlMaxValue, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur",
                             " FROM (SELECT bundle AS 'bndlMaxID', MAX(itemID) AS 'bndlMaxValue' FROM ", itemsTableName, " GROUP BY bundle) as maxIdRes JOIN ", 
                             itemsTableName, " AS it WHERE maxIdRes.bndlMaxID = it.bundle AND level ='", superlevelName, "') AS bu JOIN ", labelsTableName, " AS lt",
                             " WHERE bu.origID = lt.itemID"))
