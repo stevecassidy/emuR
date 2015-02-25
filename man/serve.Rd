@@ -43,7 +43,7 @@ Stop the server with the 'Clear' button of the webapp or the reload button of yo
 The server can be interrupted with Ctrl-C if something wents wrong.
 }
 \details{
-Function opens a HTTP/websocket and waits in a loop for browser requests. The R console will be blocked. On successfull connection the server sends the session and bundle list of the given database object. The Web application requests bundle data for editing. If a bundle is modified with the EMU-webApp and the save button is pressed the server modifies the database object and saves the changes to disk. Communication is defined by EMU-webApp-websocket-protocol version 0.0.1
+Function opens a HTTP/websocket and waits in a loop for browser requests. The R console will be blocked. On successfull connection the server sends the session and bundle list of the given database object. The Web application requests bundle data for editing. If a bundle is modified with the EMU-webApp and the save button is pressed the server modifies the database object and saves the changes to disk. Communication is defined by EMU-webApp-websocket-protocol version 0.0.2
 }
 \examples{
 \dontrun{
