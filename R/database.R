@@ -1189,7 +1189,7 @@ add.levelDefinition<-function(db,levelDefinition){
   # store to disk
   .store.schema(db)
   
-  # add levels to exsiting bundles
+  # add levels to existing bundles
   # not required!!
   
   #db=bundle.iterator(db,function(db,b){
