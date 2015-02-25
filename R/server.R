@@ -253,7 +253,6 @@ serve.emuDB=function(database,host='127.0.0.1',port=17890,debug=FALSE,debugLevel
           
           # build ssff files list
           ssffFileExts=names(ssffFilesHash)
-          cat("SSFF file extensions",ssffFileExts,"\n")
           for(ssffFileExt in ssffFileExts){
             ssffFilePath=ssffFilesHash[ssffFileExt]
             mf<- file(ssffFilePath, "rb")
