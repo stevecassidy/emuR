@@ -1,6 +1,7 @@
 require(stringr)
 require(uuid)
 require(wrassp)
+require(DBI)
 #require(data.table)
 
 
@@ -8,7 +9,7 @@ require(wrassp)
 
 # API level of database object format
 # increment this value if the internal database object format changes  
-emuDB.apiLevel=2L
+emuDB.apiLevel=3L
 
 session.suffix='_ses'
 bundle.dir.suffix='_bndl'
@@ -17,7 +18,33 @@ database.schema.suffix='_DBconfig.json'
 
 vector.increment=100000
 
+database.DDL.emuDB='CREATE TABLE emuDB (
+  name TEXT, 
+  uuid VARCHAR(36),  
+  PRIMARY KEY (name, uuid)
+);'
 
+database.DDL.emuDB_session='CREATE TABLE session (
+  name TEXT,
+  db_name TEXT,
+  db_uuid VARCHAR(36),
+  PRIMARY KEY (name)
+ FOREIGN KEY (db_name) REFERENCES emuDB(name)
+
+);'
+
+
+initialize.DBI.database<-function(){
+  con <- dbConnect(RSQLite::SQLite(), ":memory:")
+  if(!dbExistsTable(con,'emuDB')){
+    res <- dbSendQuery(con, database.DDL.emuDB)
+    dbClearResult(res)
+    res <- dbSendQuery(con, database.DDL.emuDB_session) 
+    dbClearResult(res)
+  }
+  cat(dbListTables(con))
+  dbDisconnect(con)
+}
 
 create.database <- function(name,basePath=NULL,DBconfig=create.schema.databaseDefinition(name = name),sessions=NULL,primaryExtension=NULL){
   o <- list(name=name,basePath=basePath,DBconfig=DBconfig,sessions=sessions,primaryExtension=primaryExtension,apiLevel=emuDB.apiLevel)
