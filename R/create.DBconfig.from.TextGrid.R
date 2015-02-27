@@ -4,12 +4,14 @@ require(RSQLite)
 ##' 
 ##' @param tgPath path to TextGrid file
 ##' @param dbName name of the database
+##' @param tierNames character vector containing names of tiers to extract and convert. If NULL (the default) all
+##' tiers are converted.
 ##' @return object of class emuDB.schema.db
 ##' @author Raphael Winkelmann
 ##' @import stringr uuid wrassp RSQLite
 ##' @keywords emuDB database schema Emu TextGrid
 ## 
-create.DBconfig.from.TextGrid = function(tgPath, dbName){
+create.DBconfig.from.TextGrid = function(tgPath, dbName, tierNames=NULL){
   
   ####################
   # check parameters
@@ -39,7 +41,11 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName){
   
   
   parse.textgrid(tgPath, 20000, db='ae', bundle="msajc003", session="0000", conn = con, itemsTableName=itemsTableName, labelsTableName=labelsTableName) # sampleRate doesn't matter!! -> hardcoded
-  #   tgAnnot = parse.textgrid(tgPath, 44100) # sampleRate hardcoded because it does not matter
+  
+  # remove unwanted levels
+  if(!is.null(tierNames)){
+    delete_unwanted_levels_from_database_tables(con, itemsTableName, labelTableName, linksTableName, tierNames)
+  }
   
   res <- RSQLite::dbSendQuery(con, paste0("SELECT DISTINCT level, type FROM ", itemsTableName))
   levels = RSQLite::dbFetch(res)
