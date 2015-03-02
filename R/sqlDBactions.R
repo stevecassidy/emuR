@@ -37,7 +37,7 @@ initialize_database_tables <- function(conn, itemsTableName, labelTableName, lin
 ##' 
 ##' @param conn sql DB connection
 ##' @param itemsTableName SQL table name of items table
-##' @param labelTableName SQL table name of label table
+##' @param labelsTableName SQL table name of label table
 ##' @param linksTableName SQL table name of links table
 ##' @param namesOfLevelsToKeep character vector containing 
 ##' the level names that should remain in the tables

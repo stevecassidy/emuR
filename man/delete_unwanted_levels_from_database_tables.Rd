@@ -12,12 +12,12 @@ delete_unwanted_levels_from_database_tables(conn, itemsTableName,
 
 \item{itemsTableName}{SQL table name of items table}
 
+\item{labelsTableName}{SQL table name of label table}
+
 \item{linksTableName}{SQL table name of links table}
 
 \item{namesOfLevelsToKeep}{character vector containing
 the level names that should remain in the tables}
-
-\item{labelTableName}{SQL table name of label table}
 }
 \description{
 Deletes all item, label and link rows that do not
