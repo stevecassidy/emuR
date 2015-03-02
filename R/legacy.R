@@ -585,17 +585,16 @@ remove.redundant.links<-function(database,links){
   return(sqldf(sqlQuery))
 }
 
+
+
 remove.database.redundant.links<-function(database){
   # Legacy EMU and query functions link collections contain links for each possible connection between levels
   # We consider links that do not follow link definition constraints as redundant and therefore we remove them from the
   # link data model
   #
   # build SQL query from link definitions
-  items=database[['items']]
-  links=database[['links']]
-  linksCnt=nrow(links)
-  if(linksCnt>0){
-    sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.session=t.session AND l.session=f.session AND f.itemID=l.fromID AND t.itemID=l.toID AND ("
+  dbSendQuery(emuDBs.con,'DELETE FROM linksTmp')
+    sqlQuery="INSERT INTO linksTmp SELECT l.* FROM items f,items t, links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.session=t.session AND l.session=f.session AND f.itemID=l.fromID AND t.itemID=l.toID AND ("
     ldCnt=length(database[['DBconfig']][['linkDefinitions']])
     if(ldCnt>0){
       for(i in 1:ldCnt){
@@ -607,10 +606,13 @@ remove.database.redundant.links<-function(database){
       }
       sqlQuery=paste0(sqlQuery,')')
       #cat(sqlQuery,"\n")
-      database[['links']]=sqldf(sqlQuery)
-    }
-  }
-  return(database)
+      #database[['links']]=sqldf(sqlQuery)
+      dbSendQuery(emuDBs.con,sqlQuery)
+      dbSendQuery(emuDBs.con,'DELETE FROM links')
+      dbSendQuery(emuDBs.con,'INSERT INTO links SELECT * FROM linksTmp')
+      dbSendQuery(emuDBs.con,'DELETE FROM linksTmp')
+    } 
+  
 }
 
 ## Load legacy EMU database by name
@@ -755,6 +757,18 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     }
   }
   
+  if(verboseLevel>3){
+    cat('Removing redundant links...\n')
+  }
+  remove.database.redundant.links(db)
+  if(verboseLevel>3){
+    cat('Removed redundant links.\n')
+  }
+  progress=progress+1L
+  if(showProgress){
+    setTxtProgressBar(pb,progress)
+  }
+  
   db[['items']]=dbReadTable(emuDBs.con,'items')
  
   progress=progress+1L
@@ -784,17 +798,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
   ##db$sessions[[1]]$bundles = utts
   #db[['sessions']][['0000']]=containerSession
   
-  if(verboseLevel>3){
-    cat('Removing redundant links...\n')
-  }
-  db=remove.database.redundant.links(db)
-  if(verboseLevel>3){
-    cat('Removed redundant links.\n')
-  }
-  progress=progress+1L
-  if(showProgress){
-    setTxtProgressBar(pb,progress)
-  }
+ 
   if(verboseLevel>3){
     cat('Build redundant links...\n')
   }

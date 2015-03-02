@@ -83,6 +83,17 @@ database.DDL.emuDB_links='CREATE TABLE links (
  FOREIGN KEY (session,bundle) REFERENCES bundle(session_name,name)
 
 );'
+database.DDL.emuDB_linksTmp='CREATE TABLE linksTmp (
+  session TEXT,
+  bundle TEXT,
+  fromID INTEGER,
+  toID INTEGER,
+ label TEXT,
+
+ FOREIGN KEY (session,bundle) REFERENCES bundle(session_name,name)
+
+);'
+
 
 
 
@@ -101,6 +112,8 @@ initialize.DBI.database<-function(){
     res <- dbSendQuery(emuDBs.con, database.DDL.emuDB_labels) 
     dbClearResult(res)
     res <- dbSendQuery(emuDBs.con, database.DDL.emuDB_links) 
+    dbClearResult(res)
+    res <- dbSendQuery(emuDBs.con, database.DDL.emuDB_linksTmp) 
     dbClearResult(res)
   }
   
