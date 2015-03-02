@@ -79,7 +79,7 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
     
     # remove unwanted levels
     if(!is.null(tierNames)){
-      delete_unwanted_levels_from_database_tables(con, itemsTableName, labelTableName, linksTableName, tierNames)
+      delete_unwanted_levels_from_database_tables(con, itemsTableName, labelsTableName, linksTableName, tierNames)
     }
     
     # validate bundle

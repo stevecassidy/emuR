@@ -44,7 +44,7 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName, tierNames=NULL){
   
   # remove unwanted levels
   if(!is.null(tierNames)){
-    delete_unwanted_levels_from_database_tables(con, itemsTableName, labelTableName, linksTableName, tierNames)
+    delete_unwanted_levels_from_database_tables(con, itemsTableName, labelsTableName, linksTableName, tierNames)
   }
   
   res <- RSQLite::dbSendQuery(con, paste0("SELECT DISTINCT level, type FROM ", itemsTableName))

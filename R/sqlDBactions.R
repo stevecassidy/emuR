@@ -43,7 +43,7 @@ initialize_database_tables <- function(conn, itemsTableName, labelTableName, lin
 ##' the level names that should remain in the tables
 ##' @author Raphael Winkelmann
 ##'
-delete_unwanted_levels_from_database_tables <- function(conn, itemsTableName, labelTableName, linksTableName, namesOfLevelsToKeep){
+delete_unwanted_levels_from_database_tables <- function(conn, itemsTableName, labelsTableName, linksTableName, namesOfLevelsToKeep){
   
   condStr = paste0("level!='", paste0(namesOfLevelsToKeep, collapse = paste0("' AND ", " level!='")), "'")
   

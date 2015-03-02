@@ -29,7 +29,7 @@ test_that("test delete_unwanted_levels_from_database_tables", {
   dbWriteTable(con, linksTableName, ae$links, overwrite=T)
   
   
-  delete_unwanted_levels_from_database_tables(con, itemsTableName, labelTableName, linksTableName, c("Phonetic", "Tone"))
+  delete_unwanted_levels_from_database_tables(con, itemsTableName, labelsTableName, linksTableName, c("Phonetic", "Tone"))
   
   # check only Phonetic + Tone items left
   res = dbSendQuery(con, paste0("SELECT DISTINCT level FROM ", itemsTableName))
