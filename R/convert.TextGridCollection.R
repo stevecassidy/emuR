@@ -12,6 +12,8 @@ require(RSQLite)
 ##' @param targetDir directory where to save newly generated emuDB
 ##' @param tgExt extention of TextGrid files (default=TextGrid meaning filesnames of the form baseName.TextGrid)
 ##' @param audioExt extention of audio files (default=wav meaning filesnames of the form baseName.wav).
+##' @param tierNames character vector containing names of tiers to extract and convert. If NULL (the default) all
+##' tiers are converted.
 ##' @param showProgress show progress bar flag
 ##' @seealso create.filePairList
 ##' @export
@@ -19,7 +21,8 @@ require(RSQLite)
 ##' 
 convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName, 
                                                 targetDir, tgExt = 'TextGrid', 
-                                                audioExt = 'wav', showProgress = TRUE){
+                                                audioExt = 'wav', tierNames = NULL, 
+                                                showProgress = TRUE){
   
   # check if target dir already exists
   if(file.exists(file.path(targetDir, dbName))){
@@ -38,7 +41,7 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
   }
   
   # gereate schema from first TextGrid in fpl
-  dbd = create.DBconfig.from.TextGrid(fpl[1,2], dbName)
+  dbd = create.DBconfig.from.TextGrid(fpl[1,2], dbName, tierNames)
   
   
   # create empty database
@@ -67,12 +70,17 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
     asspObj = read.AsspDataObj(fpl[i,1])
     
     # create bundle name
-#     bndlName = basename(file_path_sans_ext(fpl[i,2]))
+    #     bndlName = basename(file_path_sans_ext(fpl[i,2]))
     bndlName = gsub('^_', '', gsub(.Platform$file.sep, '_', gsub(normalizePath(path2rootDir),'',file_path_sans_ext(normalizePath(fpl[i,1])))))
     
     # parse TextGrid
     parse.textgrid(fpl[i,2], attributes(asspObj)$sampleRate, db='ae', bundle=bndlName, session="0000", 
                    conn = con, itemsTableName=itemsTableName, labelsTableName=labelsTableName)
+    
+    # remove unwanted levels
+    if(!is.null(tierNames)){
+      delete_unwanted_levels_from_database_tables(con, itemsTableName, labelsTableName, linksTableName, tierNames)
+    }
     
     # validate bundle
     valRes = validate.sqlTableRep.bundle(dbd, bndlName, conn = con, itemsTableName = itemsTableName, 
@@ -119,40 +127,6 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
   # store
   store.emuDB(db, targetDir, showProgress = showProgress)
   
-  
-}
-
-##' Initialize empty database tables 
-##' 
-##' Initialize empty database tables in the sql database 
-##' specified by the conn argument. The tables are items, labels, links
-##' 
-##' @param conn sql DB connection
-##' @param itemsTableName SQL table name of items table
-##' @param labelTableName SQL table name of label table
-##' @param linksTableName SQL table name of links table
-##' @author Raphael Winkelmann
-##'
-initialize_database_tables <- function(conn, itemsTableName, labelTableName, linksTableName){
-  
-  # TODO: Move function to different location!
-  
-  # initialize empty tables (items, labels, links)
-  items = data.frame(id=character(), session=character(), bundle=character(), level=character(),
-                     itemID=integer(), type=character(), seqIdx=integer(), sampleRate=numeric(), 
-                     samplePoint=integer(), sampleStart=integer(), sampleDur=integer(), stringsAsFactors=FALSE)
-  
-  dbWriteTable(conn, "emuR_emuDB_items_tmp", items)
-  
-  labels = data.frame(itemID=character(), session=character(), bundle=character(),
-                      labelIdx=integer(), name=character(), label=character(), stringsAsFactors=FALSE)
-  
-  dbWriteTable(conn, "emuR_emuDB_labels_tmp", labels)
-  
-  links = data.frame(session=character(), bundle=character(), fromID=integer(),
-                     toID=integer(), label=character(), stringsAsFactors=FALSE)
-  
-  dbWriteTable(conn, "emuR_emuDB_links_tmp", links)
   
 }
 
