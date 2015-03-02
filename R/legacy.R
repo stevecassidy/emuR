@@ -657,7 +657,6 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
   tplBaseDir=dirname(emuTplPath)
   
   db=create.database(name=dbd[['name']],basePath=tplBaseDir,DBconfig=dbd)
-  db=initialize.database.dataframes(db)
   
   schema=db[['DBconfig']]
   # load primary track file list first
@@ -708,10 +707,8 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     setTxtProgressBar(pb,progress)
   }
   #uttNames=c()
+  initialize.DBI.database()
   
-  db[['itemsIdx']]=0L
-  db[['labelsIdx']]=0L
-  db[['linksIdx']]=0L
   
   for(ui in us){
     legacyBundleID=legacyBundleIDsList[[ui]]
@@ -739,155 +736,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     # (db object is not copied for each call)
     schema=db[['DBconfig']]
     maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
-    bName=bundle[['name']]
-    for(lvl in bundle[['levels']]){
-      
-      seqIdx=as.integer(0)
-      for(it in lvl[['items']]){
-        db[['itemsIdx']]=db[['itemsIdx']]+1L
-        row=db[['itemsIdx']]
-        
-        itemsVectorSize=length(db[['items']][['bundle']])
-        if(row>itemsVectorSize){
-          colnms=names(db[['items']])
-          for(colNm in colnms){
-            colClass=class(db[['items']][[colNm]])
-            if(colClass=='character'){
-              db[['items']][[colNm]]=c(db[['items']][[colNm]],character(vector.increment))
-            }else if(colClass=='integer'){
-              db[['items']][[colNm]]=c(db[['items']][[colNm]],integer(vector.increment))
-            }else if(colClass=='numeric'){
-              db[['items']][[colNm]]=c(db[['items']][[colNm]],numeric(vector.increment))
-            }else{
-              stop('Unsupported column class ',colClass,' of column ',colNm,'\n')
-            }
-          }
-          if(verboseLevel>10){
-            cat("Incremented items\n")
-          }
-        }
-        seqIdx=seqIdx+as.integer(1)
-        
-        db[['items']][['session']][row]=sessionName
-        db[['items']][['bundle']][row]=bName
-        itemId=it[['id']]
-        if(is.null(itemId)){
-          # for instance aetobi has no .hlb files and therefore no links and item ids
-          id=paste(db[['name']],sessionName,bName,sep='_')
-          itemId=NA
-        }else{
-          id=paste(db[['name']],sessionName,bName,it['id'],sep='_')
-        }
-        db[['items']][['id']][row]=id
-        db[['items']][['itemID']][row]=itemId
-        db[['items']][['level']][row]=lvl[['name']]
-        db[['items']][['type']][row]=lvl[['type']]
-        if(!is.null(bundle[['sampleRate']])){
-          db[['items']][['sampleRate']][row]=bundle[['sampleRate']]
-        }else{
-          db[['items']][['sampleRate']][row]=NA
-        }
-        db[['items']][['seqIdx']][row]=seqIdx
-        sp=it[['samplePoint']]
-        if(!is.null(sp)){
-          db[['items']][['samplePoint']][row]=sp
-        }else{
-          db[['items']][['samplePoint']][row]=NA
-        }
-        ss=it[['sampleStart']]
-        if(!is.null(ss)){
-          db[['items']][['sampleStart']][row]=ss
-        }else{
-          db[['items']][['sampleStart']][row]=NA
-        }
-        sd=it[['sampleDur']]
-        if(!is.null(sd)){
-          db[['items']][['sampleDur']][row]=sd
-        }else{
-          db[['items']][['sampleDur']][row]=NA
-        }
-        
-        lbls=it[['labels']]
-        lblsLen=length(lbls)
-        #lbl0=it[['labels']][[1]][['value']]
-#         if(is.null(lbl0)){
-#           db[['items']][['label']][row]=''
-#         }else{
-#           db[['items']][['label']][row]=lbl0
-#         }
-        for(i in 1:maxLbls){
-          rLbl=''
-          if(lblsLen>=i){
-            lbl=lbls[[i]]
-            if(!is.null(lbl)){
-              db[['labelsIdx']]=db[['labelsIdx']]+1L
-              lrow=db[['labelsIdx']]
-              labelsVectorSize=length(db[['labels']][['bundle']])
-              if(lrow>labelsVectorSize){
-                colnms=names(db[['labels']])
-                for(colNm in colnms){
-                  colClass=class(db[['labels']][[colNm]])
-                  if(colClass=='character'){
-                    db[['labels']][[colNm]]=c(db[['labels']][[colNm]],character(vector.increment))
-                  }else if(colClass=='integer'){
-                    db[['labels']][[colNm]]=c(db[['labels']][[colNm]],integer(vector.increment))
-                  }else{
-                    stop('Unsupported column class ',colClass,' of column ',colNm,'\n')
-                  }
-                }
-                if(verboseLevel>10){
-                  cat("Incremented labels\n")
-                }
-              }
-              rLbl=lbl[['value']]
-              if(is.null(rLbl)){
-                rLbl=''
-              }
-              db[['labels']][['itemID']][lrow]=id
-              db[['labels']][['session']][lrow]=sessionName
-              db[['labels']][['bundle']][lrow]=bName
-              db[['labels']][['labelIdx']][lrow]=i-1L
-              db[['labels']][['name']][lrow]=lbl[['name']]
-              db[['labels']][['label']][lrow]=rLbl
-              
-            }
-          }
-        } 
-        
-      }
-    }
-    
-    for(lk in bundle[['links']]){
-      db[['linksIdx']]=db[['linksIdx']]+1L
-      row=db[['linksIdx']]
-      linksVectorSize=length(db[['links']][['bundle']])
-      if(row>linksVectorSize){
-        colnms=names(db[['links']])
-        for(colNm in colnms){
-          colClass=class(db[['links']][[colNm]])
-          if(colClass=='character'){
-            db[['links']][[colNm]]=c(db[['links']][[colNm]],character(vector.increment))
-          }else if(colClass=='integer'){
-            db[['links']][[colNm]]=c(db[['links']][[colNm]],integer(vector.increment))
-          }else{
-            stop('Unsupported column class ',colClass,' of column ',colNm,'\n')
-          }
-        }
-        if(verboseLevel>10){
-          cat("Incremented links\n")
-        }
-      }
-      db[['links']][['session']][row]=sessionName
-      db[['links']][['bundle']][row]=bName
-      db[['links']][['fromID']][row]=lk[['fromID']]
-      db[['links']][['toID']][row]=lk[['toID']]
-      lbl=lk[['label']]
-      if(is.null(lbl)){
-        db[['links']][['label']][row]=NA
-      }else{
-        db[['links']][['label']][row]=lbl
-      }
-    }
+    .add.bundle(db,bundle)
     
     bundle[['levels']]=NULL
     bundle[['links']]=NULL
@@ -905,28 +754,21 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
       setTxtProgressBar(pb,progress)
     }
   }
-  itemsIdx=db[['itemsIdx']]
   
-  db[['items']]=data.frame(id=db[['items']][['id']][0:itemsIdx],session=db[['items']][['session']][0:itemsIdx],bundle=db[['items']][['bundle']][0:itemsIdx],level=db[['items']][['level']][0:itemsIdx],itemID=db[['items']][['itemID']][1:itemsIdx],type=db[['items']][['type']][1:itemsIdx],seqIdx=db[['items']][['seqIdx']][1:itemsIdx],sampleRate=db[['items']][['sampleRate']][1:itemsIdx],samplePoint=db[['items']][['samplePoint']][1:itemsIdx],sampleStart=db[['items']][['sampleStart']][1:itemsIdx],sampleDur=db[['items']][['sampleDur']][1:itemsIdx],stringsAsFactors=FALSE)
-  #tmpDf=data.frame(db[['items']],stringsAsFactors = FALSE)
-  #db[['items']]=tmpDf[1:itemsIdx,]
+  db[['items']]=dbReadTable(emuDBs.con,'items')
+ 
   progress=progress+1L
   if(showProgress){
     setTxtProgressBar(pb,progress)
   }
   
-  labelsIdx=db[['labelsIdx']]
-  db[['labels']]=data.frame(itemID=db[['labels']][['itemID']][0:labelsIdx],session=db[['labels']][['session']][0:labelsIdx],bundle=db[['labels']][['bundle']][0:labelsIdx],labelIdx=db[['labels']][['labelIdx']][0:labelsIdx],name=db[['labels']][['name']][1:labelsIdx],label=db[['labels']][['label']][1:labelsIdx],stringsAsFactors=FALSE)
-  #tmpDf=data.frame(db[['labels']],stringsAsFactors = FALSE)
-  #db[['labels']]=tmpDf[1:labelsIdx,]
-  #db[['links']]=data.frame(bundle=bundle_l[1:lli],fromID=fromID_l[1:lli],toID=toID_l[1:lli],label=label_l[1:lli])
+  db[['labels']]=dbReadTable(emuDBs.con,'labels')
   progress=progress+1L
   if(showProgress){
     setTxtProgressBar(pb,progress)
   }
   
-  linksIdx=db[['linksIdx']]
-  db[['links']]=data.frame(session=db[['links']][['session']][0:linksIdx],bundle=db[['links']][['bundle']][0:linksIdx],fromID=db[['links']][['fromID']][0:linksIdx],toID=db[['links']][['toID']][0:linksIdx],label=db[['links']][['label']][0:linksIdx],stringsAsFactors=FALSE)
+  db[['links']]=dbReadTable(emuDBs.con,'links')
   progress=progress+1L
   if(showProgress){
     setTxtProgressBar(pb,progress)
@@ -934,10 +776,6 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
   if(verboseLevel>3){
     cat('Loaded',itemsIdx,'items',labelsIdx,'labels',linksIdx,'links\n')
   }
-  #db[['links']]=db[['links']][1:linksIdx,]
-  #tmpDf=data.frame(db[['links']],stringsAsFactors = FALSE)
-  #db[['links']]=tmpDf[1:linksIdx,]
-  #tmpDf=NULL
   
   ## Emu does not divide utterances in sessions
   ## we create a dummy container session to satisfy new db data model
@@ -972,7 +810,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     cat('Extending links table...\n')
   }
   db[['linksExt']]=calculate.postions.of.links(db[['items']],redLinks)
-  #db[['linksExt']]=calculate.postions.of.links(db[['items']],db[['links']])
+
   if(verboseLevel>3){
     cat('Links table extended.\n')
   }
@@ -982,9 +820,11 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     cat("\n")
   }
   
+  destroy.DBI.database()
   if(verboseLevel>0){
     cat("Loaded database bundles.")
   }
+  
   
   return(db)
 }
