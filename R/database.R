@@ -619,7 +619,7 @@ get.bundle.levels.s3 <-function(db,sessionName,bundleName){
         }
         lvl=levels[[rLvl]]
         if(lvl[['type']]!=items[r,'type']){
-          stop("Wrong item type ",items[r,'type']," for level ",rLvl," type ",lvl[['type']],"\n")
+          stop("Wrong item type ",items[r,'type']," for level ",rLvl," type ",lvl[['type']]," in bundle: ",sessionName,":",bundleName,"\n")
         }
         # create new level object 
         cLvl=create.bundle.level(name=rLvl,type=lvl[['type']],sampleRate=sr,items=lvlItems)
