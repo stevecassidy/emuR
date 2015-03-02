@@ -16,6 +16,9 @@ bundle.dir.suffix='_bndl'
 bundle.annotation.suffix='_annot'
 database.schema.suffix='_DBconfig.json'
 
+# global database connection
+emuDBs.con=NULL
+
 vector.increment=100000
 
 database.DDL.emuDB='CREATE TABLE emuDB (
@@ -33,17 +36,84 @@ database.DDL.emuDB_session='CREATE TABLE session (
 
 );'
 
+database.DDL.emuDB_bundle='CREATE TABLE bundle (
+  name TEXT,
+  session_name TEXT,
+  PRIMARY KEY (name)
+ FOREIGN KEY (session_name) REFERENCES sess(name)
+
+);'
+
+database.DDL.emuDB_items='CREATE TABLE items (
+  id TEXT,
+  session TEXT,
+  bundle TEXT,
+level TEXT,
+ itemID INTEGER,
+type TEXT,
+ seqIdx INTEGER,
+ sampleRate FLOAT,
+samplePoint INTEGER,
+ sampleStart INTEGER,
+sampleDur INTEGER,
+  PRIMARY KEY (id)
+ FOREIGN KEY (session,bundle) REFERENCES bundle(session_name,name)
+
+);'
+
+database.DDL.emuDB_labels='CREATE TABLE labels (
+  itemID TEXT,
+  session TEXT,
+  bundle TEXT,
+ labelIdx INTEGER,
+name TEXT,
+ label TEXT,
+
+ FOREIGN KEY (session,bundle) REFERENCES bundle(session_name,name)
+
+);'
+
+database.DDL.emuDB_links='CREATE TABLE links (
+  session TEXT,
+  bundle TEXT,
+  fromID INTEGER,
+  toID INTEGER,
+ label TEXT,
+
+ FOREIGN KEY (session,bundle) REFERENCES bundle(session_name,name)
+
+);'
+
+
 
 initialize.DBI.database<-function(){
-  con <- dbConnect(RSQLite::SQLite(), ":memory:")
-  if(!dbExistsTable(con,'emuDB')){
-    res <- dbSendQuery(con, database.DDL.emuDB)
+  if(is.null(emuDBs.con)){
+   emuDBs.con<<-dbConnect(RSQLite::SQLite(), ":memory:")
+  if(!dbExistsTable(emuDBs.con,'emuDB')){
+    res <- dbSendQuery(emuDBs.con, database.DDL.emuDB)
     dbClearResult(res)
-    res <- dbSendQuery(con, database.DDL.emuDB_session) 
+    res <- dbSendQuery(emuDBs.con, database.DDL.emuDB_session) 
+    dbClearResult(res)
+    res <- dbSendQuery(emuDBs.con, database.DDL.emuDB_bundle) 
+    dbClearResult(res)
+    res <- dbSendQuery(emuDBs.con, database.DDL.emuDB_items) 
+    dbClearResult(res)
+    res <- dbSendQuery(emuDBs.con, database.DDL.emuDB_labels) 
+    dbClearResult(res)
+    res <- dbSendQuery(emuDBs.con, database.DDL.emuDB_links) 
     dbClearResult(res)
   }
-  cat(dbListTables(con))
-  dbDisconnect(con)
+  
+  }
+  #dbDisconnect(con)
+  return(emuDBs.con)
+}
+
+destroy.DBI.database<-function(){
+  if(!is.null(emuDBs.con)){
+    dbDisconnect(emuDBs.con)
+  }
+  emuDBs.con<<-NULL
 }
 
 create.database <- function(name,basePath=NULL,DBconfig=create.schema.databaseDefinition(name = name),sessions=NULL,primaryExtension=NULL){
@@ -1638,7 +1708,9 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   if(verbose){
     cat("INFO: Loading EMU database from ",databaseDir,"...\n")
   }
-  db=initialize.database.dataframes(db)
+  #db=initialize.database.dataframes(db)
+  
+  initialize.DBI.database()
   
   sessions=list()
   # sessions
@@ -1739,29 +1811,8 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
         
         seqIdx=0L
         for(it in lvl[['items']]){
-          db[['itemsIdx']]=db[['itemsIdx']]+1L
-          row=db[['itemsIdx']]
-          itemsVectorSize=length(db[['items']][['bundle']])
-          if(row>itemsVectorSize){
-            colnms=names(db[['items']])
-            for(colNm in colnms){
-              colClass=class(db[['items']][[colNm]])
-              if(colClass=='character'){
-                db[['items']][[colNm]]=c(db[['items']][[colNm]],character(vector.increment))
-              }else if(colClass=='integer'){
-                db[['items']][[colNm]]=c(db[['items']][[colNm]],integer(vector.increment))
-              }else if(colClass=='numeric'){
-                db[['items']][[colNm]]=c(db[['items']][[colNm]],numeric(vector.increment))
-              }else{
-                stop('Unsupported column class ',colClass,' of column ',colNm,'\n')
-              }
-            }
-          }
           seqIdx=seqIdx+1L
           
-          #db[['items']][row,'bundle']=bName
-          db[['items']][['bundle']][row]=bName
-          db[['items']][['session']][row]=sessionName
           itemId=it[['id']]
           if(is.null(itemId)){
             # for instance aetobi has no .hlb files and therefore no links and item ids
@@ -1770,67 +1821,45 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
           }else{
             id=paste(db[['name']],sessionName,bName,it['id'],sep='_')
           }
-          db[['items']][['id']][row]=id
-          db[['items']][['itemID']][row]=as.integer(itemId)
-          db[['items']][['level']][row]=lvl[['name']]
-          db[['items']][['type']][row]=lvl[['type']]
           if(!is.null(bundle[['sampleRate']])){
-            db[['items']][['sampleRate']][row]=bundle[['sampleRate']]
+            srCol=bundle[['sampleRate']]
           }else{
-            db[['items']][['sampleRate']][row]=NA
+            srCol='NULL'
           }
-          db[['items']][['seqIdx']][row]=seqIdx
           sp=it[['samplePoint']]
           if(!is.null(sp)){
-            db[['items']][['samplePoint']][row]=as.integer(sp)
+            spCol=as.integer(sp)
           }else{
-            db[['items']][['samplePoint']][row]=NA
+            spCol='NULL'
           }
           ss=it[['sampleStart']]
           if(!is.null(ss)){
-            db[['items']][['sampleStart']][row]=as.integer(ss)
+            ssCol=as.integer(ss)
           }else{
-            db[['items']][['sampleStart']][row]=NA
+            ssCol='NULL'
           }
           sdur=it[['sampleDur']]
           if(!is.null(sdur)){
-            db[['items']][['sampleDur']][row]=as.integer(sdur)
+            sdurCol=sdur
           }else{
-            db[['items']][['sampleDur']][row]=NA
+            sdurCol='NULL'
           }
+          
+          sqlInsert=paste0("INSERT INTO items VALUES('",id,"','",sessionName,"','",bName,"','",lvl[['name']],"',",itemId,",'",lvl[['type']],"',",seqIdx,",",bundle[['sampleRate']],",",spCol,",",ssCol,",",sdurCol,")")
+          #cat('SQL:',sqlInsert,"\n")
+          dbSendQuery(emuDBs.con,sqlInsert)
           
           lbls=it[['labels']]
           lblsLen=length(lbls)
-          #lbl0=it[['labels']][[1]][['value']]
-          #db[['items']][['label']][row]=lbl0
           for(i in 1:maxLbls){
             rLbl=NA
             if(lblsLen>=i){
               lbl=lbls[[i]]
               if(!is.null(lbl)){
-                db[['labelsIdx']]=db[['labelsIdx']]+1L
-                lrow=db[['labelsIdx']]
-                labelsVectorSize=length(db[['labels']][['bundle']])
-                if(lrow>labelsVectorSize){
-                  colnms=names(db[['labels']])
-                  for(colNm in colnms){
-                    colClass=class(db[['labels']][[colNm]])
-                    if(colClass=='character'){
-                      db[['labels']][[colNm]]=c(db[['labels']][[colNm]],character(vector.increment))
-                    }else if(colClass=='integer'){
-                      db[['labels']][[colNm]]=c(db[['labels']][[colNm]],integer(vector.increment))
-                    }else{
-                      stop('Unsupported column class ',colClass,' of column ',colNm,'\n')
-                    }
-                  }
-                }
                 rLbl=lbl[['value']]
-                db[['labels']][['itemID']][lrow]=id
-                db[['labels']][['session']][lrow]=sessionName
-                db[['labels']][['bundle']][lrow]=bName
-                db[['labels']][['labelIdx']][lrow]=i-1L
-                db[['labels']][['name']][lrow]=lbl[['name']]
-                db[['labels']][['label']][lrow]=rLbl
+                sqlInsert=paste0("INSERT INTO labels VALUES('",id,"','",sessionName,"','",bName,"',",i-1L,",'",lbl[['name']],"',\"",rLbl,"\")")
+                #cat('SQL:',sqlInsert,"\n")
+                dbSendQuery(emuDBs.con,sqlInsert)
                 
               }
             }
@@ -1840,32 +1869,16 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
       }
       
       for(lk in bundle[['links']]){
-        db[['linksIdx']]=db[['linksIdx']]+1L
-        row=db[['linksIdx']]
-        linksVectorSize=length(db[['links']][['bundle']])
-        if(row>linksVectorSize){
-          colnms=names(db[['links']])
-          for(colNm in colnms){
-            colClass=class(db[['links']][[colNm]])
-            if(colClass=='character'){
-              db[['links']][[colNm]]=c(db[['links']][[colNm]],character(vector.increment))
-            }else if(colClass=='integer'){
-              db[['links']][[colNm]]=c(db[['links']][[colNm]],integer(vector.increment))
-            }else{
-              stop('Unsupported column class ',colClass,' of column ',colNm,'\n')
-            }
-          }
-        }
-        db[['links']][['session']][row]=sessionName
-        db[['links']][['bundle']][row]=bName
-        db[['links']][['fromID']][row]=as.integer(lk[['fromID']])
-        db[['links']][['toID']][row]=as.integer(lk[['toID']])
         lbl=lk[['label']]
         if(is.null(lbl)){
-          db[['links']][['label']][row]=NA
+          lblCol='NULL'
         }else{
-          db[['links']][['label']][row]=lbl
+          lblCol=lbl
         }
+        
+        sqlInsert=paste0("INSERT INTO links VALUES('",sessionName,"','",bName,"',",lk[['fromID']],",",lk[['toID']],",\"",lblCol,"\")")
+        #cat('SQL:',sqlInsert,"\n")
+        dbSendQuery(emuDBs.con,sqlInsert)
       }
       
       
@@ -1895,26 +1908,32 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   }
   db[['sessions']]=sessions 
   
-  itemsIdx=db[['itemsIdx']]
-  tmpDf=data.frame(db[['items']],stringsAsFactors = FALSE)
-  db[['items']]=tmpDf[0:itemsIdx,]
-  progress=progress+ppBuildDataFrame
-  if(verbose){
-    setTxtProgressBar(pb,progress)
-  }
-
-  labelsIdx=db[['labelsIdx']]
-  tmpLblsDf=data.frame(db[['labels']],stringsAsFactors = FALSE)
-  db[['labels']]=tmpLblsDf[0:labelsIdx,]
-  progress=progress+ppBuildDataFrame
-  if(verbose){
-    setTxtProgressBar(pb,progress)
-  }
-
-  linksIdx=db[['linksIdx']]
-  tmpLksdf=data.frame(db[['links']],stringsAsFactors = FALSE)
+  #itemsIdx=db[['itemsIdx']]
+  #tmpDf=data.frame(db[['items']],stringsAsFactors = FALSE)
+  #db[['items']]=tmpDf[0:itemsIdx,]
   
-  db[['links']]=tmpLksdf[0:linksIdx,]
+  db[['items']]=dbReadTable(emuDBs.con,'items')
+  progress=progress+ppBuildDataFrame
+  if(verbose){
+    setTxtProgressBar(pb,progress)
+  }
+
+  #labelsIdx=db[['labelsIdx']]
+  #tmpLblsDf=data.frame(db[['labels']],stringsAsFactors = FALSE)
+  #db[['labels']]=tmpLblsDf[0:labelsIdx,]
+  
+  db[['labels']]=dbReadTable(emuDBs.con,'labels')
+  progress=progress+ppBuildDataFrame
+  if(verbose){
+    setTxtProgressBar(pb,progress)
+  }
+
+  #linksIdx=db[['linksIdx']]
+  #tmpLksdf=data.frame(db[['links']],stringsAsFactors = FALSE)
+  
+  #db[['links']]=tmpLksdf[0:linksIdx,]
+  
+  db[['links']]=dbReadTable(emuDBs.con,'links')
   progress=progress+ppBuildDataFrame
   if(verbose){
     setTxtProgressBar(pb,progress)
@@ -1933,6 +1952,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
     
     cat("\n")
   }
+  destroy.DBI.database()
   return(db)
   
 }
