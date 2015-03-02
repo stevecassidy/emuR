@@ -669,6 +669,84 @@ append.bundle.to.tmp.list.by.ref <-function(dbWr,bundle){
   return()
 }
 
+.add.bundle<-function(db,bundle){
+  bName=bundle[['name']]
+  for(lvl in bundle[['levels']]){
+    
+    seqIdx=0L
+    for(it in lvl[['items']]){
+      seqIdx=seqIdx+1L
+      
+      itemId=it[['id']]
+      if(is.null(itemId)){
+        # for instance aetobi has no .hlb files and therefore no links and item ids
+        id=paste(db[['name']],bundle[['sessionName']],bName,sep='_')
+        itemId=NA
+      }else{
+        id=paste(db[['name']],bundle[['sessionName']],bName,it['id'],sep='_')
+      }
+      if(!is.null(bundle[['sampleRate']])){
+        srCol=bundle[['sampleRate']]
+      }else{
+        srCol='NULL'
+      }
+      sp=it[['samplePoint']]
+      if(!is.null(sp)){
+        spCol=as.integer(sp)
+      }else{
+        spCol='NULL'
+      }
+      ss=it[['sampleStart']]
+      if(!is.null(ss)){
+        ssCol=as.integer(ss)
+      }else{
+        ssCol='NULL'
+      }
+      sdur=it[['sampleDur']]
+      if(!is.null(sdur)){
+        sdurCol=sdur
+      }else{
+        sdurCol='NULL'
+      }
+      
+      sqlInsert=paste0("INSERT INTO items VALUES('",id,"','",bundle[['sessionName']],"','",bName,"','",lvl[['name']],"',",itemId,",'",lvl[['type']],"',",seqIdx,",",bundle[['sampleRate']],",",spCol,",",ssCol,",",sdurCol,")")
+      #cat('SQL:',sqlInsert,"\n")
+      dbSendQuery(emuDBs.con,sqlInsert)
+      
+      lbls=it[['labels']]
+      lblsLen=length(lbls)
+      for(i in 1:lblsLen){
+        rLbl=NA
+        #if(lblsLen>=i){
+        lbl=lbls[[i]]
+        if(!is.null(lbl)){
+          rLbl=lbl[['value']]
+          sqlInsert=paste0("INSERT INTO labels VALUES('",id,"','",bundle[['sessionName']],"','",bName,"',",i-1L,",'",lbl[['name']],"',\"",rLbl,"\")")
+          #cat('SQL:',sqlInsert,"\n")
+          dbSendQuery(emuDBs.con,sqlInsert)
+          
+        }
+        #}
+      } 
+      
+    }
+  }
+  
+  for(lk in bundle[['links']]){
+    lbl=lk[['label']]
+    if(is.null(lbl)){
+      lblCol='NULL'
+    }else{
+      lblCol=lbl
+    }
+    
+    sqlInsert=paste0("INSERT INTO links VALUES('",bundle[['sessionName']],"','",bName,"',",lk[['fromID']],",",lk[['toID']],",\"",lblCol,"\")")
+    #cat('SQL:',sqlInsert,"\n")
+    dbSendQuery(emuDBs.con,sqlInsert)
+  }
+  
+}
+
 get.bundle.levels.s3 <-function(db,sessionName,bundleName){
   
   levelDefinitions=db[['DBconfig']][['levelDefinitions']]
@@ -1805,82 +1883,9 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
       #db=append.bundle.to.tmp.list(db,bundle)
       
       schema=db[['DBconfig']]
-      maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
-      bName=bundle[['name']]
-      for(lvl in bundle[['levels']]){
-        
-        seqIdx=0L
-        for(it in lvl[['items']]){
-          seqIdx=seqIdx+1L
-          
-          itemId=it[['id']]
-          if(is.null(itemId)){
-            # for instance aetobi has no .hlb files and therefore no links and item ids
-            id=paste(db[['name']],sessionName,bName,sep='_')
-            itemId=NA
-          }else{
-            id=paste(db[['name']],sessionName,bName,it['id'],sep='_')
-          }
-          if(!is.null(bundle[['sampleRate']])){
-            srCol=bundle[['sampleRate']]
-          }else{
-            srCol='NULL'
-          }
-          sp=it[['samplePoint']]
-          if(!is.null(sp)){
-            spCol=as.integer(sp)
-          }else{
-            spCol='NULL'
-          }
-          ss=it[['sampleStart']]
-          if(!is.null(ss)){
-            ssCol=as.integer(ss)
-          }else{
-            ssCol='NULL'
-          }
-          sdur=it[['sampleDur']]
-          if(!is.null(sdur)){
-            sdurCol=sdur
-          }else{
-            sdurCol='NULL'
-          }
-          
-          sqlInsert=paste0("INSERT INTO items VALUES('",id,"','",sessionName,"','",bName,"','",lvl[['name']],"',",itemId,",'",lvl[['type']],"',",seqIdx,",",bundle[['sampleRate']],",",spCol,",",ssCol,",",sdurCol,")")
-          #cat('SQL:',sqlInsert,"\n")
-          dbSendQuery(emuDBs.con,sqlInsert)
-          
-          lbls=it[['labels']]
-          lblsLen=length(lbls)
-          for(i in 1:maxLbls){
-            rLbl=NA
-            if(lblsLen>=i){
-              lbl=lbls[[i]]
-              if(!is.null(lbl)){
-                rLbl=lbl[['value']]
-                sqlInsert=paste0("INSERT INTO labels VALUES('",id,"','",sessionName,"','",bName,"',",i-1L,",'",lbl[['name']],"',\"",rLbl,"\")")
-                #cat('SQL:',sqlInsert,"\n")
-                dbSendQuery(emuDBs.con,sqlInsert)
-                
-              }
-            }
-          } 
-          
-        }
-      }
+      #maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
       
-      for(lk in bundle[['links']]){
-        lbl=lk[['label']]
-        if(is.null(lbl)){
-          lblCol='NULL'
-        }else{
-          lblCol=lbl
-        }
-        
-        sqlInsert=paste0("INSERT INTO links VALUES('",sessionName,"','",bName,"',",lk[['fromID']],",",lk[['toID']],",\"",lblCol,"\")")
-        #cat('SQL:',sqlInsert,"\n")
-        dbSendQuery(emuDBs.con,sqlInsert)
-      }
-      
+      .add.bundle(db,bundle)
       
       bundle[['levels']]=NULL
       bundle[['links']]=NULL
