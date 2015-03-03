@@ -200,11 +200,9 @@ equal.emusegs<-function(seglist1,seglist2,compareAttributes=TRUE,tolerance=0.0,u
 
 convert.query.result.to.seglist<-function(database,result){
   its=NULL
-  if(is.null(database[['queryItems']])){
-    items=database[['items']]
-  }else{
-    items=database[['queryItems']]
-  }
+  
+  items=database[['queryItems']]
+  
   bundles=c()
   labels=c()
   start=c()
@@ -218,17 +216,9 @@ convert.query.result.to.seglist<-function(database,result){
   }
   itCount=nrow(its)
   if(itCount>0){
-    if(is.null(database[['queryLinksExt']])){
-      links=database[['linksExt']]
-    }else{
-      links=database[['queryLinksExt']]
-    }
+    links=database[['queryLinksExt']]
     
-    if(is.null(database[['queryLabels']])){
-      lblsDf=database[['labels']]
-    }else{
-      lblsDf=database[['queryLabels']]
-    }
+    lblsDf=database[['queryLabels']]
     itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx,type,sampleRate,sampleStart,sampleDur,samplePoint)'
     resIdxSql='CREATE INDEX its_idx ON its(seqStartId,seqEndId,seqLen,level)'
     
@@ -369,17 +359,10 @@ query.database.eql.FUNKA<-function(database,q,items=NULL){
   # BNF: FUNKA = POSA | NUMA;
   qTrim=str_trim(q)
   if(is.null(items)){
-    if(is.null(database[['queryItems']])){
-      items=database[['items']]
-    }else{
-      items=database[['queryItems']]
-    }
+    items=database[['queryItems']]
   }
-  if(is.null(database[['queryItems']])){
-    allItems=database[['items']]
-  }else{
-    allItems=database[['queryItems']]
-  }
+  allItems=database[['queryItems']]
+  
   # determine function name
   # TODO duplicate code
   prbOpen=get.string.position(string=qTrim,searchStr='(',literalQuote="'")
@@ -427,11 +410,7 @@ query.database.eql.FUNKA<-function(database,q,items=NULL){
       
       funcName=str_trim(substr(qTrim,1,prbOpen-1))
       # BNF: POSA = POSFKT,'(',EBENE,',',EBENE,')','=','0'| '1';
-      if(is.null(database[['queryLinksExt']])){
-        links=database[['linksExt']]
-      }else{
-        links=database[['queryLinksExt']]
-      }
+      links=database[['queryLinksExt']]
       #links=database[['linksWithPositions']]
       itemsAsSeqs=NULL
       
@@ -682,12 +661,7 @@ query.database.eql.ETTIKETTA<-function(database,q,labels=NULL){
       cond=.create.condition.text.alternatives(opr,labelAltsUq)
       #}
       if(is.null(labels)){
-        # use all items of database if not set
-        if(is.null(database[['queryLabels']])){
-          labels=database[['labels']]
-        }else{
-          labels=database[['queryLabels']]
-        }
+        labels=database[['queryLabels']]
       }
       res=query.database.level.label(ldf=labels,levelName=lvlName,cond)
       res[['projectionItems']]=NULL
@@ -712,16 +686,8 @@ query.database.eql.KONJA<-function(database,q){
     res=create.subtree(items=EMPTY_RESULT_DF,links=NULL,resultLevel=NULL,projectionItems=NULL)
     startPos=1
     p=0
-    if(is.null(database[['queryItems']])){
-      items=database[['items']]
-    }else{
-      items=database[['queryItems']]
-    }
-    if(is.null(database[['queryLabels']])){
-      labels=database[['labels']]
-    }else{
-      labels=database[['queryLabels']]
-    }
+    items=database[['queryItems']]
+    labels=database[['queryLabels']]
     resultLevel=NULL
     projection=FALSE
     
@@ -785,16 +751,8 @@ query.database.eql.in.bracket<-function(database,q){
   seqPos=get.string.position.outside.brackets(qTrim,'->',literalQuote="'",bracket=c('[',']'))
   domPos=get.string.position.outside.brackets(qTrim,'^',literalQuote="'",bracket=c('[',']'))
   if(seqPos!=-1 || domPos!=-1){
-    if(is.null(database[['queryItems']])){
-      items=database[['items']]
-    }else{
-      items=database[['queryItems']]
-    }
-    if(is.null(database[['queryLinksExt']])){
-      links=database[['linksExt']]
-    }else{
-      links=database[['queryLinksExt']]
-    }
+    items=database[['queryItems']]
+    links=database[['queryLinksExt']]
     # parse DOMA or SEQA
     lExpRes=NULL
     prjIts=NULL
@@ -1130,9 +1088,12 @@ query.database.with.eql<-function(database,query){
   
   if(inherits(dbObj,'emuDB')){
     if(queryLang=='EQL2'){
+      
+      initialize.DBI.database(createTables=FALSE)
+     
       dbObj[['queryItems']]=NULL
       dbObj[['queryLinksExt']]=NULL
-      dbObj[['queryLabels']]
+      dbObj[['queryLabels']]=NULL
       if(!is.null(sessionPattern)){
         sessSelRegex=glob2rx(pattern = sessionPattern)
         sessSelIts=grepl(sessSelRegex,dbObj[['items']][['session']])
@@ -1168,6 +1129,22 @@ query.database.with.eql<-function(database,query){
           dbObj[['queryLabels']]=dbObj[['queryLabels']][bndlSelLbls,]
         }
       }
+      if(is.null(dbObj[['queryItems']])){
+        dbObj[['queryItems']]=dbObj[['items']]     
+      }
+      if(is.null(dbObj[['queryLinksExt']])){
+        dbObj[['queryLinksExt']]=dbObj[['linksExt']]   
+      }
+      if(is.null(dbObj[['queryLabels']])){
+        dbObj[['queryLabels']]=dbObj[['labels']]
+      }
+      
+      dbWriteTable(emuDBs.con,'queryItems',dbObj[['queryItems']])
+      dbWriteTable(emuDBs.con,'queryLabels',dbObj[['queryLabels']])
+      dbWriteTable(emuDBs.con,'queryLinksExt',dbObj[['queryLinksExt']])
+      
+      
+      
       if(is.null(resultType)){
         return(query.database.with.eql(dbObj,query))
       }else{
@@ -1178,10 +1155,14 @@ query.database.with.eql<-function(database,query){
         }
       }
       dbObj[['queryItems']]=NULL
+      dbObj[['queryLabels']]=NULL
       dbObj[['queryLinksExt']]=NULL
+      destroy.DBI.database()
     }else{
       stop("Unknown query language '",queryLang,"'.")
     }
+    
+   
     
   }else{
     NextMethod()
