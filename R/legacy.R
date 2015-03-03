@@ -742,8 +742,6 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     #uttCode=substr(ptrFileBasename,1,cutPos)
     bundle=load.annotation.for.legacy.bundle(schema,legacyBundleID,db[['basePath']],encoding=encoding)
     
-    # "inlining" of append.bundle.to.tmp.list improves performance for very large databases
-    # (db object is not copied for each call)
     schema=db[['DBconfig']]
     maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
     .add.bundle(db,bundle)
