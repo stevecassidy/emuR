@@ -593,7 +593,11 @@ remove.database.redundant.links<-function(database){
   # link data model
   #
   # build SQL query from link definitions
-  dbSendQuery(emuDBs.con,'DELETE FROM linksTmp')
+  
+  # Could not find a way to directly delte the redundant links. SQLite DELETE commands functionality is limited.
+  # use a temp table for now
+  res<-dbSendQuery(emuDBs.con,'DELETE FROM linksTmp')
+  dbClearResult(res)
     sqlQuery="INSERT INTO linksTmp SELECT l.* FROM items f,items t, links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.session=t.session AND l.session=f.session AND f.itemID=l.fromID AND t.itemID=l.toID AND ("
     ldCnt=length(database[['DBconfig']][['linkDefinitions']])
     if(ldCnt>0){
@@ -607,10 +611,14 @@ remove.database.redundant.links<-function(database){
       sqlQuery=paste0(sqlQuery,')')
       #cat(sqlQuery,"\n")
       #database[['links']]=sqldf(sqlQuery)
-      dbSendQuery(emuDBs.con,sqlQuery)
-      dbSendQuery(emuDBs.con,'DELETE FROM links')
-      dbSendQuery(emuDBs.con,'INSERT INTO links SELECT * FROM linksTmp')
-      dbSendQuery(emuDBs.con,'DELETE FROM linksTmp')
+      res<-dbSendQuery(emuDBs.con,sqlQuery)
+      dbClearResult(res)
+      res<-dbSendQuery(emuDBs.con,'DELETE FROM links')
+      dbClearResult(res)
+      res<-dbSendQuery(emuDBs.con,'INSERT INTO links SELECT * FROM linksTmp')
+      dbClearResult(res)
+      res<-dbSendQuery(emuDBs.con,'DELETE FROM linksTmp')
+      dbClearResult(res)
     } 
   
 }
@@ -802,7 +810,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
   if(verboseLevel>3){
     cat('Build redundant links...\n')
   }
-  redLinks=build.redundant.links.all(db)
+  build.redundant.links.all(db)
   if(verboseLevel>3){
     cat('Build redundant links.\n')
   }
@@ -813,8 +821,8 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
   if(verboseLevel>3){
     cat('Extending links table...\n')
   }
-  db[['linksExt']]=calculate.postions.of.links(db[['items']],redLinks)
-
+  calculate.postions.of.links()
+  db[['linksExt']]=dbReadTable(emuDBs.con,'linksExt')
   if(verboseLevel>3){
     cat('Links table extended.\n')
   }

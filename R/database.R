@@ -94,13 +94,39 @@ database.DDL.emuDB_linksTmp='CREATE TABLE linksTmp (
 
 );'
 
+database.DDL.emuDB_linksExt='CREATE TABLE linksExt (
+  session TEXT,
+  bundle TEXT,
+  fromID INTEGER,
+  toID INTEGER,
+  seqIdx INTEGER,
+  toLevel TEXT,
+  type TEXT,
+  toSeqIdx INTEGER,
+  toSeqLen INTEGER,
+  label TEXT,
+  FOREIGN KEY (session,bundle) REFERENCES bundle(session_name,name)
+);'
+
+database.DDL.emuDB_linksExtTmp='CREATE TABLE linksExtTmp (
+  session TEXT,
+  bundle TEXT,
+  fromID INTEGER,
+  toID INTEGER,
+  seqIdx INTEGER,
+  toLevel TEXT,
+  type TEXT,
+  toSeqIdx INTEGER,
+  toSeqLen INTEGER,
+  label TEXT,
+  FOREIGN KEY (session,bundle) REFERENCES bundle(session_name,name)
+);'
 
 
-
-initialize.DBI.database<-function(){
+initialize.DBI.database<-function(createTables=TRUE){
   if(is.null(emuDBs.con)){
    emuDBs.con<<-dbConnect(RSQLite::SQLite(), ":memory:")
-  if(!dbExistsTable(emuDBs.con,'emuDB')){
+  if(createTables & !dbExistsTable(emuDBs.con,'emuDB')){
     res <- dbSendQuery(emuDBs.con, database.DDL.emuDB)
     dbClearResult(res)
     res <- dbSendQuery(emuDBs.con, database.DDL.emuDB_session) 
@@ -113,10 +139,15 @@ initialize.DBI.database<-function(){
     dbClearResult(res)
     res <- dbSendQuery(emuDBs.con, database.DDL.emuDB_links) 
     dbClearResult(res)
-    res <- dbSendQuery(emuDBs.con, database.DDL.emuDB_linksTmp) 
+   
+    res <- dbSendQuery(emuDBs.con, database.DDL.emuDB_linksExt) 
     dbClearResult(res)
+   
   }
-  
+  res <- dbSendQuery(emuDBs.con, database.DDL.emuDB_linksTmp) 
+  dbClearResult(res)
+  res <- dbSendQuery(emuDBs.con, database.DDL.emuDB_linksExtTmp) 
+  dbClearResult(res)
   }
   #dbDisconnect(con)
   return(emuDBs.con)
@@ -236,12 +267,10 @@ build.redundant.links.for.pathes<-function(database,lfs,sessionName='0000',bundl
       maxLfLen=lfLen
     }
   }
-  items=database[['items']]
-  links=database[['links']]
-  if(nrow(links)==0){
-    return(links)
-  }
-  sqlQuery="SELECT DISTINCT f.session,f.bundle,f.itemID AS fromID,t.itemID AS toID FROM items f,items t"
+  
+  res<-dbSendQuery(emuDBs.con,'DELETE FROM linksTmp')
+  dbClearResult(res)
+  sqlQuery="INSERT INTO linksTmp(session,bundle,fromID,toID) SELECT DISTINCT f.session,f.bundle,f.itemID AS fromID,t.itemID AS toID FROM items f,items t"
   sqlQuery=paste0(sqlQuery,' WHERE f.bundle=t.bundle AND f.session=t.session AND ')
  
   if(!is.null(sessionName) & !is.null(bundleName)){
@@ -316,8 +345,11 @@ build.redundant.links.for.pathes<-function(database,lfs,sessionName='0000',bundl
   buildIndexItemsSql='CREATE INDEX items_idx ON items(session,bundle,level,itemID)'
   buildIndexLinksSql='CREATE INDEX links_idx ON links(session,bundle,fromID,toID)'
   comQuery=c(buildIndexItemsSql,buildIndexLinksSql,sqlQuery)
-  nls=sqldf(comQuery)
-  return(nls)
+  #res<-dbSendQuery(emuDBs.con,comQuery)
+  res<-dbSendQuery(emuDBs.con,sqlQuery)
+  dbClearResult(res)
+  #print(dbReadTable(emuDBs.con,'linksTmp'))
+  
 }
 
 get.level.name.for.attribute<-function(db,attributeName){
@@ -334,7 +366,12 @@ get.level.name.for.attribute<-function(db,attributeName){
 move.bundle.levels.to.data.frame <-function(db,bundle,replace=TRUE){
   # do not use this function to append multiple bundles (performance is bad)
   # growing data.frames with rbind() is unefficient
-
+  initialize.DBI.database()
+  dbWriteTable(emuDBs.con,'items',db[['items']])
+  dbWriteTable(emuDBs.con,'labels',db[['labels']])
+  dbWriteTable(emuDBs.con,'links',db[['links']])
+  dbWriteTable(emuDBs.con,'linksExt',db[['linksExt']])
+  
   DBconfig=db[['DBconfig']]
   sessionName=bundle[['sessionName']]
   row=1 
@@ -431,6 +468,13 @@ move.bundle.levels.to.data.frame <-function(db,bundle,replace=TRUE){
     otherBundlesSelector=(!(db[['labels']][['session']]==sessionName & db[['labels']][['bundle']]==bName))
     db[['labels']]=db[['labels']][otherBundlesSelector,]
     
+    
+    delSqlQuery=paste0("DELETE FROM items WHERE session='",sessionName,"' AND bundle='",bName,"'")
+    res<-dbSendQuery(emuDBs.con,delSqlQuery)
+    dbClearResult(res)
+    delSqlQuery=paste0("DELETE FROM labels WHERE session='",sessionName,"' AND bundle='",bName,"'")
+    res<-dbSendQuery(emuDBs.con,delSqlQuery)
+    dbClearResult(res)
   }
   
   db[['items']]=rbind(db[['items']],bdf)
@@ -682,6 +726,25 @@ append.bundle.to.tmp.list.by.ref <-function(dbWr,bundle){
   return()
 }
 
+
+.remove.bundle<-function(db,bundle){
+  sessionName=bundle[['sessionName']]
+  bName=bundle[['name']]
+  
+  delSqlQuery=paste0("DELETE FROM items WHERE session='",sessionName,"' AND bundle='",bName,"'")
+  res<-dbSendQuery(emuDBs.con,delSqlQuery)
+  dbClearResult(res)
+  delSqlQuery=paste0("DELETE FROM labels WHERE session='",sessionName,"' AND bundle='",bName,"'")
+  res<-dbSendQuery(emuDBs.con,delSqlQuery)
+  dbClearResult(res)
+  delSqlQuery=paste0("DELETE FROM links WHERE session='",sessionName,"' AND bundle='",bName,"'")
+  res<-dbSendQuery(emuDBs.con,delSqlQuery)
+  dbClearResult(res)
+  delSqlQuery=paste0("DELETE FROM linksExt WHERE session='",sessionName,"' AND bundle='",bName,"'")
+  res<-dbSendQuery(emuDBs.con,delSqlQuery)
+  dbClearResult(res)
+}
+
 .add.bundle<-function(db,bundle){
   bName=bundle[['name']]
   for(lvl in bundle[['levels']]){
@@ -724,7 +787,8 @@ append.bundle.to.tmp.list.by.ref <-function(dbWr,bundle){
       
       sqlInsert=paste0("INSERT INTO items VALUES('",id,"','",bundle[['sessionName']],"','",bName,"','",lvl[['name']],"',",itemId,",'",lvl[['type']],"',",seqIdx,",",bundle[['sampleRate']],",",spCol,",",ssCol,",",sdurCol,")")
       #cat('SQL:',sqlInsert,"\n")
-      dbSendQuery(emuDBs.con,sqlInsert)
+      res<-dbSendQuery(emuDBs.con,sqlInsert)
+      dbClearResult(res)
       
       lbls=it[['labels']]
       lblsLen=length(lbls)
@@ -736,8 +800,8 @@ append.bundle.to.tmp.list.by.ref <-function(dbWr,bundle){
           rLbl=lbl[['value']]
           sqlInsert=paste0("INSERT INTO labels VALUES('",id,"','",bundle[['sessionName']],"','",bName,"',",i-1L,",'",lbl[['name']],"',\"",rLbl,"\")")
           #cat('SQL:',sqlInsert,"\n")
-          dbSendQuery(emuDBs.con,sqlInsert)
-          
+          res<-dbSendQuery(emuDBs.con,sqlInsert)
+          dbClearResult(res)
         }
         #}
       } 
@@ -754,8 +818,10 @@ append.bundle.to.tmp.list.by.ref <-function(dbWr,bundle){
     }
     
     sqlInsert=paste0("INSERT INTO links VALUES('",bundle[['sessionName']],"','",bName,"',",lk[['fromID']],",",lk[['toID']],",\"",lblCol,"\")")
+   
     #cat('SQL:',sqlInsert,"\n")
-    dbSendQuery(emuDBs.con,sqlInsert)
+    res<-dbSendQuery(emuDBs.con,sqlInsert)
+    dbClearResult(res)
   }
   
 }
@@ -863,6 +929,11 @@ convert.bundle.links.to.data.frame <-function(links){
 }
 
 move.bundle.links.to.data.frame <-function(db,bundle,replace=TRUE){
+  initialize.DBI.database()
+  dbWriteTable(emuDBs.con,'items',db[['items']])
+  dbWriteTable(emuDBs.con,'labels',db[['labels']])
+  dbWriteTable(emuDBs.con,'links',db[['links']])
+  dbWriteTable(emuDBs.con,'linksExt',db[['linksExt']])
   
   row=1
   bdf=data.frame(session=character(0),bundle=character(0),fromID=integer(0),toID=integer(0),label=character(0),stringsAsFactors=FALSE)
@@ -884,18 +955,45 @@ move.bundle.links.to.data.frame <-function(db,bundle,replace=TRUE){
   }
   if(replace){
     # remove old bundle data
-    otherBundlesSelector=(!(db[['links']][['session']]==sessionName & db[['links']][['bundle']]==bName))
-    db[['links']]=db[['links']][otherBundlesSelector,]
-    otherBundlesSelector=(!(db[['linksExt']][['session']]==sessionName & db[['linksExt']][['bundle']]==bName))
-    db[['linksExt']]=db[['linksExt']][otherBundlesSelector,]
+#     otherBundlesSelector=(!(db[['links']][['session']]==sessionName & db[['links']][['bundle']]==bName))
+#     db[['links']]=db[['links']][otherBundlesSelector,]
+#     otherBundlesSelector=(!(db[['linksExt']][['session']]==sessionName & db[['linksExt']][['bundle']]==bName))
+#     db[['linksExt']]=db[['linksExt']][otherBundlesSelector,]
+#     
+    delSqlQuery=paste0("DELETE FROM links WHERE session='",sessionName,"' AND bundle='",bName,"'")
+    res<-dbSendQuery(emuDBs.con,delSqlQuery)
+    dbClearResult(res)
+    delSqlQuery=paste0("DELETE FROM linksExt WHERE session='",sessionName,"' AND bundle='",bName,"'")
+    res<-dbSendQuery(emuDBs.con,delSqlQuery)
+    dbClearResult(res)
+    
   }
 
-  db[['links']]=rbind(db[['links']],bdf)
-  redLinksBundle=build.redundant.links.all(database = db,sessionName=sessionName,bundleName=bName)
+ # db[['links']]=rbind(db[['links']],bdf)
+for(lk in bundle[['links']]){
+  row=row+1L 
+  bdf[row,'session']=sessionName
+  bdf[row,'bundle']=bName
+  bdf[row,'fromID']=lk[['fromID']]
+  bdf[row,'toID']=lk[['toID']]
+  lbl=lk[['label']]
+  if(!is.null(lbl)){
+    bdf[row,'label']=lbl
+    lblCol=paste0("'",lbl,"'")
+  }else{
+    bdf[row,'label']=NA
+    lblCol='NULL'
+  }
+  sqlQuery=paste0("INSERT INTO links VALUES('",sessionName,"','",bName,"',",fromID,",",toID,",",lblCol)
+  res<-dbSendQuery(emuDBs.con,sqlQuery)
+}
+
+  build.redundant.links.all(database = db,sessionName=sessionName,bundleName=bName)
   #TODO  put level and links method together and use only items of the bundle
-  redExtLinksBundle=calculate.postions.of.links(db[['items']],redLinksBundle)
-  db[['linksExt']]=rbind(db[['linksExt']],redExtLinksBundle)
-  
+  calculate.postions.of.links()
+  db[['links']]=dbReadTable(emuDBs.con,'links')
+  db[['linksExt']]=dbReadTable(emuDBs.con,'linksExt')
+  destroy.DBI.database()
   return(db)
 }
 
@@ -928,19 +1026,6 @@ get.bundle.links.s3 <-function(db,sessionName,bundleName){
 
 
 
-convert.bundle.single.data.framed <- function(db,b,replace=TRUE){
-  # convert levels to data.frame
-  
-  db=move.bundle.levels.to.data.frame(db,b,replace)
-  #cat("move levels ",st,"\n")
-  b[['levels']]=NULL
-  
-  # convert links
-  db=move.bundle.links.to.data.frame(db,b,replace)
-  #cat("move links ",st,"\n")
-  b[['links']]=NULL
-  return(db)
-}
 
 ## Returns bundle as S3 object
 ## 
@@ -1322,9 +1407,24 @@ store.bundle.annotation <- function(db,bundle){
       bp=marshal.for.persistence(bundle,pFilter)
       pbpJSON=jsonlite::toJSON(bp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
       writeLines(pbpJSON,bndFilePth)
-      db=move.bundle.levels.to.data.frame(db=db,bundle=bundle,replace=TRUE)
+      #db=move.bundle.levels.to.data.frame(db=db,bundle=bundle,replace=TRUE)
 
-      db=move.bundle.links.to.data.frame(db=db,bundle=bundle,replace=TRUE)
+      #db=move.bundle.links.to.data.frame(db=db,bundle=bundle,replace=TRUE)
+      initialize.DBI.database(createTables=FALSE)
+      dbWriteTable(emuDBs.con,'items',db[['items']])
+      dbWriteTable(emuDBs.con,'labels',db[['labels']])
+      dbWriteTable(emuDBs.con,'links',db[['links']])
+      dbWriteTable(emuDBs.con,'linksExt',db[['linksExt']])
+      
+      .remove.bundle(db,bundle)
+      .add.bundle(db,bundle)
+      build.redundant.links.all(database = db,sessionName=sessionName,bundleName=bName)
+      calculate.postions.of.links()
+      db[['items']]=dbReadTable(emuDBs.con,'items')
+      db[['labels']]=dbReadTable(emuDBs.con,'labels')
+      db[['links']]=dbReadTable(emuDBs.con,'links')
+      db[['linksExt']]=dbReadTable(emuDBs.con,'linksExt')
+      destroy.DBI.database()
     }
   #}
   return(db)
@@ -1721,28 +1821,40 @@ store.emuDB <- function(db,targetDir,options=NULL,showProgress=TRUE){
   
 }
 
-calculate.postions.of.links<-function(items,links){
-  if(nrow(links)==0){
-    # return empty links data frame
-    return(links)
-  }
+calculate.postions.of.links<-function(){
+ 
   # for all position related functions we need to calculate the sequence indices of dominated items grouped to one dominance item 
   # Extend links table with sequence index of the targeted (dominated) item
   #links2=sqldf("SELECT k.*,i.seqIdx FROM links k,items i WHERE i.bundle=k.bundle AND k.toID=i.itemID")
   
   # since version 2.8.x of sqlite the query is very slow without indices
-  itemsIdxSql='CREATE INDEX items_idx ON items(session,bundle,level,itemID,seqIdx)'
-  linksIdxSql='CREATE INDEX links_idx ON links(session,bundle,fromID,toID)'
- 
-  links2=sqldf(c(itemsIdxSql,linksIdxSql,"SELECT k.*,i.seqIdx,i.level AS toLevel,i.type FROM links k,items i WHERE i.session=k.session AND i.bundle=k.bundle AND k.toID=i.itemID"))
+  res<-dbSendQuery(emuDBs.con,'CREATE INDEX items_idx2 ON items(session,bundle,level,itemID,seqIdx)')
+  dbClearResult(res)
+  res<-dbSendQuery(emuDBs.con,'CREATE INDEX linksExt_idx ON linksExt(session,bundle,fromID,toID)')
+  dbClearResult(res)
+  res<-dbSendQuery(emuDBs.con,"DELETE FROM linksExtTmp")
+  dbClearResult(res)
+  #print(dbReadTable(emuDBs.con,'linksTmp'))
+  res<-dbSendQuery(emuDBs.con,"INSERT INTO linksExtTmp(session,bundle,fromID,toID,seqIdx,toLevel,type,label) SELECT k.session,k.bundle,k.fromID,k.toID,i.seqIdx,i.level AS toLevel,i.type,NULL AS label FROM linksTmp k,items i WHERE i.session=k.session AND i.bundle=k.bundle AND k.toID=i.itemID")
+  dbClearResult(res)
+  #print(dbReadTable(emuDBs.con,'linksExtTmp'))
+  #dbSendQuery(emuDBs.con,"DELETE FROM linksExt")
   # extend links table with relative sequence index
-  links2IdxSql='CREATE INDEX links2_idx ON links2(session,bundle,fromID,toID,toLevel,type)'
-  links3=sqldf(c(itemsIdxSql,links2IdxSql,"SELECT k.*,k.seqIdx-(SELECT MIN(m.seqIdx) FROM links2 m WHERE m.fromID=k.fromID AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.session,m.bundle,m.fromID,m.toLevel) AS toSeqIdx FROM links2 k"))
+  res<-dbSendQuery(emuDBs.con,'CREATE INDEX linksExtTmp_idx ON linksExtTmp(session,bundle,fromID,toID,toLevel,type)')
+  dbClearResult(res)
+  res<-dbSendQuery(emuDBs.con,"INSERT INTO linksExt(session,bundle,seqIdx,fromID,toID,toLevel,type,label,toSeqIdx) SELECT k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toLevel,k.type,k.label,k.seqIdx-(SELECT MIN(m.seqIdx) FROM linksExtTmp m WHERE m.fromID=k.fromID AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.session,m.bundle,m.fromID,m.toLevel) AS toSeqIdx FROM linksExtTmp k")
+  dbClearResult(res)
+  res<-dbSendQuery(emuDBs.con,"DELETE FROM linksExtTmp")
+  dbClearResult(res)
   # Add length of dominance group sequence
-  links3IdxSql='CREATE INDEX links3_idx ON links3(session,bundle,fromID,toID,toLevel,type)'
-  links4=sqldf(c(itemsIdxSql,links3IdxSql,"SELECT k.*,(SELECT MAX(m.seqIdx)-MIN(m.seqIdx)+1 FROM links3 m WHERE m.fromID=k.fromID AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.session,m.bundle,m.fromID,m.toLevel) AS toSeqLen FROM links3 k"))
-  return(links4)
-  #}
+  #links3IdxSql='CREATE INDEX links3_idx ON links3(session,bundle,fromID,toID,toLevel,type)'
+  res<-dbSendQuery(emuDBs.con,"INSERT INTO linksExtTmp(session,bundle,seqIdx,fromID,toID,toSeqIdx,toLevel,type,label,toSeqLen) SELECT k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toSeqIdx,k.toLevel,k.type,k.label,(SELECT MAX(m.seqIdx)-MIN(m.seqIdx)+1 FROM linksExt m WHERE m.fromID=k.fromID AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.session,m.bundle,m.fromID,m.toLevel) AS toSeqLen FROM linksExt k")
+  dbClearResult(res)
+  res<-dbSendQuery(emuDBs.con,"DELETE FROM linksExt")
+  dbClearResult(res)
+  res<-dbSendQuery(emuDBs.con,"INSERT INTO linksExt SELECT * FROM linksExtTmp")
+  dbClearResult(res)
+  
 }
 
 ##' Load EMU database
@@ -1958,12 +2070,13 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   }
 
   # assume no redunant links in new format 
-  linksForQuery=build.redundant.links.all(db)
+  build.redundant.links.all(db)
   progress=progress+ppBuildRedLinks
   if(verbose){
     setTxtProgressBar(pb,progress)
   }
-  db[['linksExt']]=calculate.postions.of.links(db[['items']],linksForQuery)
+  calculate.postions.of.links()
+  db[['linksExt']]=dbReadTable(emuDBs.con,'linksExt')
   progress=progress+ppBuildExtLinks
   if(verbose){
     setTxtProgressBar(pb,progress)
