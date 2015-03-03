@@ -19,8 +19,6 @@ database.schema.suffix='_DBconfig.json'
 # global database connection
 emuDBs.con=NULL
 
-vector.increment=100000
-
 database.DDL.emuDB='CREATE TABLE emuDB (
   name TEXT, 
   uuid VARCHAR(36),  
@@ -667,9 +665,6 @@ emuDB.session <- function(name,path=NULL,bundles=list){
   invisible(o)
 }
 
-
-
-
 is.relative.file.path<-function(nativeFilePathStr,forRunningPlatform=FALSE){
   if(forRunningPlatform){
     if(.Platform[['OS.type']]=='unix'){
@@ -706,42 +701,6 @@ is.relative.file.path<-function(nativeFilePathStr,forRunningPlatform=FALSE){
   }
   return(TRUE)
 }
-
-
-initialize.database.dataframes<-function(db){
-  
-  baseColNms <- c('id','bundle','level','itemID','type','seqIdx','sampleRate','samplePoint','sampleStart','sampleDur')
-  maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
-  
-  colNms=baseColNms
-  db[['DBconfig']][['itemColNames']]=colNms
-  
-
-
-  # items 
-  db[['items']]=list(id=character(vector.increment),session=character(vector.increment),bundle=character(vector.increment),level=character(vector.increment),itemID=integer(vector.increment),type=character(vector.increment),seqIdx=integer(vector.increment),sampleRate=numeric(vector.increment),samplePoint=integer(vector.increment),sampleStart=integer(vector.increment),sampleDur=integer(vector.increment))
-  #db[['items']]=matrix(nrow=itCount,ncol=length(colNms))w
-  #colnames(db[['items']])=colNms
-  db[['itemsIdx']]=0L
-  # label table
-  #lblColNms=c('itemID','bundle','labelIdx','name','label')
-  #db[['labels']]=data.frame(matrix(ncol=length(lblColNms),nrow=0),stringsAsFactors=FALSE)
-  db[['labels']]=list(itemID=character(vector.increment),session=character(vector.increment),bundle=character(vector.increment),labelIdx=integer(vector.increment),name=character(vector.increment),label=character(vector.increment))
-  #db[['labels']]=matrix(nrow=vector.increment,ncol=length(lblColNms))
-  #colnames(db[['labels']])=lblColNms
-  db[['labelsIdx']]=0L
- 
-  #linkColNms=c('bundle','fromID','toID','label')
-  db[['links']]=list(session=character(vector.increment),bundle=character(vector.increment),fromID=integer(vector.increment),toID=integer(vector.increment),label=character(vector.increment))
-  #db[['links']]=matrix(nrow=itCount,ncol=length(linkColNms))
- #colnames(db[['links']])=linkColNms
-  db[['linksIdx']]=0L
-
-  #colnames(db[['labels']])<-lblColNms
-  return(db)
-}
-
-
 
 extractTrackdata <- function(db=NULL,segmentList=NULL,trackName=NULL){
   schema=db[['DBconfig']]
@@ -1475,7 +1434,6 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   if(verbose){
     cat("INFO: Loading EMU database from ",databaseDir,"...\n")
   }
-  #db=initialize.database.dataframes(db)
   
   initialize.DBI.database()
   
