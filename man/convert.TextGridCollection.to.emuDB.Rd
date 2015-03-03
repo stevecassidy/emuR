@@ -5,7 +5,8 @@
 \title{Convert a TextGridCollection (.wav & .TextGrid files) to a emuDB}
 \usage{
 convert.TextGridCollection.to.emuDB(path2rootDir, dbName, targetDir,
-  tgExt = "TextGrid", audioExt = "wav", showProgress = TRUE)
+  tgExt = "TextGrid", audioExt = "wav", tierNames = NULL,
+  showProgress = TRUE)
 }
 \arguments{
 \item{path2rootDir}{path to root directory (CAUTION: think of DB size and search space!)}
@@ -17,6 +18,9 @@ convert.TextGridCollection.to.emuDB(path2rootDir, dbName, targetDir,
 \item{tgExt}{extention of TextGrid files (default=TextGrid meaning filesnames of the form baseName.TextGrid)}
 
 \item{audioExt}{extention of audio files (default=wav meaning filesnames of the form baseName.wav).}
+
+\item{tierNames}{character vector containing names of tiers to extract and convert. If NULL (the default) all
+tiers are converted.}
 
 \item{showProgress}{show progress bar flag}
 }
