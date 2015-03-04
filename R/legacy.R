@@ -744,6 +744,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     
     schema=db[['DBconfig']]
     maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
+    bundle[['db_UUID']]=schema[['UUID']]
     .add.bundle(db,bundle)
     
     bundle[['levels']]=NULL
