@@ -478,9 +478,11 @@ get.bundle.levels.s3 <-function(db,sessionName,bundleName){
     levels[[ld[['name']]]]=create.bundle.level(name=ld[['name']],type=ld[['type']])
   }
   
-  bundleSelector=(db[['items']][['session']]==sessionName & db[['items']][['bundle']]==bundleName)
+  dbUUID=db[['DBconfig']][['UUID']]
+  
+  bundleSelector=(db[['items']][['db_uuid']]==dbUUID & db[['items']][['session']]==sessionName & db[['items']][['bundle']]==bundleName)
   items=db[['items']][bundleSelector,]
-  bundleSelector=(db[['labels']][['session']]==sessionName & db[['labels']][['bundle']]==bundleName)
+  bundleSelector=(db[['labels']][['db_uuid']]==dbUUID & db[['labels']][['session']]==sessionName & db[['labels']][['bundle']]==bundleName)
   bundleLabels=db[['labels']][bundleSelector,]
   
   nrows=nrow(items)
