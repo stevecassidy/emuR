@@ -20,44 +20,44 @@ database.schema.suffix='_DBconfig.json'
 emuDBs.con=NULL
 
 database.DDL.emuDB='CREATE TABLE emuDB (
-  name TEXT, 
-  uuid VARCHAR(36),  
-  PRIMARY KEY (name, uuid)
+  uuid VARCHAR(36),
+  name TEXT,
+  databaseDir TEXT,
+  DBconfigFile TEXT,  
+  PRIMARY KEY (uuid)
 );'
 
 database.DDL.emuDB_session='CREATE TABLE session (
-  name TEXT,
-  db_name TEXT,
   db_uuid VARCHAR(36),
-  PRIMARY KEY (name)
- FOREIGN KEY (db_name) REFERENCES emuDB(name)
-
+  name TEXT,
+  PRIMARY KEY (db_uuid,name)
+  FOREIGN KEY (db_uuid) REFERENCES emuDB(uuid)
 );'
 
 database.DDL.emuDB_bundle='CREATE TABLE bundle (
-  name TEXT,
+  db_uuid VARCHAR(36),
   session_name TEXT,
-  PRIMARY KEY (name)
- FOREIGN KEY (session_name) REFERENCES sess(name)
-
+  name TEXT,
+  PRIMARY KEY (db_uuid,session_name,name)
+  FOREIGN KEY (db_uuid,session_name) REFERENCES sess(db_uuid,name)
 );'
 
 database.DDL.emuDB_items='CREATE TABLE items (
-  id TEXT,
+  db_uuid VARCHAR(36),
   session TEXT,
   bundle TEXT,
-level TEXT,
- itemID INTEGER,
-type TEXT,
- seqIdx INTEGER,
- sampleRate FLOAT,
-samplePoint INTEGER,
- sampleStart INTEGER,
-sampleDur INTEGER,
-  PRIMARY KEY (id)
- FOREIGN KEY (session,bundle) REFERENCES bundle(session_name,name)
-
+  itemID INTEGER,
+  level TEXT,
+  type TEXT,
+  seqIdx INTEGER,
+  sampleRate FLOAT,
+  samplePoint INTEGER,
+  sampleStart INTEGER,
+  sampleDur INTEGER,
+  PRIMARY KEY (db_uuid,session,bundle,itemID)
+  
 );'
+# FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session_name,name)
 
 database.DDL.emuDB_labels='CREATE TABLE labels (
   itemID TEXT,
@@ -72,27 +72,27 @@ name TEXT,
 );'
 
 database.DDL.emuDB_links='CREATE TABLE links (
+  db_uuid VARCHAR(36),
   session TEXT,
   bundle TEXT,
   fromID INTEGER,
   toID INTEGER,
- label TEXT,
-
- FOREIGN KEY (session,bundle) REFERENCES bundle(session_name,name)
-
+  label TEXT
 );'
+# FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session_name,name)
+
 database.DDL.emuDB_linksTmp='CREATE TABLE linksTmp (
+   db_uuid VARCHAR(36),
   session TEXT,
   bundle TEXT,
   fromID INTEGER,
   toID INTEGER,
- label TEXT,
-
- FOREIGN KEY (session,bundle) REFERENCES bundle(session_name,name)
-
+  label TEXT
 );'
+
 
 database.DDL.emuDB_linksExt='CREATE TABLE linksExt (
+  db_uuid VARCHAR(36),
   session TEXT,
   bundle TEXT,
   fromID INTEGER,
@@ -102,11 +102,11 @@ database.DDL.emuDB_linksExt='CREATE TABLE linksExt (
   type TEXT,
   toSeqIdx INTEGER,
   toSeqLen INTEGER,
-  label TEXT,
-  FOREIGN KEY (session,bundle) REFERENCES bundle(session_name,name)
+  label TEXT
 );'
 
 database.DDL.emuDB_linksExtTmp='CREATE TABLE linksExtTmp (
+  db_uuid VARCHAR(36),
   session TEXT,
   bundle TEXT,
   fromID INTEGER,
@@ -116,8 +116,7 @@ database.DDL.emuDB_linksExtTmp='CREATE TABLE linksExtTmp (
   type TEXT,
   toSeqIdx INTEGER,
   toSeqLen INTEGER,
-  label TEXT,
-  FOREIGN KEY (session,bundle) REFERENCES bundle(session_name,name)
+  label TEXT
 );'
 
 
@@ -268,8 +267,9 @@ build.redundant.links.for.pathes<-function(database,lfs,sessionName='0000',bundl
   
   res<-dbSendQuery(emuDBs.con,'DELETE FROM linksTmp')
   dbClearResult(res)
-  sqlQuery="INSERT INTO linksTmp(session,bundle,fromID,toID) SELECT DISTINCT f.session,f.bundle,f.itemID AS fromID,t.itemID AS toID FROM items f,items t"
-  sqlQuery=paste0(sqlQuery,' WHERE f.bundle=t.bundle AND f.session=t.session AND ')
+  sqlQuery="INSERT INTO linksTmp(db_uuid,session,bundle,fromID,toID,label) SELECT DISTINCT f.db_uuid,f.session,f.bundle,f.itemID AS fromID,t.itemID AS toID, NULL AS label FROM items f,items t"
+  sqlQuery=paste0(sqlQuery," WHERE f.db_uuid=t.db_uuid AND f.bundle=t.bundle AND f.session=t.session AND f.db_uuid='",database[['DBconfig']][['UUID']],"' AND ")
+  #sqlQuery=paste0(sqlQuery," WHERE f.db_uuid=t.db_uuid AND f.bundle=t.bundle AND f.session=t.session AND ")
  
   if(!is.null(sessionName) & !is.null(bundleName)){
      # only for one bundle
@@ -306,7 +306,7 @@ build.redundant.links.for.pathes<-function(database,lfs,sessionName='0000',bundl
     }
     sqlQuery=paste0(sqlQuery," WHERE ")
     if(lfLen==2){
-      sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=t.bundle AND l1.session=f.session AND l1.session=t.session AND f.itemID=l1.fromID AND t.itemID=l1.toID")
+      sqlQuery=paste0(sqlQuery,"l1.db_uuid=f.db_uuid AND l1.bundle=f.bundle AND l1.bundle=t.bundle AND l1.db_uuid=t.db_uuid AND l1.session=f.session AND l1.session=t.session AND f.itemID=l1.fromID AND t.itemID=l1.toID")
       #sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=t.bundle AND f.itemID=l1.fromID AND t.itemID=l1.toID")
       #cat(sLf,eLf,"\n")
     }else{
@@ -314,14 +314,14 @@ build.redundant.links.for.pathes<-function(database,lfs,sessionName='0000',bundl
       # from start to first in-between item 
       eLf=lf[2]
       #cat(sLf,eLf,"\n")
-      sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=i2.bundle AND l1.session=f.session AND l1.session=i2.session AND f.itemID=l1.fromID AND i2.itemID=l1.toID AND f.level='",sLf,"' AND i2.level='",eLf,"' AND ")
+      sqlQuery=paste0(sqlQuery,"l1.db_uuid=f.db_uuid AND l1.bundle=f.bundle AND l1.db_uuid=i2.db_uuid AND l1.bundle=i2.bundle AND l1.session=f.session AND l1.session=i2.session AND f.itemID=l1.fromID AND i2.itemID=l1.toID AND f.level='",sLf,"' AND i2.level='",eLf,"' AND ")
       #sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=i2.bundle AND f.itemID=l1.fromID AND i2.itemID=l1.toID AND f.level='",sLf,"' AND i2.level='",eLf,"' AND ")
       if(lfLen>3){
         for(j in 2:(lfLen-2)){
           sLf=lf[j]
           eLf=lf[j+1L] 
           #cat(sLf,eLf,"\n")
-          sqlQuery=paste0(sqlQuery,"l",j,".bundle=i",j,".bundle AND l",j,".bundle=i",(j+1),".bundle AND l",j,".session=i",j,".session AND l",j,".session=i",(j+1),".session AND i",j,".itemID=l",j,".fromID AND i",(j+1L),".itemID=l",j,".toID AND i",j,".level='",sLf,"' AND i",(j+1L),".level='",eLf,"' AND ")
+          sqlQuery=paste0(sqlQuery,"l",j,".db_uuid=i",j,".db_uuid AND l",j,".db_uuid=i",(j+1),".db_uuid AND l",j,".bundle=i",j,".bundle AND l",j,".bundle=i",(j+1),".bundle AND l",j,".session=i",j,".session AND l",j,".session=i",(j+1),".session AND i",j,".itemID=l",j,".fromID AND i",(j+1L),".itemID=l",j,".toID AND i",j,".level='",sLf,"' AND i",(j+1L),".level='",eLf,"' AND ")
         }
       }
       # from last in-between item to end item
@@ -329,7 +329,7 @@ build.redundant.links.for.pathes<-function(database,lfs,sessionName='0000',bundl
       eLf=lf[lfLen]
       #cat(sLf,eLf,(lfLen-1),"\n")
       j=lfLen-1
-      sqlQuery=paste0(sqlQuery,"l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND l",j,".session=i",j,".session AND l",j,".session=t.session AND i",j,".itemID=l",j,".fromID AND t.itemID=l",j,".toID AND i",j,".level='",sLf,"' AND t.level='",eLf,"'")
+      sqlQuery=paste0(sqlQuery,"l",j,".db_uuid=i",j,".db_uuid AND l",j,".db_uuid=t.db_uuid AND l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND l",j,".session=i",j,".session AND l",j,".session=t.session AND i",j,".itemID=l",j,".fromID AND t.itemID=l",j,".toID AND i",j,".level='",sLf,"' AND t.level='",eLf,"'")
       #sqlQuery=paste0(sqlQuery,"l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND i",j,".itemID=l",j,".fromID AND t.itemID=l",j,".toID AND i",j,".level='",sLf,"' AND t.level='",eLf,"'")
     }
     sqlQuery=paste0(sqlQuery,"))")
@@ -343,6 +343,7 @@ build.redundant.links.for.pathes<-function(database,lfs,sessionName='0000',bundl
   buildIndexItemsSql='CREATE INDEX items_idx ON items(session,bundle,level,itemID)'
   buildIndexLinksSql='CREATE INDEX links_idx ON links(session,bundle,fromID,toID)'
   comQuery=c(buildIndexItemsSql,buildIndexLinksSql,sqlQuery)
+  #cat(sqlQuery,"\n")
   #res<-dbSendQuery(emuDBs.con,comQuery)
   res<-dbSendQuery(emuDBs.con,sqlQuery)
   dbClearResult(res)
@@ -419,7 +420,7 @@ get.level.name.for.attribute<-function(db,attributeName){
         sdurCol='NULL'
       }
       
-      sqlInsert=paste0("INSERT INTO items VALUES('",id,"','",bundle[['sessionName']],"','",bName,"','",lvl[['name']],"',",itemId,",'",lvl[['type']],"',",seqIdx,",",bundle[['sampleRate']],",",spCol,",",ssCol,",",sdurCol,")")
+      sqlInsert=paste0("INSERT INTO items VALUES('",bundle[['db_UUID']],"','",bundle[['sessionName']],"','",bName,"',",itemId,",'",lvl[['name']],"','",lvl[['type']],"',",seqIdx,",",bundle[['sampleRate']],",",spCol,",",ssCol,",",sdurCol,")")
       #cat('SQL:',sqlInsert,"\n")
       res<-dbSendQuery(emuDBs.con,sqlInsert)
       dbClearResult(res)
@@ -432,7 +433,7 @@ get.level.name.for.attribute<-function(db,attributeName){
         lbl=lbls[[i]]
         if(!is.null(lbl)){
           rLbl=lbl[['value']]
-          sqlInsert=paste0("INSERT INTO labels VALUES('",id,"','",bundle[['sessionName']],"','",bName,"',",i-1L,",'",lbl[['name']],"',\"",rLbl,"\")")
+          sqlInsert=paste0("INSERT INTO labels VALUES('",bundle[['db_UUID']],"','",bundle[['sessionName']],"','",bName,"',",i-1L,",'",lbl[['name']],"',\"",rLbl,"\")")
           #cat('SQL:',sqlInsert,"\n")
           res<-dbSendQuery(emuDBs.con,sqlInsert)
           dbClearResult(res)
@@ -451,7 +452,7 @@ get.level.name.for.attribute<-function(db,attributeName){
       lblCol=lbl
     }
     
-    sqlInsert=paste0("INSERT INTO links VALUES('",bundle[['sessionName']],"','",bName,"',",lk[['fromID']],",",lk[['toID']],",\"",lblCol,"\")")
+    sqlInsert=paste0("INSERT INTO links VALUES('",bundle[['db_UUID']],"','",bundle[['sessionName']],"','",bName,"',",lk[['fromID']],",",lk[['toID']],",\"",lblCol,"\")")
    
     #cat('SQL:',sqlInsert,"\n")
     res<-dbSendQuery(emuDBs.con,sqlInsert)
@@ -1351,27 +1352,27 @@ calculate.postions.of.links<-function(){
   #links2=sqldf("SELECT k.*,i.seqIdx FROM links k,items i WHERE i.bundle=k.bundle AND k.toID=i.itemID")
   
   # since version 2.8.x of sqlite the query is very slow without indices
-  res<-dbSendQuery(emuDBs.con,'CREATE INDEX items_idx2 ON items(session,bundle,level,itemID,seqIdx)')
+  res<-dbSendQuery(emuDBs.con,'CREATE INDEX items_idx2 ON items(db_uuid,session,bundle,level,itemID,seqIdx)')
   dbClearResult(res)
-  res<-dbSendQuery(emuDBs.con,'CREATE INDEX linksExt_idx ON linksExt(session,bundle,fromID,toID)')
+  res<-dbSendQuery(emuDBs.con,'CREATE INDEX linksExt_idx ON linksExt(db_uuid,session,bundle,fromID,toID)')
   dbClearResult(res)
   res<-dbSendQuery(emuDBs.con,"DELETE FROM linksExtTmp")
   dbClearResult(res)
   #print(dbReadTable(emuDBs.con,'linksTmp'))
-  res<-dbSendQuery(emuDBs.con,"INSERT INTO linksExtTmp(session,bundle,fromID,toID,seqIdx,toLevel,type,label) SELECT k.session,k.bundle,k.fromID,k.toID,i.seqIdx,i.level AS toLevel,i.type,NULL AS label FROM linksTmp k,items i WHERE i.session=k.session AND i.bundle=k.bundle AND k.toID=i.itemID")
+  res<-dbSendQuery(emuDBs.con,"INSERT INTO linksExtTmp(db_uuid,session,bundle,fromID,toID,seqIdx,toLevel,type,label) SELECT k.db_uuid,k.session,k.bundle,k.fromID,k.toID,i.seqIdx,i.level AS toLevel,i.type,NULL AS label FROM linksTmp k,items i WHERE i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle AND k.toID=i.itemID")
   dbClearResult(res)
   #print(dbReadTable(emuDBs.con,'linksExtTmp'))
   #dbSendQuery(emuDBs.con,"DELETE FROM linksExt")
   # extend links table with relative sequence index
-  res<-dbSendQuery(emuDBs.con,'CREATE INDEX linksExtTmp_idx ON linksExtTmp(session,bundle,fromID,toID,toLevel,type)')
+  res<-dbSendQuery(emuDBs.con,'CREATE INDEX linksExtTmp_idx ON linksExtTmp(db_uuid,session,bundle,fromID,toID,toLevel,type)')
   dbClearResult(res)
-  res<-dbSendQuery(emuDBs.con,"INSERT INTO linksExt(session,bundle,seqIdx,fromID,toID,toLevel,type,label,toSeqIdx) SELECT k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toLevel,k.type,k.label,k.seqIdx-(SELECT MIN(m.seqIdx) FROM linksExtTmp m WHERE m.fromID=k.fromID AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.session,m.bundle,m.fromID,m.toLevel) AS toSeqIdx FROM linksExtTmp k")
+  res<-dbSendQuery(emuDBs.con,"INSERT INTO linksExt(db_uuid,session,bundle,seqIdx,fromID,toID,toLevel,type,label,toSeqIdx) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toLevel,k.type,k.label,k.seqIdx-(SELECT MIN(m.seqIdx) FROM linksExtTmp m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqIdx FROM linksExtTmp k")
   dbClearResult(res)
   res<-dbSendQuery(emuDBs.con,"DELETE FROM linksExtTmp")
   dbClearResult(res)
   # Add length of dominance group sequence
   #links3IdxSql='CREATE INDEX links3_idx ON links3(session,bundle,fromID,toID,toLevel,type)'
-  res<-dbSendQuery(emuDBs.con,"INSERT INTO linksExtTmp(session,bundle,seqIdx,fromID,toID,toSeqIdx,toLevel,type,label,toSeqLen) SELECT k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toSeqIdx,k.toLevel,k.type,k.label,(SELECT MAX(m.seqIdx)-MIN(m.seqIdx)+1 FROM linksExt m WHERE m.fromID=k.fromID AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.session,m.bundle,m.fromID,m.toLevel) AS toSeqLen FROM linksExt k")
+  res<-dbSendQuery(emuDBs.con,"INSERT INTO linksExtTmp(db_uuid,session,bundle,seqIdx,fromID,toID,toSeqIdx,toLevel,type,label,toSeqLen) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toSeqIdx,k.toLevel,k.type,k.label,(SELECT MAX(m.seqIdx)-MIN(m.seqIdx)+1 FROM linksExt m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqLen FROM linksExt k")
   dbClearResult(res)
   res<-dbSendQuery(emuDBs.con,"DELETE FROM linksExt")
   dbClearResult(res)
@@ -1431,12 +1432,18 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   # create db object
   db=create.database(name = schema[['name']],basePath = normalizePath(databaseDir),DBconfig = schema)
   
+  initialize.DBI.database()
+  # TODO check if already exists
+  
+  createDbSql=paste0("INSERT INTO emuDB(uuid,name) VALUES('",schema[['UUID']],"','",schema[['name']],"')")
+  res<-dbSendQuery(emuDBs.con,createDbSql)
+  dbClearResult(res)
+ 
   if(verbose){
     cat("INFO: Loading EMU database from ",databaseDir,"...\n")
   }
   
-  initialize.DBI.database()
-  
+
   sessions=list()
   # sessions
   #sessPattern=paste0('^[0-9]{4}',session.suffix,'$')
@@ -1519,6 +1526,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
           
         }
       }
+      bundle[['db_UUID']]=schema[['UUID']]
       # set session name
       bundle[['sessionName']]=sessionName
       
@@ -1553,6 +1561,10 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
     sessSuffixPattern=paste0(session.suffix,'$')
     sNm=gsub(sessSuffixPattern,'',sd)
     s=emuDB.session(name=sNm,path=absSd,bundles=bundles)
+    
+    insertSessionSql=paste0("INSERT INTO session(db_uuid,name) VALUES('",schema[['UUID']],"','",sessionName,"')")
+    res<-dbSendQuery(emuDBs.con,insertSessionSql)
+    dbClearResult(res)
     sessions[[sNm]]=s
     
   }
@@ -1584,6 +1596,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   #db[['links']]=tmpLksdf[0:linksIdx,]
   
   db[['links']]=dbReadTable(emuDBs.con,'links')
+ 
   progress=progress+ppBuildDataFrame
   if(verbose){
     setTxtProgressBar(pb,progress)
@@ -1603,7 +1616,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
     
     cat("\n")
   }
-  destroy.DBI.database()
+  #destroy.DBI.database()
   return(db)
   
 }
