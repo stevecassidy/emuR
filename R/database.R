@@ -30,7 +30,7 @@ database.DDL.emuDB='CREATE TABLE emuDB (
 database.DDL.emuDB_session='CREATE TABLE session (
   db_uuid VARCHAR(36),
   name TEXT,
-  PRIMARY KEY (db_uuid,name)
+  PRIMARY KEY (db_uuid,name),
   FOREIGN KEY (db_uuid) REFERENCES emuDB(uuid)
 );'
 
@@ -38,8 +38,8 @@ database.DDL.emuDB_bundle='CREATE TABLE bundle (
   db_uuid VARCHAR(36),
   session_name TEXT,
   name TEXT,
-  PRIMARY KEY (db_uuid,session_name,name)
-  FOREIGN KEY (db_uuid,session_name) REFERENCES sess(db_uuid,name)
+  PRIMARY KEY (db_uuid,session_name,name),
+  FOREIGN KEY (db_uuid,session_name) REFERENCES session(db_uuid,name)
 );'
 
 database.DDL.emuDB_items='CREATE TABLE items (
@@ -54,21 +54,19 @@ database.DDL.emuDB_items='CREATE TABLE items (
   samplePoint INTEGER,
   sampleStart INTEGER,
   sampleDur INTEGER,
-  PRIMARY KEY (db_uuid,session,bundle,itemID)
-  
+  PRIMARY KEY (db_uuid,session,bundle,itemID),
+  FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session_name,name)
 );'
-# FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session_name,name)
 
 database.DDL.emuDB_labels='CREATE TABLE labels (
-  itemID TEXT,
+  db_uuid VARCHAR(36),
   session TEXT,
   bundle TEXT,
- labelIdx INTEGER,
-name TEXT,
- label TEXT,
-
- FOREIGN KEY (session,bundle) REFERENCES bundle(session_name,name)
-
+  itemID TEXT,
+  labelIdx INTEGER,
+  name TEXT,
+  label TEXT,
+  FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session_name,name)
 );'
 
 database.DDL.emuDB_links='CREATE TABLE links (
@@ -77,9 +75,9 @@ database.DDL.emuDB_links='CREATE TABLE links (
   bundle TEXT,
   fromID INTEGER,
   toID INTEGER,
-  label TEXT
+  label TEXT,
+  FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session_name,name)
 );'
-# FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session_name,name)
 
 database.DDL.emuDB_linksTmp='CREATE TABLE linksTmp (
    db_uuid VARCHAR(36),
@@ -87,7 +85,8 @@ database.DDL.emuDB_linksTmp='CREATE TABLE linksTmp (
   bundle TEXT,
   fromID INTEGER,
   toID INTEGER,
-  label TEXT
+  label TEXT,
+  FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session_name,name)
 );'
 
 
@@ -102,7 +101,8 @@ database.DDL.emuDB_linksExt='CREATE TABLE linksExt (
   type TEXT,
   toSeqIdx INTEGER,
   toSeqLen INTEGER,
-  label TEXT
+  label TEXT,
+  FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session_name,name)
 );'
 
 database.DDL.emuDB_linksExtTmp='CREATE TABLE linksExtTmp (
@@ -116,7 +116,8 @@ database.DDL.emuDB_linksExtTmp='CREATE TABLE linksExtTmp (
   type TEXT,
   toSeqIdx INTEGER,
   toSeqLen INTEGER,
-  label TEXT
+  label TEXT,
+  FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session_name,name)
 );'
 
 
