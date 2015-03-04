@@ -449,10 +449,10 @@ get.level.name.for.attribute<-function(db,attributeName){
     if(is.null(lbl)){
       lblCol='NULL'
     }else{
-      lblCol=lbl
+      lblCol=paste0("'",lbl,"'")
     }
     
-    sqlInsert=paste0("INSERT INTO links VALUES('",bundle[['db_UUID']],"','",bundle[['sessionName']],"','",bName,"',",lk[['fromID']],",",lk[['toID']],",\"",lblCol,"\")")
+    sqlInsert=paste0("INSERT INTO links VALUES('",bundle[['db_UUID']],"','",bundle[['sessionName']],"','",bName,"',",lk[['fromID']],",",lk[['toID']],",",lblCol,")")
    
     #cat('SQL:',sqlInsert,"\n")
     res<-dbSendQuery(emuDBs.con,sqlInsert)
