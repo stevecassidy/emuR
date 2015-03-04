@@ -521,8 +521,9 @@ get.bundle.levels.s3 <-function(db,sessionName,bundleName){
       attrDefs=lvlDef[['attributeDefinitions']]
       attrDefsLen=length(attrDefs)
       
-      gid=items[r,'id']
-      itemLabelSelector=bundleLabels[['itemID']]==gid
+      #gid=items[r,'id']
+      #itemLabelSelector=bundleLabels[['itemID']]==gid
+      itemLabelSelector=bundleLabels[['itemID']]==id
       labelRows=bundleLabels[itemLabelSelector,]
       nLabelRows=nrow(labelRows)
       labels=list()
