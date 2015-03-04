@@ -1619,7 +1619,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
     
     cat("\n")
   }
-  #destroy.DBI.database()
+  destroy.DBI.database()
   return(db)
   
 }
