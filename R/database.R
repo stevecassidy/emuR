@@ -1355,8 +1355,8 @@ calculate.postions.of.links<-function(){
   #links2=sqldf("SELECT k.*,i.seqIdx FROM links k,items i WHERE i.bundle=k.bundle AND k.toID=i.itemID")
   
   # since version 2.8.x of sqlite the query is very slow without indices
-  res<-dbSendQuery(emuDBs.con,'CREATE INDEX items_idx2 ON items(db_uuid,session,bundle,level,itemID,seqIdx)')
-  dbClearResult(res)
+  #res<-dbSendQuery(emuDBs.con,'CREATE INDEX items_idx2 ON items(db_uuid,session,bundle,level,itemID,seqIdx)')
+  #dbClearResult(res)
   res<-dbSendQuery(emuDBs.con,'CREATE INDEX linksExt_idx ON linksExt(db_uuid,session,bundle,fromID,toID)')
   dbClearResult(res)
   res<-dbSendQuery(emuDBs.con,"DELETE FROM linksExtTmp")
