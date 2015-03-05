@@ -23,7 +23,7 @@ database.DDL.emuDB='CREATE TABLE emuDB (
   uuid VARCHAR(36),
   name TEXT,
   databaseDir TEXT,
-  DBconfigFile TEXT,  
+  DBconfigJSON TEXT,
   PRIMARY KEY (uuid)
 );'
 
@@ -34,10 +34,20 @@ database.DDL.emuDB_session='CREATE TABLE session (
   FOREIGN KEY (db_uuid) REFERENCES emuDB(uuid)
 );'
 
+database.DDL.emuDB_track='CREATE TABLE track (
+  db_uuid VARCHAR(36),
+  session TEXT,
+  bundle TEXT,
+  path TEXT,
+  FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session_name,name)
+);'
+
 database.DDL.emuDB_bundle='CREATE TABLE bundle (
   db_uuid VARCHAR(36),
   session_name TEXT,
   name TEXT,
+  annotates TEXT,
+  mediaFilePath TEXT,
   PRIMARY KEY (db_uuid,session_name,name),
   FOREIGN KEY (db_uuid,session_name) REFERENCES session(db_uuid,name)
 );'
@@ -121,6 +131,45 @@ database.DDL.emuDB_linksExtTmp='CREATE TABLE linksExtTmp (
 );'
 
 
+orm.DBI.insert<-function(conn,obj){
+  
+}
+
+.store.emuDB.DBI<-function(database){
+  dbCfg=database[['DBconfig']]
+  dbCfgJSON=jsonlite::toJSON(dbCfg,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+  #dbSqlInsert=paste0("INSERT INTO emuDB(name,databaseDir,DBconfigJSON) VALUES('",dbCfg[['name']],"','",database[['databseDir']],"','",dbCfgJSON,"')")
+  dbSqlInsert=paste0("INSERT INTO emuDB(uuid,name,databaseDir,DBconfigJSON) VALUES('",dbCfg[['UUID']],"','",dbCfg[['name']],"','",database[['databseDir']],"','",dbCfgJSON,"')")
+  res <- dbSendQuery(emuDBs.con,dbSqlInsert)
+  dbClearResult(res)
+  
+}
+
+.load.emuDB.DBI<-function(dbUUID){
+  dbQ=paste0("SELECT * FROM emuDB WHERE uuid='",dbUUID,"'")
+  dbDf=dbGetQuery(emuDBs.con,dbQ)
+  dbCfg=jsonlite::fromJSON(dbDf[['DBconfigJSON']],simplifyVector=FALSE)
+  db=create.database(name = dbDf[['name']],basePath = dbDf[['databaseDir']],DBconfig = dbCfg)
+  return(db)
+}
+
+
+.store.bundle.DBI<-function(database,bundle){
+  dbCfg=database[['DBconfig']]
+  #dbCfgJSON=jsonlite::toJSON(dbCfg,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+  #dbSqlInsert=paste0("INSERT INTO emuDB(name,databaseDir,DBconfigJSON) VALUES('",dbCfg[['name']],"','",database[['databseDir']],"','",dbCfgJSON,"')")
+ 
+  bSqlInsert=paste0("INSERT INTO bundle(db_uuid,session_name,name,annotates) VALUES('",dbCfg[['UUID']],"','",bundle[['sessionName']],"','",bundle[['name']],"','",bundle[['annotates']],"')")
+  res <- dbSendQuery(emuDBs.con,bSqlInsert)
+  dbClearResult(res)
+  for(trackPath in bundle[['signalpaths']]){
+    trSqlInsert=paste0("INSERT INTO track(db_uuid,session,bundle,path) VALUES('",dbCfg[['UUID']],"','",bundle[['sessionName']],"','",bundle[['name']],"','",trackPath,"')")
+    res <- dbSendQuery(emuDBs.con,trSqlInsert)
+  }
+  
+  
+}
+
 initialize.DBI.database<-function(createTables=TRUE){
   if(is.null(emuDBs.con)){
    emuDBs.con<<-dbConnect(RSQLite::SQLite(), ":memory:")
@@ -128,6 +177,8 @@ initialize.DBI.database<-function(createTables=TRUE){
     res <- dbSendQuery(emuDBs.con, database.DDL.emuDB)
     dbClearResult(res)
     res <- dbSendQuery(emuDBs.con, database.DDL.emuDB_session) 
+    dbClearResult(res)
+    res <- dbSendQuery(emuDBs.con, database.DDL.emuDB_track) 
     dbClearResult(res)
     res <- dbSendQuery(emuDBs.con, database.DDL.emuDB_bundle) 
     dbClearResult(res)
@@ -363,7 +414,7 @@ get.level.name.for.attribute<-function(db,attributeName){
   return(NULL)
 }
 
-.remove.bundle<-function(db,bundle){
+.remove.bundle.annot.DBI<-function(db,bundle){
   sessionName=bundle[['sessionName']]
   bName=bundle[['name']]
   
@@ -381,7 +432,7 @@ get.level.name.for.attribute<-function(db,attributeName){
   dbClearResult(res)
 }
 
-.add.bundle<-function(db,bundle){
+.store.bundle.annot.DBI<-function(db,bundle){
   bName=bundle[['name']]
   for(lvl in bundle[['levels']]){
     
@@ -944,8 +995,8 @@ store.bundle.annotation <- function(db,bundle){
       dbWriteTable(emuDBs.con,'links',db[['links']])
       dbWriteTable(emuDBs.con,'linksExt',db[['linksExt']])
       
-      .remove.bundle(db,bundle)
-      .add.bundle(db,bundle)
+      .remove.bundle.annot.DBI(db,bundle)
+      .store.bundle.annot.DBI(db,bundle)
       build.redundant.links.all(database = db,sessionName=sessionName,bundleName=bName)
       calculate.postions.of.links()
       db[['items']]=dbReadTable(emuDBs.con,'items')
@@ -1211,14 +1262,15 @@ add.linkDefinition<-function(db,linkDefinition){
 ##' 
 ##' }
 
-store.emuDB <- function(db,targetDir,options=NULL,showProgress=TRUE){
-  dbApiLevel=db[['apiLevel']]
-  if(is.null(dbApiLevel)){
-    stop("Database API level differs from R package API level: ",apiLevel,"\nPlease reload the database: db=reload(db)")
-  }else if(dbApiLevel!=emuDB.apiLevel){
-    stop("Database API level: ",dbApiLevel," differs from R package API level: ",apiLevel,"\nPlease reload the database: db=reload(db)")
-  }
-  
+store.emuDB <- function(targetDir,options=NULL,showProgress=TRUE){
+  # TODO how to handle API level in DBI version?
+#   dbApiLevel=db[['apiLevel']]
+#   if(is.null(dbApiLevel)){
+#     stop("Database API level differs from R package API level: ",apiLevel,"\nPlease reload the database: db=reload(db)")
+#   }else if(dbApiLevel!=emuDB.apiLevel){
+#     stop("Database API level: ",dbApiLevel," differs from R package API level: ",apiLevel,"\nPlease reload the database: db=reload(db)")
+#   }
+#   
   # default options
   # ignore missing SSFF track files
   # rewrite SSFF track files
@@ -1542,7 +1594,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
       schema=db[['DBconfig']]
       #maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
       
-      .add.bundle(db,bundle)
+      .store.bundle.annot.DBI(db,bundle)
       
       bundle[['levels']]=NULL
       bundle[['links']]=NULL

@@ -666,7 +666,11 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
   tplBaseDir=NULL
   tplBaseDir=dirname(emuTplPath)
   
+  
   db=create.database(name=dbd[['name']],basePath=tplBaseDir,DBconfig=dbd)
+  
+  initialize.DBI.database()
+  .store.emuDB.DBI(db)
   
   schema=db[['DBconfig']]
   # load primary track file list first
@@ -716,9 +720,6 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     
     setTxtProgressBar(pb,progress)
   }
-  #uttNames=c()
-  initialize.DBI.database()
-  
   
   for(ui in us){
     legacyBundleID=legacyBundleIDsList[[ui]]
@@ -728,7 +729,9 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     if(is.null(db[['sessions']][[sessionName]])){
       # create session if needed
       db[['sessions']][[sessionName]]=list(name=sessionName,bundles=list())
-      
+      sessSql=paste0("INSERT INTO session(db_uuid,name) VALUES('",dbd[['UUID']],"','",sessionName,"')")
+      res<-dbSendQuery(emuDBs.con,sessSql)
+      dbClearResult(res)
     }
     ptrFilePath=get.legacy.file.path(db[['basePath']],primaryBasePath,legacyBundleID,primaryFileExtension)
     #ptrFilePath=primaryFileList[ui]
@@ -745,7 +748,8 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     schema=db[['DBconfig']]
     maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
     bundle[['db_UUID']]=schema[['UUID']]
-    .add.bundle(db,bundle)
+    .store.bundle.DBI(db,bundle)
+    .store.bundle.annot.DBI(db,bundle)
     
     bundle[['levels']]=NULL
     bundle[['links']]=NULL
@@ -831,13 +835,13 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     cat("\n")
   }
   
-  destroy.DBI.database()
+  #destroy.DBI.database()
   if(verboseLevel>0){
     cat("Loaded database bundles.")
   }
   
   
-  return(db)
+  return()
 }
 
 
@@ -920,7 +924,7 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,options=NULL,verbo
   }
 
   # load legacy Emu db
-  db=load.database.from.legacy.emu(emuTplPath,showProgress=verbose)
+  load.database.from.legacy.emu(emuTplPath,showProgress=verbose)
   
   # store loaded database 
   store.emuDB(db,targetDir,options=mergedOptions,showProgress=verbose)
