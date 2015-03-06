@@ -17,7 +17,7 @@ bundle.annotation.suffix='_annot'
 database.schema.suffix='_DBconfig.json'
 
 # global database connection
-emuDBs.con=NULL
+#emuDBs.con=NULL
 
 database.DDL.emuDB='CREATE TABLE emuDB (
   uuid VARCHAR(36),
