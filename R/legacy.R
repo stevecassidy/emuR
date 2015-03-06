@@ -729,9 +729,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     if(is.null(db[['sessions']][[sessionName]])){
       # create session if needed
       db[['sessions']][[sessionName]]=list(name=sessionName,bundles=list())
-      sessSql=paste0("INSERT INTO session(db_uuid,name) VALUES('",dbd[['UUID']],"','",sessionName,"')")
-      res<-dbSendQuery(emuDBs.con,sessSql)
-      dbClearResult(res)
+      .store.session.DBI(dbd[['UUID']],sessionName)
     }
     ptrFilePath=get.legacy.file.path(db[['basePath']],primaryBasePath,legacyBundleID,primaryFileExtension)
     #ptrFilePath=primaryFileList[ui]
