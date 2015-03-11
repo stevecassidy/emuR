@@ -47,7 +47,10 @@ serve_files=function(path2dbFolder, sessionFilter='*', bundleFilter='*',
                      host='127.0.0.1', port=17890, debug=FALSE, 
                      debugLevel=0){
   
-  # TODO: precheck if path2dbFolder is a emuDB
+  # precheck if path2dbFolder is a emuDB
+  if(!file.exists(file.path(path2dbFolder,paste0(basename(path2dbFolder), '_DBconfig.json')))){
+    stop("Could not find _DBconfig.json in: ", path2dbFolder, ". This means the folder is no emuDB.")
+  }
   
   if(debug && debugLevel==0){
     debugLevel=2
@@ -237,8 +240,8 @@ serve_files=function(path2dbFolder, sessionFilter='*', bundleFilter='*',
         ssffFiles = list()
         
         for(td in allTrackDefsNeededByEMUwebApp){
-#           td = allTrackDefsNeededByEMUwebApp[tdIdx]
-#           print(td)
+          #           td = allTrackDefsNeededByEMUwebApp[tdIdx]
+          #           print(td)
           ssffFilePath = file.path(path2dbFolder, paste0(sessionName, '_ses'), paste0(bundleName, '_bndl'), paste0(bundleName, '.', td$fileExtension))
           print(ssffFilePath)
           mf<- file(ssffFilePath, "rb")
@@ -257,18 +260,18 @@ serve_files=function(path2dbFolder, sessionFilter='*', bundleFilter='*',
         responseBundleJSON=jsonlite::toJSON(responseBundle,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
         result=ws$send(responseBundleJSON)
         
-
-        #       }else if(jr$type == 'SAVEBUNDLE'){
-        #         jrData=jr[['data']]
-        #         jrAnnotation=jrData[['annotation']]
-        #         bundleSession=jrData[['session']]
-        #         uttCode=jr$data$annotation$name
-        #         if(debugLevel>3){
-        #           #cat("Save bundle ",names(jr$data),"\n");
-        #           cat("Save bundle ",uttCode," from session ",bundleSession,"\n");
-        #           
-        #         }
-        #         ssffFiles=jr[['data']][['ssffFiles']]
+        
+      }else if(jr$type == 'SAVEBUNDLE'){
+        jrData=jr[['data']]
+        jrAnnotation=jrData[['annotation']]
+        sessionName=jrData[['session']]
+        bundleName=jr$data$annotation$name
+        #                 if(debugLevel>3){
+#         cat("Save bundle ",names(jr$data),"\n");
+        cat("Save bundle ",bundleName," from session ",bundleName,"\n");
+        
+        #                 }
+        ssffFiles=jr[['data']][['ssffFiles']]
         #         oldBundle=get.bundle(database,bundleSession,uttCode)
         #         
         #         # warnings as errors
@@ -280,9 +283,38 @@ serve_files=function(path2dbFolder, sessionFilter='*', bundleFilter='*',
         #           m=paste('Could not load bundle ',bundleSession,uttCode)
         #           responseBundle=list(status=list(type='ERROR',message=m),callbackID=jr[['callbackID']],responseContent='status',contentType='text/json')
         #         }else{
-        #           for(ssffFile in ssffFiles){
-        #             #cat("SSFF file: ",ssffFile[['ssffTrackName']],"\n")
-        #             for(ssffTrackDef in database[['DBconfig']][['ssffTrackDefinitions']]){
+
+        # save SSFF files
+        for(ssffFile in ssffFiles){
+          cat("SSFF file: ",ssffFile$fileExtension,"\n")
+          # check if FORMANTS track as this is the only track that is currently allowed to be saved
+          trackDef = NULL;
+          for(td in allTrackDefsNeededByEMUwebApp){
+            if(td$fileExtension == ssffFile$fileExtension){
+              trackDef = td
+            }
+          }
+          if(trackDef$name == 'FORMANTS'){
+            ssffTrackBin=base64decode(ssffFile[['data']]) 
+            ssffFilePath = file.path(path2dbFolder, paste0(sessionName, '_ses'), paste0(bundleName, '_bndl'), paste0(bundleName, '.', trackDef$fileExtension))
+            writeBin(ssffTrackBin, ssffFilePath)
+          }else{
+            stop('still have to do propper error handeling! only FORMANTS track can be saved')
+          }
+        }
+        # save annot file
+        annotJSON=jsonlite::toJSON(jrAnnotation,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+        annotFilePath = file.path(path2dbFolder, paste0(sessionName, '_ses'), paste0(bundleName, '_bndl'), paste0(bundleName, '_annot.json'))
+        print(annotFilePath)
+        writeLines(annotJSON, annotFilePath)
+
+        responseBundle=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
+        responseBundleJSON=jsonlite::toJSON(responseBundle,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+        result=ws$send(responseBundleJSON)
+
+
+
+        #                     for(ssffTrackDef in database[['DBconfig']][['ssffTrackDefinitions']]){
         #               if(ssffTrackDef[['name']]==ssffFile[['ssffTrackName']]){
         #                 ssffTrackExt=ssffTrackDef[['fileExtension']]
         #                 extPatt=paste0('[.]',ssffTrackExt,'$')
@@ -301,8 +333,7 @@ serve_files=function(path2dbFolder, sessionFilter='*', bundleFilter='*',
         #                   }
         #                 }
         #               }
-        #             } 
-        #           }
+        #                     } 
         #           bundleData=jr[['data']][['annotation']]
         #           bundle=as.bundle(bundleData=bundleData)
         #           bundle[['sessionName']]=bundleSession
@@ -413,8 +444,12 @@ findAllTracksInDBconfigNeededByEMUwebApp <- function(DBconfig){
   
   for(p in DBconfig$EMUwebAppConfig$perspectives){
     # tracks in signalCanvases$order
-    for(sc in p$signalCanvases$order){
-      allTracks = c(allTracks, sc)
+    for(sco in p$signalCanvases$order){
+      allTracks = c(allTracks, sco)
+    }
+    # tracks in signalCanvases$assign
+    for(sca in p$signalCanvases$assign){
+      allTracks = c(allTracks, sca$ssffTrackName)
     }
     # tracks in signalCanvases$order
     for(tddd in p$twoDimCanvases$twoDimDrawingDefinitions){
