@@ -39,7 +39,7 @@ test_that("Load example database ae",{
   load.emuDB("/scratch/klausj/WORK/EmuDbs/ae")
   
   db=get.database(uuid=.test_emu_ae_db_uuid)
-  expect_that(ae[['name']],is_equivalent_to('ae'))
+  expect_that(db[['name']],is_equivalent_to('ae'))
 })
 
 # test_that("Data types are correct",{
