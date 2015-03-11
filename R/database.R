@@ -788,6 +788,7 @@ get.level.name.for.attribute<-function(db,attributeName){
 
 .store.bundle.annot.DBI<-function(dbUUID,bundle){
   bName=bundle[['name']]
+  itCnt=0
   for(lvl in bundle[['levels']]){
     
     seqIdx=0L
@@ -826,6 +827,7 @@ get.level.name.for.attribute<-function(db,attributeName){
       #cat('SQL:',sqlInsert,"\n")
       res<-dbSendQuery(emuDBs.con,sqlInsert)
       dbClearResult(res)
+      itCnt=itCnt+1
       
       lbls=it[['labels']]
       lblsLen=length(lbls)
@@ -863,10 +865,12 @@ get.level.name.for.attribute<-function(db,attributeName){
     
   }
   
+  cat("Inserted ",itCnt," items.")
+  
 }
 
 .load.bundle.levels.s3 <-function(dbUUID,sessionName,bundleName){
-  
+  itCnt=0
   db=.load.emuDB.DBI(dbUUID)
   levelDefinitions=db[['DBconfig']][['levelDefinitions']]
   find.levelDefinition<-function(name){
@@ -889,6 +893,7 @@ get.level.name.for.attribute<-function(db,attributeName){
   bundleLabels=dbGetQuery(emuDBs.con,lblsQ)
   
   nrows=nrow(items)
+  cat(nrows," items.\n")
   cLvl=NULL
   lvlDef=NULL
   lvlItems=list()
@@ -898,6 +903,7 @@ get.level.name.for.attribute<-function(db,attributeName){
       rLvl=items[r,'level']
       if(!is.null(cLvl) && cLvl[['name']]!=rLvl){
         cLvl[['items']]=lvlItems
+        cat("Moved ",length(lvlItems)," to ",cLvl[['name']],"\n")
         levels[[cLvl[['name']]]]=cLvl
         cLvl=NULL
       }
@@ -941,16 +947,20 @@ get.level.name.for.attribute<-function(db,attributeName){
       
       if(type=='SEGMENT'){
         lvlItems[[length(lvlItems)+1L]]=create.interval.item(id=id,sampleStart=items[r,'sampleStart'],sampleDur=items[r,'sampleDur'],labels=labels)
+        itCnt=itCnt+1
       }else if(type=='EVENT'){
         lvlItems[[length(lvlItems)+1L]]=create.event.item(id=id,samplePoint=items[r,'samplePoint'],labels=labels)
+        itCnt=itCnt+1
       }else{
-        lvlItems[[length(lvlItems)+1L]]=create.item(id=id,labels=labels)  
+        lvlItems[[length(lvlItems)+1L]]=create.item(id=id,labels=labels)
+        itCnt=itCnt+1
       }
     }
     # add last level
     cLvl[['items']]=lvlItems
     levels[[cLvl[['name']]]]=cLvl
   }
+  cat("Added ",itCnt," items\n")
   return(levels)
 }
 
