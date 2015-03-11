@@ -865,8 +865,6 @@ get.level.name.for.attribute<-function(db,attributeName){
     
   }
   
-  cat("Inserted ",itCnt," items.")
-  
 }
 
 .load.bundle.levels.s3 <-function(dbUUID,sessionName,bundleName){
@@ -883,51 +881,44 @@ get.level.name.for.attribute<-function(db,attributeName){
   
   # create all levels
   levels=list()
-  for(ld in levelDefinitions){
-    levels[[ld[['name']]]]=create.bundle.level(name=ld[['name']],type=ld[['type']])
-  }
-  
-  itsQ=paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bundleName,"'")
-  items=dbGetQuery(emuDBs.con,itsQ)
   lblsQ=paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bundleName,"'")
   bundleLabels=dbGetQuery(emuDBs.con,lblsQ)
   
+  for(ld in levelDefinitions){
+    lvlNm=ld[['name']]
+    levels[[lvlNm]]=create.bundle.level(name=ld[['name']],type=ld[['type']])
+  
+  
+  itsQ=paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bundleName,"' AND level='",lvlNm,"'")
+  items=dbGetQuery(emuDBs.con,itsQ)
+ 
+  
   nrows=nrow(items)
-  cat(nrows," items.\n")
-  cLvl=NULL
-  lvlDef=NULL
-  lvlItems=list()
   
   if(nrows>0){
     for(r in 1:nrows){
-      rLvl=items[r,'level']
-      if(!is.null(cLvl) && cLvl[['name']]!=rLvl){
-        cLvl[['items']]=lvlItems
-        cat("Moved ",length(lvlItems)," to ",cLvl[['name']],"\n")
-        levels[[cLvl[['name']]]]=cLvl
-        cLvl=NULL
-      }
-      
-      if(is.null(cLvl)){
-        
-        lvlDef=find.levelDefinition(rLvl)
-        lvlItems=list()
+       
         sr=NULL
         srDf=items[r,'sampleRate']
         if(!is.na(srDf)){
           sr=srDf
         }
-        lvl=levels[[rLvl]]
+        lvl=levels[[lvlNm]]
         if(lvl[['type']]!=items[r,'type']){
-          stop("Wrong item type ",items[r,'type']," for level ",rLvl," type ",lvl[['type']]," in bundle: ",sessionName,":",bundleName,"\n")
+          stop("Wrong item type ",items[r,'type']," for level ",lvlNm," type ",lvl[['type']]," in bundle: ",sessionName,":",bundleName,"\n")
         }
+        
         # create new level object 
-        cLvl=create.bundle.level(name=rLvl,type=lvl[['type']],sampleRate=sr,items=lvlItems)
-      }
+        #cLvl=create.bundle.level(name=rLvl,type=lvl[['type']],sampleRate=sr,items=list())
+        levels[[lvlNm]][['sampleRate']]=sr
+        if(is.null(levels[[lvlNm]][['items']])){
+          levels[[lvlNm]][['items']]=list()
+        }
+      
       id=items[r,'itemID']
       type=items[r,'type']
       
-      attrDefs=lvlDef[['attributeDefinitions']]
+      attrDefs=ld[['attributeDefinitions']]
       attrDefsLen=length(attrDefs)
       
       #gid=items[r,'id']
@@ -946,21 +937,20 @@ get.level.name.for.attribute<-function(db,attributeName){
       
       
       if(type=='SEGMENT'){
-        lvlItems[[length(lvlItems)+1L]]=create.interval.item(id=id,sampleStart=items[r,'sampleStart'],sampleDur=items[r,'sampleDur'],labels=labels)
-        itCnt=itCnt+1
+
+        levels[[lvlNm]][['items']][[length(levels[[lvlNm]][['items']])+1L]]=create.interval.item(id=id,sampleStart=items[r,'sampleStart'],sampleDur=items[r,'sampleDur'],labels=labels)
       }else if(type=='EVENT'){
-        lvlItems[[length(lvlItems)+1L]]=create.event.item(id=id,samplePoint=items[r,'samplePoint'],labels=labels)
-        itCnt=itCnt+1
+        levels[[lvlNm]][['items']][[length(levels[[lvlNm]][['items']])+1L]]=create.event.item(id=id,samplePoint=items[r,'samplePoint'],labels=labels)
       }else{
-        lvlItems[[length(lvlItems)+1L]]=create.item(id=id,labels=labels)
-        itCnt=itCnt+1
+        levels[[lvlNm]][['items']][[length(levels[[lvlNm]][['items']])+1L]]=create.item(id=id,labels=labels)  
       }
     }
     # add last level
-    cLvl[['items']]=lvlItems
-    levels[[cLvl[['name']]]]=cLvl
+    #cLvl[['items']]=lvlItems
+    #levels[[cLvl[['name']]]]=cLvl
   }
-  cat("Added ",itCnt," items\n")
+  }
+  #cat("Added ",itCnt," items\n")
   return(levels)
 }
 
