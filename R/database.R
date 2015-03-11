@@ -244,6 +244,9 @@ get.database<-function(uuid=NULL,name=NULL){
 
 
 .initialize.DBI.database<-function(createTables=TRUE){
+  if(!exists('emuDBs.con')){
+    emuDBs.con<<-NULL
+  }
   if(is.null(emuDBs.con)){
    emuDBs.con<<-dbConnect(RSQLite::SQLite(), ":memory:")
   if(createTables & !dbExistsTable(emuDBs.con,'emuDB')){
