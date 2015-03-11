@@ -597,13 +597,14 @@ get.bundle.levels.s3 <-function(db,sessionName,bundleName){
   nrows=nrow(items)
   cLvl=NULL
   lvlDef=NULL
-  lvlItems=list()
+  #lvlItems=list()
 
   if(nrows>0){
     for(r in 1:nrows){
       rLvl=items[r,'level']
       if(!is.null(cLvl) && cLvl[['name']]!=rLvl){
-        cLvl[['items']]=lvlItems
+        #cLvl[['items']]=lvlItems
+        #cat("Moved ",length(lvlItems)," to ",cLvl[['name']],"\n")
         levels[[cLvl[['name']]]]=cLvl
         cLvl=NULL
       }
@@ -611,7 +612,7 @@ get.bundle.levels.s3 <-function(db,sessionName,bundleName){
       if(is.null(cLvl)){
         
         lvlDef=find.levelDefinition(rLvl)
-        lvlItems=list()
+        #lvlItems=list()
         sr=NULL
         srDf=items[r,'sampleRate']
         if(!is.na(srDf)){
@@ -622,7 +623,7 @@ get.bundle.levels.s3 <-function(db,sessionName,bundleName){
           stop("Wrong item type ",items[r,'type']," for level ",rLvl," type ",lvl[['type']]," in bundle: ",sessionName,":",bundleName,"\n")
         }
         # create new level object 
-        cLvl=create.bundle.level(name=rLvl,type=lvl[['type']],sampleRate=sr,items=lvlItems)
+        cLvl=create.bundle.level(name=rLvl,type=lvl[['type']],sampleRate=sr,items=list())
       }
       id=items[r,'itemID']
       type=items[r,'type']
@@ -645,15 +646,15 @@ get.bundle.levels.s3 <-function(db,sessionName,bundleName){
       
       
       if(type=='SEGMENT'){
-        lvlItems[[length(lvlItems)+1L]]=create.interval.item(id=id,sampleStart=items[r,'sampleStart'],sampleDur=items[r,'sampleDur'],labels=labels)
+        cLvl[['items']][[length(cLvl[['items']])+1L]]=create.interval.item(id=id,sampleStart=items[r,'sampleStart'],sampleDur=items[r,'sampleDur'],labels=labels)
       }else if(type=='EVENT'){
-        lvlItems[[length(lvlItems)+1L]]=create.event.item(id=id,samplePoint=items[r,'samplePoint'],labels=labels)
+        cLvl[['items']][[length(cLvl[['items']])+1L]]=create.event.item(id=id,samplePoint=items[r,'samplePoint'],labels=labels)
       }else{
-        lvlItems[[length(lvlItems)+1L]]=create.item(id=id,labels=labels)  
+        cLvl[['items']][[length(cLvl[['items']])+1L]]=create.item(id=id,labels=labels)  
       }
     }
     # add last level
-    cLvl[['items']]=lvlItems
+    #cLvl[['items']]=lvlItems
     levels[[cLvl[['name']]]]=cLvl
   }
   return(levels)
