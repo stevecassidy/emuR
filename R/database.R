@@ -759,12 +759,8 @@ get.level.name.for.attribute<-function(db,attributeName){
 .remove.bundle.annot.DBI<-function(dbUUID,bundle){
   sessionName=bundle[['session']]
   bName=bundle[['name']]
-  cat("Links br: ",nrow(dbReadTable(emuDBs.con,'links')),"\n")
-  cat("LinksExt br: ",nrow(dbReadTable(emuDBs.con,'linksExt')),"\n")
   cntSqlQuery=paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bName,"'")
-  cat(cntSqlQuery,"\n")
   res<-dbGetQuery(emuDBs.con,cntSqlQuery)
-  cat("items to delete: ",nrow(res),"\n")
   delSqlQuery=paste0("DELETE FROM items WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bName,"'")
   res<-dbSendQuery(emuDBs.con,delSqlQuery)
   dbClearResult(res)
@@ -772,18 +768,13 @@ get.level.name.for.attribute<-function(db,attributeName){
   res<-dbSendQuery(emuDBs.con,delSqlQuery)
   dbClearResult(res)
   delSqlQuery=paste0("DELETE FROM links WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bName,"'")
-  cat(delSqlQuery,"\n")
   res<-dbSendQuery(emuDBs.con,delSqlQuery)
   dbClearResult(res)
   cntSqlQuery=paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bName,"'")
   res<-dbGetQuery(emuDBs.con,cntSqlQuery)
-  cat("linksExt to delete: ",nrow(res),"\n")
   delSqlQuery=paste0("DELETE FROM linksExt WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bName,"'")
-  cat(delSqlQuery,"\n")
   res<-dbSendQuery(emuDBs.con,delSqlQuery)
   dbClearResult(res)
-  cat("Links ar: ",nrow(dbReadTable(emuDBs.con,'links')),"\n")
-  cat("LinksExt ar: ",nrow(dbReadTable(emuDBs.con,'linksExt')),"\n")
 }
 
 .store.bundle.annot.DBI<-function(dbUUID,bundle){
@@ -887,70 +878,56 @@ get.level.name.for.attribute<-function(db,attributeName){
   for(ld in levelDefinitions){
     lvlNm=ld[['name']]
     levels[[lvlNm]]=create.bundle.level(name=ld[['name']],type=ld[['type']])
-  
-  
-  itsQ=paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bundleName,"' AND level='",lvlNm,"'")
-  items=dbGetQuery(emuDBs.con,itsQ)
- 
-  
-  nrows=nrow(items)
-  
-  if(nrows>0){
-    for(r in 1:nrows){
-       
+    
+    itsQ=paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bundleName,"' AND level='",lvlNm,"'")
+    itemsOfLevel=dbGetQuery(emuDBs.con,itsQ)
+    nrows=nrow(itemsOfLevel)
+    
+    if(nrows>0){
+      for(r in 1:nrows){
+        
         sr=NULL
-        srDf=items[r,'sampleRate']
+        srDf=itemsOfLevel[r,'sampleRate']
         if(!is.na(srDf)){
           sr=srDf
         }
         lvl=levels[[lvlNm]]
-        if(lvl[['type']]!=items[r,'type']){
-          stop("Wrong item type ",items[r,'type']," for level ",lvlNm," type ",lvl[['type']]," in bundle: ",sessionName,":",bundleName,"\n")
+        if(lvl[['type']]!=itemsOfLevel[r,'type']){
+          stop("Wrong item type ",itemsOfLevel[r,'type']," for level ",lvlNm," type ",lvl[['type']]," in bundle: ",sessionName,":",bundleName,"\n")
         }
         
-        # create new level object 
-        #cLvl=create.bundle.level(name=rLvl,type=lvl[['type']],sampleRate=sr,items=list())
         levels[[lvlNm]][['sampleRate']]=sr
         if(is.null(levels[[lvlNm]][['items']])){
           levels[[lvlNm]][['items']]=list()
         }
-      
-      id=items[r,'itemID']
-      type=items[r,'type']
-      
-      attrDefs=ld[['attributeDefinitions']]
-      attrDefsLen=length(attrDefs)
-      
-      #gid=items[r,'id']
-      #itemLabelSelector=bundleLabels[['itemID']]==gid
-      itemLabelSelector=bundleLabels[['itemID']]==id
-      labelRows=bundleLabels[itemLabelSelector,]
-      nLabelRows=nrow(labelRows)
-      labels=list()
-      for(j in 1:nLabelRows){
         
+        id=itemsOfLevel[r,'itemID']
+        type=itemsOfLevel[r,'type']
         
-        lblNm=labelRows[j,'name']
-        labels[[j]]=list(name=lblNm,value=labelRows[j,'label'])
+        attrDefs=ld[['attributeDefinitions']]
+        attrDefsLen=length(attrDefs)
         
-      }
-      
-      
-      if(type=='SEGMENT'){
-
-        levels[[lvlNm]][['items']][[length(levels[[lvlNm]][['items']])+1L]]=create.interval.item(id=id,sampleStart=items[r,'sampleStart'],sampleDur=items[r,'sampleDur'],labels=labels)
-      }else if(type=='EVENT'){
-        levels[[lvlNm]][['items']][[length(levels[[lvlNm]][['items']])+1L]]=create.event.item(id=id,samplePoint=items[r,'samplePoint'],labels=labels)
-      }else{
-        levels[[lvlNm]][['items']][[length(levels[[lvlNm]][['items']])+1L]]=create.item(id=id,labels=labels)  
+        #gid=items[r,'id']
+        #itemLabelSelector=bundleLabels[['itemID']]==gid
+        itemLabelSelector=bundleLabels[['itemID']]==id
+        labelRows=bundleLabels[itemLabelSelector,]
+        nLabelRows=nrow(labelRows)
+        labels=list()
+        for(j in 1:nLabelRows){
+          lblNm=labelRows[j,'name']
+          labels[[j]]=list(name=lblNm,value=labelRows[j,'label'])
+        }
+        
+        if(type=='SEGMENT'){
+          levels[[lvlNm]][['items']][[length(levels[[lvlNm]][['items']])+1L]]=create.interval.item(id=id,sampleStart=itemsOfLevel[r,'sampleStart'],sampleDur=itemsOfLevel[r,'sampleDur'],labels=labels)
+        }else if(type=='EVENT'){
+          levels[[lvlNm]][['items']][[length(levels[[lvlNm]][['items']])+1L]]=create.event.item(id=id,samplePoint=itemsOfLevel[r,'samplePoint'],labels=labels)
+        }else{
+          levels[[lvlNm]][['items']][[length(levels[[lvlNm]][['items']])+1L]]=create.item(id=id,labels=labels)  
+        }
       }
     }
-    # add last level
-    #cLvl[['items']]=lvlItems
-    #levels[[cLvl[['name']]]]=cLvl
   }
-  }
-  #cat("Added ",itCnt," items\n")
   return(levels)
 }
 
@@ -1310,54 +1287,34 @@ store.bundle.annotation <- function(dbName=NULL,bundle,dbUUID=NULL){
   dbDir=db[['basePath']]
   # check target dir
   if(!file.exists(dbDir)){
-   stop(dbDir," does not exist!")
+    stop(dbDir," does not exist!")
   }
   sessionName=bundle[['session']]
   bName=bundle[['name']]
-  #cat("Store bundle ",bName,"\n")
-  #for(s in db[['sessions']]){
   .initialize.DBI.database(createTables=FALSE)
-  cat("\nItems br: ",nrow(dbReadTable(emuDBs.con,'items')),"\n")
-  cat("Links br: ",nrow(dbReadTable(emuDBs.con,'links')),"\n")
-  cat("LinksExt br: ",nrow(dbReadTable(emuDBs.con,'linksExt')),"\n")
   .remove.bundle.annot.DBI(dbUUID=dbUUID,bundle=bundle)
-  cat("Items ar: ",nrow(dbReadTable(emuDBs.con,'items')),"\n")
-  cat("Links ar: ",nrow(dbReadTable(emuDBs.con,'links')),"\n")
-  cat("LinksExt ar: ",nrow(dbReadTable(emuDBs.con,'linksExt')),"\n")
   .store.bundle.annot.DBI(dbUUID=dbUUID,bundle=bundle)
-  cat("Items as: ",nrow(dbReadTable(emuDBs.con,'items')),"\n")
-  cat("Links as: ",nrow(dbReadTable(emuDBs.con,'links')),"\n")
-  cat("Links tmp before build rl: ",nrow(dbReadTable(emuDBs.con,'linksTmp')),"\n")
-  #build.redundant.links.all(database = db,sessionName=sessionName,bundleName=bName)
-  build.redundant.links.all(database = db)
-  res<-dbSendQuery(emuDBs.con,'DELETE FROM linksExt')
-  dbClearResult(res)
+  build.redundant.links.all(database = db,sessionName=sessionName,bundleName=bName)
+  #build.redundant.links.all(database = db)
+  #res<-dbSendQuery(emuDBs.con,'DELETE FROM linksExt')
+  #dbClearResult(res)
   #linksTmp=dbReadTable(emuDBs.con,'linksTmp')
-  cat("Links tmp after build rl: ",nrow(dbReadTable(emuDBs.con,'linksTmp')),"\n")
-  cat("Links ext after build rl: ",nrow(dbReadTable(emuDBs.con,'linksExt')),"\n")
   calculate.postions.of.links()
-  cat("Links tmp after build cl: ",nrow(dbReadTable(emuDBs.con,'linksTmp')),"\n")
-  cat("Links ext after build cl: ",nrow(dbReadTable(emuDBs.con,'linksExt')),"\n")
   
-      # persist to filesystem
-      # TODO error handling
-      sessDirNm=paste0(sessionName,session.suffix)
-      sessPth=file.path(dbDir,sessDirNm)
-      
-      bDirNm=paste0(bName,bundle.dir.suffix)
-      bndlPth=file.path(sessPth,bDirNm)
-      
-      bndlFileNm=paste0(bName,bundle.annotation.suffix,'.json')
-      bndFilePth=file.path(bndlPth,bndlFileNm)
-      pFilter=emuR.persist.filters.bundle
-      bp=marshal.for.persistence(bundle,pFilter)
-      pbpJSON=jsonlite::toJSON(bp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-      writeLines(pbpJSON,bndFilePth)
-      #db=move.bundle.levels.to.data.frame(db=db,bundle=bundle,replace=TRUE)
-
-      #db=move.bundle.links.to.data.frame(db=db,bundle=bundle,replace=TRUE)
-      
-      
+  # persist to filesystem
+  # TODO error handling
+  sessDirNm=paste0(sessionName,session.suffix)
+  sessPth=file.path(dbDir,sessDirNm)
+  
+  bDirNm=paste0(bName,bundle.dir.suffix)
+  bndlPth=file.path(sessPth,bDirNm)
+  
+  bndlFileNm=paste0(bName,bundle.annotation.suffix,'.json')
+  bndFilePth=file.path(bndlPth,bndlFileNm)
+  pFilter=emuR.persist.filters.bundle
+  bp=marshal.for.persistence(bundle,pFilter)
+  pbpJSON=jsonlite::toJSON(bp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+  writeLines(pbpJSON,bndFilePth)
   return(bundle)
 }
 
@@ -1775,20 +1732,19 @@ calculate.postions.of.links<-function(){
   #print(dbReadTable(emuDBs.con,'linksTmp'))
   res<-dbSendQuery(emuDBs.con,"INSERT INTO linksExtTmp(db_uuid,session,bundle,fromID,toID,seqIdx,toLevel,type,label) SELECT k.db_uuid,k.session,k.bundle,k.fromID,k.toID,i.seqIdx,i.level AS toLevel,i.type,NULL AS label FROM linksTmp k,items i WHERE i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle AND k.toID=i.itemID")
   dbClearResult(res)
-  cat(nrow(dbReadTable(emuDBs.con,'linksExtTmp')),"\n")
   #dbSendQuery(emuDBs.con,"DELETE FROM linksExt")
   # extend links table with relative sequence index
   
   res<-dbSendQuery(emuDBs.con,"INSERT INTO linksExtTmp2(db_uuid,session,bundle,seqIdx,fromID,toID,toLevel,type,label,toSeqIdx) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toLevel,k.type,k.label,k.seqIdx-(SELECT MIN(m.seqIdx) FROM linksExtTmp m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqIdx FROM linksExtTmp k")
   dbClearResult(res)
-  cat(nrow(dbReadTable(emuDBs.con,'linksExtTmp2')),"\n")
+  
   res<-dbSendQuery(emuDBs.con,"DELETE FROM linksExtTmp")
   dbClearResult(res)
   # Add length of dominance group sequence
   #links3IdxSql='CREATE INDEX links3_idx ON links3(session,bundle,fromID,toID,toLevel,type)'
   res<-dbSendQuery(emuDBs.con,"INSERT INTO linksExt(db_uuid,session,bundle,seqIdx,fromID,toID,toSeqIdx,toLevel,type,label,toSeqLen) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toSeqIdx,k.toLevel,k.type,k.label,(SELECT MAX(m.seqIdx)-MIN(m.seqIdx)+1 FROM linksExt m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqLen FROM linksExtTmp2 k")
   dbClearResult(res)
-  cat(nrow(dbReadTable(emuDBs.con,'linksExt')),"\n")
+ 
   res<-dbSendQuery(emuDBs.con,"DELETE FROM linksExtTmp2")
   dbClearResult(res)
   #res<-dbSendQuery(emuDBs.con,"INSERT INTO linksExt SELECT * FROM linksExtTmp")

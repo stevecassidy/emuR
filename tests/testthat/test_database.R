@@ -42,30 +42,27 @@ test_that("Load example database ae",{
   expect_that(db[['name']],is_equivalent_to('ae'))
 })
 
-# test_that("Data types are correct",{
-#   
-#   items=dbReadTable(emuDBs.con,'items')
-#   
-#   expect_that(class(items[['seqIdx']]),is_equivalent_to('integer'))
-#   expect_that(class(items[['itemID']]),is_equivalent_to('integer'))
-#   expect_that(class(items[['sampleRate']]),is_equivalent_to('numeric'))
-#   expect_that(class(items[['samplePoint']]),is_equivalent_to('integer'))
-#   expect_that(class(items[['sampleStart']]),is_equivalent_to('integer'))
-#   expect_that(class(items[['sampleDur']]),is_equivalent_to('integer'))
-#   
-#   labels=ae[['labels']]
-#   expect_that(class(labels[['labelIdx']]),is_equivalent_to('integer'))
-#   
-#   links=ae[['links']]
-#   expect_that(class(links[['fromID']]),is_equivalent_to('integer'))
-#   expect_that(class(links[['toID']]),is_equivalent_to('integer'))
-# })
-# 
+test_that("Data types are correct",{
+  
+  items=dbReadTable(emuDBs.con,'items')
+  
+  expect_that(class(items[['seqIdx']]),is_equivalent_to('integer'))
+  expect_that(class(items[['itemID']]),is_equivalent_to('integer'))
+  expect_that(class(items[['sampleRate']]),is_equivalent_to('numeric'))
+  expect_that(class(items[['samplePoint']]),is_equivalent_to('integer'))
+  expect_that(class(items[['sampleStart']]),is_equivalent_to('integer'))
+  expect_that(class(items[['sampleDur']]),is_equivalent_to('integer'))
+  
+  labels=dbReadTable(emuDBs.con,'labels')
+  expect_that(class(labels[['labelIdx']]),is_equivalent_to('integer'))
+  
+  links=dbReadTable(emuDBs.con,'links')
+  expect_that(class(links[['fromID']]),is_equivalent_to('integer'))
+  expect_that(class(links[['toID']]),is_equivalent_to('integer'))
+})
+
 test_that("Test ae samples",{
   
- 
-  #aeSess=ae[['sessions']][[1]]
-  #aeB1=aeSess[['bundles']][[1]]
   aeB1=get.bundle(sessionName='0000',bundleName='msajc003',dbUUID=.test_emu_ae_db_uuid)
   expect_equivalent(aeB1[['sampleRate']],.aeSampleRate)
   
@@ -132,12 +129,13 @@ test_that("Test ae samples",{
 
 test_that("Test ae modify",{
   orgItems=dbGetQuery(emuDBs.con,paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  orgLabels=dbGetQuery(emuDBs.con,paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
   orgLinks=dbGetQuery(emuDBs.con,paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
   orgLinksExt=dbGetQuery(emuDBs.con,paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
   
   expect_equivalent(nrow(orgItems),736)
   expect_equivalent(nrow(orgLinks),785)
-  expect_equivalent(nrow(orgLinksExt),3543)
+  expect_equivalent(nrow(orgLinksExt),3950)
   b015=get.bundle(sessionName='0000',bundleName = 'msajc015',dbUUID = .test_emu_ae_db_uuid)
   # select arbitrary item
   b015m=b015
@@ -147,42 +145,69 @@ test_that("Test ae modify",{
   store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015m)
   
   modItems=dbGetQuery(emuDBs.con,paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  modLabels=dbGetQuery(emuDBs.con,paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
   modLinks=dbGetQuery(emuDBs.con,paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
   modLinksExt=dbGetQuery(emuDBs.con,paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
   
   expect_equivalent(nrow(modItems),736)
   expect_equivalent(nrow(modLinks),785)
-  expect_equivalent(nrow(modLinksExt),3543)
+  expect_equivalent(nrow(modLinksExt),3950)
   
-  # items should not be equal
-  # Note: test doe not work without redundant label in items tbale anymore
-  #cm1=compare(ae$items,aem$items,allowAll=TRUE)
-  #expect_false(cm1$result)
+  # change only affects labels
+  # items should be equal
+  cm1=compare(orgItems,modItems,allowAll=TRUE)
+  expect_true(cm1$result)
+  # labels not
+  cmLbls1=compare(orgLabels,modLabels,allowAll=TRUE)
+  expect_false(cmLbls1$result)
   # links are not changed, should be equal to original
   cml1=compare(orgLinks,modLinks,allowAll=TRUE)
   expect_true(cml1$result)
   cmle1=compare(orgLinksExt,modLinksExt,allowAll=TRUE)
-#  expect_true(cmle1$result)
+  expect_true(cmle1$result)
+  
+  b015m[['levels']][['Phonetic']][['items']][[10]][['sampleDur']]=99
+  store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015m)
+  
+  mod2Items=dbGetQuery(emuDBs.con,paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod2Labels=dbGetQuery(emuDBs.con,paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod2Links=dbGetQuery(emuDBs.con,paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod2LinksExt=dbGetQuery(emuDBs.con,paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  
+  expect_equivalent(nrow(mod2Items),736)
+  expect_equivalent(nrow(mod2Links),785)
+  expect_equivalent(nrow(mod2LinksExt),3950)
+  #   
+  #   # should all be equal to original 
+  cm2=compare(orgItems,mod2Items,allowAll=TRUE)
+  expect_false(cm2$result)
+  cmLbls2=compare(orgLabels,mod2Labels,allowAll=TRUE)
+  expect_false(cmLbls2$result)
+  cml2=compare(orgLinks,mod2Links,allowAll=TRUE)
+  expect_true(cml2$result)
+  cmle2=compare(orgLinksExt,mod2LinksExt,allowAll=TRUE)
+  expect_true(cmle2$result)
   
 #   # store original bundle
    store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015)
 #   
-   mod2Items=dbGetQuery(emuDBs.con,paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
-   mod2Links=dbGetQuery(emuDBs.con,paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
-   mod2LinksExt=dbGetQuery(emuDBs.con,paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+   modOrgItems=dbGetQuery(emuDBs.con,paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  modOrgLabels=dbGetQuery(emuDBs.con,paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+   modOrgLinks=dbGetQuery(emuDBs.con,paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+   modOrgLinksExt=dbGetQuery(emuDBs.con,paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
 
-    expect_equivalent(nrow(mod2Items),736)
-expect_equivalent(nrow(mod2Links),785)
-expect_equivalent(nrow(mod2LinksExt),3543)
+    expect_equivalent(nrow(modOrgItems),736)
+  expect_equivalent(nrow(modOrgLinks),785)
+  expect_equivalent(nrow(modOrgLinksExt),3950)
 #   
-#   # should be equal to original
-   cm2=compare(orgItems,mod2Items,allowAll=TRUE)
+#   # should all be equal to original 
+   cm2=compare(orgItems,modOrgItems,allowAll=TRUE)
    expect_true(cm2$result)
-#   
-#   # links are not changed, should be equal to original
-   cml2=compare(orgLinks,mod2Links,allowAll=TRUE)
+   cmLbls2=compare(orgLabels,modOrgLabels,allowAll=TRUE)
+    expect_true(cmLbls2$result)
+   cml2=compare(orgLinks,modOrgLinks,allowAll=TRUE)
    expect_true(cml2$result)
-   cmle2=compare(orgLinksExt,mod2LinksExt,allowAll=TRUE)
+   cmle2=compare(orgLinksExt,modOrgLinksExt,allowAll=TRUE)
    expect_true(cmle2$result)
 #   
 #   # TODO move segment boundaries, change links,etc...
