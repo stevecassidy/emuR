@@ -4,8 +4,8 @@ Title: Interface to the Emu Speech Database System
 Date: 2014-07-17
 Authors@R: c(person("Steve", "Cassidy", role = c("aut", "cre"), email =
     "steve.cassidy@mq.edu.au"), person("Raphael", "Winkelmann", role = c("aut",
-    "cre"), email = "raphael@phonetik.uni-muenchen.de"), person("Klaus",
-    "Jaensch", role = c("aut", "cre"), email =
+    "ctb"), email = "raphael@phonetik.uni-muenchen.de"), person("Klaus",
+    "Jaensch", role = c("aut", "ctb"), email =
     "klausj@phonetik.uni-muenchen.de"))
 Description: Provides many special purpose functions for display and analysis
     of speech data.
