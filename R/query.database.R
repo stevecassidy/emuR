@@ -108,7 +108,7 @@ query.database.level.label<-function(ldf,levelName,conditionText){
   if(nrow(itemsMatch)>0){
     itemsIdxSql='CREATE INDEX itemsMatch_idx ON itemsMatch(itemID)'
    
-    itemsAsSeqQStr=paste0("SELECT itemID AS seqStartId, itemID AS seqEndId,1 AS seqLen,'",levelName,"' AS level FROM itemsMatch")
+    itemsAsSeqQStr=paste0("SELECT db_uuid,session,bundle,itemID AS seqStartId, itemID AS seqEndId,1 AS seqLen,'",levelName,"' AS level FROM itemsMatch")
     itemsAsSeqs=sqldf(c(itemsIdxSql,itemsAsSeqQStr))
   }else{
     itemsAsSeqs=EMPTY_RESULT_DF
