@@ -198,10 +198,10 @@ equal.emusegs<-function(seglist1,seglist2,compareAttributes=TRUE,tolerance=0.0,u
 }
 
 
-convert.query.result.to.seglist<-function(database,result){
+convert.query.result.to.seglist<-function(result){
   its=NULL
   
-  items=database[['queryItems']]
+  items=emuDBs.query.tmp[['queryItems']]
   
   bundles=c()
   labels=c()
@@ -216,9 +216,9 @@ convert.query.result.to.seglist<-function(database,result){
   }
   itCount=nrow(its)
   if(itCount>0){
-    links=database[['queryLinksExt']]
+    links=emuDBs.query.tmp[['queryLinksExt']]
     
-    lblsDf=database[['queryLabels']]
+    lblsDf=emuDBs.query.tmp[['queryLabels']]
     itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx,type,sampleRate,sampleStart,sampleDur,samplePoint)'
     resIdxSql='CREATE INDEX its_idx ON its(seqStartId,seqEndId,seqLen,level)'
     
@@ -355,13 +355,13 @@ convert.query.result.to.seglist<-function(database,result){
   return(segList)
 }
 
-query.database.eql.FUNKA<-function(database,q,items=NULL){
+query.database.eql.FUNKA<-function(dbConfig,q,items=NULL){
   # BNF: FUNKA = POSA | NUMA;
   qTrim=str_trim(q)
   if(is.null(items)){
-    items=database[['queryItems']]
+    items=emuDBs.query.tmp[['queryItems']]
   }
-  allItems=database[['queryItems']]
+  allItems=emuDBs.query.tmp[['queryItems']]
   
   # determine function name
   # TODO duplicate code
@@ -387,7 +387,7 @@ query.database.eql.FUNKA<-function(database,q,items=NULL){
       param1=str_trim(params[[1]])
       param2=str_trim(params[[2]])
       # check attribute names
-      aNms=get.all.attribute.names(database[['DBconfig']])
+      aNms=get.all.attribute.names(dbConfig)
       if(! (param1 %in% aNms)){
         msg=paste0("Unknown level attribute name: '",param1,"'.")
         if(length(aNms)>0){
@@ -516,7 +516,7 @@ query.database.eql.FUNKA<-function(database,q,items=NULL){
   }
 }
 
-query.database.eql.EA<-function(database,q,items=NULL,labels=NULL){
+query.database.eql.EA<-function(dbConfig,q,items=NULL,labels=NULL){
   # BNF: EA = ETIKETTA | FUNKA;
   qTrim=str_trim(q)
   res=NULL
@@ -533,17 +533,17 @@ query.database.eql.EA<-function(database,q,items=NULL,labels=NULL){
       if(prbOpen==1){
         stop("Syntax error: Expected function name in '",q,"'\n")
       }
-      res=query.database.eql.FUNKA(database,qTrim,items)
+      res=query.database.eql.FUNKA(dbConfig,qTrim,items)
     }
   }else{
     # No round brackets, assuming a level query
-    res=query.database.eql.ETTIKETTA(database,qTrim,labels)
+    res=query.database.eql.ETTIKETTA(dbConfig,qTrim,labels)
   }
   
   return(res)
 }
 
-query.database.eql.ETTIKETTA<-function(database,q,labels=NULL){
+query.database.eql.ETTIKETTA<-function(dbConfig,q,labels=NULL){
   # BNF: ETIKETTA = ['#'],EBENE,('=' | '!='),ETIKETTALTERNATIVEN;
   
   qTrim=str_trim(q)
@@ -568,7 +568,7 @@ query.database.eql.ETTIKETTA<-function(database,q,labels=NULL){
       }
       # TODO check if level exists
       #cat("Level: '",lvlName,"'\n",sep='')
-      aNms=get.all.attribute.names(database[['DBconfig']])
+      aNms=get.all.attribute.names(dbConfig)
       if(! (lvlName %in% aNms)){
         
         stop("Unknown level attribute name: '",lvlName,"'. Database attribute names are: ",paste(aNms,collapse=','),"\n")
@@ -628,7 +628,7 @@ query.database.eql.ETTIKETTA<-function(database,q,labels=NULL){
           labelAltsUq=c(labelAltsUq,label)
         }else{
           # check for labelGroup
-          lvlDefs=database[['DBconfig']][['levelDefinitions']]
+          lvlDefs=dbConfig[['levelDefinitions']]
           isLabelGroup=FALSE
           for(lvlDef in lvlDefs){
             for(attrDef in lvlDef[['attributeDefinitions']]){
@@ -661,7 +661,7 @@ query.database.eql.ETTIKETTA<-function(database,q,labels=NULL){
       cond=.create.condition.text.alternatives(opr,labelAltsUq)
       #}
       if(is.null(labels)){
-        labels=database[['queryLabels']]
+        labels=emuDBs.query.tmp[['queryLabels']]
       }
       res=query.database.level.label(ldf=labels,levelName=lvlName,cond)
       res[['projectionItems']]=NULL
@@ -678,7 +678,7 @@ query.database.eql.ETTIKETTA<-function(database,q,labels=NULL){
   stop("Syntax error: No operator found.")
 }
 
-query.database.eql.KONJA<-function(database,q){
+query.database.eql.KONJA<-function(dbConfig,q){
    # BNF: KONJA = EA,{'&',EA};
     qTrim=str_trim(q)
     conditions=list()
@@ -686,8 +686,8 @@ query.database.eql.KONJA<-function(database,q){
     res=create.subtree(items=EMPTY_RESULT_DF,links=NULL,resultLevel=NULL,projectionItems=NULL)
     startPos=1
     p=0
-    items=database[['queryItems']]
-    labels=database[['queryLabels']]
+    items=emuDBs.query.tmp[['queryItems']]
+    labels=emuDBs.query.tmp[['queryLabels']]
     resultLevel=NULL
     projection=FALSE
     
@@ -705,7 +705,7 @@ query.database.eql.KONJA<-function(database,q){
         startPos=p+1
       }
       # execute query on term      
-      res=query.database.eql.EA(database,condStr,items=items,labels=labels)
+      res=query.database.eql.EA(dbConfig,condStr,items=items,labels=labels)
       # set resultLevel of first term
       if(is.null(resultLevel)){
         termResLevel=res[['resultLevel']]
@@ -721,7 +721,7 @@ query.database.eql.KONJA<-function(database,q){
         return(res)
       }else{
         # Proceed with items matching current condition
-        items=sqldf("SELECT i.* FROM items i,seqIts s WHERE i.id=s.seqStartId")
+        items=sqldf("SELECT i.* FROM items i,seqIts s WHERE i.itemID=s.seqStartId")
         labels=sqldf("SELECT l.* FROM labels l,seqIts s WHERE l.itemID=s.seqStartId")
         if(!is.null(res[['projectionItems']])){
           # only one term can be marked with hashtag
@@ -744,15 +744,15 @@ query.database.eql.KONJA<-function(database,q){
     return(res)
 }
 
-query.database.eql.in.bracket<-function(database,q){
+query.database.eql.in.bracket<-function(dbConfig,q){
   parseRes=list()
   qTrim=str_trim(q)
   # parse SEQA or DOMA
   seqPos=get.string.position.outside.brackets(qTrim,'->',literalQuote="'",bracket=c('[',']'))
   domPos=get.string.position.outside.brackets(qTrim,'^',literalQuote="'",bracket=c('[',']'))
   if(seqPos!=-1 || domPos!=-1){
-    items=database[['queryItems']]
-    links=database[['queryLinksExt']]
+    items=emuDBs.query.tmp[['queryItems']]
+    links=emuDBs.query.tmp[['queryLinksExt']]
     # parse DOMA or SEQA
     lExpRes=NULL
     prjIts=NULL
@@ -769,11 +769,11 @@ query.database.eql.in.bracket<-function(database,q){
     # get items on dominance compare levels
     lResIts=lRes[['items']]
     lResAttrName=lRes[['resultLevel']]
-    lResLvl=get.level.name.by.attribute.name(database[['DBconfig']],lResAttrName)
+    lResLvl=get.level.name.by.attribute.name(dbConfig,lResAttrName)
     lResPIts=lRes[['projectionItems']]
     
     rResAttrName=rRes[['resultLevel']]
-    rResLvl=get.level.name.by.attribute.name(database[['DBconfig']],rResAttrName)
+    rResLvl=get.level.name.by.attribute.name(dbConfig,rResAttrName)
     if(domPos!=-1 & lResLvl==rResLvl){
       stop("Dominance query on same levels impossible.\nLeft level: ",lResLvl," (attr:",lResAttrName,") equals right level: ",lResLvl," (attr:",rResAttrName,")\n")
     }
@@ -1016,13 +1016,13 @@ query.database.with.eql.seglist<-function(database,query){
 ## @export
 ## @keywords emuDB database query Emu EQL 
 ## 
-query.database.with.eql<-function(database,query){
+query.database.with.eql<-function(dbConfig,query){
   parseRes=list()
   qTrim=str_trim(query)
   
   brOpenPos=get.char.position(qTrim,'[',literalQuote="'")
   if(brOpenPos==-1){
-    res=query.database.eql.KONJA(database,qTrim)
+    res=query.database.eql.KONJA(dbConfig,qTrim)
     res[['queryStr']]=query
     return(res)
   }else{
@@ -1042,7 +1042,7 @@ query.database.with.eql<-function(database,query){
     
     #parse string in bracket
     inBr=substr(qTrim,brOpenPos+1,brClosePos-1)
-    inBrRes=query.database.eql.in.bracket(database,inBr)
+    inBrRes=query.database.eql.in.bracket(dbConfig,inBr)
     inBrRes[['queryStr']]=query
     return(inBrRes)
     
@@ -1076,97 +1076,90 @@ query.database.with.eql<-function(database,query){
 ##' 
 ##' }
 ##' @export
-"query"<-function(dbObj,query,sessionPattern=NULL,bundlePattern=NULL,queryLang=NULL,resultType=NULL){
-  UseMethod("query")
-}
 
-#query.default <- query
-
-
-##' @export
-"query.emuDB"<-function(dbObj,query,sessionPattern=NULL,bundlePattern=NULL,queryLang='EQL2',resultType=NULL){
+query<-function(dbName,query,sessionPattern=NULL,bundlePattern=NULL,queryLang='EQL2',resultType=NULL){
   
-  if(inherits(dbObj,'emuDB')){
+  #if(inherits(dbObj,'emuDB')){
     if(queryLang=='EQL2'){
       
-      initialize.DBI.database(createTables=FALSE)
-     
-      dbObj[['queryItems']]=NULL
-      dbObj[['queryLinksExt']]=NULL
-      dbObj[['queryLabels']]=NULL
+      .initialize.DBI.database(createTables=FALSE)
+      dbUUID=.get.database.uuid(name = dbName)
+      db=.load.emuDB.DBI(uuid = dbUUID)
+      dbConfig=db[['DBconfig']]
+      # create 
+      emuDBs.query.tmp<<-list()
+      emuDBs.query.tmp[['queryItems']]<<-dbGetQuery(emuDBs.con,paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
+      emuDBs.query.tmp[['queryLabels']]<<-dbGetQuery(emuDBs.con,paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
+      emuDBs.query.tmp[['queryLinksExt']]<<-dbGetQuery(emuDBs.con,paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
       if(!is.null(sessionPattern)){
+        
         sessSelRegex=glob2rx(pattern = sessionPattern)
-        sessSelIts=grepl(sessSelRegex,dbObj[['items']][['session']])
-        dbObj[['queryItems']]=dbObj[['items']][sessSelIts,]
+        sessSelIts=grepl(sessSelRegex,emuDBs.query.tmp[['items']][['session']])
+        emuDBs.query.tmp[['queryItems']]<<-emuDBs.query.tmp[['items']][sessSelIts,]
         
-        sessSelLks=grepl(sessSelRegex,dbObj[['linksExt']][['session']])
-        dbObj[['queryLinksExt']]=dbObj[['linksExt']][sessSelLks,]
+        sessSelLks=grepl(sessSelRegex,emuDBs.query.tmp[['linksExt']][['session']])
+        emuDBs.query.tmp[['queryLinksExt']]<<-emuDBs.query.tmp[['linksExt']][sessSelLks,]
         
-        sessSelLbls=grepl(sessSelRegex,dbObj[['labels']][['session']])
-        dbObj[['queryLabels']]=dbObj[['labels']][sessSelLbls,]
+        sessSelLbls=grepl(sessSelRegex,emuDBs.query.tmp[['labels']][['session']])
+        emuDBs.query.tmp[['queryLabels']]<<-emuDBs.query.tmp[['labels']][sessSelLbls,]
       }
       if(!is.null(bundlePattern)){
         
         bndlSelRegex=glob2rx(pattern = bundlePattern)
-        bndlSelIts=grepl(bndlSelRegex,dbObj[['items']][['bundle']])
-        if(is.null(dbObj[['queryItems']])){
-          dbObj[['queryItems']]=dbObj[['items']][bndlSelIts,]
+        bndlSelIts=grepl(bndlSelRegex,emuDBs.query.tmp[['items']][['bundle']])
+        if(is.null(emuDBs.query.tmp[['queryItems']])){
+          emuDBs.query.tmp[['queryItems']]<<-emuDBs.query.tmp[['items']][bndlSelIts,]
         }else{
-          dbObj[['queryItems']]=dbObj[['queryItems']][bndlSelIts,]
+          emuDBs.query.tmp[['queryItems']]<<-emuDBs.query.tmp[['queryItems']][bndlSelIts,]
         }
         
-        bndlSelLks=grepl(bndlSelRegex,dbObj[['linksExt']][['bundle']])
-        if(is.null(dbObj[['queryLinksExt']])){
-          dbObj[['queryLinksExt']]=dbObj[['linksExt']][bndlSelLks,]
+        bndlSelLks=grepl(bndlSelRegex,emuDBs.query.tmp[['linksExt']][['bundle']])
+        if(is.null(emuDBs.query.tmp[['queryLinksExt']])){
+          emuDBs.query.tmp[['queryLinksExt']]<<-emuDBs.query.tmp[['linksExt']][bndlSelLks,]
         }else{
-          dbObj[['queryLinksExt']]=dbObj[['queryLinksExt']][bndlSelLks,]
+          emuDBs.query.tmp[['queryLinksExt']]<<-emuDBs.query.tmp[['queryLinksExt']][bndlSelLks,]
         }
         
-        bndlSelLbls=grepl(bndlSelRegex,dbObj[['labels']][['bundle']])
-        if(is.null(dbObj[['queryLabels']])){
-          dbObj[['queryLabels']]=dbObj[['labels']][bndlSelLbls,]
+        bndlSelLbls=grepl(bndlSelRegex,emuDBs.query.tmp[['labels']][['bundle']])
+        if(is.null(emuDBs.query.tmp[['queryLabels']])){
+          emuDBs.query.tmp[['queryLabels']]<<-emuDBs.query.tmp[['labels']][bndlSelLbls,]
         }else{
-          dbObj[['queryLabels']]=dbObj[['queryLabels']][bndlSelLbls,]
+          emuDBs.query.tmp[['queryLabels']]<<-emuDBs.query.tmp[['queryLabels']][bndlSelLbls,]
         }
       }
-      if(is.null(dbObj[['queryItems']])){
-        dbObj[['queryItems']]=dbObj[['items']]     
+      if(is.null(emuDBs.query.tmp[['queryItems']])){
+        emuDBs.query.tmp[['queryItems']]<<-emuDBs.query.tmp[['items']]     
       }
-      if(is.null(dbObj[['queryLinksExt']])){
-        dbObj[['queryLinksExt']]=dbObj[['linksExt']]   
+      if(is.null(emuDBs.query.tmp[['queryLinksExt']])){
+        emuDBs.query.tmp[['queryLinksExt']]<<-emuDBs.query.tmp[['linksExt']]   
       }
-      if(is.null(dbObj[['queryLabels']])){
-        dbObj[['queryLabels']]=dbObj[['labels']]
+      if(is.null(emuDBs.query.tmp[['queryLabels']])){
+        emuDBs.query.tmp[['queryLabels']]<<-emuDBs.query.tmp[['labels']]
       }
-      
-      dbWriteTable(emuDBs.con,'queryItems',dbObj[['queryItems']])
-      dbWriteTable(emuDBs.con,'queryLabels',dbObj[['queryLabels']])
-      dbWriteTable(emuDBs.con,'queryLinksExt',dbObj[['queryLinksExt']])
-      
-      
       
       if(is.null(resultType)){
-        return(query.database.with.eql(dbObj,query))
+        return(query.database.with.eql(dbConfig,query))
       }else{
         if(resultType=='emusegs'){
-          return(query.database.with.eql.seglist(dbObj,query))
+          return(query.database.with.eql.seglist(dbConfig,query))
         }else{
           stop("Unknown result type: '",resultType,"'. Supported result types: 'emusegs', NULL")
         }
       }
-      dbObj[['queryItems']]=NULL
-      dbObj[['queryLabels']]=NULL
-      dbObj[['queryLinksExt']]=NULL
-      destroy.DBI.database()
+      # free temp tables
+      emuDBs.query.tmp[['queryItems']]<<-NULL
+      emuDBs.query.tmp[['queryLabels']]<<-NULL
+      emuDBs.query.tmp[['queryLinksExt']]<<-NULL
+      
     }else{
       stop("Unknown query language '",queryLang,"'.")
     }
     
    
     
-  }else{
-    NextMethod()
-  }
+  #}else{
+  #  NextMethod()
+  #}
 }
 
 

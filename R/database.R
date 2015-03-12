@@ -248,7 +248,8 @@ get.database<-function(uuid=NULL,name=NULL){
     emuDBs.con<<-NULL
   }
   if(is.null(emuDBs.con)){
-   emuDBs.con<<-dbConnect(RSQLite::SQLite(), ":memory:")
+   #emuDBs.con<<-dbConnect(RSQLite::SQLite(), "/scratch/klausj/WORK/emuDB.sqlite")
+    emuDBs.con<<-dbConnect(RSQLite::SQLite(), ":memory:")
   if(createTables & !dbExistsTable(emuDBs.con,'emuDB')){
     res <- dbSendQuery(emuDBs.con, database.DDL.emuDB)
     dbClearResult(res)
