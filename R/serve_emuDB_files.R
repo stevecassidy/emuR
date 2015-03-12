@@ -1,7 +1,7 @@
 require(httpuv)
 require(base64enc)
 
-##' Serve EMU database to EMU-Webapp
+##' Serve files of an EMU database to EMU-webApp
 ##' 
 ##' @description Server for EMU-Webapp browser GUI \url{http://ips-lmu.github.io/EMU-webApp/}
 ##' 
@@ -32,18 +32,17 @@ require(base64enc)
 ##' @return the possibly modified Emu database object
 ##' @import httpuv jsonlite base64enc
 ##' @export
-##' @author Raphael Winkelmann
+##' @author Raphael Winkelmann (adapted form original serve function from Klaus Jänsch)
 ##' @keywords emuDB EMU-webapp database websocket Emu
 ##' @examples
 ##' \dontrun{ 
-##' ## Load an EMU database and serve it to the EMU-webApp (opens default HTTP/websocket port 17890)
+##' ## serve the files belonging to a emuDB directly to the EMU-webApp (opens default HTTP/websocket port 17890)
 ##' 
-##' myDb=load.emuDB("/path/to/myDb")
-##' myDb=serve(myDb)
+##' serve("/path/to/myDb")
 ##' }
 ##' 
 ##' @export
-serve_files=function(path2dbFolder, sessionFilter='*', bundleFilter='*', 
+serve_emuDB_files=function(path2dbFolder, sessionFilter='*', bundleFilter='*', 
                      host='127.0.0.1', port=17890, debug=FALSE, 
                      debugLevel=0){
   
@@ -59,34 +58,6 @@ serve_files=function(path2dbFolder, sessionFilter='*', bundleFilter='*',
   bundleCount=0
   dbConfig = NULL
   allTrackDefsNeededByEMUwebApp = NULL
-  
-  #   if(is(database,'emuDB')){
-  #     for(s in database[['sessions']]){
-  #       sName=s[['name']]
-  #       bundleCount=bundleCount+length(s[['bundles']])
-  #     }
-  #     bundlesDf=data.frame(name=character(bundleCount),session=character(bundleCount),stringsAsFactors = FALSE)
-  #     ## create dummy bundle list
-  #     #ulNms=attr(database$sessions[[1]]$bundles,'names')
-  #     #emuRuttList=list()
-  #     #for(ulNm in ulNms){
-  #     #emuRuttList[[length(emuRuttList)+1]]=list(name=ulNm)
-  #     #}
-  #     idx=1
-  #     for(s in database[['sessions']]){
-  #       sName=s[['name']]
-  #       for(b in s[['bundles']]){
-  #         bundlesDf[idx,'session']=sName
-  #         bundlesDf[idx,'name']=b[['name']]
-  #         idx=idx+1
-  #       }
-  #     }
-  #     
-  #     
-  #   }
-  #   else{
-  #     stop("Supported object classes for database: 'emuDB'");
-  #   }
   
   httpRequest = function(req){
     # Only 
@@ -272,17 +243,6 @@ serve_files=function(path2dbFolder, sessionFilter='*', bundleFilter='*',
         
         #                 }
         ssffFiles=jr[['data']][['ssffFiles']]
-        #         oldBundle=get.bundle(database,bundleSession,uttCode)
-        #         
-        #         # warnings as errors
-        #         warnOptionSave=getOption('warn')
-        #         options('warn'=2)
-        #         
-        #         if(is.null(oldBundle)){
-        #           # error
-        #           m=paste('Could not load bundle ',bundleSession,uttCode)
-        #           responseBundle=list(status=list(type='ERROR',message=m),callbackID=jr[['callbackID']],responseContent='status',contentType='text/json')
-        #         }else{
 
         # save SSFF files
         for(ssffFile in ssffFiles){
@@ -312,76 +272,6 @@ serve_files=function(path2dbFolder, sessionFilter='*', bundleFilter='*',
         responseBundleJSON=jsonlite::toJSON(responseBundle,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
         result=ws$send(responseBundleJSON)
 
-
-
-        #                     for(ssffTrackDef in database[['DBconfig']][['ssffTrackDefinitions']]){
-        #               if(ssffTrackDef[['name']]==ssffFile[['ssffTrackName']]){
-        #                 ssffTrackExt=ssffTrackDef[['fileExtension']]
-        #                 extPatt=paste0('[.]',ssffTrackExt,'$')
-        #                 # TODO store signal paths in a better way!
-        #                 for(sp in oldBundle[['signalpaths']]){
-        #                   if(grepl(extPatt,sp)){
-        #                     # store
-        #                     if(debugLevel>3){
-        #                       cat("Writing SSFF track ",ssffFile[['ssffTrackName']]," to file: ",sp,"\n")
-        #                     }
-        #                     # Hmm. does not work: missing file argument
-        #                     #base64decode(ssffFile[['data']],output=sp)
-        #                     
-        #                     ssffTrackBin=base64decode(ssffFile[['data']])
-        #                     writeBin(ssffTrackBin,sp)
-        #                   }
-        #                 }
-        #               }
-        #                     } 
-        #           bundleData=jr[['data']][['annotation']]
-        #           bundle=as.bundle(bundleData=bundleData)
-        #           bundle[['sessionName']]=bundleSession
-        #           responseBundleJSON=NULL
-        #           
-        #           sendErr<-function(e){
-        #             
-        #             # add the error to the message..
-        #             m=e[['message']]
-        #             # ..and the last warning, if available
-        #             wns=warnings()
-        #             wMsgs=names(wns)
-        #             if(length(wMsgs)){
-        #               m=paste(m,wMsgs[[1]])
-        #             }
-        #             cat(m,"\n")
-        #             responseBundle=list(status=list(type='ERROR',message=m),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
-        #             responseBundleJSON=jsonlite::toJSON(responseBundle,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-        #             result=ws$send(responseBundleJSON)
-        #             return('sent-error')
-        #           }
-        #           #res=store.bundle.annotation(database,bundle)
-        #           res=tryCatch(store.bundle.annotation(database,bundle),error=function(e) e)
-        #           if(inherits(res,'error')){
-        #             
-        #             # prepare e amessage to send to server. 
-        #             # Add the error to the message...
-        #             m=res[['message']]
-        #             # print to console
-        #             cat('Error: ',m,"\n")
-        #             ## ...and the last warning, if available (the error message alone is often not sufficient to describe the problem)
-        #             #wns=warnings()
-        #             #wMsgs=names(wns)
-        #             #if(length(wMsgs)){
-        #             #  m=paste(m,wMsgs[[1]],sep=',')
-        #             #}
-        #             responseBundle=list(status=list(type='ERROR',message=m),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
-        #           }else if(is.null(res)){
-        #             cat("Error: function store.bundle.annotation returned NULL result\n")
-        #           }else{
-        #             database<<-res
-        #             responseBundle=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
-        #           }
-        #         }
-        #         responseBundleJSON=jsonlite::toJSON(responseBundle,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-        #         result=ws$send(responseBundleJSON)
-        #         # restore warn level
-        #         options(warn=warnOptionSave)
       }else if(jr[['type']]=='DISCONNECTWARNING'){
         response=list(status=list(type='SUCCESS'),callbackID=jr[['callbackID']],responseContent='status',contentType='text/json')
         responseJSON=jsonlite::toJSON(response,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
