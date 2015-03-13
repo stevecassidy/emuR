@@ -746,8 +746,8 @@ build.redundant.links.for.pathes<-function(database,lfs,sessionName='0000',bundl
   
 }
 
-get.level.name.for.attribute<-function(db,attributeName){
-  for(ld in db[['DBconfig']][['levelDefinitions']]){
+get.level.name.for.attribute<-function(dbConfig,attributeName){
+  for(ld in dbConfig[['levelDefinitions']]){
     for(ad in ld[['attributeDefinitions']]){
       if(ad[['name']]==attributeName){
         return(ld[['name']])
