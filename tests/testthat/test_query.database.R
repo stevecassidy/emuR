@@ -47,7 +47,7 @@ test_that("Query labels",{
   #aeTmpDir=tempfile('test_emu_ae')
   #convert.database.from.legacy.emu(emuTplPath=legacyDbEmuAeTpl,targetDir=aeTmpDir)
   #ae<<-load.database(file.path(aeTmpDir,'ae'))
-  expect_that(ae[['name']],is_equivalent_to('ae'))
+  #expect_that(ae[['name']],is_equivalent_to('ae'))
 #   r1=query.with.eql(andosl,"Text = more")
 #   expect_that(nrow(r1[['items']]),equals(8))
 #   
@@ -258,7 +258,8 @@ test_that("Check Phonetic tier seglist",{
   tslQuery=attr(tsl,'query')
   # reprduce the original query
   sl=query('ae',tslQuery,resultType='emusegs')
-  sr=ae[['sessions']][[1]][['bundles']][[1]][['sampleRate']]
+  #sr=ae[['sessions']][[1]][['bundles']][[1]][['sampleRate']]
+  sr=.aeSampleRate
   halfSampleTime=1/sr/2
   # we have to accept numeric deviations caused by double precision calculations
   # therefore add the machine epsilon to the tolerance of a half sample 
