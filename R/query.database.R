@@ -763,8 +763,8 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       left=str_trim(substr(qTrim,1,seqPos-1))
       right=str_trim(substring(qTrim,seqPos+2))
     }
-    lRes=query.database.with.eql(database,left)
-    rRes=query.database.with.eql(database,right) 
+    lRes=query.database.with.eql(dbConfig,left)
+    rRes=query.database.with.eql(dbConfig,right) 
     
     # get items on dominance compare levels
     lResIts=lRes[['items']]
@@ -934,7 +934,7 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       }
       #seqQueryStr=paste0("SELECT lid.seqStartId,rid.seqEndId FROM lResIts lid, rResIts rid,items il, items ir WHERE il.id=lid.seqEndId AND ir.id=rid.seqStartId AND il.level='",lResAttrName,"' AND il.level=ir.level AND il.bundle=ir.bundle AND ir.seqIdx=il.seqIdx+1")
       #lrSeqQueryStr=paste0("SELECT lid.seqStartId,lid.seqEndId AS leId,rid.seqStartId AS rsId,rid.seqEndId FROM lResIts lid, rResIts rid,items il, items ir WHERE il.id=lid.seqEndId AND ir.id=rid.seqStartId AND il.level='",lResAttrName,"' AND il.level=ir.level AND il.bundle=ir.bundle AND ir.seqIdx=il.seqIdx+1")
-      lrSeqQueryStr=paste0("SELECT lid.seqStartId,lid.seqEndId AS leId,rid.seqStartId AS rsId,rid.seqEndId,lid.seqLen+rid.seqLen AS seqLen,lid.level FROM lResIts lid, rResIts rid,items il, items ir WHERE il.id=lid.seqEndId AND ir.id=rid.seqStartId AND il.level=ir.level AND il.session=ir.session AND il.bundle=ir.bundle AND ir.seqIdx=il.seqIdx+1")
+      lrSeqQueryStr=paste0("SELECT lid.db_uuid,lid.session,lid.bundle,lid.seqStartId,lid.seqEndId AS leId,rid.seqStartId AS rsId,rid.seqEndId,lid.seqLen+rid.seqLen AS seqLen,lid.level FROM lResIts lid, rResIts rid,items il, items ir WHERE il.itemID=lid.seqEndId AND ir.itemID=rid.seqStartId AND il.level=ir.level AND il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle AND ir.seqIdx=il.seqIdx+1")
       lrExpRes=sqldf(lrSeqQueryStr)
       
       # select final result columns
