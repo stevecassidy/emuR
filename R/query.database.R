@@ -198,7 +198,7 @@ equal.emusegs<-function(seglist1,seglist2,compareAttributes=TRUE,tolerance=0.0,u
 }
 
 
-convert.query.result.to.seglist<-function(result){
+convert.query.result.to.seglist<-function(dbConfig,result){
   its=NULL
   
   items=emuDBs.query.tmp[['queryItems']]
@@ -219,8 +219,8 @@ convert.query.result.to.seglist<-function(result){
     links=emuDBs.query.tmp[['queryLinksExt']]
     
     lblsDf=emuDBs.query.tmp[['queryLabels']]
-    itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx,type,sampleRate,sampleStart,sampleDur,samplePoint)'
-    resIdxSql='CREATE INDEX its_idx ON its(seqStartId,seqEndId,seqLen,level)'
+    itemsIdxSql='CREATE INDEX items_idx ON items(itemID,session,bundle,level,itemID,seqIdx,type,sampleRate,sampleStart,sampleDur,samplePoint)'
+    resIdxSql='CREATE INDEX its_idx ON its(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)'
     
     #labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,name)'
     labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,name)'
@@ -237,15 +237,15 @@ convert.query.result.to.seglist<-function(result){
     # result would be a mix with t->S and I items (sequence lengths 2 and 1)
     
     # build dynamic query to build label string for variable result sequence length
-    selectStr='SELECT s.id || e.id AS id, '
+    selectStr="SELECT s.db_uuid || '_' || s.session || '_' || s.bundle || '_' || s.itemID || '_' || e.itemID AS id, "
     fromStr='FROM items s,items e,its q,'
-    whereStr='WHERE s.id=q.seqStartId AND e.id=q.seqEndId AND '
+    whereStr='WHERE s.db_uuid=q.db_uuid AND s.session=q.session AND s.bundle=q.bundle AND s.itemID=q.seqStartId AND e.db_uuid=q.db_uuid AND e.session=e.session AND e.bundle=q.bundle AND e.itemID=q.seqEndId AND '
     for(seqIdx in 1:maxSeqLen){
-      selectStr=paste0(selectStr,'(SELECT l.label FROM lblsDf l WHERE l.itemID=i',seqIdx,'.id AND l.name=q.level) AS lbl',seqIdx)
+      selectStr=paste0(selectStr,'(SELECT l.label FROM lblsDf l WHERE l.db_uuid=i',seqIdx,'.db_uuid AND l.session=i',seqIdx,'.session AND l.bundle=i',seqIdx,'.bundle AND   l.itemID=i',seqIdx,'.itemID AND l.name=q.level) AS lbl',seqIdx)
       #selectLblStr=paste0(selectLblStr,)
       fromStr=paste0(fromStr,'items i',seqIdx)
       offset=seqIdx-1
-      whereStr=paste0(whereStr,'i',seqIdx,'.session=s.session AND i',seqIdx,'.bundle=s.bundle AND i',seqIdx,'.level=s.level AND i',seqIdx,'.seqIdx=s.seqIdx+',offset)
+      whereStr=paste0(whereStr,'i',seqIdx,'.db_uuid=s.db_uuid AND i',seqIdx,'.session=s.session AND i',seqIdx,'.bundle=s.bundle AND i',seqIdx,'.level=s.level AND i',seqIdx,'.seqIdx=s.seqIdx+',offset)
       if(seqIdx<maxSeqLen){
         selectStr=paste0(selectStr,',')
         fromStr=paste0(fromStr,',')
@@ -254,7 +254,7 @@ convert.query.result.to.seglist<-function(result){
     }
     
     seqLblQStr=paste0(selectStr,' ',fromStr,' ',whereStr,' ORDER BY id')
-    #cat(seqLblQStr,"\n")
+    #(seqLblQStr,"\n")
     #st=system.time((seqLbls=sqldf(c(itemsIdxSql,resIdxSql,labelsIdxSql,seqLblQStr))))
     #cat(st,"\n")
     seqLbls=sqldf(c(itemsIdxSql,resIdxSql,labelsIdxSql,seqLblQStr))
@@ -264,35 +264,38 @@ convert.query.result.to.seglist<-function(result){
     # the CASE WHEN THEN ELSE END terms are necessary to get the start and end samples of sequences which are not segment levels and therefore have no time information  
     hasLinks=(nrow(links)>0)
     
-    q="SELECT s.id || e.id AS id,s.session,s.bundle,s.itemID AS startitemID ,e.itemID AS enditemID,s.type, \
+    q="SELECT s.db_uuid || '_' || s.session || '_' || s.bundle || '_' || s.itemID || '_' || e.itemID AS id,s.session,s.bundle,s.itemID AS startitemID ,e.itemID AS enditemID,s.type, \
                 CASE s.type \
                      WHEN 'SEGMENT' THEN s.sampleStart \
                      WHEN 'EVENT' THEN s.samplePoint ";
     if(hasLinks){
-      q=paste0(q," ELSE (SELECT i.sampleStart FROM items i WHERE i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND EXISTS (SELECT * FROM links l WHERE s.itemID=l.fromID AND i.itemID=l.toID AND i.session=l.session AND i.bundle=l.bundle AND l.toSeqIdx=0)) ")
+      q=paste0(q," ELSE (SELECT i.sampleStart FROM items i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND \
+               EXISTS (SELECT * FROM links l WHERE s.db_uuid=s.db_uuid AND s.session=l.session AND s.bundle=l.bundle AND s.itemID=l.fromID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.itemID=l.toID AND l.toSeqIdx=0)) ")
     }
     q=paste0(q," END AS sampleStart, \
                 CASE s.type \
                     WHEN 'SEGMENT' THEN (e.sampleStart+e.sampleDur) \
                     WHEN 'EVENT' THEN 0 ")  
     if(hasLinks){
-      q=paste0(q," ELSE (SELECT i.sampleStart+i.sampleDur FROM items i WHERE i.session=e.session AND i.bundle=e.bundle AND i.type='SEGMENT'  AND EXISTS (SELECT * FROM links l WHERE e.itemID=l.fromID AND i.itemID=l.toID AND i.session=l.session AND i.bundle=l.bundle AND l.toSeqIdx+1=l.toSeqLen)) ")
+      q=paste0(q," ELSE (SELECT i.sampleStart+i.sampleDur FROM items i WHERE i.db_uuid=e.db_uuid AND i.session=e.session AND i.bundle=e.bundle AND i.type='SEGMENT'  AND \
+               EXISTS (SELECT * FROM links l WHERE e.db_uuid=l.db_uuid AND e.session=l.session AND e.bundle=l.bundle AND e.itemID=l.fromID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.itemID=l.toID AND l.toSeqIdx+1=l.toSeqLen)) ")
     }
     q=paste0(q,"END AS sampleEnd, \
                 CASE s.type \
                     WHEN 'SEGMENT' THEN s.sampleRate \
                     WHEN 'EVENT' THEN s.sampleRate ")
     if(hasLinks){
-      q=paste0(q," ELSE (SELECT i.sampleRate FROM items i WHERE i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND EXISTS (SELECT * FROM links l WHERE s.itemID=l.fromID AND i.itemID=l.toID AND i.session=l.session AND i.bundle=l.bundle AND l.toSeqIdx=0)) ")
+      q=paste0(q," ELSE (SELECT i.sampleRate FROM items i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND \
+               EXISTS (SELECT * FROM links l WHERE s.itemID=l.fromID AND i.itemID=l.toID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND l.toSeqIdx=0)) ")
     }
     q=paste0(q," END AS sampleRate \
                 FROM items s,items e,its r \
-                WHERE s.id=r.seqStartId AND e.id=r.seqEndId AND e.session=s.session AND e.bundle=s.bundle AND e.level=s.level \
+                WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND e.level=s.level \
                 ORDER BY id")
     
     #itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx,type)' # very slow !!
-    itemsIdxSql='CREATE INDEX items_idx ON items(type,session,bundle,level,itemID,seqIdx)'
-    linksIdxSql='CREATE INDEX links_idx ON links(session,bundle,fromID,toID,toSeqIdx,toSeqLen)'
+    itemsIdxSql='CREATE INDEX items_idx ON items(type,db_uuid,session,bundle,level,itemID,seqIdx)'
+    linksIdxSql='CREATE INDEX links_idx ON links(db_uuid,session,bundle,fromID,toID,toSeqIdx,toSeqLen)'
     if(hasLinks){
     #st=system.time((segListData=sqldf(c(itemsIdxSql,linksIdxSql,resIdxSql,q))))
     #cat(st," (with links)\n")
@@ -351,7 +354,7 @@ convert.query.result.to.seglist<-function(result){
       }
     }
   }
-  segList=make.seglist(labels=labels, start=start, end=end, utts=bundles, query=result[['queryStr']], type=slType, database=database[['DBconfig']][['name']])
+  segList=make.seglist(labels=labels, start=start, end=end, utts=bundles, query=result[['queryStr']], type=slType, database=dbConfig[['name']])
   return(segList)
 }
 
@@ -410,12 +413,12 @@ query.database.eql.FUNKA<-function(dbConfig,q,items=NULL){
       
       funcName=str_trim(substr(qTrim,1,prbOpen-1))
       # BNF: POSA = POSFKT,'(',EBENE,',',EBENE,')','=','0'| '1';
-      links=database[['queryLinksExt']]
+      links=emuDBs.query.tmp[['queryLinksExt']]
       #links=database[['linksWithPositions']]
       itemsAsSeqs=NULL
       
-      level1=get.level.name.for.attribute(database,param1)
-      level2=get.level.name.for.attribute(database,param2)
+      level1=get.level.name.for.attribute(dbConfig,param1)
+      level2=get.level.name.for.attribute(dbConfig,param2)
       
       # BNF: VOP = '=' | '!=' | '>' | '<' | '<=' | '>=';
      
@@ -431,8 +434,8 @@ query.database.eql.FUNKA<-function(dbConfig,q,items=NULL){
           stop("Syntax error: function ",funcName," requires function value in: '",qTrim,"'\n")
         }
       } 
-      itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx)'
-      linksIdxSql='CREATE INDEX links_idx ON links(session,bundle,fromID,toID,toSeqIdx,toSeqLen)'
+      itemsIdxSql='CREATE INDEX items_idx ON items(db_uuid,session,bundle,level,itemID,seqIdx)'
+      linksIdxSql='CREATE INDEX links_idx ON links(db_uuid,session,bundle,fromID,toID,toSeqIdx,toSeqLen)'
       if(funcName=='Start'){
         cond=NULL
         if(funcValue=='0'){
@@ -442,7 +445,25 @@ query.database.eql.FUNKA<-function(dbConfig,q,items=NULL){
         }else{
           stop("Syntax error: Expected function value 0 or 1 after '=' in function term: '",qTrim,"'\n")
         }
-        sqlQStr=paste0("SELECT DISTINCT i.id AS seqStartId, i.id AS seqEndId,1 AS seqLen,'",param2,"' AS level FROM items i,allItems d WHERE i.level='",level2,"' AND d.level='",level1,"' AND EXISTS (SELECT * FROM links k WHERE k.session=i.session AND k.bundle=i.bundle AND k.session=d.session AND k.bundle=d.bundle AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toSeqIdx",cond,"0)") 
+#         sqlQStr=paste0("SELECT DISTINCT i.db_uuid,i.session,i.bundle,i.itemID AS seqStartId, i.itemID AS seqEndId,1 AS seqLen,'",param2,"' AS level \
+#                         FROM items i,allItems d \
+#                         WHERE i.level='",level2,"' AND d.level='",level1,"' \
+#                          AND EXISTS \
+#                           (SELECT * FROM links k \
+#                            WHERE \ 
+#                             k.fromID=d.itemID AND k.toID=i.itemID AND k.toSeqIdx",cond,"0\
+#                            )") 
+        sqlQStr=paste0("SELECT DISTINCT i.db_uuid,i.session,i.bundle,i.itemID AS seqStartId, i.itemID AS seqEndId,1 AS seqLen,'",param2,"' AS level \
+                        FROM items i,allItems d \
+                        WHERE i.db_uuid=d.db_uuid AND i.session=d.session AND i.bundle=d.bundle\
+                         AND i.level='",level2,"' AND d.level='",level1,"' \
+                         AND EXISTS \
+                          (SELECT * FROM links k \
+                           WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
+                            AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
+                            AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toSeqIdx",cond,"0\
+                           )") 
+        
         itemsAsSeqs=sqldf(c(itemsIdxSql,linksIdxSql,sqlQStr))
         resultLevel=param2
       }else if(funcName=='Medial'){
@@ -457,7 +478,16 @@ query.database.eql.FUNKA<-function(dbConfig,q,items=NULL){
         }else{
           stop("Syntax error: Expected function value 0 or 1 after '=' in function term: '",qTrim,"'\n")
         }
-        sqlQStr=paste0("SELECT DISTINCT i.id AS seqStartId, i.id AS seqEndId,1 AS seqLen,'",param2,"' AS level FROM items i,allItems d WHERE i.level='",level2,"' AND d.level='",level1,"' AND EXISTS (SELECT * FROM links k WHERE k.session=i.session AND k.bundle=i.bundle AND k.session=d.session AND k.bundle=d.bundle AND k.fromID=d.itemID AND k.toID=i.itemID AND (k.toSeqIdx",cond,"0 ",bOp," k.toSeqIdx+1",cond,"k.toSeqLen))") 
+        sqlQStr=paste0("SELECT DISTINCT i.db_uuid,i.session,i.bundle,i.itemID AS seqStartId, i.itemID AS seqEndId,1 AS seqLen,'",param2,"' AS level \
+                       FROM items i,allItems d \
+                       WHERE i.db_uuid=d.db_uuid AND i.session=d.session AND i.bundle=d.bundle \
+                       AND i.level='",level2,"' AND d.level='",level1,"' \
+                       AND EXISTS \
+                       (SELECT * FROM links k \
+                       WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
+                        AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
+                        AND k.fromID=d.itemID AND k.toID=i.itemID AND (k.toSeqIdx",cond,"0 ",bOp," k.toSeqIdx+1",cond,"k.toSeqLen)\
+                       )") 
         itemsAsSeqs=sqldf(c(itemsIdxSql,linksIdxSql,sqlQStr))
         resultLevel=param2
       }else if(funcName=='End'){
@@ -469,7 +499,15 @@ query.database.eql.FUNKA<-function(dbConfig,q,items=NULL){
         }else{
           stop("Syntax error: Expected function value 0 or 1 after '=' in function term: '",qTrim,"'\n")
         }
-        sqlQStr=paste0("SELECT DISTINCT i.id AS seqStartId, i.id AS seqEndId,1 AS seqLen,'",param2,"' AS level FROM items i,allItems d WHERE i.level='",level2,"' AND d.level='",level1,"' AND EXISTS (SELECT * FROM links k WHERE k.session=i.session AND k.bundle=i.bundle AND k.session=d.session AND k.bundle=d.bundle AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toSeqIdx+1",cond,"k.toSeqLen)") 
+        sqlQStr=paste0("SELECT DISTINCT i.db_uuid,i.session,i.bundle,i.itemID AS seqStartId, i.itemID AS seqEndId,1 AS seqLen,'",param2,"' AS level FROM \
+                       items i,allItems d \
+                       WHERE i.db_uuid=d.db_uuid AND i.session=d.session AND i.bundle=d.bundle \
+                       AND i.level='",level2,"' AND d.level='",level1,"' AND EXISTS \
+                       (SELECT * FROM links k \
+                        WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
+                            AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
+                            AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toSeqIdx+1",cond,"k.toSeqLen\
+                       )") 
         itemsAsSeqs=sqldf(c(itemsIdxSql,linksIdxSql,sqlQStr))
         resultLevel=param2
       }else if(funcName=='Num'){
@@ -503,7 +541,15 @@ query.database.eql.FUNKA<-function(dbConfig,q,items=NULL){
         #if(is.na(numChilds)){
          # stop("Syntax error: Expected integer value after '=' in function term: '",qTrim,"'\n")
         #}
-        sqlQStr=paste0("SELECT DISTINCT d.id AS seqStartId, d.id AS seqEndId,1 AS seqLen,'",param1,"' AS level FROM allItems i,items d WHERE i.level='",level2,"' AND d.level='",level1,"' AND EXISTS (SELECT * FROM links k WHERE  k.session=i.session AND k.session=d.session AND k.bundle=i.bundle AND k.bundle=d.bundle AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toLevel=i.level AND k.toSeqLen",sqlFuncOpr,funcVal,")") 
+        sqlQStr=paste0("SELECT DISTINCT d.db_uuid,d.session,d.bundle,d.itemID AS seqStartId, d.itemID AS seqEndId,1 AS seqLen,'",param1,"' AS level \
+                       FROM allItems i,items d \
+                      WHERE i.db_uuid=d.db_uuid AND i.session=d.session AND i.bundle=d.bundle \
+                       AND i.level='",level2,"' AND d.level='",level1,"' AND EXISTS \
+                       (SELECT * FROM links k \
+                       WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
+                        AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
+                        AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toLevel=i.level AND k.toSeqLen",sqlFuncOpr,funcVal,"\
+                       )") 
         itemsAsSeqs=sqldf(c(itemsIdxSql,linksIdxSql,sqlQStr))
         resultLevel=param1
       }else{
@@ -721,8 +767,8 @@ query.database.eql.KONJA<-function(dbConfig,q){
         return(res)
       }else{
         # Proceed with items matching current condition
-        items=sqldf("SELECT i.* FROM items i,seqIts s WHERE i.itemID=s.seqStartId")
-        labels=sqldf("SELECT l.* FROM labels l,seqIts s WHERE l.itemID=s.seqStartId")
+        items=sqldf("SELECT i.* FROM items i,seqIts s WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.itemID=s.seqStartId")
+        labels=sqldf("SELECT l.* FROM labels l,seqIts s WHERE l.db_uuid=s.db_uuid AND l.session=s.session AND l.bundle=s.bundle AND l.itemID=s.seqStartId")
         if(!is.null(res[['projectionItems']])){
           # only one term can be marked with hashtag
           if(projection){
@@ -737,7 +783,7 @@ query.database.eql.KONJA<-function(dbConfig,q){
     res[['items']][,'level']=resultLevel
     items=res[['items']]
     if(projection){      
-      qStr=paste0('SELECT i.seqStartId,i.seqEndId,i.seqStartId AS pSeqStartId ,i.seqEndId AS pSeqEndId,i.seqLen AS pSeqLen,"',projectionAttrLevel,'" AS pLevel FROM items i')
+      qStr=paste0('SELECT i.db_uuid,i.session,i.bundle,i.seqStartId,i.seqEndId,i.seqStartId AS pSeqStartId ,i.seqEndId AS pSeqEndId,i.seqLen AS pSeqLen,"',projectionAttrLevel,'" AS pLevel FROM items i')
       res[['projectionItems']]=sqldf(qStr)
     }
     res[['resultLevel']]=resultLevel
@@ -830,18 +876,26 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       
       # right seq items
       #rSeqIts=list.seq.items(rResIts)
-      itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx)'
-      rSeqIts=sqldf(c(itemsIdxSql,"SELECT i.* FROM items i,items s,items e,rResIts r WHERE s.id=r.seqStartId AND e.id=r.seqEndId AND i.session=s.session AND i.bundle=s.bundle AND i.level=s.level AND i.seqIdx>=s.seqIdx AND i.seqIdx<=e.seqIdx"))
+      itemsIdxSql='CREATE INDEX items_idx ON items(db_uuid,session,bundle,level,itemID,seqIdx)'
+      rSeqIts=sqldf(c(itemsIdxSql,"SELECT i.* FROM items s,items i,items e,rResIts r WHERE \
+                      s.db_uuid=i.db_uuid AND s.session=i.session AND s.bundle=i.bundle AND \
+                      s.db_uuid=e.db_uuid AND s.session=e.session AND s.bundle=e.bundle AND \
+                      s.db_uuid=r.db_uuid AND s.session=r.session AND s.bundle=r.bundle AND \
+                      s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND i.level=s.level AND i.seqIdx>=s.seqIdx AND i.seqIdx<=e.seqIdx"))
       lSeqRes=EMPTY_RESULT_DF
       
       # build dominance SQL query string 
-      itemsSameBundleCond="ils.session=irs.session AND ils.session=ile.session AND ile.session=ire.session AND ils.bundle=irs.bundle AND ils.bundle=ile.bundle AND ile.bundle=ire.bundle"
-      linkSameBundleCond1="k.session=ils.session AND k.session=irs.session AND k.bundle=ils.bundle AND k.bundle=irs.bundle"
-      linkSameBundleCond2="m.session=ils.session AND m.session=irs.session AND m.bundle=ils.bundle AND m.bundle=irs.bundle"
-      lDomQuerySelectStr="lid.seqStartId,lid.seqEndId,lid.seqLen,lid.level"
+      itemsSameBundleCond1="ils.db_uuid=irs.db_uuid AND ils.session=irs.session AND ils.bundle=irs.bundle AND "
+      itemsSameBundleCond2="ils.db_uuid=irs.db_uuid AND ils.session=irs.session AND ils.bundle=irs.bundle AND "
+      itemsSameBundleCond3="ils.db_uuid=ire.db_uuid AND ils.session=ire.session AND ils.bundle=ire.bundle AND "
+      itemsSameBundleCond4="ils.db_uuid=lid.db_uuid AND ils.session=lid.session AND ils.bundle=lid.bundle AND "
+      itemsSameBundleCond5="ils.db_uuid=rid.db_uuid AND ils.session=rid.session AND ils.bundle=rid.bundle"
+      linkSameBundleCond1="k.db_uuid=ils.db_uuid AND k.db_uuid=irs.db_uuid AND k.session=ils.session AND k.session=irs.session AND k.bundle=ils.bundle AND k.bundle=irs.bundle"
+      linkSameBundleCond2="m.db_uuid=ils.db_uuid AND m.db_uuid=irs.db_uuid AND m.session=ils.session AND m.session=irs.session AND m.bundle=ils.bundle AND m.bundle=irs.bundle"
+      lDomQuerySelectStr="lid.db_uuid,lid.session,lid.bundle,lid.seqStartId,lid.seqEndId,lid.seqLen,lid.level"
       rDomQuerySelectStr="rid.seqStartId AS rsId,rid.seqEndId AS reId,rid.seqLen AS rL,rid.level AS rLev"
       domQueryFromStr="lResIts lid, rResIts rid,items ils, items irs,items ile,items ire"
-      domQueryStrCond0=paste0("ils.id=lid.seqStartId AND irs.id=rid.seqStartId AND ile.id=lid.seqEndId AND ire.id=rid.seqEndId AND ",itemsSameBundleCond)
+      domQueryStrCond0=paste0("ils.itemID=lid.seqStartId AND irs.itemID=rid.seqStartId AND ile.itemID=lid.seqEndId AND ire.itemID=rid.seqEndId AND ",itemsSameBundleCond1,itemsSameBundleCond2,itemsSameBundleCond3,itemsSameBundleCond4,itemsSameBundleCond5)
       # The query has now the corners of the dominance "trapeze" in ils,ile,irs,ire
       # Check sequence start item of left result on existence of a link to the start item of the right sequence 
       domQueryStrCond1=paste0("EXISTS (SELECT * FROM links k WHERE ",linkSameBundleCond1," AND ((k.fromID=ils.itemID AND k.toID=irs.itemID) OR (k.toID=ils.itemID AND k.fromID=irs.itemID)))")
@@ -858,7 +912,7 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       
       #lResIdxSql='CREATE INDEX lResIts_idx ON lResIts(seqStartId,seqEndId,seqLen,level)'
       #rResIdxSql='CREATE INDEX rResIts_idx ON rResIts(seqStartId,seqEndId,seqLen,level)' 
-      linksIdxSql='CREATE INDEX links_idx ON links(session,bundle,fromID,toID)'
+      linksIdxSql='CREATE INDEX links_idx ON links(db_uuid,session,bundle,fromID,toID)'
       
 #       idcSql=c('CREATE INDEX items_id_idx ON items(id)','CREATE INDEX items_sb_idx ON items(session,bundle)',
 #                'CREATE INDEX links_sb_idx ON links(session,bundle)',
@@ -878,16 +932,16 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       # lrExpRes might have double items, use a distinct select to create the data.frame for left term
       # for example in the query "[ Syllable=S ^ Phonetic=s ]" on ae there exists one Syllable S which dominates two Phonetic s items 
       # Fix for issue #12
-      lrExpResIdxSql='CREATE INDEX lrExpRes_idx ON lrExpRes(seqStartId,seqEndId,seqLen,level)'
+      lrExpResIdxSql='CREATE INDEX lrExpRes_idx ON lrExpRes(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)'
       #lExpRes=sqldf(c(lrExpResIdxSql,"SELECT DISTINCT seqStartId,seqEndId,seqLen,level FROM lrExpRes"))
-      lExpRes=sqldf("SELECT DISTINCT seqStartId,seqEndId,seqLen,level FROM lrExpRes")
+      lExpRes=sqldf("SELECT DISTINCT db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level FROM lrExpRes")
       lPrjIts=NULL
       rPrjIts=NULL
       if(nrow(lrExpRes)>0){
         if(!is.null(lResPIts)){
           # TODO
           #lPrjIts=reduce.projection.items(lExpRes,lResPIts)
-          qStr="SELECT i.seqStartId,i.seqEndId,i.seqLen,pi.pSeqStartId,pi.pSeqEndId,pi.pSeqLen,pi.pLevel FROM lrExpRes i,lResPIts pi WHERE i.seqStartId=pi.seqStartId AND i.seqEndId=pi.seqEndId"
+          qStr="SELECT i.db_uuid,i.session,i.bundle,i.seqStartId,i.seqEndId,i.seqLen,pi.pSeqStartId,pi.pSeqEndId,pi.pSeqLen,pi.pLevel FROM lrExpRes i,lResPIts pi WHERE i.db_uuid=pi.uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.seqStartId=pi.seqStartId AND i.seqEndId=pi.seqEndId"
           #rQStr="SELECT rpi.* FROM rightProjectionItems rpi WHERE EXISTS (SELECT i.seqStartId FROM resultItems i WHERE i.seqStartId=rpi.seqStartId && i.seqEndId=rpi.seqEndId)"
           
           #qStr=paste0(lQStr," UNION ",rQStr)
@@ -895,7 +949,7 @@ query.database.eql.in.bracket<-function(dbConfig,q){
         }
         
         if(!is.null(rResPIts) && nrow(rResPIts)>0){
-          qStr="SELECT i.seqStartId,i.seqEndId,i.seqLen,pi.pSeqStartId,pi.pSeqEndId,pi.pSeqLen,pi.pLevel FROM lrExpRes i,rResPIts pi WHERE i.rsId=pi.seqStartId AND i.reId=pi.seqEndId"
+          qStr="SELECT i.db_uuid,i.session,i.bundle,i.seqStartId,i.seqEndId,i.seqLen,pi.pSeqStartId,pi.pSeqEndId,pi.pSeqLen,pi.pLevel FROM lrExpRes i,rResPIts pi WHERE i.db_uuid=pi.uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.rsId=pi.seqStartId AND i.reId=pi.seqEndId"
           #rQStr="SELECT rpi.* FROM rightProjectionItems rpi WHERE EXISTS (SELECT i.seqStartId FROM resultItems i WHERE i.seqStartId=rpi.seqStartId && i.seqEndId=rpi.seqEndId)"
           
           #qStr=paste0(lQStr," UNION ",rQStr)
@@ -934,17 +988,22 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       }
       #seqQueryStr=paste0("SELECT lid.seqStartId,rid.seqEndId FROM lResIts lid, rResIts rid,items il, items ir WHERE il.id=lid.seqEndId AND ir.id=rid.seqStartId AND il.level='",lResAttrName,"' AND il.level=ir.level AND il.bundle=ir.bundle AND ir.seqIdx=il.seqIdx+1")
       #lrSeqQueryStr=paste0("SELECT lid.seqStartId,lid.seqEndId AS leId,rid.seqStartId AS rsId,rid.seqEndId FROM lResIts lid, rResIts rid,items il, items ir WHERE il.id=lid.seqEndId AND ir.id=rid.seqStartId AND il.level='",lResAttrName,"' AND il.level=ir.level AND il.bundle=ir.bundle AND ir.seqIdx=il.seqIdx+1")
-      lrSeqQueryStr=paste0("SELECT lid.db_uuid,lid.session,lid.bundle,lid.seqStartId,lid.seqEndId AS leId,rid.seqStartId AS rsId,rid.seqEndId,lid.seqLen+rid.seqLen AS seqLen,lid.level FROM lResIts lid, rResIts rid,items il, items ir WHERE il.itemID=lid.seqEndId AND ir.itemID=rid.seqStartId AND il.level=ir.level AND il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle AND ir.seqIdx=il.seqIdx+1")
+      lrSeqQueryStr=paste0("SELECT lid.db_uuid,lid.session,lid.bundle,lid.seqStartId,lid.seqEndId AS leId,rid.seqStartId AS rsId,rid.seqEndId,lid.seqLen+rid.seqLen AS seqLen,lid.level FROM lResIts lid, rResIts rid,items il, items ir WHERE \
+                          il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle AND \
+                           il.db_uuid=lid.db_uuid AND il.session=lid.session AND il.bundle=lid.bundle AND \
+                          il.db_uuid=rid.db_uuid AND il.session=rid.session AND il.bundle=rid.bundle AND \
+                           il.itemID=lid.seqEndId AND ir.itemID=rid.seqStartId AND il.level=ir.level AND ir.seqIdx=il.seqIdx+1")
       lrExpRes=sqldf(lrSeqQueryStr)
       
       # select final result columns
-      lExpRes=data.frame(seqStartId=lrExpRes[,'seqStartId'],seqEndId=lrExpRes[,'seqEndId'],seqLen=lrExpRes[,'seqLen'],level=lrExpRes[,'level'],stringsAsFactors = FALSE)
+      lExpRes=data.frame(db_uuid=lrExpRes[['db_uuid']],session=lrExpRes[['session']],bundle=lrExpRes[['bundle']],seqStartId=lrExpRes[,'seqStartId'],seqEndId=lrExpRes[,'seqEndId'],seqLen=lrExpRes[,'seqLen'],level=lrExpRes[,'level'],stringsAsFactors = FALSE)
       
       lPrjIts=NULL
       if(!is.null(lResPIts)){
         # TODO
         #lPrjIts=reduce.projection.items(lExpRes,lResPIts)
-        qStr="SELECT i.seqStartId,i.seqEndId,pi.pSeqStartId,pi.pSeqEndId,pi.pSeqLen,pi.pLevel FROM lrExpRes i,lResPIts pi WHERE i.seqStartId=pi.seqStartId AND i.leId=pi.seqEndId"
+        qStr="SELECT i.db_uuid,i.session,i.bundle,i.seqStartId,i.seqEndId,pi.pSeqStartId,pi.pSeqEndId,pi.pSeqLen,pi.pLevel FROM lrExpRes i,lResPIts pi WHERE \
+        i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.seqStartId=pi.seqStartId AND i.leId=pi.seqEndId"
         #rQStr="SELECT rpi.* FROM rightProjectionItems rpi WHERE EXISTS (SELECT i.seqStartId FROM resultItems i WHERE i.seqStartId=rpi.seqStartId && i.seqEndId=rpi.seqEndId)"
         
         #qStr=paste0(lQStr," UNION ",rQStr)
@@ -953,7 +1012,8 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       rPrjIts=NULL
       if(!is.null(rResPIts)){
         
-        qStr="SELECT i.seqStartId,i.seqEndId,pi.pSeqStartId,pi.pSeqEndId,pi.pSeqLen,pi.pLevel FROM lrExpRes i,rResPIts pi WHERE i.rsId=pi.seqStartId AND i.seqEndId=pi.seqEndId"
+        qStr="SELECT i.db_uuid,i.session,i.bundle,i.seqStartId,i.seqEndId,pi.pSeqStartId,pi.pSeqEndId,pi.pSeqLen,pi.pLevel FROM lrExpRes i,rResPIts pi WHERE \
+        i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.rsId=pi.seqStartId AND i.seqEndId=pi.seqEndId"
         rPrjIts=sqldf(qStr)
       }
       
@@ -979,7 +1039,7 @@ query.database.eql.in.bracket<-function(dbConfig,q){
     res=create.subtree(items=lExpRes,links=NULL,resultLevel=lResAttrName,projectionItems=prjIts)
     return(res)
   }else{
-    query.database.with.eql(database,qTrim)
+    query.database.with.eql(dbConfig,qTrim)
   }
   #stop("Syntax error: Expected sequence '->' or domination '^' operator.")
 }
@@ -994,10 +1054,10 @@ query.database.eql.in.bracket<-function(dbConfig,q){
 ## @export
 ## @keywords emuDB database query Emu EQL 
 ## 
-query.database.with.eql.seglist<-function(database,query){
+query.database.with.eql.seglist<-function(dbConfig,query){
 
-  rs=query.database.with.eql(database,query)
-  segList=convert.query.result.to.seglist(database,rs)
+  rs=query.database.with.eql(dbConfig,query)
+  segList=convert.query.result.to.seglist(dbConfig,rs)
   return(segList)
   
 }
@@ -1094,47 +1154,27 @@ query<-function(dbName,query,sessionPattern=NULL,bundlePattern=NULL,queryLang='E
       if(!is.null(sessionPattern)){
         
         sessSelRegex=glob2rx(pattern = sessionPattern)
-        sessSelIts=grepl(sessSelRegex,emuDBs.query.tmp[['items']][['session']])
-        emuDBs.query.tmp[['queryItems']]<<-emuDBs.query.tmp[['items']][sessSelIts,]
+        sessSelIts=grepl(sessSelRegex,emuDBs.query.tmp[['queryItems']][['session']])
+        emuDBs.query.tmp[['queryItems']]<<-emuDBs.query.tmp[['queryItems']][sessSelIts,]
         
-        sessSelLks=grepl(sessSelRegex,emuDBs.query.tmp[['linksExt']][['session']])
-        emuDBs.query.tmp[['queryLinksExt']]<<-emuDBs.query.tmp[['linksExt']][sessSelLks,]
+        sessSelLks=grepl(sessSelRegex,emuDBs.query.tmp[['queryLinksExt']][['session']])
+        emuDBs.query.tmp[['queryLinksExt']]<<-emuDBs.query.tmp[['queryLinksExt']][sessSelLks,]
         
-        sessSelLbls=grepl(sessSelRegex,emuDBs.query.tmp[['labels']][['session']])
-        emuDBs.query.tmp[['queryLabels']]<<-emuDBs.query.tmp[['labels']][sessSelLbls,]
+        sessSelLbls=grepl(sessSelRegex,emuDBs.query.tmp[['queryLabels']][['session']])
+        emuDBs.query.tmp[['queryLabels']]<<-emuDBs.query.tmp[['queryLabels']][sessSelLbls,]
       }
       if(!is.null(bundlePattern)){
         
         bndlSelRegex=glob2rx(pattern = bundlePattern)
-        bndlSelIts=grepl(bndlSelRegex,emuDBs.query.tmp[['items']][['bundle']])
-        if(is.null(emuDBs.query.tmp[['queryItems']])){
-          emuDBs.query.tmp[['queryItems']]<<-emuDBs.query.tmp[['items']][bndlSelIts,]
-        }else{
-          emuDBs.query.tmp[['queryItems']]<<-emuDBs.query.tmp[['queryItems']][bndlSelIts,]
-        }
+        bndlSelIts=grepl(bndlSelRegex,emuDBs.query.tmp[['queryItems']][['bundle']])
+        emuDBs.query.tmp[['queryItems']]<<-emuDBs.query.tmp[['queryItems']][bndlSelIts,]
         
-        bndlSelLks=grepl(bndlSelRegex,emuDBs.query.tmp[['linksExt']][['bundle']])
-        if(is.null(emuDBs.query.tmp[['queryLinksExt']])){
-          emuDBs.query.tmp[['queryLinksExt']]<<-emuDBs.query.tmp[['linksExt']][bndlSelLks,]
-        }else{
-          emuDBs.query.tmp[['queryLinksExt']]<<-emuDBs.query.tmp[['queryLinksExt']][bndlSelLks,]
-        }
+        bndlSelLks=grepl(bndlSelRegex,emuDBs.query.tmp[['queryLinksExt']][['bundle']])
+        emuDBs.query.tmp[['queryLinksExt']]<<-emuDBs.query.tmp[['queryLinksExt']][bndlSelLks,]
         
-        bndlSelLbls=grepl(bndlSelRegex,emuDBs.query.tmp[['labels']][['bundle']])
-        if(is.null(emuDBs.query.tmp[['queryLabels']])){
-          emuDBs.query.tmp[['queryLabels']]<<-emuDBs.query.tmp[['labels']][bndlSelLbls,]
-        }else{
-          emuDBs.query.tmp[['queryLabels']]<<-emuDBs.query.tmp[['queryLabels']][bndlSelLbls,]
-        }
-      }
-      if(is.null(emuDBs.query.tmp[['queryItems']])){
-        emuDBs.query.tmp[['queryItems']]<<-emuDBs.query.tmp[['items']]     
-      }
-      if(is.null(emuDBs.query.tmp[['queryLinksExt']])){
-        emuDBs.query.tmp[['queryLinksExt']]<<-emuDBs.query.tmp[['linksExt']]   
-      }
-      if(is.null(emuDBs.query.tmp[['queryLabels']])){
-        emuDBs.query.tmp[['queryLabels']]<<-emuDBs.query.tmp[['labels']]
+        bndlSelLbls=grepl(bndlSelRegex,emuDBs.query.tmp[['queryLabels']][['bundle']])
+        emuDBs.query.tmp[['queryLabels']]<<-emuDBs.query.tmp[['queryLabels']][bndlSelLbls,]
+        
       }
       
       if(is.null(resultType)){
