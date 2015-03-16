@@ -24,7 +24,7 @@ require(base64enc)
 ##' The server can be interrupted with Ctrl-C if something wents wrong.
 ##' 
 ##' @details  Function opens a HTTP/websocket and waits in a loop for browser requests. The R console will be blocked. On successfull connection the server sends the session and bundle list of the given database object. The Web application requests bundle data for editing. If a bundle is modified with the EMU-webApp and the save button is pressed the server modifies the database object and saves the changes to disk. Communication is defined by EMU-webApp-websocket-protocol version 0.0.2
-##' @param database a emuDB database object
+##' @param dbName name of a loaded EMU database
 ##' @param host host IP to listen to (default: 127.0.0.1  (localhost))
 ##' @param port the port number to listen on (default: 17890)
 ##' @param debug TRUE to enable debugging (default: no debugging messages)
@@ -36,49 +36,24 @@ require(base64enc)
 ##' @keywords emuDB EMU-webapp database websocket Emu
 ##' @examples
 ##' \dontrun{ 
-##' ## Load an EMU database and serve it to the EMU-webApp (opens default HTTP/websocket port 17890)
+##' ## Load EMU database 'myDb' and serve it to the EMU-webApp (opens default HTTP/websocket port 17890)
 ##' 
-##' myDb=load.emuDB("/path/to/myDb")
-##' myDb=serve(myDb)
+##' load.emuDB("/path/to/myDb")
+##' serve('myDb')
 ##' }
 ##' 
-serve<-function(database,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
-  UseMethod('serve')
-}
-
-##' @export
-serve.emuDB=function(database,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
+serve.emuDB=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
   if(debug && debugLevel==0){
     debugLevel=2
   }
   emuDBserverRunning=FALSE
   bundleCount=0
-  if(is(database,'emuDB')){
-    for(s in database[['sessions']]){
-      sName=s[['name']]
-      bundleCount=bundleCount+length(s[['bundles']])
-    }
-    bundlesDf=data.frame(name=character(bundleCount),session=character(bundleCount),stringsAsFactors = FALSE)
-    ## create dummy bundle list
-    #ulNms=attr(database$sessions[[1]]$bundles,'names')
-    #emuRuttList=list()
-    #for(ulNm in ulNms){
-    #emuRuttList[[length(emuRuttList)+1]]=list(name=ulNm)
-    #}
-    idx=1
-    for(s in database[['sessions']]){
-      sName=s[['name']]
-      for(b in s[['bundles']]){
-        bundlesDf[idx,'session']=sName
-        bundlesDf[idx,'name']=b[['name']]
-        idx=idx+1
-      }
-    }
-    
-    
-  }
-  else{
-    stop("Supported object classes for database: 'emuDB'");
+  dbUUID=.get.database.uuid(name=dbName)
+  database=.load.emuDB.DBI(uuid = dbUUID)
+  if(!is.null(dbUUID)){
+    bundlesDf=list.bundles(dbUUID = dbUUID)
+  }else{
+    stop("Emu database ",dbName, " not found!");
   }
   
   httpRequest = function(req){
@@ -214,7 +189,7 @@ serve.emuDB=function(database,host='127.0.0.1',port=17890,debug=FALSE,debugLevel
         if(debugLevel>3){
           cat("Convert bundle to S3 format",uttCode,"\n")
         }
-        b=get.bundle(database,bundleSess,uttCode)
+        b=get.bundle(dbUUID=dbUUID,sessionName=bundleSess,bundleName=uttCode)
         if(is.null(b)){
           # error
           m=paste('Could not load bundle ',uttCode,' of session ',bundleSess)
@@ -292,7 +267,7 @@ serve.emuDB=function(database,host='127.0.0.1',port=17890,debug=FALSE,debugLevel
           
         }
         ssffFiles=jr[['data']][['ssffFiles']]
-        oldBundle=get.bundle(database,bundleSession,uttCode)
+        oldBundle=get.bundle(dbUUID=dbUUID,sessionName=bundleSession,bundleName=uttCode)
         
         # warnings as errors
         warnOptionSave=getOption('warn')
@@ -328,7 +303,7 @@ serve.emuDB=function(database,host='127.0.0.1',port=17890,debug=FALSE,debugLevel
           }
           bundleData=jr[['data']][['annotation']]
           bundle=as.bundle(bundleData=bundleData)
-          bundle[['sessionName']]=bundleSession
+          bundle[['session']]=bundleSession
           responseBundleJSON=NULL
           
           sendErr<-function(e){
@@ -348,7 +323,7 @@ serve.emuDB=function(database,host='127.0.0.1',port=17890,debug=FALSE,debugLevel
             return('sent-error')
           }
           #res=store.bundle.annotation(database,bundle)
-          res=tryCatch(store.bundle.annotation(database,bundle),error=function(e) e)
+          res=tryCatch(store.bundle.annotation(bundle=bundle,dbUUID = dbUUID),error=function(e) e)
           if(inherits(res,'error')){
             
             # prepare e amessage to send to server. 
@@ -421,7 +396,7 @@ serve.emuDB=function(database,host='127.0.0.1',port=17890,debug=FALSE,debugLevel
   if(debugLevel>0){
     cat("Closed emuR websocket HTTP service\n")
   }
-  return(database)
+  return()
 }
 
 
