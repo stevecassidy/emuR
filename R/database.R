@@ -234,7 +234,9 @@ get.database<-function(uuid=NULL,name=NULL){
   if(bDfRows==0){
     return(NULL)
   }else if(bDfRows==1){
-    return(as.list(bDf))
+    bList=as.list(bDf)
+    bList[['signalpaths']]=signalpaths
+    return(bList)
   }else{
     stop("Ambigious result for bundle lookup")
   }
