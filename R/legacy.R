@@ -1183,17 +1183,7 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
 ##' 
 convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,options=NULL,verbose=TRUE){
   
-  # default options
-  # ignore missing SSFF track files
-  # rewrite SSFF track files
-  # encoding : platform 
-  mergedOptions=list(sourceFileTextEncoding=NULL,ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=TRUE,symbolicLinkSignalFiles=FALSE)
-  if(!is.null(options)){
-    for(opt in names(options)){
-      mergedOptions[[opt]]=options[[opt]]
-    }
-  }
-  
+ 
   # pre check target dir
   if(file.exists(targetDir)){
     tdInfo=file.info(targetDir)
@@ -1209,12 +1199,12 @@ convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,options=NULL,v
   if(file.exists(pp)){
     stop("Database storage dir ",pp," already exists.")
   }
+  emuDbsList=list.legacy.emu.databases()
+  emuTplPath=emuDbsList[[dbName]]
+  if(is.null(emuTplPath)){
+    stop("Legacy EMU database '",dbName,"' could not be found.")
+  }
+  convert.legacyEmuDB.to.emuDB(emuTplPath = emuTplPath,targetDir = targetDir,options = options,verbose = verbose)
   
-  # load database schema and metadata
-  db=load.database.from.legacy.emu.by.name(dbName,showProgress=verbose,encoding=mergedOptions[['sourceFileTextEncoding']])
-  
-  # save in new format
-  store.emuDB(db,targetDir,options=mergedOptions,showProgress=verbose)
-  #activeButtons=list(saveBundle=TRUE)
  
 }
