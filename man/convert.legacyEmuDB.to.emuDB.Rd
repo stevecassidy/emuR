@@ -4,8 +4,8 @@
 \alias{convert.legacyEmuDB.to.emuDB}
 \title{Convert legacy EMU database and store it in new format}
 \usage{
-convert.legacyEmuDB.to.emuDB(emuTplPath, targetDir, options = NULL,
-  verbose = TRUE)
+convert.legacyEmuDB.to.emuDB(emuTplPath, targetDir, dbUUID = NULL,
+  options = NULL, verbose = TRUE)
 }
 \arguments{
 \item{emuTplPath}{EMU template file path}

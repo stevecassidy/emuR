@@ -4,11 +4,11 @@
 \alias{query}
 \title{Query EMU database}
 \usage{
-query(dbObj, query, sessionPattern = NULL, bundlePattern = NULL,
-  queryLang = NULL, resultType = NULL)
+query(dbName, query, sessionPattern = NULL, bundlePattern = NULL,
+  queryLang = "EQL2", resultType = NULL)
 }
 \arguments{
-\item{dbObj}{object of class emuDB}
+\item{dbName}{name of EMU database}
 
 \item{query}{EQL query string}
 
