@@ -1112,7 +1112,7 @@ query.database.with.eql<-function(dbConfig,query){
 
 ##' Query EMU database
 ##' @description Query an EMU database
-##' @param dbObj object of class emuDB
+##' @param dbName name of EMU database
 ##' @param query EQL query string
 ##' @param sessionPattern A (glob) pattern matching sessions to be searched from the database
 ##' @param bundlePattern A (glob) pattern matching bundles to be searched from the database
@@ -1121,6 +1121,7 @@ query.database.with.eql<-function(dbConfig,query){
 ##' @return result set object of class resultType (e.g. EMU seglist 'emusegs')
 ##' @author Klaus Jaensch
 ##' @import sqldf stringr
+##' @export
 ##' @seealso \code{\link{load.emuDB}}
 ##' @keywords emuDB database query Emu EQL 
 ##' @examples
@@ -1135,13 +1136,11 @@ query.database.with.eql<-function(dbConfig,query){
 ##' query(ae,"[Syllable=S ^ Phoneme=t]",resultType='emusegs')
 ##' 
 ##' }
-##' @export
+##' 
 
 query<-function(dbName,query,sessionPattern=NULL,bundlePattern=NULL,queryLang='EQL2',resultType=NULL){
   
-  #if(inherits(dbObj,'emuDB')){
     if(queryLang=='EQL2'){
-      
       .initialize.DBI.database(createTables=FALSE)
       dbUUID=.get.database.uuid(name = dbName)
       db=.load.emuDB.DBI(uuid = dbUUID)
@@ -1194,12 +1193,6 @@ query<-function(dbName,query,sessionPattern=NULL,bundlePattern=NULL,queryLang='E
     }else{
       stop("Unknown query language '",queryLang,"'.")
     }
-    
-   
-    
-  #}else{
-  #  NextMethod()
-  #}
 }
 
 
