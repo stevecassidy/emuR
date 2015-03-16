@@ -991,7 +991,7 @@ get.bundle <- function(dbName=NULL,sessionName,bundleName,dbUUID=NULL){
   b=.load.bundle.DBI(dbUUID,sessionName,bundleName)
   b[['levels']]=.load.bundle.levels.s3(dbUUID,sessionName,bundleName)
   b[['links']]=.load.bundle.links.s3(dbUUID,sessionName,bundleName)
-  return(b)
+  return(as.bundle(b))
 }
 
 # get.bundle.stub<-function(db,bundleName){
@@ -1265,7 +1265,7 @@ apply.class<-function(val,path,class){
 # persistent filters for bundle annotations
 # Transient properties which are not stored to JSON
 emuR.persist.filters.bundle=list()
-emuR.persist.filters.bundle[[1]]=c('dbUUID')
+emuR.persist.filters.bundle[[1]]=c('db_uuid')
 emuR.persist.filters.bundle[[2]]=c('files')
 emuR.persist.filters.bundle[[3]]=c('signalpaths')
 emuR.persist.filters.bundle[[4]]=c('mediaFilePath')
