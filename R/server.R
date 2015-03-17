@@ -279,17 +279,17 @@ serve.emuDB=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0
           responseBundle=list(status=list(type='ERROR',message=m),callbackID=jr[['callbackID']],responseContent='status',contentType='text/json')
         }else{
           for(ssffFile in ssffFiles){
-            #cat("SSFF file: ",ssffFile[['ssffTrackName']],"\n")
+            #cat("SSFF file: ",names(ssffFile),"  name: ",ssffFile[['ssffTrackName']],"\n")
             for(ssffTrackDef in database[['DBconfig']][['ssffTrackDefinitions']]){
-              if(ssffTrackDef[['name']]==ssffFile[['ssffTrackName']]){
-                ssffTrackExt=ssffTrackDef[['fileExtension']]
+              ssffTrackExt=ssffTrackDef[['fileExtension']]
+              if(ssffTrackExt==ssffFile[['fileExtension']]){
                 extPatt=paste0('[.]',ssffTrackExt,'$')
                 # TODO store signal paths in a better way!
                 for(sp in oldBundle[['signalpaths']]){
                   if(grepl(extPatt,sp)){
                     # store
                     if(debugLevel>3){
-                      cat("Writing SSFF track ",ssffFile[['ssffTrackName']]," to file: ",sp,"\n")
+                      cat("Writing SSFF track to file: ",sp,"\n")
                     }
                     # Hmm. does not work: missing file argument
                     #base64decode(ssffFile[['data']],output=sp)
