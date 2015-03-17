@@ -29,7 +29,7 @@ require(base64enc)
 ##' @param port the port number to listen on (default: 17890)
 ##' @param debug TRUE to enable debugging (default: no debugging messages)
 ##' @param debugLevel integer higher values generate more detailed debug output
-##' @return the possibly modified Emu database object
+##' @return TRUE if the database was modified, FALSE otherwise
 ##' @import httpuv jsonlite base64enc
 ##' @export
 ##' @author Klaus Jaensch
@@ -46,6 +46,7 @@ serve.emuDB=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0
   if(debug && debugLevel==0){
     debugLevel=2
   }
+  modified=FALSE
   emuDBserverRunning=FALSE
   bundleCount=0
   dbUUID=.get.database.uuid(name=dbName)
@@ -179,22 +180,23 @@ serve.emuDB=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0
         
       }else if(jr$type == 'GETBUNDLE'){
         
-        uttCode=jr$name   
+        bundleName=jr[['name']]
         bundleSess=jr[['session']]
         #cat("data:",jr[['data']],"\n")
         if(debugLevel>2){
-          cat("Requested bundle:",uttCode,",session:",bundleSess,"\n")
+          cat("Requested bundle:",bundleName,",session:",bundleSess,"\n")
         }
+        err=NULL
         sc=database[['DBconfig']]
         if(debugLevel>3){
-          cat("Convert bundle to S3 format",uttCode,"\n")
+          cat("Convert bundle to S3 format",bundleName,"\n")
         }
-        b=get.bundle(dbUUID=dbUUID,sessionName=bundleSess,bundleName=uttCode)
+        b=get.bundle(dbUUID=dbUUID,sessionName=bundleSess,bundleName=bundleName)
         if(is.null(b)){
           # error
-          m=paste('Could not load bundle ',uttCode,' of session ',bundleSess)
-          responseBundle=list(status=list(type='ERROR',message=m),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
-        }else{
+          err=simpleError(paste('Could not load bundle ',bundleName,' of session ',bundleSess))
+        }
+        if(is.null(err)){
           
           bp=database[['basePath']]
           
@@ -202,16 +204,22 @@ serve.emuDB=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0
           if(debugLevel>4){
             cat("Mediafile: ",mediaFilePath," for ",b$name,"\n")
           }
-          audioFile <- file(mediaFilePath, "rb")
-          audioFileData=readBin(audioFile, raw(), n=file.info(mediaFilePath)$size)
-          audioBase64=base64encode(audioFileData)
-          close(audioFile)
-          
-          mediaFile=list(encoding="BASE64",data=audioBase64)
-          
+          audioFile=tryCatch(file(mediaFilePath, "rb"),error=function(e) err<<-e)
+          if(is.null(err)){
+            audioFileData=readBin(audioFile, raw(), n=file.info(mediaFilePath)$size)
+            if(inherits(audioFileData,'error')){
+              err=audioFileData
+            }else{
+              audioBase64=base64encode(audioFileData)
+              mediaFile=list(encoding="BASE64",data=audioBase64)
+              close(audioFile)
+            }
+          }
+        }
+        if(is.null(err)){          
           ssffTrackNmsInUse=get.ssfftrack.names.used.by.webapp.config(database[['DBconfig']][['EMUwebAppConfig']])
           if(debugLevel >= 4){
-          
+            
             cat(length(ssffTrackNmsInUse)," track definitions in use:\n")
             for(sfInU in ssffTrackNmsInUse){
               cat(sfInU," ")
@@ -238,53 +246,69 @@ serve.emuDB=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0
           ssffFileExts=names(ssffFilesHash)
           for(ssffFileExt in ssffFileExts){
             ssffFilePath=ssffFilesHash[ssffFileExt]
-            mf<- file(ssffFilePath, "rb")
-            mfData=readBin(mf, raw(), n=file.info(sp)$size)
+            mf=tryCatch(file(ssffFilePath, "rb"),error=function(e) {err<<-e})
+            if(is.null(err)){
+              mfData=readBin(mf, raw(), n=file.info(sp)$size)
+              if(inherits(mfData,'error')){
+                err=mfData
+                break
+              }
+            }else{
+              break
+            }
             mfDataBase64=base64encode(mfData)
             encoding="BASE64"
-            close(mf)
             ssffDatObj=list(encoding=encoding,data=mfDataBase64,fileExtension=ssffFileExt)
             ssffFiles[[length(ssffFiles)+1]]=ssffDatObj
-            
+            close(mf)
           }
-          
-          
-          anno=marshal.for.persistence(b,emuR.persist.filters.bundle)
-          data=list(mediaFile=mediaFile,ssffFiles=ssffFiles,annotation=anno)
-          
+          if(is.null(err)){
+            anno=marshal.for.persistence(b,emuR.persist.filters.bundle)
+            data=list(mediaFile=mediaFile,ssffFiles=ssffFiles,annotation=anno)
+          }
+        }
+        
+        if(is.null(err)){
           responseBundle=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,responseContent='bundle',contentType='text/json',data=data)
+        }else{
+          errMsg=err[['message']]
+          cat("Error: ",errMsg,"\n")
+          responseBundle=list(status=list(type='ERROR',message=errMsg),callbackID=jr[['callbackID']],responseContent='status',contentType='text/json')
+          
         }
         responseBundleJSON=jsonlite::toJSON(responseBundle,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
         result=ws$send(responseBundleJSON)
-        if(debugLevel >= 2){
+        if(is.null(err) & debugLevel >= 2){
           
           if(debugLevel >=8){
             cat(responseBundleJSON,"\n")
           }
           cat("Sent bundle containing",length(ssffFiles),"SSFF files\n")
         }
+        # reset error
+        err=NULL
         
-      }else if(jr$type == 'SAVEBUNDLE'){
+      }else if(jr[['type']] == 'SAVEBUNDLE'){
         jrData=jr[['data']]
         jrAnnotation=jrData[['annotation']]
         bundleSession=jrData[['session']]
-        uttCode=jr$data$annotation$name
+        bundleName=jrData[['annotation']][['name']]
         if(debugLevel>3){
           #cat("Save bundle ",names(jr$data),"\n");
-          cat("Save bundle ",uttCode," from session ",bundleSession,"\n");
-          
+          cat("Save bundle ",bundleName," from session ",bundleSession,"\n");
         }
         ssffFiles=jr[['data']][['ssffFiles']]
-        oldBundle=get.bundle(dbUUID=dbUUID,sessionName=bundleSession,bundleName=uttCode)
+        oldBundle=get.bundle(dbUUID=dbUUID,sessionName=bundleSession,bundleName=bundleName)
         
         # warnings as errors
         warnOptionSave=getOption('warn')
         options('warn'=2)
+        responseBundle=NULL
         
+        # do we really need the old bundle in DBI version ?
         if(is.null(oldBundle)){
           # error
-          m=paste('Could not load bundle ',bundleSession,uttCode)
-          responseBundle=list(status=list(type='ERROR',message=m),callbackID=jr[['callbackID']],responseContent='status',contentType='text/json')
+          err=simpleError(paste('Could not load bundle ',bundleSession,bundleName))
         }else{
           for(ssffFile in ssffFiles){
             #cat("SSFF file: ",names(ssffFile),"  name: ",ssffFile[['ssffTrackName']],"\n")
@@ -299,61 +323,52 @@ serve.emuDB=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0
                     if(debugLevel>3){
                       cat("Writing SSFF track to file: ",sp,"\n")
                     }
-                    # Hmm. does not work: missing file argument
-                    #base64decode(ssffFile[['data']],output=sp)
-                    
                     ssffTrackBin=base64decode(ssffFile[['data']])
-                    writeBin(ssffTrackBin,sp)
+                    ssffCon=tryCatch(file(sp,'wb'),error=function(e){err<<-e})
+                    if(is.null(err)){
+                      res=tryCatch(writeBin(ssffTrackBin,ssffCon))
+                      if(inherits(res,'error')){
+                        err=res
+                        break
+                      }
+                      modified<<-TRUE
+                    }
                   }
                 }
+              }
+              if(!is.null(err)){
+                break
               }
             } 
           }
           bundleData=jr[['data']][['annotation']]
           bundle=as.bundle(bundleData=bundleData)
           bundle[['session']]=bundleSession
-          responseBundleJSON=NULL
-          
-          sendErr<-function(e){
-            
-            # add the error to the message..
-            m=e[['message']]
-            # ..and the last warning, if available
-            wns=warnings()
-            wMsgs=names(wns)
-            if(length(wMsgs)){
-              m=paste(m,wMsgs[[1]])
+
+          # if we do not have an (error) response already
+          if(is.null(err)){
+            # try to store annotation, dummy error function, use result type to detect errors
+            res=tryCatch(store.bundle.annotation(bundle=bundle,dbUUID = dbUUID),error=function(e) e)
+            if(inherits(res,'error')){
+              err=res
+            }else{
+              # annotation saved
+              # set modified flag
+              modified<<-TRUE
+              
             }
-            cat(m,"\n")
-            responseBundle=list(status=list(type='ERROR',message=m),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
-            responseBundleJSON=jsonlite::toJSON(responseBundle,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-            result=ws$send(responseBundleJSON)
-            return('sent-error')
-          }
-          #res=store.bundle.annotation(database,bundle)
-          res=tryCatch(store.bundle.annotation(bundle=bundle,dbUUID = dbUUID),error=function(e) e)
-          if(inherits(res,'error')){
-            
-            # prepare e amessage to send to server. 
-            # Add the error to the message...
-            m=res[['message']]
-            # print to console
-            cat('Error: ',m,"\n")
-            ## ...and the last warning, if available (the error message alone is often not sufficient to describe the problem)
-            #wns=warnings()
-            #wMsgs=names(wns)
-            #if(length(wMsgs)){
-            #  m=paste(m,wMsgs[[1]],sep=',')
-            #}
-            responseBundle=list(status=list(type='ERROR',message=m),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
-          }else if(is.null(res)){
-            cat("Error: function store.bundle.annotation returned NULL result\n")
-          }else{
-            #database<<-res
-            responseBundle=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
           }
         }
+        if(is.null(err)){
+          responseBundle=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
+        }else{
+          m=err[['message']]
+          cat('Error: ',m,"\n")
+          responseBundle=list(status=list(type='ERROR',message=m),callbackID=jr[['callbackID']],responseContent='status',contentType='text/json')
+        }
+        # response object to JSON 
         responseBundleJSON=jsonlite::toJSON(responseBundle,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+        # send response
         result=ws$send(responseBundleJSON)
         # restore warn level
         options(warn=warnOptionSave)
@@ -404,7 +419,7 @@ serve.emuDB=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0
   if(debugLevel>0){
     cat("Closed emuR websocket HTTP service\n")
   }
-  return()
+  return(modified)
 }
 
 
