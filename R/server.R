@@ -349,7 +349,7 @@ serve.emuDB=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0
           }else if(is.null(res)){
             cat("Error: function store.bundle.annotation returned NULL result\n")
           }else{
-            database<<-res
+            #database<<-res
             responseBundle=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
           }
         }
