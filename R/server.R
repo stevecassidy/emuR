@@ -210,6 +210,14 @@ serve.emuDB=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0
           mediaFile=list(encoding="BASE64",data=audioBase64)
           
           ssffTrackNmsInUse=get.ssfftrack.names.used.by.webapp.config(database[['DBconfig']][['EMUwebAppConfig']])
+          if(debugLevel >= 4){
+          
+            cat(length(ssffTrackNmsInUse)," track definitions in use:\n")
+            for(sfInU in ssffTrackNmsInUse){
+              cat(sfInU," ")
+            }
+            cat("\n")
+          }
           ssffFiles=list()
           # Hash (here: named charcter vector) with SSFF files extension as key and file path as value
           # avoids duplicates in ssff files list
