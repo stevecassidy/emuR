@@ -23,6 +23,9 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
                                                 targetDir, tgExt = 'TextGrid', 
                                                 audioExt = 'wav', tierNames = NULL, 
                                                 showProgress = TRUE){
+  # normalize paths
+  path2rootDir = suppressWarnings(normalizePath(path2rootDir))
+  targetDir = suppressWarnings(normalizePath(targetDir))
   
   # check if target dir already exists
   if(file.exists(file.path(targetDir, dbName))){
