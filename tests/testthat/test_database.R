@@ -208,7 +208,25 @@ test_that("Test ae modify",{
   expect_equivalent(nrow(mod3Links),784)
   #expect_equivalent(nrow(mod2LinksExt),3950)
   
+  cm3=compare(mod3Items,mod2Items,allowAll=TRUE)
+  expect_true(cm3$result)
+  cmLbls3=compare(mod2Labels,mod3Labels,allowAll=TRUE)
+  expect_true(cmLbls3$result)
+  cml3=compare(mod3Links,mod2Links,allowAll=TRUE)
+  expect_false(cml3$result)
+  cmle3=compare(mod3LinksExt,mod2LinksExt,allowAll=TRUE)
+  expect_false(cmle3$result)
   
+  # insert the link again
+  b015m3=get.bundle(dbUUID = .test_emu_ae_db_uuid,sessionName = '0000',bundleName = 'msajc015')
+  b015m3Lks=b015m3[['links']]
+  b015m3Lks[[length(b015m3Lks)+1]]=list(fromID=177,toID=224)
+  b015m3[['links']]=b015m3Lks
+  
+  store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015m3)
+  mod4Links=dbGetQuery(emuDBs.con,paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  cml3=compare(orgLinks,mod4Links,allowAll=TRUE)
+  expect_true(cml3$result)
   
   #   
   #   # TODO move segment boundaries, change links,etc...
