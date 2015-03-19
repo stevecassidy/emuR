@@ -27,6 +27,16 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
   path2rootDir = suppressWarnings(normalizePath(path2rootDir))
   targetDir = suppressWarnings(normalizePath(targetDir))
   
+  # check if path2rootDir exists
+  if(!file.exists(path2rootDir)){
+    stop("path2rootDir does not exist!")
+  }
+  
+  # check if targetDir exists
+  if(!file.exists(targetDir)){
+    stop("targetDir does not exist!")
+  }
+  
   # check if target dir already exists
   if(file.exists(file.path(targetDir, dbName))){
     stop('The directory ', file.path(targetDir, dbName), ' already exists. Can not generate new emuDB if directory called ', dbName, ' already exists!')
