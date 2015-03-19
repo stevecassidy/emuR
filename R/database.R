@@ -814,6 +814,9 @@ get.bundle <- function(dbName=NULL,sessionName,bundleName,dbUUID=NULL){
   
   dbUUID=.get.database.uuid(name = dbName,uuid = dbUUID)
   b=.load.bundle.DBI(dbUUID,sessionName,bundleName)
+  if(is.null(b)){
+    return(b)
+  }
   b[['levels']]=.load.bundle.levels.s3(dbUUID,sessionName,bundleName)
   b[['links']]=.load.bundle.links.s3(dbUUID,sessionName,bundleName)
   return(as.bundle(b))
