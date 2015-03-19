@@ -145,5 +145,18 @@ test_that("SQLite label table has correct values", {
 
 })
 
+##############################
+test_that("Parsing TextGrids not of File type ooTextFile causes error", {
+  tg = 'File type = "ooTextFile short"
+  "TextGrid"
+  '
+  fileConn<-file(file.path(tempdir(), "shortTg.TextGrid"))
+  writeLines(tg, fileConn)
+  close(fileConn)
+  
+  expect_error(parse.textgrid(file.path(tempdir(), "shortTg.TextGrid"), sR, db='ae', bundle="msajc003", session="0000", conn = con, itemsTableName=itemsTableName, labelsTableName=labelsTableName))
+  
+})
+
 # Disconnect from the database
 dbDisconnect(con)
