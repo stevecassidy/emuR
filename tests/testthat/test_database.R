@@ -188,6 +188,33 @@ test_that("Test ae modify",{
   cmle2=compare(orgLinksExt,mod2LinksExt,allowAll=TRUE)
   expect_true(cmle2$result)
   
+  # remove link
+  b015Lks=b015m[['links']]
+  b015LksM=list()
+  for(b015Lk in b015Lks){
+    if(!(b015Lk[['fromID']]==177 & b015Lk[['toID']]==224)){
+      b015LksM[[length(b015LksM)+1]]=b015Lk
+    }
+  }
+  b015m2=b015m
+  b015m2[['links']]=b015LksM
+  store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015m2)
+  mod3Items=dbGetQuery(emuDBs.con,paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod3Labels=dbGetQuery(emuDBs.con,paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod3Links=dbGetQuery(emuDBs.con,paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod3LinksExt=dbGetQuery(emuDBs.con,paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  
+  expect_equivalent(nrow(mod3Items),736)
+  expect_equivalent(nrow(mod3Links),784)
+  #expect_equivalent(nrow(mod2LinksExt),3950)
+  
+  
+  
+  #   
+  #   # TODO move segment boundaries, change links,etc...
+  #   
+  #   
+  
 #   # store original bundle
    store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015)
 #   
@@ -209,9 +236,9 @@ test_that("Test ae modify",{
    expect_true(cml2$result)
    cmle2=compare(orgLinksExt,modOrgLinksExt,allowAll=TRUE)
    expect_true(cmle2$result)
-#   
-#   # TODO move segment boundaries, change links,etc...
-#   
-#   
+
+
+
+
   
 })
