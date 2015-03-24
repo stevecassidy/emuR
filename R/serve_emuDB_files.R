@@ -262,14 +262,23 @@ serve_emuDB_files=function(path2dbFolder, sessionPattern='.*', bundlePattern='.*
           
           # get annot file
           annotFilePath = file.path(path2dbFolder, paste0(sessionName, '_ses'), paste0(bundleName, '_bndl'), paste0(bundleName, '_annot.json'))
-          annotation = jsonlite::fromJSON(readLines(annotFilePath), simplifyVector=F)
+          annotFile = file(annotFilePath, "r+t")
+          annotation = jsonlite::fromJSON(readLines(annotFile), simplifyVector=F)
+          close(annotFile)
+          
+          
           
           # get SSFF files
           ssffFiles = list()
           
           for(td in allTrackDefsNeededByEMUwebApp){
             ssffFilePath = file.path(path2dbFolder, paste0(sessionName, '_ses'), paste0(bundleName, '_bndl'), paste0(bundleName, '.', td$fileExtension))
-            mf<- file(ssffFilePath, "rb")
+            # if FORMANTS track check open in read+write mode
+            if(td$name == "FORMANTS"){
+              mf<- file(ssffFilePath, "r+b")
+            }else{
+              mf<- file(ssffFilePath, "rb")
+            }
             mfData=readBin(mf, raw(), n=file.info(ssffFilePath)$size)
             mfDataBase64=base64encode(mfData)
             encoding="BASE64"
@@ -340,7 +349,6 @@ serve_emuDB_files=function(path2dbFolder, sessionPattern='.*', bundlePattern='.*
           # save annot file
           annotJSON=jsonlite::toJSON(jrAnnotation,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
           annotFilePath = file.path(path2dbFolder, paste0(sessionName, '_ses'), paste0(bundleName, '_bndl'), paste0(bundleName, '_annot.json'))
-          print(annotFilePath)
           writeLines(annotJSON, annotFilePath)
           
           response=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,responseContent='status',contentType='text/json')
