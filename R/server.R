@@ -33,7 +33,7 @@ require(base64enc)
 ##' @import httpuv jsonlite base64enc
 ##' @export
 ##' @author Klaus Jaensch
-##' @keywords emuDB EMU-webapp database websocket Emu
+##' @keywords emuDB EMU-webApp database websocket Emu
 ##' @examples
 ##' \dontrun{ 
 ##' ## Load an EMU database and serve it to the EMU-webApp (opens default HTTP/websocket port 17890)
