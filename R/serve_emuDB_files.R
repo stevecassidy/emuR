@@ -9,6 +9,8 @@ require(base64enc)
 ##' (\url{https://github.com/IPS-LMU/EMU-webApp/blob/master/app/manual/EMU-webApp-websocket-protocol.md}).
 ##' It is naive in the sense that it strickly serves the apropriate files of a emuDB to the EMU-webApp without
 ##' checking their validity or consistency.
+##' This also holds true for the files it saves straight to disc (_annot.json + SSFF file of the FORMANTS 
+##' ssffTrackDefinition) which are sent to the server as part of the SAVEBUNDLE request.
 ##' 
 ##' Start instructions:
 ##' \itemize{
@@ -30,6 +32,7 @@ require(base64enc)
 ##'   \item The server can also be interrupted with Ctrl-C if something goes wrong.
 ##' }
 ##' 
+##' 
 ##' @param path2dbFolder path to emuDB folder
 ##' @param sessionPattern regex pattern to be used on sessions to be sent to the EMU-webApp
 ##' @param bundlePattern regex pattern to be used on bundles to be sent to the EMU-webApp
@@ -37,16 +40,16 @@ require(base64enc)
 ##' @param port the port number to listen on (default: 17890)
 ##' @param debug TRUE to enable debugging (default: no debugging messages)
 ##' @param debugLevel integer higher values generate more detailed debug output
-##' @return the possibly modified Emu database object
 ##' @import httpuv jsonlite base64enc
 ##' @export
-##' @author Raphael Winkelmann (adapted form original serve function from Klaus Jänsch)
+##' @author Raphael Winkelmann (adapted form original serve function from Klaus Jaensch)
 ##' @keywords emuDB EMU-webApp database websocket Emu
 ##' @examples
 ##' \dontrun{ 
-##' ## serve the files belonging to a emuDB directly to the EMU-webApp (opens default HTTP/websocket port 17890)
+##' ## serve the files belonging to a emuDB directly to the 
+##' ## EMU-webApp (opens default HTTP/websocket port 17890)
 ##' 
-##' serve("/path/to/myDb")
+##' serve_emuDB_files("/path/to/emuDB")
 ##' }
 ##' 
 ##' @export

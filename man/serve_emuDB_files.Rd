@@ -23,9 +23,6 @@ serve_emuDB_files(path2dbFolder, sessionPattern = ".*",
 
 \item{debugLevel}{integer higher values generate more detailed debug output}
 }
-\value{
-the possibly modified Emu database object
-}
 \description{
 Naive file server for the EMU-webApp browser GUI \url{http://ips-lmu.github.io/EMU-webApp/}
 }
@@ -34,6 +31,8 @@ This function implements a websocket server that implements the EMU-webApp-webso
 (\url{https://github.com/IPS-LMU/EMU-webApp/blob/master/app/manual/EMU-webApp-websocket-protocol.md}).
 It is naive in the sense that it strickly serves the apropriate files of a emuDB to the EMU-webApp without
 checking their validity or consistency.
+This also holds true for the files it saves straight to disc (_annot.json + SSFF file of the FORMANTS
+ssffTrackDefinition) which are sent to the server as part of the SAVEBUNDLE request.
 
 Start instructions:
 \itemize{
@@ -57,13 +56,14 @@ Stop instructions:
 }
 \examples{
 \dontrun{
-## serve the files belonging to a emuDB directly to the EMU-webApp (opens default HTTP/websocket port 17890)
+## serve the files belonging to a emuDB directly to the
+## EMU-webApp (opens default HTTP/websocket port 17890)
 
-serve("/path/to/myDb")
+serve_emuDB_files("/path/to/emuDB")
 }
 }
 \author{
-Raphael Winkelmann (adapted form original serve function from Klaus Jänsch)
+Raphael Winkelmann (adapted form original serve function from Klaus Jaensch)
 }
 \keyword{EMU-webApp}
 \keyword{Emu}
