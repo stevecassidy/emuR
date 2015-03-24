@@ -13,6 +13,9 @@
 ##' @export
 ##'
 create.filePairList <- function(ext1Path2rootDir, ext2Path2rootDir, ext1, ext2){
+  # normalize paths
+  ext1Path2rootDir = suppressWarnings(normalizePath(ext1Path2rootDir))
+  ext2Path2rootDir = suppressWarnings(normalizePath(ext2Path2rootDir))
   
   # ext1Path2rootDir is valid path
   if(!file.exists(ext1Path2rootDir)){

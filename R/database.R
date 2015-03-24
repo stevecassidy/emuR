@@ -582,79 +582,66 @@ get.bundle.levels.s3 <-function(db,sessionName,bundleName){
       }
     }
   }
+  # load labels of bundle
+  bundleSelector=(db[['labels']][['session']]==sessionName & db[['labels']][['bundle']]==bundleName)
+  bundleLabels=db[['labels']][bundleSelector,]
   
   # create all levels
   levels=list()
   for(ld in levelDefinitions){
-    levels[[ld[['name']]]]=create.bundle.level(name=ld[['name']],type=ld[['type']])
-  }
-  
-  bundleSelector=(db[['items']][['session']]==sessionName & db[['items']][['bundle']]==bundleName)
-  items=db[['items']][bundleSelector,]
-  bundleSelector=(db[['labels']][['session']]==sessionName & db[['labels']][['bundle']]==bundleName)
-  bundleLabels=db[['labels']][bundleSelector,]
-  
-  nrows=nrow(items)
-  cLvl=NULL
-  lvlDef=NULL
-  lvlItems=list()
-
-  if(nrows>0){
-    for(r in 1:nrows){
-      rLvl=items[r,'level']
-      if(!is.null(cLvl) && cLvl[['name']]!=rLvl){
-        cLvl[['items']]=lvlItems
-        levels[[cLvl[['name']]]]=cLvl
-        cLvl=NULL
-      }
-      
-      if(is.null(cLvl)){
+    lvlNm=ld[['name']]
+    # create level object
+    levels[[lvlNm]]=create.bundle.level(name=ld[['name']],type=ld[['type']])
+    
+    # load items for (bundle) level 
+    bundleSelector=(db[['items']][['session']]==sessionName & db[['items']][['bundle']]==bundleName & db[['items']][['level']]==lvlNm)
+    items=db[['items']][bundleSelector,]
+    
+    nrows=nrow(items)
+    
+    if(nrows>0){
+      for(r in 1:nrows){
+        rLvl=items[r,'level']
         
-        lvlDef=find.levelDefinition(rLvl)
-        lvlItems=list()
         sr=NULL
         srDf=items[r,'sampleRate']
         if(!is.na(srDf)){
           sr=srDf
         }
-        lvl=levels[[rLvl]]
-        if(lvl[['type']]!=items[r,'type']){
-          stop("Wrong item type ",items[r,'type']," for level ",rLvl," type ",lvl[['type']],"\n")
+        levels[[lvlNm]][['sampleRate']]=sr
+        if(is.null(levels[[lvlNm]][['items']])){
+          levels[[lvlNm]][['items']]=list()
         }
-        # create new level object 
-        cLvl=create.bundle.level(name=rLvl,type=lvl[['type']],sampleRate=sr,items=lvlItems)
-      }
-      id=items[r,'itemID']
-      type=items[r,'type']
-      
-      attrDefs=lvlDef[['attributeDefinitions']]
-      attrDefsLen=length(attrDefs)
-      
-      gid=items[r,'id']
-      itemLabelSelector=bundleLabels[['itemID']]==gid
-      labelRows=bundleLabels[itemLabelSelector,]
-      nLabelRows=nrow(labelRows)
-      labels=list()
-      for(j in 1:nLabelRows){
+        lvl=levels[[lvlNm]]
+        if(lvl[['type']]!=items[r,'type']){
+          stop("Wrong item type ",items[r,'type']," for level ",lvlNm," type ",lvl[['type']]," in bundle: ",sessionName,":",bundleName,"\n")
+        }
         
+        id=items[r,'itemID']
+        type=items[r,'type']
         
-        lblNm=labelRows[j,'name']
-        labels[[j]]=list(name=lblNm,value=labelRows[j,'label'])
+        attrDefs=ld[['attributeDefinitions']]
+        attrDefsLen=length(attrDefs)
         
-      }
-      
-      
-      if(type=='SEGMENT'){
-        lvlItems[[length(lvlItems)+1L]]=create.interval.item(id=id,sampleStart=items[r,'sampleStart'],sampleDur=items[r,'sampleDur'],labels=labels)
-      }else if(type=='EVENT'){
-        lvlItems[[length(lvlItems)+1L]]=create.event.item(id=id,samplePoint=items[r,'samplePoint'],labels=labels)
-      }else{
-        lvlItems[[length(lvlItems)+1L]]=create.item(id=id,labels=labels)  
+        gid=items[r,'id']
+        itemLabelSelector=bundleLabels[['itemID']]==gid
+        labelRows=bundleLabels[itemLabelSelector,]
+        nLabelRows=nrow(labelRows)
+        labels=list()
+        for(j in 1:nLabelRows){
+          lblNm=labelRows[j,'name']
+          labels[[j]]=list(name=lblNm,value=labelRows[j,'label'])
+        }
+        
+        if(type=='SEGMENT'){
+          levels[[lvlNm]][['items']][[length(levels[[lvlNm]][['items']])+1L]]=create.interval.item(id=id,sampleStart=items[r,'sampleStart'],sampleDur=items[r,'sampleDur'],labels=labels)
+        }else if(type=='EVENT'){
+          levels[[lvlNm]][['items']][[length(levels[[lvlNm]][['items']])+1L]]=create.event.item(id=id,samplePoint=items[r,'samplePoint'],labels=labels)
+        }else{
+          levels[[lvlNm]][['items']][[length(levels[[lvlNm]][['items']])+1L]]=create.item(id=id,labels=labels)  
+        }
       }
     }
-    # add last level
-    cLvl[['items']]=lvlItems
-    levels[[cLvl[['name']]]]=cLvl
   }
   return(levels)
 }
@@ -1189,7 +1176,7 @@ add.levelDefinition<-function(db,levelDefinition){
   # store to disk
   .store.schema(db)
   
-  # add levels to exsiting bundles
+  # add levels to existing bundles
   # not required!!
   
   #db=bundle.iterator(db,function(db,b){

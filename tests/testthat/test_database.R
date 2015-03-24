@@ -122,6 +122,9 @@ test_that("Test ae samples",{
 
 test_that("Test ae modify",{
   ae=test_load_ae_database()
+  expect_equivalent(nrow(ae[['items']]),736)
+  expect_equivalent(nrow(ae[['links']]),785)
+  expect_equivalent(nrow(ae[['linksExt']]),3950)
   b015=get.bundle(ae,'0000','msajc015')
   # select arbitrary item
   b015m=b015
@@ -129,6 +132,10 @@ test_that("Test ae modify",{
   lblOrg=phoneticLvlIt10[['labels']][[1]][['value']]
   b015m[['levels']][['Phonetic']][['items']][[10]][['labels']][[1]][['value']]='test!!'
   aem=store.bundle.annotation(ae,b015m)
+  
+  expect_equivalent(nrow(aem[['items']]),736)
+  expect_equivalent(nrow(aem[['links']]),785)
+  expect_equivalent(nrow(aem[['linksExt']]),3950)
   
   # items should not be equal
   # Note: test doe not work without redundant label in items tbale anymore
@@ -142,7 +149,13 @@ test_that("Test ae modify",{
   
   # store original bundle
   aem2=store.bundle.annotation(ae,b015)
-  # shuld be equla to original
+  
+  expect_equivalent(nrow(aem2[['items']]),736)
+  expect_equivalent(nrow(aem2[['links']]),785)
+  expect_equivalent(nrow(aem2[['linksExt']]),3950)
+  
+  
+  # should be equal to original
   cm2=compare(ae$items,aem2$items,allowAll=TRUE)
   expect_true(cm2$result)
   
