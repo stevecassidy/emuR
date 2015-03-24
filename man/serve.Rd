@@ -56,7 +56,7 @@ myDb=serve(myDb)
 \author{
 Klaus Jaensch
 }
-\keyword{EMU-webapp}
+\keyword{EMU-webApp}
 \keyword{Emu}
 \keyword{database}
 \keyword{emuDB}
