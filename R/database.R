@@ -188,7 +188,8 @@ get.database<-function(uuid=NULL,name=NULL){
   if(dbCount==0){
     stop("Database not found !\n")
   }else if (dbCount==1){
-    dbCfg=jsonlite::fromJSON(dbDf[['DBconfigJSON']],simplifyVector=FALSE)
+    dbCfgObj=jsonlite::fromJSON(dbDf[['DBconfigJSON']],simplifyVector=FALSE)
+    dbCfg=unmarshal.from.persistence(x=dbCfgObj,classMap = emuR.persist.class.DBconfig)
     db=create.database(name = dbDf[['name']],basePath = dbDf[['basePath']],DBconfig = dbCfg)
   }else{
     stop("Found ",dbCount," databases with same name: ",name,". Please specify database UUID!\n")
@@ -223,6 +224,14 @@ get.database<-function(uuid=NULL,name=NULL){
   }
 }
 
+.get.bundle.count.DBI<-function(dbUUID){
+  bCntQ=paste0("SELECT count(*) FROM bundle WHERE db_uuid='",dbUUID,"'")
+  bCntDf=dbGetQuery(emuDBs.con,bCntQ)
+  if(length(bCntDf)==0){
+    stop("Could not get bundle count of emuDB ",dbUUID,"\n")
+  }
+  return(bCntDf[[1]])
+}
 .load.bundle.names.DBI<-function(dbUUID,sessionName){
   bQ=paste0("SELECT name FROM bundle WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"'")
   bDf=dbGetQuery(emuDBs.con,bQ)
@@ -331,25 +340,31 @@ get.database.uuid<-function(name){
   }
 }
 
-list.databases<-function(){
+
+
+list.emuDBs<-function(){
   .initialize.DBI.database()
   dbs=dbGetQuery(emuDBs.con,"SELECT uuid,name,basePath FROM emuDB")
   return(dbs)
 }
 
-.clear.database<-function(uuid){
+clear.emuDB<-function(name=NULL,uuid=NULL){
   .initialize.DBI.database()
-  dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM links WHERE db_uuid='",uuid,"'"))
-  dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM linksExt WHERE db_uuid='",uuid,"'"))
-  dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM labels WHERE db_uuid='",uuid,"'"))
-  dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM items WHERE db_uuid='",uuid,"'"))
-  dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM track WHERE db_uuid='",uuid,"'"))
-  dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM bundle WHERE db_uuid='",uuid,"'"))
-  dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM session WHERE db_uuid='",uuid,"'"))
-  dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM emuDB WHERE uuid='",uuid,"'"))
+  
+  uuid=.get.database.uuid(name = name,uuid=uuid)
+  if(is.null(uuid)){
+    dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM links WHERE db_uuid='",uuid,"'"))
+    dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM linksExt WHERE db_uuid='",uuid,"'"))
+    dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM labels WHERE db_uuid='",uuid,"'"))
+    dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM items WHERE db_uuid='",uuid,"'"))
+    dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM track WHERE db_uuid='",uuid,"'"))
+    dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM bundle WHERE db_uuid='",uuid,"'"))
+    dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM session WHERE db_uuid='",uuid,"'"))
+    dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM emuDB WHERE uuid='",uuid,"'"))
+  }
 }
 
-clear.all.databases<-function(){
+clear.all.emuDBs<-function(){
   cleared=FALSE
   ans=readline('Are you sure you want to remove all databases from this R session? (y/n)')
   if(ans=='y'){
@@ -389,19 +404,26 @@ create.database <- function(name,basePath=NULL,DBconfig=create.schema.databaseDe
 ##' Prints database name, base directory path and informations about annoation levels, attributes, links, and signal file tracks
 ##' @param object EMU database object
 ##' @param ... (not used)
-##' @method summary emuDB
 ##' @export
-summary.emuDB<-function(object,...){
- 
+summary.emuDB<-function(name=NULL,uuid=NULL){
+  uuid=.get.database.uuid(name,uuid)
+  object=.load.emuDB.DBI(uuid)
   cat("Name:\t",object[['name']],"\n")
+  cat("UUID:\t",object[['DBconfig']][['UUID']],"\n")
   cat("Directory:\t",object[['basePath']],"\n")
-  cat("Session count:",length(object[['sessions']]),"\n")
-  bndlCnt=0
-  for(s in object[['sessions']]){
-    bndlCnt=bndlCnt+length(s[['bundles']])
-  }
+  sesss=.load.sessions.DBI(dbUUID = uuid)
+  cat("Session count:",nrow(sesss),"\n")
+
+  bndlCnt=.get.bundle.count.DBI(uuid)
+ 
   cat("Bundle count:",bndlCnt,"\n")
-  cat("Annotation item count: ",nrow(object[['items']]),", links count: ",nrow(object[['links']]),"\n")
+  itCntQ=paste0("SELECT count(*) FROM items WHERE db_uuid='",uuid,"'")
+  itCntDf=dbGetQuery(emuDBs.con,itCntQ)
+  itemCnt=itCntDf[[1]]
+  liCntQ=paste0("SELECT count(*) FROM links WHERE db_uuid='",uuid,"'")
+  liCntDf=dbGetQuery(emuDBs.con,liCntQ)
+  linkCnt=liCntDf[[1]]
+  cat("Annotation item count: ",itemCnt,", links count: ",linkCnt,"\n")
   cat("\nDatabase configuration:\n\n")
   summary(object[['DBconfig']])
   #cat("SSFF track definitions:\n")

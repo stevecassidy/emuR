@@ -19,7 +19,7 @@ serve.emuDB(dbName, host = "127.0.0.1", port = 17890, debug = FALSE,
 \item{debugLevel}{integer higher values generate more detailed debug output}
 }
 \value{
-the possibly modified Emu database object
+TRUE if the database was modified, FALSE otherwise
 }
 \description{
 Server for EMU-Webapp browser GUI \url{http://ips-lmu.github.io/EMU-webApp/}

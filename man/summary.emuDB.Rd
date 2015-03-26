@@ -4,7 +4,7 @@
 \alias{summary.emuDB}
 \title{Print summary for EMU database object}
 \usage{
-\method{summary}{emuDB}(object, ...)
+summary.emuDB(name = NULL, uuid = NULL)
 }
 \arguments{
 \item{object}{EMU database object}
