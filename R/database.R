@@ -352,7 +352,7 @@ clear.emuDB<-function(name=NULL,uuid=NULL){
   .initialize.DBI.database()
   
   uuid=.get.database.uuid(name = name,uuid=uuid)
-  if(is.null(uuid)){
+  if(!is.null(uuid)){
     dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM links WHERE db_uuid='",uuid,"'"))
     dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM linksExt WHERE db_uuid='",uuid,"'"))
     dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM labels WHERE db_uuid='",uuid,"'"))
