@@ -175,6 +175,14 @@ orm.DBI.insert<-function(conn,obj){
   
 }
 
+.store.DBconfig.DBI<-function(DBconfig){
+  dbCfgJSON=jsonlite::toJSON(DBconfig,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+  updDbCfgQ=paste0("UPDATE emuDB SET DBconfigJSON='",dbCfgJSON,"'")
+  res <- dbSendQuery(emuDBs.con,updDbCfgQ)
+  dbClearResult(res)
+}
+
+
 get.database<-function(uuid=NULL,name=NULL){
   return(.load.emuDB.DBI(uuid,name))
 }
