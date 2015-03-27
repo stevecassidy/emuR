@@ -1236,16 +1236,7 @@ add.levelDefinition<-function(dbName=NULL,levelDefinition,dbUUID=NULL){
   
   # store to disk
   .store.schema(db)
-  
-  # add levels to existing bundles
-  # not required!!
-  
-  #db=bundle.iterator(db,function(db,b){
-  #  bs3=get.bundle(sessionName,b[['name']])
-  #  bs3[['levels']][[levelDefinition[['name']]]]=create.bundle.level(name=levelDefinition[['name']],type = levelDefinition[['type']],items = list())
-  #})
-  
-  return(db)
+  invisible(NULL)
 }
 
 remove.levelDefinition<-function(db,levelDefinitionName){
