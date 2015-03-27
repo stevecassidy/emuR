@@ -1121,7 +1121,13 @@ apply.class<-function(val,path,class){
 #       maxLbls=attrCnt
 #     }
 #   }
-  schema[['maxNumberOfLabels']]=max(sapply(schema[['levelDefinitions']], function(ld) { length(ld[['attributeDefinitions']])} ))
+  schema[['maxNumberOfLabels']]=1L
+  for( ld in schema[['levelDefinitions']]){
+    attrCnt=length(ld[['attributeDefinitions']])
+    if(attrCnt>schema[['maxNumberOfLabels']]){
+      schema[['maxNumberOfLabels']]=attrCnt
+    }
+  }
   return(schema)
 }
 
