@@ -1498,7 +1498,7 @@ store.emuDB <- function(dbName=NULL,targetDir,dbUUID=NULL,options=NULL,showProgr
     #    sessBundleCount=length(s[['bundles']])
     #    bundleCount=bundleCount+sessBundleCount
     #}
-    bundleCount=as.integer(dbGetQuery(emuDBs.con,"SELECT count(*) FROM bundle"))
+    bundleCount=as.integer(dbGetQuery(emuDBs.con,paste0("SELECT count(*) FROM bundle WHERE db_uuid='",dbUUID,"'")))
     cat("INFO: Storing EMU database containing",bundleCount,"bundles...\n")
     pb=txtProgressBar(min=0,max=bundleCount+1L,style=3)
     setTxtProgressBar(pb,progress)
