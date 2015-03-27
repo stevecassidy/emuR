@@ -1220,7 +1220,8 @@ add.bundle<-function(db,sessionName,bundle){
 # @author Klaus Jaensch
 # @export
 # @keywords emuDB database schema Emu 
-add.levelDefinition<-function(db,levelDefinition){
+add.levelDefinition<-function(dbName=NULL,levelDefinition,dbUUID=NULL){
+  db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
   # check if level definition (name) already exists 
   for(ld in db[['DBconfig']][['levelDefinitions']]){
     if(ld[['name']]==levelDefinition[['name']]){
