@@ -1193,13 +1193,14 @@ bundle.iterator<-function(db,apply){
 }
 
 create.emuDB<-function(name,targetDir,mediaFileExtension='wav'){
-  path=file.path(targetDir,name)
+ basePath=file.path(targetDir,name)
   dbConfig=create.schema.databaseDefinition(name=name,mediafileExtension = mediaFileExtension)
-  db=create.database(name=name,basePath=path,DBconfig = dbConfig)
-  store.emuDB(db,targetDir)
-  db=load.emuDB(path)
-  return(db)
+  db=create.database(name=name,basePath=basePath,DBconfig = dbConfig)
+  .store.emuDB.DBI(database = db)
+  store.emuDB(targetDir=targetDir,dbUUID=dbConfig[['UUID']])
+  
 }
+
 
 add.bundle<-function(db,sessionName,bundle){
   db[['sessionName']]
