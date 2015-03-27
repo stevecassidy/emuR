@@ -689,7 +689,9 @@ get.level.name.for.attribute<-function(dbConfig,attributeName){
         lbl=lbls[[i]]
         if(!is.null(lbl)){
           rLbl=lbl[['value']]
-          sqlInsert=paste0("INSERT INTO labels VALUES('",dbUUID,"','",bundle[['session']],"','",bName,"',",itemId,",",i-1L,",'",lbl[['name']],"',\"",rLbl,"\")")
+          sqlEscapedLbl=str_replace_all(rLbl,"'","''")
+          #sqlInsert=paste0("INSERT INTO labels VALUES('",dbUUID,"','",bundle[['session']],"','",bName,"',",itemId,",",i-1L,",'",lbl[['name']],"',\"",rLbl,"\")")
+          sqlInsert=paste0("INSERT INTO labels VALUES('",dbUUID,"','",bundle[['session']],"','",bName,"',",itemId,",",i-1L,",'",lbl[['name']],"','",sqlEscapedLbl,"')")
           #cat('SQL:',sqlInsert,"\n")
           res<-dbSendQuery(emuDBs.con,sqlInsert)
           dbClearResult(res)
