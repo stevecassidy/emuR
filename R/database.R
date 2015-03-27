@@ -518,85 +518,90 @@ build.redundant.links.for.pathes<-function(database,lfs,sessionName='0000',bundl
   
   res<-dbSendQuery(emuDBs.con,'DELETE FROM linksTmp')
   dbClearResult(res)
-  sqlQuery="INSERT INTO linksTmp(db_uuid,session,bundle,fromID,toID,label) SELECT DISTINCT f.db_uuid,f.session,f.bundle,f.itemID AS fromID,t.itemID AS toID, NULL AS label FROM items f,items t"
-  sqlQuery=paste0(sqlQuery," WHERE f.db_uuid='",database[['DBconfig']][['UUID']],"' AND f.db_uuid=t.db_uuid AND f.session=t.session AND f.bundle=t.bundle AND ")
-  #sqlQuery=paste0(sqlQuery," WHERE f.db_uuid=t.db_uuid AND f.bundle=t.bundle AND f.session=t.session AND ")
- 
-  if(!is.null(sessionName) & !is.null(bundleName)){
-     # only for one bundle
-    sqlQuery=paste0(sqlQuery,"f.session='",sessionName,"' AND f.bundle='",bundleName,"' AND ")
-  }
-  #if(maxLfLen>2){
-  #  for( ic in 2:(maxLfLen-1)){
-  #    sqlQuery=paste0(sqlQuery,'i',ic,'.bundle=f.bundle AND ')
-  #  }
-  #}
-  sqlQuery=paste0(sqlQuery,' (')
-  ## TEST
-  #lfs=list(c('Phoneme','Phonetic'))
-  # build query for each partial path
+  
   lfsLen=length(lfs)
-  for(i in 1:lfsLen){
-    lf=lfs[[i]]
-    #cat("Path: ",lf,"\n")
-    lfLen=length(lf)
-    sLf=lf[1]
-    eLf=lf[lfLen]
-    sqlQuery=paste0(sqlQuery,"(f.level='",sLf,"' AND t.level='",eLf,"'" )
-    sqlQuery=paste0(sqlQuery," AND EXISTS (SELECT l1.* FROM ")
-    for(li in 1:(lfLen-1)){
-      sqlQuery=paste0(sqlQuery,'links l',li)
-      if(li<(lfLen-1)){
-        sqlQuery=paste0(sqlQuery,',')
-      }
+  if(lfsLen>0){
+    
+    sqlQuery="INSERT INTO linksTmp(db_uuid,session,bundle,fromID,toID,label) SELECT DISTINCT f.db_uuid,f.session,f.bundle,f.itemID AS fromID,t.itemID AS toID, NULL AS label FROM items f,items t"
+    sqlQuery=paste0(sqlQuery," WHERE f.db_uuid='",database[['DBconfig']][['UUID']],"' AND f.db_uuid=t.db_uuid AND f.session=t.session AND f.bundle=t.bundle AND ")
+    #sqlQuery=paste0(sqlQuery," WHERE f.db_uuid=t.db_uuid AND f.bundle=t.bundle AND f.session=t.session AND ")
+    
+    if(!is.null(sessionName) & !is.null(bundleName)){
+      # only for one bundle
+      sqlQuery=paste0(sqlQuery,"f.session='",sessionName,"' AND f.bundle='",bundleName,"' AND ")
     }
-    if(lfLen>2){
-      for(ii in 2:(lfLen-1)){
-        sqlQuery=paste0(sqlQuery,',items i',ii)
-      }
-    }
-    sqlQuery=paste0(sqlQuery," WHERE ")
-    if(lfLen==2){
-      sqlQuery=paste0(sqlQuery,"l1.db_uuid=f.db_uuid AND l1.db_uuid=t.db_uuid AND l1.session=f.session AND l1.session=t.session AND l1.bundle=f.bundle AND l1.bundle=t.bundle AND f.itemID=l1.fromID AND t.itemID=l1.toID")
-      #sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=t.bundle AND f.itemID=l1.fromID AND t.itemID=l1.toID")
-      #cat(sLf,eLf,"\n")
-    }else{
-      # TODO start and end connection
-      # from start to first in-between item 
-      eLf=lf[2]
-      #cat(sLf,eLf,"\n")
-      sqlQuery=paste0(sqlQuery,"l1.db_uuid=f.db_uuid AND l1.db_uuid=i2.db_uuid AND l1.session=f.session AND l1.session=i2.session AND l1.bundle=f.bundle AND l1.bundle=i2.bundle AND f.itemID=l1.fromID AND i2.itemID=l1.toID AND f.level='",sLf,"' AND i2.level='",eLf,"' AND ")
-      #sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=i2.bundle AND f.itemID=l1.fromID AND i2.itemID=l1.toID AND f.level='",sLf,"' AND i2.level='",eLf,"' AND ")
-      if(lfLen>3){
-        for(j in 2:(lfLen-2)){
-          sLf=lf[j]
-          eLf=lf[j+1L] 
-          #cat(sLf,eLf,"\n")
-          sqlQuery=paste0(sqlQuery,"l",j,".db_uuid=i",j,".db_uuid AND l",j,".db_uuid=i",(j+1),".db_uuid AND l",j,".session=i",j,".session AND l",j,".session=i",(j+1),".session AND l",j,".bundle=i",j,".bundle AND l",j,".bundle=i",(j+1),".bundle AND i",j,".itemID=l",j,".fromID AND i",(j+1L),".itemID=l",j,".toID AND i",j,".level='",sLf,"' AND i",(j+1L),".level='",eLf,"' AND ")
+    #if(maxLfLen>2){
+    #  for( ic in 2:(maxLfLen-1)){
+    #    sqlQuery=paste0(sqlQuery,'i',ic,'.bundle=f.bundle AND ')
+    #  }
+    #}
+    sqlQuery=paste0(sqlQuery,' (')
+    ## TEST
+    #lfs=list(c('Phoneme','Phonetic'))
+    # build query for each partial path
+    
+    for(i in 1:lfsLen){
+      lf=lfs[[i]]
+      #cat("Path: ",lf,"\n")
+      lfLen=length(lf)
+      sLf=lf[1]
+      eLf=lf[lfLen]
+      sqlQuery=paste0(sqlQuery,"(f.level='",sLf,"' AND t.level='",eLf,"'" )
+      sqlQuery=paste0(sqlQuery," AND EXISTS (SELECT l1.* FROM ")
+      for(li in 1:(lfLen-1)){
+        sqlQuery=paste0(sqlQuery,'links l',li)
+        if(li<(lfLen-1)){
+          sqlQuery=paste0(sqlQuery,',')
         }
       }
-      # from last in-between item to end item
-      sLf=lf[(lfLen-1)]
-      eLf=lf[lfLen]
-      #cat(sLf,eLf,(lfLen-1),"\n")
-      j=lfLen-1
-      sqlQuery=paste0(sqlQuery,"l",j,".db_uuid=i",j,".db_uuid AND l",j,".db_uuid=t.db_uuid AND l",j,".session=i",j,".session AND l",j,".session=t.session AND l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND i",j,".itemID=l",j,".fromID AND t.itemID=l",j,".toID AND i",j,".level='",sLf,"' AND t.level='",eLf,"'")
-      #sqlQuery=paste0(sqlQuery,"l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND i",j,".itemID=l",j,".fromID AND t.itemID=l",j,".toID AND i",j,".level='",sLf,"' AND t.level='",eLf,"'")
+      if(lfLen>2){
+        for(ii in 2:(lfLen-1)){
+          sqlQuery=paste0(sqlQuery,',items i',ii)
+        }
+      }
+      sqlQuery=paste0(sqlQuery," WHERE ")
+      if(lfLen==2){
+        sqlQuery=paste0(sqlQuery,"l1.db_uuid=f.db_uuid AND l1.db_uuid=t.db_uuid AND l1.session=f.session AND l1.session=t.session AND l1.bundle=f.bundle AND l1.bundle=t.bundle AND f.itemID=l1.fromID AND t.itemID=l1.toID")
+        #sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=t.bundle AND f.itemID=l1.fromID AND t.itemID=l1.toID")
+        #cat(sLf,eLf,"\n")
+      }else{
+        # TODO start and end connection
+        # from start to first in-between item 
+        eLf=lf[2]
+        #cat(sLf,eLf,"\n")
+        sqlQuery=paste0(sqlQuery,"l1.db_uuid=f.db_uuid AND l1.db_uuid=i2.db_uuid AND l1.session=f.session AND l1.session=i2.session AND l1.bundle=f.bundle AND l1.bundle=i2.bundle AND f.itemID=l1.fromID AND i2.itemID=l1.toID AND f.level='",sLf,"' AND i2.level='",eLf,"' AND ")
+        #sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=i2.bundle AND f.itemID=l1.fromID AND i2.itemID=l1.toID AND f.level='",sLf,"' AND i2.level='",eLf,"' AND ")
+        if(lfLen>3){
+          for(j in 2:(lfLen-2)){
+            sLf=lf[j]
+            eLf=lf[j+1L] 
+            #cat(sLf,eLf,"\n")
+            sqlQuery=paste0(sqlQuery,"l",j,".db_uuid=i",j,".db_uuid AND l",j,".db_uuid=i",(j+1),".db_uuid AND l",j,".session=i",j,".session AND l",j,".session=i",(j+1),".session AND l",j,".bundle=i",j,".bundle AND l",j,".bundle=i",(j+1),".bundle AND i",j,".itemID=l",j,".fromID AND i",(j+1L),".itemID=l",j,".toID AND i",j,".level='",sLf,"' AND i",(j+1L),".level='",eLf,"' AND ")
+          }
+        }
+        # from last in-between item to end item
+        sLf=lf[(lfLen-1)]
+        eLf=lf[lfLen]
+        #cat(sLf,eLf,(lfLen-1),"\n")
+        j=lfLen-1
+        sqlQuery=paste0(sqlQuery,"l",j,".db_uuid=i",j,".db_uuid AND l",j,".db_uuid=t.db_uuid AND l",j,".session=i",j,".session AND l",j,".session=t.session AND l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND i",j,".itemID=l",j,".fromID AND t.itemID=l",j,".toID AND i",j,".level='",sLf,"' AND t.level='",eLf,"'")
+        #sqlQuery=paste0(sqlQuery,"l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND i",j,".itemID=l",j,".fromID AND t.itemID=l",j,".toID AND i",j,".level='",sLf,"' AND t.level='",eLf,"'")
+      }
+      sqlQuery=paste0(sqlQuery,"))")
+      if(i<lfsLen){
+        sqlQuery=paste0(sqlQuery," OR ")
+      }
     }
-    sqlQuery=paste0(sqlQuery,"))")
-    if(i<lfsLen){
-      sqlQuery=paste0(sqlQuery," OR ")
-    }
+    sqlQuery=paste0(sqlQuery,")")
+    #cat(sqlQuery,"\n")
+    # since version 2.8.x of sqlite the query is very slow without indices
+    
+    
+    #cat(sqlQuery,"\n")
+    #res<-dbSendQuery(emuDBs.con,comQuery)
+    res<-dbSendQuery(emuDBs.con,sqlQuery)
+    dbClearResult(res)
   }
-  sqlQuery=paste0(sqlQuery,")")
-  #cat(sqlQuery,"\n")
-  # since version 2.8.x of sqlite the query is very slow without indices
- 
-
-  #cat(sqlQuery,"\n")
-  #res<-dbSendQuery(emuDBs.con,comQuery)
-  res<-dbSendQuery(emuDBs.con,sqlQuery)
-  dbClearResult(res)
   #print(dbReadTable(emuDBs.con,'linksTmp'))
   
 }
