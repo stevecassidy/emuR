@@ -1298,8 +1298,9 @@ add.levelDefinition<-function(dbName=NULL,levelDefinition,dbUUID=NULL){
   invisible(NULL)
 }
 
-remove.levelDefinition<-function(db,levelDefinitionName){
-  # check if level definition (name)  exists 
+remove.levelDefinition<-function(dbName,levelDefinitionName,dbUUID=NULL){
+  db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  # check if level definition (name)exists 
   if(!any(sapply(db[['DBconfig']][['levelDefinitions']],function(ld) ld[['name']]==levelDefinitionName))){
     stop("Level definition:",levelDefinitionName," does not exist in database ",db[['name']])
   }
@@ -1311,11 +1312,11 @@ remove.levelDefinition<-function(db,levelDefinitionName){
     }
   }
   
-  
   # check if level is empty
-  itsSelector=(db[['items']][['level']]==levelDefinitionName)
-  lvlIts=db[['items']][itsSelector,]
-  if(nrow(lvlIts)>0){
+  itemsDf=dbGetQuery(emuDBs.con,paste0("SELECT * FROM items i WHERE \
+                        i.db_uuid='",uuid,"' AND i.level='",levelDefinitionName,"'"))
+  itemsCnt=nrow(itemsDf)
+  if(itemsCnt>0){
     stop("Level is not empty. Remove items first to delete level ",levelDefinitionName)
   }
   
@@ -1334,7 +1335,7 @@ remove.levelDefinition<-function(db,levelDefinitionName){
   # store to disk
   .store.schema(db)
   
-  return(db)
+  return(invisible(NULL))
 }
 
 add.linkDefinition<-function(dbName,linkDefinition,dbUUID=NULL){
@@ -1374,6 +1375,50 @@ add.linkDefinition<-function(dbName,linkDefinition,dbUUID=NULL){
   
   # store 
   .store.schema(db)
+  return(invisible(NULL))
+}
+
+
+remove.linkDefinition<-function(dbName,linkDefinitionSuperlevelName,linkDefinitionSublevelName,dbUUID=NULL){
+  db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  uuid=db[['DBconfig']][['UUID']]
+  # check if link definition exists 
+  exists=FALSE
+  for(lkd in db[['DBconfig']][['linkDefinitions']]){
+    if(lkd[['superlevelName']]== linkDefinitionSuperlevelName& lkd[['sublevelName']]==linkDefinitionSublevelName){
+      exists=TRUE
+      break
+    }
+  }
+  if(!exists){
+    stop("Link definition ",linkDefinitionSuperlevelName," -> ",linkDefinitionSublevelName," not found!")
+  }
+  
+  # check if links exist
+  lksDf=dbGetQuery(emuDBs.con,paste0("SELECT * FROM links l,items f,items t WHERE \
+                        l.db_uuid='",uuid,"' AND f.db_uuid=l.db_uuid AND t.db_uuid=l.db_uuid AND \
+                        l.fromID=f.itemID AND l.toID=t.itemID AND \
+                        f.level='",linkDefinitionSuperlevelName,"' AND t.level='",linkDefinitionSublevelName,"'"))
+  lksCnt=nrow(lksDf)
+  if(lksCnt>0){
+    stop("There are ",lnksCnt," links for this link definitons. Remove these links first to delete link definition")
+  }
+  
+  # do removal
+  newLkDefs=list()
+  for(lkDef in db[['DBconfig']][['linkDefinitions']]){
+    if(!(lkd[['superlevelName']]== linkDefinitionSuperlevelName& lkd[['sublevelName']]==linkDefinitionSublevelName)){
+      newLkDefs[[length(newLkDefs)+1]]=lkDef
+    }
+  }
+  db[['DBconfig']][['linkDefinitions']]=newLkDefs
+  
+  # update transient values
+  db[['DBconfig']]=.update.transient.schema.values(db[['DBconfig']])
+  
+  # store to disk
+  .store.schema(db)
+  
   return(invisible(NULL))
 }
 
