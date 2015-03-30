@@ -1325,29 +1325,23 @@ add.linkDefinition<-function(db,linkDefinition){
 
 ##' Import media files to EMU database
 ##' @description Import media files to EMU database
-##' @param db object of class emuDB
+##' @param dbName name of emuDB
 ##' @param dir directory containing mediafiles or session directories
 ##' @param targetSessionName name of session in which to create the new bundles 
-##' @return modified database object
 ##' @author Klaus Jaensch
-##' @import sqldf stringr
+##' @import stringr
 ##' @keywords emuDB database Emu
 ##' @examples
 ##' \dontrun{
 ##' ## Add mediafiles from directory
 ##' 
-##'  import.mediaFiles(emuDB,'0000',dir="/data/mymedia")
+##'  import.mediaFiles('myEmuDB',dir="/data/mymedia/")
 ##' 
 ##' }
-"import.mediaFiles"<-function(db,dir,targetSessionName='0000'){
-  UseMethod("import.mediaFiles")
-}
-
-"import.mediaFiles.emuDB"<-function(db,dir,targetSessionName='0000'){
-  dbClass=class(db)
-  if(dbClass=='emuDB'){
-
+ import.mediaFiles.emuDB<-function(dbName,dir,targetSessionName='0000',dbUUID=NULL){
+   db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
     dbCfg=db[['DBconfig']]
+    dbUUID=dbCfg['UUID']
     if(is.null(dbCfg[['mediaFileExtension']])){
       pattern=NULL
       #stop("The DB has no media file extension defined.")
@@ -1361,9 +1355,13 @@ add.linkDefinition<-function(db,linkDefinition){
       if(!file.exists(sessDir)){
         dir.create(sessDir)
       }
-      if(is.null(db[['sessions']][[targetSessionName]])){
-        db[['sessions']][[targetSessionName]]=emuDB.session(name=targetSessionName,path = sessDir,bundles=list())
+     
+      qSessSql=paste0("SELECT * FROM session WHERE db_uuid='",dbUUID,"' AND name='",targetSessionName,"'")
+      sessDf<-dbGetQuery(emuDBs.con,qSessSql)
+      if(nrow(sessDf)==0){
+        .store.session.DBI(dbUUID = dbUUID,sessionName = targetSessionName)
       }
+      
     }
     mediaAdded=FALSE
     for(mf in mfList){
@@ -1378,7 +1376,9 @@ add.linkDefinition<-function(db,linkDefinition){
       pfAssp=read.AsspDataObj(newMediaFileFullPath,0,4000)
       sampleRate=attr(pfAssp,'sampleRate')
       b=create.bundle(name = bundleName,sessionName = targetSessionName,mediaFilePath = newMediaFileFullPath,annotates=mf,sampleRate=sampleRate)
-      db[['sessions']][[targetSessionName]][['bundles']][[bundleName]]=b
+      b[['session']]=targetSessionName
+      .store.bundle.DBI(database = db,bundle=b)
+      #db[['sessions']][[targetSessionName]][['bundles']][[bundleName]]=b
       # TODO generate empty annotation and SSFFtracks if required
       annoAdded=FALSE
       for(ld in dbCfg[['levelDefinitions']]){
@@ -1393,7 +1393,7 @@ add.linkDefinition<-function(db,linkDefinition){
         annoAdded=TRUE
       }
       if(annoAdded){
-        db=store.bundle.annotation(db,b)
+        store.bundle.annotation(bundle = b,dbUUID = dbUUID)
       }
       mediaAdded=TRUE
     }
@@ -1404,12 +1404,9 @@ add.linkDefinition<-function(db,linkDefinition){
       sc=create.EMUwebAppConfig.signalCanvas(order=c("OSCI","SPEC"),assign=list(),contourLims=list())
       defPersp=create.EMUwebAppConfig.perspective(name='default',signalCanvases=sc,levelCanvases=list(order=list()),twoDimCanvases=list(order=list()))
       db[['DBconfig']][['EMUwebAppConfig']][['perspectives']]=list(defPersp)
+      .store.DBconfig.DBI(DBconfig = db[['DBconfig']])
     }
-  
-    return(db)
-  }else{
-    NextMethod()
-  }
+    return(invisible(NULL))
 }
 
 ##' Store EMU database to directory
