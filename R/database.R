@@ -1204,6 +1204,7 @@ create.emuDB<-function(name,targetDir,mediaFileExtension='wav'){
  basePath=file.path(targetDir,name)
   dbConfig=create.schema.databaseDefinition(name=name,mediafileExtension = mediaFileExtension)
   db=create.database(name=name,basePath=basePath,DBconfig = dbConfig)
+ .initialize.DBI.database()
   .store.emuDB.DBI(database = db)
   store.emuDB(targetDir=targetDir,dbUUID=dbConfig[['UUID']])
   
