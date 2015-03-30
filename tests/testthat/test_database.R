@@ -20,8 +20,8 @@ test_that("function get.legacy.file.path()",{
   expect_equal(signalTrackFilePath,"/path/to/db/F0/0001abc.f0")
 })
 
-test_that("Clear example database ae",{
-  .clear.database(.test_emu_ae_db_uuid)
+test_that("Purge example database ae",{
+  purge.emuDB(name='ae',uuid=.test_emu_ae_db_uuid,interactive=FALSE)
 })
 
 test_that("Convert example database ae",{
