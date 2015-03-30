@@ -1460,7 +1460,8 @@ add.linkDefinition<-function(db,linkDefinition){
       sc=create.EMUwebAppConfig.signalCanvas(order=c("OSCI","SPEC"),assign=list(),contourLims=list())
       defPersp=create.EMUwebAppConfig.perspective(name='default',signalCanvases=sc,levelCanvases=list(order=list()),twoDimCanvases=list(order=list()))
       db[['DBconfig']][['EMUwebAppConfig']][['perspectives']]=list(defPersp)
-      .store.DBconfig.DBI(DBconfig = db[['DBconfig']])
+      #.store.DBconfig.DBI(DBconfig = db[['DBconfig']])
+      .store.schema(db = db)
     }
     return(invisible(NULL))
 }
