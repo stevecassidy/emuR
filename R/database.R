@@ -1768,11 +1768,10 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   db=create.database(name = schema[['name']],basePath = normalizePath(databaseDir),DBconfig = schema)
   
   .initialize.DBI.database()
-  # TODO check if already exists
-  
-#   createDbSql=paste0("INSERT INTO emuDB(uuid,name) VALUES('",schema[['UUID']],"','",schema[['name']],"')")
-#   res<-dbSendQuery(emuDBs.con,createDbSql)
-#   dbClearResult(res)
+  dbsDf=dbGetQuery(emuDBs.con,paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
+  if(nrow(dbsDf)>0){
+    stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
+  }
  
   .store.emuDB.DBI(db)
   if(verbose){
