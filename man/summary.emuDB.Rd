@@ -7,9 +7,7 @@
 summary.emuDB(name = NULL, uuid = NULL)
 }
 \arguments{
-\item{object}{EMU database object}
-
-\item{...}{(not used)}
+\item{name}{name of EmuDB}
 }
 \description{
 Gives an overview of an EMU database object
