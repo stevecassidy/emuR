@@ -1337,7 +1337,8 @@ remove.levelDefinition<-function(db,levelDefinitionName){
   return(db)
 }
 
-add.linkDefinition<-function(db,linkDefinition){
+add.linkDefinition<-function(dbName,linkDefinition,dbUUID=NULL){
+  db=.load.emuDB.DBI(name=dbName,uuid = dbUUID)
   # check existence of levels
   
   superFound=FALSE
@@ -1368,14 +1369,12 @@ add.linkDefinition<-function(db,linkDefinition){
     }
   }
   
-  
-  
   # add
   db[['DBconfig']][['linkDefinitions']][[length(db[['DBconfig']][['linkDefinitions']])+1]]=linkDefinition
   
-  # store to disk
+  # store 
   .store.schema(db)
-  return(db)
+  return(invisible(NULL))
 }
 
 
