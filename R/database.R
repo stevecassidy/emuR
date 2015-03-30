@@ -1855,25 +1855,21 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
 
 ##' Reload EMU database
 ##' @description Reload an EMU database from disk storage
-##' @param db object of class emuDB
-
-##' @return refreshed database object
+##' @param dbName name of emuDB
 ##' @author Klaus Jaensch
 ##' @import sqldf stringr
 ##' @seealso \code{\link{load.emuDB}}
 ##' @keywords emuDB database query Emu
 ##' @examples
 ##' \dontrun{
-##' ## Reload database object ae
+##' ## Reload database 'ae'
 ##' 
-##' ae=reload(ae)
+##' reload('ae')
 ##' 
-##' }
-"reload"<-function(db){
-  UseMethod("reload")
-}
 
-
-"reload.emuDB"<-function(db){
-  return(load.emuDB(db[['basePath']]))
+reload.emuDB<-function(dbName,dbUUID=NULL){
+  db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  clear.emuDB(name = dbName,uuid=dbUUID)
+  load.emuDB(db[['basePath']])
+  return(invisible(NULL))
 }
