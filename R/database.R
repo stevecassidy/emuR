@@ -1952,7 +1952,30 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
   #.destroy.DBI.database()
   
 }
+##' Test if EMU database is loaded
+##' @param dbName name of emuDB
+##' @param dbUUID optional UUID of EmuDB
+##' @return TRUE if loaded, FALSE otherwise
+##' @author Klaus Jaensch
+##' @seealso \code{\link{load.emuDB}}
+##' @keywords emuDB database Emu
+##' @examples
+##' \dontrun{
+##' ## Test if database 'ae' is loaded
+##' 
+##'   is.emuDB.loaded('ae')
+##' }
 
+is.emuDB.loaded<-function(dbName,dbUUID=NULL){
+  .initialize.DBI.database()
+  if(is.null(dbUUID)){
+    q=paste0("SELECT * FROM emuDB WHERE name='",dbName,"'")
+  }else{
+    q=paste0("SELECT * FROM emuDB WHERE uuid='",dbUUID,"'")
+  }
+  dbsDf=dbGetQuery(emuDBs.con,q)
+  return((nrow(dbsDf)>0))
+}
 
 ##' Reload EMU database
 ##' @description Reload an EMU database from disk storage
