@@ -1142,7 +1142,7 @@ query<-function(dbName,query,sessionPattern=NULL,bundlePattern=NULL,queryLang='E
   
     if(queryLang=='EQL2'){
       .initialize.DBI.database(createTables=FALSE)
-      dbUUID=.get.database.uuid(name = dbName)
+      dbUUID=get.emuDB.UUID(name = dbName)
       db=.load.emuDB.DBI(uuid = dbUUID)
       dbConfig=db[['DBconfig']]
       # create 

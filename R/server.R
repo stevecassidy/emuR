@@ -49,7 +49,7 @@ serve.emuDB=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0
   modified=FALSE
   emuDBserverRunning=FALSE
   bundleCount=0
-  dbUUID=.get.database.uuid(name=dbName)
+  dbUUID=get.emuDB.UUID(name=dbName)
   database=.load.emuDB.DBI(uuid = dbUUID)
   if(!is.null(dbUUID)){
     bundlesDf=list.bundles(dbUUID = dbUUID)

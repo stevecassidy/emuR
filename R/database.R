@@ -326,8 +326,13 @@ get.database<-function(uuid=NULL,name=NULL){
   emuDBs.con<<-NULL
 }
 
-
-.get.database.uuid<-function(name=NULL,uuid=NULL){
+##' Get UUID of emuDB
+##' @description Returns UUID if emuDB is loaded, throws error otherwise
+##' @param name name of emuDB to purge
+##' @param uuid optional UUID of emuDB
+##' @seealso  \code{\link{is.emuDB.loaded}}
+##' @export
+get.emuDB.UUID<-function(name=NULL,uuid=NULL){
   if(is.null(uuid)){
     return(get.database.uuid(name))
   }else{
@@ -379,7 +384,7 @@ list.emuDBs<-function(){
 ##' @export
 purge.emuDB<-function(name,uuid=NULL,interactive=TRUE){
   .initialize.DBI.database()  
-  uuid=.get.database.uuid(name = name,uuid=uuid)
+  uuid=get.emuDB.UUID(name = name,uuid=uuid)
   purged=FALSE
   if(!is.null(uuid)){
     if(interactive){
@@ -425,7 +430,7 @@ purge.all.emuDBs<-function(interactive=TRUE){
 ##' @export
 list.sessions<-function(dbName,dbUUID=NULL){
   .initialize.DBI.database()
-  uuid=.get.database.uuid(dbName,dbUUID)
+  uuid=get.emuDB.UUID(dbName,dbUUID)
   dbs=dbGetQuery(emuDBs.con,paste0("SELECT name FROM session WHERE db_uuid='",uuid,"'"))
   return(dbs)
 }
@@ -439,7 +444,7 @@ list.sessions<-function(dbName,dbUUID=NULL){
 ##' @export
 list.bundles<-function(dbName,session=NULL,dbUUID=NULL){
   .initialize.DBI.database()
-  uuid=.get.database.uuid(dbName,dbUUID)
+  uuid=get.emuDB.UUID(dbName,dbUUID)
   baseQ=paste0("SELECT session,name FROM bundle WHERE db_uuid='",uuid,"'")
   if(is.null(session)){
     # list all bundles
@@ -470,7 +475,7 @@ create.database <- function(name,basePath=NULL,DBconfig=create.schema.databaseDe
 ##' @param name name of EmuDB
 ##' @export
 summary.emuDB<-function(name=NULL,uuid=NULL){
-  uuid=.get.database.uuid(name,uuid)
+  uuid=get.emuDB.UUID(name,uuid)
   object=.load.emuDB.DBI(uuid)
   cat("Name:\t",object[['name']],"\n")
   cat("UUID:\t",object[['DBconfig']][['UUID']],"\n")
@@ -905,7 +910,7 @@ convert.bundle.links.to.data.frame <-function(links){
 ## 
 get.bundle <- function(dbName=NULL,sessionName,bundleName,dbUUID=NULL){
   
-  dbUUID=.get.database.uuid(name = dbName,uuid = dbUUID)
+  dbUUID=get.emuDB.UUID(name = dbName,uuid = dbUUID)
   b=.load.bundle.DBI(dbUUID,sessionName,bundleName)
   if(is.null(b)){
     return(b)
