@@ -8,7 +8,7 @@
 ##' trackdata object (analogous to the depricated emu.track).
 ##' 
 ##' @title get.trackdata(): get trackdata from emuDB object
-##' @param dbObj emuDB object that the trackdata will be extracted from 
+##' @param dbName name of EMU database
 ##' @param seglist seglist obtained by querying the emuDB object
 ##' @param ssffTrackName the name of track that one wishes to extract (see 
 ##' \code{dbObj$DBconfig$ssffTrackDefinitions} for the defined ssffTracks of the 
@@ -40,16 +40,9 @@
 ##' @keywords misc
 ##' @import wrassp
 ##' @export
-"get.trackdata" <- function(dbObj, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
+"get.trackdata" <- function(dbObj = NULL, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
                             npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
                             onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, verbose = TRUE){
-  UseMethod("get.trackdata")
-}
-
-##' @export
-"get.trackdata.emuDB" <- function(dbObj = NULL, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
-                                  npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
-                                  onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, verbose = TRUE){
   
   #########################
   # parameter checks
@@ -89,17 +82,17 @@
   #########################
   # get track definition
   if(is.null(onTheFlyFunctionName)){
-  trackDefFound = sapply(dbObj$DBconfig$ssffTrackDefinitions, function(x){ x$name == ssffTrackName})
-  trackDef = dbObj$DBconfig$ssffTrackDefinitions[trackDefFound]
-  
-  # check if correct nr of trackDefs where found
-  if(length(trackDef) != 1){
-    if(length(trackDef) < 1 ){
-      stop('The emuDB object ', dbObj$DBconfig$name, ' does not have any ssffTrackDefinitions called ', ssffTrackName)
-    }else{
-      stop('The emuDB object ', dbObj$DBconfig$name, ' has multiple ssffTrackDefinitions called ', ssffTrackName, '! This means the DB has an invalid _DBconfig.json')
+    trackDefFound = sapply(dbObj$DBconfig$ssffTrackDefinitions, function(x){ x$name == ssffTrackName})
+    trackDef = dbObj$DBconfig$ssffTrackDefinitions[trackDefFound]
+    
+    # check if correct nr of trackDefs where found
+    if(length(trackDef) != 1){
+      if(length(trackDef) < 1 ){
+        stop('The emuDB object ', dbObj$DBconfig$name, ' does not have any ssffTrackDefinitions called ', ssffTrackName)
+      }else{
+        stop('The emuDB object ', dbObj$DBconfig$name, ' has multiple ssffTrackDefinitions called ', ssffTrackName, '! This means the DB has an invalid _DBconfig.json')
+      }
     }
-  }
   }else{
     trackDef = list()
     trackDef[[1]] = list()
@@ -168,7 +161,7 @@
   # loop through bundle names
   curIndexStart = 1
   for (i in 1:length(seglist$utts)){
-
+    
     splUtt = str_split(seglist$utts[i], ':')[[1]]
     curBndl <- dbObj$sessions[[splUtt[1]]]$bundles[[splUtt[2]]]
     
