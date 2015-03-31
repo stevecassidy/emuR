@@ -332,24 +332,26 @@ get.database<-function(uuid=NULL,name=NULL){
 ##' @param uuid optional UUID of emuDB
 ##' @seealso  \code{\link{is.emuDB.loaded}}
 ##' @export
-get.emuDB.UUID<-function(name=NULL,uuid=NULL){
+get.emuDB.UUID<-function(name,uuid=NULL){
   if(is.null(uuid)){
-    return(get.database.uuid(name))
+    dbQ=paste0("SELECT uuid FROM emuDB WHERE name='",name,"'")
+    
   }else{
-    return(uuid)
+    dbQ=paste0("SELECT uuid FROM emuDB WHERE uuid='",uuid,"'") 
   }
-}
-get.database.uuid<-function(name){
   
-  dbQ=paste0("SELECT uuid FROM emuDB WHERE name='",name,"'") 
   dbDf=dbGetQuery(emuDBs.con,dbQ)
   dbCount=nrow(dbDf)
   if(dbCount==0){
-    stop("Database ",name," not found !\n")
+    if(is.null(uuid)){
+      stop("Database '",name,"'' not found !\n")
+    }else{
+      stop("Database with UUID '",uuid,"'' not found !\n")
+    }
   }else if (dbCount==1){
     return(dbDf[['uuid']])
   }else{
-    stop("Found ",dbCount," databases with same name: ",name,". Please use database UUID!\n")
+    stop("Found ",dbCount," databases with same name: ",dbDf[1,'name'],". Please use database UUID!\n")
   }
 }
 
