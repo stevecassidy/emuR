@@ -211,7 +211,7 @@
 ##' 
 ##' 
 ##' @export plot.spectral
-`plot.spectral` <- function (x, labs, ylim, xlim,  col, lty, 
+"plot.spectral" <- function (x, labs, ylim, xlim,  col, lty, 
                              lwd, fun, freq, type = "l", 
                              power = FALSE, powcoeffs = c(10, 10), 
                              dbnorm = FALSE, dbcoeffs = c(0, 0), 
@@ -293,8 +293,8 @@
 }
 
 
-
-`bark.spectral` <- function (f, ...) 
+##' @export
+"bark.spectral" <- function (f, ...) 
 {
   specobject = f
   if (!is.trackdata(specobject)) {
@@ -334,8 +334,8 @@
   specobject
 }
 
-
-`mel.spectral` <- function (a) 
+##' @export
+"mel.spectral" <- function (a) 
 {
   specobject = a
   if (!is.trackdata(specobject)) {
