@@ -31,6 +31,7 @@
 ##' @param nrOfAllocationRows If the size limit of the data matrix is reached 
 ##' a further nrOfAllocationRows more rows will be allocated (this will lead 
 ##' performance drops). 
+##' @param dbUUID optional UUID of emuDB
 ##' @param verbose show progress bars and other infos
 ##' @return If \code{dcut} is not set (the default) an object of type trackdata 
 ##' is returned. If \code{dcut} is set and \code{npoints} is not, or the seglist 
@@ -42,11 +43,15 @@
 ##' @export
 "get.trackdata" <- function(dbName = NULL, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
                             npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
-                            onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, verbose = TRUE){
+                            onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, dbUUID = NULL, verbose = TRUE){
+  #########################
+  # get dbObj
+  dbUUID = get.emuDB.UUID(dbName = dbName, dbUUID = dbUUID)
+  dbObj = .load.emuDB.DBI(uuid = dbUUID)
   
   #########################
-  # parameter checks
-  
+  # parameter checks  
+
   # check if all values for minimal call are set
   if( is.null(dbName) || is.null(seglist) || is.null(ssffTrackName)) {
     stop("dbName, seglist and ssffTrackName have to all be set!\n")
@@ -79,10 +84,6 @@
     stop('Both onTheFlyFunctionName and onTheFlyParams have to be set for you to be able to use the onTheFlyOptLogFilePath parameter!')
   }
   
-  #########################
-  # get dbObj
-  dbUUID=.get.database.uuid(name = dbName)
-  dbObj=.load.emuDB.DBI(uuid = dbUUID)
   
   
   #########################

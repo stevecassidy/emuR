@@ -4,8 +4,10 @@
 context("testing get.trackdata function")
 
 # load database 
-path2extdata = system.file("extdata", package = "emuR")
-load.emuDB(paste(path2extdata, '/emu/DBs/ae/', sep = ''), verbose = F)
+if(!is.emuDB.loaded("ae")){
+  path2extdata = system.file("extdata", package = "emuR")
+  load.emuDB(paste(path2extdata, '/emu/DBs/ae/', sep = ''), verbose = F)
+}
 
 # get segmentlist of type segment
 path2segl <- list.files(system.file("extdata", package = "emuR"), pattern = glob2rx("ae-n.seg"), full.names = TRUE)
@@ -88,7 +90,4 @@ test_that("data fields are the same as hardcoded values (taken from original emu
   expect_that(td$data[10,4], equals(3569))
 })
 
-# clean up
-dbUUID=.get.database.uuid(name = "ae")
-.purge.emuDB(name = "ae", uuid=dbUUID)
 
