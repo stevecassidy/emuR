@@ -40,7 +40,7 @@
 ##' @keywords misc
 ##' @import wrassp
 ##' @export
-"get.trackdata" <- function(dbObj = NULL, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
+"get.trackdata" <- function(dbName = NULL, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
                             npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
                             onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, verbose = TRUE){
   
@@ -48,8 +48,8 @@
   # parameter checks
   
   # check if all values for minimal call are set
-  if( is.null(dbObj) || is.null(seglist) || is.null(ssffTrackName)) {
-    stop("dbObj, seglist and ssffTrackName have to all be set!\n")
+  if( is.null(dbName) || is.null(seglist) || is.null(ssffTrackName)) {
+    stop("dbName, seglist and ssffTrackName have to all be set!\n")
   }
   
   # check if cut value is correct
@@ -78,6 +78,12 @@
   if( !is.null(onTheFlyOptLogFilePath) && (is.null(onTheFlyFunctionName) || is.null(onTheFlyParams))){
     stop('Both onTheFlyFunctionName and onTheFlyParams have to be set for you to be able to use the onTheFlyOptLogFilePath parameter!')
   }
+  
+  #########################
+  # get dbObj
+  dbUUID=.get.database.uuid(name = dbName)
+  dbObj=.load.emuDB.DBI(uuid = dbUUID)
+  
   
   #########################
   # get track definition
@@ -117,7 +123,7 @@
   
   
   splUtt = str_split(seglist$utts[1], ':')[[1]]
-  curBndl <- dbObj$sessions[[splUtt[1]]]$bundles[[splUtt[2]]]
+  #   curBndl <- dbObj$sessions[[splUtt[1]]]$bundles[[splUtt[2]]]
   
   if(!is.null(onTheFlyFunctionName)){
     funcFormals = NULL
@@ -125,8 +131,10 @@
     funcFormals$toFile = FALSE
     curDObj = do.call(onTheFlyFunctionName,funcFormals)
   }else{
-    fname <- curBndl$signalpaths[grepl(paste(trackDef[[1]]$fileExtension, '$', sep = ''), curBndl$signalpaths)][[1]] # should mybe check if more then one found...
-    curDObj <- read.AsspDataObj(fname)
+    allBndlTrackPaths <- dbGetQuery(emuDBs.con, paste0("SELECT path FROM track WHERE db_uuid='", dbUUID, "' AND session='",
+                                                       splUtt[1], "' AND bundle='", splUtt[2], "'"))$path
+    fpath <- allBndlTrackPaths[grepl(paste(trackDef[[1]]$fileExtension, '$', sep = ''), allBndlTrackPaths)]
+    curDObj <- read.AsspDataObj(fpath)
   }
   tmpData <- eval(parse(text = paste("curDObj$", trackDef[[1]]$columnName, sep = "")))
   if(verbose){
@@ -163,9 +171,12 @@
   for (i in 1:length(seglist$utts)){
     
     splUtt = str_split(seglist$utts[i], ':')[[1]]
-    curBndl <- dbObj$sessions[[splUtt[1]]]$bundles[[splUtt[2]]]
     
-    fname <- curBndl$signalpaths[grepl(paste(trackDef[[1]]$fileExtension, '$', sep = ''), curBndl$signalpaths)][[1]] # should mybe check if more then one found...
+    allBndlTrackPaths <- dbGetQuery(emuDBs.con, paste0("SELECT path FROM track WHERE db_uuid='", dbUUID, "' AND session='",
+                                                       splUtt[1], "' AND bundle='", splUtt[2], "'"))$path
+    
+    fpath <- allBndlTrackPaths[grepl(paste0(trackDef[[1]]$fileExtension, '$'), allBndlTrackPaths)]
+    
     
     ################
     #get data object
@@ -177,7 +188,7 @@
         setTxtProgressBar(pb, i)
       }
     }else{
-      curDObj <- read.AsspDataObj(fname)
+      curDObj <- read.AsspDataObj(fpath)
       if(verbose){
         setTxtProgressBar(pb, i)
       }
@@ -337,6 +348,5 @@
 
 #######################
 # FOR DEVELOPMENT
-
-# library('testthat')
-# test_file('tests/testthat/test_get.trackdata.R')
+library('testthat')
+test_file('tests/testthat/test_get.trackdata.R')
