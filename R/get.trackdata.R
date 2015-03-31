@@ -127,7 +127,8 @@
   
   if(!is.null(onTheFlyFunctionName)){
     funcFormals = NULL
-    funcFormals$listOfFiles = curBndl$mediaFilePath
+    funcFormals$listOfFiles = dbGetQuery(emuDBs.con, paste0("SELECT mediaFilePath FROM bundle WHERE db_uuid='", dbUUID, "' AND session='",
+                                                            splUtt[1], "' AND name='", splUtt[2], "'"))$mediaFilePath
     funcFormals$toFile = FALSE
     curDObj = do.call(onTheFlyFunctionName,funcFormals)
   }else{
@@ -182,7 +183,9 @@
     #get data object
     
     if(!is.null(onTheFlyFunctionName)){
-      funcFormals$listOfFiles = curBndl$mediaFilePath
+      funcFormals$listOfFiles = dbGetQuery(emuDBs.con, paste0("SELECT mediaFilePath FROM bundle WHERE db_uuid='", dbUUID, "' AND session='",
+                                                              splUtt[1], "' AND name='", splUtt[2], "'"))$mediaFilePath
+      
       curDObj = do.call(onTheFlyFunctionName, funcFormals)
       if(verbose){
         setTxtProgressBar(pb, i)
