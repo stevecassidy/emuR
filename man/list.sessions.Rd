@@ -4,7 +4,7 @@
 \alias{list.sessions}
 \title{List sessions of emuDB}
 \usage{
-list.sessions(dbName, dbUUID = NULL)
+list.sessions(dbName = NULL, dbUUID = NULL)
 }
 \arguments{
 \item{dbName}{name of emuDB}

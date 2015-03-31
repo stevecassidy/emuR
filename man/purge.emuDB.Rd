@@ -4,12 +4,12 @@
 \alias{purge.emuDB}
 \title{Purge emuDB}
 \usage{
-purge.emuDB(name, uuid = NULL, interactive = TRUE)
+purge.emuDB(dbName = NULL, dbUUID = NULL, interactive = TRUE)
 }
 \arguments{
-\item{name}{name of emuDB to purge}
+\item{dbName}{name of emuDB to purge}
 
-\item{uuid}{optional UUID of emuDB}
+\item{dbUUID}{optional UUID of emuDB}
 
 \item{interactive}{}
 }

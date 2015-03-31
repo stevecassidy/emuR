@@ -328,30 +328,30 @@ get.database<-function(uuid=NULL,name=NULL){
 
 ##' Get UUID of emuDB
 ##' @description Returns UUID if emuDB is loaded, throws error otherwise
-##' @param name name of emuDB to purge
-##' @param uuid optional UUID of emuDB
+##' @param dbName name of emuDB to purge
+##' @param dbUUID optional UUID of emuDB
 ##' @seealso  \code{\link{is.emuDB.loaded}}
 ##' @export
-get.emuDB.UUID<-function(name=NULL,uuid=NULL){
-  if(is.null(uuid)){
-    dbQ=paste0("SELECT uuid FROM emuDB WHERE name='",name,"'")
+get.emuDB.UUID<-function(dbName=NULL,dbUUID=NULL){
+  if(is.null(dbUUID)){
+    dbQ=paste0("SELECT uuid FROM emuDB WHERE name='",dbName,"'")
     
   }else{
-    dbQ=paste0("SELECT uuid FROM emuDB WHERE uuid='",uuid,"'") 
+    dbQ=paste0("SELECT uuid FROM emuDB WHERE uuid='",dbUUID,"'") 
   }
   
   dbDf=dbGetQuery(emuDBs.con,dbQ)
   dbCount=nrow(dbDf)
   if(dbCount==0){
-    if(is.null(uuid)){
-      stop("Database '",name,"'' not found !\n")
+    if(is.null(dbUUID)){
+      stop("Database '",dbName,"'' not found !\n")
     }else{
-      stop("Database with UUID '",uuid,"'' not found !\n")
+      stop("Database with UUID '",dbUUID,"'' not found !\n")
     }
   }else if (dbCount==1){
     return(dbDf[['uuid']])
   }else{
-    if(is.null(uuid)){
+    if(is.null(dbUUID)){
       stop("Found ",dbCount," databases with same name: ",dbDf[1,'name'],". Please use database UUID!\n")
     }else{
       stop("Internal error: Found ",dbCount," databases with same UUID: ",dbDf[1,'uuid'],"\n")
@@ -370,48 +370,46 @@ list.emuDBs<-function(){
   return(dbs)
 }
 
-.purge.emuDB<-function(name,uuid=NULL){
-      dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM links WHERE db_uuid='",uuid,"'"))
-      dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM linksExt WHERE db_uuid='",uuid,"'"))
-      dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM labels WHERE db_uuid='",uuid,"'"))
-      dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM items WHERE db_uuid='",uuid,"'"))
-      dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM track WHERE db_uuid='",uuid,"'"))
-      dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM bundle WHERE db_uuid='",uuid,"'"))
-      dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM session WHERE db_uuid='",uuid,"'"))
-      dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM emuDB WHERE uuid='",uuid,"'"))
+.purge.emuDB<-function(dbUUID){
+      dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM links WHERE db_uuid='",dbUUID,"'"))
+      dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM linksExt WHERE db_uuid='",dbUUID,"'"))
+      dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM labels WHERE db_uuid='",dbUUID,"'"))
+      dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM items WHERE db_uuid='",dbUUID,"'"))
+      dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM track WHERE db_uuid='",dbUUID,"'"))
+      dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM bundle WHERE db_uuid='",dbUUID,"'"))
+      dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM session WHERE db_uuid='",dbUUID,"'"))
+      dbs=dbGetQuery(emuDBs.con,paste0("DELETE FROM emuDB WHERE uuid='",dbUUID,"'"))
      
 }
 
 ##' Purge emuDB
 ##' @description Purges emuDB from this R session. Does not delete any files of the emuDB.
-##' @param name name of emuDB to purge
-##' @param uuid optional UUID of emuDB
+##' @param dbName name of emuDB to purge
+##' @param dbUUID optional UUID of emuDB
 ##' @param interactive
 ##' @export
-purge.emuDB<-function(name,uuid=NULL,interactive=TRUE){
-  .initialize.DBI.database()  
-  uuid=get.emuDB.UUID(name = name,uuid=uuid)
+purge.emuDB<-function(dbName=NULL,dbUUID=NULL,interactive=TRUE){
+    .initialize.DBI.database()  
+  dbUUID=get.emuDB.UUID(dbName,dbUUID)
   purged=FALSE
-  if(!is.null(uuid)){
+  if(!is.null(dbUUID)){
     if(interactive){
-      ans=readline(paste0("Are you sure you want to purge emuDB '",name,"' from this R session? (y/n)"))
+      ans=readline(paste0("Are you sure you want to purge emuDB '",dbName,"' from this R session? (y/n)"))
     }else{
       ans='y'
     }
     if(ans=='y'){
-      .purge.emuDB(name,uuid)
+      .purge.emuDB(dbUUID)
       purged=TRUE
     }
   }else{
-    stop("emuDB ",name," not found!")
+    stop("emuDB ",dbName," not found!")
   }
   return(purged)
 }
 
-##' Purge emuDB
+##' Purge all loaded emuDBs
 ##' @description Purges emuDB from this R session. Does not delete any files of the emuDB.
-##' @param name name of emuDB to purge
-##' @param uuid optional UUID of emuDB
 ##' @export
 purge.all.emuDBs<-function(interactive=TRUE){
   cleared=FALSE
@@ -434,7 +432,7 @@ purge.all.emuDBs<-function(interactive=TRUE){
 ##' @param dbUUID optional UUID of emuDB
 ##' @return data.frame object with session names
 ##' @export
-list.sessions<-function(dbName,dbUUID=NULL){
+list.sessions<-function(dbName=NULL,dbUUID=NULL){
   .initialize.DBI.database()
   uuid=get.emuDB.UUID(dbName,dbUUID)
   dbs=dbGetQuery(emuDBs.con,paste0("SELECT name FROM session WHERE db_uuid='",uuid,"'"))
@@ -448,7 +446,7 @@ list.sessions<-function(dbName,dbUUID=NULL){
 ##' @param dbUUID optional UUID of emuDB
 ##' @return data.frame object with columns session and name of bundles
 ##' @export
-list.bundles<-function(dbName,session=NULL,dbUUID=NULL){
+list.bundles<-function(dbName=NULL,session=NULL,dbUUID=NULL){
   .initialize.DBI.database()
   uuid=get.emuDB.UUID(dbName,dbUUID)
   baseQ=paste0("SELECT session,name FROM bundle WHERE db_uuid='",uuid,"'")
@@ -478,10 +476,11 @@ create.database <- function(name,basePath=NULL,DBconfig=create.schema.databaseDe
 ##' Print summary for EMU database object
 ##' @description Gives an overview of an EMU database object
 ##' Prints database name, base directory path and informations about annoation levels, attributes, links, and signal file tracks
-##' @param name name of EmuDB
+##' @param dbName name of EmuDB
+##' @param dbUUID optional UUID of emuDB
 ##' @export
-summary.emuDB<-function(name=NULL,uuid=NULL){
-  uuid=get.emuDB.UUID(name,uuid)
+summary.emuDB<-function(dbName=NULL,dbUUID=NULL){
+  uuid=get.emuDB.UUID(dbName,dbUUID)
   object=.load.emuDB.DBI(uuid)
   cat("Name:\t",object[['name']],"\n")
   cat("UUID:\t",object[['DBconfig']][['UUID']],"\n")
@@ -916,7 +915,7 @@ convert.bundle.links.to.data.frame <-function(links){
 ## 
 get.bundle <- function(dbName=NULL,sessionName,bundleName,dbUUID=NULL){
   
-  dbUUID=get.emuDB.UUID(name = dbName,uuid = dbUUID)
+  dbUUID=get.emuDB.UUID(dbName,dbUUID)
   b=.load.bundle.DBI(dbUUID,sessionName,bundleName)
   if(is.null(b)){
     return(b)
@@ -1977,7 +1976,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
 ##'   is.emuDB.loaded('ae')
 ##' }
 
-is.emuDB.loaded<-function(dbName,dbUUID=NULL){
+is.emuDB.loaded<-function(dbName=NULL,dbUUID=NULL){
   .initialize.DBI.database()
   if(is.null(dbUUID)){
     q=paste0("SELECT * FROM emuDB WHERE name='",dbName,"'")

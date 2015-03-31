@@ -4,10 +4,12 @@
 \alias{summary.emuDB}
 \title{Print summary for EMU database object}
 \usage{
-summary.emuDB(name = NULL, uuid = NULL)
+summary.emuDB(dbName = NULL, dbUUID = NULL)
 }
 \arguments{
-\item{name}{name of EmuDB}
+\item{dbName}{name of EmuDB}
+
+\item{dbUUID}{optional UUID of emuDB}
 }
 \description{
 Gives an overview of an EMU database object

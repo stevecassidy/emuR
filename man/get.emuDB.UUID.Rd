@@ -4,12 +4,12 @@
 \alias{get.emuDB.UUID}
 \title{Get UUID of emuDB}
 \usage{
-get.emuDB.UUID(name = NULL, uuid = NULL)
+get.emuDB.UUID(dbName = NULL, dbUUID = NULL)
 }
 \arguments{
-\item{name}{name of emuDB to purge}
+\item{dbName}{name of emuDB to purge}
 
-\item{uuid}{optional UUID of emuDB}
+\item{dbUUID}{optional UUID of emuDB}
 }
 \description{
 Returns UUID if emuDB is loaded, throws error otherwise

@@ -1118,6 +1118,7 @@ query.database.with.eql<-function(dbConfig,query){
 ##' @param bundlePattern A (glob) pattern matching bundles to be searched from the database
 ##' @param queryLang query language
 ##' @param resultType type (class name) of result
+##' @param dbUUID optional UUID of emuDB
 ##' @return result set object of class resultType (e.g. EMU seglist 'emusegs')
 ##' @author Klaus Jaensch
 ##' @import sqldf stringr
@@ -1138,11 +1139,11 @@ query.database.with.eql<-function(dbConfig,query){
 ##' }
 ##' 
 
-query<-function(dbName,query,sessionPattern=NULL,bundlePattern=NULL,queryLang='EQL2',resultType=NULL){
+query<-function(dbName=NULL,query,sessionPattern=NULL,bundlePattern=NULL,queryLang='EQL2',resultType=NULL,dbUUID=NULL){
   
     if(queryLang=='EQL2'){
       .initialize.DBI.database(createTables=FALSE)
-      dbUUID=get.emuDB.UUID(name = dbName)
+      dbUUID=get.emuDB.UUID(dbName,dbUUID)
       db=.load.emuDB.DBI(uuid = dbUUID)
       dbConfig=db[['DBconfig']]
       # create 

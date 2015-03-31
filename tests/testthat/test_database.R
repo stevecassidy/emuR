@@ -21,7 +21,9 @@ test_that("function get.legacy.file.path()",{
 })
 
 test_that("Purge example database ae",{
-  purge.emuDB(name='ae',uuid=.test_emu_ae_db_uuid,interactive=FALSE)
+  if(is.emuDB.loaded(dbUUID=.test_emu_ae_db_uuid)){
+    purge.emuDB(dbName='ae',dbUUID=.test_emu_ae_db_uuid,interactive=FALSE)
+  }
 })
 
 test_that("Convert example database ae",{

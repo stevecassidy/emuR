@@ -2,14 +2,9 @@
 % Please edit documentation in R/database.R
 \name{purge.all.emuDBs}
 \alias{purge.all.emuDBs}
-\title{Purge emuDB}
+\title{Purge all loaded emuDBs}
 \usage{
 purge.all.emuDBs(interactive = TRUE)
-}
-\arguments{
-\item{name}{name of emuDB to purge}
-
-\item{uuid}{optional UUID of emuDB}
 }
 \description{
 Purges emuDB from this R session. Does not delete any files of the emuDB.
