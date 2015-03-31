@@ -8,13 +8,15 @@ store.emuDB(dbName = NULL, targetDir, dbUUID = NULL, options = NULL,
   showProgress = TRUE)
 }
 \arguments{
+\item{dbName}{name of emuDB}
+
 \item{targetDir}{target directory}
+
+\item{dbUUID}{optional: UUID of database}
 
 \item{options}{list of options}
 
 \item{showProgress}{show progress bar}
-
-\item{db}{EMU database (in R workspace)}
 }
 \description{
 Store EMU database to directory
@@ -27,9 +29,9 @@ symbolicLinkSignalFiles if TRUE signal files are symbolic linked instead of copi
 }
 \examples{
 \dontrun{
-# Store database object ae to directory /homes/mylogin/EMUnew/
+# Store database 'ae' to directory /homes/mylogin/EMUnew/
 
-store.emuDB(ae,"/homes/mylogin/EMUnew/")
+  store.emuDB('ae',"/homes/mylogin/EmuStore/")
 
 }
 }

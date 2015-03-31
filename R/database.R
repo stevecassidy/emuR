@@ -1518,8 +1518,9 @@ remove.linkDefinition<-function(dbName,linkDefinitionSuperlevelName,linkDefiniti
 ##' ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: FALSE
 ##' symbolicLinkSignalFiles if TRUE signal files are symbolic linked instead of copied. Implies: rewriteSSFFTracks=FALSE, Default: FALSE
 ##' 
-##' @param db EMU database (in R workspace)
+##' @param dbName name of emuDB
 ##' @param targetDir target directory
+##' @param dbUUID optional: UUID of database
 ##' @param options list of options
 ##' @param showProgress show progress bar
 ##' @author Klaus Jaensch
@@ -1529,9 +1530,9 @@ remove.linkDefinition<-function(dbName,linkDefinitionSuperlevelName,linkDefiniti
 ##' @seealso  \code{\link{load.emuDB}}
 ##' @examples
 ##' \dontrun{
-##' # Store database object ae to directory /homes/mylogin/EMUnew/
+##' # Store database 'ae' to directory /homes/mylogin/EMUnew/
 ##' 
-##' store.emuDB(ae,"/homes/mylogin/EMUnew/")
+##'   store.emuDB('ae',"/homes/mylogin/EmuStore/")
 ##' 
 ##' }
 
