@@ -4,7 +4,7 @@
 \alias{import.mediaFiles.emuDB}
 \title{Import media files to EMU database}
 \usage{
-\method{import.mediaFiles}{emuDB}(dbName, dir, targetSessionName = "0000",
+import.mediaFiles.emuDB(dbName, dir, targetSessionName = "0000",
   dbUUID = NULL)
 }
 \arguments{
