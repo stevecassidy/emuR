@@ -4,7 +4,7 @@
 \alias{reload.emuDB}
 \title{Reload EMU database}
 \usage{
-\method{reload}{emuDB}(dbName, dbUUID = NULL)
+reload.emuDB(dbName, dbUUID = NULL)
 }
 \arguments{
 \item{dbName}{name of emuDB}
