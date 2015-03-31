@@ -1970,7 +1970,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
 
 reload.emuDB<-function(dbName,dbUUID=NULL){
   db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  clear.emuDB(name = dbName,uuid=dbUUID)
+  purge.emuDB(name = dbName,uuid=dbUUID,interactive=FALSE)
   load.emuDB(db[['basePath']])
   return(invisible(NULL))
 }
