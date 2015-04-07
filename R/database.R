@@ -188,7 +188,7 @@ get.database<-function(uuid=NULL,name=NULL){
 }
 .load.emuDB.DBI<-function(uuid=NULL,name=NULL){
   if(is.null(uuid)){
-    uuid=get.database.uuid(name)
+    uuid=get.emuDB.UUID(name)
   }
   dbQ=paste0("SELECT * FROM emuDB WHERE uuid='",uuid,"'")
   dbDf=dbGetQuery(emuDBs.con,dbQ)
