@@ -2081,6 +2081,6 @@ duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
 
 #######################
 # FOR DEVELOPMENT
-library('testthat')
-test_file('tests/testthat/test_duplicate.loaded.emuDB.R')
+# library('testthat')
+# test_file('tests/testthat/test_duplicate.loaded.emuDB.R')
 
