@@ -14,15 +14,17 @@ path2newDB = file.path(tempdir(),'ae')
 
 
 ##############################
-test_that("files are copied and added correctly", {
-  ae = load.emuDB(path2newDB, verbose = F)
-  add.files.to.emuDB(emuDB = ae, path2rootDir = path2legacy_ae, fileExt = 'fms')
-  fmsFilePaths = list.files(path2newDB, pattern = '*.fms', recursive = T)
-  
-  expect_equal(length(fmsFilePaths), 7)
-  expect_equal(fmsFilePaths[1], file.path('0000_ses', 'msajc003_bndl', 'msajc003.fms'))
-  
-})
+# test_that("files are copied and added correctly", {
+#   # load database 
+#   if(!is.emuDB.loaded("ae")){
+#     load.emuDB(path2newDB, verbose = F)
+#   }
+#   add.files.to.emuDB(emuDB = ae, path2rootDir = path2legacy_ae, fileExt = 'fms')
+#   fmsFilePaths = list.files(path2newDB, pattern = '*.fms', recursive = T)
+#   expect_equal(length(fmsFilePaths), 7)
+#   expect_equal(fmsFilePaths[1], file.path('0000_ses', 'msajc003_bndl', 'msajc003.fms'))
+#   
+# })
 
 
 # clean up
