@@ -94,7 +94,7 @@ autobuild.linkFromTimes <- function(dbName, superlevelName, sublevelName, writeT
     
     # backup labels belonging to superlevel
     dbSendQuery(emuDBs.con, paste0("INSERT INTO labels ",
-                                   "SELECT '", dbUUID, "', lt.session, lt.bundle, lt.itemID + bndlMaxValue AS itemID, labelIdx, name, label FROM ",
+                                   "SELECT '", dbUUID, "', lt.session, lt.bundle, lt.itemID + bndlMaxValue AS itemID, labelIdx, lt.name || '", backupLevelAppendStr, "' AS name, label FROM ",
                                    "(SELECT * FROM ",
                                    "  items AS it",
                                    "  JOIN ",
