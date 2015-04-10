@@ -81,7 +81,7 @@ database.DDL.emuDB_labels='CREATE TABLE labels (
   db_uuid VARCHAR(36),
   session TEXT,
   bundle TEXT,
-  itemID TEXT,
+  itemID INTEGER,
   labelIdx INTEGER,
   name TEXT,
   label TEXT,
@@ -2076,6 +2076,43 @@ duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
                                  " SELECT '", newUUID, "' AS db_uuid, session, bundle, fromID, toID, seqIdx, toLevel, type, toSeqIdx, toSeqLen, label FROM linksExt",
                                  " WHERE db_uuid='", oldUUID, "'"))
   
+  
+}
+
+##'
+rewrite.allAnnots.emuDB <- function(dbName, dbUUID=NULL, showProgress=TRUE){
+  
+  # get UUID (also checks if DB exists)
+  dbUUID = get.emuDB.UUID(dbName = dbName, dbUUID = dbUUID)
+  basePath = dbGetQuery(emuDBs.con, paste0("SELECT basePath FROM emuDB WHERE uuid='", dbUUID, "'"))
+  bndls = dbGetQuery(emuDBs.con, paste0("SELECT * FROM bundle WHERE db_uuid='", dbUUID, "'"))
+  
+  progress = 0
+  if(showProgress){
+    bundleCount=length(bndls)
+    cat("INFO: Rewriting", bundleCount, "_annot.json files to file system...\n")
+    pb=txtProgressBar(min=0,max=bundleCount,style=3)
+    setTxtProgressBar(pb,progress)
+  }
+  
+  for(i in 1:length(bndls)){
+    b=get.bundle(sessionName=bndls[i,]$session, bundleName=bndls[i,]$name, dbUUID=dbUUID)
+    bDir=paste0(b[['name']], bundle.dir.suffix)
+    bfp=file.path(basePath, paste0(bndls[i,]$session, session.suffix), bDir)
+    
+    pFilter=emuR.persist.filters.bundle
+    bp=marshal.for.persistence(b,pFilter)
+    ban=paste0(b[['name']], bundle.annotation.suffix, '.json')
+    baJSONPath=file.path(bfp,ban)
+    pbpJSON=jsonlite::toJSON(bp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+    writeLines(pbpJSON,baJSONPath)
+    
+    progress=progress+1L
+    if(showProgress){
+      setTxtProgressBar(pb,progress)
+    }
+  } 
+
   
 }
 

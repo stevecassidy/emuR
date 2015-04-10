@@ -11,7 +11,7 @@
 ##' @param dbName name of EMU database
 ##' @param superlevelName name of level to link from (link definition required in db)
 ##' @param sublevelName name of level to link to (link definition required in db)
-##' @param writeToDisc should changes be written to disk completing after autobuild
+##' @param writeToFS should changes be written to file system completing after autobuild
 ##' @param convertSuperlevel if set to TRUE a backup of the superlevel will be created and the actural
 ##' superlevel will be converted to a level of type ITEM
 ##' @param backupLevelAppendStr string appended to level name for backup level
@@ -20,7 +20,7 @@
 ##' @import RSQLite
 ##' @keywords emuR autobuild
 ##
-autobuild.linkFromTimes <- function(dbName, superlevelName, sublevelName, writeToDisc = TRUE, 
+autobuild.linkFromTimes <- function(dbName, superlevelName, sublevelName, writeToFS = TRUE, 
                                     convertSuperlevel = FALSE, backupLevelAppendStr = '-autobuildBackup',
                                     dbUUID = NULL){
   
@@ -54,20 +54,6 @@ autobuild.linkFromTimes <- function(dbName, superlevelName, sublevelName, writeT
     stop('Did not find linkDefintion for: ', superlevelName, '->', sublevelName, '. Defined linkDefinitions are: ', sapply(dbObj$DBconfig$linkDefinitions, function(x){paste0(x$superlevelName, '->', x$sublevelName, '; ')}))
   }
   
-  #   # table names
-  #   itemsTableName = "emuR_emuDB_items_tmp"
-  #   
-  #   labelsTableName ="emuR_emuDB_labels_tmp"
-  #   
-  #   linksTableName = "emuR_emuDB_links_tmp"
-  #   
-  #   # Create an ephemeral in-memory RSQLite database
-  #   con <- dbConnect(RSQLite::SQLite(), ":memory:")
-  #   
-  #   # inject dataframes
-  #   dbWriteTable(con, itemsTableName, db$items)
-  #   dbWriteTable(con, labelsTableName, db$labels)
-  #   dbWriteTable(con, linksTableName, db$links)
   
   if(convertSuperlevel){
     # check if backup links exist
@@ -79,41 +65,49 @@ autobuild.linkFromTimes <- function(dbName, superlevelName, sublevelName, writeT
       stop("Can not backup level! Items table already has entries belonging to level: ", paste0(superlevelName, backupLevelAppendStr))
     }
     
+    
+    # 
+    if(length(foundSuperLevelDev$attributeDefinitions) > 1){
+      stop("Backup of parellel labels not implemented yet!")
+    }
+    
+    # backup labels belonging to superlevel (labels have to be backed up before items to avoid maxID problem (maybe should rewrite query to avoid this in future versions using labels table to determin
+    # maxID))
+    qRes = dbGetQuery(emuDBs.con, paste0("INSERT INTO labels ",
+                                         "SELECT '", dbUUID, "', lt.session, lt.bundle, lt.itemID + bndlMaxValue AS itemID, labelIdx, lt.name || '", backupLevelAppendStr, "' AS name, label FROM ",
+                                         "(SELECT * FROM ",
+                                         "  items AS it",
+                                         "  JOIN ",
+                                         "  (",
+                                         "   SELECT db_uuid, session, bundle, MAX(itemID) AS 'bndlMaxValue'",
+                                         "   FROM items GROUP BY bundle",
+                                         "  ) AS maxIdRes",
+                                         " WHERE it.db_uuid = maxIdRes.db_uuid ",
+                                         "   AND it.session = maxIdRes.session ",
+                                         "   AND it.bundle = maxIdRes.bundle",
+                                         "   AND it.level = '", superlevelName, "'",
+                                         ") AS tmp ",
+                                         "JOIN labels AS lt ", 
+                                         "WHERE lt.db_uuid=tmp.db_uuid ",
+                                         "  AND lt.session=tmp.session ",
+                                         "  AND lt.bundle=tmp.bundle ",
+                                         "  AND lt.itemID=tmp.itemID"))
+#     print(qRes$itemID)
+    
+    
     # backup items belonging to superlevel (=duplicate level with new ids)    
-    dbSendQuery(emuDBs.con, paste0("INSERT INTO items ",
-                                   "SELECT '", dbUUID, "', it.session, it.bundle, it.itemID + bndlMaxValue AS itemID, it.level || '", backupLevelAppendStr, "' AS level, it.type, it.seqIdx, it.sampleRate, it.samplePoint, it.sampleStart, it.sampleDur FROM ",
-                                   "items AS it ",
-                                   "JOIN ",
-                                   "(SELECT db_uuid, session, bundle, MAX(itemID) AS 'bndlMaxValue' FROM ",
-                                   "  items GROUP BY bundle ", 
-                                   ") as maxIdRes ",
-                                   "WHERE it.db_uuid = maxIdRes.db_uuid ",
-                                   "   AND it.session = maxIdRes.session ",
-                                   "   AND it.bundle = maxIdRes.bundle",
-                                   "   AND it.level = '", superlevelName, "'"))
-    
-    # backup labels belonging to superlevel
-    dbSendQuery(emuDBs.con, paste0("INSERT INTO labels ",
-                                   "SELECT '", dbUUID, "', lt.session, lt.bundle, lt.itemID + bndlMaxValue AS itemID, labelIdx, lt.name || '", backupLevelAppendStr, "' AS name, label FROM ",
-                                   "(SELECT * FROM ",
-                                   "  items AS it",
-                                   "  JOIN ",
-                                   "  (",
-                                   "   SELECT db_uuid, session, bundle, MAX(itemID) AS 'bndlMaxValue'",
-                                   "   FROM items GROUP BY bundle",
-                                   "  ) AS maxIdRes",
-                                   " WHERE it.db_uuid = maxIdRes.db_uuid ",
-                                   "   AND it.session = maxIdRes.session ",
-                                   "   AND it.bundle = maxIdRes.bundle",
-                                   "   AND it.level = '", superlevelName, "'",
-                                   ") AS tmp ",
-                                   "JOIN labels AS lt ", 
-                                   "WHERE lt.db_uuid=tmp.db_uuid ",
-                                   "  AND lt.session=tmp.session ",
-                                   "  AND lt.bundle=tmp.bundle ",
-                                   "  AND lt.itemID=tmp.itemID"))
-    
-#     print(res)
+    qRes = dbGetQuery(emuDBs.con, paste0("INSERT INTO items ",
+                                         "SELECT '", dbUUID, "', it.session, it.bundle, it.itemID + bndlMaxValue AS itemID, it.level || '", backupLevelAppendStr, "' AS level, it.type, it.seqIdx, it.sampleRate, it.samplePoint, it.sampleStart, it.sampleDur FROM ",
+                                         "items AS it ",
+                                         "JOIN ",
+                                         "(SELECT db_uuid, session, bundle, MAX(itemID) AS 'bndlMaxValue' FROM ",
+                                         "  items GROUP BY bundle ", 
+                                         ") as maxIdRes ",
+                                         "WHERE it.db_uuid = maxIdRes.db_uuid ",
+                                         "   AND it.session = maxIdRes.session ",
+                                         "   AND it.bundle = maxIdRes.bundle",
+                                         "   AND it.level = '", superlevelName, "'"))    
+    #     print(qRes$itemID)
   }
   # query DB depending on type of sublevelDefinition 
   if(foundSubLevelDev$type == 'EVENT'){
@@ -175,8 +169,12 @@ autobuild.linkFromTimes <- function(dbName, superlevelName, sublevelName, writeT
   
   
   if(convertSuperlevel){
-    print('should get to here')
-    
+    # change levelDefinition type
+    for(i in 1:length(dbObj$DBconfig$levelDefinitions)){
+      if(dbObj$DBconfig$levelDefinitions[[i]]$name == superlevelName){
+        dbObj$DBconfig$levelDefinitions[[i]]$type = 'ITEM'
+      }
+    }
     # generate levelDefinition for backup level
     foundSuperLevelDev$name = paste0(foundSuperLevelDev$name, backupLevelAppendStr)
     for(i in 1:length(foundSuperLevelDev$attributeDefinitions)){
@@ -187,34 +185,20 @@ autobuild.linkFromTimes <- function(dbName, superlevelName, sublevelName, writeT
     # convert superlevel to ITEM level
     res = dbSendQuery(emuDBs.con, paste0("UPDATE items SET type = 'ITEM', samplePoint = null, sampleStart = null, sampleDur = null WHERE db_uuid='", dbUUID, "' AND level ='", superlevelName,"'"))
     dbClearResult(res)
-    print('done with insert into stuff')
   }
   
-  # print resulting table
-  #     res = dbSendQuery(con, paste0("SELECT * FROM ", labelsTableName, ""))
-  #     print(dbReadTable(con, labelsTableName))
   
   # store changes to disc
-  if(writeToDisc){
-    print('right here bro!')
-    for(sess in db$sessions){
-      for(bndl in sess$bundles){
-        bndlRep=get.bundle(db, sess$name, bndl$name)
-        store.bundle.annotation(db,bndlRep)
-      }
-    }
-    # write DBconfig to disc
+  if(writeToFS){
+    # write DBconfig to disc and to DBI
     .store.schema(dbObj)
+    rewrite.allAnnots.emuDB(dbName, showProgress=F)
   }else{
     .store.DBconfig.DBI(dbObj$DBconfig)
   }
-  # Disconnect from the database
-  #   dbDisconnect(con)
-  
-  #   return(db)
   
 }
 
 # FOR DEVELOPMENT 
-library('testthat') 
-test_file('tests/testthat/test_autobuild.R')
+# library('testthat') 
+# test_file('tests/testthat/test_autobuild.R')

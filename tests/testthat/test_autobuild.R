@@ -14,335 +14,327 @@ if(!is.emuDB.loaded("ae")){
   load.emuDB(path2ae, verbose = F)
 }
 
-# copy db to tempdir
-# file.copy(path2ae, tempdir(), recursive = T)
-# 
-# file.rename(file.path(tempdir(), 'ae'), fp)
-
-
 
 ############################
-# test_that("bad calls to autobuild.linkFromTimes", {
-#   
-#   expect_error(autobuild.linkFromTimes(tmpDbName, 'Phoneti', 'Tone'))
-#   expect_error(autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Ton'))
-#   expect_error(autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Tone'))
-#   
-# })
+test_that("bad calls to autobuild.linkFromTimes", {
+  
+  expect_error(autobuild.linkFromTimes(tmpDbName, 'Phoneti', 'Tone'))
+  expect_error(autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Ton'))
+  expect_error(autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Tone'))
+  
+})
 
 
 ##############################
-# test_that("correct links are present after autobuild.linkFromTimes with EVENTS", {
-#   # make copy of ae to mess with
-#   fp = file.path(tempdir(), tmpDbName)
-#   duplicate.loaded.emuDB("ae", tmpDbName, fp)
-#   
-#   # add linkDef.
-#   dbUUID = get.emuDB.UUID(dbName = tmpDbName, dbUUID = NULL)
-#   dbObj = .load.emuDB.DBI(uuid = dbUUID)
-#   tmpLinkDef = create.schema.linkDefinition(type='ONE_TO_MANY', superlevelName='Phonetic', sublevelName='Tone')
-#   dbObj$DBconfig$linkDefinitions[[length(dbObj$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
-#   .store.DBconfig.DBI(dbObj$DBconfig)
-#   
-#   autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Tone', FALSE)
-#   
-#   qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
-#                                       "AND fromID=149 AND toID=181"))
-#   # 
-#   expect_equal(dim(qr)[1], 1)
-#   expect_equal(qr$session, '0000')
-#   expect_equal(qr$bundle, 'msajc003')
-#   expect_equal(qr$fromID, 149)
-#   expect_equal(qr$toID, 181)
-# 
-#   qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
-#                                      "AND fromID=156 AND toID=182"))
-#   
-#   expect_equal(qr$session, '0000')
-#   expect_equal(qr$bundle, 'msajc003')
-#   expect_equal(qr$fromID, 156) # redundant
-#   expect_equal(qr$toID, 182) # redundant
+test_that("correct links are present after autobuild.linkFromTimes with EVENTS", {
+  # make copy of ae to mess with
+  fp = file.path(tempdir(), tmpDbName)
+  duplicate.loaded.emuDB("ae", tmpDbName, fp)
+  
+  # add linkDef.
+  dbUUID = get.emuDB.UUID(dbName = tmpDbName, dbUUID = NULL)
+  dbObj = .load.emuDB.DBI(uuid = dbUUID)
+  tmpLinkDef = create.schema.linkDefinition(type='ONE_TO_MANY', superlevelName='Phonetic', sublevelName='Tone')
+  dbObj$DBconfig$linkDefinitions[[length(dbObj$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
+  .store.DBconfig.DBI(dbObj$DBconfig)
+  
+  autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Tone', FALSE)
+  
+  qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
+                                     "AND fromID=149 AND toID=181"))
+  # 
+  expect_equal(dim(qr)[1], 1)
+  expect_equal(qr$session, '0000')
+  expect_equal(qr$bundle, 'msajc003')
+  expect_equal(qr$fromID, 149)
+  expect_equal(qr$toID, 181)
+  
+  qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
+                                     "AND fromID=156 AND toID=182"))
+  
+  expect_equal(qr$session, '0000')
+  expect_equal(qr$bundle, 'msajc003')
+  expect_equal(qr$fromID, 156) # redundant
+  expect_equal(qr$toID, 182) # redundant
+  
+  # clean up
+  if(is.emuDB.loaded(tmpDbName)){
+    UUID = get.emuDB.UUID(dbName = tmpDbName)
+    .purge.emuDB(UUID)
+  }
+})
 
-# clean up
-# if(is.emuDB.loaded(tmpDbName)){
-#   UUID = get.emuDB.UUID(dbName = tmpDbName)
-#   .purge.emuDB(UUID)
-# }
-# })
+#############################
+test_that("no duplicates are present after autobuild.linkFromTimes with EVENTs", {
+  
+  # make copy of ae to mess with
+  fp = file.path(tempdir(), tmpDbName)
+  duplicate.loaded.emuDB("ae", tmpDbName, fp)
+  
+  # add linkDef.
+  dbUUID = get.emuDB.UUID(dbName = tmpDbName, dbUUID = NULL)
+  dbObj = .load.emuDB.DBI(uuid = dbUUID)
+  tmpLinkDef = create.schema.linkDefinition(type='ONE_TO_MANY', superlevelName='Phonetic', sublevelName='Tone')
+  dbObj$DBconfig$linkDefinitions[[length(dbObj$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
+  .store.DBconfig.DBI(dbObj$DBconfig)
+  
+  # addlink that will also be automatically linked
+  dbSendQuery(emuDBs.con, paste0("INSERT INTO links VALUES ('", dbUUID, "', '0000', 'msajc003', 140, 181, NULL)"))
+  
+  autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Tone', FALSE)
+  
+  # extract only one link to be present
+  qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
+                                     "AND fromID=149 AND toID=181"))
+  
+  # extract only one link to be present
+  expect_equal(dim(qr)[1], 1)
+  
+  # if re-run nothing should change (duplicate links)
+  autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Tone', FALSE)
+  qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'"))
+  
+  expect_equal(dim(qr)[1], 840)
+  
+  # clean up
+  if(is.emuDB.loaded(tmpDbName)){
+    UUID = get.emuDB.UUID(dbName = tmpDbName)
+    .purge.emuDB(UUID)
+  }
+  
+})
 
-# #############################
-# test_that("no duplicates are present after autobuild.linkFromTimes with EVENTs", {
-#   
-#   # make copy of ae to mess with
-#   fp = file.path(tempdir(), tmpDbName)
-#   duplicate.loaded.emuDB("ae", tmpDbName, fp)
-#   
-#   # add linkDef.
-#   dbUUID = get.emuDB.UUID(dbName = tmpDbName, dbUUID = NULL)
-#   dbObj = .load.emuDB.DBI(uuid = dbUUID)
-#   tmpLinkDef = create.schema.linkDefinition(type='ONE_TO_MANY', superlevelName='Phonetic', sublevelName='Tone')
-#   dbObj$DBconfig$linkDefinitions[[length(dbObj$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
-#   .store.DBconfig.DBI(dbObj$DBconfig)
-#   
-#   # addlink that will also be automatically linked
-#   dbSendQuery(emuDBs.con, paste0("INSERT INTO links VALUES ('", dbUUID, "', '0000', 'msajc003', 140, 181, NULL)"))
-#   
-#   autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Tone', FALSE)
-#   
-#   # extract only one link to be present
-#   qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
-#                                      "AND fromID=149 AND toID=181"))
-#   
-#   # extract only one link to be present
-#   expect_equal(dim(qr)[1], 1)
-#   
-#   # if re-run nothing should change (duplicate links)
-#   autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Tone', FALSE)
-#   qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'"))
-#   
-#   expect_equal(dim(qr)[1], 840)
-#   
-#   # clean up
-#   if(is.emuDB.loaded(tmpDbName)){
-#     UUID = get.emuDB.UUID(dbName = tmpDbName)
-#     .purge.emuDB(UUID)
-#   }
-#   
-# })
-
-
-##############################
-# test_that("correct links are present after autobuild.linkFromTimes with SEGMENTS linkDef type ONE_TO_MANY", {
-#   # make copy of ae to mess with
-#   fp = file.path(tempdir(), tmpDbName)
-#   duplicate.loaded.emuDB("ae", tmpDbName, fp)
-#   
-#   # add linkDef.
-#   dbUUID = get.emuDB.UUID(dbName = tmpDbName, dbUUID = NULL)
-#   dbObj = .load.emuDB.DBI(uuid = dbUUID)
-#   tmpLinkDef = create.schema.linkDefinition(type='ONE_TO_MANY', superlevelName='Phonetic', sublevelName='Phonetic2')
-#   dbObj$DBconfig$linkDefinitions[[length(dbObj$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
-#   .store.DBconfig.DBI(dbObj$DBconfig)
-#   
-#     
-#   # add levelDef.
-#   tmpLevelDef = create.schema.levelDefinition(name = 'Phonetic2', type = 'SEGMENT', attributeDefinitions = list())
-#   dbObj$DBconfig$levelDefinitions[[length(dbObj$DBconfig$levelDefinitions) + 1]] = tmpLevelDef
-#   .store.DBconfig.DBI(dbObj$DBconfig)
-#   
-#   
-#   # add item to Phonetic2 = left edge
-#   dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 980, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3749, 10)"))
-#   autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
-#   qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
-#                                      " AND toID = 980"))
-#   expect_equal(dim(qr)[1], 1)
-#   expect_equal(qr$fromID, 147)
-#   expect_equal(qr$toID, 980)
-#   
-#   # add item to Phonetic2 = exact match
-#   dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 981, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3749, 1389)"))
-#   autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
-#   qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
-#                                      " AND toID = 981"))
-#   expect_equal(dim(qr)[1], 1)
-#   expect_equal(qr$fromID, 147)
-#   expect_equal(qr$toID, 981)
-#   
-#   # add item to Phonetic2 = completely within
-#   dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 982, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3800, 200)"))
-#   autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
-#   qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
-#                                      " AND toID = 982"))
-#   expect_equal(dim(qr)[1], 1)
-#   expect_equal(qr$fromID, 147)
-#   expect_equal(qr$toID, 982)
-#   
-#   
-#   # add item to Phonetic2 = left overlap
-#   dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 983, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3500, 1000)"))
-#   autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
-#   qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
-#                                      " AND toID = 983"))
-#   expect_equal(dim(qr)[1], 0)
-#   
-#   
-#   # add item to Phonetic2 = right overlap
-#   dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 984, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3800, 2000)"))
-#   autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
-#   qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
-#                                      " AND toID = 984"))
-#   expect_equal(dim(qr)[1], 0)
-#   
-#   
-#   # clean up
-#   if(is.emuDB.loaded(tmpDbName)){
-#     UUID = get.emuDB.UUID(dbName = tmpDbName)
-#     .purge.emuDB(UUID)
-#   }
-#   
-# })
-
-# TODO CHECK FOR DUPLICATES
 
 ##############################
-# test_that("correct links are present after autobuild.linkFromTimes with SEGMENTS linkDef type MANY_TO_MANY", {
-#   # make copy of ae to mess with
-#   fp = file.path(tempdir(), tmpDbName)
-#   duplicate.loaded.emuDB("ae", tmpDbName, fp)
-#   
-#   # add linkDef.
-#   #   tmpLinkDef = create.schema.linkDefinition(type='MANY_TO_MANY', superlevelName='Phonetic', sublevelName='Phonetic2')
-#   #   ae$DBconfig$linkDefinitions[[length(ae$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
-#   dbUUID = get.emuDB.UUID(dbName = tmpDbName, dbUUID = NULL)
-#   dbObj = .load.emuDB.DBI(uuid = dbUUID)
-#   tmpLinkDef = create.schema.linkDefinition(type='MANY_TO_MANY', superlevelName='Phonetic', sublevelName='Phonetic2')
-#   dbObj$DBconfig$linkDefinitions[[length(dbObj$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
-#   .store.DBconfig.DBI(dbObj$DBconfig)
-#   
-#   
-#   
-#   # add levelDef.
-#   #   tmpLevelDef = create.schema.levelDefinition(name = 'Phonetic2', type = 'SEGMENT', attributeDefinitions = list())
-#   #   ae$DBconfig$levelDefinitions[[length(ae$DBconfig$levelDefinitions) + 1]] = tmpLevelDef
-#   tmpLevelDef = create.schema.levelDefinition(name = 'Phonetic2', type = 'SEGMENT', attributeDefinitions = list())
-#   dbObj$DBconfig$levelDefinitions[[length(dbObj$DBconfig$levelDefinitions) + 1]] = tmpLevelDef
-#   .store.DBconfig.DBI(dbObj$DBconfig)
-#   
-#   
-#   # add item to Phonetic2 = completely within
-#   #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3800, 200)
-#   dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 980, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3800, 200)"))
-#   autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
-#   qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
-#                                      " AND toID = 980"))
-#   expect_equal(dim(qr)[1], 1)
-#   expect_equal(qr$fromID, 147)
-#   expect_equal(qr$toID, 980)
-#   
-#   # add item to Phonetic2 = left overlap
-#   #     ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3500, 1000)
-#   dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 981, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3500, 1000)"))
-#   autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
-#   qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
-#                                      " AND toID = 981"))
-#   expect_equal(dim(qr)[1], 1)
-#   expect_equal(qr$fromID, 147)
-#   expect_equal(qr$toID, 981)
-#   
-#   # add item to Phonetic2 = right overlap
-#   #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3800, 2000)
-#   dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 982, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3800, 2000)"))
-#   autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
-#   qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
-#                                      " AND toID = 982"))
-#   expect_equal(dim(qr)[1], 2)
-#   expect_equal(qr$fromID, c(147, 148))
-#   expect_equal(qr$toID, c(982, 982))
-#   
-#   
-#   # add item to Phonetic2 = left and right overlap
-#   #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3500, 2000)
-#   dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 983, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3500, 2000)"))
-#   autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
-#   qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
-#                                      " AND toID = 983"))
-#   expect_equal(dim(qr)[1], 2)
-#   expect_equal(qr$fromID, c(147, 148))
-#   expect_equal(qr$toID, c(983, 983))
-#   
-#   
-#   # add item to Phonetic2 = not within
-#   #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 200, 200)
-#   dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 984, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 200, 200)"))
-#   autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
-#   qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
-#                                      " AND toID = 984"))
-#   expect_equal(dim(qr)[1], 0)
-#   
-#   
-#   
-#   # clean up
-#   if(is.emuDB.loaded(tmpDbName)){
-#     UUID = get.emuDB.UUID(dbName = tmpDbName)
-#     .purge.emuDB(UUID)
-#   }
-#   
-# })
+test_that("correct links are present after autobuild.linkFromTimes with SEGMENTS linkDef type ONE_TO_MANY", {
+  # make copy of ae to mess with
+  fp = file.path(tempdir(), tmpDbName)
+  duplicate.loaded.emuDB("ae", tmpDbName, fp)
+  
+  # add linkDef.
+  dbUUID = get.emuDB.UUID(dbName = tmpDbName, dbUUID = NULL)
+  dbObj = .load.emuDB.DBI(uuid = dbUUID)
+  tmpLinkDef = create.schema.linkDefinition(type='ONE_TO_MANY', superlevelName='Phonetic', sublevelName='Phonetic2')
+  dbObj$DBconfig$linkDefinitions[[length(dbObj$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
+  .store.DBconfig.DBI(dbObj$DBconfig)
+  
+  
+  # add levelDef.
+  tmpLevelDef = create.schema.levelDefinition(name = 'Phonetic2', type = 'SEGMENT', attributeDefinitions = list())
+  dbObj$DBconfig$levelDefinitions[[length(dbObj$DBconfig$levelDefinitions) + 1]] = tmpLevelDef
+  .store.DBconfig.DBI(dbObj$DBconfig)
+  
+  
+  # add item to Phonetic2 = left edge
+  dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 980, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3749, 10)"))
+  autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
+  qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
+                                     " AND toID = 980"))
+  expect_equal(dim(qr)[1], 1)
+  expect_equal(qr$fromID, 147)
+  expect_equal(qr$toID, 980)
+  
+  # add item to Phonetic2 = exact match
+  dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 981, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3749, 1389)"))
+  autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
+  qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
+                                     " AND toID = 981"))
+  expect_equal(dim(qr)[1], 1)
+  expect_equal(qr$fromID, 147)
+  expect_equal(qr$toID, 981)
+  
+  # add item to Phonetic2 = completely within
+  dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 982, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3800, 200)"))
+  autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
+  qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
+                                     " AND toID = 982"))
+  expect_equal(dim(qr)[1], 1)
+  expect_equal(qr$fromID, 147)
+  expect_equal(qr$toID, 982)
+  
+  
+  # add item to Phonetic2 = left overlap
+  dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 983, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3500, 1000)"))
+  autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
+  qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
+                                     " AND toID = 983"))
+  expect_equal(dim(qr)[1], 0)
+  
+  
+  # add item to Phonetic2 = right overlap
+  dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 984, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3800, 2000)"))
+  autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
+  qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
+                                     " AND toID = 984"))
+  expect_equal(dim(qr)[1], 0)
+  
+  
+  # clean up
+  if(is.emuDB.loaded(tmpDbName)){
+    UUID = get.emuDB.UUID(dbName = tmpDbName)
+    .purge.emuDB(UUID)
+  }
+  
+})
 
 ##############################
-# test_that("correct links are present after autobuild.linkFromTimes with SEGMENTS linkDef type ONE_TO_ONE", {
-#   # make copy of ae to mess with
-#   fp = file.path(tempdir(), tmpDbName)
-#   duplicate.loaded.emuDB("ae", tmpDbName, fp)
-#   
-#   dbUUID = get.emuDB.UUID(dbName = tmpDbName, dbUUID = NULL)
-#   dbObj = .load.emuDB.DBI(uuid = dbUUID)
-#   
-#   # add linkDef.  
-#   tmpLinkDef = create.schema.linkDefinition(type='ONE_TO_ONE', superlevelName='Phonetic', sublevelName='Phonetic2')
-#   dbObj$DBconfig$linkDefinitions[[length(dbObj$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
-#   .store.DBconfig.DBI(dbObj$DBconfig)
-#   
-#   # add levelDef.
-#   tmpLevelDef = create.schema.levelDefinition(name = 'Phonetic2', type = 'SEGMENT', attributeDefinitions = list())
-#   dbObj$DBconfig$levelDefinitions[[length(dbObj$DBconfig$levelDefinitions) + 1]] = tmpLevelDef
-#   .store.DBconfig.DBI(dbObj$DBconfig)
-#   
-#   # add item to Phonetic2 = exact match
-#   #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3749, 1389)
-#   dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 980, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3749, 1389)"))
-#   autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
-#   qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
-#                                      " AND toID = 980"))
-#   expect_equal(dim(qr)[1], 1)
-#   expect_equal(qr$fromID, 147)
-#   expect_equal(qr$toID, 980)
-#   
-#   # add item to Phonetic2 = left overlap
-#   #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3748, 1389)
-#   dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 981, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3748, 1389)"))
-#   autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
-#   qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
-#                                      " AND toID = 981"))
-#   expect_equal(dim(qr)[1], 0)
-#   
-#   # add item to Phonetic2 = right overlap
-#   #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3749, 1390)
-#   dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 982, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3749, 1390)"))
-#   autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
-#   qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
-#                                      " AND toID = 982"))
-#   expect_equal(dim(qr)[1], 0)
-#   
-#   
-#   
-#   # add item to Phonetic2 = within
-#   #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3750, 200)
-#   dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 983, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3750, 200)"))
-#   autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
-#   qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
-#                                      " AND toID = 983"))
-#   expect_equal(dim(qr)[1], 0)
-#   
-#   
-#   
-#   # add item to Phonetic2 = not within
-#   #     ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 200, 200)
-#   dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 984, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 200, 200)"))
-#   autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
-#   qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
-#                                      " AND toID = 984"))
-#   expect_equal(dim(qr)[1], 0)
-#   
-#   
-#   # clean up
-#   if(is.emuDB.loaded(tmpDbName)){
-#     UUID = get.emuDB.UUID(dbName = tmpDbName)
-#     .purge.emuDB(UUID)
-#   }
-#   
-# })
+test_that("correct links are present after autobuild.linkFromTimes with SEGMENTS linkDef type MANY_TO_MANY", {
+  # make copy of ae to mess with
+  fp = file.path(tempdir(), tmpDbName)
+  duplicate.loaded.emuDB("ae", tmpDbName, fp)
+  
+  # add linkDef.
+  #   tmpLinkDef = create.schema.linkDefinition(type='MANY_TO_MANY', superlevelName='Phonetic', sublevelName='Phonetic2')
+  #   ae$DBconfig$linkDefinitions[[length(ae$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
+  dbUUID = get.emuDB.UUID(dbName = tmpDbName, dbUUID = NULL)
+  dbObj = .load.emuDB.DBI(uuid = dbUUID)
+  tmpLinkDef = create.schema.linkDefinition(type='MANY_TO_MANY', superlevelName='Phonetic', sublevelName='Phonetic2')
+  dbObj$DBconfig$linkDefinitions[[length(dbObj$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
+  .store.DBconfig.DBI(dbObj$DBconfig)
+  
+  
+  
+  # add levelDef.
+  #   tmpLevelDef = create.schema.levelDefinition(name = 'Phonetic2', type = 'SEGMENT', attributeDefinitions = list())
+  #   ae$DBconfig$levelDefinitions[[length(ae$DBconfig$levelDefinitions) + 1]] = tmpLevelDef
+  tmpLevelDef = create.schema.levelDefinition(name = 'Phonetic2', type = 'SEGMENT', attributeDefinitions = list())
+  dbObj$DBconfig$levelDefinitions[[length(dbObj$DBconfig$levelDefinitions) + 1]] = tmpLevelDef
+  .store.DBconfig.DBI(dbObj$DBconfig)
+  
+  
+  # add item to Phonetic2 = completely within
+  #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3800, 200)
+  dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 980, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3800, 200)"))
+  autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
+  qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
+                                     " AND toID = 980"))
+  expect_equal(dim(qr)[1], 1)
+  expect_equal(qr$fromID, 147)
+  expect_equal(qr$toID, 980)
+  
+  # add item to Phonetic2 = left overlap
+  #     ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3500, 1000)
+  dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 981, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3500, 1000)"))
+  autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
+  qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
+                                     " AND toID = 981"))
+  expect_equal(dim(qr)[1], 1)
+  expect_equal(qr$fromID, 147)
+  expect_equal(qr$toID, 981)
+  
+  # add item to Phonetic2 = right overlap
+  #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3800, 2000)
+  dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 982, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3800, 2000)"))
+  autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
+  qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
+                                     " AND toID = 982"))
+  expect_equal(dim(qr)[1], 2)
+  expect_equal(qr$fromID, c(147, 148))
+  expect_equal(qr$toID, c(982, 982))
+  
+  
+  # add item to Phonetic2 = left and right overlap
+  #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3500, 2000)
+  dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 983, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3500, 2000)"))
+  autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
+  qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
+                                     " AND toID = 983"))
+  expect_equal(dim(qr)[1], 2)
+  expect_equal(qr$fromID, c(147, 148))
+  expect_equal(qr$toID, c(983, 983))
+  
+  
+  # add item to Phonetic2 = not within
+  #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 200, 200)
+  dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 984, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 200, 200)"))
+  autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
+  qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
+                                     " AND toID = 984"))
+  expect_equal(dim(qr)[1], 0)
+  
+  
+  
+  # clean up
+  if(is.emuDB.loaded(tmpDbName)){
+    UUID = get.emuDB.UUID(dbName = tmpDbName)
+    .purge.emuDB(UUID)
+  }
+  
+})
+
+##############################
+test_that("correct links are present after autobuild.linkFromTimes with SEGMENTS linkDef type ONE_TO_ONE", {
+  # make copy of ae to mess with
+  fp = file.path(tempdir(), tmpDbName)
+  duplicate.loaded.emuDB("ae", tmpDbName, fp)
+  
+  dbUUID = get.emuDB.UUID(dbName = tmpDbName, dbUUID = NULL)
+  dbObj = .load.emuDB.DBI(uuid = dbUUID)
+  
+  # add linkDef.  
+  tmpLinkDef = create.schema.linkDefinition(type='ONE_TO_ONE', superlevelName='Phonetic', sublevelName='Phonetic2')
+  dbObj$DBconfig$linkDefinitions[[length(dbObj$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
+  .store.DBconfig.DBI(dbObj$DBconfig)
+  
+  # add levelDef.
+  tmpLevelDef = create.schema.levelDefinition(name = 'Phonetic2', type = 'SEGMENT', attributeDefinitions = list())
+  dbObj$DBconfig$levelDefinitions[[length(dbObj$DBconfig$levelDefinitions) + 1]] = tmpLevelDef
+  .store.DBconfig.DBI(dbObj$DBconfig)
+  
+  # add item to Phonetic2 = exact match
+  #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3749, 1389)
+  dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 980, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3749, 1389)"))
+  autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
+  qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
+                                     " AND toID = 980"))
+  expect_equal(dim(qr)[1], 1)
+  expect_equal(qr$fromID, 147)
+  expect_equal(qr$toID, 980)
+  
+  # add item to Phonetic2 = left overlap
+  #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3748, 1389)
+  dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 981, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3748, 1389)"))
+  autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
+  qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
+                                     " AND toID = 981"))
+  expect_equal(dim(qr)[1], 0)
+  
+  # add item to Phonetic2 = right overlap
+  #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3749, 1390)
+  dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 982, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3749, 1390)"))
+  autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
+  qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
+                                     " AND toID = 982"))
+  expect_equal(dim(qr)[1], 0)
+  
+  
+  
+  # add item to Phonetic2 = within
+  #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3750, 200)
+  dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 983, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3750, 200)"))
+  autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
+  qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
+                                     " AND toID = 983"))
+  expect_equal(dim(qr)[1], 0)
+  
+  
+  
+  # add item to Phonetic2 = not within
+  #     ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 200, 200)
+  dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 984, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 200, 200)"))
+  autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', FALSE)
+  qr = dbGetQuery(emuDBs.con, paste0("SELECT * FROM links WHERE db_uuid='", dbUUID,"'",
+                                     " AND toID = 984"))
+  expect_equal(dim(qr)[1], 0)
+  
+  
+  # clean up
+  if(is.emuDB.loaded(tmpDbName)){
+    UUID = get.emuDB.UUID(dbName = tmpDbName)
+    .purge.emuDB(UUID)
+  }
+  
+})
 
 ##############################
 test_that("backup works correctly", {
@@ -381,11 +373,19 @@ test_that("backup works correctly", {
   expect_equal(qr1$seqIdx, qr2$seqIdx)
   expect_equal(qr1$sampleRate, qr2$sampleRate)
   
-  # TODO:
+  
+  qr1 = dbGetQuery(emuDBs.con, paste0("SELECT * FROM labels WHERE db_uuid='", dbUUID,"' AND name='Phonetic'"))
+  qr2 = dbGetQuery(emuDBs.con, paste0("SELECT * FROM labels WHERE db_uuid='", dbUUID,"' AND name='Phonetic-autobuildBackup'"))
   # same labels
-  #     expect_equal(paste0(res$items[res$items$level =='Phonetic-autobuildBackup',]$label, collapse = ''), paste0(res$items[res$items$level =='Phonetic',]$label, collapse = ''))
-  # correct labels are stored in labels df
-  #   expect_equal(sum(res$labels$name == 'Phonetic-autobuildBackup'), sum(res$items$level == 'Phonetic'))
+  expect_equal(dim(qr1), dim(qr2))
+  expect_equal(dim(qr1$label), dim(qr2$label))
+  
+  
+  # itemIDs are the same in items and labels table
+  qr1 = dbGetQuery(emuDBs.con, paste0("SELECT * FROM items WHERE db_uuid='", dbUUID,"' AND level='Phonetic-autobuildBackup'"))
+  qr2 = dbGetQuery(emuDBs.con, paste0("SELECT * FROM labels WHERE db_uuid='", dbUUID,"' AND name='Phonetic-autobuildBackup'"))
+  expect_equal(qr1$itemID, qr2$itemID)
+  
   
   # new levelDefinition is present
   dbObj = .load.emuDB.DBI(uuid = dbUUID)
@@ -399,43 +399,64 @@ test_that("backup works correctly", {
   }
   
 })
-# 
-# ##############################
-# test_that("rewrite works correctly", {
-#   
-#   # pre clean
-#   unlink(file.path(tempdir(),'ae'), recursive = TRUE)
-#   
-#   # store and reload DB to not overwrite original
-#   store.emuDB(ae, targetDir = tempdir(), showProgress = F)
-#   ae2 = load.emuDB(file.path(tempdir(),'ae'), verbose = F)
-#   
-#   # add linkDef.
-#   tmpLinkDef = create.schema.linkDefinition(type='ONE_TO_ONE', superlevelName='Phonetic', sublevelName='Phonetic2')
-#   ae2$DBconfig$linkDefinitions[[length(ae2$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
-#   
-#   # add levelDef.
-#   tmpLevelDef = create.schema.levelDefinition(name = 'Phonetic2', type = 'SEGMENT', attributeDefinitions = list())
-#   ae2$DBconfig$levelDefinitions[[length(ae2$DBconfig$levelDefinitions) + 1]] = tmpLevelDef
-#   
-#   ae2$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3750, 200)
-#   ae2$labels[845, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 0, 'Phonetic2', 'testLabel12')
-#   res = autobuild.linkFromTimes(ae2, 'Phonetic', 'Phonetic2', TRUE, TRUE)
-#   
-#   # _DBconfig.json has new definitions
-#   dbJson = fromJSON(readLines(file.path(tempdir(), "ae", "ae_DBconfig.json")), simplifyVector=T)
-#   expect_equal(dbJson$levelDefinitions$name[11], "Phonetic-autobuildBackup")
-#   expect_equal(dbJson$linkDefinitions[10,]$type, "ONE_TO_ONE")
-#   expect_equal(dbJson$linkDefinitions[10,]$superlevelName, "Phonetic")
-#   expect_equal(dbJson$linkDefinitions[10,]$sublevelName, "Phonetic2")
-#   
-#   # annot.jsons has new fields
-#   annotJson = fromJSON(readLines(file.path(tempdir(), "ae", "0000_ses", "msajc003_bndl", "msajc003_annot.json")), simplifyVector=T)
-#   expect_equal(annotJson$levels$name[11], "Phonetic-autobuildBackup")
-#   
-#   # cleanup 
-#   unlink(file.path(tempdir(),'ae'), recursive = TRUE)
-# })
+
+##############################
+test_that("rewrite works correctly", {
+  # pre clean (just in case)
+  unlink(file.path(tempdir(),tmpDbName), recursive = TRUE)
+  
+  # make copy of ae to mess with
+  fp = file.path(tempdir(), tmpDbName)
+  duplicate.loaded.emuDB("ae", tmpDbName, fp)
+  
+  dbUUID = get.emuDB.UUID(dbName = tmpDbName, dbUUID = NULL)
+  dbObj = .load.emuDB.DBI(uuid = dbUUID)
+  
+  # actually store DB to fs
+  store.emuDB("ae", tempdir(), showProgress=F)
+  file.rename(file.path(tempdir(), "ae"), file.path(tempdir(), tmpDbName))
+  
+  # add linkDef.
+  tmpLinkDef = create.schema.linkDefinition(type='ONE_TO_ONE', superlevelName='Phonetic', sublevelName='Phonetic2')
+  dbObj$DBconfig$linkDefinitions[[length(dbObj$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
+  .store.DBconfig.DBI(dbObj$DBconfig)
+  
+  # add levelDef.
+  tmpLevelDef = create.schema.levelDefinition(name = 'Phonetic2', type = 'SEGMENT', attributeDefinitions = list())
+  dbObj$DBconfig$levelDefinitions[[length(dbObj$DBconfig$levelDefinitions) + 1]] = tmpLevelDef
+  .store.DBconfig.DBI(dbObj$DBconfig)
+  
+  
+  # add item to Phonetic2
+  dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES ('", dbUUID, "', '0000', 'msajc003', 980, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3750, 200)"))
+  
+  # add label to Phonetic2
+  dbSendQuery(emuDBs.con, paste0("INSERT INTO labels VALUES ('", dbUUID, "', '0000', 'msajc003', 980, 0, 'Phonetic2', 'testLabel12')"))
+  
+  autobuild.linkFromTimes(tmpDbName, 'Phonetic', 'Phonetic2', TRUE, TRUE)
+  
+  
+  # _DBconfig.json has new definitions
+  dbJson = fromJSON(readLines(file.path(tempdir(), "ae_copy", "ae_copy_DBconfig.json")), simplifyVector=T)
+  expect_equal(dbJson$levelDefinitions$name[11], "Phonetic-autobuildBackup")
+  expect_equal(dbJson$linkDefinitions[10,]$type, "ONE_TO_ONE")
+  expect_equal(dbJson$linkDefinitions[10,]$superlevelName, "Phonetic")
+  expect_equal(dbJson$linkDefinitions[10,]$sublevelName, "Phonetic2")
+  
+  # annot.jsons has new fields
+  annotJson = fromJSON(readLines(file.path(tempdir(), "ae_copy", "0000_ses", "msajc003_bndl", "msajc003_annot.json")), simplifyVector=T)
+  expect_equal(annotJson$levels$name[11], "Phonetic-autobuildBackup")
+  
+  
+  # cleanup 
+  unlink(file.path(tempdir(),'ae_copy'), recursive = TRUE)
+  
+  # clean up
+  if(is.emuDB.loaded(tmpDbName)){
+    UUID = get.emuDB.UUID(dbName = tmpDbName)
+    .purge.emuDB(UUID)
+  }
+})
 
 # clean up if copy still loaded
 if(is.emuDB.loaded(tmpDbName)){
