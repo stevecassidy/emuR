@@ -10,6 +10,12 @@ context("testing queries")
 .test_emu_ae_db_uuid='3f627b7b-4fb5-4b4a-8c79-b5f49df4df25'
 .test_emu_ae_db_dir=NULL
 
+# purge ae if loaded to make tests work
+if(is.emuDB.loaded("ae")){
+  UUID = get.emuDB.UUID(dbName = "ae")
+  .purge.emuDB(UUID)
+}
+
 
 test_that("Purge example database ae",{
   if(is.emuDB.loaded(dbUUID=.test_emu_ae_db_uuid)){
@@ -88,8 +94,8 @@ test_that("Query sequence",{
   expect_that(r1Its[1,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
   expect_that(r1Its[1,'session'],is_identical_to('0000'))
   expect_that(r1Its[1,'bundle'],is_identical_to('msajc012'))  
-  expect_that(r1Its[1,'seqStartId'],is_identical_to('121'))  
-  expect_that(r1Its[1,'seqEndId'],is_identical_to('123'))
+  expect_that(r1Its[1,'seqStartId'], equals(121))  
+  expect_that(r1Its[1,'seqEndId'], equals(123))
   
   sl1=query('ae',"[[[Phoneme='tS' ^ Phonetic='t'] -> Phoneme=I] -> Phoneme=l]",resultType='emusegs')
   expect_that(nrow(sl1),equals(1))
@@ -120,14 +126,14 @@ expect_that(nrow(r1Its),equals(2))
 expect_that(r1Its[1,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
 expect_that(r1Its[1,'session'],is_identical_to('0000'))
 expect_that(r1Its[1,'bundle'],is_identical_to('msajc015'))  
-expect_that(r1Its[1,'seqStartId'],is_identical_to('131'))
-expect_that(r1Its[1,'seqEndId'],is_identical_to('132'))
+expect_that(r1Its[1,'seqStartId'], equals(131))
+expect_that(r1Its[1,'seqEndId'], equals(132))
 
 expect_that(r1Its[2,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
 expect_that(r1Its[2,'session'],is_identical_to('0000'))
 expect_that(r1Its[2,'bundle'],is_identical_to('msajc015'))  
-expect_that(r1Its[2,'seqStartId'],is_identical_to('141'))
-expect_that(r1Its[2,'seqEndId'],is_identical_to('142'))
+expect_that(r1Its[2,'seqStartId'], equals(141))
+expect_that(r1Its[2,'seqEndId'], equals(142))
 # 
 })
 # 
