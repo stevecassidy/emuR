@@ -88,12 +88,13 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
     if(!is.null(tierNames)){
       
       condStr = paste0("level!='", paste0(tierNames, collapse = paste0("' AND ", " level!='")), "'")
+
       # delete items
-      dbSendQuery(emuDBs.con, paste0("DELETE FROM items WHERE ", condStr))
+      dbSendQuery(emuDBs.con, paste0("DELETE FROM items WHERE ", "db_uuid='", dbUUID, "' AND ", condStr))
       
       # delete labels
       dbSendQuery(emuDBs.con, paste0("DELETE FROM labels", 
-                                     " WHERE itemID NOT IN (SELECT itemID FROM items)"))
+                                     " WHERE ", "db_uuid='", dbUUID, "' AND itemID NOT IN (SELECT itemID FROM items)"))
     }
     
     # validate bundle

@@ -94,7 +94,7 @@ validateBundle.emuDB.DBI <- function(dbName, session, bundle, dbUUID=NULL){
   
   
   # check that levels with same name are present
-  levelNames <- dbGetQuery(emuDBs.con, paste0("SELECT DISTINCT level FROM items WHERE session = '", session,"' ",
+  levelNames <- dbGetQuery(emuDBs.con, paste0("SELECT DISTINCT level FROM items WHERE db_uuid='", dbUUID, "'AND session = '", session,"' ",
                                               "AND bundle ='", bundle, "'"))$level
   
   levelDefNames = sapply(dbObj$DBconfig$levelDefinitions, function(l) l$name)
@@ -114,7 +114,7 @@ validateBundle.emuDB.DBI <- function(dbName, session, bundle, dbUUID=NULL){
   }
   
   # check that levels have same types
-  levelTypes <- dbGetQuery(emuDBs.con, paste0("SELECT DISTINCT level, type FROM items WHERE session = '", session,"' ",
+  levelTypes <- dbGetQuery(emuDBs.con, paste0("SELECT DISTINCT level, type FROM items WHERE db_uuid='", dbUUID, "' AND session = '", session,"' ",
                                               "AND bundle ='", bundle, "'"))$type
   
   levelDefTypes = sapply(dbObj$DBconfig$levelDefinitions, function(l) l$type)

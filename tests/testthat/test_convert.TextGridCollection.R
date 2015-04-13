@@ -70,7 +70,8 @@ test_that("correct emuDB is created", {
     expect_equal(length(dbCfgPersisted$linkDefinitions), 0)
     # levelDef stuff
     expect_equal(length(dbCfgPersisted$levelDefinitions), 11)
-    expect_equal(dbCfgPersisted$levelDefinitions[[9]]$name, 'Phonetic')
+    expect_equal(dbCfgPersisted$levelDefinitions[[6]]$name, 'Phonetic') # Ordered alphab.
+    
     # EMUwebAppConfig stuff
     expect_equal(length(dbCfgPersisted$EMUwebAppConfig$perspectives), 1)
     expect_equal(dbCfgPersisted$EMUwebAppConfig$perspectives[[1]]$signalCanvases$order[[1]], 'OSCI')
@@ -88,25 +89,25 @@ test_that("correct emuDB is created", {
     expect_equal(annotPersisted$annotates, 'msajc003.wav')
     expect_equal(length(annotPersisted$links), 0)
     expect_equal(length(annotPersisted$levels), 11)
-    expect_equal(annotPersisted$levels[[9]]$name, 'Phonetic')
+    expect_equal(annotPersisted$levels[[6]]$name, 'Phonetic')
     
     # test a couple of items
     
     # second segment
-    expect_that(annotPersisted$levels[[9]]$items[[2]]$sampleStart, equals(3749))
-    expect_that(annotPersisted$levels[[9]]$items[[2]]$sampleDur, equals(1389))
-    expect_that(annotPersisted$levels[[9]]$items[[2]]$labels[[1]]$value, equals('V'))
+    expect_that(annotPersisted$levels[[6]]$items[[2]]$sampleStart, equals(3749))
+    expect_that(annotPersisted$levels[[6]]$items[[2]]$sampleDur, equals(1389))
+    expect_that(annotPersisted$levels[[6]]$items[[2]]$labels[[1]]$value, equals('V'))
     
     # 18th segment
-    expect_that(annotPersisted$levels[[9]]$items[[18]]$sampleStart, equals(30124))
-    expect_that(annotPersisted$levels[[9]]$items[[18]]$sampleDur, equals(844))
-    expect_that(annotPersisted$levels[[9]]$items[[18]]$labels[[1]]$value, equals('@'))
+    expect_that(annotPersisted$levels[[6]]$items[[18]]$sampleStart, equals(30124))
+    expect_that(annotPersisted$levels[[6]]$items[[18]]$sampleDur, equals(844))
+    expect_that(annotPersisted$levels[[6]]$items[[18]]$labels[[1]]$value, equals('@'))
     
     # 35th segment
     # item[33] = {id: XYZ, labels: [{name: ‘lab', value: ‘l'}], sampleStart: 50126, sampleDur: 1962}
-    expect_that(annotPersisted$levels[[9]]$items[[35]]$sampleStart, equals(50126))
-    expect_that(annotPersisted$levels[[9]]$items[[35]]$sampleDur, equals(1962))
-    expect_that(annotPersisted$levels[[9]]$items[[35]]$labels[[1]]$value, equals('l'))
+    expect_that(annotPersisted$levels[[6]]$items[[35]]$sampleStart, equals(50126))
+    expect_that(annotPersisted$levels[[6]]$items[[35]]$sampleDur, equals(1962))
+    expect_that(annotPersisted$levels[[6]]$items[[35]]$labels[[1]]$value, equals('l'))
     
     
   })

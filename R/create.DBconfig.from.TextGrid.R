@@ -42,14 +42,14 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName, tierNames=NULL){
     
     condStr = paste0("level!='", paste0(tierNames, collapse = paste0("' AND ", " level!='")), "'")
     # delete items
-    dbSendQuery(emuDBs.con, paste0("DELETE FROM items WHERE ", condStr))
+    dbSendQuery(emuDBs.con, paste0("DELETE FROM items WHERE db_uuid='", dbConfig$UUID, "' AND ", condStr))
     
     # delete labels
-    dbSendQuery(emuDBs.con, paste0("DELETE FROM labels", 
-                                   " WHERE itemID NOT IN (SELECT itemID FROM items)"))
+    dbSendQuery(emuDBs.con, paste0("DELETE FROM labels ", 
+                                   "WHERE db_uuid='", dbConfig$UUID, "' AND itemID NOT IN (SELECT itemID FROM items)"))
   }
   
-  levels <- dbGetQuery(emuDBs.con, paste0("SELECT DISTINCT level, type FROM items"))
+  levels <- dbGetQuery(emuDBs.con, paste0("SELECT DISTINCT level, type FROM items WHERE db_uuid='", dbConfig$UUID, "'"))
   
   # create level definitions
   levelDefinitions = list()
@@ -62,7 +62,7 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName, tierNames=NULL){
     if(lev$type == 'SEGMENT' || lev$type == 'EVENT'){
       defaultLvlOrder[[length(defaultLvlOrder)+1L]]=lev$level
     }else{
-      stop('what?')
+      stop('Found levelDefinition that is not of type SEGMENT|EVENT while parsing TextGrid...this should not occur!')
     }
     # add new leveDef.
     levelDefinitions[[levIdx]] = list(name = lev$level, 
