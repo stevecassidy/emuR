@@ -17,9 +17,9 @@ test_that("test that correct values are set for msajc003", {
   expect_equal(length(conf$levelDefinitions), 11)
   expect_equal(conf$mediafileExtension, 'wav')
   
-  expect_equal(conf$levelDefinitions[[1]]$name, 'Utterance')
+  expect_equal(conf$levelDefinitions[[1]]$name, 'Accent') # sorted alphab. 
   expect_equal(conf$levelDefinitions[[1]]$type, 'SEGMENT')
-  expect_equal(conf$levelDefinitions[[1]]$attributeDefinitions[[1]]$name, 'Utterance')
+  expect_equal(conf$levelDefinitions[[1]]$attributeDefinitions[[1]]$name, 'Accent')
   expect_equal(conf$levelDefinitions[[1]]$attributeDefinitions[[1]]$type, 'STRING')
   
 })
