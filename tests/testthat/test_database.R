@@ -262,3 +262,6 @@ test_that("Test ae modify",{
 
   
 })
+
+# clean up
+purge.emuDB(dbName='ae',dbUUID=.test_emu_ae_db_uuid,interactive=FALSE)
