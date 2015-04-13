@@ -8,7 +8,7 @@ path2tg = system.file("extdata/legacy_emu/DBs/ae/labels/msajc003.TextGrid", pack
 newDbName = "ae_copy"
 
 # clean up
-if(is.emuDB.loaded(tmpDbName)){
+if(is.emuDB.loaded(newDbName)){
   UUID = get.emuDB.UUID(dbName = newDbName)
   .purge.emuDB(UUID)
 }
