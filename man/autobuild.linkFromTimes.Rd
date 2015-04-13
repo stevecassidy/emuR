@@ -4,33 +4,33 @@
 \alias{autobuild.linkFromTimes}
 \title{Autobuild links between two levels using their time information}
 \usage{
-autobuild.linkFromTimes(db, superlevelName, sublevelName, writeToDisc = TRUE,
-  convertSuperlevel = FALSE, backupLevelAppendStr = "-autobuildBackup")
+autobuild.linkFromTimes(dbName, superlevelName, sublevelName,
+  writeToFS = TRUE, convertSuperlevel = FALSE,
+  backupLevelAppendStr = "-autobuildBackup", dbUUID = NULL)
 }
 \arguments{
-\item{db}{emuDB object to perform autobuild on}
+\item{dbName}{name of EMU database}
 
 \item{superlevelName}{name of level to link from (link definition required in db)}
 
 \item{sublevelName}{name of level to link to (link definition required in db)}
 
-\item{writeToDisc}{should changes be written to disk completing after autobuild}
+\item{writeToFS}{should changes be written to file system completing after autobuild}
 
 \item{convertSuperlevel}{if set to TRUE a backup of the superlevel will be created and the actural
 superlevel will be converted to a level of type ITEM}
 
 \item{backupLevelAppendStr}{string appended to level name for backup level}
-}
-\value{
-an emuDB object
+
+\item{dbUUID}{optional UUID of emuDB}
 }
 \description{
 Autobuild links between two time levels. The super-level has to be of the
 type SEGMENT and the sub-level either of type EVENT or of type SEGMENT. If
-this is the case and a according link definition is present in db$DBconfig$linkDefintions,
+this is the case and a according link definition is present in DBconfig$linkDefintions,
 this function automatically links the events or segments of the sub-level which occur
 within (startSample to (startSample + sampleDur)) the segments of the super-level to those segments.
-The linkDefinition$type (ONE_TO_MANY, MANY_TO_MANY, ONE_TO_ONE) is relavant whether a link
+The linkDefinition$type (ONE_TO_MANY, MANY_TO_MANY, ONE_TO_ONE) is relevant whether a link
 is genarated or not. See the autobuild vignette for more details.
 }
 \author{

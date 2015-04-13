@@ -4,12 +4,14 @@
 \alias{get.trackdata}
 \title{get.trackdata(): get trackdata from emuDB object}
 \usage{
-get.trackdata(dbObj = NULL, seglist = NULL, ssffTrackName = NULL,
+get.trackdata(dbName = NULL, seglist = NULL, ssffTrackName = NULL,
   cut = NULL, npoints = NULL, onTheFlyFunctionName = NULL,
   onTheFlyParams = NULL, onTheFlyOptLogFilePath = NULL,
-  nrOfAllocationRows = 10000, verbose = TRUE)
+  nrOfAllocationRows = 10000, dbUUID = NULL, verbose = TRUE)
 }
 \arguments{
+\item{dbName}{name of EMU database}
+
 \item{seglist}{seglist obtained by querying the emuDB object}
 
 \item{ssffTrackName}{the name of track that one wishes to extract (see
@@ -40,9 +42,9 @@ parameter one wishes to change.}
 a further nrOfAllocationRows more rows will be allocated (this will lead
 performance drops).}
 
-\item{verbose}{show progress bars and other infos}
+\item{dbUUID}{optional UUID of emuDB}
 
-\item{dbName}{name of EMU database}
+\item{verbose}{show progress bars and other infos}
 }
 \value{
 If \code{dcut} is not set (the default) an object of type trackdata
