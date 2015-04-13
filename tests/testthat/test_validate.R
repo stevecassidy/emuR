@@ -30,7 +30,7 @@ if(nrow(dbsDf)>0){
 
 
 parse.textgrid(path2tg, 20000, dbName=newDbName, bundle="msajc003", session="0000")
-dbUUID = get.emuDB.UUID(dbName = tmpDbName)
+dbUUID = get.emuDB.UUID(dbName = newDbName)
 
 
 #################################
