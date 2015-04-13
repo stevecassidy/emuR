@@ -3,7 +3,7 @@
 ##' @author Raphael Winkelmann
 context("testing autobuild functions")
 
-require('jsonlite')
+suppressMessages(require('jsonlite'))
 
 tmpDbName = 'ae_copy'
 
