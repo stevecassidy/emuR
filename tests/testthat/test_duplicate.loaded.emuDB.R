@@ -11,24 +11,21 @@ if(!is.emuDB.loaded("ae")){
 
 #############################
 test_that("duplicate.loaded.emuDB handles bad calls", {
-  if(is.emuDB.loaded("ae_copy")){
-    UUID = get.emuDB.UUID(dbName = "ae_copy")
-    .purge.emuDB(UUID)
-  }
   fp = file.path(tempdir(), 'ae_copy')
   
   expect_error(duplicate.loaded.emuDB("ae", "ae", fp))
   expect_error(duplicate.loaded.emuDB("a", "ae", fp))
   
+  # clean up
+  if(is.emuDB.loaded("ae_copy")){
+    UUID = get.emuDB.UUID(dbName = "ae_copy")
+    .purge.emuDB(UUID)
+  }
 })
 
 
 #############################
 test_that("duplicate.loaded.emuDB works correctly", {
-  if(is.emuDB.loaded("ae_copy")){
-    UUID = get.emuDB.UUID(dbName = "ae_copy")
-    .purge.emuDB(UUID)
-  }
   fp = file.path(tempdir(), 'ae_copy')
   duplicate.loaded.emuDB("ae", "ae_copy", fp)
   
@@ -36,5 +33,11 @@ test_that("duplicate.loaded.emuDB works correctly", {
   expect_equal(length(emuDBtbl$uuid), 2)
   
   # todo check for equality of elements of duplicate
+  
+  # clean up
+  if(is.emuDB.loaded("ae_copy")){
+    UUID = get.emuDB.UUID(dbName = "ae_copy")
+    .purge.emuDB(UUID)
+  }
   
 })
