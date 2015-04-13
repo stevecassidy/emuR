@@ -176,3 +176,10 @@ test_that("SQLite label table has correct values", {
 
 })
 
+# clean up
+if(is.emuDB.loaded(newDbName)){
+  UUID = get.emuDB.UUID(dbName = newDbName)
+  .purge.emuDB(UUID)
+}
+
+# print(dbReadTable(emuDBs.con, 'emuDB'))
