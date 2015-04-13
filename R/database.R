@@ -2008,7 +2008,7 @@ reload.emuDB<-function(dbName,dbUUID=NULL){
   return(invisible(NULL))
 }
 
-##' 
+## 
 duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
   # get UUID (also checks if DB exists)
   oldUUID = get.emuDB.UUID(dbName = dbName, dbUUID = dbUUID)
@@ -2079,7 +2079,7 @@ duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
   
 }
 
-##'
+##
 rewrite.allAnnots.emuDB <- function(dbName, dbUUID=NULL, showProgress=TRUE){
   
   # get UUID (also checks if DB exists)
