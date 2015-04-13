@@ -16,6 +16,12 @@ emuDBname = 'convert-TextGridCollection-testDB'
 path2newDb = file.path(path2tmpDir, emuDBname)
 
 
+# clean up
+if(is.emuDB.loaded(emuDBname)){
+  UUID = get.emuDB.UUID(dbName = emuDBname)
+  .purge.emuDB(UUID)
+}
+
 unlink(path2newDb, recursive = T)
 
 ##############################
