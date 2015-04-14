@@ -13,6 +13,9 @@
 ##' @export
 ##'
 create.filePairList <- function(ext1Path2rootDir, ext2Path2rootDir, ext1, ext2){
+  # normalize paths
+  ext1Path2rootDir = suppressWarnings(normalizePath(ext1Path2rootDir))
+  ext2Path2rootDir = suppressWarnings(normalizePath(ext2Path2rootDir))
   
   # ext1Path2rootDir is valid path
   if(!file.exists(ext1Path2rootDir)){
@@ -28,7 +31,7 @@ create.filePairList <- function(ext1Path2rootDir, ext2Path2rootDir, ext1, ext2){
   # get all ext1 file paths
   allExt1FilePaths = list.files(ext1Path2rootDir, pattern=paste(ext1, "$", sep = ""), recursive=T, full.names=T)
   
-  # get all audio file paths
+  # get all ext2 file paths
   allExt2FilePaths = list.files(ext2Path2rootDir, pattern=paste(ext2, "$", sep = ""), recursive=T, full.names=T)
 
   # check more ext1 found than ext2

@@ -103,6 +103,12 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
         if(p[1]==FILE_TYPE_KEY){
           #cat("Found file type: ",p[2],"\n")
           fileType=p[2]
+          # check if of correct type:
+          if(fileType != FILE_TYPE_VAL_OO_TEXTFILE){
+            stop("Can only parse TextGrids with the File type: ", FILE_TYPE_VAL_OO_TEXTFILE, 
+                 ". Found following File type: ", fileType)
+          }
+          
         }
       }
     }else{
