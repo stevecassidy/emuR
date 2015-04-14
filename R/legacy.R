@@ -306,7 +306,7 @@ list.emuTemplatePathes<-function(){
 ##' List known database names from legacy EMU installation
 ##' @return character vector with database names
 ##' @author Klaus Jaensch
-##' @seealso \code{\link{list.legacy.emu.databases}} \code{\link{convert.legacyEmuDB.by.name.to.emuDB}} 
+##' @seealso \code{\link{list.legacy.emu.databases}} \code{\link{convert_legacyEmuDB_by_name_to_emuDB}} 
 ##' @export
 ##' @keywords database legacy Emu
 ##' @examples
@@ -948,12 +948,12 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
 ##' ## template file /homes/mylogin/ae/ae.tpl to directory /homes/mylogin/EMUnew/
 ##' ## and load it afterwards
 ##'
-##' convert.legacyEmuDB.to.emuDB("/homes/mylogin/ae/ae.tpl","/homes/mylogin/EMUnew/")
+##' convert_legacyEmuDB_to_emuDB("/homes/mylogin/ae/ae.tpl","/homes/mylogin/EMUnew/")
 ##' ae=load.emuDB("/homes/mylogin/EMUnew/ae")
 ##'
 ##' ## Convert database "ae" and do not rewrite SSFF tracks 
 ##' 
-##' convert.legacyEmuDB.by.name.to.emuDB(
+##' convert_legacyEmuDB_by_name_to_emuDB(
 ##' "ae",
 ##' "/homes/mylogin/EMUnew/",
 ##' options=list(rewriteSSFFTracks=FALSE)
@@ -961,7 +961,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
 ##' 
 ##' }
 ##' 
-convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,options=NULL,verbose=TRUE){
+convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,options=NULL,verbose=TRUE){
   progress=0
   # default options
   # ignore missing SSFF track files
@@ -1164,25 +1164,25 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
 ##' @description Converts an existing legacy EMU database to the new EMU format. Conversion is done in two steps. In the first step the legacy database configuration and the annotations are loaded.
 ##' In the second step the target directory for the new database structure is created, the configuration and annoation files are stored in the new format and the signal files are copied.
 ##' @details This function first tries to get the path of the legacy template file from the given database name using \code{\link{list.legacy.emu.databases}}.
-##' If the database could be found the function \code{\link{convert.legacyEmuDB.to.emuDB}} is called.
+##' If the database could be found the function \code{\link{convert_legacyEmuDB_to_emuDB}} is called.
 ##' 
 ##' @param dbName legacy EMU database name
 ##' @param targetDir target directory
-##' @param options list of options (see details of \code{\link{convert.legacyEmuDB.to.emuDB}})
+##' @param options list of options (see details of \code{\link{convert_legacyEmuDB_to_emuDB}})
 ##' @param verbose be verbose
 ##' @author Klaus Jaensch
-##' @seealso \code{\link{convert.legacyEmuDB.to.emuDB}} \code{\link{load.emuDB}} 
+##' @seealso \code{\link{convert_legacyEmuDB_to_emuDB}} \code{\link{load.emuDB}} 
 ##' @export
 ##' @keywords emuDB database schema Emu
 ##' @examples
 ##' \dontrun{
 ##' ## Load database "ae", convert and save in new format to directory /homes/mylogin/EMUnew/
 ##' 
-##' convert.legacyEmuDB.by.name.to.emuDB("ae","/homes/mylogin/EMUnew/")
+##' convert_legacyEmuDB_by_name_to_emuDB("ae","/homes/mylogin/EMUnew/")
 ##' 
 ##' }
 ##' 
-convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,options=NULL,verbose=TRUE){
+convert_legacyEmuDB_by_name_to_emuDB <- function(dbName,targetDir,options=NULL,verbose=TRUE){
   
  
   # pre check target dir
@@ -1205,7 +1205,7 @@ convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,options=NULL,v
   if(is.null(emuTplPath)){
     stop("Legacy EMU database '",dbName,"' could not be found.")
   }
-  convert.legacyEmuDB.to.emuDB(emuTplPath = emuTplPath,targetDir = targetDir,options = options,verbose = verbose)
+  convert_legacyEmuDB_to_emuDB(emuTplPath = emuTplPath,targetDir = targetDir,options = options,verbose = verbose)
   
  
 }

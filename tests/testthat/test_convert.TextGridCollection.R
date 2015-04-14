@@ -1,10 +1,10 @@
-##' testthat tests for convert.TextGridCollection.to.emuDB
+##' testthat tests for convert_TextGridCollection_to_emuDB
 ##'
 ##' @author Raphael Winkelmann
 
 require(RSQLite)
 
-context("testing convert.TextGridCollection.to.emuDB function")
+context("testing convert_TextGridCollection_to_emuDB function")
 
 
 path2root = system.file("extdata/legacy_emu/DBs/ae/", package = "emuR")
@@ -31,7 +31,7 @@ test_that("bad calls cause errors", {
   dir.create(path2newDb)
   
   # existing targetDir causes errors
-  expect_error(convert.TextGridCollection.to.emuDB(path2rootDir = path2root, 
+  expect_error(convert_TextGridCollection_to_emuDB(path2rootDir = path2root, 
                                                    dbName = emuDBname,
                                                    path2tmpDir, showProgress=F))
   # clean up
@@ -42,7 +42,7 @@ test_that("bad calls cause errors", {
 ##############################
 test_that("correct emuDB is created", {
   
-  convert.TextGridCollection.to.emuDB(path2rootDir = path2root, 
+  convert_TextGridCollection_to_emuDB(path2rootDir = path2root, 
                                       dbName = emuDBname,
                                       path2tmpDir, showProgress=F)
   
@@ -120,7 +120,7 @@ test_that("correct emuDB is created", {
 ##############################
 test_that("only specified tiers are converted when tierNames is set", {
   
-  convert.TextGridCollection.to.emuDB(path2rootDir = path2root, 
+  convert_TextGridCollection_to_emuDB(path2rootDir = path2root, 
                                       dbName = emuDBname,
                                       path2tmpDir, tierNames=c("Phonetic", "Tone"), showProgress=F)
   

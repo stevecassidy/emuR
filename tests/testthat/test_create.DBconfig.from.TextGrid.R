@@ -1,4 +1,4 @@
-##' testthat tests for convert.TextGridCollection.to.emuDB
+##' testthat tests for convert_TextGridCollection_to_emuDB
 ##'
 ##' @author Raphael Winkelmann
 require(RSQLite)

@@ -15,11 +15,11 @@ require(RSQLite)
 ##' @param tierNames character vector containing names of tiers to extract and convert. If NULL (the default) all
 ##' tiers are converted.
 ##' @param showProgress show progress bar flag
-##' @seealso create.filePairList
+##' @seealso create_filePairList
 ##' @export
 ##' @author Raphael Winkelmann
 ##' 
-convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName, 
+convert_TextGridCollection_to_emuDB <- function(path2rootDir, dbName, 
                                                 targetDir, tgExt = 'TextGrid', 
                                                 audioExt = 'wav', tierNames = NULL, 
                                                 showProgress = TRUE){
@@ -43,7 +43,7 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
   }
   
   # gernerate file pail list
-  fpl = create.filePairList(path2rootDir, path2rootDir, audioExt, tgExt)
+  fpl = create_filePairList(path2rootDir, path2rootDir, audioExt, tgExt)
   
   progress = 0
   
@@ -132,7 +132,7 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
   
   
   # store
-  store.emuDB(dbName, targetDir, showProgress = showProgress)
+  store(dbName, targetDir, showProgress = showProgress)
   
   # purge tmp emuDB
   .purge.emuDB(dbUUID)

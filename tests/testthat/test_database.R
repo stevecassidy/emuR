@@ -29,7 +29,7 @@ test_that("Purge example database ae",{
 test_that("Convert example database ae",{
   legacyDbEmuAeTpl <- system.file("extdata/legacy_emu/DBs/ae","ae.tpl", package="emuR")
   .test_emu_ae_db_dir<<-tempfile('test_emu_ae')
-  convert.legacyEmuDB.to.emuDB(emuTplPath=legacyDbEmuAeTpl,targetDir=.test_emu_ae_db_dir,dbUUID=.test_emu_ae_db_uuid,verbose=FALSE)
+  convert_legacyEmuDB_to_emuDB(emuTplPath=legacyDbEmuAeTpl,targetDir=.test_emu_ae_db_dir,dbUUID=.test_emu_ae_db_uuid,verbose=FALSE)
   
   
 })

@@ -24,7 +24,7 @@ list.legacy.emu.database.names()
 Klaus Jaensch
 }
 \seealso{
-\code{\link{list.legacy.emu.databases}} \code{\link{convert.legacyEmuDB.by.name.to.emuDB}}
+\code{\link{list.legacy.emu.databases}} \code{\link{convert_legacyEmuDB_by_name_to_emuDB}}
 }
 \keyword{Emu}
 \keyword{database}

@@ -480,7 +480,7 @@ create.database <- function(name,basePath=NULL,DBconfig=create.schema.databaseDe
 ##' @param dbName name of EmuDB
 ##' @param dbUUID optional UUID of emuDB
 ##' @export
-summary.emuDB<-function(dbName=NULL,dbUUID=NULL){
+summary_emuDB<-function(dbName=NULL,dbUUID=NULL){
   uuid=get.emuDB.UUID(dbName,dbUUID)
   object=.load.emuDB.DBI(uuid)
   cat("Name:\t",object[['name']],"\n")
@@ -1267,13 +1267,13 @@ bundle.iterator<-function(db,apply){
   return(db)
 }
 
-create.emuDB<-function(name,targetDir,mediaFileExtension='wav'){
+create_emuDB<-function(name,targetDir,mediaFileExtension='wav'){
   basePath=file.path(targetDir,name)
   dbConfig=create.schema.databaseDefinition(name=name,mediafileExtension = mediaFileExtension)
   db=create.database(name=name,basePath=basePath,DBconfig = dbConfig)
   .initialize.DBI.database()
   .store.emuDB.DBI(database = db)
-  store.emuDB(targetDir=targetDir,dbUUID=dbConfig[['UUID']])
+  store(targetDir=targetDir,dbUUID=dbConfig[['UUID']])
   
 }
 
@@ -1290,7 +1290,7 @@ add.bundle<-function(db,sessionName,bundle){
 # @author Klaus Jaensch
 # @export
 # @keywords emuDB database schema Emu 
-add.levelDefinition<-function(dbName=NULL,levelDefinition,dbUUID=NULL){
+add_levelDefinition<-function(dbName=NULL,levelDefinition,dbUUID=NULL){
   db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
   # check if level definition (name) already exists 
   for(ld in db[['DBconfig']][['levelDefinitions']]){
@@ -1544,11 +1544,11 @@ import.mediaFiles.emuDB<-function(dbName,dir,targetSessionName='0000',dbUUID=NUL
 ##' \dontrun{
 ##' # Store database 'ae' to directory /homes/mylogin/EMUnew/
 ##' 
-##'   store.emuDB('ae',"/homes/mylogin/EmuStore/")
+##'   store('ae',"/homes/mylogin/EmuStore/")
 ##' 
 ##' }
 
-store.emuDB <- function(dbName=NULL,targetDir,dbUUID=NULL,options=NULL,showProgress=TRUE){
+store<-function(dbName=NULL,targetDir,dbUUID=NULL,options=NULL,showProgress=TRUE){
   # TODO how to handle API level in DBI version?
   #   dbApiLevel=db[['apiLevel']]
   #   if(is.null(dbApiLevel)){

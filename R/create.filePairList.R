@@ -12,7 +12,7 @@
 ##' @import tools
 ##' @export
 ##'
-create.filePairList <- function(ext1Path2rootDir, ext2Path2rootDir, ext1, ext2){
+create_filePairList <- function(ext1Path2rootDir, ext2Path2rootDir, ext1, ext2){
   # normalize paths
   ext1Path2rootDir = suppressWarnings(normalizePath(ext1Path2rootDir))
   ext2Path2rootDir = suppressWarnings(normalizePath(ext2Path2rootDir))

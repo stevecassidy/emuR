@@ -413,7 +413,7 @@ test_that("rewrite works correctly", {
   dbObj = .load.emuDB.DBI(uuid = dbUUID)
   
   # actually store DB to fs
-  store.emuDB("ae", tempdir(), showProgress=F)
+  store("ae", tempdir(), showProgress=F)
   file.rename(file.path(tempdir(), "ae"), file.path(tempdir(), tmpDbName))
   
   # add linkDef.

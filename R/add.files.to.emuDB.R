@@ -16,7 +16,7 @@ add.files.to.bundles <- function(path2rootDir, path2sessionDir,
                                  fileExt, mediafileExtension = 'wav'){
   
   # gernerate file pail list
-  fpl = create.filePairList(path2sessionDir, path2rootDir, mediafileExtension, fileExt)
+  fpl = create_filePairList(path2sessionDir, path2rootDir, mediafileExtension, fileExt)
 
   # extract sourcePaths and destDirs
   sourcePaths = fpl[,2]
