@@ -12,7 +12,7 @@ load.emuDB(databaseDir, verbose = TRUE)
 \item{verbose}{be verbose}
 }
 \value{
-object of class emuDB
+name of emuDB
 }
 \description{
 Load EMU database

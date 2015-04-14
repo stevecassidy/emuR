@@ -11,7 +11,7 @@ purge.emuDB(dbName = NULL, dbUUID = NULL, interactive = TRUE)
 
 \item{dbUUID}{optional UUID of emuDB}
 
-\item{interactive}{}
+\item{interactive}{ask user for confirmation}
 }
 \description{
 Purges emuDB from this R session. Does not delete any files of the emuDB.

@@ -386,7 +386,7 @@ list.emuDBs<-function(){
 ##' @description Purges emuDB from this R session. Does not delete any files of the emuDB.
 ##' @param dbName name of emuDB to purge
 ##' @param dbUUID optional UUID of emuDB
-##' @param interactive
+##' @param interactive ask user for confirmation
 ##' @export
 purge.emuDB<-function(dbName=NULL,dbUUID=NULL,interactive=TRUE){
   .initialize.DBI.database()  
@@ -1733,7 +1733,7 @@ calculate.postions.of.links<-function(){
 ##' 
 ##' @param databaseDir directory of the EMU database
 ##' @param verbose be verbose
-##' @return object of class emuDB
+##' @return name of emuDB
 ##' @author Klaus Jaensch
 ##' @import jsonlite
 ##' @export
@@ -1962,6 +1962,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
     cat("\n")
   }
   #.destroy.DBI.database()
+  return(schema$name)
   
 }
 ##' Test if EMU database is loaded
