@@ -410,6 +410,7 @@ purge.emuDB<-function(dbName=NULL,dbUUID=NULL,interactive=TRUE){
 
 ##' Purge all loaded emuDBs
 ##' @description Purges emuDB from this R session. Does not delete any files of the emuDB.
+##' @param interactive ask user for confirmation
 ##' @export
 purge.all.emuDBs<-function(interactive=TRUE){
   cleared=FALSE
@@ -1438,6 +1439,7 @@ remove.linkDefinition<-function(dbName,linkDefinitionSuperlevelName,linkDefiniti
 ##' @param dbName name of emuDB
 ##' @param dir directory containing mediafiles or session directories
 ##' @param targetSessionName name of session in which to create the new bundles 
+##' @param dbUUID optional UUID of emuDB
 ##' @author Klaus Jaensch
 ##' @import stringr
 ##' @keywords emuDB database Emu

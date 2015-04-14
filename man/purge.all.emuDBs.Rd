@@ -6,6 +6,9 @@
 \usage{
 purge.all.emuDBs(interactive = TRUE)
 }
+\arguments{
+\item{interactive}{ask user for confirmation}
+}
 \description{
 Purges emuDB from this R session. Does not delete any files of the emuDB.
 }

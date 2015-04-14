@@ -13,6 +13,8 @@ import.mediaFiles.emuDB(dbName, dir, targetSessionName = "0000",
 \item{dir}{directory containing mediafiles or session directories}
 
 \item{targetSessionName}{name of session in which to create the new bundles}
+
+\item{dbUUID}{optional UUID of emuDB}
 }
 \description{
 Import media files to EMU database

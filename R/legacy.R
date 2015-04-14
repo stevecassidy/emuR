@@ -935,6 +935,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
 ##' 
 ##' @param emuTplPath EMU template file path
 ##' @param targetDir target directory
+##' @param dbUUID optional UUID of emuDB
 ##' @param options list of options (see details)
 ##' @param verbose be verbose
 ##' @author Klaus Jaensch

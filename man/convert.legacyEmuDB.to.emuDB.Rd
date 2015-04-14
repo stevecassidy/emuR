@@ -12,6 +12,8 @@ convert.legacyEmuDB.to.emuDB(emuTplPath, targetDir, dbUUID = NULL,
 
 \item{targetDir}{target directory}
 
+\item{dbUUID}{optional UUID of emuDB}
+
 \item{options}{list of options (see details)}
 
 \item{verbose}{be verbose}
