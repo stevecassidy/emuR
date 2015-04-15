@@ -89,7 +89,7 @@ validateBundle.emuDB.DBI <- function(dbName, session, bundle, dbUUID=NULL){
   
   #########################
   # get dbObj
-  dbUUID = get.emuDB.UUID(dbName = dbName, dbUUID = dbUUID)
+  dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
   dbObj = .load.emuDB.DBI(uuid = dbUUID)
   
   

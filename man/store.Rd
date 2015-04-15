@@ -39,7 +39,7 @@ symbolicLinkSignalFiles if TRUE signal files are symbolic linked instead of copi
 Klaus Jaensch
 }
 \seealso{
-\code{\link{load.emuDB}}
+\code{\link{load_emuDB}}
 }
 \keyword{Emu}
 \keyword{database}

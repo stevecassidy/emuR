@@ -1123,7 +1123,7 @@ query.database.with.eql<-function(dbConfig,query){
 ##' @author Klaus Jaensch
 ##' @import sqldf stringr
 ##' @export
-##' @seealso \code{\link{load.emuDB}}
+##' @seealso \code{\link{load_emuDB}}
 ##' @keywords emuDB database query Emu EQL 
 ##' @examples
 ##' \dontrun{
@@ -1143,7 +1143,7 @@ query<-function(dbName=NULL,query,sessionPattern=NULL,bundlePattern=NULL,queryLa
   
     if(queryLang=='EQL2'){
       .initialize.DBI.database(createTables=FALSE)
-      dbUUID=get.emuDB.UUID(dbName,dbUUID)
+      dbUUID=get_emuDB_UUID(dbName,dbUUID)
       db=.load.emuDB.DBI(uuid = dbUUID)
       dbConfig=db[['DBconfig']]
       # create 
@@ -1218,7 +1218,7 @@ print.emuDB.query.result<-function(queryResult){
 # ##' @return result set object of class resultType (e.g. EMU seglist 'emusegs')
 # ##' @author Klaus Jaensch
 # ##' @import sqldf stringr
-# ##' @seealso \code{\link{load.emuDB}}
+# ##' @seealso \code{\link{load_emuDB}}
 # ##' @keywords emuDB database query Emu EQL 
 # ##' @examples
 # ##' \dontrun{

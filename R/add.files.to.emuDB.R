@@ -12,7 +12,7 @@
 ##' @export
 ##' @author Raphael Winkelmann
 ##'
-add.files.to.bundles <- function(path2rootDir, path2sessionDir, 
+add_files_to_bundles <- function(path2rootDir, path2sessionDir, 
                                  fileExt, mediafileExtension = 'wav'){
   
   # gernerate file pail list

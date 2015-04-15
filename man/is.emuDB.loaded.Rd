@@ -28,7 +28,7 @@ Test if EMU database is loaded
 Klaus Jaensch
 }
 \seealso{
-\code{\link{load.emuDB}}
+\code{\link{load_emuDB}}
 }
 \keyword{Emu}
 \keyword{database}

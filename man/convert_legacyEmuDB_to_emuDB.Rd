@@ -47,7 +47,7 @@ options is a list of key value pairs:
 ## and load it afterwards
 
 convert_legacyEmuDB_to_emuDB("/homes/mylogin/ae/ae.tpl","/homes/mylogin/EMUnew/")
-ae=load.emuDB("/homes/mylogin/EMUnew/ae")
+ae=load_emuDB("/homes/mylogin/EMUnew/ae")
 
 ## Convert database "ae" and do not rewrite SSFF tracks
 
@@ -63,7 +63,7 @@ options=list(rewriteSSFFTracks=FALSE)
 Klaus Jaensch
 }
 \seealso{
-\code{\link{load.emuDB}}
+\code{\link{load_emuDB}}
 }
 \keyword{Emu}
 \keyword{database}

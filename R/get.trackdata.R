@@ -46,7 +46,7 @@
                             onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, dbUUID = NULL, verbose = TRUE){
   #########################
   # get dbObj
-  dbUUID = get.emuDB.UUID(dbName = dbName, dbUUID = dbUUID)
+  dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
   dbObj = .load.emuDB.DBI(uuid = dbUUID)
   
   #########################

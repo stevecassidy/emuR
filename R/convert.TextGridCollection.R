@@ -69,7 +69,7 @@ convert_TextGridCollection_to_emuDB <- function(path2rootDir, dbName,
   .store.emuDB.DBI(db)
   
   # get dbObj
-  dbUUID = get.emuDB.UUID(dbName = dbName, dbUUID = NULL)
+  dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = NULL)
   dbObj = .load.emuDB.DBI(uuid = dbUUID)
   
   

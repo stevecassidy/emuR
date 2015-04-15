@@ -11,7 +11,7 @@ newDbName = "ae_copy"
 
 # clean up
 if(is.emuDB.loaded(newDbName)){
-  UUID = get.emuDB.UUID(dbName = newDbName)
+  UUID = get_emuDB_UUID(dbName = newDbName)
   .purge.emuDB(UUID)
 }
 
@@ -32,7 +32,7 @@ if(nrow(dbsDf)>0){
 
 
 parse.textgrid(path2tg, sR, dbName=newDbName, bundle="msajc003", session="0000")
-dbUUID = get.emuDB.UUID(dbName = newDbName)
+dbUUID = get_emuDB_UUID(dbName = newDbName)
 
 ##############################
 test_that("correct SEGMENT values are parsed and calculated in SQLite items table", {  
@@ -178,7 +178,7 @@ test_that("SQLite label table has correct values", {
 
 # clean up
 if(is.emuDB.loaded(newDbName)){
-  UUID = get.emuDB.UUID(dbName = newDbName)
+  UUID = get_emuDB_UUID(dbName = newDbName)
   .purge.emuDB(UUID)
 }
 

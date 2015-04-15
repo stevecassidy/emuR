@@ -188,7 +188,7 @@ get.database<-function(uuid=NULL,name=NULL){
 }
 .load.emuDB.DBI<-function(uuid=NULL,name=NULL){
   if(is.null(uuid)){
-    uuid=get.emuDB.UUID(name)
+    uuid=get_emuDB_UUID(name)
   }
   dbQ=paste0("SELECT * FROM emuDB WHERE uuid='",uuid,"'")
   dbDf=dbGetQuery(emuDBs.con,dbQ)
@@ -332,7 +332,7 @@ get.database<-function(uuid=NULL,name=NULL){
 ##' @param dbUUID optional UUID of emuDB
 ##' @seealso  \code{\link{is.emuDB.loaded}}
 ##' @export
-get.emuDB.UUID<-function(dbName=NULL,dbUUID=NULL){
+get_emuDB_UUID<-function(dbName=NULL,dbUUID=NULL){
   if(is.null(dbUUID)){
     dbQ=paste0("SELECT uuid FROM emuDB WHERE name='",dbName,"'")
     
@@ -364,7 +364,7 @@ get.emuDB.UUID<-function(dbName=NULL,dbUUID=NULL){
 ##' @description Lists overview of loaded emuDBs as data.frame table. Listed columns are name,basePath and UUID 
 ##' @return list of emuDBS as data.frame object
 ##' @export
-list.emuDBs<-function(){
+list_emuDBs<-function(){
   .initialize.DBI.database()
   dbs=dbGetQuery(emuDBs.con,"SELECT name,basePath,uuid FROM emuDB")
   return(dbs)
@@ -388,9 +388,9 @@ list.emuDBs<-function(){
 ##' @param dbUUID optional UUID of emuDB
 ##' @param interactive ask user for confirmation
 ##' @export
-purge.emuDB<-function(dbName=NULL,dbUUID=NULL,interactive=TRUE){
+purge_emuDB<-function(dbName=NULL,dbUUID=NULL,interactive=TRUE){
   .initialize.DBI.database()  
-  dbUUID=get.emuDB.UUID(dbName,dbUUID)
+  dbUUID=get_emuDB_UUID(dbName,dbUUID)
   purged=FALSE
   if(!is.null(dbUUID)){
     if(interactive){
@@ -412,7 +412,7 @@ purge.emuDB<-function(dbName=NULL,dbUUID=NULL,interactive=TRUE){
 ##' @description Purges emuDB from this R session. Does not delete any files of the emuDB.
 ##' @param interactive ask user for confirmation
 ##' @export
-purge.all.emuDBs<-function(interactive=TRUE){
+purge_all_emuDBs<-function(interactive=TRUE){
   cleared=FALSE
   if(interactive){
     ans=readline('Are you sure you want to remove all databases from this R session? (y/n)')
@@ -433,9 +433,9 @@ purge.all.emuDBs<-function(interactive=TRUE){
 ##' @param dbUUID optional UUID of emuDB
 ##' @return data.frame object with session names
 ##' @export
-list.sessions<-function(dbName=NULL,dbUUID=NULL){
+list_sessions<-function(dbName=NULL,dbUUID=NULL){
   .initialize.DBI.database()
-  uuid=get.emuDB.UUID(dbName,dbUUID)
+  uuid=get_emuDB_UUID(dbName,dbUUID)
   dbs=dbGetQuery(emuDBs.con,paste0("SELECT name FROM session WHERE db_uuid='",uuid,"'"))
   return(dbs)
 }
@@ -447,9 +447,9 @@ list.sessions<-function(dbName=NULL,dbUUID=NULL){
 ##' @param dbUUID optional UUID of emuDB
 ##' @return data.frame object with columns session and name of bundles
 ##' @export
-list.bundles<-function(dbName=NULL,session=NULL,dbUUID=NULL){
+list_bundles<-function(dbName=NULL,session=NULL,dbUUID=NULL){
   .initialize.DBI.database()
-  uuid=get.emuDB.UUID(dbName,dbUUID)
+  uuid=get_emuDB_UUID(dbName,dbUUID)
   baseQ=paste0("SELECT session,name FROM bundle WHERE db_uuid='",uuid,"'")
   if(is.null(session)){
     # list all bundles
@@ -481,7 +481,7 @@ create.database <- function(name,basePath=NULL,DBconfig=create.schema.databaseDe
 ##' @param dbUUID optional UUID of emuDB
 ##' @export
 summary_emuDB<-function(dbName=NULL,dbUUID=NULL){
-  uuid=get.emuDB.UUID(dbName,dbUUID)
+  uuid=get_emuDB_UUID(dbName,dbUUID)
   object=.load.emuDB.DBI(uuid)
   cat("Name:\t",object[['name']],"\n")
   cat("UUID:\t",object[['DBconfig']][['UUID']],"\n")
@@ -916,7 +916,7 @@ convert.bundle.links.to.data.frame <-function(links){
 ## 
 get.bundle <- function(dbName=NULL,sessionName,bundleName,dbUUID=NULL){
   
-  dbUUID=get.emuDB.UUID(dbName,dbUUID)
+  dbUUID=get_emuDB_UUID(dbName,dbUUID)
   b=.load.bundle.DBI(dbUUID,sessionName,bundleName)
   if(is.null(b)){
     return(b)
@@ -1539,7 +1539,7 @@ import.mediaFiles.emuDB<-function(dbName,dir,targetSessionName='0000',dbUUID=NUL
 ##' @import stringr uuid jsonlite
 ##' @export
 ##' @keywords emuDB database Emu
-##' @seealso  \code{\link{load.emuDB}}
+##' @seealso  \code{\link{load_emuDB}}
 ##' @examples
 ##' \dontrun{
 ##' # Store database 'ae' to directory /homes/mylogin/EMUnew/
@@ -1742,10 +1742,10 @@ calculate.postions.of.links<-function(){
 ##' \dontrun{
 ##' ## Load database 'ae' in directory /homes/mylogin/EMUnew/ae
 ##' 
-##' ae=load.emuDB("ae","/homes/mylogin/EMUnew/ae")
+##' ae=load_emuDB("ae","/homes/mylogin/EMUnew/ae")
 ##' 
 ##' }
-load.emuDB <- function(databaseDir,verbose=TRUE){
+load_emuDB <- function(databaseDir,verbose=TRUE){
   progress=0
   
   # check database dir
@@ -1970,7 +1970,7 @@ load.emuDB <- function(databaseDir,verbose=TRUE){
 ##' @param dbUUID optional UUID of EmuDB
 ##' @return TRUE if loaded, FALSE otherwise
 ##' @author Klaus Jaensch
-##' @seealso \code{\link{load.emuDB}}
+##' @seealso \code{\link{load_emuDB}}
 ##' @keywords emuDB database Emu
 ##' @examples
 ##' \dontrun{
@@ -1995,31 +1995,31 @@ is.emuDB.loaded<-function(dbName=NULL,dbUUID=NULL){
 ##' @param dbName name of emuDB
 ##' @param dbUUID optional UUID of EmuDB
 ##' @author Klaus Jaensch
-##' @seealso \code{\link{load.emuDB}}
+##' @seealso \code{\link{load_emuDB}}
 ##' @keywords emuDB database Emu
 ##' @examples
 ##' \dontrun{
 ##' ## Reload database 'ae'
 ##' 
-##' reload.emuDB('ae')
+##' reload_emuDB('ae')
 ##' }
 
-reload.emuDB<-function(dbName,dbUUID=NULL){
+reload_emuDB<-function(dbName,dbUUID=NULL){
   db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  purge.emuDB(name = dbName,uuid=dbUUID,interactive=FALSE)
-  load.emuDB(db[['basePath']])
+  purge_emuDB(name = dbName,uuid=dbUUID,interactive=FALSE)
+  load_emuDB(db[['basePath']])
   return(invisible(NULL))
 }
 
 ## 
 duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
   # get UUID (also checks if DB exists)
-  oldUUID = get.emuDB.UUID(dbName = dbName, dbUUID = dbUUID)
+  oldUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
   oldBasePath = dbGetQuery(emuDBs.con, paste0("SELECT basePath FROM emuDB WHERE uuid='", oldUUID, "'"))
   newUUID = UUIDgenerate()
   
   # check if dbName already exists
-  tcRes = tryCatch(get.emuDB.UUID(dbName = newName), error = function(e) e)
+  tcRes = tryCatch(get_emuDB_UUID(dbName = newName), error = function(e) e)
   
   if(!inherits(tcRes, 'error')){
     stop("emuDB with name: ", newName, " already exists!")
@@ -2031,7 +2031,7 @@ duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
                                  "', '", newBasePath, "', DBconfigJSON FROM emuDB WHERE uuid='", oldUUID, "'"))
   
   # update DBconfig accordingly
-  dbUUID = get.emuDB.UUID(dbName = newDB, dbUUID = newUUID)
+  dbUUID = get_emuDB_UUID(dbName = newDB, dbUUID = newUUID)
   dbObj = .load.emuDB.DBI(uuid = dbUUID)
   dbObj$DBconfig$name = newName;
   dbObj$DBconfig$UUID = newUUID;
@@ -2086,7 +2086,7 @@ duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
 rewrite.allAnnots.emuDB <- function(dbName, dbUUID=NULL, showProgress=TRUE){
   
   # get UUID (also checks if DB exists)
-  dbUUID = get.emuDB.UUID(dbName = dbName, dbUUID = dbUUID)
+  dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
   basePath = dbGetQuery(emuDBs.con, paste0("SELECT basePath FROM emuDB WHERE uuid='", dbUUID, "'"))
   bndls = dbGetQuery(emuDBs.con, paste0("SELECT * FROM bundle WHERE db_uuid='", dbUUID, "'"))
   

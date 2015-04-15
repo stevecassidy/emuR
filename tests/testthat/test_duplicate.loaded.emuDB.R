@@ -6,7 +6,7 @@ context("testing duplicate.loaded.emuDB function")
 # load database 
 if(!is.emuDB.loaded("ae")){
   path2extdata = system.file("extdata", package = "emuR")
-  load.emuDB(paste(path2extdata, '/emu/DBs/ae/', sep = ''), verbose = F)
+  load_emuDB(paste(path2extdata, '/emu/DBs/ae/', sep = ''), verbose = F)
 }
 
 #############################
@@ -18,7 +18,7 @@ test_that("duplicate.loaded.emuDB handles bad calls", {
   
   # clean up
   if(is.emuDB.loaded("ae_copy")){
-    UUID = get.emuDB.UUID(dbName = "ae_copy")
+    UUID = get_emuDB_UUID(dbName = "ae_copy")
     .purge.emuDB(UUID)
   }
 })
@@ -36,7 +36,7 @@ test_that("duplicate.loaded.emuDB works correctly", {
   
   # clean up
   if(is.emuDB.loaded("ae_copy")){
-    UUID = get.emuDB.UUID(dbName = "ae_copy")
+    UUID = get_emuDB_UUID(dbName = "ae_copy")
     .purge.emuDB(UUID)
   }
   

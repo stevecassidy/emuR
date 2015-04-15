@@ -104,7 +104,7 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName, tierNames=NULL){
   dbSchema$maxNumberOfLabels = 1
   
   # purge tmp DB 
-  UUID = get.emuDB.UUID(dbName = dbName)
+  UUID = get_emuDB_UUID(dbName = dbName)
   .purge.emuDB(UUID)
   
   

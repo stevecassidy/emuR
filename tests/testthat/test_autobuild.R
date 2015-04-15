@@ -11,7 +11,7 @@ path2ae = system.file("extdata/emu/DBs/ae/", package = "emuR")
 
 # load database 
 if(!is.emuDB.loaded("ae")){
-  load.emuDB(path2ae, verbose = F)
+  load_emuDB(path2ae, verbose = F)
 }
 
 
@@ -32,7 +32,7 @@ test_that("correct links are present after autobuild.linkFromTimes with EVENTS",
   duplicate.loaded.emuDB("ae", tmpDbName, fp)
   
   # add linkDef.
-  dbUUID = get.emuDB.UUID(dbName = tmpDbName, dbUUID = NULL)
+  dbUUID = get_emuDB_UUID(dbName = tmpDbName, dbUUID = NULL)
   dbObj = .load.emuDB.DBI(uuid = dbUUID)
   tmpLinkDef = create.schema.linkDefinition(type='ONE_TO_MANY', superlevelName='Phonetic', sublevelName='Tone')
   dbObj$DBconfig$linkDefinitions[[length(dbObj$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
@@ -59,7 +59,7 @@ test_that("correct links are present after autobuild.linkFromTimes with EVENTS",
   
   # clean up
   if(is.emuDB.loaded(tmpDbName)){
-    UUID = get.emuDB.UUID(dbName = tmpDbName)
+    UUID = get_emuDB_UUID(dbName = tmpDbName)
     .purge.emuDB(UUID)
   }
 })
@@ -72,7 +72,7 @@ test_that("no duplicates are present after autobuild.linkFromTimes with EVENTs",
   duplicate.loaded.emuDB("ae", tmpDbName, fp)
   
   # add linkDef.
-  dbUUID = get.emuDB.UUID(dbName = tmpDbName, dbUUID = NULL)
+  dbUUID = get_emuDB_UUID(dbName = tmpDbName, dbUUID = NULL)
   dbObj = .load.emuDB.DBI(uuid = dbUUID)
   tmpLinkDef = create.schema.linkDefinition(type='ONE_TO_MANY', superlevelName='Phonetic', sublevelName='Tone')
   dbObj$DBconfig$linkDefinitions[[length(dbObj$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
@@ -98,7 +98,7 @@ test_that("no duplicates are present after autobuild.linkFromTimes with EVENTs",
   
   # clean up
   if(is.emuDB.loaded(tmpDbName)){
-    UUID = get.emuDB.UUID(dbName = tmpDbName)
+    UUID = get_emuDB_UUID(dbName = tmpDbName)
     .purge.emuDB(UUID)
   }
   
@@ -112,7 +112,7 @@ test_that("correct links are present after autobuild.linkFromTimes with SEGMENTS
   duplicate.loaded.emuDB("ae", tmpDbName, fp)
   
   # add linkDef.
-  dbUUID = get.emuDB.UUID(dbName = tmpDbName, dbUUID = NULL)
+  dbUUID = get_emuDB_UUID(dbName = tmpDbName, dbUUID = NULL)
   dbObj = .load.emuDB.DBI(uuid = dbUUID)
   tmpLinkDef = create.schema.linkDefinition(type='ONE_TO_MANY', superlevelName='Phonetic', sublevelName='Phonetic2')
   dbObj$DBconfig$linkDefinitions[[length(dbObj$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
@@ -171,7 +171,7 @@ test_that("correct links are present after autobuild.linkFromTimes with SEGMENTS
   
   # clean up
   if(is.emuDB.loaded(tmpDbName)){
-    UUID = get.emuDB.UUID(dbName = tmpDbName)
+    UUID = get_emuDB_UUID(dbName = tmpDbName)
     .purge.emuDB(UUID)
   }
   
@@ -186,7 +186,7 @@ test_that("correct links are present after autobuild.linkFromTimes with SEGMENTS
   # add linkDef.
   #   tmpLinkDef = create.schema.linkDefinition(type='MANY_TO_MANY', superlevelName='Phonetic', sublevelName='Phonetic2')
   #   ae$DBconfig$linkDefinitions[[length(ae$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
-  dbUUID = get.emuDB.UUID(dbName = tmpDbName, dbUUID = NULL)
+  dbUUID = get_emuDB_UUID(dbName = tmpDbName, dbUUID = NULL)
   dbObj = .load.emuDB.DBI(uuid = dbUUID)
   tmpLinkDef = create.schema.linkDefinition(type='MANY_TO_MANY', superlevelName='Phonetic', sublevelName='Phonetic2')
   dbObj$DBconfig$linkDefinitions[[length(dbObj$DBconfig$linkDefinitions) + 1]] = tmpLinkDef
@@ -256,7 +256,7 @@ test_that("correct links are present after autobuild.linkFromTimes with SEGMENTS
   
   # clean up
   if(is.emuDB.loaded(tmpDbName)){
-    UUID = get.emuDB.UUID(dbName = tmpDbName)
+    UUID = get_emuDB_UUID(dbName = tmpDbName)
     .purge.emuDB(UUID)
   }
   
@@ -268,7 +268,7 @@ test_that("correct links are present after autobuild.linkFromTimes with SEGMENTS
   fp = file.path(tempdir(), tmpDbName)
   duplicate.loaded.emuDB("ae", tmpDbName, fp)
   
-  dbUUID = get.emuDB.UUID(dbName = tmpDbName, dbUUID = NULL)
+  dbUUID = get_emuDB_UUID(dbName = tmpDbName, dbUUID = NULL)
   dbObj = .load.emuDB.DBI(uuid = dbUUID)
   
   # add linkDef.  
@@ -330,7 +330,7 @@ test_that("correct links are present after autobuild.linkFromTimes with SEGMENTS
   
   # clean up
   if(is.emuDB.loaded(tmpDbName)){
-    UUID = get.emuDB.UUID(dbName = tmpDbName)
+    UUID = get_emuDB_UUID(dbName = tmpDbName)
     .purge.emuDB(UUID)
   }
   
@@ -342,7 +342,7 @@ test_that("backup works correctly", {
   fp = file.path(tempdir(), tmpDbName)
   duplicate.loaded.emuDB("ae", tmpDbName, fp)
   
-  dbUUID = get.emuDB.UUID(dbName = tmpDbName, dbUUID = NULL)
+  dbUUID = get_emuDB_UUID(dbName = tmpDbName, dbUUID = NULL)
   dbObj = .load.emuDB.DBI(uuid = dbUUID)
   
   # add linkDef.
@@ -394,7 +394,7 @@ test_that("backup works correctly", {
   
   # clean up
   if(is.emuDB.loaded(tmpDbName)){
-    UUID = get.emuDB.UUID(dbName = tmpDbName)
+    UUID = get_emuDB_UUID(dbName = tmpDbName)
     .purge.emuDB(UUID)
   }
   
@@ -409,7 +409,7 @@ test_that("rewrite works correctly", {
   fp = file.path(tempdir(), tmpDbName)
   duplicate.loaded.emuDB("ae", tmpDbName, fp)
   
-  dbUUID = get.emuDB.UUID(dbName = tmpDbName, dbUUID = NULL)
+  dbUUID = get_emuDB_UUID(dbName = tmpDbName, dbUUID = NULL)
   dbObj = .load.emuDB.DBI(uuid = dbUUID)
   
   # actually store DB to fs
@@ -453,14 +453,14 @@ test_that("rewrite works correctly", {
   
   # clean up
   if(is.emuDB.loaded(tmpDbName)){
-    UUID = get.emuDB.UUID(dbName = tmpDbName)
+    UUID = get_emuDB_UUID(dbName = tmpDbName)
     .purge.emuDB(UUID)
   }
 })
 
 # clean up if copy still loaded
 if(is.emuDB.loaded(tmpDbName)){
-  UUID = get.emuDB.UUID(dbName = tmpDbName)
+  UUID = get_emuDB_UUID(dbName = tmpDbName)
   .purge.emuDB(UUID)
 }
 

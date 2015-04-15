@@ -18,7 +18,7 @@ path2newDb = file.path(path2tmpDir, emuDBname)
 
 # clean up
 if(is.emuDB.loaded(emuDBname)){
-  UUID = get.emuDB.UUID(dbName = emuDBname)
+  UUID = get_emuDB_UUID(dbName = emuDBname)
   .purge.emuDB(UUID)
 }
 

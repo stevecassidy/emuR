@@ -5,7 +5,7 @@ context("testing database.DBconfig functions")
 
 if(!is.emuDB.loaded("ae")){
   path2extdata = system.file("extdata", package = "emuR")
-  load.emuDB(paste(path2extdata, '/emu/DBs/ae/', sep = ''), verbose = F)
+  load_emuDB(paste(path2extdata, '/emu/DBs/ae/', sep = ''), verbose = F)
 }
 
 ##############################
@@ -13,7 +13,7 @@ test_that("get.levelDefinition returns correct levelDef", {
   
   #########################
   # get dbObj
-  dbUUID = get.emuDB.UUID(dbName = "ae", dbUUID = NULL)
+  dbUUID = get_emuDB_UUID(dbName = "ae", dbUUID = NULL)
   dbObj = .load.emuDB.DBI(uuid = dbUUID)
   
   

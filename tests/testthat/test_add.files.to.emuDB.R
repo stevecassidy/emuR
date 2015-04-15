@@ -17,7 +17,7 @@ path2newDB = file.path(tempdir(),'ae')
 # test_that("files are copied and added correctly", {
 #   # load database 
 #   if(!is.emuDB.loaded("ae")){
-#     load.emuDB(path2newDB, verbose = F)
+#     load_emuDB(path2newDB, verbose = F)
 #   }
 #   add.files.to.emuDB(emuDB = ae, path2rootDir = path2legacy_ae, fileExt = 'fms')
 #   fmsFilePaths = list.files(path2newDB, pattern = '*.fms', recursive = T)

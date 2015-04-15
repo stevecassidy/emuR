@@ -6,7 +6,7 @@ context("testing get.trackdata function")
 # load database 
 if(!is.emuDB.loaded("ae")){
   path2extdata = system.file("extdata", package = "emuR")
-  load.emuDB(paste(path2extdata, '/emu/DBs/ae/', sep = ''), verbose = F)
+  load_emuDB(paste(path2extdata, '/emu/DBs/ae/', sep = ''), verbose = F)
 }
 
 # get segmentlist of type segment

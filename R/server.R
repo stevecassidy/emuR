@@ -38,21 +38,21 @@ require(base64enc)
 ##' \dontrun{ 
 ##' ## Load EMU database 'myDb' and serve it to the EMU-webApp (opens default HTTP/websocket port 17890)
 ##' 
-##' load.emuDB("/path/to/myDb")
+##' load_emuDB("/path/to/myDb")
 ##' serve('myDb')
 ##' }
 ##' 
-serve.emuDB=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
+serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
   if(debug && debugLevel==0){
     debugLevel=2
   }
   modified=FALSE
   emuDBserverRunning=FALSE
   bundleCount=0
-  dbUUID=get.emuDB.UUID(name=dbName)
+  dbUUID=get_emuDB_UUID(name=dbName)
   database=.load.emuDB.DBI(uuid = dbUUID)
   if(!is.null(dbUUID)){
-    bundlesDf=list.bundles(dbUUID = dbUUID)
+    bundlesDf=list_bundles(dbUUID = dbUUID)
   }else{
     stop("Emu database ",dbName, " not found!");
   }

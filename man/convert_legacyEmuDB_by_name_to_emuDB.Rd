@@ -21,7 +21,7 @@ Converts an existing legacy EMU database to the new EMU format. Conversion is do
 In the second step the target directory for the new database structure is created, the configuration and annoation files are stored in the new format and the signal files are copied.
 }
 \details{
-This function first tries to get the path of the legacy template file from the given database name using \code{\link{list.legacy.emu.databases}}.
+This function first tries to get the path of the legacy template file from the given database name using \code{\link{list_legacyEmuDBs}}.
 If the database could be found the function \code{\link{convert_legacyEmuDB_to_emuDB}} is called.
 }
 \examples{
@@ -36,7 +36,7 @@ convert_legacyEmuDB_by_name_to_emuDB("ae","/homes/mylogin/EMUnew/")
 Klaus Jaensch
 }
 \seealso{
-\code{\link{convert_legacyEmuDB_to_emuDB}} \code{\link{load.emuDB}}
+\code{\link{convert_legacyEmuDB_to_emuDB}} \code{\link{load_emuDB}}
 }
 \keyword{Emu}
 \keyword{database}

@@ -9,7 +9,7 @@ newDbName = "ae_copy"
 
 # clean up
 if(is.emuDB.loaded(newDbName)){
-  UUID = get.emuDB.UUID(dbName = newDbName)
+  UUID = get_emuDB_UUID(dbName = newDbName)
   .purge.emuDB(UUID)
 }
 
@@ -30,7 +30,7 @@ if(nrow(dbsDf)>0){
 
 
 parse.textgrid(path2tg, 20000, dbName=newDbName, bundle="msajc003", session="0000")
-dbUUID = get.emuDB.UUID(dbName = newDbName)
+dbUUID = get_emuDB_UUID(dbName = newDbName)
 
 
 #################################

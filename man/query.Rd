@@ -45,7 +45,7 @@ query(ae,"[Syllable=S ^ Phoneme=t]",resultType='emusegs')
 Klaus Jaensch
 }
 \seealso{
-\code{\link{load.emuDB}}
+\code{\link{load_emuDB}}
 }
 \keyword{EQL}
 \keyword{Emu}

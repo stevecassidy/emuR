@@ -12,14 +12,14 @@ context("testing queries")
 
 # purge ae if loaded to make tests work
 if(is.emuDB.loaded("ae")){
-  UUID = get.emuDB.UUID(dbName = "ae")
+  UUID = get_emuDB_UUID(dbName = "ae")
   .purge.emuDB(UUID)
 }
 
 
 test_that("Purge example database ae",{
   if(is.emuDB.loaded(dbUUID=.test_emu_ae_db_uuid)){
-    purge.emuDB(dbName='ae',dbUUID=.test_emu_ae_db_uuid,interactive=FALSE)
+    purge_emuDB(dbName='ae',dbUUID=.test_emu_ae_db_uuid,interactive=FALSE)
   }
 })
 test_that("Convert example database ae",{
@@ -29,8 +29,8 @@ test_that("Convert example database ae",{
 })
 
 test_that("Load example database ae",{  
-  load.emuDB(file.path(.test_emu_ae_db_dir,'ae'),verbose=FALSE)
-  #load.emuDB("/scratch/klausj/WORK/EmuDbs/ae")
+  load_emuDB(file.path(.test_emu_ae_db_dir,'ae'),verbose=FALSE)
+  #load_emuDB("/scratch/klausj/WORK/EmuDbs/ae")
   
   db=get.database(uuid=.test_emu_ae_db_uuid)
   expect_that(db[['name']],is_equivalent_to('ae'))
