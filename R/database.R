@@ -11,6 +11,9 @@ require(DBI)
 # increment this value if the internal database object format changes  
 emuDB.apiLevel=3L
 
+#emuDBs.con=NULL
+#internalVars=new.env()
+
 session.suffix='_ses'
 bundle.dir.suffix='_bndl'
 bundle.annotation.suffix='_annot'
