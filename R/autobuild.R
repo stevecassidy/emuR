@@ -17,10 +17,11 @@
 ##' @param backupLevelAppendStr string appended to level name for backup level
 ##' @param dbUUID optional UUID of emuDB
 ##' @author Raphael Winkelmann
+##' @export
 ##' @import RSQLite
 ##' @keywords emuR autobuild
 ##
-autobuild.linkFromTimes <- function(dbName, superlevelName, sublevelName, writeToFS = TRUE, 
+autobuild_linkFromTimes <- function(dbName, superlevelName, sublevelName, writeToFS = TRUE, 
                                     convertSuperlevel = FALSE, backupLevelAppendStr = '-autobuildBackup',
                                     dbUUID = NULL){
   
