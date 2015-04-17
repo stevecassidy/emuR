@@ -11,7 +11,7 @@
 ##' @param dbName name of EMU database
 ##' @param seglist seglist obtained by querying the emuDB object
 ##' @param ssffTrackName the name of track that one wishes to extract (see 
-##' \code{dbObj$DBconfig$ssffTrackDefinitions} for the defined ssffTracks of the 
+##' \code{DBconfig$ssffTrackDefinitions} for the defined ssffTracks of the 
 ##' dbObj). If the parameter \code{onTheFlyFunctionName} is set then 
 ##' this corresponds to the column name af the AsspDataObj (see
 ##' wrasspOutputInfos$<wrassp-function-name>$tracks).
@@ -41,7 +41,7 @@
 ##' @keywords misc
 ##' @import wrassp
 ##' @export
-"get.trackdata" <- function(dbName = NULL, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
+"get_trackdata" <- function(dbName = NULL, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
                             npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
                             onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, dbUUID = NULL, verbose = TRUE){
   #########################
@@ -353,4 +353,4 @@
 #######################
 # FOR DEVELOPMENT
 # library('testthat')
-# test_file('tests/testthat/test_get.trackdata.R')
+# test_file('tests/testthat/test_get_trackdata.R')
