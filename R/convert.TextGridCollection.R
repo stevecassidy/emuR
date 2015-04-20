@@ -15,11 +15,11 @@ require(RSQLite)
 ##' @param tierNames character vector containing names of tiers to extract and convert. If NULL (the default) all
 ##' tiers are converted.
 ##' @param showProgress show progress bar flag
-##' @seealso create.filePairList
+##' @seealso create_filePairList
 ##' @export
 ##' @author Raphael Winkelmann
 ##' 
-convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName, 
+convert_TextGridCollection_to_emuDB <- function(path2rootDir, dbName, 
                                                 targetDir, tgExt = 'TextGrid', 
                                                 audioExt = 'wav', tierNames = NULL, 
                                                 showProgress = TRUE){
@@ -43,7 +43,7 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
   }
   
   # gernerate file pail list
-  fpl = create.filePairList(path2rootDir, path2rootDir, audioExt, tgExt)
+  fpl = create_filePairList(path2rootDir, path2rootDir, audioExt, tgExt)
   
   progress = 0
   
@@ -54,27 +54,30 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
   }
   
   # gereate schema from first TextGrid in fpl
-  dbd = create.DBconfig.from.TextGrid(fpl[1,2], dbName, tierNames)
+  schema = create.DBconfig.from.TextGrid(fpl[1,2], dbName, tierNames)
+  # set transient values
+  schema=.update.transient.schema.values(schema)
+  # create db object
+  db=create.database(name = schema[['name']],basePath = normalizePath(targetDir),DBconfig = schema)
   
+  .initialize.DBI.database()
+  dbsDf=dbGetQuery(emuDBs.con,paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
+  if(nrow(dbsDf)>0){
+    stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
+  }
   
-  # create empty database
-  db = create.database(name = dbd$name, basePath = '', DBconfig = dbd)
+  .store.emuDB.DBI(db)
   
-  itemsTableName = "emuR_emuDB_items_tmp"
-  
-  labelsTableName ="emuR_emuDB_labels_tmp"
-  
-  linksTableName = "emuR_emuDB_links_tmp"
-  
-  
-  # Create an ephemeral in-memory RSQLite database
-  con <- dbConnect(RSQLite::SQLite(), ":memory:")
-  
-  initialize_database_tables(con, itemsTableName, labelsTableName, linksTableName)
+  # get dbObj
+  dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = NULL)
+  dbObj = .load.emuDB.DBI(uuid = dbUUID)
   
   
   # allBundles object to hold bundles without levels and links
   allBundles = list()
+  
+  # create session entry
+  dbGetQuery(emuDBs.con, paste0("INSERT INTO session VALUES('", dbUUID, "', '0000')"))
   
   # loop through fpl
   for(i in 1:dim(fpl)[1]){
@@ -83,35 +86,36 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
     asspObj = read.AsspDataObj(fpl[i,1])
     
     # create bundle name
-    #     bndlName = basename(file_path_sans_ext(fpl[i,2]))
     bndlName = gsub('^_', '', gsub(.Platform$file.sep, '_', gsub(normalizePath(path2rootDir),'',file_path_sans_ext(normalizePath(fpl[i,1])))))
     
+    # create bundle entry
+    dbGetQuery(emuDBs.con, paste0("INSERT INTO bundle VALUES('", dbUUID, "', '0000', '", bndlName, "', '", basename(fpl[i,1]), "', ", attributes(asspObj)$sampleRate, ",'", fpl[i,1], "')"))
+    
+    # create track entry
+    dbGetQuery(emuDBs.con, paste0("INSERT INTO track VALUES('", dbUUID, "', '0000', '", bndlName, "', '", fpl[i,1], "')"))
+    
     # parse TextGrid
-    parse.textgrid(fpl[i,2], attributes(asspObj)$sampleRate, db='ae', bundle=bndlName, session="0000", 
-                   conn = con, itemsTableName=itemsTableName, labelsTableName=labelsTableName)
+    parse.textgrid(fpl[i,2], attributes(asspObj)$sampleRate, dbName=dbName, bundle=bndlName, session="0000")
     
     # remove unwanted levels
     if(!is.null(tierNames)){
-      delete_unwanted_levels_from_database_tables(con, itemsTableName, labelsTableName, linksTableName, tierNames)
+      
+      condStr = paste0("level!='", paste0(tierNames, collapse = paste0("' AND ", " level!='")), "'")
+
+      # delete items
+      dbSendQuery(emuDBs.con, paste0("DELETE FROM items WHERE ", "db_uuid='", dbUUID, "' AND ", condStr))
+      
+      # delete labels
+      dbSendQuery(emuDBs.con, paste0("DELETE FROM labels", 
+                                     " WHERE ", "db_uuid='", dbUUID, "' AND itemID NOT IN (SELECT itemID FROM items)"))
     }
     
     # validate bundle
-    valRes = validate.sqlTableRep.bundle(dbd, bndlName, conn = con, itemsTableName = itemsTableName, 
-                                         labelsTableName = labelsTableName, linksTableName=linksTableName)
+    valRes = validateBundle.emuDB.DBI(dbName, session='0000', bundle=bndlName)
     
     if(valRes$type != 'SUCCESS'){
       stop('Parsed TextGrid did not pass validator! The validator message is: ', valRes$message)
     }
-    
-    # create bundle and append
-    allBundles[[bndlName]] = create.bundle(name = bndlName,
-                                           sessionName = '0000',
-                                           annotates = paste0(basename(file_path_sans_ext(fpl[i,2])),'.', audioExt),
-                                           sampleRate = attr(asspObj, 'sampleRate'),
-                                           levels = list(),
-                                           signalpaths = list(unname(fpl[i,1])),
-                                           mediaFilePath = unname(fpl[i,1]),
-                                           links = list())
     
     
     # update pb
@@ -121,25 +125,17 @@ convert.TextGridCollection.to.emuDB <- function(path2rootDir, dbName,
     
   }
   
-  # extract dataframes and assign them to db Obj
-  db[['items']]=dbReadTable(con, itemsTableName)
-  db[['labels']]=dbReadTable(con, labelsTableName)
-  db[['links']]=dbReadTable(con, linksTableName)
-  
-  # create dummy container with bundles
-  db[['sessions']][['0000']]=emuDB.session(name='0000', bundles=allBundles)
-  
   # store newly generated emuDB
   if(showProgress){
     cat('\n') # hack to have newline after pb
   }
   
-  # Disconnect from the database
-  dbDisconnect(con)
   
   # store
-  store.emuDB(db, targetDir, showProgress = showProgress)
+  store(dbName, targetDir, showProgress = showProgress)
   
+  # purge tmp emuDB
+  .purge.emuDB(dbUUID)
   
 }
 

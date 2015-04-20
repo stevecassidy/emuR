@@ -306,19 +306,19 @@ list.emuTemplatePathes<-function(){
 ##' List known database names from legacy EMU installation
 ##' @return character vector with database names
 ##' @author Klaus Jaensch
-##' @seealso \code{\link{list.legacy.emu.databases}} \code{\link{convert.legacyEmuDB.by.name.to.emuDB}} 
+##' @seealso \code{\link{list_legacyEmuDBs}} \code{\link{convert_legacyEmuDB_by_name_to_emuDB}} 
 ##' @export
 ##' @keywords database legacy Emu
 ##' @examples
 ##' \dontrun{
 ##' ## List legacy EMU known database names
 ##' 
-##' list.legacy.emu.database.names()
+##' list_legacyEmuDBs_names()
 ##' 
 ##' }
 ##' 
-list.legacy.emu.database.names<-function(){
-  return(names(list.legacy.emu.databases()))
+list_legacyEmuDBs_names<-function(){
+  return(names(list_legacyEmuDBs()))
 }
 
 ##' List known databases from legacy EMU installation
@@ -326,18 +326,18 @@ list.legacy.emu.database.names<-function(){
 ##' and searches for *.tlp template files in this path. The basename of the template file is the database name.
 ##' @return named list with pathes to database template files. The names of the list are the database names
 ##' @author Klaus Jaensch
-##' @seealso \code{\link{list.legacy.emu.database.names}}
+##' @seealso \code{\link{list_legacyEmuDBs_names}}
 ##' @export
 ##' @keywords database legacy Emu
 ##' @examples
 ##' \dontrun{
 ##' ## List legacy EMU known databases
 ##' 
-##' list.legacy.emu.databases()
+##' list_legacyEmuDBs()
 ##' 
 ##' }
 ##' 
-list.legacy.emu.databases<-function(){
+list_legacyEmuDBs<-function(){
   lEmuDbs=list()
   templPathes=list.emuTemplatePathes()
   if(!is.null(templPathes)){
@@ -564,6 +564,29 @@ load.annotation.for.legacy.bundle=function(schema,legacyBundleID,basePath=NULL,e
   return(bundle)
 }
 
+# remove.redundant.bundle.links<-function(bundle){
+#   # Legacy EMU and query functions link collections contain links for each possible connection between levels
+#   # We consider links that do not follow link definition constraints as redundant and therefore we remove them from the
+#   # link data model
+#   #
+#   # build SQL query from link definitions
+#   
+#   move
+#   items=database[['items']]
+#   sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.session=t.session AND l.session=f.session AND f.itemID=l.fromID AND t.itemID=l.toID AND ("
+#   ldCnt=length(database[['DBconfig']][['linkDefinitions']])
+#   for(i in 1:ldCnt){
+#     ld=database[['DBconfig']][['linkDefinitions']][[i]]
+#     sqlQuery=paste0(sqlQuery,'(f.level=\'',ld[['superlevelName']],'\' AND t.level=\'',ld[['sublevelName']],'\')')
+#     if(i<ldCnt){
+#       sqlQuery=paste0(sqlQuery,' OR ')
+#     }
+#   }
+#   sqlQuery=paste0(sqlQuery,')')
+#   #cat(sqlQuery,"\n")
+#   return(sqldf(sqlQuery))
+# }
+
 remove.redundant.links<-function(database,links){
   # Legacy EMU and query functions link collections contain links for each possible connection between levels
   # We consider links that do not follow link definition constraints as redundant and therefore we remove them from the
@@ -585,17 +608,20 @@ remove.redundant.links<-function(database,links){
   return(sqldf(sqlQuery))
 }
 
+
+
 remove.database.redundant.links<-function(database){
   # Legacy EMU and query functions link collections contain links for each possible connection between levels
   # We consider links that do not follow link definition constraints as redundant and therefore we remove them from the
   # link data model
   #
   # build SQL query from link definitions
-  items=database[['items']]
-  links=database[['links']]
-  linksCnt=nrow(links)
-  if(linksCnt>0){
-    sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.session=t.session AND l.session=f.session AND f.itemID=l.fromID AND t.itemID=l.toID AND ("
+  
+  # Could not find a way to directly delte the redundant links. SQLite DELETE commands functionality is limited.
+  # use a temp table for now
+  res<-dbSendQuery(emuDBs.con,'DELETE FROM linksTmp')
+  dbClearResult(res)
+    sqlQuery="INSERT INTO linksTmp SELECT l.* FROM items f,items t, links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.session=t.session AND l.session=f.session AND f.itemID=l.fromID AND t.itemID=l.toID AND ("
     ldCnt=length(database[['DBconfig']][['linkDefinitions']])
     if(ldCnt>0){
       for(i in 1:ldCnt){
@@ -607,10 +633,17 @@ remove.database.redundant.links<-function(database){
       }
       sqlQuery=paste0(sqlQuery,')')
       #cat(sqlQuery,"\n")
-      database[['links']]=sqldf(sqlQuery)
-    }
-  }
-  return(database)
+      #database[['links']]=sqldf(sqlQuery)
+      res<-dbSendQuery(emuDBs.con,sqlQuery)
+      dbClearResult(res)
+      res<-dbSendQuery(emuDBs.con,'DELETE FROM links')
+      dbClearResult(res)
+      res<-dbSendQuery(emuDBs.con,'INSERT INTO links SELECT * FROM linksTmp')
+      dbClearResult(res)
+      res<-dbSendQuery(emuDBs.con,'DELETE FROM linksTmp')
+      dbClearResult(res)
+    } 
+  
 }
 
 ## Load legacy EMU database by name
@@ -625,7 +658,7 @@ remove.database.redundant.links<-function(database){
 ## 
 load.database.from.legacy.emu.by.name=function(dbName,verboseLevel=0,showProgress=TRUE,encoding=NULL){
   
-  emuDbsList=list.legacy.emu.databases()
+  emuDbsList=list_legacyEmuDBs()
   emuTplPath=emuDbsList[[dbName]]
   if(is.null(emuTplPath)){
     stop("Legacy EMU database '",dbName,"' could not be found.")
@@ -633,6 +666,53 @@ load.database.from.legacy.emu.by.name=function(dbName,verboseLevel=0,showProgres
   return(load.database.from.legacy.emu(emuTplPath=emuTplPath,verboseLevel=verboseLevel,showProgress=showProgress,encoding=encoding))
 }
 
+build.hashed.link.defs<-function(linkDefinitions){
+  
+  # build link definitions hashed by super level name
+  linkDefsHashed=list()
+  for(ld in linkDefinitions){
+    supLvlNm=ld[['superlevelName']]
+    #if(is.null(linkDefsHashed[[supLvlNm]])){
+    #  # set
+    #  linkDefsHashed[[supLvlNm]]=ld[['sublevelName']]
+    #}else{
+      # append
+      linkDefsHashed[[supLvlNm]]=c(linkDefsHashed[[supLvlNm]],ld[['sublevelName']])
+    #}
+    
+  }
+  return(linkDefsHashed)
+}
+
+remove.redundant.bundle.links<-function(linkDefsHashed,bundle){
+  lvls=bundle[['levels']]
+  itemsHashed=list()
+  for(lvl in lvls){
+    for(it in lvl[['items']]){
+      itemsHashed[[it[['id']]+1]]=lvl[['name']]
+    }
+  }
+  legacyLinks=bundle[['links']]
+  
+  # new link list without redundant links
+  links=list()
+  
+  for(legLk in legacyLinks){
+    fromLvl=itemsHashed[[legLk[['fromID']]+1]]
+    toLvl=itemsHashed[[legLk[['toID']]+1]]
+    
+    subLvls=linkDefsHashed[[fromLvl]]
+    for(subLvl in subLvls){
+      if(subLvl==toLvl){
+        links[[length(links)+1]]=legLk
+      }
+    }
+  }
+  # overwrite
+  bundle[['links']]=links
+  return(bundle)
+  
+}
 
 ## Load legacy EMU database from EMU template (.tpl) file
 ## 
@@ -656,8 +736,11 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
   tplBaseDir=NULL
   tplBaseDir=dirname(emuTplPath)
   
+  
   db=create.database(name=dbd[['name']],basePath=tplBaseDir,DBconfig=dbd)
-  db=initialize.database.dataframes(db)
+  
+  initialize.DBI.database()
+  .store.emuDB.DBI(db)
   
   schema=db[['DBconfig']]
   # load primary track file list first
@@ -707,12 +790,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     
     setTxtProgressBar(pb,progress)
   }
-  #uttNames=c()
-  
-  db[['itemsIdx']]=0L
-  db[['labelsIdx']]=0L
-  db[['linksIdx']]=0L
-  
+  linkDefsHashed=build.hashed.link.defs(dbConfig[['linkDefinitions']])
   for(ui in us){
     legacyBundleID=legacyBundleIDsList[[ui]]
     newBundleId=convert.legacy.bundle.id(legacyBundleID)
@@ -721,7 +799,7 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     if(is.null(db[['sessions']][[sessionName]])){
       # create session if needed
       db[['sessions']][[sessionName]]=list(name=sessionName,bundles=list())
-      
+      .store.session.DBI(dbd[['UUID']],sessionName)
     }
     ptrFilePath=get.legacy.file.path(db[['basePath']],primaryBasePath,legacyBundleID,primaryFileExtension)
     #ptrFilePath=primaryFileList[ui]
@@ -734,160 +812,12 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     #cat("Cut: ",ptrFileBasename,cutLen,cutPos,"\n")
     #uttCode=substr(ptrFileBasename,1,cutPos)
     bundle=load.annotation.for.legacy.bundle(schema,legacyBundleID,db[['basePath']],encoding=encoding)
-    
-    # "inlining" of append.bundle.to.tmp.list improves performance for very large databases
-    # (db object is not copied for each call)
+   
     schema=db[['DBconfig']]
     maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
-    bName=bundle[['name']]
-    for(lvl in bundle[['levels']]){
-      
-      seqIdx=as.integer(0)
-      for(it in lvl[['items']]){
-        db[['itemsIdx']]=db[['itemsIdx']]+1L
-        row=db[['itemsIdx']]
-        
-        itemsVectorSize=length(db[['items']][['bundle']])
-        if(row>itemsVectorSize){
-          colnms=names(db[['items']])
-          for(colNm in colnms){
-            colClass=class(db[['items']][[colNm]])
-            if(colClass=='character'){
-              db[['items']][[colNm]]=c(db[['items']][[colNm]],character(vector.increment))
-            }else if(colClass=='integer'){
-              db[['items']][[colNm]]=c(db[['items']][[colNm]],integer(vector.increment))
-            }else if(colClass=='numeric'){
-              db[['items']][[colNm]]=c(db[['items']][[colNm]],numeric(vector.increment))
-            }else{
-              stop('Unsupported column class ',colClass,' of column ',colNm,'\n')
-            }
-          }
-          if(verboseLevel>10){
-            cat("Incremented items\n")
-          }
-        }
-        seqIdx=seqIdx+as.integer(1)
-        
-        db[['items']][['session']][row]=sessionName
-        db[['items']][['bundle']][row]=bName
-        itemId=it[['id']]
-        if(is.null(itemId)){
-          # for instance aetobi has no .hlb files and therefore no links and item ids
-          id=paste(db[['name']],sessionName,bName,sep='_')
-          itemId=NA
-        }else{
-          id=paste(db[['name']],sessionName,bName,it['id'],sep='_')
-        }
-        db[['items']][['id']][row]=id
-        db[['items']][['itemID']][row]=itemId
-        db[['items']][['level']][row]=lvl[['name']]
-        db[['items']][['type']][row]=lvl[['type']]
-        if(!is.null(bundle[['sampleRate']])){
-          db[['items']][['sampleRate']][row]=bundle[['sampleRate']]
-        }else{
-          db[['items']][['sampleRate']][row]=NA
-        }
-        db[['items']][['seqIdx']][row]=seqIdx
-        sp=it[['samplePoint']]
-        if(!is.null(sp)){
-          db[['items']][['samplePoint']][row]=sp
-        }else{
-          db[['items']][['samplePoint']][row]=NA
-        }
-        ss=it[['sampleStart']]
-        if(!is.null(ss)){
-          db[['items']][['sampleStart']][row]=ss
-        }else{
-          db[['items']][['sampleStart']][row]=NA
-        }
-        sd=it[['sampleDur']]
-        if(!is.null(sd)){
-          db[['items']][['sampleDur']][row]=sd
-        }else{
-          db[['items']][['sampleDur']][row]=NA
-        }
-        
-        lbls=it[['labels']]
-        lblsLen=length(lbls)
-        #lbl0=it[['labels']][[1]][['value']]
-#         if(is.null(lbl0)){
-#           db[['items']][['label']][row]=''
-#         }else{
-#           db[['items']][['label']][row]=lbl0
-#         }
-        for(i in 1:maxLbls){
-          rLbl=''
-          if(lblsLen>=i){
-            lbl=lbls[[i]]
-            if(!is.null(lbl)){
-              db[['labelsIdx']]=db[['labelsIdx']]+1L
-              lrow=db[['labelsIdx']]
-              labelsVectorSize=length(db[['labels']][['bundle']])
-              if(lrow>labelsVectorSize){
-                colnms=names(db[['labels']])
-                for(colNm in colnms){
-                  colClass=class(db[['labels']][[colNm]])
-                  if(colClass=='character'){
-                    db[['labels']][[colNm]]=c(db[['labels']][[colNm]],character(vector.increment))
-                  }else if(colClass=='integer'){
-                    db[['labels']][[colNm]]=c(db[['labels']][[colNm]],integer(vector.increment))
-                  }else{
-                    stop('Unsupported column class ',colClass,' of column ',colNm,'\n')
-                  }
-                }
-                if(verboseLevel>10){
-                  cat("Incremented labels\n")
-                }
-              }
-              rLbl=lbl[['value']]
-              if(is.null(rLbl)){
-                rLbl=''
-              }
-              db[['labels']][['itemID']][lrow]=id
-              db[['labels']][['session']][lrow]=sessionName
-              db[['labels']][['bundle']][lrow]=bName
-              db[['labels']][['labelIdx']][lrow]=i-1L
-              db[['labels']][['name']][lrow]=lbl[['name']]
-              db[['labels']][['label']][lrow]=rLbl
-              
-            }
-          }
-        } 
-        
-      }
-    }
-    
-    for(lk in bundle[['links']]){
-      db[['linksIdx']]=db[['linksIdx']]+1L
-      row=db[['linksIdx']]
-      linksVectorSize=length(db[['links']][['bundle']])
-      if(row>linksVectorSize){
-        colnms=names(db[['links']])
-        for(colNm in colnms){
-          colClass=class(db[['links']][[colNm]])
-          if(colClass=='character'){
-            db[['links']][[colNm]]=c(db[['links']][[colNm]],character(vector.increment))
-          }else if(colClass=='integer'){
-            db[['links']][[colNm]]=c(db[['links']][[colNm]],integer(vector.increment))
-          }else{
-            stop('Unsupported column class ',colClass,' of column ',colNm,'\n')
-          }
-        }
-        if(verboseLevel>10){
-          cat("Incremented links\n")
-        }
-      }
-      db[['links']][['session']][row]=sessionName
-      db[['links']][['bundle']][row]=bName
-      db[['links']][['fromID']][row]=lk[['fromID']]
-      db[['links']][['toID']][row]=lk[['toID']]
-      lbl=lk[['label']]
-      if(is.null(lbl)){
-        db[['links']][['label']][row]=NA
-      }else{
-        db[['links']][['label']][row]=lbl
-      }
-    }
+    bundle[['db_UUID']]=schema[['UUID']]
+    .store.bundle.DBI(db,bundle)
+    .store.bundle.annot.DBI(schema[['UUID']],bundle)
     
     bundle[['levels']]=NULL
     bundle[['links']]=NULL
@@ -905,28 +835,33 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
       setTxtProgressBar(pb,progress)
     }
   }
-  itemsIdx=db[['itemsIdx']]
   
-  db[['items']]=data.frame(id=db[['items']][['id']][0:itemsIdx],session=db[['items']][['session']][0:itemsIdx],bundle=db[['items']][['bundle']][0:itemsIdx],level=db[['items']][['level']][0:itemsIdx],itemID=db[['items']][['itemID']][1:itemsIdx],type=db[['items']][['type']][1:itemsIdx],seqIdx=db[['items']][['seqIdx']][1:itemsIdx],sampleRate=db[['items']][['sampleRate']][1:itemsIdx],samplePoint=db[['items']][['samplePoint']][1:itemsIdx],sampleStart=db[['items']][['sampleStart']][1:itemsIdx],sampleDur=db[['items']][['sampleDur']][1:itemsIdx],stringsAsFactors=FALSE)
-  #tmpDf=data.frame(db[['items']],stringsAsFactors = FALSE)
-  #db[['items']]=tmpDf[1:itemsIdx,]
+  if(verboseLevel>3){
+    cat('Removing redundant links...\n')
+  }
+  remove.database.redundant.links(db)
+  if(verboseLevel>3){
+    cat('Removed redundant links.\n')
+  }
   progress=progress+1L
   if(showProgress){
     setTxtProgressBar(pb,progress)
   }
   
-  labelsIdx=db[['labelsIdx']]
-  db[['labels']]=data.frame(itemID=db[['labels']][['itemID']][0:labelsIdx],session=db[['labels']][['session']][0:labelsIdx],bundle=db[['labels']][['bundle']][0:labelsIdx],labelIdx=db[['labels']][['labelIdx']][0:labelsIdx],name=db[['labels']][['name']][1:labelsIdx],label=db[['labels']][['label']][1:labelsIdx],stringsAsFactors=FALSE)
-  #tmpDf=data.frame(db[['labels']],stringsAsFactors = FALSE)
-  #db[['labels']]=tmpDf[1:labelsIdx,]
-  #db[['links']]=data.frame(bundle=bundle_l[1:lli],fromID=fromID_l[1:lli],toID=toID_l[1:lli],label=label_l[1:lli])
+  db[['items']]=dbReadTable(emuDBs.con,'items')
+ 
   progress=progress+1L
   if(showProgress){
     setTxtProgressBar(pb,progress)
   }
   
-  linksIdx=db[['linksIdx']]
-  db[['links']]=data.frame(session=db[['links']][['session']][0:linksIdx],bundle=db[['links']][['bundle']][0:linksIdx],fromID=db[['links']][['fromID']][0:linksIdx],toID=db[['links']][['toID']][0:linksIdx],label=db[['links']][['label']][0:linksIdx],stringsAsFactors=FALSE)
+  db[['labels']]=dbReadTable(emuDBs.con,'labels')
+  progress=progress+1L
+  if(showProgress){
+    setTxtProgressBar(pb,progress)
+  }
+  
+  db[['links']]=dbReadTable(emuDBs.con,'links')
   progress=progress+1L
   if(showProgress){
     setTxtProgressBar(pb,progress)
@@ -934,10 +869,6 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
   if(verboseLevel>3){
     cat('Loaded',itemsIdx,'items',labelsIdx,'labels',linksIdx,'links\n')
   }
-  #db[['links']]=db[['links']][1:linksIdx,]
-  #tmpDf=data.frame(db[['links']],stringsAsFactors = FALSE)
-  #db[['links']]=tmpDf[1:linksIdx,]
-  #tmpDf=NULL
   
   ## Emu does not divide utterances in sessions
   ## we create a dummy container session to satisfy new db data model
@@ -946,21 +877,11 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
   ##db$sessions[[1]]$bundles = utts
   #db[['sessions']][['0000']]=containerSession
   
-  if(verboseLevel>3){
-    cat('Removing redundant links...\n')
-  }
-  db=remove.database.redundant.links(db)
-  if(verboseLevel>3){
-    cat('Removed redundant links.\n')
-  }
-  progress=progress+1L
-  if(showProgress){
-    setTxtProgressBar(pb,progress)
-  }
+ 
   if(verboseLevel>3){
     cat('Build redundant links...\n')
   }
-  redLinks=build.redundant.links.all(db)
+  build.redundant.links.all(db)
   if(verboseLevel>3){
     cat('Build redundant links.\n')
   }
@@ -971,8 +892,8 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
   if(verboseLevel>3){
     cat('Extending links table...\n')
   }
-  db[['linksExt']]=calculate.postions.of.links(db[['items']],redLinks)
-  #db[['linksExt']]=calculate.postions.of.links(db[['items']],db[['links']])
+  calculate.postions.of.links()
+  db[['linksExt']]=dbReadTable(emuDBs.con,'linksExt')
   if(verboseLevel>3){
     cat('Links table extended.\n')
   }
@@ -982,11 +903,13 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
     cat("\n")
   }
   
+  #destroy.DBI.database()
   if(verboseLevel>0){
     cat("Loaded database bundles.")
   }
   
-  return(db)
+  
+  return()
 }
 
 
@@ -1012,10 +935,11 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
 ##' 
 ##' @param emuTplPath EMU template file path
 ##' @param targetDir target directory
+##' @param dbUUID optional UUID of emuDB
 ##' @param options list of options (see details)
 ##' @param verbose be verbose
 ##' @author Klaus Jaensch
-##' @seealso \code{\link{load.emuDB}}
+##' @seealso \code{\link{load_emuDB}}
 ##' @export
 ##' @keywords emuDB database schema Emu
 ##' @examples
@@ -1024,12 +948,12 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
 ##' ## template file /homes/mylogin/ae/ae.tpl to directory /homes/mylogin/EMUnew/
 ##' ## and load it afterwards
 ##'
-##' convert.legacyEmuDB.to.emuDB("/homes/mylogin/ae/ae.tpl","/homes/mylogin/EMUnew/")
-##' ae=load.emuDB("/homes/mylogin/EMUnew/ae")
+##' convert_legacyEmuDB_to_emuDB("/homes/mylogin/ae/ae.tpl","/homes/mylogin/EMUnew/")
+##' ae=load_emuDB("/homes/mylogin/EMUnew/ae")
 ##'
 ##' ## Convert database "ae" and do not rewrite SSFF tracks 
 ##' 
-##' convert.legacyEmuDB.by.name.to.emuDB(
+##' convert_legacyEmuDB_by_name_to_emuDB(
 ##' "ae",
 ##' "/homes/mylogin/EMUnew/",
 ##' options=list(rewriteSSFFTracks=FALSE)
@@ -1037,8 +961,8 @@ load.database.from.legacy.emu=function(emuTplPath,verboseLevel=0,showProgress=TR
 ##' 
 ##' }
 ##' 
-convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,options=NULL,verbose=TRUE){
- 
+convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,options=NULL,verbose=TRUE){
+  progress=0
   # default options
   # ignore missing SSFF track files
   # rewrite SSFF track files
@@ -1057,9 +981,9 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,options=NULL,verbo
       stop(targetDir," exists and is not a directory.")
     }
   }
-  
+  legacyBasePath=dirname(emuTplPath)
   # load database schema and metadata to get db name
-  dbConfig=load.database.schema.from.emu.template(emuTplPath,encoding=mergedOptions[['sourceFileTextEncoding']])
+  dbConfig=load.database.schema.from.emu.template(emuTplPath,dbUUID=dbUUID,encoding=mergedOptions[['sourceFileTextEncoding']])
   # database dir
   pp=file.path(targetDir,dbConfig[['name']])
   
@@ -1068,49 +992,199 @@ convert.legacyEmuDB.to.emuDB <- function(emuTplPath,targetDir,options=NULL,verbo
     stop("Database storage dir ",pp," already exists.")
   }
 
-  # load legacy Emu db
-  db=load.database.from.legacy.emu(emuTplPath,showProgress=verbose)
+
+  progress=progress+1L
   
-  # store loaded database 
-  store.emuDB(db,targetDir,options=mergedOptions,showProgress=verbose)
+  tplBaseDir=NULL
+  tplBaseDir=dirname(emuTplPath)
+  
+  # create target dir
+  dir.create(targetDir)
+  
+  # create database dir in targetdir
+  dir.create(pp)
+ 
+  # get UUID
+  dbUUID=dbConfig[['UUID']]
+  
+  # set user editable
+  dbConfig[['EMUwebAppConfig']][['activeButtons']]=list(saveBundle=TRUE)
+  
+  # store db schema file
+  .store.DBconfig(pp,dbConfig)
+  progress=progress+1L
+  
+  # load primary track file list first
+  # and find samples track to get sample rate
+  primaryFileList = NULL
+  
+  primaryBasePath=NULL
+  primaryFileExtension=NULL
+  
+  #pattern='*'
+  primaryFileSuffixPattern=NULL
+  # find primary and sample track paths
+  for(tr in dbConfig[['tracks']]){
+    #cat("Track: ",tr$name," ",tr$fileExtension,"\n")
+    if(tr[['fileExtension']]==dbConfig[['flags']][['PrimaryExtension']]){
+      
+      primaryFileExtension=tr[['fileExtension']]
+      primaryBasePath=tr[['basePath']]
+      #if(!is.null(tr[['unitSuffix']])){
+      #  pattern=str_c(pattern,tr[['unitSuffix']])
+      #}
+    }
+  }
+  
+  if(is.null(primaryFileExtension)){
+    for(ad in dbConfig[['annotationDescriptors']]){
+      if(ad[['extension']]==dbConfig[['flags']][['PrimaryExtension']]){
+        primaryFileExtension=ad[['extension']]
+        primaryBasePath=ad[['basePath']]
+        break
+      }
+    }
+    
+  }
+  #pattern=str_c(pattern,'[.]',primaryFileExtension)
+  primaryFileSuffixPattern=paste0('[.]',primaryFileExtension,'$')
+  #primaryFileList=list.file.matching.emu.path.pattern(db[['basePath']],primaryBasePath,filePattern=pattern)
+  legacyBundleIDsList=get.legacy.emu.bundles(legacyBasePath,primaryBasePath,primaryFileSuffixPattern)
+  
+  
+  bundlesCount=length(legacyBundleIDsList)
+  #utts=vector(mode='list',length=bundlesCount)
+  us=1:bundlesCount
+  if(verbose){
+    cat("INFO: Loading legacy EMU database containing",bundlesCount,"bundles...\n")
+    pb=txtProgressBar(min=0,max=bundlesCount+7,initial=progress,style=3)
+    
+    setTxtProgressBar(pb,progress)
+  }
+  linkDefsHashed=build.hashed.link.defs(dbConfig[['linkDefinitions']])
+  for(ui in us){
+    legacyBundleID=legacyBundleIDsList[[ui]]
+    newBundleId=convert.legacy.bundle.id(legacyBundleID)
+    sessionName=newBundleId[1]
+    bundleName=newBundleId[2]
+    sDir=paste0(sessionName,session.suffix)
+    sfp=file.path(pp,sDir)
+    #if(is.null(db[['sessions']][[sessionName]])){
+    if(!file.exists(sfp)){
+      # create session if needed
+      #db[['sessions']][[sessionName]]=list(name=sessionName,bundles=list())
+      #.store.session.DBI(dbd[['UUID']],sessionName)
+       
+        #cat(targetDir,s$name,sfp,"\n")
+        dir.create(sfp)
+    }
+    ptrFilePath=get.legacy.file.path(legacyBasePath,primaryBasePath,legacyBundleID,primaryFileExtension)
+    #ptrFilePath=primaryFileList[ui]
+    #cat("Primary track file path: ",ptrFilePath,"\n")
+    
+    ptrFileBasename=basename(ptrFilePath)
+    #cat("Ext: ",primaryTrackFileExtension,"\n")
+    cutLen=str_length(primaryFileExtension)+1L
+    cutPos=str_length(ptrFileBasename)-cutLen
+    #cat("Cut: ",ptrFileBasename,cutLen,cutPos,"\n")
+    #uttCode=substr(ptrFileBasename,1,cutPos)
+    bundle=load.annotation.for.legacy.bundle(dbConfig,legacyBundleID,legacyBasePath,encoding=mergedOptions[['sourceFileTextEncoding']])
+    bundle=remove.redundant.bundle.links(linkDefsHashed,bundle)
+    #maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
+    #bundle[['db_UUID']]=dbConfig[['UUID']]
+    #.store.bundle.DBI(db,bundle)
+    #.store.bundle.annot.DBI(db,bundle)
+  
+  bDir=paste0(bundle[['name']],bundle.dir.suffix)
+  bfp=file.path(sfp,bDir)
+  dir.create(bfp)
+  pFilter=emuR.persist.filters.bundle
+  bp=marshal.for.persistence(bundle,pFilter)
+  
+  # metadata (annotations)
+  ban=str_c(bundle[['name']],bundle.annotation.suffix,'.json')
+  baJSONPath=file.path(bfp,ban)
+  pbpJSON=jsonlite::toJSON(bp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+  writeLines(pbpJSON,baJSONPath)
+  
+  
+  for(sf in bundle[['signalpaths']]){
+    #cat("Signalpath: ",sf,"\n")
+    bn=basename(sf)
+    nsfp=file.path(bfp,bn)
+    # check if SSFF type
+    isSSFFFile=FALSE
+    for(ssffTrDef in dbConfig[['ssffTrackDefinitions']]){
+      ssffTrFileExt=ssffTrDef[['fileExtension']]
+      fileExtPatt=paste0('[.]',ssffTrFileExt,'$')
+      if(length(grep(fileExtPatt,sf))==1){
+        isSSFFFile=TRUE
+        break
+      }
+    }
+    if(file.exists(sf)){
+      if(mergedOptions[['symbolicLinkSignalFiles']]){
+        file.symlink(from=sf,to=nsfp)
+      }else if(mergedOptions[['rewriteSSFFTracks']] && isSSFFFile){
+        # is SSFF track
+        # read/write instead of copy to get rid of big endian encoded SSFF files (SPARC)
+        pfAssp=read.AsspDataObj(sf)
+        write.AsspDataObj(pfAssp,nsfp)
+        #cat("Rewritten SSFF: ",sf," to ",nsfp,"\n")
+      }else{
+        # media file (likely a wav file)
+        file.copy(from=sf,to=nsfp)
+        #cat("Copied: ",sf," to ",nsfp,"\n")
+      }
+    }else{
+      if(!mergedOptions[['ignoreMissingSSFFTrackFiles']]){
+        stop("SSFF track file :'",sf,"' does not exist!")
+      }
+    }
+  }
+    bundle[['levels']]=NULL
+    bundle[['links']]=NULL
+    
+    bName=bundle[['name']]
+    
+    #utts[[uttCode]]=bundle
+    #db[['sessions']][[sessionName]][['bundles']][[bName]]=bundle
+    
+  }
+    progress=progress+1L
+    if(verbose){
+      setTxtProgressBar(pb,progress)
+    }
+
+  
   
 }
 
 ##' Convert legacy EMU database and store it in new format
 ##' @description Converts an existing legacy EMU database to the new EMU format. Conversion is done in two steps. In the first step the legacy database configuration and the annotations are loaded.
 ##' In the second step the target directory for the new database structure is created, the configuration and annoation files are stored in the new format and the signal files are copied.
-##' @details This function first tries to get the path of the legacy template file from the given database name using \code{\link{list.legacy.emu.databases}}.
-##' If the database could be found the function \code{\link{convert.legacyEmuDB.to.emuDB}} is called.
+##' @details This function first tries to get the path of the legacy template file from the given database name using \code{\link{list_legacyEmuDBs}}.
+##' If the database could be found the function \code{\link{convert_legacyEmuDB_to_emuDB}} is called.
 ##' 
 ##' @param dbName legacy EMU database name
 ##' @param targetDir target directory
-##' @param options list of options (see details of \code{\link{convert.legacyEmuDB.to.emuDB}})
+##' @param options list of options (see details of \code{\link{convert_legacyEmuDB_to_emuDB}})
 ##' @param verbose be verbose
 ##' @author Klaus Jaensch
-##' @seealso \code{\link{convert.legacyEmuDB.to.emuDB}} \code{\link{load.emuDB}} 
+##' @seealso \code{\link{convert_legacyEmuDB_to_emuDB}} \code{\link{load_emuDB}} 
 ##' @export
 ##' @keywords emuDB database schema Emu
 ##' @examples
 ##' \dontrun{
 ##' ## Load database "ae", convert and save in new format to directory /homes/mylogin/EMUnew/
 ##' 
-##' convert.legacyEmuDB.by.name.to.emuDB("ae","/homes/mylogin/EMUnew/")
+##' convert_legacyEmuDB_by_name_to_emuDB("ae","/homes/mylogin/EMUnew/")
 ##' 
 ##' }
 ##' 
-convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,options=NULL,verbose=TRUE){
+convert_legacyEmuDB_by_name_to_emuDB <- function(dbName,targetDir,options=NULL,verbose=TRUE){
   
-  # default options
-  # ignore missing SSFF track files
-  # rewrite SSFF track files
-  # encoding : platform 
-  mergedOptions=list(sourceFileTextEncoding=NULL,ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=TRUE,symbolicLinkSignalFiles=FALSE)
-  if(!is.null(options)){
-    for(opt in names(options)){
-      mergedOptions[[opt]]=options[[opt]]
-    }
-  }
-  
+ 
   # pre check target dir
   if(file.exists(targetDir)){
     tdInfo=file.info(targetDir)
@@ -1126,12 +1200,12 @@ convert.legacyEmuDB.by.name.to.emuDB <- function(dbName,targetDir,options=NULL,v
   if(file.exists(pp)){
     stop("Database storage dir ",pp," already exists.")
   }
+  emuDbsList=list_legacyEmuDBs()
+  emuTplPath=emuDbsList[[dbName]]
+  if(is.null(emuTplPath)){
+    stop("Legacy EMU database '",dbName,"' could not be found.")
+  }
+  convert_legacyEmuDB_to_emuDB(emuTplPath = emuTplPath,targetDir = targetDir,options = options,verbose = verbose)
   
-  # load database schema and metadata
-  db=load.database.from.legacy.emu.by.name(dbName,showProgress=verbose,encoding=mergedOptions[['sourceFileTextEncoding']])
-  
-  # save in new format
-  store.emuDB(db,targetDir,options=mergedOptions,showProgress=verbose)
-  #activeButtons=list(saveBundle=TRUE)
  
 }

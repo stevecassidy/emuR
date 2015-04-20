@@ -7,96 +7,132 @@ path2tg = system.file("extdata/legacy_emu/DBs/ae/labels/msajc003.TextGrid", pack
 
 sR = 20000 # sample rate for audio files of ae
 
-itemsTableName = "emuR_emuDB_items_tmp"
+newDbName = "ae_copy"
 
-labelsTableName ="emuR_emuDB_labels_tmp"
+# clean up
+if(is.emuDB.loaded(newDbName)){
+  UUID = get_emuDB_UUID(dbName = newDbName)
+  .purge.emuDB(UUID)
+}
 
-linksTableName = "emuR_emuDB_links_tmp"
+# gereate schema from TextGrid
+schema = create.DBconfig.from.TextGrid(path2tg, newDbName)
+# set transient values
+schema=.update.transient.schema.values(schema)
+# create db object
+db=create.database(name = schema[['name']],basePath = normalizePath(tempdir()),DBconfig = schema)
 
-# Create an ephemeral in-memory RSQLite database
-con <- dbConnect(RSQLite::SQLite(), ":memory:")
+.initialize.DBI.database()
+dbsDf=dbGetQuery(emuDBs.con,paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
+if(nrow(dbsDf)>0){
+  stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
+}
 
-initialize_database_tables(con, itemsTableName, labelsTableName, linksTableName)
+.store.emuDB.DBI(db)
 
-parse.textgrid(path2tg, sR, db='ae', bundle="msajc003", session="0000", conn = con, itemsTableName=itemsTableName, labelsTableName=labelsTableName)
+
+parse.textgrid(path2tg, sR, dbName=newDbName, bundle="msajc003", session="0000")
+dbUUID = get_emuDB_UUID(dbName = newDbName)
 
 ##############################
-test_that("correct SEGMENT values are parsed and calculated in SQLite items table", {
+test_that("correct SEGMENT values are parsed and calculated in SQLite items table", {  
+  
   # get Phonetic table
-  res <- dbSendQuery(con, paste0("SELECT * FROM ", itemsTableName," WHERE level = 'Phonetic'"))
-  phoneticTbl = dbFetch(res)
-  dbClearResult(res)
+  phoneticTbl <- dbGetQuery(emuDBs.con, paste0("SELECT * FROM items WHERE db_uuid='", dbUUID, "' AND level = 'Phonetic'"))
   
   # get labels table
-  labelsTbl = dbReadTable(con, labelsTableName)
+  labelsTbl = dbGetQuery(emuDBs.con, paste0("SELECT * FROM labels WHERE db_uuid='", dbUUID,"'"))
   
   expect_that(phoneticTbl[1,]$type, equals('SEGMENT'))
   
   # first segment of Phonetic
   # item[0] = {id: XYZ, labels: [{name: ‘lab', value: ‘V'}], sampleStart: 3749, sampleDur: 1389}
   expect_that(phoneticTbl[1,]$sampleStart, equals(0))
-
+  
   # second segment
   expect_that(phoneticTbl[2,]$sampleStart, equals(3749))
   expect_that(phoneticTbl[2,]$sampleDur, equals(1389))
-  expect_that(labelsTbl[labelsTbl$itemID == phoneticTbl[2,]$id,]$label, equals('V'))
+  qRes = dbGetQuery(emuDBs.con, paste0("SELECT * FROM labels WHERE db_uuid ='", phoneticTbl[2,]$db_uuid, "' ",
+                                       "AND session='", phoneticTbl[2,]$session, "' ",
+                                       "AND bundle='", phoneticTbl[2,]$bundle, "' ",
+                                       "AND itemID='", phoneticTbl[2,]$itemID, "' "))
+  
+  expect_that(qRes$label, equals('V'))
   
   # 18th segment
   # item[16] = {id: XYZ, labels: [{name: ‘lab', value: ‘@'}], sampleStart: 30124, sampleDur: 844}
   expect_that(phoneticTbl[18,]$sampleStart, equals(30124))
   expect_that(phoneticTbl[18,]$sampleDur, equals(844))
-  expect_that(labelsTbl[labelsTbl$itemID == phoneticTbl[18,]$id,]$label, equals('@'))
+  qRes = dbGetQuery(emuDBs.con, paste0("SELECT * FROM labels WHERE db_uuid ='", phoneticTbl[18,]$db_uuid, "' ",
+                                       "AND session='", phoneticTbl[18,]$session, "' ",
+                                       "AND bundle='", phoneticTbl[18,]$bundle, "' ",
+                                       "AND itemID='", phoneticTbl[18,]$itemID, "' "))
+  expect_that(qRes$label, equals('@'))
   
   # 35th segment
   # item[33] = {id: XYZ, labels: [{name: ‘lab', value: ‘l'}], sampleStart: 50126, sampleDur: 1962}
   expect_that(phoneticTbl[35,]$sampleStart, equals(50126))
   expect_that(phoneticTbl[35,]$sampleDur, equals(1962))
-  expect_that(labelsTbl[labelsTbl$itemID == phoneticTbl[35,]$id,]$label, equals('l'))
+  #   expect_that(labelsTbl[labelsTbl$itemID == phoneticTbl[35,]$id,]$label, equals('l'))
+  qRes = dbGetQuery(emuDBs.con, paste0("SELECT * FROM labels WHERE db_uuid ='", phoneticTbl[35,]$db_uuid, "' ",
+                                       "AND session='", phoneticTbl[35,]$session, "' ",
+                                       "AND bundle='", phoneticTbl[35,]$bundle, "' ",
+                                       "AND itemID='", phoneticTbl[35,]$itemID, "' "))
+  expect_that(qRes$label, equals('l'))
+  
 })
 
 ##############################
 test_that("correct EVENT values are parsed and calculated in SQLite items table", {
-
+  
   # get Tone table
-  res <- dbSendQuery(con, paste0("SELECT * FROM ", itemsTableName," WHERE level = 'Tone'"))
-  toneTbl = dbFetch(res)
-  dbClearResult(res)
-
+  toneTbl <- dbGetQuery(emuDBs.con, paste0("SELECT * FROM items WHERE db_uuid='", dbUUID, "' AND level = 'Tone'"))
+  
   # get labels table
-  labelsTbl = dbReadTable(con, labelsTableName)
+  labelsTbl = dbGetQuery(emuDBs.con, paste0("SELECT * FROM labels WHERE db_uuid='", dbUUID,"'"))
   
   
   # first event
   # item[0] = {id: XYZ, labels: [{name: ’tone', value: ‘H*'}], samplePoint: 8381}
   expect_that(toneTbl[1,]$samplePoint, equals(8381))
-  expect_that(labelsTbl[labelsTbl$itemID == toneTbl[1,]$id,]$label, equals('H*'))
-
+  qRes = dbGetQuery(emuDBs.con, paste0("SELECT * FROM labels WHERE db_uuid ='", toneTbl[1,]$db_uuid, "' ",
+                                       "AND session='", toneTbl[1,]$session, "' ",
+                                       "AND bundle='", toneTbl[1,]$bundle, "' ",
+                                       "AND itemID='", toneTbl[1,]$itemID, "' "))
+  
+  expect_that(qRes$label, equals('H*'))
+  
   # 4th event
   # item[3] = {id: XYZ, labels: [{name: ’tone', value: ‘H*'}], samplePoint: 38255}
   expect_that(toneTbl[4,]$samplePoint, equals(38255))
-  expect_that(labelsTbl[labelsTbl$itemID == toneTbl[4,]$id,]$label, equals('H*'))
-
+  qRes = dbGetQuery(emuDBs.con, paste0("SELECT * FROM labels WHERE db_uuid ='", toneTbl[4,]$db_uuid, "' ",
+                                       "AND session='", toneTbl[4,]$session, "' ",
+                                       "AND bundle='", toneTbl[4,]$bundle, "' ",
+                                       "AND itemID='", toneTbl[4,]$itemID, "' "))
+  expect_that(qRes$label, equals('H*'))
+  
   # 7th event
   # item[6] = {id: XYZ, labels: [{name: ’tone', value: ‘L%'}], samplePoint: 51552}
   expect_that(toneTbl[7,]$samplePoint, equals(51552))
-  expect_that(labelsTbl[labelsTbl$itemID == toneTbl[7,]$id,]$label, equals('L%'))
-
+  qRes = dbGetQuery(emuDBs.con, paste0("SELECT * FROM labels WHERE db_uuid ='", toneTbl[7,]$db_uuid, "' ",
+                                       "AND session='", toneTbl[7,]$session, "' ",
+                                       "AND bundle='", toneTbl[7,]$bundle, "' ",
+                                       "AND itemID='", toneTbl[7,]$itemID, "' "))
+  expect_that(qRes$label, equals('L%'))
+    
 })  
 
 ##############################
 test_that("SEGMENTs & EVENTs have correct itemIDs in SQLite tables", {
+  
   # get Phonetic table
-  res <- dbSendQuery(con, paste0("SELECT * FROM ", itemsTableName," WHERE level = 'Phonetic'"))
-  phoneticTbl = dbFetch(res)
-  dbClearResult(res)
+  phoneticTbl <- dbGetQuery(emuDBs.con, paste0("SELECT * FROM items WHERE db_uuid='", dbUUID, "' AND level = 'Phonetic'"))
   
   # get Tone table
-  res <- dbSendQuery(con, paste0("SELECT * FROM ", itemsTableName," WHERE level = 'Tone'"))
-  toneTbl = dbFetch(res)
-  dbClearResult(res)
+  toneTbl <- dbGetQuery(emuDBs.con, paste0("SELECT * FROM items WHERE db_uuid='", dbUUID, "' AND level = 'Tone'"))
   
   # get labels table
-  labelsTbl = dbReadTable(con, labelsTableName)
+  labelsTbl = dbGetQuery(emuDBs.con, paste0("SELECT * FROM labels WHERE db_uuid='", dbUUID,"'"))
   
   # increment IDs for EVENTs
   expect_equal(toneTbl[2,]$itemID, toneTbl[1,]$itemID + 1)
@@ -112,51 +148,38 @@ test_that("SEGMENTs & EVENTs have correct itemIDs in SQLite tables", {
 ##############################
 test_that("SQLite label table has correct values", {
   # get Phonetic table
-  res <- dbSendQuery(con, paste0("SELECT * FROM ", labelsTableName, " WHERE name = 'Phonetic'"))
-  phoneticsTable = dbFetch(res)
-  dbClearResult(res)
-
-  # get Tone table
-  res <- dbSendQuery(con, paste0("SELECT * FROM ", labelsTableName, " WHERE name = 'Tone'"))
-  toneTbl = dbFetch(res)
-  dbClearResult(res)
+  phoneticTbl <- dbGetQuery(emuDBs.con, paste0("SELECT * FROM items WHERE db_uuid='", dbUUID, "' AND level = 'Phonetic'"))
   
-  # get labels table
-  labelsTbl = dbReadTable(con, labelsTableName)
+  # get Tone table
+  toneTbl <- dbGetQuery(emuDBs.con, paste0("SELECT * FROM items WHERE db_uuid='", dbUUID, "' AND level = 'Tone'"))
   
   
   # check phoneticsTable are ok
-  expect_equal(phoneticsTable[1,]$itemID, 'ae_0000_msajc003_86')
-  expect_equal(phoneticsTable[1,]$session, '0000')
-  expect_equal(phoneticsTable[1,]$bundle, 'msajc003')
-  expect_equal(sum(phoneticsTable[1,]$labelIdx), 0)
-  expect_equal(phoneticsTable[1,]$name, 'Phonetic')
-  expect_equal(phoneticsTable[1,]$label, '')
-  expect_equal(paste0(phoneticsTable$label, collapse = ''), 'VmVNstH@:frEnzSi:w@zkH@nsId@dbju:dH@f@l')
+  expect_equal(phoneticTbl[1,]$session, '0000')
+  expect_equal(phoneticTbl[1,]$bundle, 'msajc003')
+  expect_equal(phoneticTbl[1,]$itemID, 86)
+  expect_equal(sum(phoneticTbl[1,]$labelIdx), 0)
+  expect_equal(phoneticTbl[1,]$level, 'Phonetic')
   
   # check toneTbl are ok
-  expect_equal(toneTbl[1,]$itemID, 'ae_0000_msajc003_122')
   expect_equal(toneTbl[1,]$session, '0000')
   expect_equal(toneTbl[1,]$bundle, 'msajc003')
+  expect_equal(toneTbl[1,]$itemID, 122)
   expect_equal(sum(toneTbl[1,]$labelIdx), 0)
-  expect_equal(toneTbl[1,]$name, 'Tone')
-  expect_equal(toneTbl[1,]$label, 'H*')
-  expect_equal(paste0(toneTbl$label, collapse = ''), 'H*H*L-H*H*L-L%')
+  expect_equal(toneTbl[1,]$level, 'Tone')
+
+  # check labelTbl
+  labelsTbl = dbGetQuery(emuDBs.con, paste0("SELECT * FROM labels WHERE db_uuid='", dbUUID,"' AND name='Phonetic'"))
+  expect_equal(paste0(labelsTbl$label, collapse = ''), 'VmVNstH@:frEnzSi:w@zkH@nsId@dbju:dH@f@l')
+  labelsTbl = dbGetQuery(emuDBs.con, paste0("SELECT * FROM labels WHERE db_uuid='", dbUUID,"' AND name='Tone'"))
+  expect_equal(paste0(labelsTbl$label, collapse = ''), 'H*H*L-H*H*L-L%')
 
 })
 
-##############################
-test_that("Parsing TextGrids not of File type ooTextFile causes error", {
-  tg = 'File type = "ooTextFile short"
-  "TextGrid"
-  '
-  fileConn<-file(file.path(tempdir(), "shortTg.TextGrid"))
-  writeLines(tg, fileConn)
-  close(fileConn)
-  
-  expect_error(parse.textgrid(file.path(tempdir(), "shortTg.TextGrid"), sR, db='ae', bundle="msajc003", session="0000", conn = con, itemsTableName=itemsTableName, labelsTableName=labelsTableName))
-  
-})
+# clean up
+if(is.emuDB.loaded(newDbName)){
+  UUID = get_emuDB_UUID(dbName = newDbName)
+  .purge.emuDB(UUID)
+}
 
-# Disconnect from the database
-dbDisconnect(con)
+# print(dbReadTable(emuDBs.con, 'emuDB'))

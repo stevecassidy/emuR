@@ -1,12 +1,14 @@
 ## Create emuDB database schema object from EMU template (.tpl) file
 ## 
 ## @param tplPath EMU template file path
+## @param dbUUID optional database UUID
+## @param encoding  encoding of the template file
 ## @return object of class emuDB.schema.db
 ## @author Klaus Jaensch
 ## @import stringr uuid wrassp
 ## @keywords emuDB database schema Emu 
 ## 
-load.database.schema.from.emu.template=function(tplPath,encoding=NULL){
+load.database.schema.from.emu.template=function(tplPath,dbUUID=NULL,encoding=NULL){
   LEVEL_CMD='level'
   LABFILE_CMD='labfile'
   LABEL_CMD='label'
@@ -268,9 +270,11 @@ load.database.schema.from.emu.template=function(tplPath,encoding=NULL){
     }
   }
   
+  if(is.null(dbUUID)){
   # Generate UUID 
   # problem: the UUID will cahnge on every reload
-  uuid=UUIDgenerate()
+  dbUUID=UUIDgenerate()
+  }
   
   # default perspective
   # assign all SSFF tracks to sonagram
@@ -301,7 +305,7 @@ load.database.schema.from.emu.template=function(tplPath,encoding=NULL){
   defPersp=create.EMUwebAppConfig.perspective(name='default',signalCanvases=sc,levelCanvases=list(order=defaultLvlOrder),twoDimCanvases=list(order=list()))
   waCfg=create.EMUwebAppConfig(perspectives=list(defPersp))
   #waCfg$activeButtons=list(saveBundle=TRUE)
-  dbSchema=create.schema.databaseDefinition(name=dbName,UUID=uuid,mediafileBasePathPattern=mediafileBasePathPattern,mediafileExtension=mediafileExtension,ssffTrackDefinitions=ssffTrackDefinitions,levelDefinitions=levelDefinitions,linkDefinitions=linkDefinitions,EMUwebAppConfig=waCfg,annotationDescriptors=annotationDescriptors,tracks=tracks,flags=flags);
+  dbSchema=create.schema.databaseDefinition(name=dbName,UUID=dbUUID,mediafileBasePathPattern=mediafileBasePathPattern,mediafileExtension=mediafileExtension,ssffTrackDefinitions=ssffTrackDefinitions,levelDefinitions=levelDefinitions,linkDefinitions=linkDefinitions,EMUwebAppConfig=waCfg,annotationDescriptors=annotationDescriptors,tracks=tracks,flags=flags);
   
   # get max label array size
   maxLbls=0

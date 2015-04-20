@@ -11,9 +11,6 @@ require(DBI)
 # increment this value if the internal database object format changes  
 emuDB.apiLevel=3L
 
-#emuDBs.con=NULL
-#internalVars=new.env()
-
 session.suffix='_ses'
 bundle.dir.suffix='_bndl'
 bundle.annotation.suffix='_annot'
@@ -191,7 +188,7 @@ get.database<-function(uuid=NULL,name=NULL){
 }
 .load.emuDB.DBI<-function(uuid=NULL,name=NULL){
   if(is.null(uuid)){
-    uuid=get_emuDB_UUID(name)
+    uuid=get.emuDB.UUID(name)
   }
   dbQ=paste0("SELECT * FROM emuDB WHERE uuid='",uuid,"'")
   dbDf=dbGetQuery(emuDBs.con,dbQ)
@@ -335,7 +332,7 @@ get.database<-function(uuid=NULL,name=NULL){
 ##' @param dbUUID optional UUID of emuDB
 ##' @seealso  \code{\link{is.emuDB.loaded}}
 ##' @export
-get_emuDB_UUID<-function(dbName=NULL,dbUUID=NULL){
+get.emuDB.UUID<-function(dbName=NULL,dbUUID=NULL){
   if(is.null(dbUUID)){
     dbQ=paste0("SELECT uuid FROM emuDB WHERE name='",dbName,"'")
     
@@ -367,7 +364,7 @@ get_emuDB_UUID<-function(dbName=NULL,dbUUID=NULL){
 ##' @description Lists overview of loaded emuDBs as data.frame table. Listed columns are name,basePath and UUID 
 ##' @return list of emuDBS as data.frame object
 ##' @export
-list_emuDBs<-function(){
+list.emuDBs<-function(){
   .initialize.DBI.database()
   dbs=dbGetQuery(emuDBs.con,"SELECT name,basePath,uuid FROM emuDB")
   return(dbs)
@@ -389,11 +386,11 @@ list_emuDBs<-function(){
 ##' @description Purges emuDB from this R session. Does not delete any files of the emuDB.
 ##' @param dbName name of emuDB to purge
 ##' @param dbUUID optional UUID of emuDB
-##' @param interactive ask user for confirmation
+##' @param interactive
 ##' @export
-purge_emuDB<-function(dbName=NULL,dbUUID=NULL,interactive=TRUE){
+purge.emuDB<-function(dbName=NULL,dbUUID=NULL,interactive=TRUE){
   .initialize.DBI.database()  
-  dbUUID=get_emuDB_UUID(dbName,dbUUID)
+  dbUUID=get.emuDB.UUID(dbName,dbUUID)
   purged=FALSE
   if(!is.null(dbUUID)){
     if(interactive){
@@ -415,7 +412,7 @@ purge_emuDB<-function(dbName=NULL,dbUUID=NULL,interactive=TRUE){
 ##' @description Purges emuDB from this R session. Does not delete any files of the emuDB.
 ##' @param interactive ask user for confirmation
 ##' @export
-purge_all_emuDBs<-function(interactive=TRUE){
+purge.all.emuDBs<-function(interactive=TRUE){
   cleared=FALSE
   if(interactive){
     ans=readline('Are you sure you want to remove all databases from this R session? (y/n)')
@@ -436,9 +433,9 @@ purge_all_emuDBs<-function(interactive=TRUE){
 ##' @param dbUUID optional UUID of emuDB
 ##' @return data.frame object with session names
 ##' @export
-list_sessions<-function(dbName=NULL,dbUUID=NULL){
+list.sessions<-function(dbName=NULL,dbUUID=NULL){
   .initialize.DBI.database()
-  uuid=get_emuDB_UUID(dbName,dbUUID)
+  uuid=get.emuDB.UUID(dbName,dbUUID)
   dbs=dbGetQuery(emuDBs.con,paste0("SELECT name FROM session WHERE db_uuid='",uuid,"'"))
   return(dbs)
 }
@@ -450,9 +447,9 @@ list_sessions<-function(dbName=NULL,dbUUID=NULL){
 ##' @param dbUUID optional UUID of emuDB
 ##' @return data.frame object with columns session and name of bundles
 ##' @export
-list_bundles<-function(dbName=NULL,session=NULL,dbUUID=NULL){
+list.bundles<-function(dbName=NULL,session=NULL,dbUUID=NULL){
   .initialize.DBI.database()
-  uuid=get_emuDB_UUID(dbName,dbUUID)
+  uuid=get.emuDB.UUID(dbName,dbUUID)
   baseQ=paste0("SELECT session,name FROM bundle WHERE db_uuid='",uuid,"'")
   if(is.null(session)){
     # list all bundles
@@ -483,8 +480,8 @@ create.database <- function(name,basePath=NULL,DBconfig=create.schema.databaseDe
 ##' @param dbName name of EmuDB
 ##' @param dbUUID optional UUID of emuDB
 ##' @export
-summary_emuDB<-function(dbName=NULL,dbUUID=NULL){
-  uuid=get_emuDB_UUID(dbName,dbUUID)
+summary.emuDB<-function(dbName=NULL,dbUUID=NULL){
+  uuid=get.emuDB.UUID(dbName,dbUUID)
   object=.load.emuDB.DBI(uuid)
   cat("Name:\t",object[['name']],"\n")
   cat("UUID:\t",object[['DBconfig']][['UUID']],"\n")
@@ -802,9 +799,13 @@ get.level.name.for.attribute<-function(dbConfig,attributeName){
       }
     }
   }
+  # load labels of bundle
+  bundleSelector=(db[['labels']][['session']]==sessionName & db[['labels']][['bundle']]==bundleName)
+  bundleLabels=db[['labels']][bundleSelector,]
   
   # create all levels
   levels=list()
+<<<<<<< HEAD
   lblsQ=paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bundleName,"'")
   bundleLabels=dbGetQuery(emuDBs.con,lblsQ)
   
@@ -818,12 +819,29 @@ get.level.name.for.attribute<-function(dbConfig,attributeName){
     
     if(nrows>0){
       for(r in 1:nrows){
+=======
+  for(ld in levelDefinitions){
+    lvlNm=ld[['name']]
+    # create level object
+    levels[[lvlNm]]=create.bundle.level(name=ld[['name']],type=ld[['type']])
+    
+    # load items for (bundle) level 
+    bundleSelector=(db[['items']][['session']]==sessionName & db[['items']][['bundle']]==bundleName & db[['items']][['level']]==lvlNm)
+    items=db[['items']][bundleSelector,]
+    
+    nrows=nrow(items)
+    
+    if(nrows>0){
+      for(r in 1:nrows){
+        rLvl=items[r,'level']
+>>>>>>> master
         
         sr=NULL
         srDf=itemsOfLevel[r,'sampleRate']
         if(!is.na(srDf)){
           sr=srDf
         }
+<<<<<<< HEAD
         lvl=levels[[lvlNm]]
         if(lvl[['type']]!=itemsOfLevel[r,'type']){
           stop("Wrong item type ",itemsOfLevel[r,'type']," for level ",lvlNm," type ",lvl[['type']]," in bundle: ",sessionName,":",bundleName,"\n")
@@ -843,6 +861,25 @@ get.level.name.for.attribute<-function(dbConfig,attributeName){
         #gid=items[r,'id']
         #itemLabelSelector=bundleLabels[['itemID']]==gid
         itemLabelSelector=bundleLabels[['itemID']]==id
+=======
+        levels[[lvlNm]][['sampleRate']]=sr
+        if(is.null(levels[[lvlNm]][['items']])){
+          levels[[lvlNm]][['items']]=list()
+        }
+        lvl=levels[[lvlNm]]
+        if(lvl[['type']]!=items[r,'type']){
+          stop("Wrong item type ",items[r,'type']," for level ",lvlNm," type ",lvl[['type']]," in bundle: ",sessionName,":",bundleName,"\n")
+        }
+        
+        id=items[r,'itemID']
+        type=items[r,'type']
+        
+        attrDefs=ld[['attributeDefinitions']]
+        attrDefsLen=length(attrDefs)
+        
+        gid=items[r,'id']
+        itemLabelSelector=bundleLabels[['itemID']]==gid
+>>>>>>> master
         labelRows=bundleLabels[itemLabelSelector,]
         nLabelRows=nrow(labelRows)
         labels=list()
@@ -852,9 +889,15 @@ get.level.name.for.attribute<-function(dbConfig,attributeName){
         }
         
         if(type=='SEGMENT'){
+<<<<<<< HEAD
           levels[[lvlNm]][['items']][[length(levels[[lvlNm]][['items']])+1L]]=create.interval.item(id=id,sampleStart=itemsOfLevel[r,'sampleStart'],sampleDur=itemsOfLevel[r,'sampleDur'],labels=labels)
         }else if(type=='EVENT'){
           levels[[lvlNm]][['items']][[length(levels[[lvlNm]][['items']])+1L]]=create.event.item(id=id,samplePoint=itemsOfLevel[r,'samplePoint'],labels=labels)
+=======
+          levels[[lvlNm]][['items']][[length(levels[[lvlNm]][['items']])+1L]]=create.interval.item(id=id,sampleStart=items[r,'sampleStart'],sampleDur=items[r,'sampleDur'],labels=labels)
+        }else if(type=='EVENT'){
+          levels[[lvlNm]][['items']][[length(levels[[lvlNm]][['items']])+1L]]=create.event.item(id=id,samplePoint=items[r,'samplePoint'],labels=labels)
+>>>>>>> master
         }else{
           levels[[lvlNm]][['items']][[length(levels[[lvlNm]][['items']])+1L]]=create.item(id=id,labels=labels)  
         }
@@ -919,7 +962,7 @@ convert.bundle.links.to.data.frame <-function(links){
 ## 
 get.bundle <- function(dbName=NULL,sessionName,bundleName,dbUUID=NULL){
   
-  dbUUID=get_emuDB_UUID(dbName,dbUUID)
+  dbUUID=get.emuDB.UUID(dbName,dbUUID)
   b=.load.bundle.DBI(dbUUID,sessionName,bundleName)
   if(is.null(b)){
     return(b)
@@ -1270,13 +1313,13 @@ bundle.iterator<-function(db,apply){
   return(db)
 }
 
-create_emuDB<-function(name,targetDir,mediaFileExtension='wav'){
+create.emuDB<-function(name,targetDir,mediaFileExtension='wav'){
   basePath=file.path(targetDir,name)
   dbConfig=create.schema.databaseDefinition(name=name,mediafileExtension = mediaFileExtension)
   db=create.database(name=name,basePath=basePath,DBconfig = dbConfig)
   .initialize.DBI.database()
   .store.emuDB.DBI(database = db)
-  store(targetDir=targetDir,dbUUID=dbConfig[['UUID']])
+  store.emuDB(targetDir=targetDir,dbUUID=dbConfig[['UUID']])
   
 }
 
@@ -1293,7 +1336,7 @@ add.bundle<-function(db,sessionName,bundle){
 # @author Klaus Jaensch
 # @export
 # @keywords emuDB database schema Emu 
-add_levelDefinition<-function(dbName=NULL,levelDefinition,dbUUID=NULL){
+add.levelDefinition<-function(dbName=NULL,levelDefinition,dbUUID=NULL){
   db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
   # check if level definition (name) already exists 
   for(ld in db[['DBconfig']][['levelDefinitions']]){
@@ -1542,16 +1585,16 @@ import.mediaFiles.emuDB<-function(dbName,dir,targetSessionName='0000',dbUUID=NUL
 ##' @import stringr uuid jsonlite
 ##' @export
 ##' @keywords emuDB database Emu
-##' @seealso  \code{\link{load_emuDB}}
+##' @seealso  \code{\link{load.emuDB}}
 ##' @examples
 ##' \dontrun{
 ##' # Store database 'ae' to directory /homes/mylogin/EMUnew/
 ##' 
-##'   store('ae',"/homes/mylogin/EmuStore/")
+##'   store.emuDB('ae',"/homes/mylogin/EmuStore/")
 ##' 
 ##' }
 
-store<-function(dbName=NULL,targetDir,dbUUID=NULL,options=NULL,showProgress=TRUE){
+store.emuDB <- function(dbName=NULL,targetDir,dbUUID=NULL,options=NULL,showProgress=TRUE){
   # TODO how to handle API level in DBI version?
   #   dbApiLevel=db[['apiLevel']]
   #   if(is.null(dbApiLevel)){
@@ -1736,7 +1779,7 @@ calculate.postions.of.links<-function(){
 ##' 
 ##' @param databaseDir directory of the EMU database
 ##' @param verbose be verbose
-##' @return name of emuDB
+##' @return object of class emuDB
 ##' @author Klaus Jaensch
 ##' @import jsonlite
 ##' @export
@@ -1745,10 +1788,10 @@ calculate.postions.of.links<-function(){
 ##' \dontrun{
 ##' ## Load database 'ae' in directory /homes/mylogin/EMUnew/ae
 ##' 
-##' ae=load_emuDB("ae","/homes/mylogin/EMUnew/ae")
+##' ae=load.emuDB("ae","/homes/mylogin/EMUnew/ae")
 ##' 
 ##' }
-load_emuDB <- function(databaseDir,verbose=TRUE){
+load.emuDB <- function(databaseDir,verbose=TRUE){
   progress=0
   
   # check database dir
@@ -1965,7 +2008,6 @@ load_emuDB <- function(databaseDir,verbose=TRUE){
     cat("\n")
   }
   #.destroy.DBI.database()
-  return(schema$name)
   
 }
 ##' Test if EMU database is loaded
@@ -1973,7 +2015,7 @@ load_emuDB <- function(databaseDir,verbose=TRUE){
 ##' @param dbUUID optional UUID of EmuDB
 ##' @return TRUE if loaded, FALSE otherwise
 ##' @author Klaus Jaensch
-##' @seealso \code{\link{load_emuDB}}
+##' @seealso \code{\link{load.emuDB}}
 ##' @keywords emuDB database Emu
 ##' @examples
 ##' \dontrun{
@@ -1998,31 +2040,31 @@ is.emuDB.loaded<-function(dbName=NULL,dbUUID=NULL){
 ##' @param dbName name of emuDB
 ##' @param dbUUID optional UUID of EmuDB
 ##' @author Klaus Jaensch
-##' @seealso \code{\link{load_emuDB}}
+##' @seealso \code{\link{load.emuDB}}
 ##' @keywords emuDB database Emu
 ##' @examples
 ##' \dontrun{
 ##' ## Reload database 'ae'
 ##' 
-##' reload_emuDB('ae')
+##' reload.emuDB('ae')
 ##' }
 
-reload_emuDB<-function(dbName,dbUUID=NULL){
+reload.emuDB<-function(dbName,dbUUID=NULL){
   db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  purge_emuDB(name = dbName,uuid=dbUUID,interactive=FALSE)
-  load_emuDB(db[['basePath']])
+  purge.emuDB(name = dbName,uuid=dbUUID,interactive=FALSE)
+  load.emuDB(db[['basePath']])
   return(invisible(NULL))
 }
 
 ## 
 duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
   # get UUID (also checks if DB exists)
-  oldUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
+  oldUUID = get.emuDB.UUID(dbName = dbName, dbUUID = dbUUID)
   oldBasePath = dbGetQuery(emuDBs.con, paste0("SELECT basePath FROM emuDB WHERE uuid='", oldUUID, "'"))
   newUUID = UUIDgenerate()
   
   # check if dbName already exists
-  tcRes = tryCatch(get_emuDB_UUID(dbName = newName), error = function(e) e)
+  tcRes = tryCatch(get.emuDB.UUID(dbName = newName), error = function(e) e)
   
   if(!inherits(tcRes, 'error')){
     stop("emuDB with name: ", newName, " already exists!")
@@ -2034,7 +2076,7 @@ duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
                                  "', '", newBasePath, "', DBconfigJSON FROM emuDB WHERE uuid='", oldUUID, "'"))
   
   # update DBconfig accordingly
-  dbUUID = get_emuDB_UUID(dbName = newDB, dbUUID = newUUID)
+  dbUUID = get.emuDB.UUID(dbName = newDB, dbUUID = newUUID)
   dbObj = .load.emuDB.DBI(uuid = dbUUID)
   dbObj$DBconfig$name = newName;
   dbObj$DBconfig$UUID = newUUID;
@@ -2089,7 +2131,7 @@ duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
 rewrite.allAnnots.emuDB <- function(dbName, dbUUID=NULL, showProgress=TRUE){
   
   # get UUID (also checks if DB exists)
-  dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
+  dbUUID = get.emuDB.UUID(dbName = dbName, dbUUID = dbUUID)
   basePath = dbGetQuery(emuDBs.con, paste0("SELECT basePath FROM emuDB WHERE uuid='", dbUUID, "'"))
   bndls = dbGetQuery(emuDBs.con, paste0("SELECT * FROM bundle WHERE db_uuid='", dbUUID, "'"))
   

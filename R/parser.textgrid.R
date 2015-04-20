@@ -6,14 +6,17 @@ require(RSQLite)
 ## @param textGridCon TextGrid file connection
 ## @param sampleRate sample rate of correponding signal file
 ## @param encoding text encoding (currently the only excepted is the default UTF-8)
+## @param dbName name of emuDB that the item/label entries will be written to
+## @param bundle name of bundle 
+## @param session name of session
+## @param dbUUID optional UUID of emuDB
 ## @return an annoation object
 ## @author Klaus Jaensch, Raphael Winkelmann
 ## @import stringr RSQLite
 ## @keywords emuR TextGrid Praat Emu
 ## 
 parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", 
-                           db=NULL, bundle=NULL, session="0000", conn=NULL, 
-                           itemsTableName=NULL, labelsTableName=NULL) {
+                           dbName=NULL, bundle=NULL, session="0000", dbUUID = NULL) {
   
   #####################
   # check arguments (TODO better checks for classes and the like...)
@@ -27,7 +30,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
   if(encoding != "UTF-8"){
     stop("The only encoding that is currently supported is UTF-8\n")
   }
-  if(is.null(db)){
+  if(is.null(dbName)){
     stop("Argument db must not be NULL!\n")
   }
   if(is.null(bundle)){
@@ -35,16 +38,12 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
   }
   if(is.null(session)){
     stop("Argument session must not be NULL!\n")
-  }  
-  if(is.null(conn)){
-    stop("Argument conn must not be NULL!\n")
   }
-  if(is.null(itemsTableName)){
-    stop("Argument itemsTableName must not be NULL!\n")
-  }
-  if(is.null(labelsTableName)){
-    stop("Argument labelsTableName must not be NULL!\n")
-  }
+  
+  # get dbObj
+  dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
+  dbObj = .load.emuDB.DBI(uuid = dbUUID)
+  
   
   #
   #####################
@@ -78,12 +77,12 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
   currentTierName=NULL
   currentTierSize=NULL
   
-#   preallocItemDf = data.frame(id='', session='', bundle='', level='',
-#                               itemID=-1, type='', seqIdx=-1, sampleRate=-1, 
-#                               samplePoint=-1, sampleStart=-1, sampleDur=-1, label='', stringsAsFactors=FALSE)
-#   
-#   preallocLabelDf = data.frame(itemID='', session='', bundle='',
-#                                labelIdx=-1, name='', label='', stringsAsFactors=FALSE)
+  #   preallocItemDf = data.frame(id='', session='', bundle='', level='',
+  #                               itemID=-1, type='', seqIdx=-1, sampleRate=-1, 
+  #                               samplePoint=-1, sampleStart=-1, sampleDur=-1, label='', stringsAsFactors=FALSE)
+  #   
+  #   preallocLabelDf = data.frame(itemID='', session='', bundle='',
+  #                                labelIdx=-1, name='', label='', stringsAsFactors=FALSE)
   
   
   
@@ -281,34 +280,19 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
                         sampleDur = currentSegmentEnd - currentSegmentStart - 1
                         labels=list(list(name=currentTierName,value=currentSegmentLabel))
                         
-                        itemId = paste0(db, '_', session, '_', bundle, '_', itemCounterGlobal)
                         
                         # item entry:
-                        
-                        #                         preallocItemDf[1,] = c(itemId, session, bundle, currentTierName,
-                        #                                                itemCounterGlobal, 'SEGMENT', itemCounterLevel, sampleRate, 
-                        #                                                NA, currentSegmentStart, sampleDur, currentSegmentLabel)
-                        #
-                        #                         dbWriteTable(conn, itemsTableName, preallocItemDf, append = T)
+                        dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES"," ('", dbUUID, "', '", session, "', '", bundle, "', '", itemCounterGlobal, 
+                                                       "', '", currentTierName, "', '", "SEGMENT", 
+                                                       "', ", itemCounterLevel, ", ", sampleRate, ", ", "NULL", ", ", currentSegmentStart, 
+                                                       ", ", sampleDur, ")"))
                         
                         
                         
-                        dbSendQuery(conn, paste0("INSERT INTO ",itemsTableName  ," VALUES"," ('", itemId, "', '", session, "', '", bundle, 
-                                                 "', '", currentTierName,"', ", itemCounterGlobal, ", '", "SEGMENT", 
-                                                 "', ", itemCounterLevel, ", ", sampleRate, ", ", "NULL", ", ", currentSegmentStart, 
-                                                 ", ", sampleDur, ")"))
-                        
-                        
-                        
-                        # label entry:                        
-                        #                         preallocLabelDf[1,] = c(itemId, session, bundle,
-                        #                                                 0, currentTierName, currentSegmentLabel)
-                        #
-                        #                         dbWriteTable(conn, labelsTableName, preallocLabelDf, append = T)
-                        
-                        dbSendQuery(conn, paste0("INSERT INTO ", labelsTableName, " VALUES","('", 
-                                                 itemId, "', '", session, "', '", bundle, 
-                                                 "', ", 0,", '", currentTierName, "', '", gsub("'","''", currentSegmentLabel), "')"))
+                        # label entry:
+                        dbSendQuery(emuDBs.con, paste0("INSERT INTO labels VALUES","('", 
+                                                       dbUUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
+                                                       ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentSegmentLabel), "')"))
                         
                         # links entry:
                         # no link entry because TextGrids don't have hierarchical infos
@@ -375,30 +359,19 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
                       labels=list(list(name=currentTierName,value=currentPointLabel))
                       
                       # item entry
-                      itemId = paste0(db, '_', session, '_', bundle, '_', itemCounterGlobal)
-                      
-                      #                       preallocItemDf[1,] = c(itemId, session, bundle, currentTierName,
-                      #                                              itemCounterGlobal, 'EVENT', itemCounterLevel, sampleRate, 
-                      #                                              currentPointSample, NA, NA, currentPointLabel)
-                      #                       
-                      #                       dbWriteTable(conn, itemsTableName, preallocItemDf, append=T)
-                      
-                      dbSendQuery(conn, paste0("INSERT INTO ",itemsTableName  ," VALUES"," ('", itemId, "', '", session, "', '", bundle, 
-                                               "', '", currentTierName,"', ", itemCounterGlobal, ", '", "EVENT", 
-                                               "', ", itemCounterLevel, ", ", sampleRate, ", ", currentPointSample, ", ", "NULL", 
-                                               ", ", "NULL", ")"))
+                      itemId = paste0(dbName, '_', session, '_', bundle, '_', itemCounterGlobal)
                       
                       
-                      # label entry:       
+                      dbSendQuery(emuDBs.con, paste0("INSERT INTO items VALUES"," ('", dbUUID, "', '", session, "', '", bundle, "', ",
+                                                     itemCounterGlobal, ", '", currentTierName,"', '", "EVENT", 
+                                                     "', ", itemCounterLevel, ", ", sampleRate, ", ", currentPointSample, ", ", "NULL", 
+                                                     ", ", "NULL", ")"))
                       
-                      #                       preallocLabelDf[1,] = c(itemId, session, bundle,
-                      #                                               0, currentTierName, currentPointLabel)
-                      #                       
-                      #                       dbWriteTable(conn, labelsTableName, preallocLabelDf, append = T)
                       
-                      dbSendQuery(conn, paste0("INSERT INTO ", labelsTableName, " VALUES","('", 
-                                               itemId, "', '", session, "', '", bundle, 
-                                               "', ", 0,", '", currentTierName, "', '", gsub("'","''", currentPointLabel), "')"))              
+                      # label entry:
+                      dbSendQuery(emuDBs.con, paste0("INSERT INTO labels VALUES","('", 
+                                                     dbUUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
+                                                     ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentPointLabel), "')"))              
                       
                       
                       

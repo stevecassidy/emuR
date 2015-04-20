@@ -4,11 +4,11 @@
 \alias{serve}
 \title{Serve EMU database to EMU-Webapp}
 \usage{
-serve(database, host = "127.0.0.1", port = 17890, debug = FALSE,
+serve(dbName, host = "127.0.0.1", port = 17890, debug = FALSE,
   debugLevel = 0)
 }
 \arguments{
-\item{database}{a emuDB database object}
+\item{dbName}{name of a loaded EMU database}
 
 \item{host}{host IP to listen to (default: 127.0.0.1  (localhost))}
 
@@ -19,7 +19,7 @@ serve(database, host = "127.0.0.1", port = 17890, debug = FALSE,
 \item{debugLevel}{integer higher values generate more detailed debug output}
 }
 \value{
-the possibly modified Emu database object
+TRUE if the database was modified, FALSE otherwise
 }
 \description{
 Server for EMU-Webapp browser GUI \url{http://ips-lmu.github.io/EMU-webApp/}
@@ -47,10 +47,10 @@ Function opens a HTTP/websocket and waits in a loop for browser requests. The R 
 }
 \examples{
 \dontrun{
-## Load an EMU database and serve it to the EMU-webApp (opens default HTTP/websocket port 17890)
+## Load EMU database 'myDb' and serve it to the EMU-webApp (opens default HTTP/websocket port 17890)
 
-myDb=load.emuDB("/path/to/myDb")
-myDb=serve(myDb)
+load_emuDB("/path/to/myDb")
+serve('myDb')
 }
 }
 \author{

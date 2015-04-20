@@ -321,6 +321,7 @@ load.emuDB.DBconfig<-function(DBconfigFilePath){
 }
 
 .store.schema<-function(db,projectDir=NULL){
+  
   if(is.null(projectDir)){
     projectDir=db[['basePath']]
   }
@@ -332,7 +333,22 @@ load.emuDB.DBconfig<-function(DBconfigFilePath){
   sp=marshal.for.persistence(db[['DBconfig']],persistFilter)
   psJSON=jsonlite::toJSON(sp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
   writeLines(psJSON,dbCfgPath)
+  .store.DBconfig.DBI(DBconfig = db[['DBconfig']])
 }
+
+.store.DBconfig<-function(basePath,DBconfig){
+ 
+  # store db schema file
+  dbCfgNm=paste0(DBconfig[['name']],database.schema.suffix)
+  dbCfgPath=file.path(basePath,dbCfgNm)
+  
+  persistFilter=emuR.persist.filters.DBconfig
+  sp=marshal.for.persistence(DBconfig,persistFilter)
+  psJSON=jsonlite::toJSON(sp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+  writeLines(psJSON,dbCfgPath)
+  .store.DBconfig.DBI(DBconfig = DBconfig)
+}
+
 
 get.levelDefinition <- function(DBconfig, name){
   res = NULL

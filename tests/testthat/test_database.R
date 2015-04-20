@@ -8,18 +8,9 @@ context("testing database functions")
 .aeSampleRate=20000
 
 .test_emu_ae_db=NULL
+.test_emu_ae_db_uuid='3f627b7b-4fb5-4b4a-8c79-b5f49df4df25'
 .test_emu_ae_db_dir=NULL
-## "private" function does not work with R CMD check !
-test_load_ae_database<-function(){
-  if(is.null(.test_emu_ae_db)){
-    legacyDbEmuAeTpl <- system.file("extdata/legacy_emu/DBs/ae","ae.tpl", package="emuR")
-    .test_emu_ae_db_dir<<-tempfile('test_emu_ae')
-    convert.legacyEmuDB.to.emuDB(emuTplPath=legacyDbEmuAeTpl,targetDir=.test_emu_ae_db_dir,verbose=FALSE)
-    .test_emu_ae_db<<-load.emuDB(file.path(.test_emu_ae_db_dir,'ae'),verbose=FALSE)
-    #return(load.database(file.path(aeTmpDir,'ae')))
-  } 
- return(.test_emu_ae_db)
-}
+
 
 test_that("function get.legacy.file.path()",{
   primaryTrackFilePath=get.legacy.file.path("/path/to/db",'BLOCK*/SES*',c('BLOCK30','SES3042','0001abc'),'wav')
@@ -29,18 +20,34 @@ test_that("function get.legacy.file.path()",{
   expect_equal(signalTrackFilePath,"/path/to/db/F0/0001abc.f0")
 })
 
-test_that("Load example database ae",{
+test_that("Purge example database ae",{
+  if(is.emuDB.loaded(dbUUID=.test_emu_ae_db_uuid)){
+    purge_emuDB(dbName='ae',dbUUID=.test_emu_ae_db_uuid,interactive=FALSE)
+  }
+})
 
-  ae=test_load_ae_database()
-  expect_that(ae[['name']],is_equivalent_to('ae'))
+test_that("Convert example database ae",{
+  legacyDbEmuAeTpl <- system.file("extdata/legacy_emu/DBs/ae","ae.tpl", package="emuR")
+  .test_emu_ae_db_dir<<-tempfile('test_emu_ae')
+  convert_legacyEmuDB_to_emuDB(emuTplPath=legacyDbEmuAeTpl,targetDir=.test_emu_ae_db_dir,dbUUID=.test_emu_ae_db_uuid,verbose=FALSE)
   
+  
+})
+
+test_that("Load example database ae",{
+  
+  
+  load_emuDB(file.path(.test_emu_ae_db_dir,'ae'),verbose=FALSE)
+  #load_emuDB("/scratch/klausj/WORK/EmuDbs/ae")
+  
+  db=get.database(uuid=.test_emu_ae_db_uuid)
+  expect_that(db[['name']],is_equivalent_to('ae'))
 })
 
 test_that("Data types are correct",{
   
-  ae=test_load_ae_database()
-  expect_that(ae[['name']],is_equivalent_to('ae'))
-  items=ae[['items']]
+  items=dbReadTable(emuDBs.con,'items')
+  
   expect_that(class(items[['seqIdx']]),is_equivalent_to('integer'))
   expect_that(class(items[['itemID']]),is_equivalent_to('integer'))
   expect_that(class(items[['sampleRate']]),is_equivalent_to('numeric'))
@@ -48,19 +55,17 @@ test_that("Data types are correct",{
   expect_that(class(items[['sampleStart']]),is_equivalent_to('integer'))
   expect_that(class(items[['sampleDur']]),is_equivalent_to('integer'))
   
-  labels=ae[['labels']]
+  labels=dbReadTable(emuDBs.con,'labels')
   expect_that(class(labels[['labelIdx']]),is_equivalent_to('integer'))
   
-  links=ae[['links']]
+  links=dbReadTable(emuDBs.con,'links')
   expect_that(class(links[['fromID']]),is_equivalent_to('integer'))
   expect_that(class(links[['toID']]),is_equivalent_to('integer'))
 })
 
 test_that("Test ae samples",{
   
-  ae=test_load_ae_database()
-  aeSess=ae[['sessions']][[1]]
-  aeB1=aeSess[['bundles']][[1]]
+  aeB1=get.bundle(sessionName='0000',bundleName='msajc003',dbUUID=.test_emu_ae_db_uuid)
   expect_equivalent(aeB1[['sampleRate']],.aeSampleRate)
   
   halfSample=0.5/.aeSampleRate
@@ -68,13 +73,17 @@ test_that("Test ae samples",{
   msajc015_tone_events=c(0.531305,1.486760,1.609948,2.445220,2.910929,3.110782,3.262078)
   lvCnt=length(msajc015_lab_values)
   teCnt=length(msajc015_tone_events)
-  msajc015_phonetic=ae[['items']][ae[['items']][['bundle']]=="msajc015" & ae[['items']][['level']]=='Phonetic',]
+  #msajc015_phonetic=ae[['items']][ae[['items']][['bundle']]=="msajc015" & ae[['items']][['level']]=='Phonetic',]
+  msajc015_phonetic=dbGetQuery(emuDBs.con,paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"' AND session='0000' AND bundle='msajc015' AND level='Phonetic'"))
+  rc=nrow(msajc015_phonetic)
+  expect_equivalent(rc+1,lvCnt)
   # order by sequence index
   msajc015_phonetic_ordered=msajc015_phonetic[order(msajc015_phonetic[['seqIdx']]),]
   rc=nrow(msajc015_phonetic_ordered)
   expect_equivalent(rc+1,lvCnt)
   
-  msajc015_tone=ae[['items']][ae[['items']][['bundle']]=="msajc015" & ae[['items']][['level']]=='Tone',]
+  #msajc015_tone=ae[['items']][ae[['items']][['bundle']]=="msajc015" & ae[['items']][['level']]=='Tone',]
+  msajc015_tone=dbGetQuery(emuDBs.con,paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"' AND session='0000' AND bundle='msajc015' AND level='Tone'"))
   msajc015_tone_ordered=msajc015_tone[order(msajc015_tone[['seqIdx']]),]
   lvSq=1:rc
   
@@ -121,52 +130,138 @@ test_that("Test ae samples",{
 })
 
 test_that("Test ae modify",{
-  ae=test_load_ae_database()
-  expect_equivalent(nrow(ae[['items']]),736)
-  expect_equivalent(nrow(ae[['links']]),785)
-  expect_equivalent(nrow(ae[['linksExt']]),3950)
-  b015=get.bundle(ae,'0000','msajc015')
+  orgItems=dbGetQuery(emuDBs.con,paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  orgLabels=dbGetQuery(emuDBs.con,paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  orgLinks=dbGetQuery(emuDBs.con,paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  orgLinksExt=dbGetQuery(emuDBs.con,paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  
+  expect_equivalent(nrow(orgItems),736)
+  expect_equivalent(nrow(orgLinks),785)
+  expect_equivalent(nrow(orgLinksExt),3950)
+  b015=get.bundle(sessionName='0000',bundleName = 'msajc015',dbUUID = .test_emu_ae_db_uuid)
   # select arbitrary item
   b015m=b015
   phoneticLvlIt10=b015m[['levels']][['Phonetic']][['items']][[10]]
   lblOrg=phoneticLvlIt10[['labels']][[1]][['value']]
   b015m[['levels']][['Phonetic']][['items']][[10]][['labels']][[1]][['value']]='test!!'
-  aem=store.bundle.annotation(ae,b015m)
+  store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015m)
   
-  expect_equivalent(nrow(aem[['items']]),736)
-  expect_equivalent(nrow(aem[['links']]),785)
-  expect_equivalent(nrow(aem[['linksExt']]),3950)
+  modItems=dbGetQuery(emuDBs.con,paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  modLabels=dbGetQuery(emuDBs.con,paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  modLinks=dbGetQuery(emuDBs.con,paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  modLinksExt=dbGetQuery(emuDBs.con,paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
   
-  # items should not be equal
-  # Note: test doe not work without redundant label in items tbale anymore
-  #cm1=compare(ae$items,aem$items,allowAll=TRUE)
-  #expect_false(cm1$result)
+  expect_equivalent(nrow(modItems),736)
+  expect_equivalent(nrow(modLinks),785)
+  expect_equivalent(nrow(modLinksExt),3950)
+  
+  # change only affects labels
+  # items should be equal
+  cm1=compare(orgItems,modItems,allowAll=TRUE)
+  expect_true(cm1$result)
+  # labels not
+  cmLbls1=compare(orgLabels,modLabels,allowAll=TRUE)
+  expect_false(cmLbls1$result)
   # links are not changed, should be equal to original
-  cml1=compare(ae$links,aem$links,allowAll=TRUE)
+  cml1=compare(orgLinks,modLinks,allowAll=TRUE)
   expect_true(cml1$result)
-  cmle1=compare(ae$linksExt,aem$linksExt,allowAll=TRUE)
+  cmle1=compare(orgLinksExt,modLinksExt,allowAll=TRUE)
   expect_true(cmle1$result)
   
-  # store original bundle
-  aem2=store.bundle.annotation(ae,b015)
+  b015m[['levels']][['Phonetic']][['items']][[10]][['sampleDur']]=99
+  store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015m)
   
-  expect_equivalent(nrow(aem2[['items']]),736)
-  expect_equivalent(nrow(aem2[['links']]),785)
-  expect_equivalent(nrow(aem2[['linksExt']]),3950)
+  mod2Items=dbGetQuery(emuDBs.con,paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod2Labels=dbGetQuery(emuDBs.con,paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod2Links=dbGetQuery(emuDBs.con,paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod2LinksExt=dbGetQuery(emuDBs.con,paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
   
-  
-  # should be equal to original
-  cm2=compare(ae$items,aem2$items,allowAll=TRUE)
-  expect_true(cm2$result)
-  
-  # links are not changed, should be equal to original
-  cml2=compare(ae$links,aem2$links,allowAll=TRUE)
+  expect_equivalent(nrow(mod2Items),736)
+  expect_equivalent(nrow(mod2Links),785)
+  expect_equivalent(nrow(mod2LinksExt),3950)
+  #   
+  #   # should all be equal to original 
+  cm2=compare(orgItems,mod2Items,allowAll=TRUE)
+  expect_false(cm2$result)
+  cmLbls2=compare(orgLabels,mod2Labels,allowAll=TRUE)
+  expect_false(cmLbls2$result)
+  cml2=compare(orgLinks,mod2Links,allowAll=TRUE)
   expect_true(cml2$result)
-  cmle2=compare(ae$linksExt,aem2$linksExt,allowAll=TRUE)
+  cmle2=compare(orgLinksExt,mod2LinksExt,allowAll=TRUE)
   expect_true(cmle2$result)
   
-  # TODO move segment boundaries, change links,etc...
+  # remove link
+  b015Lks=b015m[['links']]
+  b015LksM=list()
+  for(b015Lk in b015Lks){
+    if(!(b015Lk[['fromID']]==177 & b015Lk[['toID']]==224)){
+      b015LksM[[length(b015LksM)+1]]=b015Lk
+    }
+  }
+  b015m2=b015m
+  b015m2[['links']]=b015LksM
+  store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015m2)
+  mod3Items=dbGetQuery(emuDBs.con,paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod3Labels=dbGetQuery(emuDBs.con,paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod3Links=dbGetQuery(emuDBs.con,paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod3LinksExt=dbGetQuery(emuDBs.con,paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
   
+  expect_equivalent(nrow(mod3Items),736)
+  expect_equivalent(nrow(mod3Links),784)
+  #expect_equivalent(nrow(mod2LinksExt),3950)
   
+  cm3=compare(mod3Items,mod2Items,allowAll=TRUE)
+  expect_true(cm3$result)
+  cmLbls3=compare(mod2Labels,mod3Labels,allowAll=TRUE)
+  expect_true(cmLbls3$result)
+  cml3=compare(mod3Links,mod2Links,allowAll=TRUE)
+  expect_false(cml3$result)
+  cmle3=compare(mod3LinksExt,mod2LinksExt,allowAll=TRUE)
+  expect_false(cmle3$result)
+  
+  # insert the link again
+  b015m3=get.bundle(dbUUID = .test_emu_ae_db_uuid,sessionName = '0000',bundleName = 'msajc015')
+  b015m3Lks=b015m3[['links']]
+  b015m3Lks[[length(b015m3Lks)+1]]=list(fromID=177,toID=224)
+  b015m3[['links']]=b015m3Lks
+  
+  store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015m3)
+  mod4Links=dbGetQuery(emuDBs.con,paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  cml3=compare(orgLinks,mod4Links,allowAll=TRUE)
+  expect_true(cml3$result)
+  
+  #   
+  #   # TODO move segment boundaries, change links,etc...
+  #   
+  #   
+  
+#   # store original bundle
+   store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015)
+#   
+   modOrgItems=dbGetQuery(emuDBs.con,paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  modOrgLabels=dbGetQuery(emuDBs.con,paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+   modOrgLinks=dbGetQuery(emuDBs.con,paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+   modOrgLinksExt=dbGetQuery(emuDBs.con,paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+
+    expect_equivalent(nrow(modOrgItems),736)
+  expect_equivalent(nrow(modOrgLinks),785)
+  expect_equivalent(nrow(modOrgLinksExt),3950)
+#   
+#   # should all be equal to original 
+   cm2=compare(orgItems,modOrgItems,allowAll=TRUE)
+   expect_true(cm2$result)
+   cmLbls2=compare(orgLabels,modOrgLabels,allowAll=TRUE)
+    expect_true(cmLbls2$result)
+   cml2=compare(orgLinks,modOrgLinks,allowAll=TRUE)
+   expect_true(cml2$result)
+   cmle2=compare(orgLinksExt,modOrgLinksExt,allowAll=TRUE)
+   expect_true(cmle2$result)
+
+
+
+
   
 })
+
+# clean up
+purge_emuDB(dbName='ae',dbUUID=.test_emu_ae_db_uuid,interactive=FALSE)

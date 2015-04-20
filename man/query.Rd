@@ -4,11 +4,11 @@
 \alias{query}
 \title{Query EMU database}
 \usage{
-query(dbObj, query, sessionPattern = NULL, bundlePattern = NULL,
-  queryLang = NULL, resultType = NULL)
+query(dbName = NULL, query, sessionPattern = NULL, bundlePattern = NULL,
+  queryLang = "EQL2", resultType = NULL, dbUUID = NULL)
 }
 \arguments{
-\item{dbObj}{object of class emuDB}
+\item{dbName}{name of EMU database}
 
 \item{query}{EQL query string}
 
@@ -19,6 +19,8 @@ query(dbObj, query, sessionPattern = NULL, bundlePattern = NULL,
 \item{queryLang}{query language}
 
 \item{resultType}{type (class name) of result}
+
+\item{dbUUID}{optional UUID of emuDB}
 }
 \value{
 result set object of class resultType (e.g. EMU seglist 'emusegs')
@@ -43,7 +45,7 @@ query(ae,"[Syllable=S ^ Phoneme=t]",resultType='emusegs')
 Klaus Jaensch
 }
 \seealso{
-\code{\link{load.emuDB}}
+\code{\link{load_emuDB}}
 }
 \keyword{EQL}
 \keyword{Emu}

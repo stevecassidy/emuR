@@ -8,10 +8,10 @@
 ##' trackdata object (analogous to the depricated emu.track).
 ##' 
 ##' @title get.trackdata(): get trackdata from emuDB object
-##' @param dbObj emuDB object that the trackdata will be extracted from 
+##' @param dbName name of EMU database
 ##' @param seglist seglist obtained by querying the emuDB object
 ##' @param ssffTrackName the name of track that one wishes to extract (see 
-##' \code{dbObj$DBconfig$ssffTrackDefinitions} for the defined ssffTracks of the 
+##' \code{DBconfig$ssffTrackDefinitions} for the defined ssffTracks of the 
 ##' dbObj). If the parameter \code{onTheFlyFunctionName} is set then 
 ##' this corresponds to the column name af the AsspDataObj (see
 ##' wrasspOutputInfos$<wrassp-function-name>$tracks).
@@ -31,6 +31,7 @@
 ##' @param nrOfAllocationRows If the size limit of the data matrix is reached 
 ##' a further nrOfAllocationRows more rows will be allocated (this will lead 
 ##' performance drops). 
+##' @param dbUUID optional UUID of emuDB
 ##' @param verbose show progress bars and other infos
 ##' @return If \code{dcut} is not set (the default) an object of type trackdata 
 ##' is returned. If \code{dcut} is set and \code{npoints} is not, or the seglist 
@@ -40,23 +41,20 @@
 ##' @keywords misc
 ##' @import wrassp
 ##' @export
-"get.trackdata" <- function(dbObj, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
+"get_trackdata" <- function(dbName = NULL, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
                             npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
-                            onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, verbose = TRUE){
-  UseMethod("get.trackdata")
-}
-
-##' @export
-"get.trackdata.emuDB" <- function(dbObj = NULL, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
-                                  npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
-                                  onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, verbose = TRUE){
+                            onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, dbUUID = NULL, verbose = TRUE){
+  #########################
+  # get dbObj
+  dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
+  dbObj = .load.emuDB.DBI(uuid = dbUUID)
   
   #########################
-  # parameter checks
-  
+  # parameter checks  
+
   # check if all values for minimal call are set
-  if( is.null(dbObj) || is.null(seglist) || is.null(ssffTrackName)) {
-    stop("dbObj, seglist and ssffTrackName have to all be set!\n")
+  if( is.null(dbName) || is.null(seglist) || is.null(ssffTrackName)) {
+    stop("dbName, seglist and ssffTrackName have to all be set!\n")
   }
   
   # check if cut value is correct
@@ -86,20 +84,22 @@
     stop('Both onTheFlyFunctionName and onTheFlyParams have to be set for you to be able to use the onTheFlyOptLogFilePath parameter!')
   }
   
+  
+  
   #########################
   # get track definition
   if(is.null(onTheFlyFunctionName)){
-  trackDefFound = sapply(dbObj$DBconfig$ssffTrackDefinitions, function(x){ x$name == ssffTrackName})
-  trackDef = dbObj$DBconfig$ssffTrackDefinitions[trackDefFound]
-  
-  # check if correct nr of trackDefs where found
-  if(length(trackDef) != 1){
-    if(length(trackDef) < 1 ){
-      stop('The emuDB object ', dbObj$DBconfig$name, ' does not have any ssffTrackDefinitions called ', ssffTrackName)
-    }else{
-      stop('The emuDB object ', dbObj$DBconfig$name, ' has multiple ssffTrackDefinitions called ', ssffTrackName, '! This means the DB has an invalid _DBconfig.json')
+    trackDefFound = sapply(dbObj$DBconfig$ssffTrackDefinitions, function(x){ x$name == ssffTrackName})
+    trackDef = dbObj$DBconfig$ssffTrackDefinitions[trackDefFound]
+    
+    # check if correct nr of trackDefs where found
+    if(length(trackDef) != 1){
+      if(length(trackDef) < 1 ){
+        stop('The emuDB object ', dbObj$DBconfig$name, ' does not have any ssffTrackDefinitions called ', ssffTrackName)
+      }else{
+        stop('The emuDB object ', dbObj$DBconfig$name, ' has multiple ssffTrackDefinitions called ', ssffTrackName, '! This means the DB has an invalid _DBconfig.json')
+      }
     }
-  }
   }else{
     trackDef = list()
     trackDef[[1]] = list()
@@ -124,16 +124,19 @@
   
   
   splUtt = str_split(seglist$utts[1], ':')[[1]]
-  curBndl <- dbObj$sessions[[splUtt[1]]]$bundles[[splUtt[2]]]
+  #   curBndl <- dbObj$sessions[[splUtt[1]]]$bundles[[splUtt[2]]]
   
   if(!is.null(onTheFlyFunctionName)){
     funcFormals = NULL
-    funcFormals$listOfFiles = curBndl$mediaFilePath
+    funcFormals$listOfFiles = dbGetQuery(emuDBs.con, paste0("SELECT mediaFilePath FROM bundle WHERE db_uuid='", dbUUID, "' AND session='",
+                                                            splUtt[1], "' AND name='", splUtt[2], "'"))$mediaFilePath
     funcFormals$toFile = FALSE
     curDObj = do.call(onTheFlyFunctionName,funcFormals)
   }else{
-    fname <- curBndl$signalpaths[grepl(paste(trackDef[[1]]$fileExtension, '$', sep = ''), curBndl$signalpaths)][[1]] # should mybe check if more then one found...
-    curDObj <- read.AsspDataObj(fname)
+    allBndlTrackPaths <- dbGetQuery(emuDBs.con, paste0("SELECT path FROM track WHERE db_uuid='", dbUUID, "' AND session='",
+                                                       splUtt[1], "' AND bundle='", splUtt[2], "'"))$path
+    fpath <- allBndlTrackPaths[grepl(paste(trackDef[[1]]$fileExtension, '$', sep = ''), allBndlTrackPaths)]
+    curDObj <- read.AsspDataObj(fpath)
   }
   tmpData <- eval(parse(text = paste("curDObj$", trackDef[[1]]$columnName, sep = "")))
   if(verbose){
@@ -168,23 +171,28 @@
   # loop through bundle names
   curIndexStart = 1
   for (i in 1:length(seglist$utts)){
-
-    splUtt = str_split(seglist$utts[i], ':')[[1]]
-    curBndl <- dbObj$sessions[[splUtt[1]]]$bundles[[splUtt[2]]]
     
-    fname <- curBndl$signalpaths[grepl(paste(trackDef[[1]]$fileExtension, '$', sep = ''), curBndl$signalpaths)][[1]] # should mybe check if more then one found...
+    splUtt = str_split(seglist$utts[i], ':')[[1]]
+    
+    allBndlTrackPaths <- dbGetQuery(emuDBs.con, paste0("SELECT path FROM track WHERE db_uuid='", dbUUID, "' AND session='",
+                                                       splUtt[1], "' AND bundle='", splUtt[2], "'"))$path
+    
+    fpath <- allBndlTrackPaths[grepl(paste0(trackDef[[1]]$fileExtension, '$'), allBndlTrackPaths)]
+    
     
     ################
     #get data object
     
     if(!is.null(onTheFlyFunctionName)){
-      funcFormals$listOfFiles = curBndl$mediaFilePath
+      funcFormals$listOfFiles = dbGetQuery(emuDBs.con, paste0("SELECT mediaFilePath FROM bundle WHERE db_uuid='", dbUUID, "' AND session='",
+                                                              splUtt[1], "' AND name='", splUtt[2], "'"))$mediaFilePath
+      
       curDObj = do.call(onTheFlyFunctionName, funcFormals)
       if(verbose){
         setTxtProgressBar(pb, i)
       }
     }else{
-      curDObj <- read.AsspDataObj(fname)
+      curDObj <- read.AsspDataObj(fpath)
       if(verbose){
         setTxtProgressBar(pb, i)
       }
@@ -344,6 +352,5 @@
 
 #######################
 # FOR DEVELOPMENT
-
 # library('testthat')
-# test_file('tests/testthat/test_get.trackdata.R')
+# test_file('tests/testthat/test_get_trackdata.R')

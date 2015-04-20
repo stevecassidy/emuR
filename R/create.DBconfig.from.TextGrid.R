@@ -27,29 +27,29 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName, tierNames=NULL){
   #
   ####################
   
-  # parse TextGrid
-  itemsTableName = "emuR_emuDB_items_tmp"
+  # create tmp db 
+  dbConfig=create.schema.databaseDefinition(name=dbName,mediafileExtension = 'wav')
+  db=create.database(name=dbName,basePath=file.path(tempdir(), dbName),DBconfig = dbConfig)
+  .initialize.DBI.database()
+  .store.emuDB.DBI(database = db)
   
-  labelsTableName ="emuR_emuDB_labels_tmp"
+  # parse TextGrid  
   
-  linksTableName = "emuR_emuDB_links_tmp"
-  
-  # Create an ephemeral in-memory RSQLite database
-  con <- RSQLite::dbConnect(RSQLite::SQLite(), ":memory:")
-  
-  initialize_database_tables(con, itemsTableName, labelsTableName, linksTableName)
-  
-  
-  parse.textgrid(tgPath, 20000, db='ae', bundle="msajc003", session="0000", conn = con, itemsTableName=itemsTableName, labelsTableName=labelsTableName) # sampleRate doesn't matter!! -> hardcoded
+  parse.textgrid(tgPath, 20000, dbName=dbName, bundle="tmpBundleName", session="0000") # sampleRate doesn't matter!! -> hardcoded
   
   # remove unwanted levels
   if(!is.null(tierNames)){
-    delete_unwanted_levels_from_database_tables(con, itemsTableName, labelsTableName, linksTableName, tierNames)
+    
+    condStr = paste0("level!='", paste0(tierNames, collapse = paste0("' AND ", " level!='")), "'")
+    # delete items
+    dbSendQuery(emuDBs.con, paste0("DELETE FROM items WHERE db_uuid='", dbConfig$UUID, "' AND ", condStr))
+    
+    # delete labels
+    dbSendQuery(emuDBs.con, paste0("DELETE FROM labels ", 
+                                   "WHERE db_uuid='", dbConfig$UUID, "' AND itemID NOT IN (SELECT itemID FROM items)"))
   }
   
-  res <- RSQLite::dbSendQuery(con, paste0("SELECT DISTINCT level, type FROM ", itemsTableName))
-  levels = RSQLite::dbFetch(res)
-  RSQLite::dbClearResult(res)
+  levels <- dbGetQuery(emuDBs.con, paste0("SELECT DISTINCT level, type FROM items WHERE db_uuid='", dbConfig$UUID, "'"))
   
   # create level definitions
   levelDefinitions = list()
@@ -62,7 +62,7 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName, tierNames=NULL){
     if(lev$type == 'SEGMENT' || lev$type == 'EVENT'){
       defaultLvlOrder[[length(defaultLvlOrder)+1L]]=lev$level
     }else{
-      stop('what?')
+      stop('Found levelDefinition that is not of type SEGMENT|EVENT while parsing TextGrid...this should not occur!')
     }
     # add new leveDef.
     levelDefinitions[[levIdx]] = list(name = lev$level, 
@@ -103,8 +103,11 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName, tierNames=NULL){
   # hardcoded maxNumberOfLabels (always 1 in TextGrids)
   dbSchema$maxNumberOfLabels = 1
   
-  # Disconnect from the database
-  RSQLite::dbDisconnect(con)
+  # purge tmp DB 
+  UUID = get_emuDB_UUID(dbName = dbName)
+  .purge.emuDB(UUID)
+  
+  
   return(dbSchema)
 }
 
