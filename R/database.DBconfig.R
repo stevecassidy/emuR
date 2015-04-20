@@ -337,7 +337,7 @@ load.emuDB.DBconfig<-function(DBconfigFilePath){
 }
 
 .store.DBconfig<-function(basePath,DBconfig){
- 
+  
   # store db schema file
   dbCfgNm=paste0(DBconfig[['name']],database.schema.suffix)
   dbCfgPath=file.path(basePath,dbCfgNm)
@@ -361,7 +361,110 @@ get.levelDefinition <- function(DBconfig, name){
   return(res)
 }
 
+###################################################
+# CRUD operations for ssffTrackDefinitions
+
+
+##' List ssffTrackDefinitions of emuDB
+##' @description List ssffTrackDefinitions of emuDB
+##' @param dbName name of emuDB
+##' @param dbUUID optional UUID of emuDB
+##' @return data.frame object containing ssffTrackDefinitions infos
+##' @export
+list_ssffTrackDefinitions <- function(dbName = NULL, dbUUID = NULL){
+  .initialize.DBI.database()
+  uuid=get_emuDB_UUID(dbName,dbUUID)
+  dbObj = .load.emuDB.DBI(uuid = uuid)
+  
+  df <- do.call(rbind, lapply(dbObj$DBconfig$ssffTrackDefinitions, data.frame, stringsAsFactors=FALSE))
+  return(df)
+}
+
+
+##' Add ssffTrackDefinitions to emuDB
+##' @description Add ssffTrackDefinitions to emuDB
+##' @param dbName name of emuDB
+##' @param name name of ssffTrackDefinitions
+##' @param columnName columnName of 
+##' @param dbUUID optional UUID of emuDB
+##' @export
+add_ssffTrackDefinitions <- function(dbName = NULL, name =  NULL, 
+                                     columnName = NULL, fileExtension = NULL, 
+                                     onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
+                                     onTheFlyOptLogFilePath = NULL, dbUUID = NULL,
+                                     showProgress = TRUE, interactive = TRUE){
+  .initialize.DBI.database()
+  uuid=get_emuDB_UUID(dbName,dbUUID)
+  dbObj = .load.emuDB.DBI(uuid = uuid)
+  
+  #########################
+  # parameter checks  
+  
+  # check if three main parameters are not null
+  if(is.null(name) || is.null(columnName) || is.null(fileExtension)){
+    stop('name, columnName, fileExtension have to be set!')
+  }
+  
+  # check if onTheFlyFunctionName is set if onTheFlyParams is
+  if(is.null(onTheFlyFunctionName) && !is.null(onTheFlyParams)){
+    stop('onTheFlyFunctionName has to be set if onTheFlyParams is set!')
+  }
+  
+  # check if both onTheFlyFunctionName and onTheFlyParams are set if onTheFlyOptLogFilePath is 
+  if( !is.null(onTheFlyOptLogFilePath) && (is.null(onTheFlyFunctionName) || is.null(onTheFlyParams))){
+    stop('Both onTheFlyFunctionName and onTheFlyParams have to be set for you to be able to use the onTheFlyOptLogFilePath parameter!')
+  }
+  
+  
+  curDefs = list_ssffTrackDefinitions(dbName, dbUUID)
+  
+  if(sum(curDefs$name == name) != 0){
+    stop("ssffTrackDefinitions with name ", name ," already exists for emuDB: ", dbName, "!")
+  }
+  
+  
+  # calculate new files
+  if(!is.null(onTheFlyFunctionName)){
+    # check if files exist
+    fp = list_bundleFilePaths(dbName=dbName, fileExtension, dbUUID=dbUUID)
+    if(length(fp) != 0){
+      if(interactive){
+        ans = readline(paste0("There are files present in '",dbName,"' that have the file extention '", 
+                              fileExtension, "' Continuing will overwrite these files! Do you wish to proceed? (y/n) "))
+      }else{
+        ans = 'y'
+      }
+      if(ans == 'y'){
+        
+        ###############################
+        # set up function formals
+        funcFormals = formals(onTheFlyFunctionName)
+        funcFormals[names(onTheFlyParams)] = onTheFlyParams
+        funcFormals$optLogFilePath = onTheFlyOptLogFilePath
+        funcFormals$listOfFiles = list_bundleFilePaths(dbName=dbName, dbObj$DBconfig$mediafileExtension, dbUUID=dbUUID)
+
+        # check if columnName is valid track
+        if(!(columnName %in% wrasspOutputInfos[[onTheFlyFunctionName]]$tracks)){
+          stop("'", columnName ,"' is not a column produced by '", onTheFlyFunctionName, "'! Please check wrasspOutputInfos for information on the tracks of each wrassp function.")
+        }
+        
+        do.call(onTheFlyFunctionName, funcFormals)
+      }else{
+        stop('Aborted by user...')
+      }
+    }
+  }
+  
+  # add new ssffTrackDefinition
+  dbObj$DBconfig$ssffTrackDefinitions[[length(dbObj$DBconfig$ssffTrackDefinitions) + 1]] = list(name = name, 
+                                                                                                columnName = columnName,
+                                                                                                fileExtension = fileExtension)
+  # store changes
+  .store.schema(dbObj)
+}
+
+
 
 # FOR DEVELOPMENT 
-#library('testthat') 
-#test_file('tests/testthat/test_database.DBconfig.R')
+# library('testthat') 
+# test_file('tests/testthat/test_database.DBconfig.R')
