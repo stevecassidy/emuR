@@ -998,11 +998,11 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
   tplBaseDir=NULL
   tplBaseDir=dirname(emuTplPath)
   
-  # create target dir
-  dir.create(targetDir)
+  ## create target dir
+  #dir.create(targetDir)
   
   # create database dir in targetdir
-  dir.create(pp)
+  dir.create(pp,recursive = TRUE)
  
   # get UUID
   dbUUID=dbConfig[['UUID']]
