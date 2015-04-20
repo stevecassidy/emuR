@@ -2047,7 +2047,7 @@ duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
   
   # duplicate track entries
   resTr = dbGetQuery(emuDBs.con, paste0(" SELECT '", newUUID, "' AS db_uuid, session, bundle, path FROM track",
-                                      " WHERE db_uuid='", oldUUID, "'"))
+                                        " WHERE db_uuid='", oldUUID, "'"))
   
   
   resTr$path = gsub(oldBasePath, newBasePath, resTr$path)
@@ -2118,9 +2118,38 @@ rewrite.allAnnots.emuDB <- function(dbName, dbUUID=NULL, showProgress=TRUE){
       setTxtProgressBar(pb,progress)
     }
   } 
-
+  
   
 }
+
+
+##' List file paths emuDBs bundles
+##' @description Lists file paths of files belonging to emuDB
+##' @param dbName name of emuDB
+##' @param fileExtention file extention of files
+##' @param sessionPattern A (regex) pattern matching sessions of emuDB
+##' @param bundlePattern A (regex) pattern matching bundles of emuDB
+##' @param dbUUID optional UUID of emuDB
+##' @return list of emuDBS as data.frame object
+##' @export
+list_bundleFilePaths <- function(dbName, fileExtention, 
+                                 sessionPattern='.*', bundlePattern='*', 
+                                 dbUUID=NULL){
+  .initialize.DBI.database()
+  uuid=get_emuDB_UUID(dbName,dbUUID)
+  
+  bndls = list_bundles(dbName, dbUUID)
+  postPatternBndls = bndls[grepl(sessionPattern, bndls$session) & grepl(bundlePattern, bndls$name),]
+  if(dim(postPatternBndls)[1] == 0){
+    stop("No files belonging to bundles found in '", dbName, "' with fileExtention '", fileExtention, "' and the sessionPattern '", 
+         sessionPattern, "' and the bundlePattern '", bundlePattern, "'")
+  }
+  
+  res = dbGetQuery(emuDBs.con, paste0("SELECT basePath FROM emuDB WHERE uuid='", uuid, "'"))
+  fp = file.path(res$basePath, paste0(postPatternBndls$session,'_ses'), paste0(postPatternBndls$name, '_bndl'), paste0(postPatternBndls$name, '.', fileExtention))
+  return(fp)
+}
+
 
 #######################
 # FOR DEVELOPMENT
