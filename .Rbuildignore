@@ -4,3 +4,5 @@
 # travis ci #
 #############
 .travis.yml
+
+^NEWS\.md$
