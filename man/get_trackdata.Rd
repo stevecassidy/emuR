@@ -36,7 +36,7 @@ passed in by the onTheFlyFunctionName parameter. This list can easily be
 generated using the \code{formals} function and then setting the according
 parameter one wishes to change.}
 
-\item{onTheFlyOptLogFilePath}{path to log file for on-the-fly function}
+\item{onTheFlyOptLogFilePath}{path to optional log file for on-the-fly function}
 
 \item{nrOfAllocationRows}{If the size limit of the data matrix is reached
 a further nrOfAllocationRows more rows will be allocated (this will lead

@@ -366,14 +366,24 @@ get.levelDefinition <- function(DBconfig, name){
 
 
 
-##' Add ssffTrackDefinitions to emuDB
+##' Add ssffTrackDefinition to emuDB
 ##' @description Add ssffTrackDefinitions to emuDB
 ##' @param dbName name of emuDB
 ##' @param name name of ssffTrackDefinitions
-##' @param columnName columnName of 
+##' @param columnName columnName of ssffTrackDefinitions
+##' @param fileExtension fileExtension of ssffTrackDefinitions
+##' @param onTheFlyFunctionName name of wrassp function to do on-the-fly calculation 
+##' @param onTheFlyParams a list parameters that will be given to the function 
+##' passed in by the onTheFlyFunctionName parameter. This list can easily be 
+##' generated using the \code{formals} function and then setting the according 
+##' parameter one wishes to change.     
+##' @param onTheFlyOptLogFilePath path to optional log file for on-the-fly function
+##' @param showProgress show progress bar
+##' @param interactive ask user for confirmation
 ##' @param dbUUID optional UUID of emuDB
 ##' @export
-add_ssffTrackDefinitions <- function(dbName = NULL, name =  NULL, 
+##' @author Raphael Winkelmann
+add_ssffTrackDefinition <- function(dbName = NULL, name =  NULL, 
                                      columnName = NULL, fileExtension = NULL, 
                                      onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
                                      onTheFlyOptLogFilePath = NULL, dbUUID = NULL,
@@ -454,6 +464,7 @@ add_ssffTrackDefinitions <- function(dbName = NULL, name =  NULL,
 ##' @param dbUUID optional UUID of emuDB
 ##' @return data.frame object containing ssffTrackDefinitions infos
 ##' @export
+##' @author Raphael Winkelmann
 list_ssffTrackDefinitions <- function(dbName = NULL, dbUUID = NULL){
   .initialize.DBI.database()
   uuid=get_emuDB_UUID(dbName,dbUUID)
@@ -463,7 +474,7 @@ list_ssffTrackDefinitions <- function(dbName = NULL, dbUUID = NULL){
   return(df)
 }
 
-##' Modify ssffTrackDefinitions of emuDB
+##' Modify ssffTrackDefinition of emuDB
 ##' @description Modify ssffTrackDefinitions of emuDB
 ##' @param dbName name of emuDB
 ##' @param name name of ssffTrackDefinitions to be modified
@@ -472,7 +483,8 @@ list_ssffTrackDefinitions <- function(dbName = NULL, dbUUID = NULL){
 ##' @param newFileExtension new fileExtension of ssffTrackDefinitions
 ##' @param dbUUID optional UUID of emuDB
 ##' @export
-modify_ssffTrackDefinitions <- function(dbName, name, 
+##' @author Raphael Winkelmann
+modify_ssffTrackDefinition <- function(dbName, name, 
                                         newName, newColumnName = NULL,
                                         newFileExtension = NULL, dbUUID = NULL){
   
@@ -509,14 +521,14 @@ modify_ssffTrackDefinitions <- function(dbName, name,
 }
 
 
-##' Remove ssffTrackDefinitions of emuDB
+##' Remove ssffTrackDefinition of emuDB
 ##' @description Remove ssffTrackDefinitions of emuDB
 ##' @param dbName name of emuDB
 ##' @param name name of ssffTrackDefinitions to be deleted
 ##' @param deleteFiles deletes all files with the fileExtension of the ssffTrackDefinition
 ##' @param dbUUID optional UUID of emuDB
 ##' @export
-remove_ssffTrackDefinitions <- function(dbName = NULL, name = NULL, 
+remove_ssffTrackDefinition <- function(dbName = NULL, name = NULL, 
                                         deleteFiles = FALSE, dbUUID = NULL){
   .initialize.DBI.database()
   uuid=get_emuDB_UUID(dbName,dbUUID)
