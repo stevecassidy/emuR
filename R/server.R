@@ -297,6 +297,8 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
           #cat("Save bundle ",names(jr$data),"\n");
           cat("Save bundle ",bundleName," from session ",bundleSession,"\n");
         }
+        err=NULL
+        
         ssffFiles=jr[['data']][['ssffFiles']]
         oldBundle=get.bundle(dbUUID=dbUUID,sessionName=bundleSession,bundleName=bundleName)
         
@@ -372,6 +374,10 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
         result=ws$send(responseBundleJSON)
         # restore warn level
         options(warn=warnOptionSave)
+        
+        # reset error
+        err=NULL
+        
       }else if(jr[['type']]=='DISCONNECTWARNING'){
         response=list(status=list(type='SUCCESS'),callbackID=jr[['callbackID']],responseContent='status',contentType='text/json')
         responseJSON=jsonlite::toJSON(response,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
