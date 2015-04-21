@@ -808,7 +808,7 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
   us=1:bundlesCount
   if(verbose){
     cat("INFO: Loading legacy EMU database containing",bundlesCount,"bundles...\n")
-    pb=txtProgressBar(min=0,max=bundlesCount+7,initial=progress,style=3)
+    pb=txtProgressBar(min=0,max=bundlesCount+2,initial=progress,style=3)
     
     setTxtProgressBar(pb,progress)
   }
@@ -901,13 +901,11 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
     #utts[[uttCode]]=bundle
     #db[['sessions']][[sessionName]][['bundles']][[bName]]=bundle
     
+    progress=progress+1L
+    if(verbose){
+      setTxtProgressBar(pb,progress)
+    }
   }
-  progress=progress+1L
-  if(verbose){
-    setTxtProgressBar(pb,progress)
-  }
-  
-  
   
 }
 
