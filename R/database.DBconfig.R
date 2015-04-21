@@ -467,8 +467,6 @@ list_ssffTrackDefinitions <- function(dbName = NULL, dbUUID = NULL){
 ##' @description Update ssffTrackDefinitions of emuDB
 ##' @param dbName name of emuDB
 ##' @param dbUUID optional UUID of emuDB
-##' @return data.frame object containing ssffTrackDefinitions infos
-##' @export
 update_ssffTrackDefinitions <- function(dbName = NULL, dbUUID = NULL){
   
   stop('not implemented yet')
@@ -476,13 +474,15 @@ update_ssffTrackDefinitions <- function(dbName = NULL, dbUUID = NULL){
 }
 
 
-##' Delete ssffTrackDefinitions of emuDB
-##' @description Delete ssffTrackDefinitions of emuDB
+##' Remove ssffTrackDefinitions of emuDB
+##' @description Remove ssffTrackDefinitions of emuDB
 ##' @param dbName name of emuDB
+##' @param name name of ssffTrackDefinitions to be deleted
+##' @param deleteFiles deletes all files with the fileExtension of the ssffTrackDefinition
 ##' @param dbUUID optional UUID of emuDB
-##' @return data.frame object containing ssffTrackDefinitions infos
 ##' @export
-delete_ssffTrackDefinitions <- function(dbName = NULL, name = NULL, dbUUID = NULL, deleteFiles = FALSE){
+remove_ssffTrackDefinitions <- function(dbName = NULL, name = NULL, 
+                                        deleteFiles = FALSE, dbUUID = NULL){
   .initialize.DBI.database()
   uuid=get_emuDB_UUID(dbName,dbUUID)
   dbObj = .load.emuDB.DBI(uuid = uuid)
