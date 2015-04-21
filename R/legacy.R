@@ -35,7 +35,7 @@ build.legacy.bundle.list<-function(parsedEmuPath,currentPath=NULL,fileSuffixPatt
           bl=lapply(bl,function(x,s) return(c(s,x)),dir)
           bll=c(bll,bl)
         }
-       
+        
       }
       return(bll)
     }else{
@@ -394,7 +394,7 @@ get.legacy.file.path=function(basePath,emuPath,legacybundleID,fileExtension){
   path=NULL
   bIdIdx=1
   for(pdl in pp[['dirs']]){
-   
+    
     if(pdl[['pattern']]){
       # substitute
       dir=legacybundleID[bIdIdx]
@@ -622,8 +622,8 @@ build.hashed.link.defs<-function(linkDefinitions){
     #  # set
     #  linkDefsHashed[[supLvlNm]]=ld[['sublevelName']]
     #}else{
-      # append
-      linkDefsHashed[[supLvlNm]]=c(linkDefsHashed[[supLvlNm]],ld[['sublevelName']])
+    # append
+    linkDefsHashed[[supLvlNm]]=c(linkDefsHashed[[supLvlNm]],ld[['sublevelName']])
     #}
     
   }
@@ -718,7 +718,7 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
   mergedOptions=list(sourceFileTextEncoding=NULL,ignoreMissingSSFFTrackFiles=TRUE,rewriteSSFFTracks=TRUE,symbolicLinkSignalFiles=FALSE)
   if(!is.null(options)){
     for(opt in names(options)){
-        mergedOptions[[opt]]=options[[opt]]
+      mergedOptions[[opt]]=options[[opt]]
     }
   }
   
@@ -739,8 +739,8 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
   if(file.exists(pp)){
     stop("Database storage dir ",pp," already exists.")
   }
-
-
+  
+  
   progress=progress+1L
   
   tplBaseDir=NULL
@@ -751,7 +751,7 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
   
   # create database dir in targetdir
   dir.create(pp,recursive = TRUE)
- 
+  
   # get UUID
   dbUUID=dbConfig[['UUID']]
   
@@ -825,9 +825,9 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
       # create session if needed
       #db[['sessions']][[sessionName]]=list(name=sessionName,bundles=list())
       #.store.session.DBI(dbd[['UUID']],sessionName)
-       
-        #cat(targetDir,s$name,sfp,"\n")
-        dir.create(sfp)
+      
+      #cat(targetDir,s$name,sfp,"\n")
+      dir.create(sfp)
     }
     ptrFilePath=get.legacy.file.path(legacyBasePath,primaryBasePath,legacyBundleID,primaryFileExtension)
     #ptrFilePath=primaryFileList[ui]
@@ -845,54 +845,54 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
     #bundle[['db_UUID']]=dbConfig[['UUID']]
     #.store.bundle.DBI(db,bundle)
     #.store.bundle.annot.DBI(db,bundle)
-  
-  bDir=paste0(bundle[['name']],bundle.dir.suffix)
-  bfp=file.path(sfp,bDir)
-  dir.create(bfp)
-  pFilter=emuR.persist.filters.bundle
-  bp=marshal.for.persistence(bundle,pFilter)
-  
-  # metadata (annotations)
-  ban=str_c(bundle[['name']],bundle.annotation.suffix,'.json')
-  baJSONPath=file.path(bfp,ban)
-  pbpJSON=jsonlite::toJSON(bp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-  writeLines(pbpJSON,baJSONPath)
-  
-  
-  for(sf in bundle[['signalpaths']]){
-    #cat("Signalpath: ",sf,"\n")
-    bn=basename(sf)
-    nsfp=file.path(bfp,bn)
-    # check if SSFF type
-    isSSFFFile=FALSE
-    for(ssffTrDef in dbConfig[['ssffTrackDefinitions']]){
-      ssffTrFileExt=ssffTrDef[['fileExtension']]
-      fileExtPatt=paste0('[.]',ssffTrFileExt,'$')
-      if(length(grep(fileExtPatt,sf))==1){
-        isSSFFFile=TRUE
-        break
+    
+    bDir=paste0(bundle[['name']],bundle.dir.suffix)
+    bfp=file.path(sfp,bDir)
+    dir.create(bfp)
+    pFilter=emuR.persist.filters.bundle
+    bp=marshal.for.persistence(bundle,pFilter)
+    
+    # metadata (annotations)
+    ban=str_c(bundle[['name']],bundle.annotation.suffix,'.json')
+    baJSONPath=file.path(bfp,ban)
+    pbpJSON=jsonlite::toJSON(bp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+    writeLines(pbpJSON,baJSONPath)
+    
+    
+    for(sf in bundle[['signalpaths']]){
+      #cat("Signalpath: ",sf,"\n")
+      bn=basename(sf)
+      nsfp=file.path(bfp,bn)
+      # check if SSFF type
+      isSSFFFile=FALSE
+      for(ssffTrDef in dbConfig[['ssffTrackDefinitions']]){
+        ssffTrFileExt=ssffTrDef[['fileExtension']]
+        fileExtPatt=paste0('[.]',ssffTrFileExt,'$')
+        if(length(grep(fileExtPatt,sf))==1){
+          isSSFFFile=TRUE
+          break
+        }
       }
-    }
-    if(file.exists(sf)){
-      if(mergedOptions[['symbolicLinkSignalFiles']]){
-        file.symlink(from=sf,to=nsfp)
-      }else if(mergedOptions[['rewriteSSFFTracks']] && isSSFFFile){
-        # is SSFF track
-        # read/write instead of copy to get rid of big endian encoded SSFF files (SPARC)
-        pfAssp=read.AsspDataObj(sf)
-        write.AsspDataObj(pfAssp,nsfp)
-        #cat("Rewritten SSFF: ",sf," to ",nsfp,"\n")
+      if(file.exists(sf)){
+        if(mergedOptions[['symbolicLinkSignalFiles']]){
+          file.symlink(from=sf,to=nsfp)
+        }else if(mergedOptions[['rewriteSSFFTracks']] && isSSFFFile){
+          # is SSFF track
+          # read/write instead of copy to get rid of big endian encoded SSFF files (SPARC)
+          pfAssp=read.AsspDataObj(sf)
+          write.AsspDataObj(pfAssp,nsfp)
+          #cat("Rewritten SSFF: ",sf," to ",nsfp,"\n")
+        }else{
+          # media file (likely a wav file)
+          file.copy(from=sf,to=nsfp)
+          #cat("Copied: ",sf," to ",nsfp,"\n")
+        }
       }else{
-        # media file (likely a wav file)
-        file.copy(from=sf,to=nsfp)
-        #cat("Copied: ",sf," to ",nsfp,"\n")
-      }
-    }else{
-      if(!mergedOptions[['ignoreMissingSSFFTrackFiles']]){
-        stop("SSFF track file :'",sf,"' does not exist!")
+        if(!mergedOptions[['ignoreMissingSSFFTrackFiles']]){
+          stop("SSFF track file :'",sf,"' does not exist!")
+        }
       }
     }
-  }
     bundle[['levels']]=NULL
     bundle[['links']]=NULL
     
@@ -902,11 +902,11 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
     #db[['sessions']][[sessionName]][['bundles']][[bName]]=bundle
     
   }
-    progress=progress+1L
-    if(verbose){
-      setTxtProgressBar(pb,progress)
-    }
-
+  progress=progress+1L
+  if(verbose){
+    setTxtProgressBar(pb,progress)
+  }
+  
   
   
 }
@@ -935,7 +935,7 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
 ##' 
 convert_legacyEmuDB_by_name_to_emuDB <- function(dbName,targetDir,options=NULL,verbose=TRUE){
   
- 
+  
   # pre check target dir
   if(file.exists(targetDir)){
     tdInfo=file.info(targetDir)
@@ -958,5 +958,5 @@ convert_legacyEmuDB_by_name_to_emuDB <- function(dbName,targetDir,options=NULL,v
   }
   convert_legacyEmuDB_to_emuDB(emuTplPath = emuTplPath,targetDir = targetDir,options = options,verbose = verbose)
   
- 
+  
 }
