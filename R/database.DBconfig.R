@@ -365,21 +365,6 @@ get.levelDefinition <- function(DBconfig, name){
 # CRUD operations for ssffTrackDefinitions
 
 
-##' List ssffTrackDefinitions of emuDB
-##' @description List ssffTrackDefinitions of emuDB
-##' @param dbName name of emuDB
-##' @param dbUUID optional UUID of emuDB
-##' @return data.frame object containing ssffTrackDefinitions infos
-##' @export
-list_ssffTrackDefinitions <- function(dbName = NULL, dbUUID = NULL){
-  .initialize.DBI.database()
-  uuid=get_emuDB_UUID(dbName,dbUUID)
-  dbObj = .load.emuDB.DBI(uuid = uuid)
-  
-  df <- do.call(rbind, lapply(dbObj$DBconfig$ssffTrackDefinitions, data.frame, stringsAsFactors=FALSE))
-  return(df)
-}
-
 
 ##' Add ssffTrackDefinitions to emuDB
 ##' @description Add ssffTrackDefinitions to emuDB
@@ -463,7 +448,20 @@ add_ssffTrackDefinitions <- function(dbName = NULL, name =  NULL,
   .store.schema(dbObj)
 }
 
-
+##' List ssffTrackDefinitions of emuDB
+##' @description List ssffTrackDefinitions of emuDB
+##' @param dbName name of emuDB
+##' @param dbUUID optional UUID of emuDB
+##' @return data.frame object containing ssffTrackDefinitions infos
+##' @export
+list_ssffTrackDefinitions <- function(dbName = NULL, dbUUID = NULL){
+  .initialize.DBI.database()
+  uuid=get_emuDB_UUID(dbName,dbUUID)
+  dbObj = .load.emuDB.DBI(uuid = uuid)
+  
+  df <- do.call(rbind, lapply(dbObj$DBconfig$ssffTrackDefinitions, data.frame, stringsAsFactors=FALSE))
+  return(df)
+}
 
 # FOR DEVELOPMENT 
 # library('testthat') 
