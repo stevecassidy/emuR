@@ -67,8 +67,8 @@ test_that("CRUD operations work for ssffTrackDefinitions", {
   
   test_that("list = CRU(D)", {
     # bad track name
-    expect_error(delete_ssffTrackDefinitions(dbName=tmpDbName, name="asdf"))
-    delete_ssffTrackDefinitions(dbName=tmpDbName, name="newTrackName", deleteFiles = T)
+    expect_error(remove_ssffTrackDefinitions(dbName=tmpDbName, name="asdf"))
+    remove_ssffTrackDefinitions(dbName=tmpDbName, name="newTrackName", deleteFiles = T)
     # check that _DBconfig entry is deleted
     uuid=get_emuDB_UUID(tmpDbName, NULL)
     dbObj = .load.emuDB.DBI(uuid = uuid)
