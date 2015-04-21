@@ -412,13 +412,13 @@ add_ssffTrackDefinitions <- function(dbName = NULL, name =  NULL,
   if(!is.null(onTheFlyFunctionName)){
     # check if files exist
     fp = list_bundleFilePaths(dbName=dbName, fileExtension, dbUUID=dbUUID)
+    ans = 'y'
     if(length(fp) != 0){
       if(interactive){
         ans = readline(paste0("There are files present in '",dbName,"' that have the file extention '", 
                               fileExtension, "' Continuing will overwrite these files! Do you wish to proceed? (y/n) "))
-      }else{
-        ans = 'y'
       }
+    }else{
       if(ans == 'y'){
         
         ###############################
@@ -461,6 +461,55 @@ list_ssffTrackDefinitions <- function(dbName = NULL, dbUUID = NULL){
   
   df <- do.call(rbind, lapply(dbObj$DBconfig$ssffTrackDefinitions, data.frame, stringsAsFactors=FALSE))
   return(df)
+}
+
+##' Update ssffTrackDefinitions of emuDB
+##' @description Update ssffTrackDefinitions of emuDB
+##' @param dbName name of emuDB
+##' @param dbUUID optional UUID of emuDB
+##' @return data.frame object containing ssffTrackDefinitions infos
+##' @export
+update_ssffTrackDefinitions <- function(dbName = NULL, dbUUID = NULL){
+  
+  stop('not implemented yet')
+  
+}
+
+
+##' Delete ssffTrackDefinitions of emuDB
+##' @description Delete ssffTrackDefinitions of emuDB
+##' @param dbName name of emuDB
+##' @param dbUUID optional UUID of emuDB
+##' @return data.frame object containing ssffTrackDefinitions infos
+##' @export
+delete_ssffTrackDefinitions <- function(dbName = NULL, name = NULL, dbUUID = NULL, deleteFiles = FALSE){
+  .initialize.DBI.database()
+  uuid=get_emuDB_UUID(dbName,dbUUID)
+  dbObj = .load.emuDB.DBI(uuid = uuid)
+  
+  # precheck if exists
+  sDefs = list_ssffTrackDefinitions(dbName, dbUUID)  
+  
+  if(!(name %in% sDefs$name)){
+    stop("No ssffTrackDefinitions found with called '", name, "'")
+  }
+  # find end delete entry
+  deletedDef = NULL
+  for(i in 1:length(dbObj$DBconfig$ssffTrackDefinitions)){
+      if(dbObj$DBconfig$ssffTrackDefinitions[[i]]$name == name){
+        deletedDef = dbObj$DBconfig$ssffTrackDefinitions[[i]]
+        dbObj$DBconfig$ssffTrackDefinitions[[i]] = NULL
+        break
+      }
+  }
+  
+  # find and delete files
+  if(deleteFiles){
+    filePaths = list_bundleFilePaths(dbName=dbName, deletedDef$fileExtension, dbUUID = dbUUID)
+    file.remove(filePaths)
+  }
+  # store changes
+  .store.schema(dbObj)
 }
 
 # FOR DEVELOPMENT 

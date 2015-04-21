@@ -44,7 +44,7 @@ test_that("CRUD operations work for ssffTrackDefinitions", {
     expect_error(add_ssffTrackDefinitions(dbName=tmpDbName, 'fm'))
     expect_error(add_ssffTrackDefinitions(dbName=tmpDbName, 'fm', 'bla'))
     expect_error(add_ssffTrackDefinitions(dbName=tmpDbName, 'newTrackName', 'badColName', 'pit', 
-                             onTheFlyFunctionName = 'mhsF0', interactive = F))
+                             onTheFlyFunctionName = 'mhsF0', interactive = T))
     
     add_ssffTrackDefinitions(dbName=tmpDbName, 'newTrackName', 'pitch', 'pit', 
                              onTheFlyFunctionName = 'mhsF0', interactive = F)
@@ -59,6 +59,26 @@ test_that("CRUD operations work for ssffTrackDefinitions", {
     expect_equal(df$name, c('dft','fm', 'newTrackName'))
     expect_equal(df$columnName, c('dft','fm', 'pitch'))
     expect_equal(df$fileExtension, c('dft','fms', 'pit'))
+  })
+
+  test_that("list = CR(U)D", {
+    # TODO write update
+  })
+  
+  test_that("list = CRU(D)", {
+    # bad track name
+    expect_error(delete_ssffTrackDefinitions(dbName=tmpDbName, name="asdf"))
+    delete_ssffTrackDefinitions(dbName=tmpDbName, name="newTrackName", deleteFiles = T)
+    # check that _DBconfig entry is deleted
+    uuid=get_emuDB_UUID(tmpDbName, NULL)
+    dbObj = .load.emuDB.DBI(uuid = uuid)
+    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[1]]$name, "dft")
+    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$name, "fm")
+    
+    # check that files have been deleted
+    filePaths = list_bundleFilePaths(dbName=tmpDbName, "pit", dbUUID = NULL)
+    expect_equal(length(filePaths), 0)
+    
   })
   
   # clean up
