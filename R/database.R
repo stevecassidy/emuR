@@ -2147,7 +2147,11 @@ list_bundleFilePaths <- function(dbName, fileExtention,
   
   res = dbGetQuery(emuDBs.con, paste0("SELECT basePath FROM emuDB WHERE uuid='", uuid, "'"))
   fp = file.path(res$basePath, paste0(postPatternBndls$session,'_ses'), paste0(postPatternBndls$name, '_bndl'), paste0(postPatternBndls$name, '.', fileExtention))
-  return(fp)
+  
+  # return only files that exist (should maybe issue warning)
+  fpExist = fp[file.exists(fp)]
+  
+  return(fpExist)
 }
 
 
