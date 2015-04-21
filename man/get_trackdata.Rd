@@ -10,7 +10,7 @@ get_trackdata(dbName = NULL, seglist = NULL, ssffTrackName = NULL,
   nrOfAllocationRows = 10000, dbUUID = NULL, verbose = TRUE)
 }
 \arguments{
-\item{dbName}{name of emuDB}
+\item{dbName}{name of EMU database}
 
 \item{seglist}{seglist obtained by querying the emuDB object}
 

@@ -5,7 +5,7 @@
 \title{Add ssffTrackDefinitions to emuDB}
 \usage{
 add_ssffTrackDefinitions(dbName = NULL, name = NULL, columnName = NULL,
-  fileExtention = NULL, onTheFlyFunctionName = NULL,
+  fileExtension = NULL, onTheFlyFunctionName = NULL,
   onTheFlyParams = NULL, onTheFlyOptLogFilePath = NULL, dbUUID = NULL,
   showProgress = TRUE, interactive = TRUE)
 }
