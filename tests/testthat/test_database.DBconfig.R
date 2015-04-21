@@ -61,12 +61,33 @@ test_that("CRUD operations work for ssffTrackDefinitions", {
     expect_equal(df$fileExtension, c('dft','fms', 'pit'))
   })
 
-  test_that("list = CR(U)D", {
-    # TODO write update
+  test_that("modify = CR(U)D", {
+    # bad name causes errors
+    expect_error(modify_ssffTrackDefinitions(dbName=tmpDbName, name="asdf"))
+    
+    # check if renaming works
+    modify_ssffTrackDefinitions(dbName=tmpDbName, name="fm", newName="fmNewName")
+    uuid=get_emuDB_UUID(tmpDbName, NULL)
+    dbObj = .load.emuDB.DBI(uuid = uuid)
+    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$name, "fmNewName")
+    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$columnName, "fm")
+    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$fileExtension, "fms")
+    # check if modifying everything works
+    modify_ssffTrackDefinitions(dbName=tmpDbName, name="fmNewName", newName="fmNewName2", 
+                                newColumnName = "test12", newFileExtension = "test12")
+    uuid=get_emuDB_UUID(tmpDbName, NULL)
+    dbObj = .load.emuDB.DBI(uuid = uuid)
+    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$name, "fmNewName2")
+    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$columnName, "test12")
+    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$fileExtension, "test12")
+    # revert changes
+    modify_ssffTrackDefinitions(dbName=tmpDbName, name="fmNewName2", newName="fm", 
+                                newColumnName = "fm", newFileExtension = "fms")    
+    
   })
   
-  test_that("list = CRU(D)", {
-    # bad track name
+  test_that("remove = CRU(D)", {
+    # bad name
     expect_error(remove_ssffTrackDefinitions(dbName=tmpDbName, name="asdf"))
     remove_ssffTrackDefinitions(dbName=tmpDbName, name="newTrackName", deleteFiles = T)
     # check that _DBconfig entry is deleted

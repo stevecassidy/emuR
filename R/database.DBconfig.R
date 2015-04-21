@@ -463,14 +463,49 @@ list_ssffTrackDefinitions <- function(dbName = NULL, dbUUID = NULL){
   return(df)
 }
 
-##' Update ssffTrackDefinitions of emuDB
-##' @description Update ssffTrackDefinitions of emuDB
+##' Modify ssffTrackDefinitions of emuDB
+##' @description Modify ssffTrackDefinitions of emuDB
 ##' @param dbName name of emuDB
+##' @param name name of ssffTrackDefinitions to be modified
+##' @param newName new name of ssffTrackDefinitions
+##' @param newColumnName new columnName of ssffTrackDefinitions
+##' @param newFileExtension new fileExtension of ssffTrackDefinitions
 ##' @param dbUUID optional UUID of emuDB
-update_ssffTrackDefinitions <- function(dbName = NULL, dbUUID = NULL){
+##' @export
+modify_ssffTrackDefinitions <- function(dbName, name, 
+                                        newName, newColumnName = NULL,
+                                        newFileExtension = NULL, dbUUID = NULL){
   
-  stop('not implemented yet')
+  .initialize.DBI.database()
+  uuid=get_emuDB_UUID(dbName,dbUUID)
+  dbObj = .load.emuDB.DBI(uuid = uuid)
   
+  # precheck if exists
+  sDefs = list_ssffTrackDefinitions(dbName, dbUUID)  
+  
+  if(!(name %in% sDefs$name)){
+    stop("No ssffTrackDefinitions found with called '", name, "'")
+  }
+  
+  
+  for(i in 1:length(dbObj$DBconfig$ssffTrackDefinitions)){
+    if(dbObj$DBconfig$ssffTrackDefinitions[[i]]$name == name){
+      if(is.null(newColumnName)){
+        newColumnName = dbObj$DBconfig$ssffTrackDefinitions[[i]]$columnName
+      }
+      if(is.null(newFileExtension)){
+        newFileExtension = dbObj$DBconfig$ssffTrackDefinitions[[i]]$fileExtension
+      }
+      dbObj$DBconfig$ssffTrackDefinitions[[i]] = list(name = newName, 
+                                                      columnName = newColumnName, 
+                                                      fileExtension = newFileExtension)
+      break
+    }
+  }
+  
+  # store changes
+  .store.schema(dbObj)
+
 }
 
 
