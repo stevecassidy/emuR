@@ -1286,7 +1286,6 @@ create_emuDB<-function(name,targetDir,mediaFileExtension='wav'){
 # 
 # @param db EMU database object
 # @param levelDefinition
-# @return object of class emuDB
 # @author Klaus Jaensch
 # @keywords emuDB database schema Emu 
 add_levelDefinition_object<-function(dbName=NULL,levelDefinition,dbUUID=NULL){
@@ -1311,12 +1310,14 @@ add_levelDefinition_object<-function(dbName=NULL,levelDefinition,dbUUID=NULL){
 # Add level definition to EMU database
 # 
 # @param db EMU database object
-# @param levelDefinition
-# @return object of class emuDB
+# @param name name of level definition
+# @param type type of level definition
+# @param dbUUID optional emuDB UUID
 # @author Klaus Jaensch
 # @export
 # @keywords emuDB database schema Emu 
 add_levelDefinition<-function(dbName,name,type,dbUUID=NULL){
+  levelDefinition=create.schema.levelDefinition(name = name,type = type)
   db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
   # check if level definition (name) already exists 
   for(ld in db[['DBconfig']][['levelDefinitions']]){
