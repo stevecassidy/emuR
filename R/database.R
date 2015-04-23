@@ -12,7 +12,15 @@ require(DBI)
 emuDB.apiLevel=3L
 
 #emuDBs.con=NULL
-#internalVars=new.env()
+
+internalVars<- new.env(parent = emptyenv())
+
+getEmuDBcon <- function() {
+  internalVars$emuDBcon
+}
+setEmuDBcon <- function(con) {
+  internalVars$emuDBcon<-con
+}
 
 session.suffix='_ses'
 bundle.dir.suffix='_bndl'
