@@ -29,7 +29,7 @@ test_that("duplicate.loaded.emuDB works correctly", {
   fp = file.path(tempdir(), 'ae_copy')
   duplicate.loaded.emuDB("ae", "ae_copy", fp)
   
-  emuDBtbl = dbReadTable(emuDBs.con, 'emuDB')
+  emuDBtbl = dbReadTable(getEmuDBcon(), 'emuDB')
   expect_equal(length(emuDBtbl$uuid), 2)
   
   # todo check for equality of elements of duplicate

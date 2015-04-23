@@ -1148,9 +1148,9 @@ query<-function(dbName=NULL,query,sessionPattern=NULL,bundlePattern=NULL,queryLa
       dbConfig=db[['DBconfig']]
       # create 
       emuDBs.query.tmp<<-list()
-      emuDBs.query.tmp[['queryItems']]<<-dbGetQuery(emuDBs.con,paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
-      emuDBs.query.tmp[['queryLabels']]<<-dbGetQuery(emuDBs.con,paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
-      emuDBs.query.tmp[['queryLinksExt']]<<-dbGetQuery(emuDBs.con,paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
+      emuDBs.query.tmp[['queryItems']]<<-dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
+      emuDBs.query.tmp[['queryLabels']]<<-dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
+      emuDBs.query.tmp[['queryLinksExt']]<<-dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
       if(!is.null(sessionPattern)){
         
         sessSelRegex=glob2rx(pattern = sessionPattern)

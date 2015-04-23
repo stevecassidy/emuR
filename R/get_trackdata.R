@@ -128,12 +128,12 @@
   
   if(!is.null(onTheFlyFunctionName)){
     funcFormals = NULL
-    funcFormals$listOfFiles = dbGetQuery(emuDBs.con, paste0("SELECT mediaFilePath FROM bundle WHERE db_uuid='", dbUUID, "' AND session='",
+    funcFormals$listOfFiles = dbGetQuery(getEmuDBcon(), paste0("SELECT mediaFilePath FROM bundle WHERE db_uuid='", dbUUID, "' AND session='",
                                                             splUtt[1], "' AND name='", splUtt[2], "'"))$mediaFilePath
     funcFormals$toFile = FALSE
     curDObj = do.call(onTheFlyFunctionName,funcFormals)
   }else{
-    allBndlTrackPaths <- dbGetQuery(emuDBs.con, paste0("SELECT path FROM track WHERE db_uuid='", dbUUID, "' AND session='",
+    allBndlTrackPaths <- dbGetQuery(getEmuDBcon(), paste0("SELECT path FROM track WHERE db_uuid='", dbUUID, "' AND session='",
                                                        splUtt[1], "' AND bundle='", splUtt[2], "'"))$path
     fpath <- allBndlTrackPaths[grepl(paste(trackDef[[1]]$fileExtension, '$', sep = ''), allBndlTrackPaths)]
     curDObj <- read.AsspDataObj(fpath)
@@ -174,7 +174,7 @@
     
     splUtt = str_split(seglist$utts[i], ':')[[1]]
     
-    allBndlTrackPaths <- dbGetQuery(emuDBs.con, paste0("SELECT path FROM track WHERE db_uuid='", dbUUID, "' AND session='",
+    allBndlTrackPaths <- dbGetQuery(getEmuDBcon(), paste0("SELECT path FROM track WHERE db_uuid='", dbUUID, "' AND session='",
                                                        splUtt[1], "' AND bundle='", splUtt[2], "'"))$path
     
     fpath <- allBndlTrackPaths[grepl(paste0(trackDef[[1]]$fileExtension, '$'), allBndlTrackPaths)]
@@ -184,7 +184,7 @@
     #get data object
     
     if(!is.null(onTheFlyFunctionName)){
-      funcFormals$listOfFiles = dbGetQuery(emuDBs.con, paste0("SELECT mediaFilePath FROM bundle WHERE db_uuid='", dbUUID, "' AND session='",
+      funcFormals$listOfFiles = dbGetQuery(getEmuDBcon(), paste0("SELECT mediaFilePath FROM bundle WHERE db_uuid='", dbUUID, "' AND session='",
                                                               splUtt[1], "' AND name='", splUtt[2], "'"))$mediaFilePath
       
       curDObj = do.call(onTheFlyFunctionName, funcFormals)

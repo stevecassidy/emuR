@@ -58,7 +58,7 @@ autobuild_linkFromTimes <- function(dbName, superlevelName, sublevelName, writeT
   
   if(convertSuperlevel){
     # check if backup links exist
-    res = dbGetQuery(emuDBs.con, paste0("SELECT * FROM items ", 
+    res = dbGetQuery(getEmuDBcon(), paste0("SELECT * FROM items ", 
                                         "WHERE db_uuid ='", dbUUID, "' ",
                                         "  AND level = '", paste0(superlevelName, backupLevelAppendStr), "'"))
     
@@ -74,7 +74,7 @@ autobuild_linkFromTimes <- function(dbName, superlevelName, sublevelName, writeT
     
     # backup labels belonging to superlevel (labels have to be backed up before items to avoid maxID problem (maybe should rewrite query to avoid this in future versions using labels table to determin
     # maxID))
-    qRes = dbGetQuery(emuDBs.con, paste0("INSERT INTO labels ",
+    qRes = dbGetQuery(getEmuDBcon(), paste0("INSERT INTO labels ",
                                          "SELECT '", dbUUID, "', lt.session, lt.bundle, lt.itemID + bndlMaxValue AS itemID, labelIdx, lt.name || '", backupLevelAppendStr, "' AS name, label FROM ",
                                          "(SELECT * FROM ",
                                          "  items AS it",
@@ -97,7 +97,7 @@ autobuild_linkFromTimes <- function(dbName, superlevelName, sublevelName, writeT
     
     
     # backup items belonging to superlevel (=duplicate level with new ids)    
-    qRes = dbGetQuery(emuDBs.con, paste0("INSERT INTO items ",
+    qRes = dbGetQuery(getEmuDBcon(), paste0("INSERT INTO items ",
                                          "SELECT '", dbUUID, "', it.session, it.bundle, it.itemID + bndlMaxValue AS itemID, it.level || '", backupLevelAppendStr, "' AS level, it.type, it.seqIdx, it.sampleRate, it.samplePoint, it.sampleStart, it.sampleDur FROM ",
                                          "items AS it ",
                                          "JOIN ",
@@ -113,7 +113,7 @@ autobuild_linkFromTimes <- function(dbName, superlevelName, sublevelName, writeT
   # query DB depending on type of sublevelDefinition 
   if(foundSubLevelDev$type == 'EVENT'){
     
-    dbSendQuery(emuDBs.con, paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
+    dbSendQuery(getEmuDBcon(), paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
                                    " SELECT * FROM",
                                    " (SELECT super.db_uuid, super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
                                    " FROM items AS 'super' JOIN items AS 'sub' ",
@@ -127,7 +127,7 @@ autobuild_linkFromTimes <- function(dbName, superlevelName, sublevelName, writeT
     
     if(ld$type == "ONE_TO_MANY"){
       
-      dbSendQuery(emuDBs.con, paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
+      dbSendQuery(getEmuDBcon(), paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
                                      " SELECT * FROM",
                                      " (SELECT super.db_uuid, super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
                                      " FROM items as super JOIN items as sub",
@@ -139,7 +139,7 @@ autobuild_linkFromTimes <- function(dbName, superlevelName, sublevelName, writeT
       
     }else if(ld$type == "MANY_TO_MANY"){
       
-      dbSendQuery(emuDBs.con, paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
+      dbSendQuery(getEmuDBcon(), paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
                                      " SELECT * FROM",
                                      " (SELECT super.db_uuid, super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
                                      " FROM items as super JOIN items as sub",
@@ -155,7 +155,7 @@ autobuild_linkFromTimes <- function(dbName, superlevelName, sublevelName, writeT
       
     }else if(ld$type == "ONE_TO_ONE"){
       
-      dbSendQuery(emuDBs.con, paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
+      dbSendQuery(getEmuDBcon(), paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
                                      " SELECT * FROM",
                                      " (SELECT super.db_uuid, super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
                                      " FROM items as super JOIN items as sub",
@@ -184,7 +184,7 @@ autobuild_linkFromTimes <- function(dbName, superlevelName, sublevelName, writeT
     dbObj$DBconfig$levelDefinitions[[length(dbObj$DBconfig$levelDefinitions) + 1]] = foundSuperLevelDev
     
     # convert superlevel to ITEM level
-    res = dbSendQuery(emuDBs.con, paste0("UPDATE items SET type = 'ITEM', samplePoint = null, sampleStart = null, sampleDur = null WHERE db_uuid='", dbUUID, "' AND level ='", superlevelName,"'"))
+    res = dbSendQuery(getEmuDBcon(), paste0("UPDATE items SET type = 'ITEM', samplePoint = null, sampleStart = null, sampleDur = null WHERE db_uuid='", dbUUID, "' AND level ='", superlevelName,"'"))
     dbClearResult(res)
   }
   

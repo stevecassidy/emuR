@@ -61,7 +61,7 @@ convert_TextGridCollection_to_emuDB <- function(path2rootDir, dbName,
   db=create.database(name = schema[['name']],basePath = normalizePath(targetDir),DBconfig = schema)
   
   .initialize.DBI.database()
-  dbsDf=dbGetQuery(emuDBs.con,paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
+  dbsDf=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
   if(nrow(dbsDf)>0){
     stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
   }
@@ -77,7 +77,7 @@ convert_TextGridCollection_to_emuDB <- function(path2rootDir, dbName,
   allBundles = list()
   
   # create session entry
-  dbGetQuery(emuDBs.con, paste0("INSERT INTO session VALUES('", dbUUID, "', '0000')"))
+  dbGetQuery(getEmuDBcon(), paste0("INSERT INTO session VALUES('", dbUUID, "', '0000')"))
   
   # loop through fpl
   for(i in 1:dim(fpl)[1]){
@@ -89,10 +89,10 @@ convert_TextGridCollection_to_emuDB <- function(path2rootDir, dbName,
     bndlName = gsub('^_', '', gsub(.Platform$file.sep, '_', gsub(normalizePath(path2rootDir),'',file_path_sans_ext(normalizePath(fpl[i,1])))))
     
     # create bundle entry
-    dbGetQuery(emuDBs.con, paste0("INSERT INTO bundle VALUES('", dbUUID, "', '0000', '", bndlName, "', '", basename(fpl[i,1]), "', ", attributes(asspObj)$sampleRate, ",'", fpl[i,1], "')"))
+    dbGetQuery(getEmuDBcon(), paste0("INSERT INTO bundle VALUES('", dbUUID, "', '0000', '", bndlName, "', '", basename(fpl[i,1]), "', ", attributes(asspObj)$sampleRate, ",'", fpl[i,1], "')"))
     
     # create track entry
-    dbGetQuery(emuDBs.con, paste0("INSERT INTO track VALUES('", dbUUID, "', '0000', '", bndlName, "', '", fpl[i,1], "')"))
+    dbGetQuery(getEmuDBcon(), paste0("INSERT INTO track VALUES('", dbUUID, "', '0000', '", bndlName, "', '", fpl[i,1], "')"))
     
     # parse TextGrid
     parse.textgrid(fpl[i,2], attributes(asspObj)$sampleRate, dbName=dbName, bundle=bndlName, session="0000")
@@ -103,10 +103,10 @@ convert_TextGridCollection_to_emuDB <- function(path2rootDir, dbName,
       condStr = paste0("level!='", paste0(tierNames, collapse = paste0("' AND ", " level!='")), "'")
 
       # delete items
-      dbSendQuery(emuDBs.con, paste0("DELETE FROM items WHERE ", "db_uuid='", dbUUID, "' AND ", condStr))
+      dbSendQuery(getEmuDBcon(), paste0("DELETE FROM items WHERE ", "db_uuid='", dbUUID, "' AND ", condStr))
       
       # delete labels
-      dbSendQuery(emuDBs.con, paste0("DELETE FROM labels", 
+      dbSendQuery(getEmuDBcon(), paste0("DELETE FROM labels", 
                                      " WHERE ", "db_uuid='", dbUUID, "' AND itemID NOT IN (SELECT itemID FROM items)"))
     }
     
