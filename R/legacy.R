@@ -904,6 +904,7 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
     progress=progress+1L
     if(verbose){
       setTxtProgressBar(pb,progress)
+      cat("\n")
     }
   }
   
