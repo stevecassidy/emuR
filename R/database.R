@@ -1281,8 +1281,30 @@ create_emuDB<-function(name,targetDir,mediaFileExtension='wav'){
 }
 
 
-add.bundle<-function(db,sessionName,bundle){
-  db[['sessionName']]
+# Add level definition to EMU database
+# 
+# @param db EMU database object
+# @param levelDefinition
+# @return object of class emuDB
+# @author Klaus Jaensch
+# @keywords emuDB database schema Emu 
+add_levelDefinition_object<-function(dbName=NULL,levelDefinition,dbUUID=NULL){
+  db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  # check if level definition (name) already exists 
+  for(ld in db[['DBconfig']][['levelDefinitions']]){
+    if(ld[['name']]==levelDefinition[['name']]){
+      stop("Level definition:",levelDefinition[['name']]," already exists in database ",db[['name']])
+    }
+  }
+  # add
+  db[['DBconfig']][['levelDefinitions']][[length(db[['DBconfig']][['levelDefinitions']])+1]]=levelDefinition
+  
+  # update transient values
+  db[['DBconfig']]=.update.transient.schema.values(db[['DBconfig']])
+  
+  # store to disk
+  .store.schema(db)
+  invisible(NULL)
 }
 
 # Add level definition to EMU database
@@ -1293,7 +1315,7 @@ add.bundle<-function(db,sessionName,bundle){
 # @author Klaus Jaensch
 # @export
 # @keywords emuDB database schema Emu 
-add_levelDefinition<-function(dbName=NULL,levelDefinition,dbUUID=NULL){
+add_levelDefinition<-function(dbName,name,type,dbUUID=NULL){
   db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
   # check if level definition (name) already exists 
   for(ld in db[['DBconfig']][['levelDefinitions']]){
