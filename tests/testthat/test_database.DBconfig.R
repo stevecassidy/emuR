@@ -41,12 +41,12 @@ test_that("CRUD operations work for ssffTrackDefinitions", {
   duplicate.loaded.emuDB("ae", tmpDbName, fp)
   
   test_that("add = (C)RUD", {
-    expect_error(add_ssffTrackDefinitions(dbName=tmpDbName, 'fm'))
-    expect_error(add_ssffTrackDefinitions(dbName=tmpDbName, 'fm', 'bla'))
-    expect_error(add_ssffTrackDefinitions(dbName=tmpDbName, 'newTrackName', 'badColName', 'pit', 
-                             onTheFlyFunctionName = 'mhsF0', interactive = F))
+    expect_error(add_ssffTrackDefinition(dbName=tmpDbName, 'fm'))
+    expect_error(add_ssffTrackDefinition(dbName=tmpDbName, 'fm', 'bla'))
+    expect_error(add_ssffTrackDefinition(dbName=tmpDbName, 'newTrackName', 'badColName', 'pit', 
+                                         onTheFlyFunctionName = 'mhsF0', interactive = T))
     
-    add_ssffTrackDefinitions(dbName=tmpDbName, 'newTrackName', 'pitch', 'pit', 
+    add_ssffTrackDefinition(dbName=tmpDbName, 'newTrackName', 'pitch', 'pit', 
                              onTheFlyFunctionName = 'mhsF0', interactive = F)
     
     pitFilePaths = list.files(fp, pattern = 'pit$', recursive = T)
@@ -61,10 +61,50 @@ test_that("CRUD operations work for ssffTrackDefinitions", {
     expect_equal(df$fileExtension, c('dft','fms', 'pit'))
   })
   
+  test_that("modify = CR(U)D", {
+    # bad name causes errors
+    expect_error(modify_ssffTrackDefinition(dbName=tmpDbName, name="asdf"))
+    
+    # check if renaming works
+    modify_ssffTrackDefinition(dbName=tmpDbName, name="fm", newName="fmNewName")
+    uuid=get_emuDB_UUID(tmpDbName, NULL)
+    dbObj = .load.emuDB.DBI(uuid = uuid)
+    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$name, "fmNewName")
+    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$columnName, "fm")
+    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$fileExtension, "fms")
+    # check if modifying everything works
+    modify_ssffTrackDefinition(dbName=tmpDbName, name="fmNewName", newName="fmNewName2", 
+                               newColumnName = "test12", newFileExtension = "test12")
+    uuid=get_emuDB_UUID(tmpDbName, NULL)
+    dbObj = .load.emuDB.DBI(uuid = uuid)
+    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$name, "fmNewName2")
+    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$columnName, "test12")
+    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$fileExtension, "test12")
+    # revert changes
+    modify_ssffTrackDefinition(dbName=tmpDbName, name="fmNewName2", newName="fm", 
+                               newColumnName = "fm", newFileExtension = "fms")    
+    
+  })
+  
+  test_that("remove = CRU(D)", {
+    # bad name
+    expect_error(remove_ssffTrackDefinition(dbName=tmpDbName, name="asdf"))
+    remove_ssffTrackDefinition(dbName=tmpDbName, name="newTrackName", deleteFiles = T)
+    # check that _DBconfig entry is deleted
+    uuid=get_emuDB_UUID(tmpDbName, NULL)
+    dbObj = .load.emuDB.DBI(uuid = uuid)
+    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[1]]$name, "dft")
+    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$name, "fm")
+    
+    # check that files have been deleted
+    filePaths = list_bundleFilePaths(dbName=tmpDbName, "pit", dbUUID = NULL)
+    expect_equal(length(filePaths), 0)
+    
+  })
+  
   # clean up
   if(is.emuDB.loaded(tmpDbName)){
     UUID = get_emuDB_UUID(dbName = tmpDbName)
     purge_emuDB(dbName = tmpDbName, dbUUID = UUID, interactive = F)
   }
 })
-  

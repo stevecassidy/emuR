@@ -365,30 +365,25 @@ get.levelDefinition <- function(DBconfig, name){
 # CRUD operations for ssffTrackDefinitions
 
 
-##' List ssffTrackDefinitions of emuDB
-##' @description List ssffTrackDefinitions of emuDB
-##' @param dbName name of emuDB
-##' @param dbUUID optional UUID of emuDB
-##' @return data.frame object containing ssffTrackDefinitions infos
-##' @export
-list_ssffTrackDefinitions <- function(dbName = NULL, dbUUID = NULL){
-  .initialize.DBI.database()
-  uuid=get_emuDB_UUID(dbName,dbUUID)
-  dbObj = .load.emuDB.DBI(uuid = uuid)
-  
-  df <- do.call(rbind, lapply(dbObj$DBconfig$ssffTrackDefinitions, data.frame, stringsAsFactors=FALSE))
-  return(df)
-}
 
-
-##' Add ssffTrackDefinitions to emuDB
+##' Add ssffTrackDefinition to emuDB
 ##' @description Add ssffTrackDefinitions to emuDB
 ##' @param dbName name of emuDB
 ##' @param name name of ssffTrackDefinitions
-##' @param columnName columnName of 
+##' @param columnName columnName of ssffTrackDefinitions
+##' @param fileExtension fileExtension of ssffTrackDefinitions
+##' @param onTheFlyFunctionName name of wrassp function to do on-the-fly calculation 
+##' @param onTheFlyParams a list parameters that will be given to the function 
+##' passed in by the onTheFlyFunctionName parameter. This list can easily be 
+##' generated using the \code{formals} function and then setting the according 
+##' parameter one wishes to change.     
+##' @param onTheFlyOptLogFilePath path to optional log file for on-the-fly function
+##' @param showProgress show progress bar
+##' @param interactive ask user for confirmation
 ##' @param dbUUID optional UUID of emuDB
 ##' @export
-add_ssffTrackDefinitions <- function(dbName = NULL, name =  NULL, 
+##' @author Raphael Winkelmann
+add_ssffTrackDefinition <- function(dbName = NULL, name =  NULL, 
                                      columnName = NULL, fileExtension = NULL, 
                                      onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
                                      onTheFlyOptLogFilePath = NULL, dbUUID = NULL,
@@ -427,13 +422,13 @@ add_ssffTrackDefinitions <- function(dbName = NULL, name =  NULL,
   if(!is.null(onTheFlyFunctionName)){
     # check if files exist
     fp = list_bundleFilePaths(dbName=dbName, fileExtension, dbUUID=dbUUID)
+    ans = 'y'
     if(length(fp) != 0){
       if(interactive){
         ans = readline(paste0("There are files present in '",dbName,"' that have the file extention '", 
                               fileExtension, "' Continuing will overwrite these files! Do you wish to proceed? (y/n) "))
-      }else{
-        ans = 'y'
       }
+    }else{
       if(ans == 'y'){
         
         ###############################
@@ -463,7 +458,106 @@ add_ssffTrackDefinitions <- function(dbName = NULL, name =  NULL,
   .store.schema(dbObj)
 }
 
+##' List ssffTrackDefinitions of emuDB
+##' @description List ssffTrackDefinitions of emuDB
+##' @param dbName name of emuDB
+##' @param dbUUID optional UUID of emuDB
+##' @return data.frame object containing ssffTrackDefinitions infos
+##' @export
+##' @author Raphael Winkelmann
+list_ssffTrackDefinitions <- function(dbName = NULL, dbUUID = NULL){
+  .initialize.DBI.database()
+  uuid=get_emuDB_UUID(dbName,dbUUID)
+  dbObj = .load.emuDB.DBI(uuid = uuid)
+  
+  df <- do.call(rbind, lapply(dbObj$DBconfig$ssffTrackDefinitions, data.frame, stringsAsFactors=FALSE))
+  return(df)
+}
 
+##' Modify ssffTrackDefinition of emuDB
+##' @description Modify ssffTrackDefinitions of emuDB
+##' @param dbName name of emuDB
+##' @param name name of ssffTrackDefinitions to be modified
+##' @param newName new name of ssffTrackDefinitions
+##' @param newColumnName new columnName of ssffTrackDefinitions
+##' @param newFileExtension new fileExtension of ssffTrackDefinitions
+##' @param dbUUID optional UUID of emuDB
+##' @export
+##' @author Raphael Winkelmann
+modify_ssffTrackDefinition <- function(dbName, name, 
+                                        newName, newColumnName = NULL,
+                                        newFileExtension = NULL, dbUUID = NULL){
+  
+  .initialize.DBI.database()
+  uuid=get_emuDB_UUID(dbName,dbUUID)
+  dbObj = .load.emuDB.DBI(uuid = uuid)
+  
+  # precheck if exists
+  sDefs = list_ssffTrackDefinitions(dbName, dbUUID)  
+  
+  if(!(name %in% sDefs$name)){
+    stop("No ssffTrackDefinitions found with called '", name, "'")
+  }
+  
+  
+  for(i in 1:length(dbObj$DBconfig$ssffTrackDefinitions)){
+    if(dbObj$DBconfig$ssffTrackDefinitions[[i]]$name == name){
+      if(is.null(newColumnName)){
+        newColumnName = dbObj$DBconfig$ssffTrackDefinitions[[i]]$columnName
+      }
+      if(is.null(newFileExtension)){
+        newFileExtension = dbObj$DBconfig$ssffTrackDefinitions[[i]]$fileExtension
+      }
+      dbObj$DBconfig$ssffTrackDefinitions[[i]] = list(name = newName, 
+                                                      columnName = newColumnName, 
+                                                      fileExtension = newFileExtension)
+      break
+    }
+  }
+  
+  # store changes
+  .store.schema(dbObj)
+
+}
+
+
+##' Remove ssffTrackDefinition of emuDB
+##' @description Remove ssffTrackDefinitions of emuDB
+##' @param dbName name of emuDB
+##' @param name name of ssffTrackDefinitions to be deleted
+##' @param deleteFiles deletes all files with the fileExtension of the ssffTrackDefinition
+##' @param dbUUID optional UUID of emuDB
+##' @export
+remove_ssffTrackDefinition <- function(dbName = NULL, name = NULL, 
+                                        deleteFiles = FALSE, dbUUID = NULL){
+  .initialize.DBI.database()
+  uuid=get_emuDB_UUID(dbName,dbUUID)
+  dbObj = .load.emuDB.DBI(uuid = uuid)
+  
+  # precheck if exists
+  sDefs = list_ssffTrackDefinitions(dbName, dbUUID)  
+  
+  if(!(name %in% sDefs$name)){
+    stop("No ssffTrackDefinitions found with called '", name, "'")
+  }
+  # find end delete entry
+  deletedDef = NULL
+  for(i in 1:length(dbObj$DBconfig$ssffTrackDefinitions)){
+      if(dbObj$DBconfig$ssffTrackDefinitions[[i]]$name == name){
+        deletedDef = dbObj$DBconfig$ssffTrackDefinitions[[i]]
+        dbObj$DBconfig$ssffTrackDefinitions[[i]] = NULL
+        break
+      }
+  }
+  
+  # find and delete files
+  if(deleteFiles){
+    filePaths = list_bundleFilePaths(dbName=dbName, deletedDef$fileExtension, dbUUID = dbUUID)
+    file.remove(filePaths)
+  }
+  # store changes
+  .store.schema(dbObj)
+}
 
 # FOR DEVELOPMENT 
 # library('testthat') 

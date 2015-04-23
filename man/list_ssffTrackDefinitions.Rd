@@ -17,4 +17,7 @@ data.frame object containing ssffTrackDefinitions infos
 \description{
 List ssffTrackDefinitions of emuDB
 }
+\author{
+Raphael Winkelmann
+}
 

@@ -1,0 +1,100 @@
+---
+title: "emuDB: The database format of the next iteration of the EMU speech database managment system"
+author: "Raphael Winkelmann"
+affiliation: "Institute Of Phonetic And Speech Processing (LMU Munich)"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+bibliography: vignettes.bib
+vignette: >
+  %\VignetteIndexEntry{autobuild tutorial}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+  
+# WARNING: DOCUMENT STILL BEING WRITTEN!
+
+# Introduction
+
+This document describes the emuDB database format version XXX.
+
+# DB design
+
+The database structure is basically a set of files and folders that adhere to a certain structure and naming convention (see Figure below).
+
+The database root directory contains a single `_DBconfig.json` file which, as the name implies, contains the configuration options of the database such as its level definitions, how these levels are linked in the database hierarchy and what is displayed in the EMU-webApp. The database root folder also contains session folders (ending with `_ses`). These session folders can be used to logically group the `_bndl` folders described below.
+
+Each session folder can contain any number of `_bndl` folders. All the files belonging to a bundle, for example a recorded sentence, are stored in the corresponding bundle folder. This includes the actual recording (`.wav`) and derived signal files in the SSFF format [@cassidy:2013a] such as formants (`.fms`) or the fundamental frequency (`.f0`), both of which can be generated using the `wrassp` package. Each bundle folder also contains the annotation file (`_annot.json`) of that bundle. This file, as the name implies, contains the actual annotations including the hierarchical linking information. JSON schema files are provided to ensure the syntactic integrity of the database (*https://github.com/IPS-LMU/EMU-webApp/tree/master/dist/schemaFiles*).
+
+
+![Alt text](pics/db_structure.svg) 
+
+# Manipulating the database
+
+Basic manipulation operation for a loaded database are:
+
+- C -> `add_`
+- R -> `list_` for when multiple objects are available / `get_` when only a single instance is available
+- U -> `modify_` for modifing already existing attributes
+- D -> `remove` for removing existing attributes
+  
+  
+  
+# Autobuilding
+  
+The annotation of large complex multileveled hierachical speech databases is
+a very time consuming laborious procedure. The *emuR* provides functions to
+automate various bits of this proccedure to help with this laborious task.
+
+This document describes how to automatically build hierachies for a given 
+
+**emuDB**
+
+
+The available function are:
+
+- autobuild.linkFromTimes()
+- autobuild.MapLevels()
+- autobuild.Syllabify()
+
+
+
+An important prereq: linkDefinition available!
+
+
+## autobuild.linkFromTimes()
+
+This function causes annotations at two levels *L1* and *L2* to be linked whenever the time(s) of the annotations at tier
+*U* are within those of ttier *T*.
+
+
+Given we have a a super-level of the form:
+
+Lets load a demo database and add a new fake level to the database so we have
+something to play with
+
+
+```{r}
+# load the package
+# library(emuR)
+# get the path to the ae database that comes with the package
+# path2ae = system.file("extdata/emu/DBs/ae/", package = "emuR")
+# load the database
+# ae = load_emuDB(path2ae, verbose = F)
+# plot the phonetic level
+# add linkDef.
+  #tmpLinkDef = create.schema.linkDefinition(type='ONE_TO_MANY', superlevelName='Phonetic', sublevelName='Tone')
+  #ae$DBconfig$linkDefinitions[[length(ae$DBconfig$linkDefinitions) + 1]] = tmpLinkDef 
+
+
+```
+
+and a sub-level of the form:
+
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <rect width="100%" height="75" stroke-width="1" fill="#E7E7E7" stroke="rgb(0, 0, 0)" />
+  <line x1="0" y1="0" x2="20%" y2="20%" fill="rgb(0, 0, 0)" stroke-width="5"  />
+</svg>
+
+- ONE\_TO\_MANY
+- MANY\_TO\_MANY
+- ONE\_TO\_ONE
