@@ -163,12 +163,6 @@ database.DDL.emuDB_linksExtTmp2='CREATE TABLE linksExtTmp2 (
 );'
 database.DDL.emuDB_linksExtTmpIdx2='CREATE INDEX linksExtTmp2_idx ON linksExtTmp2(db_uuid,session,bundle,fromID,toID,toLevel,type)'
 
-
-
-orm.DBI.insert<-function(conn,obj){
-  
-}
-
 .store.emuDB.DBI<-function(database){
   dbCfg=database[['DBconfig']]
   dbCfgJSON=jsonlite::toJSON(dbCfg,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
