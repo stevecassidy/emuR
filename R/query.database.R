@@ -1197,9 +1197,10 @@ query<-function(dbName=NULL,query,sessionPattern=NULL,bundlePattern=NULL,queryLa
         }
       }
       # free temp tables
-      getQueryTmpEmuDBs()[['queryItems']]<-NULL
-      getQueryTmpEmuDBs()[['queryLabels']]<-NULL
-      getQueryTmpEmuDBs()[['queryLinksExt']]<-NULL
+      #getQueryTmpEmuDBs()[['queryItems']]<-NULL
+      #getQueryTmpEmuDBs()[['queryLabels']]<-NULL
+      #getQueryTmpEmuDBs()[['queryLinksExt']]<-NULL
+      setQueryTmpEmuDBs(NULL)
       
     }else{
       stop("Unknown query language '",queryLang,"'.")
