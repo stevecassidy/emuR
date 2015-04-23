@@ -256,6 +256,25 @@ test_that("Query using and operator",{
   
 })
 
+test_that("Projection operator #",{
+  
+  r1=query('ae',"[ Syllable=S ^ #Phonetic=s]")
+  r1Its=r1[['items']]
+  expect_that(nrow(r1Its),equals(9))
+  r1Its=r1[['projectionItems']]
+  expect_that(nrow(r1Its),equals(10))
+  
+})
+
+test_that("Projection operator # for emusegs result type ",{
+  
+  r1=query('ae',"[ Syllable=S ^ #Phonetic=s]",resultType='emusegs')
+  
+  expect_that(nrow(r1),equals(10))
+  
+})
+
+
 test_that("Check Phonetic tier seglist",{
   # load legacy emu seglist
   legacyEmuAePhoneticSeglist <- system.file("extdata/legacy_emu/seglist","legacy_emu_ae_phonetic_seglist.RData", package="emuR")

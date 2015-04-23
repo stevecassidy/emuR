@@ -3,6 +3,14 @@ require(stringr)
 
 EMPTY_RESULT_DF=data.frame(seqStartId=character(0),seqEndId=character(0),seqLen=integer(0),level=character(0),stringsAsFactors = FALSE)
 
+setQueryTmpEmuDBs<-function(queryTmpEmuDBs){
+    internalVars$queryTmpEmuDBs<-queryTmpEmuDBs
+}
+
+getQueryTmpEmuDBs<-function(){
+  return(internalVars$queryTmpEmuDBs)
+}
+
 .create.condition.text<-function(opr,value){
   o=list(opr=opr,value=value)
   class(o)<-c('emuR.condition.text','emuR.condition')
@@ -201,7 +209,7 @@ equal.emusegs<-function(seglist1,seglist2,compareAttributes=TRUE,tolerance=0.0,u
 convert.query.result.to.seglist<-function(dbConfig,result){
   its=NULL
   
-  items=emuDBs.query.tmp[['queryItems']]
+  items=getQueryTmpEmuDBs()[['queryItems']]
   
   bundles=c()
   labels=c()
@@ -210,15 +218,15 @@ convert.query.result.to.seglist<-function(dbConfig,result){
   slType=NULL
   projectionItems=result[['projectionItems']]
   if(!is.null(projectionItems)){ 
-    its=data.frame(seqStartId=projectionItems[,'pSeqStartId'],seqEndId=projectionItems[,'pSeqEndId'],seqLen=projectionItems[,'pSeqLen'],level=projectionItems[,'pLevel'],stringsAsFactors = FALSE)
+    its=data.frame(db_uuid=projectionItems[,'db_uuid'],session=projectionItems[,'session'],bundle=projectionItems[,'bundle'],seqStartId=projectionItems[,'pSeqStartId'],seqEndId=projectionItems[,'pSeqEndId'],seqLen=projectionItems[,'pSeqLen'],level=projectionItems[,'pLevel'],stringsAsFactors = FALSE)
   }else{
     its=result[['items']]
   }
   itCount=nrow(its)
   if(itCount>0){
-    links=emuDBs.query.tmp[['queryLinksExt']]
+    links=getQueryTmpEmuDBs()[['queryLinksExt']]
     
-    lblsDf=emuDBs.query.tmp[['queryLabels']]
+    lblsDf=getQueryTmpEmuDBs()[['queryLabels']]
     itemsIdxSql='CREATE INDEX items_idx ON items(itemID,session,bundle,level,itemID,seqIdx,type,sampleRate,sampleStart,sampleDur,samplePoint)'
     resIdxSql='CREATE INDEX its_idx ON its(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)'
     
@@ -362,9 +370,9 @@ query.database.eql.FUNKA<-function(dbConfig,q,items=NULL){
   # BNF: FUNKA = POSA | NUMA;
   qTrim=str_trim(q)
   if(is.null(items)){
-    items=emuDBs.query.tmp[['queryItems']]
+    items=getQueryTmpEmuDBs()[['queryItems']]
   }
-  allItems=emuDBs.query.tmp[['queryItems']]
+  allItems=getQueryTmpEmuDBs()[['queryItems']]
   
   # determine function name
   # TODO duplicate code
@@ -413,7 +421,7 @@ query.database.eql.FUNKA<-function(dbConfig,q,items=NULL){
       
       funcName=str_trim(substr(qTrim,1,prbOpen-1))
       # BNF: POSA = POSFKT,'(',EBENE,',',EBENE,')','=','0'| '1';
-      links=emuDBs.query.tmp[['queryLinksExt']]
+      links=getQueryTmpEmuDBs()[['queryLinksExt']]
       #links=database[['linksWithPositions']]
       itemsAsSeqs=NULL
       
@@ -707,7 +715,7 @@ query.database.eql.ETTIKETTA<-function(dbConfig,q,labels=NULL){
       cond=.create.condition.text.alternatives(opr,labelAltsUq)
       #}
       if(is.null(labels)){
-        labels=emuDBs.query.tmp[['queryLabels']]
+        labels=getQueryTmpEmuDBs()[['queryLabels']]
       }
       res=query.database.level.label(ldf=labels,levelName=lvlName,cond)
       res[['projectionItems']]=NULL
@@ -732,8 +740,8 @@ query.database.eql.KONJA<-function(dbConfig,q){
     res=create.subtree(items=EMPTY_RESULT_DF,links=NULL,resultLevel=NULL,projectionItems=NULL)
     startPos=1
     p=0
-    items=emuDBs.query.tmp[['queryItems']]
-    labels=emuDBs.query.tmp[['queryLabels']]
+    items=getQueryTmpEmuDBs()[['queryItems']]
+    labels=getQueryTmpEmuDBs()[['queryLabels']]
     resultLevel=NULL
     projection=FALSE
     
@@ -797,8 +805,8 @@ query.database.eql.in.bracket<-function(dbConfig,q){
   seqPos=get.string.position.outside.brackets(qTrim,'->',literalQuote="'",bracket=c('[',']'))
   domPos=get.string.position.outside.brackets(qTrim,'^',literalQuote="'",bracket=c('[',']'))
   if(seqPos!=-1 || domPos!=-1){
-    items=emuDBs.query.tmp[['queryItems']]
-    links=emuDBs.query.tmp[['queryLinksExt']]
+    items=getQueryTmpEmuDBs()[['queryItems']]
+    links=getQueryTmpEmuDBs()[['queryLinksExt']]
     # parse DOMA or SEQA
     lExpRes=NULL
     prjIts=NULL
@@ -941,7 +949,7 @@ query.database.eql.in.bracket<-function(dbConfig,q){
         if(!is.null(lResPIts)){
           # TODO
           #lPrjIts=reduce.projection.items(lExpRes,lResPIts)
-          qStr="SELECT i.db_uuid,i.session,i.bundle,i.seqStartId,i.seqEndId,i.seqLen,pi.pSeqStartId,pi.pSeqEndId,pi.pSeqLen,pi.pLevel FROM lrExpRes i,lResPIts pi WHERE i.db_uuid=pi.uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.seqStartId=pi.seqStartId AND i.seqEndId=pi.seqEndId"
+          qStr="SELECT i.db_uuid,i.session,i.bundle,i.seqStartId,i.seqEndId,i.seqLen,pi.pSeqStartId,pi.pSeqEndId,pi.pSeqLen,pi.pLevel FROM lrExpRes i,lResPIts pi WHERE i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.seqStartId=pi.seqStartId AND i.seqEndId=pi.seqEndId"
           #rQStr="SELECT rpi.* FROM rightProjectionItems rpi WHERE EXISTS (SELECT i.seqStartId FROM resultItems i WHERE i.seqStartId=rpi.seqStartId && i.seqEndId=rpi.seqEndId)"
           
           #qStr=paste0(lQStr," UNION ",rQStr)
@@ -949,7 +957,7 @@ query.database.eql.in.bracket<-function(dbConfig,q){
         }
         
         if(!is.null(rResPIts) && nrow(rResPIts)>0){
-          qStr="SELECT i.db_uuid,i.session,i.bundle,i.seqStartId,i.seqEndId,i.seqLen,pi.pSeqStartId,pi.pSeqEndId,pi.pSeqLen,pi.pLevel FROM lrExpRes i,rResPIts pi WHERE i.db_uuid=pi.uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.rsId=pi.seqStartId AND i.reId=pi.seqEndId"
+          qStr="SELECT i.db_uuid,i.session,i.bundle,i.seqStartId,i.seqEndId,i.seqLen,pi.pSeqStartId,pi.pSeqEndId,pi.pSeqLen,pi.pLevel FROM lrExpRes i,rResPIts pi WHERE i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.rsId=pi.seqStartId AND i.reId=pi.seqEndId"
           #rQStr="SELECT rpi.* FROM rightProjectionItems rpi WHERE EXISTS (SELECT i.seqStartId FROM resultItems i WHERE i.seqStartId=rpi.seqStartId && i.seqEndId=rpi.seqEndId)"
           
           #qStr=paste0(lQStr," UNION ",rQStr)
@@ -1147,34 +1155,36 @@ query<-function(dbName=NULL,query,sessionPattern=NULL,bundlePattern=NULL,queryLa
       db=.load.emuDB.DBI(uuid = dbUUID)
       dbConfig=db[['DBconfig']]
       # create 
-      emuDBs.query.tmp<<-list()
-      emuDBs.query.tmp[['queryItems']]<<-dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
-      emuDBs.query.tmp[['queryLabels']]<<-dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
-      emuDBs.query.tmp[['queryLinksExt']]<<-dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
+      emuDBs.query.tmp<-list()
+      emuDBs.query.tmp[['queryItems']]<-dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
+      emuDBs.query.tmp[['queryLabels']]<-dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
+      emuDBs.query.tmp[['queryLinksExt']]<-dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
+      setQueryTmpEmuDBs(emuDBs.query.tmp)
       if(!is.null(sessionPattern)){
         
         sessSelRegex=glob2rx(pattern = sessionPattern)
-        sessSelIts=grepl(sessSelRegex,emuDBs.query.tmp[['queryItems']][['session']])
-        emuDBs.query.tmp[['queryItems']]<<-emuDBs.query.tmp[['queryItems']][sessSelIts,]
+        sessSelIts=grepl(sessSelRegex,getQueryTmpEmuDBs()[['queryItems']][['session']])
+        getQueryTmpEmuDBs()[['queryItems']]<-getQueryTmpEmuDBs()[['queryItems']][sessSelIts,]
         
-        sessSelLks=grepl(sessSelRegex,emuDBs.query.tmp[['queryLinksExt']][['session']])
-        emuDBs.query.tmp[['queryLinksExt']]<<-emuDBs.query.tmp[['queryLinksExt']][sessSelLks,]
+        sessSelLks=grepl(sessSelRegex,getQueryTmpEmuDBs()[['queryLinksExt']][['session']])
+        getQueryTmpEmuDBs()[['queryLinksExt']]<-getQueryTmpEmuDBs()[['queryLinksExt']][sessSelLks,]
         
-        sessSelLbls=grepl(sessSelRegex,emuDBs.query.tmp[['queryLabels']][['session']])
-        emuDBs.query.tmp[['queryLabels']]<<-emuDBs.query.tmp[['queryLabels']][sessSelLbls,]
+        sessSelLbls=grepl(sessSelRegex,getQueryTmpEmuDBs()[['queryLabels']][['session']])
+        getQueryTmpEmuDBs()[['queryLabels']]<-getQueryTmpEmuDBs()[['queryLabels']][sessSelLbls,]
       }
       if(!is.null(bundlePattern)){
         
         bndlSelRegex=glob2rx(pattern = bundlePattern)
-        bndlSelIts=grepl(bndlSelRegex,emuDBs.query.tmp[['queryItems']][['bundle']])
-        emuDBs.query.tmp[['queryItems']]<<-emuDBs.query.tmp[['queryItems']][bndlSelIts,]
+        newTmpDBs=list()
+        bndlSelIts=grepl(bndlSelRegex,getQueryTmpEmuDBs()[['queryItems']][['bundle']])
+        newTmpDBs[['queryItems']]<-getQueryTmpEmuDBs()[['queryItems']][bndlSelIts,]
         
-        bndlSelLks=grepl(bndlSelRegex,emuDBs.query.tmp[['queryLinksExt']][['bundle']])
-        emuDBs.query.tmp[['queryLinksExt']]<<-emuDBs.query.tmp[['queryLinksExt']][bndlSelLks,]
+        bndlSelLks=grepl(bndlSelRegex,getQueryTmpEmuDBs()[['queryLinksExt']][['bundle']])
+        newTmpDBs[['queryLinksExt']]<-getQueryTmpEmuDBs()[['queryLinksExt']][bndlSelLks,]
         
-        bndlSelLbls=grepl(bndlSelRegex,emuDBs.query.tmp[['queryLabels']][['bundle']])
-        emuDBs.query.tmp[['queryLabels']]<<-emuDBs.query.tmp[['queryLabels']][bndlSelLbls,]
-        
+        bndlSelLbls=grepl(bndlSelRegex,getQueryTmpEmuDBs()[['queryLabels']][['bundle']])
+        newTmpDBs[['queryLabels']]<-getQueryTmpEmuDBs()[['queryLabels']][bndlSelLbls,]
+        setQueryTmpEmuDBs(newTmpDBs)
       }
       
       if(is.null(resultType)){
@@ -1187,9 +1197,9 @@ query<-function(dbName=NULL,query,sessionPattern=NULL,bundlePattern=NULL,queryLa
         }
       }
       # free temp tables
-      emuDBs.query.tmp[['queryItems']]<<-NULL
-      emuDBs.query.tmp[['queryLabels']]<<-NULL
-      emuDBs.query.tmp[['queryLinksExt']]<<-NULL
+      getQueryTmpEmuDBs()[['queryItems']]<-NULL
+      getQueryTmpEmuDBs()[['queryLabels']]<-NULL
+      getQueryTmpEmuDBs()[['queryLinksExt']]<-NULL
       
     }else{
       stop("Unknown query language '",queryLang,"'.")
