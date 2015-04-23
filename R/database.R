@@ -2033,7 +2033,7 @@ is.emuDB.loaded<-function(dbName=NULL,dbUUID=NULL){
 
 reload_emuDB<-function(dbName,dbUUID=NULL){
   db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  purge_emuDB(name = dbName,uuid=dbUUID,interactive=FALSE)
+  purge_emuDB(dbName = dbName,dbUUID=dbUUID,interactive=FALSE)
   load_emuDB(db[['basePath']])
   return(invisible(NULL))
 }
