@@ -1161,21 +1161,25 @@ query<-function(dbName=NULL,query,sessionPattern=NULL,bundlePattern=NULL,queryLa
       emuDBs.query.tmp[['queryLinksExt']]<-dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
       setQueryTmpEmuDBs(emuDBs.query.tmp)
       if(!is.null(sessionPattern)){
-        
+        newTmpDBs=list()
         sessSelRegex=glob2rx(pattern = sessionPattern)
         sessSelIts=grepl(sessSelRegex,getQueryTmpEmuDBs()[['queryItems']][['session']])
-        getQueryTmpEmuDBs()[['queryItems']]<-getQueryTmpEmuDBs()[['queryItems']][sessSelIts,]
+        newTmpDBs[['queryItems']]<-getQueryTmpEmuDBs()[['queryItems']][sessSelIts,]
         
         sessSelLks=grepl(sessSelRegex,getQueryTmpEmuDBs()[['queryLinksExt']][['session']])
-        getQueryTmpEmuDBs()[['queryLinksExt']]<-getQueryTmpEmuDBs()[['queryLinksExt']][sessSelLks,]
+        newTmpDBs[['queryLinksExt']]<-getQueryTmpEmuDBs()[['queryLinksExt']][sessSelLks,]
         
         sessSelLbls=grepl(sessSelRegex,getQueryTmpEmuDBs()[['queryLabels']][['session']])
-        getQueryTmpEmuDBs()[['queryLabels']]<-getQueryTmpEmuDBs()[['queryLabels']][sessSelLbls,]
+        newTmpDBs[['queryLabels']]<-getQueryTmpEmuDBs()[['queryLabels']][sessSelLbls,]
+        setQueryTmpEmuDBs(newTmpDBs)
       }
       if(!is.null(bundlePattern)){
         
         bndlSelRegex=glob2rx(pattern = bundlePattern)
-        newTmpDBs=list()
+        newTmpDBs=getQueryTmpEmuDBs()
+        if(is.null(newTmpDBs)){
+          newTmpDBs=list()
+        }
         bndlSelIts=grepl(bndlSelRegex,getQueryTmpEmuDBs()[['queryItems']][['bundle']])
         newTmpDBs[['queryItems']]<-getQueryTmpEmuDBs()[['queryItems']][bndlSelIts,]
         
