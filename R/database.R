@@ -1271,6 +1271,16 @@ bundle.iterator<-function(db,apply){
   return(db)
 }
 
+
+##' Create empty emuDB
+##' 
+##' creates an empty emuDB in the target directory specified
+##' @param name of new emuDB
+##' @param targetDir target directory in which to store the emuDB
+##' @param mediaFileExtension defines mediaFileExtention (NOTE: currently only 
+##' 'wav' (the default) is supported by all components of EMU)
+##' @author Klaus Jaensch
+##' @export
 create_emuDB<-function(name,targetDir,mediaFileExtension='wav'){
   basePath=file.path(targetDir,name)
   dbConfig=create.schema.databaseDefinition(name=name,mediafileExtension = mediaFileExtension)
@@ -1278,7 +1288,7 @@ create_emuDB<-function(name,targetDir,mediaFileExtension='wav'){
   .initialize.DBI.database()
   .store.emuDB.DBI(database = db)
   store(targetDir=targetDir,dbUUID=dbConfig[['UUID']])
-  
+  purge_emuDB(name, interactive = F)
 }
 
 
@@ -1317,6 +1327,11 @@ add_levelDefinition_object<-function(dbName=NULL,levelDefinition,dbUUID=NULL){
 # @export
 # @keywords emuDB database schema Emu 
 add_levelDefinition<-function(dbName,name,type,dbUUID=NULL){
+  allowedTypes = c('ITEM', 'SEGMENT', 'EVENT')
+  # precheck type 
+  if(!(type %in% allowedTypes)){
+    stop('Bad type given! Type has to be either ', paste(allowedTypes, collapse = ' | ') )
+  }
   levelDefinition=create.schema.levelDefinition(name = name,type = type)
   db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
   # check if level definition (name) already exists 
