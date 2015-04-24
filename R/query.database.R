@@ -269,38 +269,71 @@ convert.query.result.to.seglist<-function(dbConfig,result){
     
     # query seglist data except labels
     # for this data the information in start end item of the sequence is sufficient
+    # it takes only the start  and end items of the query result in account
     # the CASE WHEN THEN ELSE END terms are necessary to get the start and end samples of sequences which are not segment levels and therefore have no time information  
     hasLinks=(nrow(links)>0)
     
-    q="SELECT s.db_uuid || '_' || s.session || '_' || s.bundle || '_' || s.itemID || '_' || e.itemID AS id,s.session,s.bundle,s.itemID AS startitemID ,e.itemID AS enditemID,s.type, \
-                CASE s.type \
+    # select columns: id,session,bundle,startItemId,endItemID ,type ...
+    q="SELECT s.db_uuid || '_' || s.session || '_' || s.bundle || '_' || s.itemID || '_' || e.itemID AS id,s.session,s.bundle,s.itemID AS startitemID ,e.itemID AS enditemID,s.type, "
+    
+    # find sequence start position
+    # use sample start of sequence start item for type SEGMENT and samplePoint for type EVENT 
+    q=paste0(q,"CASE s.type \
                      WHEN 'SEGMENT' THEN s.sampleStart \
-                     WHEN 'EVENT' THEN s.samplePoint ";
+                     WHEN 'EVENT' THEN s.samplePoint ")
+    # calculate start sample for type ITEM
     if(hasLinks){
+      # items of type ITEM have no (sample) time information
+      # therefore we search for linked SEGMENT items and take their start sample position
       q=paste0(q," ELSE (SELECT i.sampleStart FROM items i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND \
                EXISTS (SELECT * FROM links l WHERE s.db_uuid=s.db_uuid AND s.session=l.session AND s.bundle=l.bundle AND s.itemID=l.fromID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.itemID=l.toID AND l.toSeqIdx=0)) ")
+    }else{
+      # TODO
+      # No sample start information. (throw error ?)
     }
-    q=paste0(q," END AS sampleStart, \
-                CASE s.type \
+    q=paste0(q," END AS sampleStart, ")
+    
+    # find sequence end position
+    # use sample start plus sample duration of sequence end item for type SEGMENT and zero for type EVENT
+    # TODO is zero correct here ?? should it be e.samplePoint instead ??
+    q=paste0(q," CASE s.type \
                     WHEN 'SEGMENT' THEN (e.sampleStart+e.sampleDur) \
                     WHEN 'EVENT' THEN 0 ")  
     if(hasLinks){
+      # items of type ITEM have no (sample) time information
+      # therefore we search for linked SEGMENT items and take their end sample position
       q=paste0(q," ELSE (SELECT i.sampleStart+i.sampleDur FROM items i WHERE i.db_uuid=e.db_uuid AND i.session=e.session AND i.bundle=e.bundle AND i.type='SEGMENT'  AND \
                EXISTS (SELECT * FROM links l WHERE e.db_uuid=l.db_uuid AND e.session=l.session AND e.bundle=l.bundle AND e.itemID=l.fromID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.itemID=l.toID AND l.toSeqIdx+1=l.toSeqLen)) ")
     }
-    q=paste0(q,"END AS sampleEnd, \
-                CASE s.type \
+    q=paste0(q,"END AS sampleEnd, ")
+    
+    # find samplerate
+    # use sample rate of sequence start item for type SEGMENT and EVENT 
+    q=paste0(q,"CASE s.type \
                     WHEN 'SEGMENT' THEN s.sampleRate \
                     WHEN 'EVENT' THEN s.sampleRate ")
     if(hasLinks){
+      # items of type ITEM have no sample rate information
+      # therefore we search for linked SEGMENT items and take their start sample position
+      # TODO Can we use EVENT items as well ?
       q=paste0(q," ELSE (SELECT i.sampleRate FROM items i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND \
                EXISTS (SELECT * FROM links l WHERE s.itemID=l.fromID AND i.itemID=l.toID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND l.toSeqIdx=0)) ")
+    }else{
+      # TODO no samplerate , error ??
     }
-    q=paste0(q," END AS sampleRate \
-                FROM items s,items e,its r \
-                WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND e.level=s.level \
-                ORDER BY id")
     
+    q=paste0(q," END AS sampleRate ")
+    
+    # from clause
+    q=paste0(q," FROM items s,items e,its r ")
+    
+    # where clause: make sure start and end are in same emuDB, session and bundle, select start and end id
+    q=paste0(q," WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND e.level=s.level ")
+    
+    # order by id
+    q=paste0(q," ORDER BY id")
+    
+    # build indices
     #itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx,type)' # very slow !!
     itemsIdxSql='CREATE INDEX items_idx ON items(type,db_uuid,session,bundle,level,itemID,seqIdx)'
     linksIdxSql='CREATE INDEX links_idx ON links(db_uuid,session,bundle,fromID,toID,toSeqIdx,toSeqLen)'
