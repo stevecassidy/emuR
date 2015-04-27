@@ -14,12 +14,13 @@ modify_levelDefinition(dbName, name, newName = NULL, newType = NULL,
 
 \item{newName}{new name of level definition}
 
-\item{newType}{new type of level definition}
+\item{newType}{new type of level definition ('ITEM' | 'SEGMENT' | 'EVENT')}
 
 \item{dbUUID}{optional UUID of loaded emuDB}
 }
 \description{
-Modify level definitions of emuDB
+This function is currently equal to a \code{remove_levelDefinition()}
+followed by a \code{add_levelDefinition()}
 }
 \author{
 Raphael Winkelmann

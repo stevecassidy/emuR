@@ -464,7 +464,6 @@ modify_levelDefinition<-function(dbName, name,
 ##' 
 ##' @param dbName name of loaded emuDB
 ##' @param name name of level definition
-##' @param type type of level definition
 ##' @param dbUUID optional UUID of loaded emuDB
 ##' @author Klaus Jaensch
 ##' @export

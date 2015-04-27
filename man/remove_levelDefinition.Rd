@@ -12,8 +12,6 @@ remove_levelDefinition(dbName, name, dbUUID = NULL)
 \item{name}{name of level definition}
 
 \item{dbUUID}{optional UUID of loaded emuDB}
-
-\item{type}{type of level definition}
 }
 \description{
 Remove level definition to emuDB
