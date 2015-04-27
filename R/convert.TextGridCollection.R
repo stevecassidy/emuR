@@ -14,7 +14,7 @@ require(RSQLite)
 ##' @param audioExt extention of audio files (default=wav meaning filesnames of the form baseName.wav).
 ##' @param tierNames character vector containing names of tiers to extract and convert. If NULL (the default) all
 ##' tiers are converted.
-##' @param showProgress show progress bar flag
+##' @param verbose display infos & show progress bar
 ##' @seealso create_filePairList
 ##' @export
 ##' @author Raphael Winkelmann
@@ -22,7 +22,7 @@ require(RSQLite)
 convert_TextGridCollection_to_emuDB <- function(path2rootDir, dbName, 
                                                 targetDir, tgExt = 'TextGrid', 
                                                 audioExt = 'wav', tierNames = NULL, 
-                                                showProgress = TRUE){
+                                                verbose = TRUE){
   # normalize paths
   path2rootDir = suppressWarnings(normalizePath(path2rootDir))
   targetDir = suppressWarnings(normalizePath(targetDir))
@@ -47,7 +47,7 @@ convert_TextGridCollection_to_emuDB <- function(path2rootDir, dbName,
   
   progress = 0
   
-  if(showProgress){
+  if(verbose){
     cat("INFO: Loading TextGridCollection containing", length(fpl[,1]), "file pairs...\n")
     pb = txtProgressBar(min = 0, max = length(fpl[,1]), initial = progress, style=3)
     setTxtProgressBar(pb, progress)
@@ -119,20 +119,20 @@ convert_TextGridCollection_to_emuDB <- function(path2rootDir, dbName,
     
     
     # update pb
-    if(showProgress){
+    if(verbose){
       setTxtProgressBar(pb, i)
     }
     
   }
   
   # store newly generated emuDB
-  if(showProgress){
+  if(verbose){
     cat('\n') # hack to have newline after pb
   }
   
   
   # store
-  store(dbName, targetDir, showProgress = showProgress)
+  store(dbName, targetDir, showProgress = verbose)
   
   # purge tmp emuDB
   .purge.emuDB(dbUUID)

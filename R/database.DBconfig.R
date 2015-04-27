@@ -361,10 +361,126 @@ get.levelDefinition <- function(DBconfig, name){
   return(res)
 }
 
+###########################################
+# CRUD operation for levelDefinitions
+
+##' Add level definition to emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param name name of level definition
+##' @param type type of level definition
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Klaus Jaensch
+##' @export
+##' @keywords emuDB database schema Emu 
+add_levelDefinition<-function(dbName,name,type,dbUUID=NULL){
+  allowedTypes = c('ITEM', 'SEGMENT', 'EVENT')
+  # precheck type 
+  if(!(type %in% allowedTypes)){
+    stop('Bad type given! Type has to be either ', paste(allowedTypes, collapse = ' | ') )
+  }
+  levelDefinition=create.schema.levelDefinition(name = name,type = type)
+  db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  # check if level definition (name) already exists 
+  for(ld in db[['DBconfig']][['levelDefinitions']]){
+    if(ld[['name']]==levelDefinition[['name']]){
+      stop("Level definition:",levelDefinition[['name']]," already exists in database ",db[['name']])
+    }
+  }
+  # add
+  db[['DBconfig']][['levelDefinitions']][[length(db[['DBconfig']][['levelDefinitions']])+1]]=levelDefinition
+  
+  # update transient values
+  db[['DBconfig']]=.update.transient.schema.values(db[['DBconfig']])
+  
+  # store to disk
+  .store.schema(db)
+  invisible(NULL)
+}
+
+##' List level definitions of emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Klaus Jaensch
+##' @export
+##' @keywords emuDB database schema Emu 
+list_levelDefinitions <- function(dbName, dbUUID=NULL){
+  dbObj = .load.emuDB.DBI(name = dbName, uuid = dbUUID)
+  df <- data.frame(name=character(),
+                   type=character(), 
+                   nrOfAttrDefs=numeric(), 
+                   stringsAsFactors=FALSE) 
+  
+  for(ld in dbObj$DBconfig$levelDefinitions){
+    df <- rbind(df, data.frame(name = ld$name, 
+                               type = ld$type, 
+                               nrOfAttrDefs = length(ld$attributeDefinitions))) # perfomance problem? 
+  }
+  return(df)
+}
+
+
+##' @export
+modify_levelDefinition<-function(dbName, name,
+                                 newName = NULL, newType = NULL,
+                                 dbUUID=NULL){
+  stop('not implemented yet!')
+}
+
+
+##' Remove level definition to emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param name name of level definition
+##' @param type type of level definition
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Klaus Jaensch
+##' @export
+##' @keywords emuDB database schema Emu 
+remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
+  db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  # check if level definition (name)exists 
+  if(!any(sapply(db[['DBconfig']][['levelDefinitions']],function(ld) ld[['name']]==name))){
+    stop("Level definition:",name," does not exist in database ",db[['name']])
+  }
+  # check if level is referenced by link defintion
+  for(lkd in db[['DBconfig']][['linkDefinitions']]){
+    if(lkd[['superlevelName']]==name |  lkd[['sublevelName']]==name){
+      lkdStr=toString(lkd)
+      stop("Cannot remove level definition ",name,". It is referenced by link definition: ",lkdStr)
+    }
+  }
+  
+  # check if level is empty
+  itemsDf=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM items i WHERE \
+                        i.db_uuid='",uuid,"' AND i.level='",name,"'"))
+  itemsCnt=nrow(itemsDf)
+  if(itemsCnt>0){
+    stop("Level is not empty. Remove items first to delete level ",name)
+  }
+  
+  # do removal
+  newLvlDefs=list()
+  for(lvlDef in db[['DBconfig']][['levelDefinitions']]){
+    if(lvlDef[['name']]!=name){
+      newLvlDefs[[length(newLvlDefs)+1]]=lvlDef
+    }
+  }
+  db[['DBconfig']][['levelDefinitions']]=newLvlDefs
+  
+  # update transient values
+  db[['DBconfig']]=.update.transient.schema.values(db[['DBconfig']])
+  
+  # store to disk
+  .store.schema(db)
+  
+  return(invisible(NULL))
+}
+
+
 ###################################################
 # CRUD operations for ssffTrackDefinitions
-
-
 
 ##' Add ssffTrackDefinition to emuDB
 ##' @description Add ssffTrackDefinitions to emuDB
@@ -560,5 +676,5 @@ remove_ssffTrackDefinition <- function(dbName = NULL, name = NULL,
 }
 
 # FOR DEVELOPMENT 
-# library('testthat') 
-# test_file('tests/testthat/test_database.DBconfig.R')
+library('testthat') 
+test_file('tests/testthat/test_database.DBconfig.R')

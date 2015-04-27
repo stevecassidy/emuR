@@ -33,7 +33,7 @@ test_that("bad calls cause errors", {
   # existing targetDir causes errors
   expect_error(convert_TextGridCollection_to_emuDB(path2rootDir = path2root, 
                                                    dbName = emuDBname,
-                                                   path2tmpDir, showProgress=F))
+                                                   path2tmpDir, verbose=F))
   # clean up
   unlink(path2newDb, recursive = T)
   
@@ -44,7 +44,7 @@ test_that("correct emuDB is created", {
   
   convert_TextGridCollection_to_emuDB(path2rootDir = path2root, 
                                       dbName = emuDBname,
-                                      path2tmpDir, showProgress=F)
+                                      path2tmpDir, verbose=F)
   
   test_that("emuDB has correct file format on disc", {
     # 2 files in top level
@@ -122,7 +122,7 @@ test_that("only specified tiers are converted when tierNames is set", {
   
   convert_TextGridCollection_to_emuDB(path2rootDir = path2root, 
                                       dbName = emuDBname,
-                                      path2tmpDir, tierNames=c("Phonetic", "Tone"), showProgress=F)
+                                      path2tmpDir, tierNames=c("Phonetic", "Tone"), verbose=F)
   
   test_that("emuDB has correct file format on disc", {
     # 2 files in top level

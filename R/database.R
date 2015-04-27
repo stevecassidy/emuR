@@ -1271,14 +1271,27 @@ bundle.iterator<-function(db,apply){
   return(db)
 }
 
-create_emuDB<-function(name,targetDir,mediaFileExtension='wav'){
+
+##' Create empty emuDB
+##' 
+##' creates an empty emuDB in the target directory specified
+##' @param name of new emuDB
+##' @param targetDir target directory in which to store the emuDB
+##' @param mediaFileExtension defines mediaFileExtention (NOTE: currently only 
+##' 'wav' (the default) is supported by all components of EMU)
+##' @param verbose display infos & show progress bar
+##' @author Klaus Jaensch
+##' @export
+create_emuDB<-function(name,targetDir,mediaFileExtension='wav', verbose=TRUE){
   basePath=file.path(targetDir,name)
   dbConfig=create.schema.databaseDefinition(name=name,mediafileExtension = mediaFileExtension)
   db=create.database(name=name,basePath=basePath,DBconfig = dbConfig)
   .initialize.DBI.database()
   .store.emuDB.DBI(database = db)
-  store(targetDir=targetDir,dbUUID=dbConfig[['UUID']])
+  store(targetDir=targetDir,dbUUID=dbConfig[['UUID']], showProgress = verbose)
+  purge_emuDB(name, interactive = F)
   
+  return(invisible())
 }
 
 
@@ -1307,74 +1320,6 @@ add_levelDefinition_object<-function(dbName=NULL,levelDefinition,dbUUID=NULL){
   invisible(NULL)
 }
 
-# Add level definition to EMU database
-# 
-# @param db EMU database object
-# @param name name of level definition
-# @param type type of level definition
-# @param dbUUID optional emuDB UUID
-# @author Klaus Jaensch
-# @export
-# @keywords emuDB database schema Emu 
-add_levelDefinition<-function(dbName,name,type,dbUUID=NULL){
-  levelDefinition=create.schema.levelDefinition(name = name,type = type)
-  db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  # check if level definition (name) already exists 
-  for(ld in db[['DBconfig']][['levelDefinitions']]){
-    if(ld[['name']]==levelDefinition[['name']]){
-      stop("Level definition:",levelDefinition[['name']]," already exists in database ",db[['name']])
-    }
-  }
-  # add
-  db[['DBconfig']][['levelDefinitions']][[length(db[['DBconfig']][['levelDefinitions']])+1]]=levelDefinition
-  
-  # update transient values
-  db[['DBconfig']]=.update.transient.schema.values(db[['DBconfig']])
-  
-  # store to disk
-  .store.schema(db)
-  invisible(NULL)
-}
-
-remove.levelDefinition<-function(dbName,levelDefinitionName,dbUUID=NULL){
-  db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  # check if level definition (name)exists 
-  if(!any(sapply(db[['DBconfig']][['levelDefinitions']],function(ld) ld[['name']]==levelDefinitionName))){
-    stop("Level definition:",levelDefinitionName," does not exist in database ",db[['name']])
-  }
-  # check if level is referenced by link defintion
-  for(lkd in db[['DBconfig']][['linkDefinitions']]){
-    if(lkd[['superlevelName']]==levelDefinitionName |  lkd[['sublevelName']]==levelDefinitionName){
-      lkdStr=toString(lkd)
-      stop("Cannot remove level definition ",levelDefinitionName,". It is referenced by link definition: ",lkdStr)
-    }
-  }
-  
-  # check if level is empty
-  itemsDf=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM items i WHERE \
-                        i.db_uuid='",uuid,"' AND i.level='",levelDefinitionName,"'"))
-  itemsCnt=nrow(itemsDf)
-  if(itemsCnt>0){
-    stop("Level is not empty. Remove items first to delete level ",levelDefinitionName)
-  }
-  
-  # do removal
-  newLvlDefs=list()
-  for(lvlDef in db[['DBconfig']][['levelDefinitions']]){
-    if(lvlDef[['name']]!=levelDefinitionName){
-      newLvlDefs[[length(newLvlDefs)+1]]=lvlDef
-    }
-  }
-  db[['DBconfig']][['levelDefinitions']]=newLvlDefs
-  
-  # update transient values
-  db[['DBconfig']]=.update.transient.schema.values(db[['DBconfig']])
-  
-  # store to disk
-  .store.schema(db)
-  
-  return(invisible(NULL))
-}
 
 add.linkDefinition<-function(dbName,linkDefinition,dbUUID=NULL){
   db=.load.emuDB.DBI(name=dbName,uuid = dbUUID)
