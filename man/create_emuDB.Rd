@@ -4,7 +4,7 @@
 \alias{create_emuDB}
 \title{Create empty emuDB}
 \usage{
-create_emuDB(name, targetDir, mediaFileExtension = "wav")
+create_emuDB(name, targetDir, mediaFileExtension = "wav", verbose = TRUE)
 }
 \arguments{
 \item{name}{of new emuDB}
@@ -13,6 +13,8 @@ create_emuDB(name, targetDir, mediaFileExtension = "wav")
 
 \item{mediaFileExtension}{defines mediaFileExtention (NOTE: currently only
 'wav' (the default) is supported by all components of EMU)}
+
+\item{verbose}{display infos & show progress bar}
 }
 \description{
 creates an empty emuDB in the target directory specified

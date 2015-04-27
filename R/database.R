@@ -1279,15 +1279,16 @@ bundle.iterator<-function(db,apply){
 ##' @param targetDir target directory in which to store the emuDB
 ##' @param mediaFileExtension defines mediaFileExtention (NOTE: currently only 
 ##' 'wav' (the default) is supported by all components of EMU)
+##' @param verbose display infos & show progress bar
 ##' @author Klaus Jaensch
 ##' @export
-create_emuDB<-function(name,targetDir,mediaFileExtension='wav'){
+create_emuDB<-function(name,targetDir,mediaFileExtension='wav', verbose=TRUE){
   basePath=file.path(targetDir,name)
   dbConfig=create.schema.databaseDefinition(name=name,mediafileExtension = mediaFileExtension)
   db=create.database(name=name,basePath=basePath,DBconfig = dbConfig)
   .initialize.DBI.database()
   .store.emuDB.DBI(database = db)
-  store(targetDir=targetDir,dbUUID=dbConfig[['UUID']])
+  store(targetDir=targetDir,dbUUID=dbConfig[['UUID']], showProgress = verbose)
   purge_emuDB(name, interactive = F)
 }
 
@@ -1317,15 +1318,15 @@ add_levelDefinition_object<-function(dbName=NULL,levelDefinition,dbUUID=NULL){
   invisible(NULL)
 }
 
-# Add level definition to EMU database
-# 
-# @param db EMU database object
-# @param name name of level definition
-# @param type type of level definition
-# @param dbUUID optional emuDB UUID
-# @author Klaus Jaensch
-# @export
-# @keywords emuDB database schema Emu 
+##' Add level definition to emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param name name of level definition
+##' @param type type of level definition
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Klaus Jaensch
+##' @export
+##' @keywords emuDB database schema Emu 
 add_levelDefinition<-function(dbName,name,type,dbUUID=NULL){
   allowedTypes = c('ITEM', 'SEGMENT', 'EVENT')
   # precheck type 
@@ -1349,6 +1350,28 @@ add_levelDefinition<-function(dbName,name,type,dbUUID=NULL){
   # store to disk
   .store.schema(db)
   invisible(NULL)
+}
+
+##' List level definitions of emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Klaus Jaensch
+##' @export
+##' @keywords emuDB database schema Emu 
+list_levelDefinitions <- function(dbName, dbUUID=NULL){
+  dbObj = .load.emuDB.DBI(name = dbName, uuid = dbUUID)
+  df <- data.frame(name=character(),
+                   type=character(), 
+                   nrOfAttrDefs=numeric(), 
+                   stringsAsFactors=FALSE) 
+  
+  for(ld in dbObj$DBconfig$levelDefinitions){
+    df <- rbind(df, data.frame(name = ld$name, 
+                               type = ld$type, 
+                               nrOfAttrDefs = length(ld$attributeDefinitions))) # perfomance problem? 
+  }
+  return(df)
 }
 
 remove.levelDefinition<-function(dbName,levelDefinitionName,dbUUID=NULL){
