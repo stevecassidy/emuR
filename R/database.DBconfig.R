@@ -373,7 +373,9 @@ get.levelDefinition <- function(DBconfig, name){
 ##' @author Klaus Jaensch
 ##' @export
 ##' @keywords emuDB database schema Emu 
-add_levelDefinition<-function(dbName,name,type,dbUUID=NULL){
+add_levelDefinition<-function(dbName,name,
+                              type,dbUUID=NULL){
+  
   allowedTypes = c('ITEM', 'SEGMENT', 'EVENT')
   # precheck type 
   if(!(type %in% allowedTypes)){
@@ -421,11 +423,40 @@ list_levelDefinitions <- function(dbName, dbUUID=NULL){
 }
 
 
+##' Modify level definitions of emuDB
+##' 
+##' This function is currently equal to a \code{remove_levelDefinition()}
+##' followed by a \code{add_levelDefinition()}
+##' @param dbName name of loaded emuDB
+##' @param name name of level definition
+##' @param newName new name of level definition
+##' @param newType new type of level definition ('ITEM' | 'SEGMENT' | 'EVENT')
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Raphael Winkelmann
 ##' @export
+##' @keywords emuDB database schema Emu 
 modify_levelDefinition<-function(dbName, name,
                                  newName = NULL, newType = NULL,
                                  dbUUID=NULL){
-  stop('not implemented yet!')
+  
+  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  
+  # check that either newName or newType or both are set
+  if(!(!is.null(newName) || !is.null(newType))){
+    stop("Either 'newName' or 'newType' or both have to be set!")
+  }
+  
+  ld = get.levelDefinition(DBconfig = dbObj$DBconfig, name = name)
+  
+  # set type to old type if not given = rename only
+  if(is.null(newType)){
+    newType = ld$type
+  }
+  
+  # remove and add
+  remove_levelDefinition(dbName, name, dbUUID)
+  add_levelDefinition(dbName, newName, newType, dbUUID)
+  
 }
 
 
@@ -439,13 +470,13 @@ modify_levelDefinition<-function(dbName, name,
 ##' @export
 ##' @keywords emuDB database schema Emu 
 remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
-  db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
   # check if level definition (name)exists 
-  if(!any(sapply(db[['DBconfig']][['levelDefinitions']],function(ld) ld[['name']]==name))){
-    stop("Level definition:",name," does not exist in database ",db[['name']])
+  if(!any(sapply(dbObj[['DBconfig']][['levelDefinitions']],function(ld) ld[['name']]==name))){
+    stop("Level definition:",name," does not exist in database ",dbObj[['name']])
   }
   # check if level is referenced by link defintion
-  for(lkd in db[['DBconfig']][['linkDefinitions']]){
+  for(lkd in dbObj[['DBconfig']][['linkDefinitions']]){
     if(lkd[['superlevelName']]==name |  lkd[['sublevelName']]==name){
       lkdStr=toString(lkd)
       stop("Cannot remove level definition ",name,". It is referenced by link definition: ",lkdStr)
@@ -454,7 +485,7 @@ remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
   
   # check if level is empty
   itemsDf=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM items i WHERE \
-                        i.db_uuid='",uuid,"' AND i.level='",name,"'"))
+                        i.db_uuid='",dbObj$DBconfig$UUID,"' AND i.level='",name,"'"))
   itemsCnt=nrow(itemsDf)
   if(itemsCnt>0){
     stop("Level is not empty. Remove items first to delete level ",name)
@@ -462,18 +493,18 @@ remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
   
   # do removal
   newLvlDefs=list()
-  for(lvlDef in db[['DBconfig']][['levelDefinitions']]){
+  for(lvlDef in dbObj[['DBconfig']][['levelDefinitions']]){
     if(lvlDef[['name']]!=name){
       newLvlDefs[[length(newLvlDefs)+1]]=lvlDef
     }
   }
-  db[['DBconfig']][['levelDefinitions']]=newLvlDefs
+  dbObj[['DBconfig']][['levelDefinitions']]=newLvlDefs
   
   # update transient values
-  db[['DBconfig']]=.update.transient.schema.values(db[['DBconfig']])
+  dbObj[['DBconfig']]=.update.transient.schema.values(dbObj[['DBconfig']])
   
   # store to disk
-  .store.schema(db)
+  .store.schema(dbObj)
   
   return(invisible(NULL))
 }
@@ -500,10 +531,10 @@ remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
 ##' @export
 ##' @author Raphael Winkelmann
 add_ssffTrackDefinition <- function(dbName = NULL, name =  NULL, 
-                                     columnName = NULL, fileExtension = NULL, 
-                                     onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
-                                     onTheFlyOptLogFilePath = NULL, dbUUID = NULL,
-                                     showProgress = TRUE, interactive = TRUE){
+                                    columnName = NULL, fileExtension = NULL, 
+                                    onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
+                                    onTheFlyOptLogFilePath = NULL, dbUUID = NULL,
+                                    showProgress = TRUE, interactive = TRUE){
   .initialize.DBI.database()
   uuid=get_emuDB_UUID(dbName,dbUUID)
   dbObj = .load.emuDB.DBI(uuid = uuid)
@@ -553,7 +584,7 @@ add_ssffTrackDefinition <- function(dbName = NULL, name =  NULL,
         funcFormals[names(onTheFlyParams)] = onTheFlyParams
         funcFormals$optLogFilePath = onTheFlyOptLogFilePath
         funcFormals$listOfFiles = list_bundleFilePaths(dbName=dbName, dbObj$DBconfig$mediafileExtension, dbUUID=dbUUID)
-
+        
         # check if columnName is valid track
         if(!(columnName %in% wrasspOutputInfos[[onTheFlyFunctionName]]$tracks)){
           stop("'", columnName ,"' is not a column produced by '", onTheFlyFunctionName, "'! Please check wrasspOutputInfos for information on the tracks of each wrassp function.")
@@ -601,8 +632,8 @@ list_ssffTrackDefinitions <- function(dbName = NULL, dbUUID = NULL){
 ##' @export
 ##' @author Raphael Winkelmann
 modify_ssffTrackDefinition <- function(dbName, name, 
-                                        newName, newColumnName = NULL,
-                                        newFileExtension = NULL, dbUUID = NULL){
+                                       newName, newColumnName = NULL,
+                                       newFileExtension = NULL, dbUUID = NULL){
   
   .initialize.DBI.database()
   uuid=get_emuDB_UUID(dbName,dbUUID)
@@ -633,7 +664,7 @@ modify_ssffTrackDefinition <- function(dbName, name,
   
   # store changes
   .store.schema(dbObj)
-
+  
 }
 
 
@@ -645,7 +676,7 @@ modify_ssffTrackDefinition <- function(dbName, name,
 ##' @param dbUUID optional UUID of emuDB
 ##' @export
 remove_ssffTrackDefinition <- function(dbName = NULL, name = NULL, 
-                                        deleteFiles = FALSE, dbUUID = NULL){
+                                       deleteFiles = FALSE, dbUUID = NULL){
   .initialize.DBI.database()
   uuid=get_emuDB_UUID(dbName,dbUUID)
   dbObj = .load.emuDB.DBI(uuid = uuid)
@@ -659,11 +690,11 @@ remove_ssffTrackDefinition <- function(dbName = NULL, name = NULL,
   # find end delete entry
   deletedDef = NULL
   for(i in 1:length(dbObj$DBconfig$ssffTrackDefinitions)){
-      if(dbObj$DBconfig$ssffTrackDefinitions[[i]]$name == name){
-        deletedDef = dbObj$DBconfig$ssffTrackDefinitions[[i]]
-        dbObj$DBconfig$ssffTrackDefinitions[[i]] = NULL
-        break
-      }
+    if(dbObj$DBconfig$ssffTrackDefinitions[[i]]$name == name){
+      deletedDef = dbObj$DBconfig$ssffTrackDefinitions[[i]]
+      dbObj$DBconfig$ssffTrackDefinitions[[i]] = NULL
+      break
+    }
   }
   
   # find and delete files
@@ -676,5 +707,5 @@ remove_ssffTrackDefinition <- function(dbName = NULL, name = NULL,
 }
 
 # FOR DEVELOPMENT 
-library('testthat') 
-test_file('tests/testthat/test_database.DBconfig.R')
+# library('testthat') 
+# test_file('tests/testthat/test_database.DBconfig.R')
