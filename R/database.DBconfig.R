@@ -508,6 +508,29 @@ remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
   return(invisible(NULL))
 }
 
+###################################################
+# CRUD operations for attributeDefinitions
+
+add_attributeDefinition <- function(){
+  stop('Not implemnted yet')
+}
+
+##' List attribute definitions of emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param dbUUID optional UUID of loaded emuDB
+##' @param levelName name of level
+##' @author Klaus Jaensch
+##' @export
+##' @keywords emuDB database schema Emu 
+list_attributeDefinition <- function(dbName, levelName, dbUUID=NULL){
+  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  ld = get.levelDefinition(dbObj$DBconfig, levelName)
+  print(length(ld$attributeDefinitions))
+#   df <- do.call(rbind, lapply(ld$attributeDefinitions, data.frame, stringsAsFactors=FALSE))
+#   return(df)
+}
+
 
 ###################################################
 # CRUD operations for ssffTrackDefinitions

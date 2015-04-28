@@ -180,3 +180,47 @@ test_that("CRUD operations work for levelDefinitions", {
   }
   
 })  
+
+##############################
+test_that("CRUD operations work for attributeDefinitions", {
+  # pre clean (just in case)
+  unlink(file.path(tempdir(),tmpDbName), recursive = TRUE)
+  
+  # copy ae and rename
+  file.copy(file.path(path2extdata, '/emu/DBs/ae/'), tempdir(), recursive = T)
+  file.rename(file.path(tempdir(), 'ae'), file.path(tempdir(), 'ae_copy'))
+  
+  # make copy of ae to mess with (caution correct DBconfig not stored)
+  fp = file.path(tempdir(), tmpDbName)
+  duplicate.loaded.emuDB("ae", tmpDbName, fp)
+  
+  test_that("add = (C)RUD", {
+    
+  })
+  
+  test_that("list = C(R)UD", {
+    list_attributeDefinition(tmpDbName, 'Word')
+
+  })
+  
+  test_that("modify = CR(U)D", {
+
+    
+  })
+  
+  test_that("remove = CRU(D)", {
+    
+
+    
+  })
+  
+  
+  
+  # clean up
+  if(is.emuDB.loaded(tmpDbName)){
+    UUID = get_emuDB_UUID(dbName = tmpDbName)
+    purge_emuDB(dbName = tmpDbName, dbUUID = UUID, interactive = F)
+  }
+  
+})  
+
