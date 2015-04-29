@@ -401,7 +401,7 @@ add_levelDefinition<-function(dbName,name,
   if(store){
     .store.schema(db)
   }else{
-    .store.schema.DBI(db$DBconfig)
+    .store.DBconfig.DBI(db$DBconfig)
   }
   invisible(NULL)
 }
