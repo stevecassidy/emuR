@@ -369,12 +369,14 @@ get.levelDefinition <- function(DBconfig, name){
 ##' @param dbName name of loaded emuDB
 ##' @param name name of level definition
 ##' @param type type of level definition
+##' @param store changes to file system
 ##' @param dbUUID optional UUID of loaded emuDB
 ##' @author Klaus Jaensch
 ##' @export
 ##' @keywords emuDB database schema Emu 
 add_levelDefinition<-function(dbName,name,
-                              type,dbUUID=NULL){
+                              type, store = TRUE,
+                              dbUUID=NULL){
   
   allowedTypes = c('ITEM', 'SEGMENT', 'EVENT')
   # precheck type 
@@ -396,7 +398,11 @@ add_levelDefinition<-function(dbName,name,
   db[['DBconfig']]=.update.transient.schema.values(db[['DBconfig']])
   
   # store to disk
-  .store.schema(db)
+  if(store){
+    .store.schema(db)
+  }else{
+    .store.schema.DBI(db$DBconfig)
+  }
   invisible(NULL)
 }
 
@@ -454,8 +460,8 @@ modify_levelDefinition<-function(dbName, name,
   }
   
   # remove and add
-  remove_levelDefinition(dbName, name, dbUUID)
-  add_levelDefinition(dbName, newName, newType, dbUUID)
+  remove_levelDefinition(dbName = dbName, name = name, dbUUID = dbUUID)
+  add_levelDefinition(dbName = dbName, name = newName, type = newType, dbUUID = dbUUID)
   
 }
 
@@ -526,7 +532,7 @@ add_attributeDefinition <- function(){
 list_attributeDefinition <- function(dbName, levelName, dbUUID=NULL){
   dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
   ld = get.levelDefinition(dbObj$DBconfig, levelName)
-  print(length(ld$attributeDefinitions))
+#   print(length(ld$attributeDefinitions))
 #   df <- do.call(rbind, lapply(ld$attributeDefinitions, data.frame, stringsAsFactors=FALSE))
 #   return(df)
 }

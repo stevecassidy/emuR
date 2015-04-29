@@ -4,7 +4,7 @@
 \alias{add_levelDefinition}
 \title{Add level definition to emuDB}
 \usage{
-add_levelDefinition(dbName, name, type, dbUUID = NULL)
+add_levelDefinition(dbName, name, type, store = TRUE, dbUUID = NULL)
 }
 \arguments{
 \item{dbName}{name of loaded emuDB}
@@ -12,6 +12,8 @@ add_levelDefinition(dbName, name, type, dbUUID = NULL)
 \item{name}{name of level definition}
 
 \item{type}{type of level definition}
+
+\item{store}{changes to file system}
 
 \item{dbUUID}{optional UUID of loaded emuDB}
 }
