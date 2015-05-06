@@ -1279,17 +1279,24 @@ bundle.iterator<-function(db,apply){
 ##' @param targetDir target directory in which to store the emuDB
 ##' @param mediaFileExtension defines mediaFileExtention (NOTE: currently only 
 ##' 'wav' (the default) is supported by all components of EMU)
+##' @param purge purge newly created emuDB from session
+##' @param store store new created emuDB to file system
 ##' @param verbose display infos & show progress bar
 ##' @author Klaus Jaensch
 ##' @export
-create_emuDB<-function(name,targetDir,mediaFileExtension='wav', verbose=TRUE){
+create_emuDB<-function(name, targetDir, mediaFileExtension='wav', 
+                       purge=TRUE, store=TRUE, verbose=TRUE){
   basePath=file.path(targetDir,name)
   dbConfig=create.schema.databaseDefinition(name=name,mediafileExtension = mediaFileExtension)
   db=create.database(name=name,basePath=basePath,DBconfig = dbConfig)
   .initialize.DBI.database()
   .store.emuDB.DBI(database = db)
-  store(targetDir=targetDir,dbUUID=dbConfig[['UUID']], showProgress = verbose)
-  purge_emuDB(name, interactive = F)
+  if(store){
+    store(targetDir=targetDir,dbUUID=dbConfig[['UUID']], showProgress = verbose)
+  }
+  if(purge){
+    purge_emuDB(name, interactive = F)
+  }
   
   return(invisible())
 }

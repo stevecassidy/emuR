@@ -47,7 +47,7 @@ test_that("CRUD operations work for ssffTrackDefinitions", {
                                          onTheFlyFunctionName = 'mhsF0', interactive = T))
     
     add_ssffTrackDefinition(dbName=tmpDbName, 'newTrackName', 'pitch', 'pit', 
-                             onTheFlyFunctionName = 'mhsF0', interactive = F)
+                            onTheFlyFunctionName = 'mhsF0', interactive = F)
     
     pitFilePaths = list.files(fp, pattern = 'pit$', recursive = T)
     expect_equal(length(pitFilePaths), 7)
@@ -108,3 +108,119 @@ test_that("CRUD operations work for ssffTrackDefinitions", {
     purge_emuDB(dbName = tmpDbName, dbUUID = UUID, interactive = F)
   }
 })
+
+##############################
+test_that("CRUD operations work for levelDefinitions", {
+  # pre clean (just in case)
+  unlink(file.path(tempdir(),tmpDbName), recursive = TRUE)
+  
+  # copy ae and rename
+  file.copy(file.path(path2extdata, '/emu/DBs/ae/'), tempdir(), recursive = T)
+  file.rename(file.path(tempdir(), 'ae'), file.path(tempdir(), 'ae_copy'))
+  
+  # make copy of ae to mess with (caution correct DBconfig not stored)
+  fp = file.path(tempdir(), tmpDbName)
+  duplicate.loaded.emuDB("ae", tmpDbName, fp)
+  
+  test_that("add = (C)RUD", {
+    expect_error(add_levelDefinition(dbName=tmpDbName, 'Phonetic', 'SEGM')) # bad type
+    expect_error(add_levelDefinition(dbName=tmpDbName, 'Phonetic', 'SEGMENT')) # already exists
+    
+    add_levelDefinition(dbName=tmpDbName, 'Phonetic2', 'SEGMENT')
+
+    dbObj=.load.emuDB.DBI(name=tmpDbName)
+    expect_equal(length(dbObj$DBconfig$levelDefinitions), 10)
+    
+  })
+  
+  test_that("list = C(R)UD", {
+    df = list_levelDefinitions(dbName=tmpDbName)
+    expect_equal(as.vector(df$name[8:10]), c('Tone','Foot', 'Phonetic2'))
+    expect_equal(as.vector(df$type[8:10]), c('EVENT','ITEM', 'SEGMENT'))
+    expect_equal(as.vector(df$nrOfAttrDefs[1:4]), c(1, 1, 1, 3))
+  })
+  
+  test_that("modify = CR(U)D", {
+    expect_error(modify_levelDefinition(dbName=tmpDbName, name = 'Phonetic2')) # newName and newType not set
+    expect_error(modify_levelDefinition(dbName=tmpDbName, name = 'Phonetic', newType='ITEM')) # linkDef present
+    
+    modify_levelDefinition(dbName=tmpDbName, name = 'Phonetic2', newName = 'Phonetic3')
+    dbObj=.load.emuDB.DBI(name=tmpDbName)
+    
+    expect_equal(dbObj$DBconfig$levelDefinitions[[10]]$name, "Phonetic3")
+    
+  })
+  
+  test_that("remove = CRU(D)", {
+    
+    expect_error(remove_levelDefinition(dbName=tmpDbName, name="asdf")) # bad name
+    expect_error(remove_levelDefinition(dbName=tmpDbName, name="Phonetic")) # linkDef present
+    dbObj = .load.emuDB.DBI(name=tmpDbName)
+    
+    dbGetQuery(getEmuDBcon(), paste0("INSERT INTO items VALUES ('",dbObj$DBconfig$UUID,
+                                     "', '0001', 'fakeBundle', 1, 'Phonetic3', 'ITEM', 20000, 1, NULL, NULL, NULL)")) # add item
+    
+    expect_error(remove_levelDefinition(dbName=tmpDbName, name="Phonetic3")) # item present
+
+    dbGetQuery(getEmuDBcon(), paste0("DELETE FROM items WHERE db_uuid='", 
+                                     dbObj$DBconfig$UUID,"'")) # items present
+    
+    remove_levelDefinition(dbName=tmpDbName, name="Phonetic3")
+    dbObj =.load.emuDB.DBI(name=tmpDbName)
+    expect_equal(length(dbObj$DBconfig$levelDefinition), 9)
+    
+  })
+  
+  
+  
+  # clean up
+  if(is.emuDB.loaded(tmpDbName)){
+    UUID = get_emuDB_UUID(dbName = tmpDbName)
+    purge_emuDB(dbName = tmpDbName, dbUUID = UUID, interactive = F)
+  }
+  
+})  
+
+##############################
+test_that("CRUD operations work for attributeDefinitions", {
+  # pre clean (just in case)
+  unlink(file.path(tempdir(),tmpDbName), recursive = TRUE)
+  
+  # copy ae and rename
+  file.copy(file.path(path2extdata, '/emu/DBs/ae/'), tempdir(), recursive = T)
+  file.rename(file.path(tempdir(), 'ae'), file.path(tempdir(), 'ae_copy'))
+  
+  # make copy of ae to mess with (caution correct DBconfig not stored)
+  fp = file.path(tempdir(), tmpDbName)
+  duplicate.loaded.emuDB("ae", tmpDbName, fp)
+  
+  test_that("add = (C)RUD", {
+    
+  })
+  
+  test_that("list = C(R)UD", {
+    list_attributeDefinition(tmpDbName, 'Word')
+
+  })
+  
+  test_that("modify = CR(U)D", {
+
+    
+  })
+  
+  test_that("remove = CRU(D)", {
+    
+
+    
+  })
+  
+  
+  
+  # clean up
+  if(is.emuDB.loaded(tmpDbName)){
+    UUID = get_emuDB_UUID(dbName = tmpDbName)
+    purge_emuDB(dbName = tmpDbName, dbUUID = UUID, interactive = F)
+  }
+  
+})  
+
