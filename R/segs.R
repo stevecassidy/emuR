@@ -19,7 +19,7 @@
 ## dur.emusegs OK
 ## getFiles.emusegs TODO implement? Not available in legacy Emu! OK
 
-##'
+##' Make emuDB segment list
 ##' @export make.emuRsegs
 make.emuRsegs <- function(dbName,seglist,query,type)
 {
@@ -51,15 +51,56 @@ make.emuRsegs <- function(dbName,seglist,query,type)
 ##' @export
 "[.emuRsegs"<- function(segs,i,j)
 {
-  if(j=='start'){
-    sampleSt='[.data.frame'(segs,i,'sampleStart')
-    sampleRa='[.data.frame'(segs,i,'sampleRate')
-    cat("Start: ",sampleSt,sampleRa,"\n")
-    return((sampleSt + 0.5 )/ sampleRa * 1000.0)
-  }else if(j=='end'){
-    sampleEn='[.data.frame'(segs,i,'sampleEnd')
-    sampleRa='[.data.frame'(segs,i,'sampleRate')
-    return((sampleEn + 1.5 )/ sampleRa * 1000.0)
+  # TODO j and i  can contain sequence values
+  # i.e. j==c('utts','start'), j==1:4 , ...
+  #cat("i: ",i," len",length(i),"\n")
+  
+  if(!missing(j)){
+    #cat("length of j :",length(j),"\n")
+    if(inherits(j,'character') & length(j)>0){
+      
+      #newColList=character(0)
+      if(missing(i)){
+        nrow=nrow(segs)
+      }else{
+        nrow=length(i)
+      }
+      newDf=data.frame(matrix(NA, nrow = nrow, ncol = 0))
+      for(reqCol in j){
+        #cat("Req col: ",reqCol,"\n")
+        if(reqCol=='labels'){
+          lblSSt='[.data.frame'(segs,i,'labelSeqStr')
+          col=eval
+        }else if(reqCol=='start'){
+          sampleSt='[.data.frame'(segs,i,'sampleStart')
+          sampleRa='[.data.frame'(segs,i,'sampleRate')
+          #cat("Start: ",sampleSt,sampleRa,"\n")
+          col=((sampleSt + 0.5 )/ sampleRa * 1000.0)
+        }else if(reqCol=='end'){
+          sampleEn='[.data.frame'(segs,i,'sampleEnd')
+          sampleRa='[.data.frame'(segs,i,'sampleRate')
+          col=((sampleEn + 1.5 )/ sampleRa * 1000.0)
+        }else if(reqCol=='dur'){
+          sampleSt='[.data.frame'(segs,i,'sampleStart')
+          sampleEn='[.data.frame'(segs,i,'sampleEnd')
+          sampleRa='[.data.frame'(segs,i,'sampleRate')
+          col=((sampleEn + 1.5 -sampleSt +0.5)/ sampleRa * 1000.0)
+        }else if(reqCol=='sampleDur'){
+          sampleSt='[.data.frame'(segs,i,'sampleStart')
+          sampleEn='[.data.frame'(segs,i,'sampleEnd')
+         
+          col=as.integer(sampleEn-sampleSt)
+        }else{
+          col='[.data.frame'(segs,i,reqCol)
+        }
+        #cat("Column: ",col,"\n")
+        
+        newDf=cbind.data.frame(newDf,col)
+      }
+      names(newDf)<-j
+      return(newDf)
+    }
+    
   }
   NextMethod("[")
 }
@@ -81,17 +122,18 @@ make.emuRsegs <- function(dbName,seglist,query,type)
   NextMethod("$")
 }
 
-##'
+##' Print emuDB segment list
 ##' @export
 "print.emuRsegs" <-  function(x, ...) 
 {
   cat(attributes(x)$type, " list from database: ", attributes(x)$database, "\n")
   cat("query was: ", attributes(x)$query, "\n" )
-  if( version$major >= 5 ) {
-    oldClass(x) <- "data.frame"
-  } else {
-    class(x) <- "data.frame"
-  }
+  #if( version$major >= 5 ) {
+  #  oldClass(x) <- "data.frame"
+  #} else {
+  #  class(x) <- "data.frame"
+  #}
+  
   print.data.frame(x, ...)
 }
 
