@@ -517,24 +517,65 @@ remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
 ###################################################
 # CRUD operations for attributeDefinitions
 
-add_attributeDefinition <- function(){
-  stop('Not implemnted yet')
+##' Add attribute definition to emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param levelName name of level
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Raphael Winkelmann
+##' @export
+##' @keywords emuDB database DBconfig Emu 
+add_attributeDefinition <- function(dbName, levelName, 
+                                    newName, newType = "STRING",
+                                    dbUUID=NULL){
+  if(newType != "STRING"){
+    stop("Currently only attributeDefinition of type 'STRING' allowed")
+  }
+  
+  dbObj=.load.emuDB.DBI(name=dbName, uuid = dbUUID)
+  
+  df = list_attributeDefinitions(dbName, levelName, dbUUID)
+  
+  
+  if(!(newName %in% df$name)){
+    for(i in 1:length(dbObj$DBconfig$levelDefinitions)){
+      if(dbObj$DBconfig$levelDefinitions[[i]]$name == levelName){
+          dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[length(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions) + 1]] = list(name = newName, 
+                                                                                                                                                    type = newType)
+      }
+    }
+  }
+  
+  # store changes
+  .store.schema(dbObj)
 }
 
 ##' List attribute definitions of emuDB
 ##' 
 ##' @param dbName name of loaded emuDB
-##' @param dbUUID optional UUID of loaded emuDB
 ##' @param levelName name of level
-##' @author Klaus Jaensch
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Raphael Winkelmann
 ##' @export
 ##' @keywords emuDB database schema Emu 
-list_attributeDefinition <- function(dbName, levelName, dbUUID=NULL){
+list_attributeDefinitions <- function(dbName, levelName, dbUUID=NULL){
   dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
   ld = get.levelDefinition(dbObj$DBconfig, levelName)
-#   print(length(ld$attributeDefinitions))
-#   df <- do.call(rbind, lapply(ld$attributeDefinitions, data.frame, stringsAsFactors=FALSE))
-#   return(df)
+  
+  if(length(ld$attributeDefinitions) > 1){
+    df <- do.call(rbind, lapply(ld$attributeDefinitions, data.frame, stringsAsFactors=FALSE))
+  }else{
+    df <- data.frame(name=ld$attributeDefinitions[[1]]$name, type=ld$attributeDefinitions[[1]]$type)
+  }
+  return(df)
+}
+
+modify_attributeDefinition <- function(){
+  stop('Not implemnted yet')
+}
+
+remove_attributeDefinition <- function(){
+  stop('Not implemnted yet')
 }
 
 
