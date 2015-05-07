@@ -521,6 +521,8 @@ remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
 ##' 
 ##' @param dbName name of loaded emuDB
 ##' @param levelName name of level
+##' @param newName name af new attributeDefinition
+##' @param newType type of new attributeDefinition
 ##' @param dbUUID optional UUID of loaded emuDB
 ##' @author Raphael Winkelmann
 ##' @export

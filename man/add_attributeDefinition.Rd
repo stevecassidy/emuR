@@ -12,6 +12,10 @@ add_attributeDefinition(dbName, levelName, newName, newType = "STRING",
 
 \item{levelName}{name of level}
 
+\item{newName}{name af new attributeDefinition}
+
+\item{newType}{type of new attributeDefinition}
+
 \item{dbUUID}{optional UUID of loaded emuDB}
 }
 \description{
