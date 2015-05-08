@@ -1,6 +1,13 @@
 require(httpuv)
 require(base64enc)
 
+getServerHandle <- function() {
+  internalVars$serverHandle
+}
+setServerHandle <- function(sh) {
+  internalVars$serverHandle<-sh
+}
+
 ##' Serve EMU database to EMU-Webapp
 ##' 
 ##' @description Server for EMU-Webapp browser GUI \url{http://ips-lmu.github.io/EMU-webApp/}
@@ -394,9 +401,9 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
   app=list(call=httpRequest,onHeaders=onHeaders,onWSOpen=serverEstablished)
   sh=tryCatch(startServer(host=host,port=port,app=app),error=function(e) e)
   if(inherits(sh,'error')){
-    if(exists('.emuR.server.serverHandle') & !is.null(.emuR.server.serverHandle)){
-      cat("Trying to stop orphaned server (handle: ",.emuR.server.serverHandle,")\n")
-      stopServer(.emuR.server.serverHandle)
+    if(!is.null(getServerHandle())){
+      cat("Trying to stop orphaned server (handle: ",getServerHandle(),")\n")
+      stopServer(getServerHandle())
       sh=tryCatch(startServer(host=host,port=port,app=app),error=function(e) e)
       if(inherits(sh,'error')){
         stop("Error starting server (second try): ",sh,"\n")
@@ -406,7 +413,7 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
     }
   }
   # store handle global for recovery after crash otr terminated R session
-  .emuR.server.serverHandle<<-sh
+  setServerHandle(sh)
   cat("Navigate your browser to the EMU-Webapp URL: http://ips-lmu.github.io/EMU-webApp/\n")
   cat("Server connection URL: ws://localhost:",port,"\n",sep='')
   cat("To stop the server press EMU-Webapp 'clear' button or reload the page in your browser.\n")
@@ -421,7 +428,7 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
   }
   stopServer(sh)
   # regular shutdown, remove handle 
-  .emuR.server.serverHandle<<-NULL
+  setServerHandle(NULL)
   if(debugLevel>0){
     cat("Closed emuR websocket HTTP service\n")
   }
