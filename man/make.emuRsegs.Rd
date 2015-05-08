@@ -2,11 +2,11 @@
 % Please edit documentation in R/segs.R
 \name{make.emuRsegs}
 \alias{make.emuRsegs}
-\title{}
+\title{Make emuDB segment list}
 \usage{
 make.emuRsegs(dbName, seglist, query, type)
 }
 \description{
-
+Make emuDB segment list
 }
 

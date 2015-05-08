@@ -2,11 +2,11 @@
 % Please edit documentation in R/segs.R
 \name{print.emuRsegs}
 \alias{print.emuRsegs}
-\title{}
+\title{Print emuDB segment list}
 \usage{
 \method{print}{emuRsegs}(x, ...)
 }
 \description{
-
+Print emuDB segment list
 }
 

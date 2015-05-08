@@ -1439,7 +1439,8 @@ query<-function(dbName=NULL,query,sessionPattern=NULL,bundlePattern=NULL,queryLa
       }
       
       if(is.null(resultType)){
-        return(query.database.with.eql.segmentlist(dbConfig,query))
+        #return(query.database.with.eql.segmentlist(dbConfig,query))
+        return(query.database.with.eql(dbConfig,query))
       }else{
         if(resultType=='emusegs'){
           return(query.database.with.eql.seglist(dbConfig,query))
