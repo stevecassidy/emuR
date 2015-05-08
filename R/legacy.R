@@ -904,10 +904,13 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
     progress=progress+1L
     if(verbose){
       setTxtProgressBar(pb,progress)
-      cat("\n")
     }
   }
   
+  if(verbose){
+    setTxtProgressBar(pb,progress)
+    cat("\n")
+  }
 }
 
 ##' Convert legacy EMU database and store it in new format
