@@ -6,6 +6,16 @@
 \usage{
 make.emuRsegs(dbName, seglist, query, type)
 }
+\arguments{
+\item{dbName}{name of emuDB}
+
+\item{seglist}{segment list data.frame}
+
+\item{query}{query string}
+
+\item{type}{type of list elements
+#}
+}
 \description{
 Make emuDB segment list
 }
