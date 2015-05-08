@@ -583,12 +583,12 @@ convert.query.result.to.segmentlist<-function(dbConfig,result){
                         CAST (sampleStart AS REAL)/ CAST( sampleRate AS REAL) * 1000.0 \
                        ELSE \
                         (CAST (sampleStart AS REAL) + 0.5 ) / CAST( sampleRate AS REAL) * 1000.0 \
-                       END AS startSQL, \
+                       END AS start, \
                        CASE type WHEN 'EVENT' THEN \
                          0.0
                        ELSE \
                         (CAST (sampleEnd AS REAL) + 1.5 ) / CAST( sampleRate AS REAL) * 1000.0 \
-                       END AS endSQL, \
+                       END AS end, \
                        session || ':' || bundle AS utts,
                        CASE type WHEN 'EVENT' THEN \
                         'event' \
