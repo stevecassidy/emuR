@@ -195,12 +195,15 @@ test_that("CRUD operations work for attributeDefinitions", {
   duplicate.loaded.emuDB("ae", tmpDbName, fp)
   
   test_that("add = (C)RUD", {
-    
+    add_attributeDefinition(tmpDbName, 'Word', 'testAttrDef')
+#     df = list_attributeDefinition(tmpDbName, 'Word')
+#     print(df)
   })
   
   test_that("list = C(R)UD", {
-    list_attributeDefinition(tmpDbName, 'Word')
-
+    df = list_attributeDefinitions(tmpDbName, 'Word')
+    expect_equal(df$name, c('Word', 'Accent', 'Text', 'testAttrDef'))
+    expect_equal(df$type, c('STRING', 'STRING', 'STRING', 'STRING'))
   })
   
   test_that("modify = CR(U)D", {

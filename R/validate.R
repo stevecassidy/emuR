@@ -107,9 +107,7 @@ validateBundle.emuDB.DBI <- function(dbName, session, bundle, dbUUID=NULL){
                   message = paste('Following levels where found that do not match any levelDefinition:', paste(delta1), ';',
                                   'in bundle:', bundle)))
     }else{
-      return(list(type = 'ERROR',
-                  message = paste('Following levelDefinition where not found:', paste(delta2), ';',
-                                  'in bundle:', bundle)))      
+      warning("No items for levelDefinition where found for level:'", paste(delta2), "';", "in bundle:'", bundle , "'")
     }
   }
   
@@ -119,7 +117,7 @@ validateBundle.emuDB.DBI <- function(dbName, session, bundle, dbUUID=NULL){
   
   levelDefTypes = sapply(dbObj$DBconfig$levelDefinitions, function(l) l$type)
   
-  if(!all(levelTypes == levelDefTypes)){
+  if(!(length(levelDefTypes) > length(levelTypes)) && !all(levelTypes == levelDefTypes)){
     return(list(type = 'ERROR',
                 message = paste('Following level types differ from those defined:', paste(levelNames[levelTypes != levelDefTypes], collapse = ', '), ';',
                                 'in bundle:', bundle)))
