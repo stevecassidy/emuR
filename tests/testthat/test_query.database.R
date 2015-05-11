@@ -88,14 +88,12 @@ test_that("Query sequence",{
 # #   expect_that(r1Its[1,'seqEndId'],is_identical_to('andosl_msajc020_106'))
 
   r1=query('ae',"[[[Phoneme='tS' ^ Phonetic='t'] -> Phoneme=I] -> Phoneme=l]",resultType=NULL)
-  r1Its=r1[['items']]
-  expect_that(nrow(r1Its),equals(1))
-  #expect_that(r1Its[1,'seqStartId'],is_identical_to('ae_0000_msajc012_121'))
-  expect_that(r1Its[1,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
-  expect_that(r1Its[1,'session'],is_identical_to('0000'))
-  expect_that(r1Its[1,'bundle'],is_identical_to('msajc012'))  
-  expect_that(r1Its[1,'seqStartId'], equals(121))  
-  expect_that(r1Its[1,'seqEndId'], equals(123))
+  expect_that(nrow(r1),equals(1))
+  expect_that(r1[1,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
+  expect_that(r1[1,'session'],is_identical_to('0000'))
+  expect_that(r1[1,'bundle'],is_identical_to('msajc012'))  
+  expect_that(r1[1,'startItemID'], equals(121))  
+  expect_that(r1[1,'endItemID'], equals(123))
   
   sl1=query('ae',"[[[Phoneme='tS' ^ Phonetic='t'] -> Phoneme=I] -> Phoneme=l]",resultType='emusegs')
   expect_that(nrow(sl1),equals(1))
@@ -121,19 +119,18 @@ test_that("Query combined sequence dominance",{
 # # expect_that(r1Its[6,'seqEndId'],is_identical_to('andosl_msajc063_73'))
 
 r1=query('ae',"[[Syllable=W->Syllable=W] ^ [Phoneme=@->Phoneme=s]]",resultType=NULL)
-r1Its=r1[['items']]
-expect_that(nrow(r1Its),equals(2))
-expect_that(r1Its[1,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
-expect_that(r1Its[1,'session'],is_identical_to('0000'))
-expect_that(r1Its[1,'bundle'],is_identical_to('msajc015'))  
-expect_that(r1Its[1,'seqStartId'], equals(131))
-expect_that(r1Its[1,'seqEndId'], equals(132))
+expect_that(nrow(r1),equals(2))
+expect_that(r1[1,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
+expect_that(r1[1,'session'],is_identical_to('0000'))
+expect_that(r1[1,'bundle'],is_identical_to('msajc015'))  
+expect_that(r1[1,'startItemID'], equals(131))
+expect_that(r1[1,'endItemID'], equals(132))
 
-expect_that(r1Its[2,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
-expect_that(r1Its[2,'session'],is_identical_to('0000'))
-expect_that(r1Its[2,'bundle'],is_identical_to('msajc015'))  
-expect_that(r1Its[2,'seqStartId'], equals(141))
-expect_that(r1Its[2,'seqEndId'], equals(142))
+expect_that(r1[2,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
+expect_that(r1[2,'session'],is_identical_to('0000'))
+expect_that(r1[2,'bundle'],is_identical_to('msajc015'))  
+expect_that(r1[2,'startItemID'], equals(141))
+expect_that(r1[2,'endItemID'], equals(142))
 # 
 })
 # 
@@ -141,87 +138,80 @@ expect_that(r1Its[2,'seqEndId'], equals(142))
 test_that("Query dominance over more than one level",{
   
   r1=query('ae',"[ Syllable=S ^ Phonetic=p ]",resultType=NULL)
-  r1Its=r1[['items']]
-  expect_that(nrow(r1Its),equals(2))
+  expect_that(nrow(r1),equals(2))
   
 })
 
 test_that("Distinct result set for dominance query",{
   
   r1=query('ae',"[ Syllable=S ^ Phonetic=s]")
-  r1Its=r1[['items']]
-  expect_that(nrow(r1Its),equals(9))
+  expect_that(nrow(r1),equals(9))
 
 })
 
 test_that("Query using Start function",{
   r1=query('ae',"Phoneme = w & Start(Word, Phoneme)=1",resultType=NULL)
   
-  r1Its=r1[['items']]
-  expect_that(nrow(r1Its),equals(4))
-  expect_that(r1Its[1,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
-  expect_that(r1Its[1,'session'],is_identical_to('0000'))
-  expect_that(r1Its[1,'bundle'],is_identical_to('msajc003'))  
-  expect_that(r1Its[1,'seqStartId'],equals(128))
-  expect_that(r1Its[2,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
-  expect_that(r1Its[2,'session'],is_identical_to('0000'))
-  expect_that(r1Its[2,'bundle'],is_identical_to('msajc012'))  
-  expect_that(r1Its[2,'seqStartId'],equals(124))
-  expect_that(r1Its[3,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
-  expect_that(r1Its[3,'session'],is_identical_to('0000'))
-  expect_that(r1Its[3,'bundle'],is_identical_to('msajc015'))  
-  expect_that(r1Its[3,'seqStartId'],equals(164))
-  expect_that(r1Its[4,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
-  expect_that(r1Its[4,'session'],is_identical_to('0000'))
-  expect_that(r1Its[4,'bundle'],is_identical_to('msajc015'))  
-  expect_that(r1Its[4,'seqStartId'],equals(177))
+  expect_that(nrow(r1),equals(4))
+  expect_that(r1[1,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
+  expect_that(r1[1,'session'],is_identical_to('0000'))
+  expect_that(r1[1,'bundle'],is_identical_to('msajc003'))  
+  expect_that(r1[1,'startItemID'],equals(128))
+  expect_that(r1[2,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
+  expect_that(r1[2,'session'],is_identical_to('0000'))
+  expect_that(r1[2,'bundle'],is_identical_to('msajc012'))  
+  expect_that(r1[2,'startItemID'],equals(124))
+  expect_that(r1[3,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
+  expect_that(r1[3,'session'],is_identical_to('0000'))
+  expect_that(r1[3,'bundle'],is_identical_to('msajc015'))  
+  expect_that(r1[3,'startItemID'],equals(164))
+  expect_that(r1[4,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
+  expect_that(r1[4,'session'],is_identical_to('0000'))
+  expect_that(r1[4,'bundle'],is_identical_to('msajc015'))  
+  expect_that(r1[4,'startItemID'],equals(177))
   
   r2=query('ae',"Phoneme = p & Start(Word, Phoneme)=0",resultType=NULL)
   
-  r2Its=r2[['items']]
-  expect_that(nrow(r2Its),equals(3))
-  expect_that(r2Its[1,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
-  expect_that(r2Its[1,'session'],is_identical_to('0000'))
-  expect_that(r2Its[1,'bundle'],is_identical_to('msajc015'))  
-  expect_that(r2Its[1,'seqStartId'],equals(147))
-  expect_that(r2Its[2,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
-  expect_that(r2Its[2,'session'],is_identical_to('0000'))
-  expect_that(r2Its[2,'bundle'],is_identical_to('msajc022'))  
-  expect_that(r2Its[2,'seqStartId'],equals(122))
-  expect_that(r2Its[3,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
-  expect_that(r2Its[3,'session'],is_identical_to('0000'))
-  expect_that(r2Its[3,'bundle'],is_identical_to('msajc057'))  
-  expect_that(r2Its[3,'seqStartId'],equals(136))
+  expect_that(nrow(r2),equals(3))
+  expect_that(r2[1,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
+  expect_that(r2[1,'session'],is_identical_to('0000'))
+  expect_that(r2[1,'bundle'],is_identical_to('msajc015'))  
+  expect_that(r2[1,'startItemID'],equals(147))
+  expect_that(r2[2,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
+  expect_that(r2[2,'session'],is_identical_to('0000'))
+  expect_that(r2[2,'bundle'],is_identical_to('msajc022'))  
+  expect_that(r2[2,'startItemID'],equals(122))
+  expect_that(r2[3,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
+  expect_that(r2[3,'session'],is_identical_to('0000'))
+  expect_that(r2[3,'bundle'],is_identical_to('msajc057'))  
+  expect_that(r2[3,'startItemID'],equals(136))
   
   # and some bundle pattern tests
   r3=query('ae',"Phoneme = p & Start(Word, Phoneme)=0",bundlePattern='msajc0??',resultType=NULL)
   
-  r3Its=r3[['items']]
-  expect_that(nrow(r3Its),equals(3))
-  expect_that(r3Its[1,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
-  expect_that(r3Its[1,'session'],is_identical_to('0000'))
-  expect_that(r3Its[1,'bundle'],is_identical_to('msajc015'))  
-  expect_that(r3Its[1,'seqStartId'],equals(147))
-  expect_that(r3Its[2,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
-  expect_that(r3Its[2,'session'],is_identical_to('0000'))
-  expect_that(r3Its[2,'bundle'],is_identical_to('msajc022'))
-  expect_that(r3Its[2,'seqStartId'],equals(122))
-  expect_that(r3Its[3,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
-  expect_that(r3Its[3,'session'],is_identical_to('0000'))
-  expect_that(r3Its[3,'bundle'],is_identical_to('msajc057'))  
-  expect_that(r3Its[3,'seqStartId'],equals(136))
+  expect_that(nrow(r3),equals(3))
+  expect_that(r3[1,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
+  expect_that(r3[1,'session'],is_identical_to('0000'))
+  expect_that(r3[1,'bundle'],is_identical_to('msajc015'))  
+  expect_that(r3[1,'startItemID'],equals(147))
+  expect_that(r3[2,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
+  expect_that(r3[2,'session'],is_identical_to('0000'))
+  expect_that(r3[2,'bundle'],is_identical_to('msajc022'))
+  expect_that(r3[2,'startItemID'],equals(122))
+  expect_that(r3[3,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
+  expect_that(r3[3,'session'],is_identical_to('0000'))
+  expect_that(r3[3,'bundle'],is_identical_to('msajc057'))  
+  expect_that(r3[3,'startItemID'],equals(136))
   
   r4=query('ae',"Phoneme = p & Start(Word, Phoneme)=0",bundlePattern='msajc02?',resultType=NULL)
   
-  r4Its=r4[['items']]
-  expect_that(nrow(r4Its),equals(1))
-  expect_that(r4Its[1,'seqStartId'],equals(122))
+  expect_that(nrow(r4),equals(1))
+  expect_that(r4[1,'startItemID'],equals(122))
   
   r5=query('ae',"Phoneme = p & Start(Word, Phoneme)=0",bundlePattern='*7',resultType=NULL)
   
-  r5Its=r5[['items']]
-  expect_that(nrow(r5Its),equals(1))
-  expect_that(r5Its[1,'seqStartId'],equals(136))
+  expect_that(nrow(r5),equals(1))
+  expect_that(r5[1,'startItemID'],equals(136))
   
  
 })
@@ -229,10 +219,9 @@ test_that("Query using Start function",{
 test_that("Query using End function",{
   r1=query('ae',"Phoneme = n & End(Word, Phoneme)=1",resultType=NULL)
   
-  r1Its=r1[['items']]
-  expect_that(nrow(r1Its),equals(2))
-  expect_that(r1Its[1,'seqStartId'],equals(103))
-  expect_that(r1Its[2,'seqStartId'],equals(158))
+  expect_that(nrow(r1),equals(2))
+  expect_that(r1[1,'startItemID'],equals(103))
+  expect_that(r1[2,'startItemID'],equals(158))
 
 })
 
@@ -241,8 +230,7 @@ test_that("Query using Num function",{
   # query words with exactly four phonemes
   r1=query('ae',"Num(Word, Phoneme)=4",resultType=NULL)
   
-  r1Its=r1[['items']]
-  expect_that(nrow(r1Its),equals(6))
+  expect_that(nrow(r1),equals(6))
   
 })
 
@@ -251,7 +239,6 @@ test_that("Query using and operator",{
   
   expect_that(nrow(sl1),equals(1))
   expect_that('[.data.frame'(sl1,1,'labels'),is_identical_to(I('them')))
-  #expect_that(labels.emusegs,is_identical_to(I('more->customers')))
   expect_that('[.data.frame'(sl1,1,'utts'),is_identical_to(I('0000:msajc012')))
   
 })
@@ -259,10 +246,10 @@ test_that("Query using and operator",{
 test_that("Projection operator #",{
   
   r1=query('ae',"[ Syllable=S ^ #Phonetic=s]")
-  r1Its=r1[['items']]
-  expect_that(nrow(r1Its),equals(9))
-  r1Its=r1[['projectionItems']]
-  expect_that(nrow(r1Its),equals(10))
+  #r1=r1[['items']]
+  expect_that(nrow(r1),equals(10))
+  #r1Its=r1[['projectionItems']]
+  #expect_that(nrow(r1Its),equals(10))
   
 })
 
