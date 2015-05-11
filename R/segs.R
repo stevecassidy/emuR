@@ -46,20 +46,22 @@ make.emuRsegs <- function(dbName,seglist,query,type)
 }
 
 
-# ##' Print emuDB segment list
-# ##' #@export
-# "print.emuRsegs" <-  function(x, ...) 
-# {
-#   cat(attributes(x)$type, " list from database: ", attributes(x)$database, "\n")
-#   cat("query was: ", attributes(x)$query, "\n" )
-#   #if( version$major >= 5 ) {
-#   #oldClass(x) <- "data.frame"
-#   #} else {
-#   class(x) <- "data.frame"
-#   #}
-#   
-#   
-#   print.data.frame(x[,c('labels','session','bundle','start','end')], ...)
-# }
+##' Print emuDB segment list
+##' @param x object to print
+##' @param ... additional params
+"print.emuRsegs" <-  function(x, ...) 
+{
+  cat(attributes(x)$type, " list from database: ", attributes(x)$database, "\n")
+  cat("query was: ", attributes(x)$query, "\n" )
+  #if( version$major >= 5 ) {
+  #oldClass(x) <- "data.frame"
+  #} else {
+  #class(x) <- "data.frame"
+  #}
+  
+  printX='[.data.frame'(x,c('labels','start','end','session','bundle','startitemID','enditemID','type'))
+  
+  print.data.frame(printX, ...)
+}
 
 
