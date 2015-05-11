@@ -452,7 +452,9 @@ convert.query.result.to.segmentlist<-function(dbConfig,result){
     its=result[['items']]
   }
   itCount=nrow(its)
-  if(itCount>0){
+  if(itCount==0){
+    its=data.frame(db_uuid=character(0),session=character(0),bundle=character(0),seqStartId=integer(0),seqEndId=integer(0),seqLen=integer(0),level=character(0),stringsAsFactors = FALSE)
+  }
     links=getQueryTmpEmuDBs()[['queryLinksExt']]
     
     lblsDf=getQueryTmpEmuDBs()[['queryLabels']]
@@ -463,8 +465,13 @@ convert.query.result.to.segmentlist<-function(dbConfig,result){
     labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,db_uuid,session,bundle,name)'
     # get max length
     #itemsIdxSql='CREATE INDEX items_idx ON items(seqLen)'
+  if(itCount>0){
     maxSeqLenDf=sqldf(c(resIdxSql,"SELECT max(seqLen) AS maxSeqLen FROM its"))
     maxSeqLen=maxSeqLenDf[1,'maxSeqLen']
+    
+  }else{
+    maxSeqLen=1L
+  }
   
     
     # query seglist data except labels
@@ -603,7 +610,7 @@ convert.query.result.to.segmentlist<-function(dbConfig,result){
     }
     segmentList=make.emuRsegs(dbName = dbConfig[['name']],seglist = seglist,query = result[['queryStr']],type = slType)
     return(segmentList)
-    }
+    #}
 }
 
 query.database.eql.FUNKA<-function(dbConfig,q,items=NULL){
