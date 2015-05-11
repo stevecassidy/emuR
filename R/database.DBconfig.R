@@ -546,14 +546,17 @@ add_attributeDefinition <- function(dbName, levelName,
   if(!(newName %in% df$name)){
     for(i in 1:length(dbObj$DBconfig$levelDefinitions)){
       if(dbObj$DBconfig$levelDefinitions[[i]]$name == levelName){
-          dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[length(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions) + 1]] = list(name = newName, 
-                                                                                                                                                    type = newType)
+        dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[length(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions) + 1]] = create.schema.attributeDefinition(name = newName, 
+                                                                                                                                                                               type = newType,
+                                                                                                                                                                               labelGroups = NULL)
+        break
       }
     }
   }
   
   # store changes
   .store.schema(dbObj)
+
 }
 
 ##' List attribute definitions of emuDB
@@ -569,9 +572,27 @@ list_attributeDefinitions <- function(dbName, levelName, dbUUID=NULL){
   ld = get.levelDefinition(dbObj$DBconfig, levelName)
   
   if(length(ld$attributeDefinitions) > 1){
-    df <- do.call(rbind, lapply(ld$attributeDefinitions, data.frame, stringsAsFactors=FALSE))
+    df = data.frame(name = character(), 
+                    type = character(), 
+                    hasLabelGroups = logical(), 
+                    hasLegalLabels = logical(), 
+                    stringsAsFactors = F)
+    for(ad in ld$attributeDefinitions){
+      if(ad$name == "testAttrDef"){
+#         browser()
+      }
+      df = rbind(df, df = data.frame(name = ad$name, 
+                                     type = ad$type, 
+                                     hasLabelGroups = !is.null(ad$labelGroups),
+                                     hasLegalLabels = !is.null(ad$legalLabels),
+                                     stringsAsFactors = F))
+    }
   }else{
-    df <- data.frame(name=ld$attributeDefinitions[[1]]$name, type=ld$attributeDefinitions[[1]]$type)
+    df <- data.frame(name=ld$attributeDefinitions[[1]]$name, 
+                     type=ld$attributeDefinitions[[1]]$type,
+                     hasLabelGroups = !is.null(ld$attributeDefinitions[[1]]$labelGroups),
+                     hasLegalLabels = !is.null(ld$attributeDefinitions[[1]]$legalLabels),
+                     stringsAsFactors = F)
   }
   return(df)
 }
