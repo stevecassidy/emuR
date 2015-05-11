@@ -349,37 +349,6 @@ is.seglist <- function(object) {
 }
 
 
-
-##' Expand emusegs
-##' 
-##' see function
-##' 
-##' 
-##' @aliases [.emusegs
-##' @keywords internal
-##' @export
-"[.emusegs"<- function(segs,i,j)
-{
-  NextMethod("[",drop=FALSE)
-}
-
-if( version$major >= 5 ) {
-  setMethod("[", "emusegs",
-            function(x, i, j=1:ncol(x), drop = T)
-            {
-              if(missing(drop))
-                "[.emusegs"(x, i,j)
-              else
-                "[.emusegs"(x, i,j)
-            }
-  )
-}
-
-
-
-
-
-
 ##' summary emusegs
 ##' 
 ##' summarizes data in emu segment lists
