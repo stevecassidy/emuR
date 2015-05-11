@@ -15,7 +15,7 @@ vignette: >
 
 # Introduction
 
-This document describes the emuDB format that is used by the `emuR` package. This database format is meant as a simple, general purpose way of storing speech databases that may contain complex hierarchical annotations.
+This document describes the emuDB format that is used by the emuR package. This database format is meant as a simple, general purpose way of storing speech databases that may contain complex hierarchical annotations.
 
 # DB design
 
@@ -45,7 +45,7 @@ There are multiple ways of creating emuDBs. The two main strategies in creating 
 
 ## Converting existing databases
 
-We currently provide a function for converting existing legacyEmuDBs to the new emuDB format. Here is an example of how to use this function:
+The emuR package provides a function for converting existing legacyEmuDBs to the new emuDB format. Here is an example of how to use this function:
 
 ```{r}
 # load the package
@@ -59,7 +59,7 @@ convert_legacyEmuDB_to_emuDB(emuTplPath = tplPath, targetDir = tempdir(), verbos
 
 This will create a new emuDB in the folder provided by `tempdir()` containing all the information specified in the `.tpl` file. The name of the new emuDB is the same as the basename of the `.tpl` file from which it was generated.  
 
-A further function provided is the `convert_TextGridCollection_to_emuDB()` function. This function converts an existing `.TextGrid` & `.wav` file collection to the emuDB format. To be able to pair the correct files together the `.TextGrid` files as well as the `.wav` files must have the same basename. A further restriction is that the tiers contained within all the `.TextGrid` files have to be equal in name & type (equal subsets can be chosen using the `tierNames` argument of the function). As an example if all `.TextGrid` files contain the tiers `Syl: IntervalTier`, `Phonetic: IntervalTier` and `Tone: TextTier` the conversion will work, if a single `.TextGrid` of the collection has the additional tier `Word: IntervalTier` the conversion will fail but can be made to work by specifying the equal subset `equalSubset = c('Syl', 'Phonetic', 'Tone')` and passing it into the function argument `tierNames`. 
+A further function provided is the `convert_TextGridCollection_to_emuDB()` function. This function converts an existing `.TextGrid` & `.wav` file collection to the emuDB format. To be able to pair the correct files together the `.TextGrid` files as well as the `.wav` files must have the same basename (== file name without extension). A further restriction is that the tiers contained within all the `.TextGrid` files have to be equal in name & type (equal subsets can be chosen using the `tierNames` argument of the function). As an example if all `.TextGrid` files contain the tiers `Syl: IntervalTier`, `Phonetic: IntervalTier` and `Tone: TextTier` the conversion will work, if a single `.TextGrid` of the collection has the additional tier `Word: IntervalTier` the conversion will fail but can be made to work by specifying the equal subset `equalSubset = c('Syl', 'Phonetic', 'Tone')` and passing it into the function argument `tierNames`. 
 
 ```{r}
 # get the path to a folder containing .wav & .TextGrid files that come with the package
@@ -88,14 +88,14 @@ This will create an empty emuDB that does not have any ssffTrackDefinitions or l
 
 The initial step in manipulating or generally interacting with a database is to load the according database into your current R session. People interested in the way the emuR package caches the database are referred to the **emuDB caching** section of this document.
 ```{r}
-# gernerate path to the emtpy fromScratchDB
+# gernerate path to the emtpy fromScratchDB created above
 dbPath = file.path(tempdir(), 'fromScratchDB')
 # load database
 dbName = load_emuDB(dbPath, verbose = F)
 print(dbName)
 ```
 
-This will load the database into it's cached form for quick access to the data. As you can see the `load_emuDB()` function returns the name of the database. This name is used to reference the loaded database in most database interaction functions of the `emuR` package. To see the currently loaded emuDBs simply call:
+This will load the database into it's cached form for quick access to the data. Note that if a large emuDB has never been loaded and no cache has previously been generated, this can take a while to complete. Once a cache is present only altered annotation files have to be updated. As you can see the `load_emuDB()` function returns the name of the database. This name is used to reference the loaded database in most database interaction functions of the emuR package. If you have multiple emuDBs loaded these can be listed by calling:
 
 ```{r}
 list_emuDBs()
@@ -124,10 +124,10 @@ To check if this action was successful we can simply list the current level defi
 list_levelDefinitions(dbName)
 ```
 
-If we wish to change the name/type of the level we have just added to the database we can invoke (NOTE: If there are actual instances of items present in the emuDB of this name this will not be possible):   
+If we wish to change the name/type of the level we have just added to the database we can invoke (NOTE: If there are actual instances of annotation items present in the emuDB this will not be possible. These would first have to be removed.):   
 
 ```{r}
-# modify
+# modify (rename to lower case)
 modify_levelDefinition(dbName, name = 'Phonetic', newName='phonetic')
 # list
 list_levelDefinitions(dbName)
@@ -137,13 +137,23 @@ Finally we could remove the levelDefinition with the function `remove_levelDefin
 
 ## Attribute definitions
 
-
-Each levelDefinition can contain multiple attributes, the most common attribute being a label (`"type": "STRING"`). Due to this it is possible to have multiple parallel labels in a single level. This means that a single annotation item can contain multiple labels while sharing other properties such as the start and end segment information. This can be quite handy in modeling certain types of data. A illustrative example of this would be the 'phonetic' level created above. It is often the case that databases contain the phonetic transcript using IPA UTF-8 symbols as well as using SAMPA. This is a perfect choice for using multiple attributeDefinitions within a single level:
+Each levelDefinition can contain multiple attributes, the most common attribute being a label (`"type": "STRING"`). Due to this it is possible to have multiple parallel labels in a single level. This means that a single annotation item can contain multiple labels while sharing other properties such as the start and duration information. This can be quite handy in modeling certain types of data. A illustrative example of this would be the 'phonetic' level created above. It is often the case that databases contain the phonetic transcript using IPA UTF-8 symbols as well as using the Speech Assessment Methods Phonetic Alphabet (SAMPA). This is a perfect choice for using multiple attributeDefinitions within a single level:
 
 ```{r}
 # list
-# list_attributeDefinition(dbName, 'phonetic')
+list_attributeDefinitions(dbName, 'phonetic')
 ```
+
+Even though we have not added a single attribute definition to the 'phonetic' level definition it already contains an obligatory attribute definition that has to have the same name as it's level indicating that it is the primary attribute of that level. To follow the above example let us now add a further attribute definition to the level definition that will contain the SAMPA versions of our annotations.   
+
+```{r}
+# add
+add_attributeDefinition(dbName, 'phonetic', newName = 'SAMPA')
+# list
+list_attributeDefinitions(dbName, 'phonetic')
+```
+
+
 
 ## Link definitions
 

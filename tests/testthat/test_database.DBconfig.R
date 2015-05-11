@@ -196,14 +196,16 @@ test_that("CRUD operations work for attributeDefinitions", {
   
   test_that("add = (C)RUD", {
     add_attributeDefinition(tmpDbName, 'Word', 'testAttrDef')
-#     df = list_attributeDefinition(tmpDbName, 'Word')
-#     print(df)
+    df = list_attributeDefinitions(tmpDbName, 'Word')
+    expect_true('testAttrDef' %in% df$name)
   })
   
   test_that("list = C(R)UD", {
     df = list_attributeDefinitions(tmpDbName, 'Word')
     expect_equal(df$name, c('Word', 'Accent', 'Text', 'testAttrDef'))
     expect_equal(df$type, c('STRING', 'STRING', 'STRING', 'STRING'))
+    expect_equal(df$hasLabelGroups, c(F, F, F, F))
+    expect_equal(df$hasLegalLabels, c(F, F, F, F))
   })
   
   test_that("modify = CR(U)D", {
