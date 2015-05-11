@@ -133,18 +133,27 @@ modify_levelDefinition(dbName, name = 'Phonetic', newName='phonetic')
 list_levelDefinitions(dbName)
 ```
 
+Let us add a further levelDefinition that will contain the orthographic word transcriptions for the words uttered in our recordings. This level will be of the type `ITEM` meaning that elements contained within the level are ordered but do not contain any time information:
+
+```{r}
+# add
+add_levelDefinition(dbName, name = 'Word', type = 'ITEM')
+# list
+list_levelDefinitions(dbName)
+```
+
 Finally we could remove the levelDefinition with the function `remove_levelDefinition()` which we will not invoke here as we will use the 'phonetic' level below. 
 
 ## Attribute definitions
 
-Each levelDefinition can contain multiple attributes, the most common attribute being a label (`"type": "STRING"`). Due to this it is possible to have multiple parallel labels in a single level. This means that a single annotation item can contain multiple labels while sharing other properties such as the start and duration information. This can be quite handy in modeling certain types of data. A illustrative example of this would be the 'phonetic' level created above. It is often the case that databases contain the phonetic transcript using IPA UTF-8 symbols as well as using the Speech Assessment Methods Phonetic Alphabet (SAMPA). This is a perfect choice for using multiple attributeDefinitions within a single level:
+Each levelDefinition can contain multiple attributes, the most common attribute being a label (`"type": "STRING"`). Due to this it is possible to have multiple parallel labels in a single level. This means that a single annotation item can contain multiple labels while sharing other properties such as the start and duration information. This can be quite handy in modeling certain types of data. A illustrative example of this would be the 'phonetic' level created above. It is often the case that databases contain both the phonetic transcript using IPA UTF-8 symbols as well as using the Speech Assessment Methods Phonetic Alphabet (SAMPA). This is a perfect choice for using multiple attributeDefinitions within a single level:
 
 ```{r}
 # list
 list_attributeDefinitions(dbName, 'phonetic')
 ```
 
-Even though we have not added a single attribute definition to the 'phonetic' level definition it already contains an obligatory attribute definition that has to have the same name as it's level indicating that it is the primary attribute of that level. To follow the above example let us now add a further attribute definition to the level definition that will contain the SAMPA versions of our annotations.   
+Even though we have not added a single attribute definition to the 'phonetic' level definition it already contains an obligatory attribute definition that has to have the same name as it's level indicating that it is the primary attribute of that level. To follow the above example let us now add a further attribute definition to the level definition that will contain the SAMPA versions of our annotations.
 
 ```{r}
 # add
@@ -153,15 +162,28 @@ add_attributeDefinition(dbName, 'phonetic', newName = 'SAMPA')
 list_attributeDefinitions(dbName, 'phonetic')
 ```
 
+### legal labels 
 
+TODO write about legal labels field
+
+### labelGroups  
+
+TODO write about label groups field
 
 ## Link definitions
 
 Todo write
 
+## Files files files...
+
+Up until now we have defined the structure of our database. An essential part that is missing is of course the audio files that we wish to analyse. To import audio files into the database one simply has to:
+
+```{r}
+```
+
 ## SSFF track definitions
 
-Todo write 
+Todo write
 
   
 # Autobuilding
