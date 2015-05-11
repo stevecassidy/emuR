@@ -19,7 +19,11 @@ create.schema.annotationDescriptor <- function(name=NULL,basePath=NULL,extension
 ## @keywords emuDB attribute level Emu
 ## 
 create.schema.attributeDefinition <- function(name, type='STRING',labelGroups=NULL){
-  o <- list(name=name,type=type,labelGroups=labelGroups)
+  if(is.null(labelGroups)){
+    o <- list(name=name,type=type)
+  }else{
+    o <- list(name=name,type=type,labelGroups=labelGroups)
+  }
   class(o) <- c('emuDB.schema.attributeDefinition','list')
   invisible(o)
 }
