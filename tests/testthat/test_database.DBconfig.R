@@ -195,6 +195,8 @@ test_that("CRUD operations work for attributeDefinitions", {
   duplicate.loaded.emuDB("ae", tmpDbName, fp)
   
   test_that("add = (C)RUD", {
+    expect_error(add_attributeDefinition(tmpDbName, 'Word', 'Word')) # present attrDef
+    
     add_attributeDefinition(tmpDbName, 'Word', 'testAttrDef')
     df = list_attributeDefinitions(tmpDbName, 'Word')
     expect_true('testAttrDef' %in% df$name)
@@ -209,14 +211,16 @@ test_that("CRUD operations work for attributeDefinitions", {
   })
   
   test_that("modify = CR(U)D", {
-
+    # not implemented yet
     
   })
   
   test_that("remove = CRU(D)", {
-    
-
-    
+    expect_error(remove_attributeDefinition(tmpDbName, 'Word', 'Word'))
+    expect_error(remove_attributeDefinition(tmpDbName, 'Word', 'Accent'))
+    remove_attributeDefinition(tmpDbName, 'Word', 'testAttrDef')
+    df = list_attributeDefinitions(tmpDbName, 'Word')
+    expect_equal(nrow(df), 3)
   })
   
   

@@ -552,11 +552,13 @@ add_attributeDefinition <- function(dbName, levelName,
         break
       }
     }
+  }else{
+    stop(paste0("attributeDefinition with name '", newName, "' already present in level '", levelName, "'"))
   }
   
   # store changes
   .store.schema(dbObj)
-
+  
 }
 
 ##' List attribute definitions of emuDB
@@ -579,7 +581,7 @@ list_attributeDefinitions <- function(dbName, levelName, dbUUID=NULL){
                     stringsAsFactors = F)
     for(ad in ld$attributeDefinitions){
       if(ad$name == "testAttrDef"){
-#         browser()
+        #         browser()
       }
       df = rbind(df, df = data.frame(name = ad$name, 
                                      type = ad$type, 
@@ -594,6 +596,7 @@ list_attributeDefinitions <- function(dbName, levelName, dbUUID=NULL){
                      hasLegalLabels = !is.null(ld$attributeDefinitions[[1]]$legalLabels),
                      stringsAsFactors = F)
   }
+  rownames(df) <- NULL
   return(df)
 }
 
@@ -601,8 +604,60 @@ modify_attributeDefinition <- function(){
   stop('Not implemnted yet')
 }
 
-remove_attributeDefinition <- function(){
-  stop('Not implemnted yet')
+##' Remove attribute definitions from emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param levelName name of level
+##' @param attributeDefinitionName name of attributeDefinition
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Raphael Winkelmann
+##' @export
+##' @keywords emuDB database schema Emu
+remove_attributeDefinition <- function(dbName, 
+                                       levelName, 
+                                       attributeDefinitionName, 
+                                       dbUUID = NULL){
+  
+  if(levelName == attributeDefinitionName){
+    stop("Can not remove primary attributeDefinition (attributeDefinition with same name as level)")
+  }
+  
+  uuid=get_emuDB_UUID(dbName, dbUUID)
+  dbObj = .load.emuDB.DBI(uuid = uuid)
+  
+  ld = get.levelDefinition(dbObj$DBconfig, levelName)
+  
+  # check if instances are present
+  qRes = dbGetQuery(getEmuDBcon(), paste0("SELECT * FROM items AS it, labels AS lb WHERE ",
+                                          "it.db_uuid = lb.db_uuid AND ", 
+                                          "it.session = lb.session AND ", 
+                                          "it.bundle = lb.bundle AND ",
+                                          "it.itemID = lb.itemID AND ",
+                                          "it.level = '", levelName, "' AND ",
+                                          "lb.name = '", attributeDefinitionName, "'"))
+  
+  if(nrow(qRes) > 0){
+    stop("Can not remove attributeDefinition if there are labels present")
+  }else{
+    levDefIdx = NULL
+    for(i in 1:length(dbObj$DBconfig$levelDefinitions)){
+      if(dbObj$DBconfig$levelDefinitions[[i]]$name == levelName){
+        levDefIdx = i
+        break
+      }
+    }
+    
+    for(i in 1:length(dbObj$DBconfig$levelDefinitions[[levDefIdx]]$attributeDefinitions)){
+      if(dbObj$DBconfig$levelDefinitions[[levDefIdx]]$attributeDefinitions[[i]]$name == attributeDefinitionName){
+        dbObj$DBconfig$levelDefinitions[[levDefIdx]]$attributeDefinitions[[i]] = NULL
+        break
+      }
+    }  
+  }
+  
+  # store changes
+  .store.schema(dbObj)
+  
 }
 
 
