@@ -309,7 +309,7 @@ convert.query.result.to.seglist<-function(dbConfig,result){
     hasLinks=(nrow(links)>0)
     
     # select columns: id,session,bundle,startItemId,endItemID ,type ...
-    q="SELECT s.db_uuid || '_' || s.session || '_' || s.bundle || '_' || s.itemID || '_' || e.itemID AS id,s.session,s.bundle,s.itemID AS startitemID ,e.itemID AS enditemID,s.type, "
+    q="SELECT s.db_uuid || '_' || s.session || '_' || s.bundle || '_' || s.itemID || '_' || e.itemID AS id,s.session,s.bundle,s.itemID AS startItemID ,e.itemID AS endItemID,s.type, "
     
     # find sequence start position
     # use sample start of sequence start item for type SEGMENT and samplePoint for type EVENT 
@@ -474,7 +474,7 @@ convert.query.result.to.segmentlist<-function(dbConfig,result){
     hasLinks=(nrow(links)>0)
     
     # select columns: id,session,bundle,startItemId,endItemID ,type ...
-    selectStr="SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS startitemID ,e.itemID AS enditemID,s.type, "
+    selectStr="SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS startItemID ,e.itemID AS endItemID,s.type, "
     
     # find sequence start position
     # use sample start of sequence start item for type SEGMENT and samplePoint for type EVENT 
@@ -531,7 +531,7 @@ convert.query.result.to.segmentlist<-function(dbConfig,result){
     whereStr="WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND e.level=s.level AND "
     
     # order
-    #orderStr="ORDER BY s.db_uuid,s.session,s.bundle,startitemID,enditemID"
+    #orderStr="ORDER BY s.db_uuid,s.session,s.bundle,startItemID,endItemID"
     orderStr=''
     
     # append terms depending on maximum sequence length
@@ -595,7 +595,7 @@ convert.query.result.to.segmentlist<-function(dbConfig,result){
                        ELSE \
                         'segment' \
                        END AS slType, \
-                       db_uuid,session,bundle,startitemID,enditemID,type,sampleStart,sampleEnd,sampleRate \
+                       db_uuid,session,bundle,startItemID,endItemID,type,sampleStart,sampleEnd,sampleRate \
                       FROM segListData")
     slType=''
     if(nrow(seglist)>0){
@@ -1439,8 +1439,8 @@ query<-function(dbName=NULL,query,sessionPattern=NULL,bundlePattern=NULL,queryLa
       }
       
       if(is.null(resultType)){
-        #return(query.database.with.eql.segmentlist(dbConfig,query))
-        return(query.database.with.eql(dbConfig,query))
+        return(query.database.with.eql.segmentlist(dbConfig,query))
+        #return(query.database.with.eql(dbConfig,query))
       }else{
         if(resultType=='emusegs'){
           return(query.database.with.eql.seglist(dbConfig,query))
@@ -1524,7 +1524,7 @@ print.emuDB.query.result<-function(queryResult){
 #   hasLinks=(nrow(links)>0)
 #   
 #   # select columns: id,session,bundle,startItemId,endItemID ,type ...
-#   selectStr="SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS startitemID ,e.itemID AS enditemID,s.type, "
+#   selectStr="SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS startItemID ,e.itemID AS endItemID,s.type, "
 #   
 #   # find sequence start position
 #   # use sample start of sequence start item for type SEGMENT and samplePoint for type EVENT 
@@ -1581,7 +1581,7 @@ print.emuDB.query.result<-function(queryResult){
 #   whereStr="WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND e.level=s.level AND "
 #   
 #   # order
-#   #orderStr="ORDER BY s.db_uuid,s.session,s.bundle,startitemID,enditemID"
+#   #orderStr="ORDER BY s.db_uuid,s.session,s.bundle,startItemID,endItemID"
 #   orderStr=''
 #   
 #   # append terms depending on maximum sequence length
@@ -1645,7 +1645,7 @@ print.emuDB.query.result<-function(queryResult){
 #                        ELSE \
 #                         'segment' \
 #                        END AS slType, \
-#                        db_uuid,session,bundle,startitemID,enditemID,type,sampleStart,sampleEnd,sampleRate \
+#                        db_uuid,session,bundle,startItemID,endItemID,type,sampleStart,sampleEnd,sampleRate \
 #                       FROM segListData")
 #   slType=''
 #   if(nrow(seglist)>0){
