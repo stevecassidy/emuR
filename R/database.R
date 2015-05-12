@@ -1289,7 +1289,7 @@ bundle.iterator<-function(db,apply){
 ##' @param targetDir target directory in which to store the emuDB
 ##' @param mediaFileExtension defines mediaFileExtention (NOTE: currently only 
 ##' 'wav' (the default) is supported by all components of EMU)
-##' @param purge purge newly created emuDB from session
+##' @param purge purge newly created emuDB from R session
 ##' @param store store new created emuDB to file system
 ##' @param verbose display infos & show progress bar
 ##' @author Klaus Jaensch

@@ -15,7 +15,7 @@ create_emuDB(name, targetDir, mediaFileExtension = "wav", purge = TRUE,
 \item{mediaFileExtension}{defines mediaFileExtention (NOTE: currently only
 'wav' (the default) is supported by all components of EMU)}
 
-\item{purge}{purge newly created emuDB from session}
+\item{purge}{purge newly created emuDB from R session}
 
 \item{store}{store new created emuDB to file system}
 
