@@ -179,7 +179,18 @@ Todo write
 Up until now we have defined the structure of our database. An essential part that is missing is of course the audio files that we wish to analyse. To import audio files into the database one simply has to:
 
 ```{r}
+# get path to folder containing wav files 
+# (in this case wav files that come with the wrassp package)
+fp = system.file('extdata', package='wrassp')
+# import media files into emuDB session called wrassp
+import_mediaFiles(dbName, dir = fp, targetSessionName = 'wrassp')
+# list session
+list_sessions(dbName)
+# list bundles
+list_bundles(dbName)
 ```
+
+
 
 ## SSFF track definitions
 

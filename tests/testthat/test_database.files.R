@@ -3,14 +3,42 @@
 ##' @author Raphael Winkelmann
 context("testing add.files.to.emuDB functions")
 
-path2ae = system.file("extdata/emu/DBs/ae/", package = "emuR")
+path2extdata = system.file("extdata", package = "emuR")
 
-path2legacy_ae = system.file("extdata/legacy_emu/DBs/ae/", package = "emuR")
+if(!is.emuDB.loaded("ae")){
+  load_emuDB(paste(path2extdata, '/emu/DBs/ae/', sep = ''), verbose = F) # SIC / hardcoded!!!!!!!!!!
+}
 
-# copy db to tempdir
-file.copy(path2ae, tempdir(), recursive = T)
+tmpDbName = 'ae_copy'
 
-path2newDB = file.path(tempdir(),'ae')
+
+#######################################
+test_that("file operations work", {
+  # pre clean (just in case)
+  unlink(file.path(tempdir(),tmpDbName), recursive = TRUE)
+  
+  # copy ae and rename
+  file.copy(file.path(path2extdata, '/emu/DBs/ae/'), tempdir(), recursive = T)
+  file.rename(file.path(tempdir(), 'ae'), file.path(tempdir(), 'ae_copy'))
+  
+  # make copy of ae to mess with (caution correct DBconfig not stored)
+  fp = file.path(tempdir(), tmpDbName)
+  duplicate.loaded.emuDB("ae", tmpDbName, fp)
+  
+  test_that("import_mediaFiles works", {
+    wavPath = system.file('extdata', package='wrassp')
+    import_mediaFiles(tmpDbName, dir = wavPath, targetSessionName = 'newSes', verbose = F)
+    # TODO check files
+  })
+  
+  
+  # clean up
+  if(is.emuDB.loaded(tmpDbName)){
+    UUID = get_emuDB_UUID(dbName = tmpDbName)
+    purge_emuDB(dbName = tmpDbName, dbUUID = UUID, interactive = F)
+  }
+
+})
 
 
 ##############################
@@ -27,5 +55,4 @@ path2newDB = file.path(tempdir(),'ae')
 # })
 
 
-# clean up
-unlink(path2newDB, recursive = T)
+
