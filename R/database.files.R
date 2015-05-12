@@ -125,8 +125,8 @@ import_mediaFiles<-function(dbName,dir,targetSessionName='0000',dbUUID=NULL, ver
 ##' @export
 ##' @author Raphael Winkelmann
 ##'
-add_files_to_bundles <- function(path2rootDir, path2sessionDir, 
-                                 fileExt, mediafileExtension = 'wav'){
+add_files <- function(path2rootDir, path2sessionDir, 
+                      fileExt, mediafileExtension = 'wav'){
   
   # gernerate file pail list
   fpl = create_filePairList(path2sessionDir, path2rootDir, mediafileExtension, fileExt)
@@ -140,6 +140,33 @@ add_files_to_bundles <- function(path2rootDir, path2sessionDir,
     file.copy(sourcePaths[i], destDirs[i])
   }
 } 
+
+##' List files of emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param dbUUID optional UUID of loaded emuDB
+##' @param sessionPattern A (glob) pattern matching sessions to be searched from the database
+##' @param bundlePattern A (glob) pattern matching bundles to be searched from the database
+##' @author Raphael Winkelmann
+##' @export
+##' @keywords emuDB database schema Emu 
+list_files <- function(dbName,
+                       sessionPattern = NULL,
+                       bundlePattern = NULL,
+                       dbUUID = NULL){
+  
+  
+  
+  stop('not implemented yet')
+}
+
+modify_files <- function(){
+  stop('not implemented yet')
+}
+
+remove_files <- function(){
+  stop('not implemented yet')
+}
 
 
 #########################

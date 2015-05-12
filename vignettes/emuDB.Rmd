@@ -142,7 +142,7 @@ add_levelDefinition(dbName, name = 'Word', type = 'ITEM')
 list_levelDefinitions(dbName)
 ```
 
-Finally we could remove the levelDefinition with the function `remove_levelDefinition()` which we will not invoke here as we will use the 'phonetic' level below. 
+Finally we could remove one of the levelDefinitions with the function `remove_levelDefinition()`, which we will not invoke here as we will use the 'phonetic' level below. 
 
 ## Attribute definitions
 
@@ -153,7 +153,7 @@ Each levelDefinition can contain multiple attributes, the most common attribute 
 list_attributeDefinitions(dbName, 'phonetic')
 ```
 
-Even though we have not added a single attribute definition to the 'phonetic' level definition it already contains an obligatory attribute definition that has to have the same name as it's level indicating that it is the primary attribute of that level. To follow the above example let us now add a further attribute definition to the level definition that will contain the SAMPA versions of our annotations.
+Even though we have not added a single attribute definition to the 'phonetic' level definition it already contains the obligatory attribute definition that has to have the same name as it's level, indicating that it is the primary attribute of that level. To follow the above example let us now add a further attribute definition to the level definition that will contain the SAMPA versions of our annotations.
 
 ```{r}
 # add
@@ -174,9 +174,9 @@ TODO write about label groups field
 
 Todo write
 
-## Files files files...
+## File handeling
 
-Up until now we have defined the structure of our database. An essential part that is missing is of course the audio files that we wish to analyse. To import audio files into the database one simply has to:
+Up until now we have defined the structure of our database. An essential part that is missing is of course the recordings that we wish to analyse. To import audio files into the database one simply has to:
 
 ```{r}
 # get path to folder containing wav files 
@@ -190,6 +190,11 @@ list_sessions(dbName)
 list_bundles(dbName)
 ```
 
+We have now added a new session containing new bundles to the database that adhere to the structure we have specified above. Note that the levels in the annotation files (`_annot.json`) that where created during the import are still empty. These will have to be created manually using the EMU-webApp. To list the files that are part of the emuDB simply:
+
+```{r}
+# list_files(dbName)
+```
 
 
 ## SSFF track definitions
@@ -221,8 +226,6 @@ Todo write
 The annotation of large complex multileveled hierarchical speech databases is
 a very time consuming laborious procedure. The *emuR* provides functions to
 automate various bits of this procedure to help with this laborious task.
-
-This document describes how to automatically build hierarchies for a given 
 
 **emuDB**
 
