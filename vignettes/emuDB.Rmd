@@ -176,7 +176,7 @@ Todo write
 
 ## File handeling
 
-Up until now we have defined the structure of our database. An essential part that is missing is of course the recordings that we wish to analyse. To import audio files, refered to as media files in the context of an emuDB, into the database one simply has to:
+Up until now we have defined the structure of our database. An essential part that is missing is of course the recordings that we wish to analyse. To import audio files, refered to as media files in the context of an emuDB, into the database one simply has to do the following:
 
 ```{r}
 # get path to folder containing wav files 
@@ -197,6 +197,19 @@ We have now added a new session containing new bundles to the database that adhe
 list_files(dbName)
 ```
 
+The emuR package also provides a mechanism to add files to preexisting bundle folders as, due to the nested folder structure of an emuDB, this can be quite tedious to perform manually. Let us create a set of files that contain the zero-crossing-rate values of the wav files we added above and for the sake of demonstration save them to a different location to then re-add them to the database.
+
+```{r}
+# list all wav files in new emuDB
+wavFilePaths = list.files(dbPath, pattern = "wav$", full.names = T, recursive = T)
+# create folder to store zcr values in
+outDirPath = file.path(tempdir(), 'zcranaVals')
+dir.create(outDirPath)
+# calculate zero-crossing-rate files
+# using zcrana function of wrassp package
+zcrana(wavFilePaths, outputDirectory = outDirPath)
+
+```
 
 ## SSFF track definitions
 

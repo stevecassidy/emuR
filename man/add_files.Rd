@@ -2,26 +2,33 @@
 % Please edit documentation in R/database.files.R
 \name{add_files}
 \alias{add_files}
-\title{Add files to bundles}
+\title{Add files to emuDB}
 \usage{
-add_files(path2rootDir, path2sessionDir, fileExt, mediafileExtension = "wav")
+add_files(dbName, dir, fileExtension, targetSessionName = "0000",
+  dbUUID = NULL)
 }
 \arguments{
-\item{path2rootDir}{path to directory containing files that should be added}
+\item{dbName}{name of loaded emuDB}
 
-\item{path2sessionDir}{path to session directory containing the destination bundles}
+\item{dir}{directory containing files to be added}
 
-\item{fileExt}{file extention of the files that should be added to the bundles}
+\item{fileExtension}{file extension of file to be added}
 
-\item{mediafileExtension}{file extention of media files of emuDB (default='wav')}
+\item{targetSessionName}{name of sessions containing
+bundles that the files will be added to}
+
+\item{dbUUID}{optional UUID of loaded emuDB}
 }
 \description{
-Matches the basenames of all files found in path2rootDir
-with the according mediafiles contained in the session
-folder specified and copies the files into the according
-_bndl folders.
+Add files to bundles of specified session of emuDB.
+The files that are found in dir that have the extension
+fileExtension will be copied into the the according bundle
+folder that have the same basename as the according file.
 }
 \author{
 Raphael Winkelmann
 }
+\keyword{Emu}
+\keyword{database}
+\keyword{emuDB}
 

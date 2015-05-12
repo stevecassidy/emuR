@@ -111,32 +111,48 @@ import_mediaFiles<-function(dbName,dir,targetSessionName='0000',dbUUID=NULL, ver
 # CRUD operations for files
 
 
-##' Add files to bundles
+##' Add files to emuDB
 ##' 
-##' Matches the basenames of all files found in path2rootDir
-##' with the according mediafiles contained in the session
-##' folder specified and copies the files into the according
-##' _bndl folders.
+##' Add files to bundles of specified session of emuDB.
+##' The files that are found in dir that have the extension 
+##' fileExtension will be copied into the the according bundle
+##' folder that have the same basename as the according file. 
 ##' 
-##' @param path2rootDir path to directory containing files that should be added
-##' @param path2sessionDir path to session directory containing the destination bundles
-##' @param fileExt file extention of the files that should be added to the bundles
-##' @param mediafileExtension file extention of media files of emuDB (default='wav')
-##' @export
+##' @param dbName name of loaded emuDB
+##' @param dir directory containing files to be added
+##' @param fileExtension file extension of file to be added
+##' @param targetSessionName name of sessions containing 
+##' bundles that the files will be added to
+##' @param dbUUID optional UUID of loaded emuDB
 ##' @author Raphael Winkelmann
-##'
-add_files <- function(path2rootDir, path2sessionDir, 
-                      fileExt, mediafileExtension = 'wav'){
+##' @export
+##' @keywords emuDB database Emu 
+add_files <- function(dbName, dir, fileExtension, targetSessionName='0000', dbUUID=NULL){
   
-  # gernerate file pail list
-  fpl = create_filePairList(path2sessionDir, path2rootDir, mediafileExtension, fileExt)
+  dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
+  dbObj = .load.emuDB.DBI(name = dbName, uuid = dbUUID)
   
-  # extract sourcePaths and destDirs
-  sourcePaths = fpl[,2]
-  destDirs = dirname(fpl[,1])
+  # get all basePath + bundles
+  l = list_emuDBs()
+  bp = l[l$uuid == dbUUID, ]$basePath
+  
+  
+  bndls = list_bundles(dbName, session = targetSessionName, dbUUID=dbUUID)
+  
+  sourcePaths = list.files(dir, pattern = paste0(fileExtension, '$'), full.names = T)
+  
+  destDirs = file.path(bp, paste0(bndls$session, '_ses'), paste0(bndls$name, '_bndl'))
   
   # copy files
   for (i in 1:length(sourcePaths)){
+    cbn = basename(file_path_sans_ext(sourcePaths[i]))
+    cbndl = bndls[bndls$name == cbn, ]
+    # check that only one bundle folder
+    if(nrow(cbndl) != 1){
+      stop(paste0("more or less then one bundle found that matches the base name of the file '", sourcePaths[i], "'"))
+    }
+    
+    destDir = file.path(bp, paste0(cbndl$session, '_ses'), paste0(cbndl$name, '_bndl'))
     file.copy(sourcePaths[i], destDirs[i])
   }
 }
@@ -144,9 +160,9 @@ add_files <- function(path2rootDir, path2sessionDir,
 ##' List files of emuDB
 ##' 
 ##' @param dbName name of loaded emuDB
-##' @param dbUUID optional UUID of loaded emuDB
 ##' @param sessionPattern A (glob) pattern matching sessions to be searched from the database
 ##' @param bundlePattern A (glob) pattern matching bundles to be searched from the database
+##' @param dbUUID optional UUID of loaded emuDB
 ##' @author Raphael Winkelmann
 ##' @export
 ##' @keywords emuDB database Emu 
@@ -176,7 +192,7 @@ list_files <- function(dbName,
                               file = fps,
                               stringsAsFactors = F))  
   }
-
+  
   # filter for patterns
   df = df[grepl(glob2rx(sessionPattern), df$session) & grepl(glob2rx(bundlePattern), df$bundle),]
   
