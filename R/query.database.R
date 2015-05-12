@@ -128,19 +128,6 @@ query.database.level.label<-function(ldf,levelName,conditionText){
   return(res)
 }
 
-
-#list.seq.items<-function(resSeq){
-#  sqIts=sqldf("SELECT i.* FROM items i,items s,items e,resSeq r WHERE s.id=r.seqStartId AND e.id=r.seqEndId AND i.session=s.session AND i.bundle=s.bundle AND i.level=s.level AND i.seqIdx>=s.seqIdx AND i.seqIdx<=e.seqIdx")
-#  return(sqIts)
-#}
-
-
-#list.seq.item.ids<-function(resSeq){
-#  cat("Seqs:",nrow(resSeq),"\n")
-#  sqIts=sqldf("SELECT i.id FROM items i,items s,items e,resSeq r WHERE s.id=r.seqStartId AND e.id=r.seqEndId AND i.session=s.session AND i.bundle=s.bundle AND i.level=s.level AND i.seqIdx>=s.seqIdx AND i.seqIdx<=e.seqIdx")
-#  return(sqIts)
-#}
-
 equal.emusegs<-function(seglist1,seglist2,compareAttributes=TRUE,tolerance=0.0,uttsPrefix2=''){
   if(!inherits(seglist1,"emusegs")){
     stop("seglist1 is not of class emusegs")
@@ -266,42 +253,7 @@ convert.query.result.to.seglist<-function(dbConfig,result){
     #st=system.time((seqLbls=sqldf(c(itemsIdxSql,resIdxSql,labelsIdxSql,seqLblQStr))))
     #cat(st,"\n")
     seqLbls=sqldf(c(itemsIdxSql,resIdxSql,labelsIdxSql,seqLblQStr))
-    
-#     # build query for label sequence string
-#     # TODO assume equal seq len for each sequence for now!!
-#     # this is not the case for queries like emu.query("andosl","*","[#[Phonetic=t -> Phonetic=S] -> #Phonetic=I]")
-#     # which are not allowed by BNF but in fact they are working with Emu 2.3
-#     # result would be a mix with t->S and I items (sequence lengths 2 and 1)
-#     
-#     # build dynamic query to build label string for variable result sequence length
-#     selectStrL="SELECT s.db_uuid || '_' || s.session || '_' || s.bundle || '_' || s.itemID || '_' || e.itemID AS id, "
-#     fromStrL='FROM items s,items e,its q,'
-#     whereStrL='WHERE s.db_uuid=q.db_uuid AND s.session=q.session AND s.bundle=q.bundle AND s.itemID=q.seqStartId AND e.db_uuid=q.db_uuid AND e.session=e.session AND e.bundle=q.bundle AND e.itemID=q.seqEndId AND '
-#     for(seqIdx in 1:maxSeqLen){
-#       selectStrL=paste0(selectStrL,'(SELECT l.label FROM lblsDf l WHERE l.db_uuid=i',seqIdx,'.db_uuid AND l.session=i',seqIdx,'.session AND l.bundle=i',seqIdx,'.bundle AND   l.itemID=i',seqIdx,".itemID AND l.name=q.level)")
-#      
-#       #selectLblStr=paste0(selectLblStr,)
-#       fromStrL=paste0(fromStrL,'items i',seqIdx)
-#       offset=seqIdx-1
-#       whereStrL=paste0(whereStrL,'i',seqIdx,'.db_uuid=s.db_uuid AND i',seqIdx,'.session=s.session AND i',seqIdx,'.bundle=s.bundle AND i',seqIdx,'.level=s.level AND i',seqIdx,'.seqIdx=s.seqIdx+',offset)
-#       if(seqIdx<maxSeqLen){
-#         #selectStrL=paste0(selectStrL,',')
-#         selectStrL=paste0(selectStrL," || '->' || ")
-#         fromStrL=paste0(fromStrL,',')
-#         whereStrL=paste0(whereStrL,' AND ')
-#       }
-#     }
-#     selectStrL=paste0(selectStrL," AS seqLabel ")
-#     
-#     seqLblLQStr=paste0(selectStrL,' ',fromStrL,' ',whereStrL,' ORDER BY id')
-#     cat(seqLblLQStr,"\n")
-#     #st=system.time((seqLbls=sqldf(c(itemsIdxSql,resIdxSql,labelsIdxSql,seqLblQStr))))
-#     #cat(st,"\n")
-#     seqLblsL=sqldf(c(itemsIdxSql,resIdxSql,labelsIdxSql,seqLblLQStr))
-#     
-#     print(seqLblsL)
-#     
-    
+        
     # query seglist data except labels
     # for this data the information in start end item of the sequence is sufficient
     # it takes only the start  and end items of the query result in account
