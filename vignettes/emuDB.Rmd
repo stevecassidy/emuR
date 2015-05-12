@@ -1,5 +1,5 @@
 ---
-title: "emuDB: The database format of the next iteration of the EMU speech database managment system"
+title: "emuDB: The database format of the next iteration of the EMU speech database management system"
 author: "Raphael Winkelmann"
 affiliation: "Institute Of Phonetic And Speech Processing (LMU Munich)"
 date: "`r Sys.Date()`"
@@ -15,7 +15,7 @@ vignette: >
 
 # Introduction
 
-This document describes the emuDB format that is used by the emuR package. This database format is meant as a simple, general purpose way of storing speech databases that may contain complex hierarchical annotations.
+This document introduces the emuDB format that is used by the emuR package. This database format is meant as a simple, general purpose way of storing speech databases that may contain complex hierarchical annotations.
 
 # DB design
 
@@ -79,7 +79,9 @@ This will create a new emuDB in the folder `tempdir()` called 'newDbName'. The e
 To create an emuDB from scratch simply call:
 
 ```{r}
-create_emuDB('fromScratchDB', tempdir(), verbose=F)
+create_emuDB(name = 'fromScratchDB', 
+             targetDir = tempdir(), 
+             verbose=F)
 ```
 
 This will create an empty emuDB that does not have any ssffTrackDefinitions or levelsDefinitions as well as not containing any sessions or bundles. Adding these to the emuDB is described in the next section.
@@ -87,15 +89,16 @@ This will create an empty emuDB that does not have any ssffTrackDefinitions or l
 # Manipulating a database
 
 The initial step in manipulating or generally interacting with a database is to load the according database into your current R session. People interested in the way the emuR package caches the database are referred to the **emuDB caching** section of this document.
+
 ```{r}
-# gernerate path to the emtpy fromScratchDB created above
+# generate path to the empty fromScratchDB created above
 dbPath = file.path(tempdir(), 'fromScratchDB')
 # load database
 dbName = load_emuDB(dbPath, verbose = F)
 print(dbName)
 ```
 
-This will load the database into it's cached form for quick access to the data. Note that if a large emuDB has never been loaded and no cache has previously been generated, this can take a while to complete. Once a cache is present only altered annotation files have to be updated. As you can see the `load_emuDB()` function returns the name of the database. This name is used to reference the loaded database in most database interaction functions of the emuR package. If you have multiple emuDBs loaded these can be listed by calling:
+This will load the database into it's cached form for quick access to the data. Note that if a large emuDB has never been loaded and no cache has previously been generated, this can take a while to complete. Once a cache is present only altered annotation files have to be updated with reduces load times dramatically. As you can see the `load_emuDB()` function returns the name of the database. This name is used to reference the loaded database in most database interaction functions of the emuR package. If you have multiple emuDBs loaded these can be listed by calling:
 
 ```{r}
 list_emuDBs()
@@ -110,12 +113,18 @@ The general function prefix naming convention of database manipulation functions
 - `modify_XXX` modify existing instances of `XXX`
 - `remove_XXX` removing existing instances of `XXX`
 
+Depending on the instance that you wish to manipulate some or all of these functions will be present.
+
 ## Level definitions
 
-As an example: Say we wish to add a new level definition to the already loaded empty database 'fromScratchDB'. This can be achieved by invoking the function:
+Compared to other system the EMU speech database management system requires the user to formally define the structure of the database. An essential stuctural element of any emuDB are it's levels. A level is a more general term for what is often referred to as a "tier". It is more general in the sense that people quite often expect tiers to contain time information. Levels can either contain time information if they are of are either of the type "EVENT" or of the type "SEGMENT" or be timeless if they are of the type "ITEM".
+
+As the already loaded 'fromScratchDB' does not contain any structural elements including levels we will begin by adding a new level definition:
 
 ```{r}
-add_levelDefinition(dbName, name = 'Phonetic', type = 'SEGMENT')
+add_levelDefinition(dbName, 
+                    name = 'Phonetic', 
+                    type = 'SEGMENT')
 ```
 
 To check if this action was successful we can simply list the current level definitions by calling:
@@ -124,49 +133,59 @@ To check if this action was successful we can simply list the current level defi
 list_levelDefinitions(dbName)
 ```
 
-If we wish to change the name/type of the level we have just added to the database we can invoke (NOTE: If there are actual instances of annotation items present in the emuDB this will not be possible. These would first have to be removed.):   
+If we wish to change the name/type of the level we have just added to the database we can invoke:   
 
 ```{r}
 # modify (rename to lower case)
-modify_levelDefinition(dbName, name = 'Phonetic', newName='phonetic')
+modify_levelDefinition(dbName, 
+                       name = 'Phonetic', 
+                       newName='phonetic')
 # list
 list_levelDefinitions(dbName)
 ```
+
+*NOTE: If there are actual instances of annotation items present in the emuDB this will not be possible. These would first have to be removed.*
 
 Let us add a further levelDefinition that will contain the orthographic word transcriptions for the words uttered in our recordings. This level will be of the type `ITEM` meaning that elements contained within the level are ordered but do not contain any time information:
 
 ```{r}
 # add
-add_levelDefinition(dbName, name = 'Word', type = 'ITEM')
+add_levelDefinition(dbName, 
+                    name = 'Word', 
+                    type = 'ITEM')
 # list
 list_levelDefinitions(dbName)
 ```
 
-Finally we could remove one of the levelDefinitions with the function `remove_levelDefinition()`, which we will not invoke here as we will use the 'phonetic' level below. 
+Finally we could remove one of the levelDefinitions with the function `remove_levelDefinition()`, which we will once again not invoke here as we still wish to use these levelDefinitions. 
 
-## Attribute definitions
+### Attribute definitions
 
 Each levelDefinition can contain multiple attributes, the most common attribute being a label (`"type": "STRING"`). Due to this it is possible to have multiple parallel labels in a single level. This means that a single annotation item can contain multiple labels while sharing other properties such as the start and duration information. This can be quite handy in modeling certain types of data. A illustrative example of this would be the 'phonetic' level created above. It is often the case that databases contain both the phonetic transcript using IPA UTF-8 symbols as well as using the Speech Assessment Methods Phonetic Alphabet (SAMPA). This is a perfect choice for using multiple attributeDefinitions within a single level:
 
 ```{r}
 # list
-list_attributeDefinitions(dbName, 'phonetic')
+list_attributeDefinitions(dbName, 
+                          levelName = 'phonetic')
 ```
 
-Even though we have not added a single attribute definition to the 'phonetic' level definition it already contains the obligatory attribute definition that has to have the same name as it's level, indicating that it is the primary attribute of that level. To follow the above example let us now add a further attribute definition to the level definition that will contain the SAMPA versions of our annotations.
+Even though we have not added a single attribute definition to the 'phonetic' level definition. it already contains the obligatory attribute definition that has to have the same name as it's level, indicating that it is the primary attribute of that level. To follow the above example let us now add a further attribute definition to the level definition that will contain the SAMPA versions of our annotations.
 
 ```{r}
 # add
-add_attributeDefinition(dbName, 'phonetic', newName = 'SAMPA')
+add_attributeDefinition(dbName, 
+                        levelName = 'phonetic', 
+                        newName = 'SAMPA')
 # list
-list_attributeDefinitions(dbName, 'phonetic')
+list_attributeDefinitions(dbName, 
+                          levelName = 'phonetic')
 ```
 
-### legal labels 
+#### legal labels 
 
 TODO write about legal labels field
 
-### labelGroups  
+#### labelGroups  
 
 TODO write about label groups field
 
@@ -176,65 +195,84 @@ Todo write
 
 ## File handeling
 
-Up until now we have defined the structure of our database. An essential part that is missing is of course the recordings that we wish to analyse. To import audio files, refered to as media files in the context of an emuDB, into the database one simply has to do the following:
+Up until now we have defined the structure of our database. An essential part that is missing is of course the recordings that we wish to analyse. To import audio files, referred to as media files in the context of an emuDB, into the database one simply has to do the following:
 
 ```{r}
 # get path to folder containing wav files 
 # (in this case wav files that come with the wrassp package)
 fp = system.file('extdata', package='wrassp')
 # import media files into emuDB session called wrassp
-import_mediaFiles(dbName, dir = fp, targetSessionName = 'wrassp', verbose = F)
+import_mediaFiles(dbName, 
+                  dir = fp, 
+                  targetSessionName = 'filesFromWrassp', 
+                  verbose = F)
 # list session
 list_sessions(dbName)
 # list bundles
 list_bundles(dbName)
 ```
 
-We have now added a new session containing new bundles to the database that adhere to the structure we have specified above. Note that the levels in the annotation files (`_annot.json`) that where created during the import are still empty. These will have to be created manually using the EMU-webApp. To list the files that are part of the emuDB simply:
+We have now added a new session called 'filesFromWrassp' to the 'fromScratchDB' containing a new bundle for each of our imported media files. These bundles adhere to the structure we have specified above. Note however that the levels in the annotation files (`_annot.json`) that where created during the import are still empty. These will have to be created manually using the EMU-webApp. To list the files that are part of the emuDB simply:
 
 ```{r}
-# list files
-list_files(dbName)
+# show head of list_files
+head(list_files(dbName))
 ```
 
 The emuR package also provides a mechanism to add files to preexisting bundle folders as, due to the nested folder structure of an emuDB, this can be quite tedious to perform manually. Let us create a set of files that contain the zero-crossing-rate values of the wav files we added above and for the sake of demonstration save them to a different location to then re-add them to the database.
 
 ```{r}
 # list all wav files in new emuDB
-wavFilePaths = list.files(dbPath, pattern = "wav$", full.names = T, recursive = T)
+wavFilePaths = list.files(dbPath, 
+                          pattern = "wav$", 
+                          full.names = T, 
+                          recursive = T)
 # create folder to store zcr values in
 outDirPath = file.path(tempdir(), 'zcranaVals')
 dir.create(outDirPath)
 # calculate zero-crossing-rate files
 # using zcrana function of wrassp package
-zcrana(wavFilePaths, outputDirectory = outDirPath)
-
+zcrana(listOfFiles = wavFilePaths, 
+       outputDirectory = outDirPath)
+# add zcr files to emuDB
+add_files(dbName, 
+          dir = outDirPath, 
+          fileExtension = 'zcr',
+          targetSessionName = 'filesFromWrassp')
+# show head of list_files to check if files where added
+head(list_files(dbName))
 ```
+
 
 ## SSFF track definitions
 
-Todo write
+A further important structural element of any emuDB are the so called ssffTracks (often simply refered to as tracks). These ssffTracks reference data that is stored in the **S**imple **S**ignal **F**ile **F**ormat (**SSFF**) in the according `_bndl` folders. The two main types of data are:
+
+- what is often referred to as complimentary data that was acquired during the recording such as data acquired during **e**lectro**m**agnetic **a**rticulographic (**EMA**) or **e**lectro**p**alato**g**raphy (**EPG**) recordings. 
+- what is often referred to as derived data meaning data that was calculated from the original audio signal such as formant values and their bandwidths or the short-term Root Mean Square amplitude of the signal.
+
+Let us now add an ssffTrackDefinition to our database calculating the according SSFF files on-the-fly:
 
 ```{r}
-#################################
-# add ssffTrackDefinition
-
-# add track without calculating SSFF files
-# add_ssffTrackDefinition('ae', name = 'coolName', columnName = 'fm', fileExtension = 'fms')
-
-# or alternatively add track + calculate SSFF files for entire emuDB
-# add_ssffTrackDefinition('ae', name = 'coolName', columnName = 'fm', fileExtension = 'fms', onTheFlyFunctionName = 'forest')
-
-#################################
-# calculate SSFF files using wrassp
-
-# list wav files 
-# fp=list.files('/Users/raphaelwinkelmann/Developer/emuR/inst/extdata/emu/DBs/ae', recursive = T, full.names = T, pattern = 'wav$')
-
-# calculate formants (NOTE: no ssffTrackDefinitions entry generated! Has to be done manually or using add_ssffTrackDefinition())
-# forest(fp)
+# add track and calculate SSFF files by specifying 
+# one of the signal processing functions the wrassp package provides
+# (in this case the forest (formant estimation) function)
+add_ssffTrackDefinition(dbName, 
+                        name = 'formantValues', 
+                        columnName = 'fm', 
+                        fileExtension = 'fms')
+# list
+list_ssffTrackDefinitions(dbName)
+# show head of list_files to check if files where added
+head(list_files(dbName))
 ```
-  
+
+*NOTE: due to the ability of the get_trackdata() function to utilize any of the signal processing functions of the wrassp package to calculate the necessary values on-the-fly it is quite often not necessary to define ssffTracks for tracks produced by the wrassp package. For complimentary data as well as when data that will be manually manipulated (e.g. manual formant corrections) this is still a feasible and necessary option. Also, if you wish to display SSFF data in the EMU-webApp it is necessary to precalculate the ssffTracks as the web application can not perform on-the-fly calculations.*
+
+## Configuring the EMU-webApp
+
+TODO: write how to configure the EMU-webApp
+
 # Autobuilding
   
 The annotation of large complex multileveled hierarchical speech databases is
