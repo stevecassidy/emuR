@@ -8,6 +8,7 @@
 ##' @author Klaus Jaensch
 ##' @import stringr
 ##' @keywords emuDB database Emu
+##' @export
 ##' @examples
 ##' \dontrun{
 ##' ## Add mediafiles from directory

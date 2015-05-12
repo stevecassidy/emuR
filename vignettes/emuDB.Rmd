@@ -196,6 +196,25 @@ list_bundles(dbName)
 
 Todo write
 
+```{r}
+#################################
+# add ssffTrackDefinition
+
+# add track without calculating SSFF files
+# add_ssffTrackDefinition('ae', name = 'coolName', columnName = 'fm', fileExtension = 'fms')
+
+# or alternatively add track + calculate SSFF files for entire emuDB
+# add_ssffTrackDefinition('ae', name = 'coolName', columnName = 'fm', fileExtension = 'fms', onTheFlyFunctionName = 'forest')
+
+#################################
+# calculate SSFF files using wrassp
+
+# list wav files 
+# fp=list.files('/Users/raphaelwinkelmann/Developer/emuR/inst/extdata/emu/DBs/ae', recursive = T, full.names = T, pattern = 'wav$')
+
+# calculate formants (NOTE: no ssffTrackDefinitions entry generated! Has to be done manually or using add_ssffTrackDefinition())
+# forest(fp)
+```
   
 # Autobuilding
   
