@@ -23,7 +23,7 @@ query(dbName = NULL, query, sessionPattern = NULL, bundlePattern = NULL,
 \item{dbUUID}{optional UUID of emuDB}
 }
 \value{
-result set object of class resultType (e.g. EMU seglist 'emusegs')
+result set object of class resultType (default 'emuRsegs', compatible to leagcy type 'emusegs')
 }
 \description{
 Query an EMU database
@@ -33,11 +33,12 @@ Query an EMU database
 ## Query database object ae with EQL query [Phonetic=t -> Phonetic=s]
 ## and store result seglist in variable segListTs
 
-seglistTs=query(ae,"[Phonetic=t -> Phonetic=s]",resultType='emusegs')
+seglistTs=query('ae','[Phonetic=t -> Phonetic=s]')
 
 ## Query seglist from database object ae with EQL query [Syllable=S ^ Phoneme=t]
+## Request legacy result type 'emusegs'
 
-query(ae,"[Syllable=S ^ Phoneme=t]",resultType='emusegs')
+query('ae','[Syllable=S ^ Phoneme=t]',resultType='emusegs')
 
 }
 }

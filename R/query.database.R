@@ -1381,7 +1381,7 @@ query.database.with.eql<-function(dbConfig,query){
 ##' @param queryLang query language
 ##' @param resultType type (class name) of result
 ##' @param dbUUID optional UUID of emuDB
-##' @return result set object of class resultType (e.g. EMU seglist 'emusegs')
+##' @return result set object of class resultType (default 'emuRsegs', compatible to leagcy type 'emusegs')
 ##' @author Klaus Jaensch
 ##' @import sqldf stringr
 ##' @export
@@ -1392,11 +1392,12 @@ query.database.with.eql<-function(dbConfig,query){
 ##' ## Query database object ae with EQL query [Phonetic=t -> Phonetic=s] 
 ##' ## and store result seglist in variable segListTs
 ##' 
-##' seglistTs=query(ae,"[Phonetic=t -> Phonetic=s]",resultType='emusegs')
+##' seglistTs=query('ae','[Phonetic=t -> Phonetic=s]')
 ##' 
 ##' ## Query seglist from database object ae with EQL query [Syllable=S ^ Phoneme=t]
+##' ## Request legacy result type 'emusegs'
 ##' 
-##' query(ae,"[Syllable=S ^ Phoneme=t]",resultType='emusegs')
+##' query('ae','[Syllable=S ^ Phoneme=t]',resultType='emusegs')
 ##' 
 ##' }
 ##' 
