@@ -353,7 +353,7 @@ get_emuDB_UUID<-function(dbName=NULL,dbUUID=NULL){
     if(is.null(dbUUID)){
       stop("Database '",dbName,"'' not found !\n")
     }else{
-      stop("Database with UUID '",dbUUID,"'' not found !\n")
+      stop("Database with UUID '",dbUUID,"' not found !\n")
     }
   }else if (dbCount==1){
     return(dbDf[['uuid']])
