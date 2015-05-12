@@ -338,6 +338,9 @@ get.database<-function(uuid=NULL,name=NULL){
 ##' @export
 get_emuDB_UUID<-function(dbName=NULL,dbUUID=NULL){
   if(is.null(dbUUID)){
+    if(!is.character(dbName)){
+      stop("Parameter dbName must be of type character vector!")
+    }
     dbQ=paste0("SELECT uuid FROM emuDB WHERE name='",dbName,"'")
     
   }else{
