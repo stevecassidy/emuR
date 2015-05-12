@@ -32,5 +32,5 @@ add_files_to_bundles <- function(path2rootDir, path2sessionDir,
 #########################
 # FOR DEVELOPMENT
 # library('testthat')
-# test_file('tests/testthat/test_add.files.to.emuDB.R')
+# test_file('tests/testthat/test_database.files.R')
 
