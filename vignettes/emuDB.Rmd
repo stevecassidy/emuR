@@ -176,14 +176,14 @@ Todo write
 
 ## File handeling
 
-Up until now we have defined the structure of our database. An essential part that is missing is of course the recordings that we wish to analyse. To import audio files into the database one simply has to:
+Up until now we have defined the structure of our database. An essential part that is missing is of course the recordings that we wish to analyse. To import audio files, refered to as media files in the context of an emuDB, into the database one simply has to:
 
 ```{r}
 # get path to folder containing wav files 
 # (in this case wav files that come with the wrassp package)
 fp = system.file('extdata', package='wrassp')
 # import media files into emuDB session called wrassp
-import_mediaFiles(dbName, dir = fp, targetSessionName = 'wrassp')
+import_mediaFiles(dbName, dir = fp, targetSessionName = 'wrassp', verbose = F)
 # list session
 list_sessions(dbName)
 # list bundles
@@ -193,7 +193,8 @@ list_bundles(dbName)
 We have now added a new session containing new bundles to the database that adhere to the structure we have specified above. Note that the levels in the annotation files (`_annot.json`) that where created during the import are still empty. These will have to be created manually using the EMU-webApp. To list the files that are part of the emuDB simply:
 
 ```{r}
-# list_files(dbName)
+# list files
+list_files(dbName)
 ```
 
 

@@ -139,7 +139,7 @@ add_files <- function(path2rootDir, path2sessionDir,
   for (i in 1:length(sourcePaths)){
     file.copy(sourcePaths[i], destDirs[i])
   }
-} 
+}
 
 ##' List files of emuDB
 ##' 
@@ -149,15 +149,39 @@ add_files <- function(path2rootDir, path2sessionDir,
 ##' @param bundlePattern A (glob) pattern matching bundles to be searched from the database
 ##' @author Raphael Winkelmann
 ##' @export
-##' @keywords emuDB database schema Emu 
+##' @keywords emuDB database Emu 
 list_files <- function(dbName,
-                       sessionPattern = NULL,
-                       bundlePattern = NULL,
+                       sessionPattern = "*",
+                       bundlePattern = "*",
                        dbUUID = NULL){
+  dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
+  dbObj = .load.emuDB.DBI(name = dbName, uuid = dbUUID)
   
+  # get all basePath + bundles
+  l = list_emuDBs()
+  bp = l[l$uuid == dbUUID, ]$basePath
   
+  bndls = list_bundles(dbName, dbUUID = dbUUID)
   
-  stop('not implemented yet')
+  df = data.frame(session = character(), 
+                  bundle = character(),
+                  file = character(),
+                  stringsAsFactors = F)
+  # get files for each bundle
+  for(i in 1:nrow(bndls)){
+    
+    fps = list.files(file.path(bp, paste0(bndls[i,]$session, "_ses"), paste0(bndls[i,]$name, "_bndl")))
+    df = rbind(df, data.frame(session = rep(bndls[i,]$session, length(fps)), 
+                              bundle = rep(bndls[i,]$name, length(fps)), 
+                              file = fps,
+                              stringsAsFactors = F))  
+  }
+
+  # filter for patterns
+  df = df[grepl(glob2rx(sessionPattern), df$session) & grepl(glob2rx(bundlePattern), df$bundle),]
+  
+  return(df)
+  
 }
 
 modify_files <- function(){

@@ -4,7 +4,7 @@
 \alias{list_files}
 \title{List files of emuDB}
 \usage{
-list_files(dbName, sessionPattern = NULL, bundlePattern = NULL,
+list_files(dbName, sessionPattern = "*", bundlePattern = "*",
   dbUUID = NULL)
 }
 \arguments{
@@ -25,5 +25,4 @@ Raphael Winkelmann
 \keyword{Emu}
 \keyword{database}
 \keyword{emuDB}
-\keyword{schema}
 

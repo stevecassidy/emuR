@@ -28,7 +28,26 @@ test_that("file operations work", {
   test_that("import_mediaFiles works", {
     wavPath = system.file('extdata', package='wrassp')
     import_mediaFiles(tmpDbName, dir = wavPath, targetSessionName = 'newSes', verbose = F)
-    # TODO check files
+    expect_true(file.exists(file.path(fp, 'newSes_ses')))
+    paths = list.files(file.path(fp, 'newSes_ses'), recursive = T, full.names = T, pattern = 'wav$')
+    expect_equal(length(paths), 9)
+    paths = list.files(file.path(fp, 'newSes_ses'), recursive = T, full.names = T, pattern = '_annot.json$')
+    expect_equal(length(paths), 9)
+  })
+  
+  test_that("CRUD operations for files work", {
+    
+    test_that("add = (C)RUD", {
+#       print('woooooo')
+      
+    })
+
+    test_that("list = C(R)UD", {
+      df = list_files(tmpDbName)
+      expect_equal(dim(df),c(46, 3))
+    })
+    
+    
   })
   
   
@@ -39,20 +58,3 @@ test_that("file operations work", {
   }
 
 })
-
-
-##############################
-# test_that("files are copied and added correctly", {
-#   # load database 
-#   if(!is.emuDB.loaded("ae")){
-#     load_emuDB(path2newDB, verbose = F)
-#   }
-#   add.files.to.emuDB(emuDB = ae, path2rootDir = path2legacy_ae, fileExt = 'fms')
-#   fmsFilePaths = list.files(path2newDB, pattern = '*.fms', recursive = T)
-#   expect_equal(length(fmsFilePaths), 7)
-#   expect_equal(fmsFilePaths[1], file.path('0000_ses', 'msajc003_bndl', 'msajc003.fms'))
-#   
-# })
-
-
-
