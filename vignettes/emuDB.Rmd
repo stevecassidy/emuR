@@ -270,7 +270,7 @@ head(list_files(dbName))
 
 **INFO: to see the fileExtension and columnName default produced by the various signal processing functions of the wrassp package see `?wrasspOutputInfos`**
 
-As you might have noticed the `.zcr` files we added in the previous section are listed as beeing part of the bundles but have no ssffTrackDefinition associated to them. Let's fix that by adding another ssffTrackDefinition to the database:
+As you might have noticed the `.zcr` files we added in the previous section are listed as beeing part of the bundles but have no ssffTrackDefinition associated with them. Let's fix that by adding another ssffTrackDefinition to the database:
 
 ```{r}
 # add 
