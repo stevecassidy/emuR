@@ -260,14 +260,36 @@ Let us now add an ssffTrackDefinition to our database calculating the according 
 add_ssffTrackDefinition(dbName, 
                         name = 'formantValues', 
                         columnName = 'fm', 
-                        fileExtension = 'fms')
+                        fileExtension = 'fms',
+                        onTheFlyFunctionName = 'forest')
 # list
 list_ssffTrackDefinitions(dbName)
 # show head of list_files to check if files where added
 head(list_files(dbName))
 ```
 
-*NOTE: due to the ability of the get_trackdata() function to utilize any of the signal processing functions of the wrassp package to calculate the necessary values on-the-fly it is quite often not necessary to define ssffTracks for tracks produced by the wrassp package. For complimentary data as well as when data that will be manually manipulated (e.g. manual formant corrections) this is still a feasible and necessary option. Also, if you wish to display SSFF data in the EMU-webApp it is necessary to precalculate the ssffTracks as the web application can not perform on-the-fly calculations.*
+**INFO: to see the fileExtension and columnName default produced by the various signal processing functions of the wrassp package see `?wrasspOutputInfos`**
+
+As you might have noticed the `.zcr` files we added in the previous section are listed as beeing part of the bundles but have no ssffTrackDefinition associated to them. Let's fix that by adding another ssffTrackDefinition to the database:
+
+```{r}
+# add 
+add_ssffTrackDefinition(dbName, 
+                        name = 'zeroCrossing', 
+                        columnName = 'zcr', 
+                        fileExtension = 'zcr')
+# list
+list_ssffTrackDefinitions(dbName)
+```
+
+
+
+
+
+*NOTE: due to the ability of the `get_trackdata()` function to utilize any of the signal processing functions of the wrassp package to calculate the necessary values on-the-fly it is quite often not necessary to define ssffTracks for tracks produced by the wrassp package. For complimentary data as well as when data that will be manually manipulated (e.g. manual formant corrections) this is still a feasible and necessary option. Also, if you wish to display SSFF data in the EMU-webApp it is necessary to precalculate the ssffTracks as the web application can not perform on-the-fly calculations.*
+
+
+
 
 ## Configuring the EMU-webApp
 
