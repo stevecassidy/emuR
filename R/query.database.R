@@ -433,13 +433,27 @@ convert.query.result.to.segmentlist<-function(dbConfig,result){
     maxSeqLen=1L
   }
   
-    
-    # query seglist data except labels
-    # for this data the information in start end item of the sequence is sufficient
-    # it takes only the start  and end items of the query result in account
-    # the CASE WHEN THEN ELSE END terms are necessary to get the start and end samples of sequences which are not segment levels and therefore have no time information  
-    hasLinks=(nrow(links)>0)
-    
+  
+  # query seglist data except labels
+  # for this data the information in start end item of the sequence is sufficient
+  # it takes only the start  and end items of the query result in account
+  # the CASE WHEN THEN ELSE END terms are necessary to get the start and end samples of sequences which are not segment levels and therefore have no time information  
+  hasLinks=(nrow(links)>0)
+  
+  
+  # check for ambigious time information (multiple SEGMENT levels)
+  # TODO   
+  #if(hasLinks){
+  #  # items of type ITEM have no (sample) time information
+  #  # therefore we search for linked SEGMENT items and take their start sample position
+  #  qStr=paste0("SELECT count(l.fromID), FROM links l,items s,items e,its r WHERE s.db_uuid=s.db_uuid AND s.session=l.session AND s.bundle=l.bundle AND s.itemID=l.fromID  AND l.toSeqIdx=0 AND e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND e.level=s.level")
+  #  print(sqldf(qStr))
+  #}
+  
+  
+  
+  
+  
     # select columns: id,session,bundle,startItemId,endItemID ,type ...
     selectStr="SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS startItemID ,e.itemID AS endItemID,s.type, "
     
