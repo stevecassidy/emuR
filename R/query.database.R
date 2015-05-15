@@ -372,8 +372,16 @@ convert.query.result.to.seglist<-function(dbConfig,result){
           slType='event'
         }else{
           # type SEGMENT or ITEM
-          seqStart=((segListData[itIdx,'sampleStart']+0.5)/segListData[itIdx,'sampleRate'])*1000
-          seqEnd=((segListData[itIdx,'sampleEnd']+1.5)/segListData[itIdx,'sampleRate'])*1000
+          sStart=segListData[itIdx,'sampleStart']
+          sEnd=segListData[itIdx,'sampleEnd']
+          sRate=segListData[itIdx,'sampleRate']
+          if(is.na(sStart) || is.na(sEnd) || is.na(sRate)){
+            seqStart=NA
+            seqEnd=NA
+          }else{
+            seqStart=((segListData[itIdx,'sampleStart']+0.5)/segListData[itIdx,'sampleRate'])*1000
+            seqEnd=((segListData[itIdx,'sampleEnd']+1.5)/segListData[itIdx,'sampleRate'])*1000
+          }
           slType='segment'
         }
         start=c(start,seqStart)
