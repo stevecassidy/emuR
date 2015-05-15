@@ -234,7 +234,7 @@ convert.query.result.to.seglist<-function(dbConfig,result){
     # build dynamic query to build label string for variable result sequence length
     selectStr="SELECT s.db_uuid || '_' || s.session || '_' || s.bundle || '_' || s.itemID || '_' || e.itemID AS id, "
     fromStr='FROM items s,items e,its q,'
-    whereStr='WHERE s.db_uuid=q.db_uuid AND s.session=q.session AND s.bundle=q.bundle AND s.itemID=q.seqStartId AND e.db_uuid=q.db_uuid AND e.session=e.session AND e.bundle=q.bundle AND e.itemID=q.seqEndId AND '
+    whereStr='WHERE s.db_uuid=q.db_uuid AND s.session=q.session AND s.bundle=q.bundle AND s.itemID=q.seqStartId AND e.db_uuid=q.db_uuid AND e.session=q.session AND e.bundle=q.bundle AND e.itemID=q.seqEndId AND '
     for(seqIdx in 1:maxSeqLen){
       selectStr=paste0(selectStr,'(SELECT l.label FROM lblsDf l WHERE l.db_uuid=i',seqIdx,'.db_uuid AND l.session=i',seqIdx,'.session AND l.bundle=i',seqIdx,'.bundle AND   l.itemID=i',seqIdx,'.itemID AND l.name=q.level) AS lbl',seqIdx)
       #selectLblStr=paste0(selectLblStr,)
@@ -249,7 +249,7 @@ convert.query.result.to.seglist<-function(dbConfig,result){
     }
     
     seqLblQStr=paste0(selectStr,' ',fromStr,' ',whereStr,' ORDER BY id')
-    #(seqLblQStr,"\n")
+    #cat(seqLblQStr,"\n")
     #st=system.time((seqLbls=sqldf(c(itemsIdxSql,resIdxSql,labelsIdxSql,seqLblQStr))))
     #cat(st,"\n")
     seqLbls=sqldf(c(itemsIdxSql,resIdxSql,labelsIdxSql,seqLblQStr))
@@ -341,7 +341,7 @@ convert.query.result.to.seglist<-function(dbConfig,result){
         id=segListData[itIdx,'id']
         idSeqLbls=seqLbls[itIdx,'id']
         if(id!=idSeqLbls){
-          stop("Internal error: Mismatch of sequence label and seglist table")
+          stop("Internal error: Mismatch of sequence label and seglist table IDs: ",id," not equal to ",idSeqLbls)
         }
         label=seqLbls[itIdx,'lbl1']
         if(maxSeqLen>1){
