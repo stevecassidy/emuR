@@ -127,7 +127,7 @@ test_that("CRUD operations work for levelDefinitions", {
     expect_error(add_levelDefinition(dbName=tmpDbName, 'Phonetic', 'SEGMENT')) # already exists
     
     add_levelDefinition(dbName=tmpDbName, 'Phonetic2', 'SEGMENT')
-
+    
     dbObj=.load.emuDB.DBI(name=tmpDbName)
     expect_equal(length(dbObj$DBconfig$levelDefinitions), 10)
     
@@ -161,7 +161,7 @@ test_that("CRUD operations work for levelDefinitions", {
                                      "', '0001', 'fakeBundle', 1, 'Phonetic3', 'ITEM', 20000, 1, NULL, NULL, NULL)")) # add item
     
     expect_error(remove_levelDefinition(dbName=tmpDbName, name="Phonetic3")) # item present
-
+    
     dbGetQuery(getEmuDBcon(), paste0("DELETE FROM items WHERE db_uuid='", 
                                      dbObj$DBconfig$UUID,"'")) # items present
     
@@ -233,3 +233,56 @@ test_that("CRUD operations work for attributeDefinitions", {
   
 })  
 
+##############################
+test_that("CRUD operations work for legalLabels", {
+  # pre clean (just in case)
+  unlink(file.path(tempdir(),tmpDbName), recursive = TRUE)
+  
+  # copy ae and rename
+  file.copy(file.path(path2extdata, '/emu/DBs/ae/'), tempdir(), recursive = T)
+  file.rename(file.path(tempdir(), 'ae'), file.path(tempdir(), 'ae_copy'))
+  
+  # make copy of ae to mess with (caution correct DBconfig not stored)
+  fp = file.path(tempdir(), tmpDbName)
+  duplicate.loaded.emuDB("ae", tmpDbName, fp)
+  
+  test_that("set = (C)RUD", {
+    set_legalLabels(tmpDbName, 
+                    levelName = 'Word', 
+                    attributeDefinitionName = 'Word',
+                    legalLabels=c('A', 'B', 'C'))
+  })
+  
+  test_that("get = C(R)UD", {
+    ll = get_legalLabels(tmpDbName, 
+                         levelName = 'Word', 
+                         attributeDefinitionName = 'Word')
+    
+    expect_equal(ll, c('A', 'B', 'C'))
+  })
+  
+  test_that("modify = CR(U)D", {
+    # not implemented yet
+  })
+  
+  test_that("remove = CRU(D)", {
+    remove_legalLabels(tmpDbName, 
+                       levelName = 'Word', 
+                       attributeDefinitionName = 'Word')
+    
+    ll = get_legalLabels(tmpDbName, 
+                         levelName = 'Word', 
+                         attributeDefinitionName = 'Word')
+    
+    expect_true(is.na(ll))
+  })
+  
+  
+  
+  # clean up
+  if(is.emuDB.loaded(tmpDbName)){
+    UUID = get_emuDB_UUID(dbName = tmpDbName)
+    purge_emuDB(dbName = tmpDbName, dbUUID = UUID, interactive = F)
+  }
+  
+})  

@@ -580,9 +580,6 @@ list_attributeDefinitions <- function(dbName, levelName, dbUUID=NULL){
                     hasLegalLabels = logical(), 
                     stringsAsFactors = F)
     for(ad in ld$attributeDefinitions){
-      if(ad$name == "testAttrDef"){
-        #         browser()
-      }
       df = rbind(df, df = data.frame(name = ad$name, 
                                      type = ad$type, 
                                      hasLabelGroups = !is.null(ad$labelGroups),
@@ -660,6 +657,95 @@ remove_attributeDefinition <- function(dbName,
   
 }
 
+###################################################
+# CRUD operations for legalLabels
+
+##' Set legal labels of attributeDefinition of emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param levelName name of level
+##' @param attributeDefinitionName name of attributeDefinition
+##' @param legalLabels character array containing legal labels
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Raphael Winkelmann
+##' @export
+##' @keywords emuDB database DBconfig Emu 
+set_legalLabels <- function(dbName,
+                            levelName,
+                            attributeDefinitionName,
+                            legalLabels,
+                            dbUUID = NULL){
+  
+  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  
+  for(i in 1:length(dbObj$DBconfig$levelDefinitions)){
+    for(j in 1:length(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions)){
+      if(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$name == attributeDefinitionName){
+        dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$legalLabels = legalLabels
+      }
+    }
+  }
+  
+  # store changes
+  .store.schema(dbObj)
+  
+}
+
+##' List legal labels of attributeDefinition of emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param levelName name of level
+##' @param attributeDefinitionName name of attributeDefinition
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Raphael Winkelmann
+##' @export
+##' @keywords emuDB database schema Emu
+get_legalLabels <- function(dbName,
+                            levelName,
+                            attributeDefinitionName, 
+                            dbUUID = NULL){
+  
+  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  ld = get.levelDefinition(dbObj$DBconfig, levelName)
+  
+  ll = NULL
+  for(ad in ld$attributeDefinitions){
+    if(ad$name == attributeDefinitionName){
+      if(!is.null(ad$legalLabels)){
+        ll = unlist(ad$legalLabels)
+      }else{
+        ll = NA
+      }
+    }
+  }
+  
+  return(ll)
+}
+
+
+modify_legalLabels <- function(){
+  stop("not implemented yet")
+}
+
+##' Remove legal labels of attributeDefinition of emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param levelName name of level
+##' @param attributeDefinitionName name of attributeDefinition
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Raphael Winkelmann
+##' @export
+##' @keywords emuDB database schema Emu
+remove_legalLabels <- function(dbName,
+                               levelName,
+                               attributeDefinitionName, 
+                               dbUUID = NULL){
+  # remove by setting to NULL
+  set_legalLabels(dbName, 
+                  levelName,
+                  attributeDefinitionName,
+                  legalLabels = NULL)
+}
 
 ###################################################
 # CRUD operations for ssffTrackDefinitions
