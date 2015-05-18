@@ -1,7 +1,7 @@
 require(sqldf)
 require(stringr)
 
-EMPTY_RESULT_DF=data.frame(seqStartId=character(0),seqEndId=character(0),seqLen=integer(0),level=character(0),stringsAsFactors = FALSE)
+EMPTY_RESULT_DF=data.frame(db_uuid=character(0),session=character(0),bundle=character(0),seqStartId=character(0),seqEndId=character(0),seqLen=integer(0),level=character(0),stringsAsFactors = FALSE)
 
 setQueryTmpEmuDBs<-function(queryTmpEmuDBs){
     internalVars$queryTmpEmuDBs<-queryTmpEmuDBs
@@ -944,7 +944,7 @@ query.database.eql.ETTIKETTA<-function(dbConfig,q,labels=NULL){
         rIts=res[['items']]
         # projection of the result items themself
         lvlNms=rep(lvlName,nrow(rIts))
-        res[['projectionItems']]=data.frame(seqStartId=rIts[,'seqStartId'],seqEndId=rIts[,'seqEndId'],seqLen=rIts[,'seqLen'],pSeqStartId=rIts[,'seqStartId'],pSeqEndId=rIts[,'seqEndId'],pSeqLen=rIts[,'seqLen'],pLevel=lvlNms,stringsAsFactors = FALSE)
+        res[['projectionItems']]=data.frame(db_uuid=rIts[,'db_uuid'],session=rIts[,'session'],bundle=rIts[,'bundle'],seqStartId=rIts[,'seqStartId'],seqEndId=rIts[,'seqEndId'],seqLen=rIts[,'seqLen'],pSeqStartId=rIts[,'seqStartId'],pSeqEndId=rIts[,'seqEndId'],pSeqLen=rIts[,'seqLen'],pLevel=lvlNms,stringsAsFactors = FALSE)
         res[['projectionAttrLevel']]=lvlName
       }
       return(res)
