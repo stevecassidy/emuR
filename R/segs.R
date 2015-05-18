@@ -49,6 +49,7 @@ make.emuRsegs <- function(dbName,seglist,query,type)
 ##' Print emuDB segment list
 ##' @param x object to print
 ##' @param ... additional params
+##' @export
 "print.emuRsegs" <-  function(x, ...) 
 {
   cat(attributes(x)$type, " list from database: ", attributes(x)$database, "\n")
