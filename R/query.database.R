@@ -1457,33 +1457,34 @@ print.emuDB.query.result<-function(queryResult){
   
 }
 
-##' Query emuR query result context
+##' Query emuR result context
 ##' @description Requery an EMU database
-##' @param dbObj object of class emuDB
-##' @param segs segment list
-##' @param level level of input segment list
-##' @param targetlevel target level
-##' @param justlabels labels only
-##' @param sequence integer which determins sibling position relative to segment in segs 
-##' @param longerok TODO ??
+##' @param seglist segment list
+##' @param offset offset in sequence
+##' @param offsetRef referenec of offset: 'START' start of segments, 'END': end of segments
+##' @param seqLength item length of new segment list
 ##' @param resultType type (class name) of result
-##' @return result set object of class resultType (e.g. EMU seglist 'emusegs')
+##' @param dbUUID optional UUID odf emuDB
+##' @return result set object of class resultType (default: 'emuRsegs')
 ##' @author Klaus Jaensch
 ##' @import sqldf stringr
 ##' @seealso \code{\link{load_emuDB}}
-##' @keywords emuDB database query Emu EQL 
+##' @keywords emuDB database requery Emu EQL2 
 ##' @examples
 ##' \dontrun{
-##' ## Requery phonetic context of syllable
 ##' 
-##' requery(ae,sl1,level='Syllable',targetlevel='Phonetic')
+##' ## Requery previous element of 'p' on phonetic level
+##' sl1=query('ae','Phonetic=p')
+##' contextRequery(sl1,offset=-1)
 ##' 
-##' ## Requery previous element on phonetic level
+##' ## Requery context (previuos and following) of 'p' on phonetic level
+##'
+##' contextRequery(sl1,offset=-1,seqLength=3)
 ##' 
-##' requery(ae,sl2,level='Phonetic',sequence=-1)
+##' 
 ##' 
 ##' }
-contextQuery<-function(seglist, offset=0,offsetRef='START',seqLength=1,resultType=NULL,dbUUID=NULL){
+contextRequery<-function(seglist, offset=0,offsetRef='START',seqLength=1,resultType=NULL,dbUUID=NULL){
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType wiil be used)")
   }
