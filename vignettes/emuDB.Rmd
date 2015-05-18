@@ -108,7 +108,7 @@ The emuR package contains two function to purge (==unload/remove) loaded databas
 
 The general function prefix naming convention of database manipulation functions for loaded databases are:
 
-- `add_XXX` add a new instance of `XXX` to the emuDB
+- `add_XXX` add a new instance of `XXX` / `set_` set the current instance of `XXX`
 - `list_XXX` list the current instances of `XXX` / `get_` list the current instance of `XXX`
 - `modify_XXX` modify existing instances of `XXX`
 - `remove_XXX` removing existing instances of `XXX`
@@ -117,7 +117,7 @@ Depending on the instance that you wish to manipulate some or all of these funct
 
 ## Level definitions
 
-Compared to other system the EMU speech database management system requires the user to formally define the structure of the database. An essential stuctural element of any emuDB are it's levels. A level is a more general term for what is often referred to as a "tier". It is more general in the sense that people quite often expect tiers to contain time information. Levels can either contain time information if they are of are either of the type "EVENT" or of the type "SEGMENT" or be timeless if they are of the type "ITEM".
+Compared to other system the EMU speech database management system requires the user to formally define the structure of the database. An essential stuctural element of any emuDB are it's levels. A level is a more general term for what is often referred to as a "tier". It is more general in the sense that people quite often expect tiers to contain time information. Levels can either contain time information if they are either of the type "EVENT" or of the type "SEGMENT" or be timeless if they are of the type "ITEM".
 
 As the already loaded 'fromScratchDB' does not contain any structural elements including levels we will begin by adding a new level definition:
 
@@ -169,7 +169,7 @@ list_attributeDefinitions(dbName,
                           levelName = 'phonetic')
 ```
 
-Even though we have not added a single attribute definition to the 'phonetic' level definition. it already contains the obligatory attribute definition that has to have the same name as it's level, indicating that it is the primary attribute of that level. To follow the above example let us now add a further attribute definition to the level definition that will contain the SAMPA versions of our annotations.
+Even though we have not added a single attribute definition to the 'phonetic' level definition. It already contains the obligatory attribute definition that has to have the same name as it's level, indicating that it is the primary attribute of that level. To follow the above example let us now add a further attribute definition to the level definition that will contain the SAMPA versions of our annotations.
 
 ```{r}
 # add
@@ -181,11 +181,48 @@ list_attributeDefinitions(dbName,
                           levelName = 'phonetic')
 ```
 
-#### legal labels 
 
-TODO write about legal labels field
 
-#### labelGroups  
+#### Legal labels 
+
+As you might have guessed from seeing the columns `hasLabelGroups` and `hasLegalLabels` in the return value of the `list_attributeDefinitions()` function, attributeDefinitions can also contain two further fields. The `legalLabels` field contains an array of strings that specifies the labels that are legal (== allowed/valid) for the given attribute. As the EMU-webApp won't allow the annotator to enter any labels that are not specified in this array this is a simple way assuring that a level has a concistent label set.
+
+As an example lets say we wish to only annotate the following vowels in the `phonetic` level: /i/, /iː/, /u/, /uː/, /ə/ which in SAMPA correspont to /i/, /i:/, /u/, /u:/, /@/. Let us now add these as legal labels to the `phonetic` as well as the `SAMPA` attribute of the `phonetic` level.
+
+```{r}
+
+ipaVowels = c('i', 'iː', 'u', 'uː', 'ə')
+
+sampaVowels = c('i', 'i:', 'u', 'u:', '@')
+
+# set legalLabels values for phonetic attributeDefinition
+set_legalLabels(dbName,
+                levelName = 'phonetic',
+                attributeDefinitionName = 'phonetic',
+                legalLabels = ipaVowels)
+
+# get
+get_legalLabels(dbName, 
+                levelName = 'phonetic', 
+                attributeDefinitionName = 'phonetic')
+
+# set legalLabels values for phonetic attributeDefinition
+set_legalLabels(dbName,
+                levelName = 'phonetic',
+                attributeDefinitionName = 'SAMPA',
+                legalLabels = sampaVowels)
+
+# get
+get_legalLabels(dbName, 
+                levelName = 'phonetic', 
+                attributeDefinitionName = 'SAMPA')
+
+```
+
+
+*NOTE: The legalLabels field is volunary! This means that if it is not set the level can contain any label.*
+
+#### Label groups  
 
 TODO write about label groups field
 
