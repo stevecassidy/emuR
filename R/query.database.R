@@ -1490,14 +1490,17 @@ contextQuery<-function(seglist, offset=0,offsetRef='START',seqLength=1,resultTyp
     # empty seglist, return the empty list
     return(seglist)
   }else if (distinctEmuDbsCnt>1){
-    stop("Context query over multiple (in this case: ",distinctEmuDbsCnt,") not (yet) supported.")
+    stop("Context query over multiple emuDbs (in this case: ",distinctEmuDbsCnt,") not (yet) supported.")
   }else{
     # all rows of seglist are in same emuDB
     dbUUID=distinctEmuDbs[1,'db_uuid']
     
+    # load emuDB object
     db=.load.emuDB.DBI(uuid = dbUUID)
+    # load config
     dbConfig=db[['DBconfig']]
     
+    # create temporary items
     emuDBs.query.tmp=list()
     emuDBs.query.tmp[['queryItems']]<-dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
     emuDBs.query.tmp[['queryLabels']]<-dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
