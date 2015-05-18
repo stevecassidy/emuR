@@ -2,7 +2,7 @@ emuR
 ====
 
 [![Build Status](https://travis-ci.org/IPS-LMU/emuR.png)](https://travis-ci.org/IPS-LMU/emuR)
-[![Coverage Status](https://img.shields.io/coveralls/IPS-LMU/emuR.svg)](https://coveralls.io/r/IPS-LMU/emuR?branch=master)
+[![Coverage Status](https://coveralls.io/repos/IPS-LMU/emuR/badge.svg)](https://coveralls.io/r/IPS-LMU/emuR)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/emuR)](http://cran.r-project.org/web/packages/emuR)
 
 The new R library for the Emu Speech Database System
