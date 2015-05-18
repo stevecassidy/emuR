@@ -15,7 +15,7 @@ vignette: >
 
 # Introduction
 
-This document introduces the emuDB format that is used by the emuR package. This database format is meant as a simple, general purpose way of storing speech databases that may contain complex hierarchical annotations.
+This document introduces the emuDB format that is used by the emuR package and shows how to create and interact with this database format. The emuDB format is meant as a simple, general purpose way of storing speech databases that may contain complex hierarchical annotations as well as derived and complementary speech data.
 
 # DB design
 
