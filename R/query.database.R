@@ -835,9 +835,6 @@ query.database.eql.ETTIKETTA<-function(dbConfig,q,labels=NULL){
         # the BNF does not allow white space between '#' and level string
         # but the implementation of Emu does, so we allow it here too
         
-        #stop("Hash tag of EQL currently not supported")
-        
-        
         lvlName=str_trim(substring(lvlTrim,2))
         projectionLevel=TRUE
       }
@@ -1039,13 +1036,23 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       right=str_trim(substring(qTrim,seqPos+2))
     }
     lRes=query.database.with.eql(dbConfig,left)
-    rRes=query.database.with.eql(dbConfig,right) 
+    rRes=query.database.with.eql(dbConfig,right)
+    
+    lResPIts=lRes[['projectionItems']]
+    rResPIts=rRes[['projectionItems']]
+    
+    lIsProj=!is.null(lResPIts)
+    rIsProj=!is.null(rResPIts)
+    #cat("left: ",lIsProj," right: ",rIsProj,"\n")
+    if(lIsProj & rIsProj){
+      stop("Multiple hash tags '#' not allowed in EQL2 query!")
+    }
     
     # get items on dominance compare levels
     lResIts=lRes[['items']]
     lResAttrName=lRes[['resultLevel']]
     lResLvl=get.level.name.by.attribute.name(dbConfig,lResAttrName)
-    lResPIts=lRes[['projectionItems']]
+   
     
     rResAttrName=rRes[['resultLevel']]
     rResLvl=get.level.name.by.attribute.name(dbConfig,rResAttrName)
@@ -1067,7 +1074,7 @@ query.database.eql.in.bracket<-function(dbConfig,q){
     #}
     rResIts=rRes[['items']]
     
-    rResPIts=rRes[['projectionItems']]
+   
    
     rLvlItems=NULL
     # sqldf cannot handle empty data frames 
