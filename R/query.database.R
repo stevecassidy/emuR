@@ -883,10 +883,10 @@ query.database.eql.ETTIKETTA<-function(dbConfig,q,labels=NULL){
       
       labelAltsUq=c()
       # unquote labels
-      # BNF: ETIKETT = ETIKETTIERUNG | (“'“,ETIKETTIERUNG,“'“);
+      # BNF: ETIKETT = ETIKETTIERUNG | ("'",ETIKETTIERUNG,"'");
       # Suggestion for improvement:
       # labelGroups (legacy EMU 'legal' directive) MUST NOT be quoted, to distinguish labelGroups from ordinary label or label pattern:
-      # BNF__: ETIKETT = LABEL_GROUP_NAME | ETIKETTIERUNG | (“'“,ETIKETTIERUNG,“'“);
+      # BNF__:ETIKETT = LABEL_GROUP_NAME | ETIKETTIERUNG | ("'",ETIKETTIERUNG,"'");
       #        ETIKETTIERUNG = {ALPHA|DIGIT}
       
       for(labelAlt in labelAlts){
