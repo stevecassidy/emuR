@@ -302,17 +302,17 @@ test_that("CRUD operations work for labelGroups", {
   
   test_that("add = (C)RUD", {
     # bad call already def. labelGroup
-    expect_error(add_attrDefLabelGroups(tmpDbName,
-                                        levelName = 'Phoneme', 
-                                        attributeDefinitionName = 'Phoneme',
-                                        labelGroupName = 'vowel',
-                                        labelGroupValues = c('sdf', 'f')))
+    expect_error(add_attrDefLabelGroup(tmpDbName,
+                                       levelName = 'Phoneme', 
+                                       attributeDefinitionName = 'Phoneme',
+                                       labelGroupName = 'vowel',
+                                       labelGroupValues = c('sdf', 'f')))
     
-    add_attrDefLabelGroups(tmpDbName,
-                           levelName = 'Word', 
-                           attributeDefinitionName = 'Word',
-                           labelGroupName = 'newGroup',
-                           labelGroupValues = c('sdf', 'f'))
+    add_attrDefLabelGroup(tmpDbName,
+                          levelName = 'Word', 
+                          attributeDefinitionName = 'Word',
+                          labelGroupName = 'newGroup',
+                          labelGroupValues = c('sdf', 'f'))
     
   })
   
@@ -340,10 +340,10 @@ test_that("CRUD operations work for labelGroups", {
   })
   
   test_that("remove = CRU(D)", {
-    expect_error(remove_attrDefLabelGroups(tmpDbName,
-                                           levelName = 'Word', 
-                                           attributeDefinitionName = 'Word',
-                                           labelGroupName = 'notThere'))
+    expect_error(remove_attrDefLabelGroup(tmpDbName,
+                                          levelName = 'Word', 
+                                          attributeDefinitionName = 'Word',
+                                          labelGroupName = 'notThere'))
     
     remove_attrDefLabelGroups(tmpDbName,
                               levelName = 'Word', 

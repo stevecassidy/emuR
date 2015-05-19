@@ -750,7 +750,7 @@ remove_legalLabels <- function(dbName,
 ###################################################
 # CRUD operations for attributeDefinition$labelGroups
 
-##' Add labelGroups of attributeDefinition to emuDB
+##' Add labelGroup of attributeDefinition to emuDB
 ##' 
 ##' @param dbName name of loaded emuDB
 ##' @param levelName name of level
@@ -761,12 +761,12 @@ remove_legalLabels <- function(dbName,
 ##' @author Raphael Winkelmann
 ##' @export
 ##' @keywords emuDB database schema Emu
-add_attrDefLabelGroups <- function(dbName,
-                                   levelName,
-                                   attributeDefinitionName, 
-                                   labelGroupName,
-                                   labelGroupValues,
-                                   dbUUID = NULL){
+add_attrDefLabelGroup <- function(dbName,
+                                  levelName,
+                                  attributeDefinitionName, 
+                                  labelGroupName,
+                                  labelGroupValues,
+                                  dbUUID = NULL){
   
   dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
   curLgs = list_attrDefLabelGroups(dbName, 
@@ -824,7 +824,7 @@ list_attrDefLabelGroups <- function(dbName,
   return(df)
 }
 
-modify_attrDefLabelGroups <- function(){
+modify_attrDefLabelGroup <- function(){
   stop("not implemented yet!")
 }
 
@@ -838,11 +838,11 @@ modify_attrDefLabelGroups <- function(){
 ##' @author Raphael Winkelmann
 ##' @export
 ##' @keywords emuDB database schema Emu
-remove_attrDefLabelGroups <- function(dbName,
-                                      levelName,
-                                      attributeDefinitionName, 
-                                      labelGroupName,
-                                      dbUUID = NULL){
+remove_attrDefLabelGroup <- function(dbName,
+                                     levelName,
+                                     attributeDefinitionName, 
+                                     labelGroupName,
+                                     dbUUID = NULL){
   dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
   curLgs = list_attrDefLabelGroups(dbName, 
                                    levelName, 
