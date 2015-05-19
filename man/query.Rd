@@ -5,7 +5,8 @@
 \title{Query EMU database}
 \usage{
 query(dbName = NULL, query, sessionPattern = NULL, bundlePattern = NULL,
-  queryLang = "EQL2", resultType = NULL, dbUUID = NULL)
+  queryLang = "EQL2", timeRefSegmentLevel = NULL, resultType = NULL,
+  dbUUID = NULL)
 }
 \arguments{
 \item{dbName}{name of EMU database}
@@ -17,6 +18,8 @@ query(dbName = NULL, query, sessionPattern = NULL, bundlePattern = NULL,
 \item{bundlePattern}{A (glob) pattern matching bundles to be searched from the database}
 
 \item{queryLang}{query language}
+
+\item{timeRefSegmentLevel}{set time derivation segment level}
 
 \item{resultType}{type (class name) of result}
 

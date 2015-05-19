@@ -273,6 +273,12 @@ build.level.pathes<-function(schema){
   return(pathes)
 }
 
+#
+# builds "extended" link definitions
+# lists link definitionsfor every possible directed connection between levels
+# returns list of character vectors 
+# the first element of each character vector contains the super level name of the levelDefinition,
+# the follwing elements contain all exetnded linked sub level names  
 build.ext.link.definitions<-function(schema){
   lds=list()
   pathes=build.level.pathes(schema)
@@ -287,6 +293,26 @@ build.ext.link.definitions<-function(schema){
     }
   }
   return(lds)
+}
+
+find.segment.levels<-function(DBconfig,attrName){
+  #cat("Search SEGMENT level for ",attrName,"\n")
+  lvlNm=get.level.name.by.attribute.name(DBconfig,attrName)
+  extLnkDefs=build.ext.link.definitions(DBconfig)
+  segLvlList=character(0)
+  for(extLnkDef in extLnkDefs){
+    if(extLnkDef[1]==lvlNm){
+      for(trgLvlNm in extLnkDef[2:length(extLnkDef)]){
+     
+      trgLd=get.levelDefinition(DBconfig,trgLvlNm)
+      if(trgLd['type']=='SEGMENT'){
+        segLvlList=unique(c(segLvlList,trgLvlNm))
+      }
+    }
+    }
+  }
+  #cat("SEGMENT levels for ",attrName,": ",segLvlList,"\n")
+  return(segLvlList)
 }
 
 # persistence filters

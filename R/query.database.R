@@ -395,7 +395,7 @@ convert.query.result.to.seglist<-function(dbConfig,result){
 }
 
 
-convert.query.result.to.segmentlist<-function(dbConfig,result){
+convert.query.result.to.segmentlist<-function(dbConfig,result,timeRefSegmentLevel=NULL){
   its=NULL
   
   items=getQueryTmpEmuDBs()[['queryItems']]
@@ -405,12 +405,39 @@ convert.query.result.to.segmentlist<-function(dbConfig,result){
   start=c()
   end=c()
   slType=NULL
+  
   projectionItems=result[['projectionItems']]
   if(!is.null(projectionItems)){ 
+    # projection result (hashtag marker)
     its=data.frame(db_uuid=projectionItems[,'db_uuid'],session=projectionItems[,'session'],bundle=projectionItems[,'bundle'],seqStartId=projectionItems[,'pSeqStartId'],seqEndId=projectionItems[,'pSeqEndId'],seqLen=projectionItems[,'pSeqLen'],level=projectionItems[,'pLevel'],stringsAsFactors = FALSE)
   }else{
+    # use "normal" result
     its=result[['items']]
   }
+  
+  # get distinct result levels ...
+  distinctLevels=sqldf("SELECT DISTINCT level FROM its")
+  for(lvl in distinctLevels[,'level']){
+    ld=get.levelDefinition(DBconfig = dbConfig,name = lvl)
+    #cat("Level ",ld['name']," type ",ld['type'],"\n")
+    if(ld['type']=='ITEM'){
+      segLvlNms=find.segment.levels(dbConfig,lvl)
+      if(!is.null(timeRefSegmentLevel)){
+        if(!(timeRefSegmentLevel %in% segLvlNms)){
+          stop("Cannot resolve time information for result level '",lvl,"' using segment time reference level '",timeRefSegmentLevel,"'\nPlease set one of these levels for timeRefSegmentLevel parameter: ",paste(segLvlNms,collapse=', '),".")
+        }
+      }else{
+        segLvlsCnt=length(segLvlNms)
+        if(segLvlsCnt>1){
+          
+          stop("Segment time information derivation for level '",lvl,"' is ambiguous:\nThe level is linked to multiple segment levels: ",paste(segLvlNms,collapse=', '),"\nPlease select one of these levels using the 'timeRefSegmentLevel' query parameter.")
+        }
+      }
+    }
+    
+  }
+ 
+  
   itCount=nrow(its)
   if(itCount==0){
     its=data.frame(db_uuid=character(0),session=character(0),bundle=character(0),seqStartId=integer(0),seqEndId=integer(0),seqLen=integer(0),level=character(0),stringsAsFactors = FALSE)
@@ -466,8 +493,11 @@ convert.query.result.to.segmentlist<-function(dbConfig,result){
     if(hasLinks){
       # items of type ITEM have no (sample) time information
       # therefore we search for linked SEGMENT items and take their start sample position
-      selectStr=paste0(selectStr," ELSE (SELECT i.sampleStart FROM items i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND \
-               EXISTS (SELECT * FROM links l WHERE s.db_uuid=s.db_uuid AND s.session=l.session AND s.bundle=l.bundle AND s.itemID=l.fromID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.itemID=l.toID AND l.toSeqIdx=0)) ")
+        selectStr=paste0(selectStr," ELSE (SELECT i.sampleStart FROM items i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND ")
+        if(!is.null(timeRefSegmentLevel)){
+          selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
+        }
+        selectStr=paste0(selectStr," EXISTS (SELECT * FROM links l WHERE s.db_uuid=s.db_uuid AND s.session=l.session AND s.bundle=l.bundle AND s.itemID=l.fromID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.itemID=l.toID AND l.toSeqIdx=0)) ")
     }else{
       # TODO
       # No sample start information. (throw error ?)
@@ -483,8 +513,13 @@ convert.query.result.to.segmentlist<-function(dbConfig,result){
     if(hasLinks){
       # items of type ITEM have no (sample) time information
       # therefore we search for linked SEGMENT items and take their end sample position
-      selectStr=paste0(selectStr," ELSE (SELECT i.sampleStart+i.sampleDur FROM items i WHERE i.db_uuid=e.db_uuid AND i.session=e.session AND i.bundle=e.bundle AND i.type='SEGMENT'  AND \
-               EXISTS (SELECT * FROM links l WHERE e.db_uuid=l.db_uuid AND e.session=l.session AND e.bundle=l.bundle AND e.itemID=l.fromID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.itemID=l.toID AND l.toSeqIdx+1=l.toSeqLen)) ")
+      
+        selectStr=paste0(selectStr," ELSE (SELECT i.sampleStart+i.sampleDur FROM items i WHERE i.db_uuid=e.db_uuid AND i.session=e.session AND i.bundle=e.bundle AND i.type='SEGMENT' AND ")
+        if(!is.null(timeRefSegmentLevel)){
+          selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
+        }
+        selectStr=paste0(selectStr," EXISTS (SELECT * FROM links l WHERE e.db_uuid=l.db_uuid AND e.session=l.session AND e.bundle=l.bundle AND e.itemID=l.fromID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.itemID=l.toID AND l.toSeqIdx+1=l.toSeqLen)) ")
+     
     }
     selectStr=paste0(selectStr,"END AS sampleEnd, ")
     
@@ -497,8 +532,12 @@ convert.query.result.to.segmentlist<-function(dbConfig,result){
       # items of type ITEM have no sample rate information
       # therefore we search for linked SEGMENT items and take their start sample position
       # TODO Can we use EVENT items as well ?
-      selectStr=paste0(selectStr," ELSE (SELECT i.sampleRate FROM items i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND \
-               EXISTS (SELECT * FROM links l WHERE s.itemID=l.fromID AND i.itemID=l.toID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND l.toSeqIdx=0)) ")
+      selectStr=paste0(selectStr," ELSE (SELECT i.sampleRate FROM items i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND ")
+      if(!is.null(timeRefSegmentLevel)){
+        selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
+      }
+      selectStr=paste0(selectStr," EXISTS (SELECT * FROM links l WHERE s.itemID=l.fromID AND i.itemID=l.toID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND l.toSeqIdx=0)) ")
+     
     }else{
       # TODO no samplerate , error ??
     }
@@ -1298,10 +1337,10 @@ query.database.with.eql.seglist<-function(dbConfig,query){
   
 }
 
-query.database.with.eql.segmentlist<-function(dbConfig,query){
+query.database.with.eql.segmentlist<-function(dbConfig,query,timeRefSegmentLevel){
   
   rs=query.database.with.eql(dbConfig,query)
-  segList=convert.query.result.to.segmentlist(dbConfig,rs)
+  segList=convert.query.result.to.segmentlist(dbConfig,rs,timeRefSegmentLevel)
   return(segList)
   
 }
@@ -1360,6 +1399,7 @@ query.database.with.eql<-function(dbConfig,query){
 ##' @param sessionPattern A (glob) pattern matching sessions to be searched from the database
 ##' @param bundlePattern A (glob) pattern matching bundles to be searched from the database
 ##' @param queryLang query language
+##' @param timeRefSegmentLevel set time derivation segment level
 ##' @param resultType type (class name) of result
 ##' @param dbUUID optional UUID of emuDB
 ##' @return result set object of class resultType (default 'emuRsegs', compatible to leagcy type 'emusegs')
@@ -1383,7 +1423,7 @@ query.database.with.eql<-function(dbConfig,query){
 ##' }
 ##' 
 
-query<-function(dbName=NULL,query,sessionPattern=NULL,bundlePattern=NULL,queryLang='EQL2',resultType=NULL,dbUUID=NULL){
+query<-function(dbName=NULL,query,sessionPattern=NULL,bundlePattern=NULL,queryLang='EQL2',timeRefSegmentLevel=NULL,resultType=NULL,dbUUID=NULL){
   
     if(queryLang=='EQL2'){
       .initialize.DBI.database(createTables=FALSE)
@@ -1428,10 +1468,14 @@ query<-function(dbName=NULL,query,sessionPattern=NULL,bundlePattern=NULL,queryLa
       }
       
       if(is.null(resultType)){
-        return(query.database.with.eql.segmentlist(dbConfig,query))
+        return(query.database.with.eql.segmentlist(dbConfig,query,timeRefSegmentLevel))
         #return(query.database.with.eql(dbConfig,query))
       }else{
         if(resultType=='emusegs'){
+          if(!is.null(timeRefSegmentLevel)){
+            # TODO 
+              stop("Parameter timeRefSegmentLevel not yet supported for resultType 'emusegs'. Please use resultType 'emuRsegs' (default).")
+          }
           return(query.database.with.eql.seglist(dbConfig,query))
         }else{
           stop("Unknown result type: '",resultType,"'. Supported result types: 'emusegs', NULL")
