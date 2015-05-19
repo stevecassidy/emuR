@@ -433,40 +433,8 @@ list_levelDefinitions <- function(dbName, dbUUID=NULL){
 }
 
 
-##' Modify level definitions of emuDB
-##' 
-##' This function is currently equal to a \code{remove_levelDefinition()}
-##' followed by a \code{add_levelDefinition()}
-##' @param dbName name of loaded emuDB
-##' @param name name of level definition
-##' @param newName new name of level definition
-##' @param newType new type of level definition ('ITEM' | 'SEGMENT' | 'EVENT')
-##' @param dbUUID optional UUID of loaded emuDB
-##' @author Raphael Winkelmann
-##' @export
-##' @keywords emuDB database schema Emu 
-modify_levelDefinition<-function(dbName, name,
-                                 newName = NULL, newType = NULL,
-                                 dbUUID=NULL){
-  
-  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  
-  # check that either newName or newType or both are set
-  if(!(!is.null(newName) || !is.null(newType))){
-    stop("Either 'newName' or 'newType' or both have to be set!")
-  }
-  
-  ld = get.levelDefinition(DBconfig = dbObj$DBconfig, name = name)
-  
-  # set type to old type if not given = rename only
-  if(is.null(newType)){
-    newType = ld$type
-  }
-  
-  # remove and add
-  remove_levelDefinition(dbName = dbName, name = name, dbUUID = dbUUID)
-  add_levelDefinition(dbName = dbName, name = newName, type = newType, dbUUID = dbUUID)
-  
+modify_levelDefinition<-function(){
+  stop('currently not implemented')
 }
 
 
@@ -1100,50 +1068,9 @@ list_ssffTrackDefinitions <- function(dbName = NULL, dbUUID = NULL){
   return(df)
 }
 
-##' Modify ssffTrackDefinition of emuDB
-##' @description Modify ssffTrackDefinitions of emuDB
-##' @param dbName name of emuDB
-##' @param name name of ssffTrackDefinitions to be modified
-##' @param newName new name of ssffTrackDefinitions
-##' @param newColumnName new columnName of ssffTrackDefinitions
-##' @param newFileExtension new fileExtension of ssffTrackDefinitions
-##' @param dbUUID optional UUID of emuDB
-##' @export
-##' @author Raphael Winkelmann
-modify_ssffTrackDefinition <- function(dbName, name, 
-                                       newName, newColumnName = NULL,
-                                       newFileExtension = NULL, dbUUID = NULL){
-  
-  .initialize.DBI.database()
-  uuid=get_emuDB_UUID(dbName,dbUUID)
-  dbObj = .load.emuDB.DBI(uuid = uuid)
-  
-  # precheck if exists
-  sDefs = list_ssffTrackDefinitions(dbName, dbUUID)  
-  
-  if(!(name %in% sDefs$name)){
-    stop("No ssffTrackDefinitions found with called '", name, "'")
-  }
-  
-  
-  for(i in 1:length(dbObj$DBconfig$ssffTrackDefinitions)){
-    if(dbObj$DBconfig$ssffTrackDefinitions[[i]]$name == name){
-      if(is.null(newColumnName)){
-        newColumnName = dbObj$DBconfig$ssffTrackDefinitions[[i]]$columnName
-      }
-      if(is.null(newFileExtension)){
-        newFileExtension = dbObj$DBconfig$ssffTrackDefinitions[[i]]$fileExtension
-      }
-      dbObj$DBconfig$ssffTrackDefinitions[[i]] = list(name = newName, 
-                                                      columnName = newColumnName, 
-                                                      fileExtension = newFileExtension)
-      break
-    }
-  }
-  
-  # store changes
-  .store.schema(dbObj)
-  
+
+modify_ssffTrackDefinition <- function(){
+  stop("Currently not implementd")
 }
 
 
@@ -1186,5 +1113,5 @@ remove_ssffTrackDefinition <- function(dbName = NULL, name = NULL,
 }
 
 # FOR DEVELOPMENT 
-# library('testthat') 
-# test_file('tests/testthat/test_database.DBconfig.R')
+library('testthat') 
+test_file('tests/testthat/test_database.DBconfig.R')

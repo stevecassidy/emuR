@@ -62,28 +62,7 @@ test_that("CRUD operations work for ssffTrackDefinitions", {
   })
   
   test_that("modify = CR(U)D", {
-    # bad name causes errors
-    expect_error(modify_ssffTrackDefinition(dbName=tmpDbName, name="asdf"))
-    
-    # check if renaming works
-    modify_ssffTrackDefinition(dbName=tmpDbName, name="fm", newName="fmNewName")
-    uuid=get_emuDB_UUID(tmpDbName, NULL)
-    dbObj = .load.emuDB.DBI(uuid = uuid)
-    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$name, "fmNewName")
-    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$columnName, "fm")
-    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$fileExtension, "fms")
-    # check if modifying everything works
-    modify_ssffTrackDefinition(dbName=tmpDbName, name="fmNewName", newName="fmNewName2", 
-                               newColumnName = "test12", newFileExtension = "test12")
-    uuid=get_emuDB_UUID(tmpDbName, NULL)
-    dbObj = .load.emuDB.DBI(uuid = uuid)
-    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$name, "fmNewName2")
-    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$columnName, "test12")
-    expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$fileExtension, "test12")
-    # revert changes
-    modify_ssffTrackDefinition(dbName=tmpDbName, name="fmNewName2", newName="fm", 
-                               newColumnName = "fm", newFileExtension = "fms")    
-    
+      # currently not implemented
   })
   
   test_that("remove = CRU(D)", {
@@ -141,14 +120,7 @@ test_that("CRUD operations work for levelDefinitions", {
   })
   
   test_that("modify = CR(U)D", {
-    expect_error(modify_levelDefinition(dbName=tmpDbName, name = 'Phonetic2')) # newName and newType not set
-    expect_error(modify_levelDefinition(dbName=tmpDbName, name = 'Phonetic', newType='ITEM')) # linkDef present
-    
-    modify_levelDefinition(dbName=tmpDbName, name = 'Phonetic2', newName = 'Phonetic3')
-    dbObj=.load.emuDB.DBI(name=tmpDbName)
-    
-    expect_equal(dbObj$DBconfig$levelDefinitions[[10]]$name, "Phonetic3")
-    
+    # currently not implemented
   })
   
   test_that("remove = CRU(D)", {
@@ -158,14 +130,14 @@ test_that("CRUD operations work for levelDefinitions", {
     dbObj = .load.emuDB.DBI(name=tmpDbName)
     
     dbGetQuery(getEmuDBcon(), paste0("INSERT INTO items VALUES ('",dbObj$DBconfig$UUID,
-                                     "', '0001', 'fakeBundle', 1, 'Phonetic3', 'ITEM', 20000, 1, NULL, NULL, NULL)")) # add item
+                                     "', '0001', 'fakeBundle', 1, 'Phonetic2', 'ITEM', 20000, 1, NULL, NULL, NULL)")) # add item
     
-    expect_error(remove_levelDefinition(dbName=tmpDbName, name="Phonetic3")) # item present
+    expect_error(remove_levelDefinition(dbName=tmpDbName, name="Phonetic2")) # item present
     
     dbGetQuery(getEmuDBcon(), paste0("DELETE FROM items WHERE db_uuid='", 
                                      dbObj$DBconfig$UUID,"'")) # items present
     
-    remove_levelDefinition(dbName=tmpDbName, name="Phonetic3")
+    remove_levelDefinition(dbName=tmpDbName, name="Phonetic2")
     dbObj =.load.emuDB.DBI(name=tmpDbName)
     expect_equal(length(dbObj$DBconfig$levelDefinition), 9)
     
