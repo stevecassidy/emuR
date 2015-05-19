@@ -361,7 +361,10 @@ list_ssffTrackDefinitions(dbName)
 
 TODO: write how to configure the EMU-webApp
 
-Before we can get started with the much loved process of manually annotating 
+Before we can get started with the process of manually annotating our speech database we have to configure our 'fromScratchDB' to contain information about how the database is to be displayed by the EMU-webApp. The EMU-webApp provides a mechanism to view your database from different perspectives. These perspectives have to be defined bla bla
+
+
+*NOTE: the EMU-webApp is highly configurable and only a small subset of the configuration options are available through the emuR package. In most cases simply manually editing the _DBconfig.json BLA BLA*
 
 
 
