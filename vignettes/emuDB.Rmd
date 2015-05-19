@@ -220,15 +220,50 @@ get_legalLabels(dbName,
 ```
 
 
-*NOTE: The legalLabels field is volunary! This means that if it is not set the level can contain any label.*
+*NOTE: The legalLabels field is voluntary! This means that if it is not set the level can contain any label.*
 
-#### Label groups  
+#### Label groups
 
-TODO write about label groups field
+A further optional field is the labelGroups field. It contains specifications of groups of labels that can be referenced by a name given to the group while querying the emuDB. Say we wish to reference all the long vowels in our 'phonetic' attributeDefinition with the name 'long' and all our short vowels with the name 'short'. Let us now add these label groups to that attributeDefinition:
+
+```{r}
+# add long vowels
+add_attrDefLabelGroups(dbName,
+                       levelName = 'phonetic', 
+                       attributeDefinitionName = 'phonetic',
+                       labelGroupName = 'long',
+                       labelGroupValues = c('iː', 'uː'))
+
+# add short vowels
+add_attrDefLabelGroups(dbName,
+                       levelName = 'phonetic', 
+                       attributeDefinitionName = 'phonetic',
+                       labelGroupName = 'short',
+                       labelGroupValues = c('i', 'u', 'ə'))
+
+
+# list
+list_attrDefLabelGroups(dbName,
+                        levelName = 'phonetic',
+                        attributeDefinitionName = 'phonetic')
+
+```
+
+*NOTE: If you wish to define label groups for the entire DB see the ??? section of this document.*
+
+**INFO: For users that are familiar with or transitioning from the previous EMU system the label groups correspond to the somewhat confusingly named 'Legal Labels' entries within the GTemplate Editor (legal entries in the .tpl file) of the previous system. In the new system the legalLabel entries specify the legal/allowed labels values of an attributeDefinitions while the label groups specify groups of labels that can be referenced by their names while perfoming queries.**
 
 ## Link definitions
 
-Todo write
+An essential conceptual and structural element of any emuDB is it's hierarchy. Using hierarchical structures is highly recomended but it's is once again optional. Hierarchical annotations allow for complex rich data modelling and are often cleaner representations of the annotaions at hand. The hierarchical relationships in an emuDB are expressed through links between levelDefinitions. There are three types of valid links:
+
+- "ONE_TO_MANY"
+- "MANY_TO_MANY"
+- "ONE_TO_ONE"
+
+As the names imply these links specify the permitted relationships between the items of one level to another. 
+
+![Alt text](pics/aeGraph.svg) 
 
 ## File handeling
 
