@@ -286,3 +286,83 @@ test_that("CRUD operations work for legalLabels", {
   }
   
 })  
+
+##############################
+test_that("CRUD operations work for labelGroups", {
+  # pre clean (just in case)
+  unlink(file.path(tempdir(),tmpDbName), recursive = TRUE)
+  
+  # copy ae and rename
+  file.copy(file.path(path2extdata, '/emu/DBs/ae/'), tempdir(), recursive = T)
+  file.rename(file.path(tempdir(), 'ae'), file.path(tempdir(), 'ae_copy'))
+  
+  # make copy of ae to mess with (caution correct DBconfig not stored)
+  fp = file.path(tempdir(), tmpDbName)
+  duplicate.loaded.emuDB("ae", tmpDbName, fp)
+  
+  test_that("add = (C)RUD", {
+    # bad call already def. labelGroup
+    expect_error(add_attrDefLabelGroups(tmpDbName,
+                                        levelName = 'Phoneme', 
+                                        attributeDefinitionName = 'Phoneme',
+                                        labelGroupName = 'vowel',
+                                        labelGroupValues = c('sdf', 'f')))
+    
+    add_attrDefLabelGroups(tmpDbName,
+                           levelName = 'Word', 
+                           attributeDefinitionName = 'Word',
+                           labelGroupName = 'newGroup',
+                           labelGroupValues = c('sdf', 'f'))
+    
+  })
+  
+  test_that("list = C(R)UD", {
+    df = list_attrDefLabelGroups(tmpDbName,
+                                 levelName = 'Utterance', 
+                                 attributeDefinitionName = 'Utterance')
+    expect_equal(nrow(df), 0)
+    
+    df = list_attrDefLabelGroups(tmpDbName,
+                                 levelName = 'Phoneme', 
+                                 attributeDefinitionName = 'Phoneme')
+    expect_equal(nrow(df), 6)
+    expect_true(df[6,]$values == "H")
+    
+    df = list_attrDefLabelGroups(tmpDbName,
+                                 levelName = 'Word', 
+                                 attributeDefinitionName = 'Word')
+    expect_true(df[1,]$name == "newGroup")
+    expect_true(df[1,]$values == "sdf; f")
+  })
+  
+  test_that("modify = CR(U)D", {
+    # not implemented yet
+  })
+  
+  test_that("remove = CRU(D)", {
+    expect_error(remove_attrDefLabelGroups(tmpDbName,
+                                           levelName = 'Word', 
+                                           attributeDefinitionName = 'Word',
+                                           labelGroupName = 'notThere'))
+    
+    remove_attrDefLabelGroups(tmpDbName,
+                              levelName = 'Word', 
+                              attributeDefinitionName = 'Word',
+                              labelGroupName = 'newGroup')
+    
+    df = list_attrDefLabelGroups(tmpDbName,
+                                 levelName = 'Word', 
+                                 attributeDefinitionName = 'Word')
+    expect_equal(nrow(df), 0)
+  })
+  
+  
+  
+  # clean up
+  if(is.emuDB.loaded(tmpDbName)){
+    UUID = get_emuDB_UUID(dbName = tmpDbName)
+    purge_emuDB(dbName = tmpDbName, dbUUID = UUID, interactive = F)
+  }
+  
+})  
+

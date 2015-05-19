@@ -691,7 +691,7 @@ set_legalLabels <- function(dbName,
   
 }
 
-##' List legal labels of attributeDefinition of emuDB
+##' Get legal labels of attributeDefinition of emuDB
 ##' 
 ##' @param dbName name of loaded emuDB
 ##' @param levelName name of level
@@ -745,6 +745,125 @@ remove_legalLabels <- function(dbName,
                   levelName,
                   attributeDefinitionName,
                   legalLabels = NULL)
+}
+
+###################################################
+# CRUD operations for attributeDefinition$labelGroups
+
+##' Add labelGroups of attributeDefinition to emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param levelName name of level
+##' @param attributeDefinitionName name of attributeDefinition
+##' @param labelGroupName name of label group
+##' @param labelGroupValues character vector of labels
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Raphael Winkelmann
+##' @export
+##' @keywords emuDB database schema Emu
+add_attrDefLabelGroups <- function(dbName,
+                                   levelName,
+                                   attributeDefinitionName, 
+                                   labelGroupName,
+                                   labelGroupValues,
+                                   dbUUID = NULL){
+  
+  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  curLgs = list_attrDefLabelGroups(dbName, 
+                                   levelName, 
+                                   attributeDefinitionName)
+  
+  if(labelGroupName %in% curLgs$name){
+    stop("labelGroupName '", labelGroupName ,"' already exists!")
+  }
+  for(i in 1:length(dbObj$DBconfig$levelDefinitions)){
+    for(j in 1:length(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions)){
+      if(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$name == attributeDefinitionName){
+        l = length(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$labelGroups)
+        dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$labelGroups[[l + 1]] = list(name = labelGroupName, 
+                                                                                                   values = labelGroupValues)
+      }
+    }
+  }
+  
+  # store changes
+  .store.schema(dbObj)
+}
+
+
+##' List labelGroups of attributeDefinition of emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param levelName name of level
+##' @param attributeDefinitionName name of attributeDefinition
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Raphael Winkelmann
+##' @export
+##' @keywords emuDB database schema Emu
+list_attrDefLabelGroups <- function(dbName,
+                                    levelName,
+                                    attributeDefinitionName, 
+                                    dbUUID = NULL){
+  
+  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  ld = get.levelDefinition(dbObj$DBconfig, levelName)
+  
+  df = data.frame(name = character(), 
+                  values = character())
+  for(ad in ld$attributeDefinitions){
+    if(ad$name == attributeDefinitionName){
+      if(!is.null(ad$labelGroups)){
+        for(lg in ad$labelGroups){
+          df = rbind(df, data.frame(name = lg$name,
+                                    values = paste0(lg$values, collapse = "; ") ))
+        }
+      }
+    }
+  }
+  
+  return(df)
+}
+
+modify_attrDefLabelGroups <- function(){
+  stop("not implemented yet!")
+}
+
+##' Remove labelGroups of attributeDefinition from emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param levelName name of level
+##' @param attributeDefinitionName name of attributeDefinition
+##' @param labelGroupName name of label group
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Raphael Winkelmann
+##' @export
+##' @keywords emuDB database schema Emu
+remove_attrDefLabelGroups <- function(dbName,
+                                      levelName,
+                                      attributeDefinitionName, 
+                                      labelGroupName,
+                                      dbUUID = NULL){
+  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  curLgs = list_attrDefLabelGroups(dbName, 
+                                   levelName, 
+                                   attributeDefinitionName)
+  
+  if(!labelGroupName %in% curLgs$name){
+    stop("labelGroupName '", labelGroupName ,"' does not exists!")
+  }
+  
+  for(i in 1:length(dbObj$DBconfig$levelDefinitions)){
+    for(j in 1:length(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions)){
+      if(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$name == attributeDefinitionName){
+        l = length(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$labelGroups)
+        dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$labelGroups[[l]] = NULL
+      }
+    }
+  }
+  
+  # store changes
+  .store.schema(dbObj)
+  
 }
 
 ###################################################
