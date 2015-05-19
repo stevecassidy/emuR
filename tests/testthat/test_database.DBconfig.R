@@ -345,10 +345,10 @@ test_that("CRUD operations work for labelGroups", {
                                           attributeDefinitionName = 'Word',
                                           labelGroupName = 'notThere'))
     
-    remove_attrDefLabelGroups(tmpDbName,
-                              levelName = 'Word', 
-                              attributeDefinitionName = 'Word',
-                              labelGroupName = 'newGroup')
+    remove_attrDefLabelGroup(tmpDbName,
+                             levelName = 'Word', 
+                             attributeDefinitionName = 'Word',
+                             labelGroupName = 'newGroup')
     
     df = list_attrDefLabelGroups(tmpDbName,
                                  levelName = 'Word', 
