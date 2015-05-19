@@ -366,3 +366,82 @@ test_that("CRUD operations work for labelGroups", {
   
 })  
 
+##############################
+test_that("CRUD operations work for linkDefinitions", {
+  # pre clean (just in case)
+  unlink(file.path(tempdir(),tmpDbName), recursive = TRUE)
+  
+  # copy ae and rename
+  file.copy(file.path(path2extdata, '/emu/DBs/ae/'), tempdir(), recursive = T)
+  file.rename(file.path(tempdir(), 'ae'), file.path(tempdir(), 'ae_copy'))
+  
+  # make copy of ae to mess with (caution correct DBconfig not stored)
+  fp = file.path(tempdir(), tmpDbName)
+  duplicate.loaded.emuDB("ae", tmpDbName, fp)
+  
+  test_that("add = (C)RUD", {
+    # bad call (bad type)
+    expect_error(add_linkDefinition(tmpDbName, "ONE_TO_TWO"))
+    # bad call (link exists)
+    expect_error(add_linkDefinition(tmpDbName, "ONE_TO_ONE", 
+                                    superlevelName ="Syllable", 
+                                    sublevelName = "Tone"))
+    # bad call undefined superlevelName 
+    expect_error(add_linkDefinition(tmpDbName, "ONE_TO_MANY", 
+                                    superlevelName ="undefinedLevel", 
+                                    sublevelName = "Tone"))
+    
+    
+    add_linkDefinition(tmpDbName, "ONE_TO_MANY", 
+                       superlevelName ="Phoneme", 
+                       sublevelName = "Tone")
+    
+  })
+  
+  test_that("list = C(R)UD", {
+    df = list_linkDefinitions(tmpDbName)
+    expect_equal(ncol(df), 3)
+    expect_equal(nrow(df), 10)
+    expect_true(df$type[10] == "ONE_TO_MANY")
+    expect_true(df$superlevelName[10] == "Phoneme")
+    expect_true(df$sublevelName[10] == "Tone")
+  })
+  
+  test_that("modify = CR(U)D", {
+    # not implemented yet
+  })
+  
+  test_that("remove = CRU(D)", {
+    # bad call -> bad superlevelName
+    expect_error(remove_linkDefinition(tmpDbName, 
+                                       superlevelName ="badName", 
+                                       sublevelName = "Tone"))
+    # bad call -> bad sublevelName
+    expect_error(remove_linkDefinition(tmpDbName, 
+                                       superlevelName ="Word", 
+                                       sublevelName = "badName"))
+    # bad call -> links present
+    expect_error(remove_linkDefinition(tmpDbName, 
+                                       superlevelName ="Syllable", 
+                                       sublevelName = "Tone"))
+    
+    remove_linkDefinition(tmpDbName, 
+                          superlevelName ="Phoneme", 
+                          sublevelName = "Tone")
+    
+    df = list_linkDefinitions(tmpDbName)
+    expect_equal(ncol(df), 3)
+    expect_equal(nrow(df), 9)
+    
+  })
+  
+  
+  
+  # clean up
+  if(is.emuDB.loaded(tmpDbName)){
+    UUID = get_emuDB_UUID(dbName = tmpDbName)
+    purge_emuDB(dbName = tmpDbName, dbUUID = UUID, interactive = F)
+  }
+  
+})  
+

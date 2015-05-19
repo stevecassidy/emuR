@@ -809,7 +809,8 @@ list_attrDefLabelGroups <- function(dbName,
   ld = get.levelDefinition(dbObj$DBconfig, levelName)
   
   df = data.frame(name = character(), 
-                  values = character())
+                  values = character(),
+                  stringsAsFactors = F)
   for(ad in ld$attributeDefinitions){
     if(ad$name == attributeDefinitionName){
       if(!is.null(ad$labelGroups)){
@@ -858,6 +859,128 @@ remove_attrDefLabelGroup <- function(dbName,
         l = length(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$labelGroups)
         dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$labelGroups[[l]] = NULL
       }
+    }
+  }
+  
+  # store changes
+  .store.schema(dbObj)
+  
+}
+
+###################################################
+# CRUD operations for linkDefinitions
+
+##' Add linkDefinition to emuDB
+##' 
+##' @param dbName name of emuDB
+##' @param type type of linkDefinition
+##' @param superlevelName name of superlevel of linkDefinition
+##' @param sublevelName name of sublevel of linkDefinition
+##' @param dbUUID optional UUID of emuDB
+##' @export
+##' @author Raphael Winkelmann
+add_linkDefinition <- function(dbName, 
+                               type,
+                               superlevelName,
+                               sublevelName,
+                               dbUUID = NULL){
+  
+  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  
+  allowedTypes = c("ONE_TO_MANY", "MANY_TO_MANY", "ONE_TO_ONE")
+
+  if(!type %in% allowedTypes){
+    stop("Only the following types permitted: ", paste(allowedTypes, collapse = '; '))
+  }
+  
+  curLds = list_linkDefinitions(dbName = dbName, dbUUID = dbUUID)
+  
+  # check if level is defined
+  curLevs = list_levelDefinitions(dbName = dbName, dbUUID = dbUUID)
+  if(!any(curLevs$name == superlevelName) | !any(curLevs$name == sublevelName)){
+    stop("Either superlevelName or sublevelName are not defined")
+  }
+  
+  
+  # check if link between levels already exists
+  if(any(curLds$superlevelName == superlevelName & curLds$sublevelName == sublevelName)){
+    stop("linkDefinition already exists for superlevelName: '", 
+         superlevelName, "' and sublevelName: '", sublevelName, "'")
+  }
+
+  l = length(dbObj$DBconfig$linkDefinitions)
+  dbObj$DBconfig$linkDefinitions[[l + 1]] = list(type = type, 
+                                                 superlevelName = superlevelName,
+                                                 sublevelName = sublevelName)
+  
+  # store changes
+  .store.schema(dbObj)
+  
+}
+
+
+##' List linkDefinitions of emuDB
+##' 
+##' @param dbName name of emuDB
+##' @param dbUUID optional UUID of emuDB
+##' @return data.frame object containing linkDefinitions infos
+##' @export
+##' @author Raphael Winkelmann
+list_linkDefinitions <- function(dbName, dbUUID = NULL){
+  
+  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  
+  df = data.frame(type = character(),
+                  superlevelName = character(),
+                  sublevelName = character(),
+                  stringsAsFactors = F)
+  
+  for(ld in dbObj$DBconfig$linkDefinitions){
+    df = rbind(df, data.frame(type = ld$type,
+                              superlevelName = ld$superlevelName,
+                              sublevelName = ld$sublevelName))
+  }
+  
+  return(df)
+  
+}
+
+modify_linkDefinition <- function(){
+  stop("currently not implemented")
+}
+
+##' Remove linkDefinition from emuDB
+##' 
+##' @param dbName name of emuDB
+##' @param superlevelName name of superlevel of linkDefinition
+##' @param sublevelName name of sublevel of linkDefinition
+##' @param dbUUID optional UUID of emuDB
+##' @export
+##' @author Raphael Winkelmann
+remove_linkDefinition <- function(dbName, 
+                                  superlevelName,
+                                  sublevelName,
+                                  dbUUID = NULL){
+  
+  dbObj = .load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  
+  curLds = list_linkDefinitions(dbName = dbName, dbUUID = dbUUID)
+
+  # check if linkDef exists
+  if(!any(curLds$superlevelName == superlevelName & curLds$sublevelName == sublevelName)){
+    stop("No linkDefinition found for superlevelName '", superlevelName, 
+         "' and sublevelName '", sublevelName, "'")
+  }
+  # check if links are present
+  sl = query(dbName, paste0("[", sublevelName, "=~.* ^ ", superlevelName, "=~.*]"), dbUUID = dbUUID)
+  
+  if(nrow(sl) != 0){
+    stop("linkDefinition can not be remove as there are links present")
+  }
+  
+  for(i in 1:length(dbObj$DBconfig$linkDefinitions)){
+    if(dbObj$DBconfig$linkDefinitions[[i]]$superlevelName == superlevelName && dbObj$DBconfig$linkDefinitions[[i]]$sublevelName == sublevelName){
+      dbObj$DBconfig$linkDefinitions[[i]] = NULL
     }
   }
   
