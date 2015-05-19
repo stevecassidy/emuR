@@ -1113,5 +1113,5 @@ remove_ssffTrackDefinition <- function(dbName = NULL, name = NULL,
 }
 
 # FOR DEVELOPMENT 
-library('testthat') 
-test_file('tests/testthat/test_database.DBconfig.R')
+# library('testthat') 
+# test_file('tests/testthat/test_database.DBconfig.R')
