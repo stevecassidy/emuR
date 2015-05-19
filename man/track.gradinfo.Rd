@@ -8,7 +8,7 @@ track.gradinfo(trackdata)
 }
 \arguments{
 \item{trackdata}{An Emu trackdata object as returned by
-\code{\link{emu.track}}}
+\code{\link{get_trackdata}}}
 }
 \value{
 A data frame with one row per segment and columns:
@@ -63,7 +63,7 @@ delta.fm <- info.fm[,10:13]
 Steve Cassidy
 }
 \seealso{
-\code{\link{emu.track}}, \code{\link{dapply}}
+\code{\link{get_trackdata}}, \code{\link{dapply}}
 }
 \keyword{misc}
 

@@ -5,7 +5,7 @@
 ##' 
 ##' All track data objects have to be track data of the same segment list.
 ##' Thus \$index and \$ftime values have to be identically for all track data
-##' objects.  Track data objects are created by emu.track().  The number of
+##' objects.  Track data objects are created by get_trackdata().  The number of
 ##' rows of the track data objects must match.
 ##' 
 ##' @aliases cbind.trackdata cbind
@@ -15,7 +15,7 @@
 ##' \$data of the source track data objects.
 ##' @author Jonathan Harrington
 ##' @seealso \code{\link{cbind}}, \code{\link{rbind.trackdata}}
-##' \code{\link{trackdata}} \code{\link{emu.track}}
+##' \code{\link{trackdata}} \code{\link{get_trackdata}}
 ##' @keywords methods
 ##' @examples
 ##' 

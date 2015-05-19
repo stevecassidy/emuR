@@ -126,7 +126,7 @@ averaged. The plots can be colour-coded for different category types.
 Jonathan Harrington
 }
 \seealso{
-\code{\link{dcut}} \code{\link{emu.track}}
+\code{\link{dcut}} \code{\link{get_trackdata}}
 }
 \keyword{dplot}
 

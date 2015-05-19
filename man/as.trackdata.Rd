@@ -30,7 +30,7 @@ takes up a number of rows in the main \code{data} matrix, the start and end
 rows are stored in the \code{index} component.  The \code{ftime} component
 contains the start and end times of the segment data.
 
-Trackdata objects are returned by the \code{\link{emu.track}} function.
+Trackdata objects are returned by the \code{\link{get_trackdata}} function.
 }
 \examples{
 # make a trackdata object of two data segments
@@ -53,7 +53,7 @@ tdata[1]
 tdata[2]
 }
 \seealso{
-\code{\link{emu.track}} \code{\link{dplot}}
+\code{\link{get_trackdata}} \code{\link{dplot}}
 }
 \keyword{misc}
 

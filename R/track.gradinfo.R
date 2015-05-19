@@ -13,7 +13,7 @@
 ##' first and last rows of data) and slope (delta divided by the duration).
 ##' 
 ##' @param trackdata An Emu trackdata object as returned by
-##' \code{\link{emu.track}}
+##' \code{\link{get_trackdata}}
 ##' @return A data frame with one row per segment and columns:
 ##' \item{duration}{Segment} \item{startN }{The starting value for each segment
 ##' (start1 is the starting value for the first column) } \item{endN }{The
@@ -23,7 +23,7 @@
 ##' Since the result is a data frame, the columns can be referred to by name
 ##' (\code{result$duration}) or as matrix columns (\code{result[,1]}).
 ##' @author Steve Cassidy
-##' @seealso \code{\link{emu.track}}, \code{\link{dapply}}
+##' @seealso \code{\link{get_trackdata}}, \code{\link{dapply}}
 ##' @keywords misc
 ##' @examples
 ##' 

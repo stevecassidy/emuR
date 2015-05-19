@@ -49,7 +49,7 @@
 ##' @param ... graphical options \link{par}
 ##' @return NULL
 ##' @author Jonathan Harrington
-##' @seealso \code{\link{dcut}} \code{\link{emu.track}}
+##' @seealso \code{\link{dcut}} \code{\link{get_trackdata}}
 ##' @keywords dplot
 ##' @examples
 ##' 

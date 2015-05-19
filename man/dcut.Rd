@@ -93,7 +93,7 @@ If 'right.time' is omitted then a single data point correponding to
 Jonathan Harrington
 }
 \seealso{
-\code{\link{emu.track}}, \code{\link{dplot}}, \code{\link{eplot}}
+\code{\link{get_trackdata}}, \code{\link{dplot}}, \code{\link{eplot}}
 }
 \keyword{datagen}
 

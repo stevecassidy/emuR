@@ -133,7 +133,7 @@
 ##' rows are stored in the \code{index} component.  The \code{ftime} component
 ##' contains the start and end times of the segment data.
 ##' 
-##' Trackdata objects are returned by the \code{\link{emu.track}} function.
+##' Trackdata objects are returned by the \code{\link{get_trackdata}} function.
 ##' 
 ##' @param data A two dimensional matrix of numerical data.
 ##' @param index Segment index, one row per segment, two columns give the start
@@ -142,7 +142,7 @@
 ##' and end times in milliseconds for each segment.
 ##' @param trackname The name of the track.
 ##' @return The components are bound into a trackdata object.
-##' @seealso \code{\link{emu.track}} \code{\link{dplot}}
+##' @seealso \code{\link{get_trackdata}} \code{\link{dplot}}
 ##' @keywords misc
 ##' @examples
 ##' 
@@ -197,7 +197,7 @@
 ##' 
 ##' @param object A data object to be tested
 ##' @return Returns TRUE if the argument is a trackdata object.
-##' @seealso \code{\link{emu.track}}
+##' @seealso \code{\link{get_trackdata}}
 ##' @keywords misc
 ##' @export is.trackdata
 "is.trackdata" <- function (object) 
