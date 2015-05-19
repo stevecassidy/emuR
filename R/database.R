@@ -1499,8 +1499,9 @@ store<-function(dbName=NULL,targetDir,dbUUID=NULL,options=NULL,showProgress=TRUE
   dir.create(pp)
   
   
-  # set editable
-  db[['DBconfig']][['EMUwebAppConfig']][['activeButtons']]=list(saveBundle=TRUE)
+  # set editable + showHierarchy
+  db[['DBconfig']][['EMUwebAppConfig']][['activeButtons']]=list(saveBundle=TRUE,
+                                                                showHierarchy=TRUE)
   
   
   # store db schema file
