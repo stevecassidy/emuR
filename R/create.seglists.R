@@ -317,7 +317,7 @@ convert.query.result.to.segmentlist<-function(dbConfig,result,timeRefSegmentLeve
   # TODO is zero correct here ?? should it be e.samplePoint instead ??
   selectStr=paste0(selectStr," CASE s.type \
                    WHEN 'SEGMENT' THEN (e.sampleStart+e.sampleDur) \
-                   WHEN 'EVENT' THEN 0 ")  
+                   WHEN 'EVENT' THEN NULL ")  
   if(hasLinks){
     # items of type ITEM have no (sample) time information
     # therefore we search for linked SEGMENT items and take their end sample position
