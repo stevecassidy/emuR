@@ -274,7 +274,7 @@ get.database<-function(uuid=NULL,name=NULL){
 }
 
 
-.initialize.DBI.database<-function(createTables=TRUE){
+.initialize.DBI.database<-function(createTables=TRUE,createIndices=TRUE){
   
   if(is.null(getEmuDBcon())){
     #emuDBs.con<<-dbConnect(RSQLite::SQLite(), "/scratch/klausj/WORK/emuDB.sqlite")
@@ -290,36 +290,44 @@ get.database<-function(uuid=NULL,name=NULL){
       dbClearResult(res)
       res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_items) 
       dbClearResult(res)
-      #      res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_itemsIdx) 
-      #      dbClearResult(res)
       res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_labels) 
       dbClearResult(res)
       res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_links) 
       dbClearResult(res)
-      res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksIdx) 
-      dbClearResult(res)
+      
       res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksExt) 
-      dbClearResult(res)
-      res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksExtIdx) 
       dbClearResult(res)
       
       res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksTmp) 
       dbClearResult(res)
-      res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksTmpIdx) 
-      dbClearResult(res)
       res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksExtTmp) 
-      dbClearResult(res)
-      res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksExtTmpIdx) 
       dbClearResult(res)
       res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksExtTmp2) 
       dbClearResult(res)
-      res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksExtTmpIdx2) 
-      dbClearResult(res)
-      
+      if(createIndices){  
+        .create.DBI.database.indices()
+      }
     }
   }
   #dbDisconnect(con)
   return(getEmuDBcon())
+}
+
+.create.DBI.database.indices<-function(){
+  
+  #cat("Creating indices...\n")
+  res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksIdx) 
+  dbClearResult(res)
+  res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksExtIdx) 
+  dbClearResult(res)
+  res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksTmpIdx) 
+  dbClearResult(res)
+  res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksExtTmpIdx) 
+  dbClearResult(res)
+  res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksExtTmpIdx2) 
+  dbClearResult(res)
+  
+  return()
 }
 
 .destroy.DBI.database<-function(){
