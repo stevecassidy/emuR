@@ -417,21 +417,22 @@ convert.query.result.to.segmentlist<-function(dbConfig,result,timeRefSegmentLeve
                        ELSE \
                         (CAST (sampleEnd AS REAL) + 1.5 ) / CAST( sampleRate AS REAL) * 1000.0 \
                        END AS end, \
-                       session || ':' || bundle AS utts,
-                       CASE type WHEN 'EVENT' THEN \
-                        'event' \
-                       ELSE \
-                        'segment' \
-                       END AS slType, \
+                       session || ':' || bundle AS utts, \
                        db_uuid,session,bundle,startItemID,endItemID,type,sampleStart,sampleEnd,sampleRate \
                       FROM segListData")
-  slType=''
+  # set emusegs type attribute, default 'segment'
+  slType='segment'
   if(nrow(seglist)>0){
-    slType=seglist[1,'slType']
+    # set to event only if all rows are of type EVENT
+    dTypes=sqldf("SELECT DISTINCT type FROM seglist")
+    if(nrow(dTypes)==1){
+      if(dTypes[1,1]=='EVENT'){
+        slType='event'
+      }
+    }
   }
   segmentList=make.emuRsegs(dbName = dbConfig[['name']],seglist = seglist,query = result[['queryStr']],type = slType)
   return(segmentList)
-  #}
 }
 
 equal.emusegs<-function(seglist1,seglist2,compareAttributes=TRUE,tolerance=0.0,uttsPrefix2=''){
