@@ -22,46 +22,47 @@ This document formaly introduces and defines version 2 of the **E**mu
 
 most of the EBNF was adapted from [@john:2012a]
 
-## Terminale Symbole der EQL (Operatoren) und ihre Bedeutung nach absteigenden Bindungsgrad (Priorität).
+## Terminal symbols of EQL2 (operators) and their meaning.
+## Sorted descending by their bining priority
 
-| Operator | Bedeutung |
+| Operator | Meaning |
 | --- | --- |
-| # | Ergebnismodifizierer |
-| , | Parameterlistentrenner |
-| == | Gleichheit |
-| != | Ungleichheit |
+| # | Result modifier (projection) |
+| , | Parameter list separator |
+| == | Equality |
+| != | Unequality |
 | =~ | Regular expression match
 | !~ | Regular expression not match
-| = | Gleichheit |
-| > | mehr als |
-| >= | gleich und mehr als |
-| < | weniger als |
-| >= | gleich und weniger als |
-| \| | Alternative |
-| & | gleichrangige Konjunktion |
-| ^ | Dominanzkonjunktion |
-| -> | Sequenzoperator |
+| = | Equality |
+| > | Greater than |
+| >= | Equal or greater than  |
+| < | Less than |
+| >= | Equal or less than |
+| \| | Alternatives separator |
+| & | Conjunction of equal rank |
+| ^ | Dominanceconjunction |
+| -> | Sequenceoperator |
 
-## Terminale Symbole der EQL (Klammern) und ihre Bedeutung.
+## Terminal symbols of EQL2 (brackets) and their meaning.
 
-| Klammer | Bedeutung |
+| Bracket | Meaning |
 | --- | --- |
-| ' | Sonderzeichenanfangs- und Endklammer |
-| ( | Parameterlistenanfangsklammer |
-| ) | Parameterlistenendklammer |
-| &#91; | Sequenzabfragenanfangsklammer |
-| &#93; | Sequenzabfragenendklammer |
+| ' | Quotes literal string |
+| ( | Function parameter list begin |
+| ) | Function parameter list end |
+| &#91; | Sequence or dominance enclosing begin bracket  |
+| &#93; | Sequence or dominance enclosing end bracketr |
 
-## Terminale Symbole der EQL (Funktionen) und ihre Bedeutung
+## Terminal symbols of EQL2 (functions) and their meaning
 
-| Funktionskopf | Bedeutung |
+| Function | Meaning |
 | --- | --- |
-| Start | Anfang | 
-| Medial |Medial |
+| Start | Start | 
+| Medial | Medial |
 | End | Final |
-| Num | Anzahl |
+| Num | Count |
 
-## Vollständige Formale Beschreibung der EMU Query Language
+## Nearly complete formal description of EMU query language EQL2
 
 | X | Y |
 | --- | --- |
@@ -85,19 +86,25 @@ most of the EBNF was adapted from [@john:2012a]
 | INTP = | DIGIT-'0',{DIGIT}; |
 | DIGIT = | '0'\|'1'\|'2'\|'3'\|'4'\|'5'\|'6'\|'7'\|'8'\|'9'; |
 
+# Limitations 
+One query can only contain one result modifier '#' (hashtag)
+
+
 # Examples
 
 ## examples adapted from emuquery.pdf
 
-### Einfache Abfragen (Ein Argument)
+### Simple queries (one argument)
 
-- Alle m Einheiten der Phonetic-Ebene: **[Phonetic = m]**
-- m oder n Einheiten der Phonetic-Ebene **[Phonetic = m | n]**
-- Alle Einheiten ausser m oder n **[Phonetic != m | n]**
-- Beliebige (alle) Silben (Hier nimmt man an, dass es keine mit x etikettierte Silbe gibt) **[Syllable !=x ]**
+- All m elements on level Phonetic: **[Phonetic = m]**
+- m or n elements on level Phonetic: **[Phonetic = m | n]**
+- All elements except m oder n: **[Phonetic != m | n]**
+- All syllables (Assuming that no syllable x exists): **[Syllable !=x ]**
+- All syllables: **[Syllable =~.* ]**
+- All Text level elements beginning with 'fi': **[Text=~fi.*]**
 
-### Reihenfolge (Sequence) Abfragen **->**
-#### Einfache Reihenfolgen
+### Sequence queries **->**
+#### Simple sequences
   
 Hier werden die Argumente mit **->** (folgt) verbunden.
 
