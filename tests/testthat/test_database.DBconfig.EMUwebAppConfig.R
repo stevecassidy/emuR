@@ -65,3 +65,50 @@ test_that("CRUD operations work for perspectives", {
   }
 })
 
+##############################
+test_that("CRUD operations work for perspectives", {
+  # pre clean (just in case)
+  unlink(file.path(tempdir(),tmpDbName), recursive = TRUE)
+  
+  # copy ae and rename
+  file.copy(file.path(path2extdata, '/emu/DBs/ae/'), tempdir(), recursive = T)
+  file.rename(file.path(tempdir(), 'ae'), file.path(tempdir(), 'ae_copy'))
+  
+  # make copy of ae to mess with (caution correct DBconfig not stored)
+  fp = file.path(tempdir(), tmpDbName)
+  duplicate.loaded.emuDB("ae", tmpDbName, fp)
+  
+  test_that("set = (C)RUD", {
+    expect_error(set_signalCanvasesOrder(tmpDbName, 
+                            perspectiveName = "default",
+                            order = c("OSCI", "badTrackName")))
+
+    set_signalCanvasesOrder(tmpDbName, 
+                            perspectiveName = "default",
+                            order = c("OSCI", "SPEC", "fm"))
+    
+    })
+  
+  test_that("get = C(R)UD", {
+    order = get_signalCanvasesOrder(tmpDbName, perspectiveName = "default")
+    
+    expect_equal(order[1], "OSCI")
+    expect_equal(order[2], "SPEC")
+    expect_equal(order[3], "fm")
+  })
+  
+  test_that("modify = CR(U)D", {
+    # currently not implemented
+  })
+  
+  test_that("remove = CRU(D)", {
+    # currently not implemented
+  })
+  
+  # clean up
+  if(is.emuDB.loaded(tmpDbName)){
+    UUID = get_emuDB_UUID(dbName = tmpDbName)
+    purge_emuDB(dbName = tmpDbName, dbUUID = UUID, interactive = F)
+  }
+})
+

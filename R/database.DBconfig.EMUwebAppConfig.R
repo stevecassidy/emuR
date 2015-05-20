@@ -78,13 +78,13 @@ add_perspective <- function(dbName,
                             dbUUID = NULL){
   
   dbObj = .load.emuDB.DBI(name = dbName, uuid = dbUUID)
-
+  
   curPersp = list_perspectives(dbName = dbName, dbUUID = dbUUID)
   # check if level defined
   if(name %in% curPersp$name){
     stop("Perspective with name: '", name, "' already exists")
   }
-
+  
   persp = create.EMUwebAppConfig.perspective(name = name, 
                                              signalCanvases = create.EMUwebAppConfig.signalCanvas(order = c("OSCI", "SPEC"), 
                                                                                                   assign = NULL, contourLims = NULL),
@@ -163,6 +163,71 @@ remove_perspective <- function(dbName,
   .store.schema(dbObj)
   
 }
+
+###########################################
+# CRUD operation for signalCanvasesOrder
+
+
+##' Set signalCanvasesOrder of emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param perspectiveName name of perspective
+##' @param dbUUID optional UUID of loaded emuDB
+##' @param order character vector containig names of ssffTrackDefinitions
+##' @author Raphael Winkelmann
+##' @export
+##' @keywords emuDB database DBconfig Emu 
+set_signalCanvasesOrder <- function(dbName,
+                                    perspectiveName,
+                                    order,
+                                    dbUUID = NULL){
+  
+  dbObj=.load.emuDB.DBI(name = dbName, uuid = dbUUID)
+  
+  curTracks = c("OSCI", "SPEC", list_ssffTrackDefinitions(dbName = dbName, dbUUID = dbUUID)$name)
+  
+  #check if tracks given are defined
+  for(t in order){
+    if(!t %in% curTracks){
+      stop("No ssffTrackDefinition present with name '", t, "'!")
+    }
+  }
+  
+  for(i in 1:length(dbObj$DBconfig$EMUwebAppConfig$perspectives)){
+    if(dbObj$DBconfig$EMUwebAppConfig$perspectives[[i]]$name == perspectiveName){
+      dbObj$DBconfig$EMUwebAppConfig$perspectives[[i]]$signalCanvases$order = order
+      break
+    }
+  }
+  
+  # store changes
+  .store.schema(dbObj)
+}
+
+
+##' Get signalCanvasesOrder of emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param perspectiveName name of perspective
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Raphael Winkelmann
+##' @export
+##' @keywords emuDB database DBconfig Emu 
+get_signalCanvasesOrder <- function(dbName,
+                                    perspectiveName,
+                                    dbUUID = NULL){
+  
+  dbObj=.load.emuDB.DBI(name = dbName, uuid = dbUUID)
+  
+  order = NA
+  for(p in dbObj$DBconfig$EMUwebAppConfig$perspectives){
+    if(p$name == perspectiveName){
+      order = unlist(p$signalCanvases$order)
+    }
+  }
+  return(order)
+}
+
 
 
 # FOR DEVELOPMENT 
