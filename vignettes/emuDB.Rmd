@@ -15,7 +15,7 @@ vignette: >
 
 # Introduction
 
-This document introduces the emuDB format that is used by the emuR package and shows how to create and interact with this database format. The emuDB format is meant as a simple, general purpose way of storing speech databases that may contain complex hierarchical annotations as well as derived and complementary speech data.
+This document introduces the emuDB format that is used by the emuR package and shows how to create and interact with this format. The emuDB format is meant as a simple, general purpose way of storing speech databases that may contain complex, rich, hierarchical annotations as well as derived and complementary speech data.
 
 # DB design
 
@@ -34,10 +34,9 @@ Each session folder can contain any number of `_bndl` folders. All the files bel
 
 Files that do not follow this naming convention will simply be ignored by the database interaction functions of the `emuR` package.
 
-Optional files that may also be included in the database root directory are the `_bundleList.json` files. These files specify which annotator is assigned to which bundles. These files are used by EMU-websocket-protocol servers that implement user management to assign the correct bundles to the annotators. The serve functions implemented in the `emuR` package DO NOT support user management which means that these files will simply be ignored.
+Optional files that may also be included in the database root directory are the `_bundleList.json` files. These files specify which annotator is assigned to which bundles. These files are used by EMU-websocket-protocol servers that implement user management to assign the correct bundles to the annotators. The serve function implemented in the `emuR` package DOES NOT support user management which means that these files will simply be ignored.
 
 For more detailed information about the file formats used see the "File descriptions" section of this document.
-    
 
 # Creating a emuDB
 
@@ -67,11 +66,11 @@ path2extdata = system.file("extdata", package = "emuR")
 path2folder = file.path(path2extdata, 'legacy_emu')
 
 # convert this TextGridCollection to the emuDB format
-convert_TextGridCollection_to_emuDB(path2folder, dbName = 'newDbName', 
+convert_TextGridCollection_to_emuDB(path2folder, dbName = 'myTGcolDB', 
                                     targetDir = tempdir(), verbose = F)
 ```
 
-This will create a new emuDB in the folder `tempdir()` called 'newDbName'. The emuDB will contain all the tier information of the `.TextGrid` files but without hierarchical information as `.TextGrid` files do not contain any linking information. To generate links between the generated `SEGMENTS` and `EVENTS` see the **Autobuild** section in this document.
+This will create a new emuDB in the folder `tempdir()` called 'myTGcolDB'. The emuDB will contain all the tier information of the `.TextGrid` files but will not contain hierarchical information as `.TextGrid` files do not contain any linking information. To generate links between the generated `SEGMENTS` and `EVENTS` see the **Autobuild** section in this document.
 
 
 ## Creating a emuDB from scratch
@@ -98,7 +97,7 @@ dbName = load_emuDB(dbPath, verbose = F)
 print(dbName)
 ```
 
-This will load the database into it's cached form for quick access to the data. Note that if a large emuDB has never been loaded and no cache has previously been generated, this can take a while to complete. Once a cache is present only altered annotation files have to be updated with reduces load times dramatically. As you can see the `load_emuDB()` function returns the name of the database. This name is used to reference the loaded database in most database interaction functions of the emuR package. If you have multiple emuDBs loaded these can be listed by calling:
+This will load the database into it's cached form for quick access to the data. Note that if a large emuDB has never been loaded and no cache has previously been generated, this can take a while to complete. Once a cache is present only altered annotation files have to be updated which reduces load times dramatically. As you can see the `load_emuDB()` function returns the name of the database. This name is used to reference the loaded database in most database interaction functions of the emuR package. If you have multiple emuDBs loaded these can be listed by calling:
 
 ```{r}
 list_emuDBs()
@@ -110,14 +109,11 @@ The general function prefix naming convention of database manipulation functions
 
 - `add_XXX` add a new instance of `XXX` / `set_` set the current instance of `XXX`
 - `list_XXX` list the current instances of `XXX` / `get_` list the current instance of `XXX`
-- `modify_XXX` modify existing instances of `XXX`
 - `remove_XXX` removing existing instances of `XXX`
-
-Depending on the instance that you wish to manipulate some or all of these functions will be present.
 
 ## Level definitions
 
-Compared to other system the EMU speech database management system requires the user to formally define the structure of the database. An essential stuctural element of any emuDB are it's levels. A level is a more general term for what is often referred to as a "tier". It is more general in the sense that people quite often expect tiers to contain time information. Levels can either contain time information if they are either of the type "EVENT" or of the type "SEGMENT" or be timeless if they are of the type "ITEM".
+Compared to other system the EMU speech database management system requires the user to formally define the structure of the database. An essential structural element of any emuDB are it's levels. A level is a more general term for what is often referred to as a "tier". It is more general in the sense that people quite often expect tiers to contain time information. Levels can either contain time information if they are either of the type "EVENT" or of the type "SEGMENT" but can also timeless if they are of the type "ITEM".
 
 As the already loaded 'fromScratchDB' does not contain any structural elements including levels we will begin by adding a new level definition:
 
@@ -133,19 +129,6 @@ To check if this action was successful we can simply list the current level defi
 list_levelDefinitions(dbName)
 ```
 
-If we wish to change the name/type of the level we have just added to the database we can invoke:   
-
-```{r}
-# modify (rename to lower case)
-modify_levelDefinition(dbName, 
-                       name = 'Phonetic', 
-                       newName='phonetic')
-# list
-list_levelDefinitions(dbName)
-```
-
-*NOTE: If there are actual instances of annotation items present in the emuDB this will not be possible. These would first have to be removed.*
-
 Let us add a further levelDefinition that will contain the orthographic word transcriptions for the words uttered in our recordings. This level will be of the type `ITEM` meaning that elements contained within the level are ordered but do not contain any time information:
 
 ```{r}
@@ -159,35 +142,37 @@ list_levelDefinitions(dbName)
 
 Finally we could remove one of the levelDefinitions with the function `remove_levelDefinition()`, which we will once again not invoke here as we still wish to use these levelDefinitions. 
 
+*NOTE: If there are actual instances of annotation items present in the emuDB removing the levelDefinition will not be possible. These would first have to be removed.*
+
 ### Attribute definitions
 
-Each levelDefinition can contain multiple attributes, the most common attribute being a label (`"type": "STRING"`). Due to this it is possible to have multiple parallel labels in a single level. This means that a single annotation item can contain multiple labels while sharing other properties such as the start and duration information. This can be quite handy in modeling certain types of data. A illustrative example of this would be the 'phonetic' level created above. It is often the case that databases contain both the phonetic transcript using IPA UTF-8 symbols as well as using the Speech Assessment Methods Phonetic Alphabet (SAMPA). This is a perfect choice for using multiple attributeDefinitions within a single level:
+Each level definition can contain multiple attributes, the most common attribute being a label (`"type": "STRING"`). Due to this it is possible to have multiple parallel labels in a single level. This means that a single annotation item can contain multiple labels while sharing other properties such as the start and duration information. This can be quite handy in modeling certain types of data. A illustrative example of this would be the 'Phonetic' level created above. It is often the case that databases contain both the phonetic transcript using IPA UTF-8 symbols as well as using the Speech Assessment Methods Phonetic Alphabet (SAMPA). This is a perfect choice for using multiple attributeDefinitions within a single level:
 
 ```{r}
 # list
 list_attributeDefinitions(dbName, 
-                          levelName = 'phonetic')
+                          levelName = 'Phonetic')
 ```
 
-Even though we have not added a single attribute definition to the 'phonetic' level definition. It already contains the obligatory attribute definition that has to have the same name as it's level, indicating that it is the primary attribute of that level. To follow the above example let us now add a further attribute definition to the level definition that will contain the SAMPA versions of our annotations.
+Even though we have not added a single attribute definition to the 'phonetic' level definition. It already contains the obligatory attribute definition that has the same name as it's level, indicating that it is the primary attribute of that level. To follow the above example let us now add a further attribute definition to the level definition that will contain the SAMPA versions of our annotations.
 
 ```{r}
 # add
 add_attributeDefinition(dbName, 
-                        levelName = 'phonetic', 
+                        levelName = 'Phonetic', 
                         newName = 'SAMPA')
 # list
 list_attributeDefinitions(dbName, 
-                          levelName = 'phonetic')
+                          levelName = 'Phonetic')
 ```
 
 
 
 #### Legal labels 
 
-As you might have guessed from seeing the columns `hasLabelGroups` and `hasLegalLabels` in the return value of the `list_attributeDefinitions()` function, attributeDefinitions can also contain two further fields. The `legalLabels` field contains an array of strings that specifies the labels that are legal (== allowed/valid) for the given attribute. As the EMU-webApp won't allow the annotator to enter any labels that are not specified in this array this is a simple way assuring that a level has a concistent label set.
+As you might have guessed from the columns `hasLabelGroups` and `hasLegalLabels` in the return value of the `list_attributeDefinitions()` function, attributeDefinitions can also contain two further fields. The `legalLabels` field contains an array of strings that specifies the labels that are legal (== allowed/valid) for the given attribute. As the EMU-webApp won't allow the annotator to enter any labels that are not specified in this array this is a simple way of assuring that a level has a consistent label set.
 
-As an example lets say we wish to only annotate the following vowels in the `phonetic` level: /i/, /iː/, /u/, /uː/, /ə/ which in SAMPA correspont to /i/, /i:/, /u/, /u:/, /@/. Let us now add these as legal labels to the `phonetic` as well as the `SAMPA` attribute of the `phonetic` level.
+For example lets say we wish to only annotate the following vowels in the `phonetic` level: /i/, /iː/, /u/, /uː/, /ə/ which in SAMPA correspond to /i/, /i:/, /u/, /u:/, /\@/. Let us now add these as legal labels to the `phonetic` as well as the `SAMPA` attribute of the `phonetic` level.
 
 ```{r}
 
@@ -197,48 +182,97 @@ sampaVowels = c('i', 'i:', 'u', 'u:', '@')
 
 # set legalLabels values for phonetic attributeDefinition
 set_legalLabels(dbName,
-                levelName = 'phonetic',
-                attributeDefinitionName = 'phonetic',
+                levelName = 'Phonetic',
+                attributeDefinitionName = 'Phonetic',
                 legalLabels = ipaVowels)
 
 # get
 get_legalLabels(dbName, 
-                levelName = 'phonetic', 
-                attributeDefinitionName = 'phonetic')
+                levelName = 'Phonetic', 
+                attributeDefinitionName = 'Phonetic')
 
 # set legalLabels values for phonetic attributeDefinition
 set_legalLabels(dbName,
-                levelName = 'phonetic',
+                levelName = 'Phonetic',
                 attributeDefinitionName = 'SAMPA',
                 legalLabels = sampaVowels)
 
 # get
 get_legalLabels(dbName, 
-                levelName = 'phonetic', 
+                levelName = 'Phonetic', 
                 attributeDefinitionName = 'SAMPA')
 
 ```
 
 
-*NOTE: The legalLabels field is volunary! This means that if it is not set the level can contain any label.*
+*NOTE: The legalLabels field is not obligatory. If not set the attributeDefinition can contain any label.*
 
-#### Label groups  
+#### Label groups
 
-TODO write about label groups field
+A further optional field is the labelGroups field. It contains specifications of groups of labels that can be referenced by a name given to the group while querying the emuDB. Say we wish to reference all the long vowels in our 'Phonetic' attributeDefinition with the name 'long' and all our short vowels with the name 'short'. Let us update our emuDB with these label groups:
+
+```{r}
+# add long vowels
+add_attrDefLabelGroup(dbName,
+                      levelName = 'Phonetic', 
+                      attributeDefinitionName = 'Phonetic',
+                      labelGroupName = 'long',
+                      labelGroupValues = c('iː', 'uː'))
+
+# add short vowels
+add_attrDefLabelGroup(dbName,
+                      levelName = 'Phonetic', 
+                      attributeDefinitionName = 'Phonetic',
+                      labelGroupName = 'short',
+                      labelGroupValues = c('i', 'u', 'ə'))
+
+
+# list
+list_attrDefLabelGroups(dbName,
+                        levelName = 'Phonetic',
+                        attributeDefinitionName = 'Phonetic')
+
+```
+
+*NOTE: It is also possible to define label groups for the entire DB. For more information on this see the ??? section of this document.*
+
+**INFO: For users that are familiar with or transitioning from the previous EMU system the label groups correspond to the somewhat confusingly named 'Legal Labels' entries of the GTemplate Editor (== legal entries in the .tpl file) of the previous system. In the new system the legalLabel entries specify the legal/allowed labels values of an attributeDefinitions while the label groups specify groups of labels that can be referenced by their names while performing queries.**
 
 ## Link definitions
 
-Todo write
+An essential and very powerful conceptual and structural element of any emuDB is it's hierarchy. Using hierarchical structures is highly recommended but not a must. Hierarchical annotations allow for complex rich data modeling and are often cleaner representations of the annotations at hand. The permitted hierarchical relationships in an emuDB are expressed through links between levelDefinitions. There are three types of valid links:
 
-## File handeling
+- "ONE_TO_MANY"
+- "MANY_TO_MANY"
+- "ONE_TO_ONE"
 
-Up until now we have defined the structure of our database. An essential part that is missing is of course the recordings that we wish to analyse. To import audio files, referred to as media files in the context of an emuDB, into the database one simply has to do the following:
+As the names imply these links specify the permitted relationships between the items of one level to another. The structure of the hierarchy of the 'ae' demo database that comes with the emuR package can be seen below.
+
+![Alt text](pics/aeGraph.svg)
+
+Let us now add a linkDefinition to link the 'Phonetic' level to the 'Word' level created above:
+
+```{r}
+# add
+add_linkDefinition(dbName,
+                   type = 'ONE_TO_MANY',
+                   superlevelName = 'Word',
+                   sublevelName = 'Phonetic')
+```
+
+The simple hierarchical structure of our 'fromScratchDB' now looks like this:
+
+![Alt text](pics/fromScratchDBgraph.svg)
+
+## File handling
+
+Up until now we have defined the structure of our database. An essential part that is missing is of course the recordings that we wish to analyze. To import audio files, referred to as media files in the context of an emuDB, into the database one simply has to do the following:
 
 ```{r}
 # get path to folder containing wav files 
 # (in this case wav files that come with the wrassp package)
 fp = system.file('extdata', package='wrassp')
-# import media files into emuDB session called wrassp
+# import media files into emuDB session called filesFromWrassp
 import_mediaFiles(dbName, 
                   dir = fp, 
                   targetSessionName = 'filesFromWrassp', 
@@ -249,7 +283,7 @@ list_sessions(dbName)
 list_bundles(dbName)
 ```
 
-We have now added a new session called 'filesFromWrassp' to the 'fromScratchDB' containing a new bundle for each of our imported media files. These bundles adhere to the structure we have specified above. Note however that the levels in the annotation files (`_annot.json`) that where created during the import are still empty. These will have to be created manually using the EMU-webApp. To list the files that are part of the emuDB simply:
+We have now added a new session called 'filesFromWrassp' to the 'fromScratchDB' containing a new bundle for each of our imported media files. These bundles adhere to the structure we have specified above. Note however that the levels in the annotation files (`_annot.json`) that where created during the import are still empty. These will have to be created manually at a later stage using the EMU-webApp. To list the files that are part of the emuDB simply:
 
 ```{r}
 # show head of list_files
@@ -283,7 +317,7 @@ head(list_files(dbName))
 
 ## SSFF track definitions
 
-A further important structural element of any emuDB are the so called ssffTracks (often simply refered to as tracks). These ssffTracks reference data that is stored in the **S**imple **S**ignal **F**ile **F**ormat (**SSFF**) in the according `_bndl` folders. The two main types of data are:
+A further important structural element of any emuDB are the so called ssffTracks (often simply referred to as tracks). These ssffTracks reference data that is stored in the **S**imple **S**ignal **F**ile **F**ormat (**SSFF**) in the according `_bndl` folders. The two main types of data are:
 
 - what is often referred to as complimentary data that was acquired during the recording such as data acquired during **e**lectro**m**agnetic **a**rticulographic (**EMA**) or **e**lectro**p**alato**g**raphy (**EPG**) recordings. 
 - what is often referred to as derived data meaning data that was calculated from the original audio signal such as formant values and their bandwidths or the short-term Root Mean Square amplitude of the signal.
@@ -305,9 +339,9 @@ list_ssffTrackDefinitions(dbName)
 head(list_files(dbName))
 ```
 
-**INFO: to see the fileExtension and columnName default produced by the various signal processing functions of the wrassp package see `?wrasspOutputInfos`**
+**INFO: to see the fileExtension and columnName defaults produced by the various signal processing functions of the wrassp package see `?wrasspOutputInfos`**
 
-As you might have noticed the `.zcr` files we added in the previous section are listed as beeing part of the bundles but have no ssffTrackDefinition associated with them. Let's fix that by adding another ssffTrackDefinition to the database:
+As you might have noticed the `.zcr` files we added in the previous section are listed as being part of the bundles but have no ssffTrackDefinition associated with them. Let's fix that by adding another ssffTrackDefinition to the database:
 
 ```{r}
 # add 
@@ -320,22 +354,24 @@ list_ssffTrackDefinitions(dbName)
 ```
 
 
-
-
-
-*NOTE: due to the ability of the `get_trackdata()` function to utilize any of the signal processing functions of the wrassp package to calculate the necessary values on-the-fly it is quite often not necessary to define ssffTracks for tracks produced by the wrassp package. For complimentary data as well as when data that will be manually manipulated (e.g. manual formant corrections) this is still a feasible and necessary option. Also, if you wish to display SSFF data in the EMU-webApp it is necessary to precalculate the ssffTracks as the web application can not perform on-the-fly calculations.*
-
-
+*NOTE: due to the ability of the `get_trackdata()` function to utilize any of the signal processing functions of the wrassp package to calculate the necessary values on-the-fly it is quite often not necessary to define ssffTracks for tracks produced by the wrassp package. For complimentary data as well as when data that will be manually manipulated (e.g. manual formant corrections) this is still a feasible and necessary option. Also, if you wish to display SSFF data in the EMU-webApp it is necessary to pre-calculate the ssffTracks as the web application can not perform on-the-fly calculations.*
 
 
 ## Configuring the EMU-webApp
 
 TODO: write how to configure the EMU-webApp
 
+Before we can get started with the process of manually annotating our speech database we have to configure our 'fromScratchDB' to contain information about how the database is to be displayed by the EMU-webApp. The EMU-webApp provides a mechanism to view your database from different perspectives. These perspectives have to be defined bla bla
+
+
+*NOTE: the EMU-webApp is highly configurable and only a small subset of the configuration options are available through the emuR package. In most cases simply manually editing the _DBconfig.json BLA BLA*
+
+
+
 # Autobuilding
   
 The annotation of large complex multileveled hierarchical speech databases is
-a very time consuming laborious procedure. The *emuR* provides functions to
+a very time consuming laborious procedure. The *emuR* package provides functions to
 automate various bits of this procedure to help with this laborious task.
 
 **emuDB**
@@ -352,10 +388,10 @@ The available function are:
 An important prereq: linkDefinition available!
 
 
-## autobuild.linkFromTimes()
+## autobuild_linkFromTimes()
 
 This function causes annotations at two levels *L1* and *L2* to be linked whenever the time(s) of the annotations at tier
-*U* are within those of ttier *T*.
+*U* are within those of tier *T*.
 
 
 Given we have a a super-level of the form:

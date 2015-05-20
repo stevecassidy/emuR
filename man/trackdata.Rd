@@ -13,7 +13,7 @@ first and last index of the \$data rows that belong to one segment}
 segment} \item{\$data}{a multi-columned matrix with the real track values
 for each segment} }}
 \description{
-A track data object is the result of emu.track().
+A track data object is the result of get_trackdata().
 }
 \note{
 The entire data track is retrieved for each segment in the segment
@@ -47,7 +47,7 @@ data(demo.vowels.fm)
    demo.vowels.fm[1]
 }
 \seealso{
-\code{\link{emu.track}}, \code{\link{demo.vowels.fm}}
+\code{\link{get_trackdata}}, \code{\link{demo.vowels.fm}}
 \code{\link{demo.all.rms}}
 }
 \keyword{classes}

@@ -98,7 +98,7 @@ if( version$major >= 5 ) {
 ##' \code{\link{emu.query}}) and has one row per matching segment or event from
 ##' the query. Each row lists the label, start and end times (in milliseconds)
 ##' and utterance name for the segment.  This information is used by
-##' \code{\link{emu.track}} and other functions to extract data corresponding
+##' \code{\link{get_trackdata}} and other functions to extract data corresponding
 ##' to these segments.
 ##' 
 ##' In order to ensure the proper format for segment lists and to ensure

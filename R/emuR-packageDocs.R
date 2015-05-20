@@ -16,7 +16,7 @@
 ##' 4.3\cr Date: \tab 2012-03-10\cr License: \tab Copyright 2012 IPS LMU
 ##' Munich. All rights reserved.\cr } Workflow: \tabular{ll}{ Query database -
 ##' \code{\link{emu.query}} \cr Extract labels - \code{\link{label}} \cr Get
-##' signals over segment interval - \code{\link{emu.track}} \cr Extract point
+##' signals over segment interval - \code{\link{get_trackdata}} \cr Extract point
 ##' in signal - \code{\link{dcut}} \cr Plot data - \code{\link{plot}},
 ##' \code{\link{dplot}}, \code{\link{eplot}} \cr Further analysis and
 ##' statistical processing \cr }

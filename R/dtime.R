@@ -104,7 +104,7 @@ dtime <- function(dataset, times, single = TRUE, average = TRUE) {
 ##' trackdata object has multiple columns of data or a vector if right.time' is
 ##' unspecified and the trackdata object has a single column of data.
 ##' @author Jonathan Harrington
-##' @seealso \code{\link{emu.track}}, \code{\link{dplot}}, \code{\link{eplot}}
+##' @seealso \code{\link{get_trackdata}}, \code{\link{dplot}}, \code{\link{eplot}}
 ##' @keywords datagen
 ##' @examples
 ##' 

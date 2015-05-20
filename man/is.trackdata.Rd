@@ -16,7 +16,7 @@ Returns TRUE if the argument is a trackdata object.
 Test whether an object is an Emu trackdata object
 }
 \seealso{
-\code{\link{emu.track}}
+\code{\link{get_trackdata}}
 }
 \keyword{misc}
 

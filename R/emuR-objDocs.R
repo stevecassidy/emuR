@@ -64,7 +64,7 @@ NULL
 
 ##' Track data object
 ##' 
-##' A track data object is the result of emu.track().
+##' A track data object is the result of get_trackdata().
 ##' 
 ##' 
 ##' @aliases trackdata Math.trackdata Math2.trackdata Ops.trackdata
@@ -94,7 +94,7 @@ NULL
 ##' \item{list("Math2")}{\code{"round"}, \code{"signif"}}
 ##' \item{list("Summary")}{\code{"max"}, \code{"min"}, \code{"range"},
 ##' \code{"prod"}, \code{"sum"}, \code{"any"}, \code{"all"}} }
-##' @seealso \code{\link{emu.track}}, \code{\link{demo.vowels.fm}}
+##' @seealso \code{\link{get_trackdata}}, \code{\link{demo.vowels.fm}}
 ##' \code{\link{demo.all.rms}}
 ##' @keywords classes
 ##' @name trackdata
