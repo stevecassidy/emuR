@@ -453,7 +453,8 @@ list_levelDefinitions <- function(dbName, dbUUID=NULL){
   for(ld in dbObj$DBconfig$levelDefinitions){
     df <- rbind(df, data.frame(name = ld$name, 
                                type = ld$type, 
-                               nrOfAttrDefs = length(ld$attributeDefinitions))) # perfomance problem? 
+                               nrOfAttrDefs = length(ld$attributeDefinitions),
+                               stringsAsFactors = FALSE)) # perfomance problem? 
   }
   return(df)
 }
