@@ -60,3 +60,112 @@ get.ssfftrack.names.used.by.webapp.config<-function(EMUwebAppConfig){
   }
   return(unique(nms))
 }
+
+###########################################
+# CRUD operation for perspectives
+
+##' Add perspective to emuDB
+##' 
+##' Add EMUwebAppConfig$perspective to emuDB
+##' @param dbName name of loaded emuDB
+##' @param name name of perspective
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Raphael Winkelmann
+##' @export
+##' @keywords emuDB database DBconfig Emu 
+add_perspective <- function(dbName, 
+                            name,
+                            dbUUID = NULL){
+  
+  dbObj = .load.emuDB.DBI(name = dbName, uuid = dbUUID)
+
+  curPersp = list_perspectives(dbName = dbName, dbUUID = dbUUID)
+  # check if level defined
+  if(name %in% curPersp$name){
+    stop("Perspective with name: '", name, "' already exists")
+  }
+
+  persp = create.EMUwebAppConfig.perspective(name = name, 
+                                             signalCanvases = create.EMUwebAppConfig.signalCanvas(order = c("OSCI", "SPEC"), 
+                                                                                                  assign = NULL, contourLims = NULL),
+                                             levelCanvases = create.EMUwebAppConfig.levelCanvas(order = NULL),
+                                             twoDimCanvases = NULL)
+  
+  l = length(dbObj$DBconfig$EMUwebAppConfig$perspectives)
+  
+  dbObj$DBconfig$EMUwebAppConfig$perspectives[[l + 1]] = persp
+  
+  # store changes
+  .store.schema(dbObj)
+  
+}
+
+
+##' List perspectives of emuDB
+##' 
+##' List EMUwebAppConfig$perspectives of emuDB
+##' @param dbName name of loaded emuDB
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Raphael Winkelmann
+##' @export
+##' @keywords emuDB database DBconfig Emu 
+list_perspectives <- function(dbName, dbUUID = NULL){
+  
+  dbObj=.load.emuDB.DBI(name=dbName, uuid = dbUUID)
+  
+  df = data.frame(name = character(),
+                  signalCanvasesOrder = character(),
+                  levelCanvasesOrder = character(),
+                  stringsAsFactors = F)
+  
+  for(p in dbObj$DBconfig$EMUwebAppConfig$perspectives){
+    df = rbind(df , data.frame(name = p$name,
+                               signalCanvasesOrder = paste(p$signalCanvases$order, collapse = "; "),
+                               levelCanvasesOrder = paste(p$levelCanvases$order, collapse = "; "),
+                               stringsAsFactors = F))
+  }
+  
+  return(df)
+}
+
+modify_perspective <- function(){
+  stop("currently not implemented")
+}
+
+##' Remove perspective from emuDB
+##' 
+##' List EMUwebAppConfig$perspective from emuDB
+##' @param dbName name of loaded emuDB
+##' @param name name of perspective
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Raphael Winkelmann
+##' @export
+##' @keywords emuDB database DBconfig Emu 
+remove_perspective <- function(dbName, 
+                               name,
+                               dbUUID = NULL){
+  
+  dbObj=.load.emuDB.DBI(name=dbName, uuid = dbUUID)
+  
+  curPersp = list_perspectives(dbName = dbName, dbUUID = dbUUID)
+  
+  # check if perspective defined
+  if(!name %in% curPersp$name){
+    stop("No perspective with name: '", name, "' found!")
+  }
+  
+  for(i in 1:length(dbObj$DBconfig$EMUwebAppConfig$perspectives)){
+    if(dbObj$DBconfig$EMUwebAppConfig$perspectives[[i]]$name == name){
+      dbObj$DBconfig$EMUwebAppConfig$perspectives[[i]] = NULL
+    }
+  }
+  # store changes
+  .store.schema(dbObj)
+  
+}
+
+
+# FOR DEVELOPMENT 
+# library('testthat') 
+# test_file('tests/testthat/test_database.DBconfig.EMUwebAppConfig.R')
+
