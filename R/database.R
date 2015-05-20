@@ -1690,7 +1690,13 @@ load_emuDB <- function(databaseDir,verbose=TRUE){
   # create db object
   db=create.database(name = schema[['name']],basePath = normalizePath(databaseDir),DBconfig = schema)
   
+  # Tested performance if indices are created after storing the bundles: No performance benefit
+  #.initialize.DBI.database(createIndices = F)
   .initialize.DBI.database()
+  beginRes=dbBegin(getEmuDBcon())
+  if(!beginRes){
+    stop("Could not start DBI (SQL) transaction!")
+  }
   dbsDf=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
   if(nrow(dbsDf)>0){
     stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
@@ -1823,6 +1829,10 @@ load_emuDB <- function(databaseDir,verbose=TRUE){
     sessions[[sNm]]=s
     
   }
+  
+  # Tested performance if indices are created after storing the bundles: No performance benefit
+  #.create.DBI.database.indices()
+  
   db[['sessions']]=sessions 
   
   #itemsIdx=db[['itemsIdx']]
@@ -1865,6 +1875,10 @@ load_emuDB <- function(databaseDir,verbose=TRUE){
   }
   calculate.postions.of.links()
   #db[['linksExt']]=dbReadTable(getEmuDBcon(),'linksExt')
+  commitRes=dbCommit(getEmuDBcon())
+  if(!commitRes){
+    stop("Could not commit database transaction!")
+  }
   progress=progress+ppBuildExtLinks
   if(verbose){
     setTxtProgressBar(pb,progress)
