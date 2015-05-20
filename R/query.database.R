@@ -618,22 +618,6 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       res=create.subtree(items=rResIts,links=NULL,resultLevel=lResAttrName,projectionItems=rResPIts)
       return(res)
     }
-    #else{
-    #  rqStr=paste0("SELECT i.* FROM rResIts rs,items i WHERE i.id=rs.seqStartId AND level='",rResAttrName,"'")
-    #  #rqStr=paste0("SELECT i.* FROM rResIts rs,items i WHERE i.id=rs.seqStartId")
-    #  rLvlItems=sqldf(rqStr)
-    #}
-    #lLvlItemsNrows=nrow(lLvlItems)
-    #rLvlItemsNrows=nrow(rLvlItems)
-    #if(lLvlItemsNrows==0){    
-    #  res=create.subtree(items=,lLvlItems,links=NULL,resultLevel=lResAttrName,projectionItems=NULL)
-    #  return(res)
-    #} 
-    #if( rLvlItemsNrows==0){
-    #  
-    #  res=create.subtree(items=rLvlItems,links=NULL,resultLevel=lResAttrName,projectionItems=NULL)
-    #  return(res)
-    #}
     
     if(domPos!=-1){
       # parse DOMA
@@ -685,16 +669,6 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       #rResIdxSql='CREATE INDEX rResIts_idx ON rResIts(seqStartId,seqEndId,seqLen,level)' 
       linksIdxSql='CREATE INDEX links_idx ON links(db_uuid,session,bundle,fromID,toID)'
       
-#       idcSql=c('CREATE INDEX items_id_idx ON items(id)','CREATE INDEX items_sb_idx ON items(session,bundle)',
-#                'CREATE INDEX links_sb_idx ON links(session,bundle)',
-#                'CREATE INDEX links_fromID_idx ON links(fromID)',
-#                'CREATE INDEX links_toID_idx ON links(toID)'
-#                # this indices cause a dramatic performance regression (Why???)  
-#                #'CREATE INDEX rResIts_se_idx ON rResIts(seqStartId,seqEndId)',
-#               #'CREATE INDEX lResIts_se_idx ON lResIts(seqStartId,seqEndId)'
-#               )
-# 
-#      
     # mysterious: query is much slower if rResIts_Idx is calculated as well
       lrExpRes=sqldf(c(itemsIdxSql,linksIdxSql,lrDomQueryStr))
       #lrExpRes=sqldf(c(idcSql,lrDomQueryStr))
@@ -725,10 +699,7 @@ query.database.eql.in.bracket<-function(dbConfig,q){
           
           #qStr=paste0(lQStr," UNION ",rQStr)
           rPrjIts=sqldf(qStr)
-          #rExpRes=data.frame(seqStartId=lrExpRes[,'rsId'],seqEndId=lrExpRes[,'reId'])
-          #cat("dominance query string: ",domQueryStr,"\n")
-          #rExpRes=sqldf(rDomQueryStr)
-          #rPrjIts=reduce.projection.items(rExpRes,rResPIts)
+         
         }
       }
       prjIts=NULL
@@ -757,8 +728,6 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       if(lResAttrName!=rResAttrName){
         stop("Levels of sequence query '",qTrim,"' do not match. (",lResAttrName," not equal ",rResAttrName,")")
       }
-      #seqQueryStr=paste0("SELECT lid.seqStartId,rid.seqEndId FROM lResIts lid, rResIts rid,items il, items ir WHERE il.id=lid.seqEndId AND ir.id=rid.seqStartId AND il.level='",lResAttrName,"' AND il.level=ir.level AND il.bundle=ir.bundle AND ir.seqIdx=il.seqIdx+1")
-      #lrSeqQueryStr=paste0("SELECT lid.seqStartId,lid.seqEndId AS leId,rid.seqStartId AS rsId,rid.seqEndId FROM lResIts lid, rResIts rid,items il, items ir WHERE il.id=lid.seqEndId AND ir.id=rid.seqStartId AND il.level='",lResAttrName,"' AND il.level=ir.level AND il.bundle=ir.bundle AND ir.seqIdx=il.seqIdx+1")
       lrSeqQueryStr=paste0("SELECT lid.db_uuid,lid.session,lid.bundle,lid.seqStartId,lid.seqEndId AS leId,rid.seqStartId AS rsId,rid.seqEndId,lid.seqLen+rid.seqLen AS seqLen,lid.level FROM lResIts lid, rResIts rid,items il, items ir WHERE \
                           il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle AND \
                            il.db_uuid=lid.db_uuid AND il.session=lid.session AND il.bundle=lid.bundle AND \
@@ -978,9 +947,6 @@ query<-function(dbName=NULL,query,sessionPattern=NULL,bundlePattern=NULL,queryLa
         }
       }
       # free temp tables
-      #getQueryTmpEmuDBs()[['queryItems']]<-NULL
-      #getQueryTmpEmuDBs()[['queryLabels']]<-NULL
-      #getQueryTmpEmuDBs()[['queryLinksExt']]<-NULL
       setQueryTmpEmuDBs(NULL)
       
     }else{
