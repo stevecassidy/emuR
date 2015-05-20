@@ -195,7 +195,7 @@ set_signalCanvasesOrder <- function(dbName,
   
   for(i in 1:length(dbObj$DBconfig$EMUwebAppConfig$perspectives)){
     if(dbObj$DBconfig$EMUwebAppConfig$perspectives[[i]]$name == perspectiveName){
-      dbObj$DBconfig$EMUwebAppConfig$perspectives[[i]]$signalCanvases$order = order
+      dbObj$DBconfig$EMUwebAppConfig$perspectives[[i]]$signalCanvases$order = as.list(order)
       break
     }
   }
@@ -228,6 +228,73 @@ get_signalCanvasesOrder <- function(dbName,
   return(order)
 }
 
+###########################################
+# CRUD operation for levelCanvasesOrder
+
+
+##' Set levelCanvasesOrder of emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param perspectiveName name of perspective
+##' @param dbUUID optional UUID of loaded emuDB
+##' @param order character vector containig names of levelDefinitions
+##' @author Raphael Winkelmann
+##' @export
+##' @keywords emuDB database DBconfig Emu 
+set_levelCanvasesOrder <- function(dbName,
+                                    perspectiveName,
+                                    order,
+                                    dbUUID = NULL){
+  
+  dbObj=.load.emuDB.DBI(name = dbName, uuid = dbUUID)
+  
+  curLevelNames = list_levelDefinitions(dbName = dbName, dbUUID = dbUUID)$name
+  curLevelTypes = list_levelDefinitions(dbName = dbName, dbUUID = dbUUID)$type
+  
+  #check if levels given are defined and of correct type
+  for(t in order){
+    if(!t %in% curLevelNames){
+      stop("No levelDefinition present with name '", t, "'!")
+    }
+    lt = curLevelTypes[curLevelNames == t]
+    if(!lt %in% c("SEGMENT", "EVENT")){
+      stop("levelDefinition with name '", t, "' is not of type 'SEGMENT' or 'EVENT'")
+    }
+  }
+  
+  for(i in 1:length(dbObj$DBconfig$EMUwebAppConfig$perspectives)){
+    if(dbObj$DBconfig$EMUwebAppConfig$perspectives[[i]]$name == perspectiveName){
+      dbObj$DBconfig$EMUwebAppConfig$perspectives[[i]]$levelCanvases$order = as.list(order)
+      break
+    }
+  }  
+  # store changes
+  .store.schema(dbObj)
+}
+
+
+##' Get levelCanvasesOrder of emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param perspectiveName name of perspective
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Raphael Winkelmann
+##' @export
+##' @keywords emuDB database DBconfig Emu 
+get_levelCanvasesOrder <- function(dbName,
+                                   perspectiveName,
+                                   dbUUID = NULL){
+  
+  dbObj=.load.emuDB.DBI(name = dbName, uuid = dbUUID)
+  
+  order = NA
+  for(p in dbObj$DBconfig$EMUwebAppConfig$perspectives){
+    if(p$name == perspectiveName){
+      order = unlist(p$levelCanvases$order)
+    }
+  }
+  return(order)
+}
 
 
 # FOR DEVELOPMENT 
