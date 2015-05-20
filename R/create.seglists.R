@@ -225,20 +225,22 @@ convert.query.result.to.segmentlist<-function(dbConfig,result,timeRefSegmentLeve
   
   # get distinct result levels ...
   distinctLevels=sqldf("SELECT DISTINCT level FROM its")
-  for(lvl in distinctLevels[,'level']){
-    ld=get.levelDefinition(DBconfig = dbConfig,name = lvl)
+  for(attrNm in distinctLevels[,'level']){
+    
+    lvlNm=get.level.name.for.attribute(dbConfig = dbConfig,attributeName = attrNm)
+    ld=get.levelDefinition(DBconfig = dbConfig,name = lvlNm)
     #cat("Level ",ld['name']," type ",ld['type'],"\n")
     if(ld['type']=='ITEM'){
-      segLvlNms=find.segment.levels(dbConfig,lvl)
+      segLvlNms=find.segment.levels(dbConfig,attrNm)
       if(!is.null(timeRefSegmentLevel)){
         if(!(timeRefSegmentLevel %in% segLvlNms)){
-          stop("Cannot resolve time information for result level '",lvl,"' using segment time reference level '",timeRefSegmentLevel,"'\nPlease set one of these levels for timeRefSegmentLevel parameter: ",paste(segLvlNms,collapse=', '),".")
+          stop("Cannot resolve time information for result level '",attrNm,"' using segment time reference level '",timeRefSegmentLevel,"'\nPlease set one of these levels for timeRefSegmentLevel parameter: ",paste(segLvlNms,collapse=', '),".")
         }
       }else{
         segLvlsCnt=length(segLvlNms)
         if(segLvlsCnt>1){
           
-          stop("Segment time information derivation for level '",lvl,"' is ambiguous:\nThe level is linked to multiple segment levels: ",paste(segLvlNms,collapse=', '),"\nPlease select one of these levels using the 'timeRefSegmentLevel' query parameter.")
+          stop("Segment time information derivation for level '",attrNm,"' is ambiguous:\nThe level is linked to multiple segment levels: ",paste(segLvlNms,collapse=', '),"\nPlease select one of these levels using the 'timeRefSegmentLevel' query parameter.")
         }
       }
     }
