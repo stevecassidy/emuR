@@ -1118,7 +1118,7 @@ remove_ssffTrackDefinition <- function(dbName = NULL, name = NULL,
   sDefs = list_ssffTrackDefinitions(dbName, dbUUID)  
   
   if(!(name %in% sDefs$name)){
-    stop("No ssffTrackDefinitions found with called '", name, "'")
+    stop("No ssffTrackDefinitions found with name: '", name, "'")
   }
   # find end delete entry
   deletedDef = NULL
