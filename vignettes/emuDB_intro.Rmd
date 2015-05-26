@@ -270,7 +270,7 @@ head(list_files(dbName))
 
 The emuR package also provides a mechanism to add files to preexisting bundle folders as, due to the nested folder structure of an emuDB, this can be quite tedious to perform manually. Let us create a set of files that contain the zero-crossing-rate values of the wav files we added above and for the sake of demonstration save them to a different location to then re-add them to the database.
 
-```{r}
+```{r, results = "hide"}
 # list all wav files in new emuDB
 wavFilePaths = list.files(dbPath, 
                           pattern = "wav$", 
@@ -288,10 +288,12 @@ add_files(dbName,
           dir = outDirPath, 
           fileExtension = 'zcr',
           targetSessionName = 'filesFromWrassp')
+```
+
+```{r}
 # show head of list_files to check if files where added
 head(list_files(dbName))
 ```
-
 
 ## SSFF track definitions
 
