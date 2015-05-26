@@ -6,7 +6,7 @@ date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 bibliography: vignettes.bib
 vignette: >
-  %\VignetteIndexEntry{autobuild tutorial}
+  %\VignetteIndexEntry{emuDB introduction}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
