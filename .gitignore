@@ -3,15 +3,9 @@
 .RData
 
 vignettes/pics/db_structure.aux
-
 vignettes/pics/db_structure.log
-
 vignettes/pics/db_structure.pdf
-
 *.log
-
-*.log
-
 *.gz
-
 *.fdb_latexmk
+inst/doc
