@@ -1,5 +1,6 @@
 ---
-title: "An introduction to the emuDB format: The database format of the next iteration of the EMU speech database management system"
+title: "An introduction to the emuDB format"
+subtitle: "The database format of the next iteration of the EMU speech database management system"
 author: "Raphael Winkelmann"
 affiliation: "Institute Of Phonetics And Speech Processing (LMU Munich)"
 date: "`r Sys.Date()`"
