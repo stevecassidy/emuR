@@ -520,16 +520,16 @@ remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
 ##' 
 ##' @param dbName name of loaded emuDB
 ##' @param levelName name of level
-##' @param newName name af new attributeDefinition
-##' @param newType type of new attributeDefinition
+##' @param name name af new attributeDefinition
+##' @param type type of new attributeDefinition
 ##' @param dbUUID optional UUID of loaded emuDB
 ##' @author Raphael Winkelmann
 ##' @export
 ##' @keywords emuDB database DBconfig Emu 
 add_attributeDefinition <- function(dbName, levelName, 
-                                    newName, newType = "STRING",
+                                    name, type = "STRING",
                                     dbUUID=NULL){
-  if(newType != "STRING"){
+  if(type != "STRING"){
     stop("Currently only attributeDefinition of type 'STRING' allowed")
   }
   
@@ -538,17 +538,17 @@ add_attributeDefinition <- function(dbName, levelName,
   df = list_attributeDefinitions(dbName, levelName, dbUUID)
   
   
-  if(!(newName %in% df$name)){
+  if(!(name %in% df$name)){
     for(i in 1:length(dbObj$DBconfig$levelDefinitions)){
       if(dbObj$DBconfig$levelDefinitions[[i]]$name == levelName){
-        dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[length(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions) + 1]] = create.schema.attributeDefinition(name = newName, 
-                                                                                                                                                                               type = newType,
+        dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[length(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions) + 1]] = create.schema.attributeDefinition(name = name, 
+                                                                                                                                                                               type = type,
                                                                                                                                                                                labelGroups = NULL)
         break
       }
     }
   }else{
-    stop(paste0("attributeDefinition with name '", newName, "' already present in level '", levelName, "'"))
+    stop(paste0("attributeDefinition with name '", name, "' already present in level '", levelName, "'"))
   }
   
   # store changes
