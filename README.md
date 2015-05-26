@@ -18,5 +18,5 @@ install.packages("path/to/emuR", repos = NULL, type="source")
 * or install the latest development version from GitHub (**preferred method**):
 ```r
 library(devtools)
-install_github("IPS-LMU/emuR")
+install_github("IPS-LMU/emuR", build_vignettes = TRUE)
 ```
