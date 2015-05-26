@@ -594,6 +594,11 @@ query.database.eql.in.bracket<-function(dbConfig,q){
     if(domPos!=-1 & lResLvl==rResLvl){
       stop("Dominance query on same levels impossible.\nLeft level: ",lResLvl," (attr:",lResAttrName,") equals right level: ",lResLvl," (attr:",rResAttrName,")\n")
     }
+    # check equal levels for sequence query
+    # (Do this already at this point, fixes issue: Sequence query should always throw an error if arguments not on same level. #39 )
+    if(seqPos!=-1 & lResAttrName!=rResAttrName){
+        stop("Levels of sequence query '",qTrim,"' do not match. (",lResAttrName," not equal ",rResAttrName,")")
+    }
     
     lLvlItems=NULL
     # sqldf cannot handle empty data frames 
@@ -725,9 +730,6 @@ query.database.eql.in.bracket<-function(dbConfig,q){
     if(seqPos!=-1){
       # parse SEQA
       # query the result level of left term
-      if(lResAttrName!=rResAttrName){
-        stop("Levels of sequence query '",qTrim,"' do not match. (",lResAttrName," not equal ",rResAttrName,")")
-      }
       lrSeqQueryStr=paste0("SELECT lid.db_uuid,lid.session,lid.bundle,lid.seqStartId,lid.seqEndId AS leId,rid.seqStartId AS rsId,rid.seqEndId,lid.seqLen+rid.seqLen AS seqLen,lid.level FROM lResIts lid, rResIts rid,items il, items ir WHERE \
                           il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle AND \
                            il.db_uuid=lid.db_uuid AND il.session=lid.session AND il.bundle=lid.bundle AND \
