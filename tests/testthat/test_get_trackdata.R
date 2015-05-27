@@ -71,7 +71,15 @@ test_that("all sorts of cut values work", {
   }
 })
 
-##############################
+###############################
+test_that("n points greater than boundaries word", {
+  
+    td = get_trackdata("ae", n, 'fm', cut=0.5, npoints = 20, verbose=F)
+    expect_that(class(td), equals('trackdata'))
+})
+
+
+#############################
 test_that("on-the-fly calculations work", {
   for(wrasspFun in names(wrasspOutputInfos)){
     if(length(wrasspOutputInfos[[wrasspFun]]$tracks) > 0 && wrasspOutputInfos[[wrasspFun]]$outputType == "SSFF"){

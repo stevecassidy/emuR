@@ -221,7 +221,11 @@
         timeStampSeq <- seq(fStartTime, curEnd + fSampleRateInMS * npoints, fSampleRateInMS)
       }
     }else{
-      timeStampSeq <- seq(fStartTime, curEnd, fSampleRateInMS)
+      if(npoints == 1 || is.null(npoints)){
+        timeStampSeq <- seq(fStartTime, curEnd, fSampleRateInMS)
+      }else{
+        timeStampSeq <- seq(fStartTime, curEnd + fSampleRateInMS * npoints, fSampleRateInMS)
+      }
     }
     
     ##################################################
