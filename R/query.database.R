@@ -662,28 +662,22 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       # ... and sequence end item of left result on existence of a link to the end item of the right sequence 
       domQueryStrCond2=paste0("EXISTS (SELECT * FROM links m WHERE ",linkSameBundleCond2," AND ((m.fromID=ile.itemID AND m.toID=ire.itemID) OR (m.toID=ile.itemID AND m.fromID=ire.itemID)))")
       
-      # concatenate the query string
+      # concatenate the dominance query string
       domQueryStrTail=paste0(" FROM ",domQueryFromStr," WHERE ", domQueryStrCond0, " AND ", domQueryStrCond1," AND ",domQueryStrCond2)
       lrDomQueryStr=paste0("SELECT DISTINCT ",lDomQuerySelectStr,",",rDomQuerySelectStr,domQueryStrTail)
-      #cat("dominance query string: ",domQueryStr,"\n")
-      #
-      # Experimenting with SQLITE indices ...
-     #cat("left res its:",nrow(lResIts)," right res its: ",nrow(rResIts),"\n")
       
-      #lResIdxSql='CREATE INDEX lResIts_idx ON lResIts(seqStartId,seqEndId,seqLen,level)'
-      #rResIdxSql='CREATE INDEX rResIts_idx ON rResIts(seqStartId,seqEndId,seqLen,level)' 
+      # Indices for left and right result items and for links
+      lResIdxSql='CREATE INDEX lResIts_idx ON lResIts(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)'
+      rResIdxSql='CREATE INDEX rResIts_idx ON rResIts(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)' 
       linksIdxSql='CREATE INDEX links_idx ON links(db_uuid,session,bundle,fromID,toID)'
       
-    # mysterious: query is much slower if rResIts_Idx is calculated as well
-      lrExpRes=sqldf(c(itemsIdxSql,linksIdxSql,lrDomQueryStr))
-      #lrExpRes=sqldf(c(idcSql,lrDomQueryStr))
+      lrExpRes=sqldf(c(lResIdxSql,rResIdxSql,itemsIdxSql,linksIdxSql,lrDomQueryStr))
       
       #lExpRes=data.frame(seqStartId=lrExpRes[,'seqStartId'],seqEndId=lrExpRes[,'seqEndId'],seqLen=lrExpRes[,'seqLen'],level=lrExpRes[,'level'],stringsAsFactors = FALSE)
       # lrExpRes might have double items, use a distinct select to create the data.frame for left term
       # for example in the query "[ Syllable=S ^ Phonetic=s ]" on ae there exists one Syllable S which dominates two Phonetic s items 
       # Fix for issue #12
-      lrExpResIdxSql='CREATE INDEX lrExpRes_idx ON lrExpRes(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)'
-      #lExpRes=sqldf(c(lrExpResIdxSql,"SELECT DISTINCT seqStartId,seqEndId,seqLen,level FROM lrExpRes"))
+      # Note: indices do not improve performance here 
       lExpRes=sqldf("SELECT DISTINCT db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level FROM lrExpRes")
       lPrjIts=NULL
       rPrjIts=NULL
@@ -695,6 +689,7 @@ query.database.eql.in.bracket<-function(dbConfig,q){
           #rQStr="SELECT rpi.* FROM rightProjectionItems rpi WHERE EXISTS (SELECT i.seqStartId FROM resultItems i WHERE i.seqStartId=rpi.seqStartId && i.seqEndId=rpi.seqEndId)"
           
           #qStr=paste0(lQStr," UNION ",rQStr)
+          #lPrjIts=sqldf(c(lrExpResIdxSql,qStr))
           lPrjIts=sqldf(qStr)
         }
         
@@ -703,6 +698,7 @@ query.database.eql.in.bracket<-function(dbConfig,q){
           #rQStr="SELECT rpi.* FROM rightProjectionItems rpi WHERE EXISTS (SELECT i.seqStartId FROM resultItems i WHERE i.seqStartId=rpi.seqStartId && i.seqEndId=rpi.seqEndId)"
           
           #qStr=paste0(lQStr," UNION ",rQStr)
+          #rPrjIts=sqldf(c(lrExpResIdxSql,qStr))
           rPrjIts=sqldf(qStr)
          
         }
