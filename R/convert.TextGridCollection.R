@@ -1,35 +1,35 @@
 require(RSQLite)
 
-##' Convert a TextGridCollection (.wav & .TextGrid files) to a emuDB
+##' Convert a TextGridCollection (.wav & .TextGrid files) to an emuDB
 ##' 
-##' Converts a TextGridCollection to a emuDB by first generating a file pair list 
+##' Converts a TextGridCollection to an emuDB by first generating a file pair list 
 ##' containing the paths to the .wav & .TextGrid (default extentions) files with the same base
-##' name. It then generates a emuDB DBconfig from the first TextGrid in this file pair list. 
-##' After this it converts all file pairs to the new format.
+##' name. It then generates a emuDB DBconfig from the first TextGrid in this file list which specifies 
+##' the allowed level names and types in the new emuDB. After this it converts all file pairs to the new format
+##' checking whether they comply to the newly generated DBconfig.
 ##' 
-##' @param path2rootDir path to root directory (CAUTION: think of DB size and search space!) 
-##' @param dbName name given to newly generated emuDB
-##' @param targetDir directory where to save newly generated emuDB
-##' @param tgExt extention of TextGrid files (default=TextGrid meaning filesnames of the form baseName.TextGrid)
-##' @param audioExt extention of audio files (default=wav meaning filesnames of the form baseName.wav).
+##' @param dir path to directory containing TextGridCollection
+##' @param dbName name given to emuDB
+##' @param targetDir directory where to save emuDB
+##' @param tgExt extension of TextGrid files (default=TextGrid meaning filesnames of the form baseName.TextGrid)
+##' @param audioExt extension of audio files (default=wav meaning filesnames of the form baseName.wav).
 ##' @param tierNames character vector containing names of tiers to extract and convert. If NULL (the default) all
 ##' tiers are converted.
 ##' @param verbose display infos & show progress bar
-##' @seealso create_filePairList
 ##' @export
 ##' @author Raphael Winkelmann
 ##' 
-convert_TextGridCollection_to_emuDB <- function(path2rootDir, dbName, 
+convert_TextGridCollection_to_emuDB <- function(dir, dbName, 
                                                 targetDir, tgExt = 'TextGrid', 
                                                 audioExt = 'wav', tierNames = NULL, 
                                                 verbose = TRUE){
   # normalize paths
-  path2rootDir = suppressWarnings(normalizePath(path2rootDir))
+  dir = suppressWarnings(normalizePath(dir))
   targetDir = suppressWarnings(normalizePath(targetDir))
   
-  # check if path2rootDir exists
-  if(!file.exists(path2rootDir)){
-    stop("path2rootDir does not exist!")
+  # check if dir exists
+  if(!file.exists(dir)){
+    stop("dir does not exist!")
   }
   
   # check if targetDir exists
@@ -43,7 +43,7 @@ convert_TextGridCollection_to_emuDB <- function(path2rootDir, dbName,
   }
   
   # gernerate file pail list
-  fpl = create_filePairList(path2rootDir, path2rootDir, audioExt, tgExt)
+  fpl = create_filePairList(dir, dir, audioExt, tgExt)
   
   progress = 0
   
@@ -86,7 +86,7 @@ convert_TextGridCollection_to_emuDB <- function(path2rootDir, dbName,
     asspObj = read.AsspDataObj(fpl[i,1])
     
     # create bundle name
-    bndlName = gsub('^_', '', gsub(.Platform$file.sep, '_', gsub(normalizePath(path2rootDir, winslash = .Platform$file.sep),'',file_path_sans_ext(normalizePath(fpl[i,1], winslash = .Platform$file.sep)))))
+    bndlName = gsub('^_', '', gsub(.Platform$file.sep, '_', gsub(normalizePath(dir, winslash = .Platform$file.sep),'',file_path_sans_ext(normalizePath(fpl[i,1], winslash = .Platform$file.sep)))))
     
     # create bundle entry
     dbGetQuery(getEmuDBcon(), paste0("INSERT INTO bundle VALUES('", dbUUID, "', '0000', '", bndlName, "', '", basename(fpl[i,1]), "', ", attributes(asspObj)$sampleRate, ",'", fpl[i,1], "')"))

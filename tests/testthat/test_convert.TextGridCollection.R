@@ -31,7 +31,7 @@ test_that("bad calls cause errors", {
   dir.create(path2newDb)
   
   # existing targetDir causes errors
-  expect_error(convert_TextGridCollection_to_emuDB(path2rootDir = path2root, 
+  expect_error(convert_TextGridCollection_to_emuDB(dir = path2root, 
                                                    dbName = emuDBname,
                                                    path2tmpDir, verbose=F))
   # clean up
@@ -42,7 +42,7 @@ test_that("bad calls cause errors", {
 ##############################
 test_that("correct emuDB is created", {
   
-  convert_TextGridCollection_to_emuDB(path2rootDir = path2root, 
+  convert_TextGridCollection_to_emuDB(dir = path2root, 
                                       dbName = emuDBname,
                                       path2tmpDir, verbose=F)
   
@@ -120,7 +120,7 @@ test_that("correct emuDB is created", {
 ##############################
 test_that("only specified tiers are converted when tierNames is set", {
   
-  convert_TextGridCollection_to_emuDB(path2rootDir = path2root, 
+  convert_TextGridCollection_to_emuDB(dir = path2root, 
                                       dbName = emuDBname,
                                       path2tmpDir, tierNames=c("Phonetic", "Tone"), verbose=F)
   
