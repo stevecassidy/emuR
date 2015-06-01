@@ -859,8 +859,8 @@ query.database.with.eql<-function(dbConfig,query){
 ##' @description Query an EMU database
 ##' @param dbName name of EMU database
 ##' @param query EQL query string
-##' @param sessionPattern A (glob) pattern matching sessions to be searched from the database
-##' @param bundlePattern A (glob) pattern matching bundles to be searched from the database
+##' @param sessionPattern A regular expression pattern matching session names to be searched from the database
+##' @param bundlePattern A regular expression pattern matching bundle names to be searched from the database
 ##' @param queryLang query language
 ##' @param timeRefSegmentLevel set time derivation segment level
 ##' @param resultType type (class name) of result
@@ -873,15 +873,22 @@ query.database.with.eql<-function(dbConfig,query){
 ##' @keywords emuDB database query Emu EQL 
 ##' @examples
 ##' \dontrun{
-##' ## Query database object ae with EQL query [Phonetic=t -> Phonetic=s] 
+##' ## Query database 'ae' using EQL query [Phonetic=t -> Phonetic=s] 
 ##' ## and store result seglist in variable segListTs
 ##' 
 ##' seglistTs=query('ae','[Phonetic=t -> Phonetic=s]')
 ##' 
-##' ## Query seglist from database object ae with EQL query [Syllable=S ^ Phoneme=t]
+##' ## Query seglist from database ae using EQL query [Syllable=S ^ Phoneme=t]
 ##' ## Request legacy result type 'emusegs'
 ##' 
 ##' query('ae','[Syllable=S ^ Phoneme=t]',resultType='emusegs')
+##' 
+##' 
+##' ## Query 'p' phonemes from bundles whose names start with 'msajc07' 
+##' ## Request legacy result type 'emusegs'
+##' 
+##' query('ae','Phoneme=p',bundlePattern='msajc07.*')
+##' 
 ##' 
 ##' }
 ##' 
@@ -901,31 +908,31 @@ query<-function(dbName=NULL,query,sessionPattern=NULL,bundlePattern=NULL,queryLa
       setQueryTmpEmuDBs(emuDBs.query.tmp)
       if(!is.null(sessionPattern)){
         newTmpDBs=list()
-        sessSelRegex=glob2rx(pattern = sessionPattern)
-        sessSelIts=grepl(sessSelRegex,getQueryTmpEmuDBs()[['queryItems']][['session']])
+       
+        sessSelIts=emuR.regexprl(sessionPattern,getQueryTmpEmuDBs()[['queryItems']][['session']])
         newTmpDBs[['queryItems']]<-getQueryTmpEmuDBs()[['queryItems']][sessSelIts,]
         
-        sessSelLks=grepl(sessSelRegex,getQueryTmpEmuDBs()[['queryLinksExt']][['session']])
+        sessSelLks=emuR.regexprl(sessionPattern,getQueryTmpEmuDBs()[['queryLinksExt']][['session']])
         newTmpDBs[['queryLinksExt']]<-getQueryTmpEmuDBs()[['queryLinksExt']][sessSelLks,]
         
-        sessSelLbls=grepl(sessSelRegex,getQueryTmpEmuDBs()[['queryLabels']][['session']])
+        sessSelLbls=emuR.regexprl(sessionPattern,getQueryTmpEmuDBs()[['queryLabels']][['session']])
         newTmpDBs[['queryLabels']]<-getQueryTmpEmuDBs()[['queryLabels']][sessSelLbls,]
         setQueryTmpEmuDBs(newTmpDBs)
       }
       if(!is.null(bundlePattern)){
         
-        bndlSelRegex=glob2rx(pattern = bundlePattern)
+        
         newTmpDBs=getQueryTmpEmuDBs()
         if(is.null(newTmpDBs)){
           newTmpDBs=list()
         }
-        bndlSelIts=grepl(bndlSelRegex,getQueryTmpEmuDBs()[['queryItems']][['bundle']])
+        bndlSelIts=emuR.regexprl(bundlePattern,getQueryTmpEmuDBs()[['queryItems']][['bundle']])
         newTmpDBs[['queryItems']]<-getQueryTmpEmuDBs()[['queryItems']][bndlSelIts,]
         
-        bndlSelLks=grepl(bndlSelRegex,getQueryTmpEmuDBs()[['queryLinksExt']][['bundle']])
+        bndlSelLks=emuR.regexprl(bundlePattern,getQueryTmpEmuDBs()[['queryLinksExt']][['bundle']])
         newTmpDBs[['queryLinksExt']]<-getQueryTmpEmuDBs()[['queryLinksExt']][bndlSelLks,]
         
-        bndlSelLbls=grepl(bndlSelRegex,getQueryTmpEmuDBs()[['queryLabels']][['bundle']])
+        bndlSelLbls=emuR.regexprl(bundlePattern,getQueryTmpEmuDBs()[['queryLabels']][['bundle']])
         newTmpDBs[['queryLabels']]<-getQueryTmpEmuDBs()[['queryLabels']][bndlSelLbls,]
         setQueryTmpEmuDBs(newTmpDBs)
       }

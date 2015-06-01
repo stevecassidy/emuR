@@ -187,7 +187,7 @@ test_that("Query using Start function",{
   expect_that(r2[3,'startItemID'],equals(136))
   
   # and some bundle pattern tests
-  r3=query('ae',"Phoneme = p & Start(Word, Phoneme)=0",bundlePattern='msajc0??',resultType=NULL)
+  r3=query('ae',"Phoneme = p & Start(Word, Phoneme)=0",bundlePattern='msajc0..',resultType=NULL)
   
   expect_that(nrow(r3),equals(3))
   expect_that(r3[1,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
@@ -203,12 +203,12 @@ test_that("Query using Start function",{
   expect_that(r3[3,'bundle'],is_identical_to('msajc057'))  
   expect_that(r3[3,'startItemID'],equals(136))
   
-  r4=query('ae',"Phoneme = p & Start(Word, Phoneme)=0",bundlePattern='msajc02?',resultType=NULL)
+  r4=query('ae',"Phoneme = p & Start(Word, Phoneme)=0",bundlePattern='msajc02.',resultType=NULL)
   
   expect_that(nrow(r4),equals(1))
   expect_that(r4[1,'startItemID'],equals(122))
   
-  r5=query('ae',"Phoneme = p & Start(Word, Phoneme)=0",bundlePattern='*7',resultType=NULL)
+  r5=query('ae',"Phoneme = p & Start(Word, Phoneme)=0",bundlePattern='.*7',resultType=NULL)
   
   expect_that(nrow(r5),equals(1))
   expect_that(r5[1,'startItemID'],equals(136))

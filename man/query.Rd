@@ -13,9 +13,9 @@ query(dbName = NULL, query, sessionPattern = NULL, bundlePattern = NULL,
 
 \item{query}{EQL query string}
 
-\item{sessionPattern}{A (glob) pattern matching sessions to be searched from the database}
+\item{sessionPattern}{A regular expression pattern matching session names to be searched from the database}
 
-\item{bundlePattern}{A (glob) pattern matching bundles to be searched from the database}
+\item{bundlePattern}{A regular expression pattern matching bundle names to be searched from the database}
 
 \item{queryLang}{query language}
 
@@ -33,15 +33,22 @@ Query an EMU database
 }
 \examples{
 \dontrun{
-## Query database object ae with EQL query [Phonetic=t -> Phonetic=s]
+## Query database 'ae' using EQL query [Phonetic=t -> Phonetic=s]
 ## and store result seglist in variable segListTs
 
 seglistTs=query('ae','[Phonetic=t -> Phonetic=s]')
 
-## Query seglist from database object ae with EQL query [Syllable=S ^ Phoneme=t]
+## Query seglist from database ae using EQL query [Syllable=S ^ Phoneme=t]
 ## Request legacy result type 'emusegs'
 
 query('ae','[Syllable=S ^ Phoneme=t]',resultType='emusegs')
+
+
+## Query 'p' phonemes from bundles whose names start with 'msajc07'
+## Request legacy result type 'emusegs'
+
+query('ae','Phoneme=p',bundlePattern='msajc07.*')
+
 
 }
 }
