@@ -86,7 +86,7 @@ convert_TextGridCollection_to_emuDB <- function(path2rootDir, dbName,
     asspObj = read.AsspDataObj(fpl[i,1])
     
     # create bundle name
-    bndlName = gsub('^_', '', gsub(.Platform$file.sep, '_', gsub(normalizePath(path2rootDir),'',file_path_sans_ext(normalizePath(fpl[i,1])))))
+    bndlName = gsub('^_', '', gsub(.Platform$file.sep, '_', gsub(normalizePath(path2rootDir, winslash = .Platform$file.sep),'',file_path_sans_ext(normalizePath(fpl[i,1], winslash = .Platform$file.sep)))))
     
     # create bundle entry
     dbGetQuery(getEmuDBcon(), paste0("INSERT INTO bundle VALUES('", dbUUID, "', '0000', '", bndlName, "', '", basename(fpl[i,1]), "', ", attributes(asspObj)$sampleRate, ",'", fpl[i,1], "')"))

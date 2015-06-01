@@ -967,9 +967,21 @@ remove_linkDefinition <- function(dbName,
          "' and sublevelName '", sublevelName, "'")
   }
   # check if links are present
-  sl = query(dbName, paste0("[", sublevelName, "=~.* ^ ", superlevelName, "=~.*]"), dbUUID = dbUUID)
+  res = dbGetQuery(getEmuDBcon(), paste0("SELECT * FROM ",
+                                         "links ",
+                                         "INNER JOIN (SELECT * FROM items WHERE level = '", superlevelName, "' AND db_uuid = '", dbObj$DBconfig$UUID, "') as superItems", 
+                                         "    ON links.fromID = superItems.itemID ",
+                                         "       AND links.db_uuid = superItems.db_uuid ",
+                                         "       AND links.session = superItems.session ",
+                                         "       AND links.bundle = superItems.bundle ",
+                                         "INNER JOIN (SELECT * FROM items WHERE level = '", sublevelName, "' AND db_uuid = '", dbObj$DBconfig$UUID, "') as subItems", 
+                                         "    ON links.toID = subItems.itemID ",
+                                         "       AND links.db_uuid = subItems.db_uuid ",
+                                         "       AND links.session = subItems.session ",
+                                         "       AND links.bundle = subItems.bundle ",
+                                         "WHERE links.db_uuid = '", dbObj$DBconfig$UUID, "'"))
   
-  if(nrow(sl) != 0){
+  if(nrow(res) != 0){
     stop("linkDefinition can not be remove as there are links present")
   }
   
@@ -1222,7 +1234,7 @@ remove_labelGroup <- function(dbName,
       dbObj$DBconfig$labelGroups[[i]] = NULL
     }
   }
-    
+  
   # store changes
   .store.schema(dbObj)
 }
