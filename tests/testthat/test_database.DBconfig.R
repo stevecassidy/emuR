@@ -62,7 +62,7 @@ test_that("CRUD operations work for ssffTrackDefinitions", {
   })
   
   test_that("modify = CR(U)D", {
-      # currently not implemented
+    # currently not implemented
   })
   
   test_that("remove = CRU(D)", {
@@ -416,4 +416,56 @@ test_that("CRUD operations work for linkDefinitions", {
   }
   
 })  
+
+
+##############################
+test_that("CRUD operations work for labelGroups", {
+  # pre clean (just in case)
+  unlink(file.path(tempdir(),tmpDbName), recursive = TRUE)
+  
+  # copy ae and rename
+  file.copy(file.path(path2extdata, '/emu/DBs/ae/'), tempdir(), recursive = T)
+  file.rename(file.path(tempdir(), 'ae'), file.path(tempdir(), 'ae_copy'))
+  
+  # make copy of ae to mess with (caution correct DBconfig not stored)
+  fp = file.path(tempdir(), tmpDbName)
+  duplicate.loaded.emuDB("ae", tmpDbName, fp)
+  
+  test_that("add = (C)RUD", {
+    add_labelGroup(tmpDbName, 
+                   name = 'testLG',
+                   values = c('a', 'b', 'c'))  
+  })
+  
+  test_that("list = C(R)UD", {
+    df = list_labelGroups(tmpDbName)
+    expect_true(df$name == 'testLG')
+    expect_true(df$values =='a; b; c')
+  })
+  
+  test_that("modify = CR(U)D", {
+    # not implemented yet
+  })
+  
+  test_that("remove = CRU(D)", {
+    # bad call -> bad name
+    expect_error(remove_labelGroup(tmpDbName, 
+                                   name = 'badName'))
+    
+    remove_labelGroup(tmpDbName, 
+                      name = 'testLG')
+    df = list_labelGroups(tmpDbName)
+    expect_equal(nrow(df), 0)
+  })
+  
+  
+  
+  # clean up
+  if(is.emuDB.loaded(tmpDbName)){
+    UUID = get_emuDB_UUID(dbName = tmpDbName)
+    purge_emuDB(dbName = tmpDbName, dbUUID = UUID, interactive = F)
+  }
+  
+})  
+
 

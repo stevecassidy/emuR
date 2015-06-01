@@ -303,12 +303,12 @@ find.segment.levels<-function(DBconfig,attrName){
   for(extLnkDef in extLnkDefs){
     if(extLnkDef[1]==lvlNm){
       for(trgLvlNm in extLnkDef[2:length(extLnkDef)]){
-     
-      trgLd=get.levelDefinition(DBconfig,trgLvlNm)
-      if(trgLd['type']=='SEGMENT'){
-        segLvlList=unique(c(segLvlList,trgLvlNm))
+        
+        trgLd=get.levelDefinition(DBconfig,trgLvlNm)
+        if(trgLd['type']=='SEGMENT'){
+          segLvlList=unique(c(segLvlList,trgLvlNm))
+        }
       }
-    }
     }
   }
   #cat("SEGMENT levels for ",attrName,": ",segLvlList,"\n")
@@ -883,7 +883,7 @@ add_linkDefinition <- function(dbName,
   dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
   
   allowedTypes = c("ONE_TO_MANY", "MANY_TO_MANY", "ONE_TO_ONE")
-
+  
   if(!type %in% allowedTypes){
     stop("Only the following types permitted: ", paste(allowedTypes, collapse = '; '))
   }
@@ -902,7 +902,7 @@ add_linkDefinition <- function(dbName,
     stop("linkDefinition already exists for superlevelName: '", 
          superlevelName, "' and sublevelName: '", sublevelName, "'")
   }
-
+  
   l = length(dbObj$DBconfig$linkDefinitions)
   dbObj$DBconfig$linkDefinitions[[l + 1]] = list(type = type, 
                                                  superlevelName = superlevelName,
@@ -960,7 +960,7 @@ remove_linkDefinition <- function(dbName,
   dbObj = .load.emuDB.DBI(uuid = dbUUID,name=dbName)
   
   curLds = list_linkDefinitions(dbName = dbName, dbUUID = dbUUID)
-
+  
   # check if linkDef exists
   if(!any(curLds$superlevelName == superlevelName & curLds$sublevelName == sublevelName)){
     stop("No linkDefinition found for superlevelName '", superlevelName, 
@@ -1138,6 +1138,96 @@ remove_ssffTrackDefinition <- function(dbName = NULL, name = NULL,
   # store changes
   .store.schema(dbObj)
 }
+
+###################################################
+# CRUD operations for (global) labelGroups
+
+##' Add (global) labelGroup to emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param name name of label group
+##' @param values character vector of labels
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Raphael Winkelmann
+##' @export
+##' @keywords emuDB database schema Emu
+add_labelGroup <- function(dbName,
+                           name,
+                           values,
+                           dbUUID = NULL){
+  
+  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  curLgs = list_labelGroups(dbName)
+  
+  if(name %in% curLgs$name){
+    stop("labelGroup with name '", name ,"' already exists!")
+  }
+  
+  # add labelGroup
+  dbObj$DBconfig$labelGroups[[length(dbObj$DBconfig$labelGroups) + 1]] = list(name = name, 
+                                                                              values = values)
+  
+  # store changes
+  .store.schema(dbObj)
+}
+
+
+
+##' List (global) labelGroups of emuDB
+##' @param dbName name of emuDB
+##' @param dbUUID optional UUID of emuDB
+##' @return data.frame object containing labelGroup infos
+##' @export
+##' @author Raphael Winkelmann
+list_labelGroups <- function(dbName,
+                             dbUUID = NULL){
+  
+  uuid=get_emuDB_UUID(dbName,dbUUID)
+  dbObj = .load.emuDB.DBI(uuid = uuid)
+  df = data.frame(name = character(),
+                  values = character(),
+                  stringsAsFactors = F)
+  
+  for(lg in dbObj$DBconfig$labelGroups){
+    df = rbind(df, data.frame(name = lg$name,
+                              values = paste0(lg$values, collapse = "; ")))
+  }
+  
+  return(df)
+  
+}
+
+
+##' Remove (global) labelGroup from emuDB
+##' 
+##' @param dbName name of loaded emuDB
+##' @param name name of label group
+##' @param dbUUID optional UUID of loaded emuDB
+##' @author Raphael Winkelmann
+##' @export
+##' @keywords emuDB database schema Emu
+remove_labelGroup <- function(dbName,
+                              name,
+                              dbUUID = NULL){
+  
+  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  curLgs = list_labelGroups(dbName)
+  
+  if(!name %in% curLgs$name){
+    stop("No labelGroup with name '", name ,"' found!")
+  }
+  
+  for(i in 1:length(dbObj$DBconfig$labelGroups)){
+    if(dbObj$DBconfig$labelGroups[[i]]$name == name){
+      dbObj$DBconfig$labelGroups[[i]] = NULL
+    }
+  }
+    
+  # store changes
+  .store.schema(dbObj)
+}
+
+
 
 # FOR DEVELOPMENT 
 # library('testthat') 
