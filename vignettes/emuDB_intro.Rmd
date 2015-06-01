@@ -239,7 +239,7 @@ list_attrDefLabelGroups(dbName,
 
 ```
 
-*NOTE: It is also possible to define label groups for the entire DB. For more information on this see the R documentation for the `add/list/remove_labelGroups` functions.*
+*NOTE: It is also possible to define label groups for the entire DB. For more information on this see the R documentation for the `add/list/remove_labelGroups` functions (not yet accessible in `query()` function!).*
 
 **INFO: For users who are familiar with or transitioning from the previous EMU system the label groups correspond to the unfavorably named 'Legal Labels' entries of the GTemplate Editor (i.e. legal entries in the .tpl file) of the previous system. In the new system the legalLabel entries specify the legal / allowed labels values of an attribute definitions while the label groups specify groups of labels that can be referenced by the names given to the groups while performing queries.**
 
