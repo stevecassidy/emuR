@@ -61,6 +61,7 @@ database.DDL.emuDB_bundle='CREATE TABLE bundle (
   annotates TEXT,
   sampleRate FLOAT,
   mediaFilePath TEXT,
+  MD5annotJSON TEXT,
   PRIMARY KEY (db_uuid,session,name),
   FOREIGN KEY (db_uuid,session) REFERENCES session(db_uuid,name)
 );'
@@ -233,12 +234,15 @@ get.database<-function(uuid=NULL,name=NULL){
   return(sesssDf)
 }
 
-.store.bundle.DBI<-function(database,bundle){
+.store.bundle.DBI<-function(database,bundle,MD5annotJSON=NULL){
   dbCfg=database[['DBconfig']]
   #dbCfgJSON=jsonlite::toJSON(dbCfg,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
   #dbSqlInsert=paste0("INSERT INTO emuDB(name,databaseDir,DBconfigJSON) VALUES('",dbCfg[['name']],"','",database[['databseDir']],"','",dbCfgJSON,"')")
-  
-  bSqlInsert=paste0("INSERT INTO bundle(db_uuid,session,name,annotates,sampleRate,mediaFilePath) VALUES('",dbCfg[['UUID']],"','",bundle[['session']],"','",bundle[['name']],"','",bundle[['annotates']],"',",bundle[['sampleRate']],",'",bundle[['mediaFilePath']],"')")
+  if(is.null(MD5annotJSON)){
+    bSqlInsert=paste0("INSERT INTO bundle(db_uuid,session,name,annotates,sampleRate,mediaFilePath,MD5annotJSON) VALUES('",dbCfg[['UUID']],"','",bundle[['session']],"','",bundle[['name']],"','",bundle[['annotates']],"',",bundle[['sampleRate']],",'",bundle[['mediaFilePath']],"'",",'NULL')")
+  }else{
+    bSqlInsert=paste0("INSERT INTO bundle(db_uuid,session,name,annotates,sampleRate,mediaFilePath,MD5annotJSON) VALUES('",dbCfg[['UUID']],"','",bundle[['session']],"','",bundle[['name']],"','",bundle[['annotates']],"',",bundle[['sampleRate']],",'",bundle[['mediaFilePath']],"'",",'",MD5annotJSON,"')")
+  }
   res <- dbSendQuery(getEmuDBcon(),bSqlInsert)
   dbClearResult(res)
   for(trackPath in bundle[['signalpaths']]){
@@ -1695,7 +1699,7 @@ load_emuDB <- function(databaseDir,verbose=TRUE){
     stop("Could not find database info file: ",dbCfgPath,"\n")
   }
   # calc. md5 sum
-  MD5DBconfigJSON = md5sum(dbCfgPath)
+  MD5DBconfigJSON = md5sum(normalizePath(dbCfgPath))
   # load DBconfig
   schema=load.emuDB.DBconfig(dbCfgPath)
   # set transient values
@@ -1814,7 +1818,9 @@ load_emuDB <- function(databaseDir,verbose=TRUE){
       
       schema=db[['DBconfig']]
       #maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
-      .store.bundle.DBI(db,bundle)
+      #calc md5
+      MD5annotJSON = md5sum(normalizePath(file.path(absBd,annotFile)))
+      .store.bundle.DBI(db,bundle, MD5annotJSON)
       .store.bundle.annot.DBI(schema[['UUID']],bundle)
       
       bundle[['levels']]=NULL
@@ -1964,8 +1970,8 @@ duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
   
   # duplicate emuDBs entry
   dbSendQuery(getEmuDBcon(), paste0("INSERT INTO emuDB",
-                                 " SELECT '", newUUID,"' AS uuid, '", newName, 
-                                 "', '", newBasePath, "', DBconfigJSON, MD5DBconfigJSON FROM emuDB WHERE uuid='", oldUUID, "'"))
+                                    " SELECT '", newUUID,"' AS uuid, '", newName, 
+                                    "', '", newBasePath, "', DBconfigJSON, MD5DBconfigJSON FROM emuDB WHERE uuid='", oldUUID, "'"))
   
   # update DBconfig accordingly
   dbUUID = get_emuDB_UUID(dbName = newDB, dbUUID = newUUID)
@@ -1976,12 +1982,12 @@ duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
   
   # duplicate session entries
   dbSendQuery(getEmuDBcon(), paste0("INSERT INTO session",
-                                 " SELECT '", newUUID, "' AS db_uuid, name  FROM session",
-                                 " WHERE db_uuid='", oldUUID, "'"))
+                                    " SELECT '", newUUID, "' AS db_uuid, name  FROM session",
+                                    " WHERE db_uuid='", oldUUID, "'"))
   
   # duplicate track entries
   resTr = dbGetQuery(getEmuDBcon(), paste0(" SELECT '", newUUID, "' AS db_uuid, session, bundle, path FROM track",
-                                        " WHERE db_uuid='", oldUUID, "'"))
+                                           " WHERE db_uuid='", oldUUID, "'"))
   
   
   resTr$path = gsub(oldBasePath, newBasePath, resTr$path)
@@ -1989,8 +1995,8 @@ duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
   dbWriteTable(getEmuDBcon(), 'track', resTr, append=T)
   
   # duplicate bundle entries
-  resBndls = dbGetQuery(getEmuDBcon(), paste0(" SELECT '", newUUID, "' AS db_uuid, session, name, annotates, sampleRate, mediaFilePath FROM bundle",
-                                           " WHERE db_uuid='", oldUUID, "'"))
+  resBndls = dbGetQuery(getEmuDBcon(), paste0(" SELECT '", newUUID, "' AS db_uuid, session, name, annotates, sampleRate, mediaFilePath, MD5annotJSON FROM bundle",
+                                              " WHERE db_uuid='", oldUUID, "'"))
   
   resBndls$mediaFilePath = gsub(oldBasePath, newBasePath, resBndls$mediaFilePath)
   
@@ -1998,23 +2004,23 @@ duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
   
   # duplicate items entries
   dbSendQuery(getEmuDBcon(), paste0("INSERT INTO items",
-                                 " SELECT '", newUUID, "' AS db_uuid, session, bundle, itemID, level, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur FROM items",
-                                 " WHERE db_uuid='", oldUUID, "'"))
+                                    " SELECT '", newUUID, "' AS db_uuid, session, bundle, itemID, level, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur FROM items",
+                                    " WHERE db_uuid='", oldUUID, "'"))
   
   # duplicate labels entries
   dbSendQuery(getEmuDBcon(), paste0("INSERT INTO labels",
-                                 " SELECT '", newUUID, "' AS db_uuid, session, bundle, itemID, labelIdx, name, label FROM labels",
-                                 " WHERE db_uuid='", oldUUID, "'"))
+                                    " SELECT '", newUUID, "' AS db_uuid, session, bundle, itemID, labelIdx, name, label FROM labels",
+                                    " WHERE db_uuid='", oldUUID, "'"))
   
   # duplicate links entries
   dbSendQuery(getEmuDBcon(), paste0("INSERT INTO links",
-                                 " SELECT '", newUUID, "' AS db_uuid, session, bundle, fromID, toID, label FROM links",
-                                 " WHERE db_uuid='", oldUUID, "'"))
+                                    " SELECT '", newUUID, "' AS db_uuid, session, bundle, fromID, toID, label FROM links",
+                                    " WHERE db_uuid='", oldUUID, "'"))
   
   # duplicate linksExt entries
   dbSendQuery(getEmuDBcon(), paste0("INSERT INTO linksExt",
-                                 " SELECT '", newUUID, "' AS db_uuid, session, bundle, fromID, toID, seqIdx, toLevel, type, toSeqIdx, toSeqLen, label FROM linksExt",
-                                 " WHERE db_uuid='", oldUUID, "'"))
+                                    " SELECT '", newUUID, "' AS db_uuid, session, bundle, fromID, toID, seqIdx, toLevel, type, toSeqIdx, toSeqLen, label FROM linksExt",
+                                    " WHERE db_uuid='", oldUUID, "'"))
   
   
 }
