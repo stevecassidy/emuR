@@ -363,7 +363,8 @@ load.emuDB.DBconfig<-function(DBconfigFilePath){
   sp=marshal.for.persistence(db[['DBconfig']],persistFilter)
   psJSON=jsonlite::toJSON(sp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
   writeLines(psJSON,dbCfgPath)
-  .store.DBconfig.DBI(DBconfig = db[['DBconfig']])
+  MD5DBconfigJSON = md5sum(dbCfgPath)
+  .store.DBconfig.DBI(DBconfig = db[['DBconfig']], MD5DBconfigJSON)
 }
 
 .store.DBconfig<-function(basePath,DBconfig){

@@ -35,6 +35,7 @@ database.DDL.emuDB='CREATE TABLE emuDB (
   name TEXT,
   basePath TEXT,
   DBconfigJSON TEXT,
+  MD5DBconfigJSON TEXT,
   PRIMARY KEY (uuid)
 );'
 
@@ -169,20 +170,29 @@ database.DDL.emuDB_linksExtTmp2='CREATE TABLE linksExtTmp2 (
   label TEXT,
   FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session,name)
 );'
+
 database.DDL.emuDB_linksExtTmpIdx2='CREATE INDEX linksExtTmp2_idx ON linksExtTmp2(db_uuid,session,bundle,fromID,toID,toLevel,type)'
 
-.store.emuDB.DBI<-function(database){
+.store.emuDB.DBI<-function(database, MD5DBconfigJSON = NULL){
   dbCfg=database[['DBconfig']]
   dbCfgJSON=jsonlite::toJSON(dbCfg,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-  dbSqlInsert=paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON) VALUES('",dbCfg[['UUID']],"','",dbCfg[['name']],"','",database[['basePath']],"','",dbCfgJSON,"')")
+  if(is.null(MD5DBconfigJSON)){
+    dbSqlInsert=paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('",dbCfg[['UUID']],"','",dbCfg[['name']],"','",database[['basePath']],"','",dbCfgJSON,"', NULL", ")")
+  }else{
+    dbSqlInsert=paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('",dbCfg[['UUID']],"','",dbCfg[['name']],"','",database[['basePath']],"','",dbCfgJSON,"', '",MD5DBconfigJSON,"')")
+  }
   res <- dbSendQuery(getEmuDBcon(),dbSqlInsert)
   dbClearResult(res)
   
 }
 
-.store.DBconfig.DBI<-function(DBconfig){
+.store.DBconfig.DBI<-function(DBconfig, MD5DBconfigJSON = NULL){
   dbCfgJSON=jsonlite::toJSON(DBconfig,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-  updDbCfgQ=paste0("UPDATE emuDB SET DBconfigJSON='",dbCfgJSON,"' WHERE uuid='", DBconfig$UUID, "'")
+  if(is.null(MD5DBconfigJSON)){
+    updDbCfgQ=paste0("UPDATE emuDB SET DBconfigJSON='",dbCfgJSON,"', MD5DBconfigJSON=NULL WHERE uuid='", DBconfig$UUID, "'")
+  }else{
+    updDbCfgQ=paste0("UPDATE emuDB SET DBconfigJSON='",dbCfgJSON,"', MD5DBconfigJSON='", MD5DBconfigJSON,"' WHERE uuid='", DBconfig$UUID, "'")
+  }
   res <- dbSendQuery(getEmuDBcon(),updDbCfgQ)
   dbClearResult(res)
 }
@@ -1684,6 +1694,8 @@ load_emuDB <- function(databaseDir,verbose=TRUE){
   if(!file.exists(dbCfgPath)){
     stop("Could not find database info file: ",dbCfgPath,"\n")
   }
+  # calc. md5 sum
+  MD5DBconfigJSON = md5sum(dbCfgPath)
   # load DBconfig
   schema=load.emuDB.DBconfig(dbCfgPath)
   # set transient values
@@ -1703,7 +1715,7 @@ load_emuDB <- function(databaseDir,verbose=TRUE){
     stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
   }
   
-  .store.emuDB.DBI(db)
+  .store.emuDB.DBI(db, MD5DBconfigJSON)
   if(verbose){
     cat("INFO: Loading EMU database from ",databaseDir,"...\n")
   }
@@ -1953,7 +1965,7 @@ duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
   # duplicate emuDBs entry
   dbSendQuery(getEmuDBcon(), paste0("INSERT INTO emuDB",
                                  " SELECT '", newUUID,"' AS uuid, '", newName, 
-                                 "', '", newBasePath, "', DBconfigJSON FROM emuDB WHERE uuid='", oldUUID, "'"))
+                                 "', '", newBasePath, "', DBconfigJSON, MD5DBconfigJSON FROM emuDB WHERE uuid='", oldUUID, "'"))
   
   # update DBconfig accordingly
   dbUUID = get_emuDB_UUID(dbName = newDB, dbUUID = newUUID)
