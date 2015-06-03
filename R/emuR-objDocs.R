@@ -1,6 +1,6 @@
 ##' Segment list
 ##' 
-##' A segment list is the result of emu.query() or read.emusegs().
+##' A segment list is the result type of legacy Emu query.
 ##' 
 ##' 
 ##' @aliases segmentlist emusegs
@@ -20,6 +20,59 @@
 ##'    
 ##'    #demo.vowels is a segment list
 ##'    demo.vowels
+##' 
+NULL
+
+##' emuR segment list
+##' 
+##' A emuR segment list is the default result of \code{\link{query}}.
+##' Inherits class \code{\link{emusegs}} and hence \code{\link{data.frame}}
+##' 
+##' @aliases emuRsegs
+##'
+##' @format Attributed data.frame, one row per segment.
+##' 
+##' A segment is sequence of elements. Objects of this class contain the ID's of start and end elements.
+##' The segment may consist only of one single element, in this case start and end ID are equal.
+##' 
+##'  
+##' Data frame columns are:
+##' \itemize{ 
+##'   \item labels: sequenced labels of segment concatenated by '->'
+##'   \item start: onset time
+##'   \item end: offset time 
+##'   \item session: session name
+##'   \item bundle: bundle name
+##'   \item startItemID: item ID of first element of sequence
+##'   \item endItemID: item ID of last element of sequence
+##'   \item type: type of "segment" row: 'ITEM': symbolic item, 'EVENT': event item, 'SEGMENT': segment
+##'
+##' }
+##' Additional hidden columns:
+##' \itemize{
+##'  \item utts utterance name (for compatibility to 'emusegs' class)
+##'  \item db_uuid UUID of emuDB
+##'  \item sampleStart start sample
+##'  \item sampleEnd end sample
+##'  \item sampleRate sample rate
+##' }
+##' The print method of emuRsegs hides the columns listed above.
+##' To print all columns for a segment list sl use the print method of data.frame and type:
+##' 
+##' \code{print.data.frame(sl)}
+##' 
+##' Attributes:
+##' \itemize{
+##'   \item database: name of emuDB
+##'   \item query: Query string
+##'   \item type: type ('segment' or 'event') (for compatibility to 'emusegs' class)
+##' }
+##' 
+##'
+##' 
+##' @seealso \code{\link{query},\link{emusegs}}
+##' @keywords classes
+##' @name emuRsegs
 ##' 
 NULL
 

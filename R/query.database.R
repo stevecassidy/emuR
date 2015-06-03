@@ -857,15 +857,19 @@ query.database.with.eql<-function(dbConfig,query){
 
 ##' Query EMU database
 ##' @description Query an EMU database
+##' @details Evaluates EQL2 query string on emuDB and returns a segment list of desired type.  
+##' For details of the query language please refer to EQL vignette (type: \code{vignette('EQL')} ).
+##' For details of the result type see help page (type: \code{help(emuRsegs)} ). 
+##' Time information of symbolic elements (type 'ITEM') are derived from linked segment levels if available. If not available time and sample values may be set to \code{\link{NA}}.
 ##' @param dbName name of EMU database
-##' @param query EQL query string
+##' @param query EQL2 query string
 ##' @param sessionPattern A regular expression pattern matching session names to be searched from the database
 ##' @param bundlePattern A regular expression pattern matching bundle names to be searched from the database
 ##' @param queryLang query language
 ##' @param timeRefSegmentLevel set time derivation segment level
 ##' @param resultType type (class name) of result
 ##' @param dbUUID optional UUID of emuDB
-##' @return result set object of class resultType (default 'emuRsegs', compatible to leagcy type 'emusegs')
+##' @return result set object of class resultType (default 'emuRsegs', compatible to legacy type 'emusegs')
 ##' @author Klaus Jaensch
 ##' @import sqldf stringr
 ##' @export
@@ -885,7 +889,6 @@ query.database.with.eql<-function(dbConfig,query){
 ##' 
 ##' 
 ##' ## Query 'p' phonemes from bundles whose names start with 'msajc07' 
-##' ## Request legacy result type 'emusegs'
 ##' 
 ##' query('ae','Phoneme=p',bundlePattern='msajc07.*')
 ##' 
