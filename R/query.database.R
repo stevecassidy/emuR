@@ -858,8 +858,7 @@ query.database.with.eql<-function(dbConfig,query){
 ##' Query EMU database
 ##' @description Query an EMU database
 ##' @details Evaluates EQL2 query string on emuDB and returns a segment list of desired type.  
-##' For details of the query language please refer to EQL vignette (type: \code{vignette('EQL')} ).
-##' For details of the result type see help page (type: \code{help(emuRsegs)} ). 
+##' For details of the query language please refer to EQL vignette (type: \code{vignette('EQL')} ). 
 ##' Time information of symbolic elements (type 'ITEM') are derived from linked segment levels if available. If not available time and sample values may be set to \code{\link{NA}}.
 ##' @param dbName name of EMU database
 ##' @param query EQL2 query string
@@ -869,7 +868,7 @@ query.database.with.eql<-function(dbConfig,query){
 ##' @param timeRefSegmentLevel set time derivation segment level
 ##' @param resultType type (class name) of result
 ##' @param dbUUID optional UUID of emuDB
-##' @return result set object of class resultType (default 'emuRsegs', compatible to legacy type 'emusegs')
+##' @return result set object of class resultType (default: \link{emuRsegs}, compatible to legacy type \link{emusegs})
 ##' @author Klaus Jaensch
 ##' @import sqldf stringr
 ##' @export

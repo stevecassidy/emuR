@@ -2,10 +2,11 @@
 % Please edit documentation in R/emuR-objDocs.R
 \name{emuRsegs}
 \alias{emuRsegs}
+\alias{segemntlist}
 \title{emuR segment list}
 \format{Attributed data.frame, one row per segment.
 
-A segment is sequence of elements. Objects of this class contain the ID's of start and end elements.
+Objects of this class contain the ID's of start and end elements.
 The segment may consist only of one single element, in this case start and end ID are equal.
 
 
@@ -23,14 +24,15 @@ Data frame columns are:
 }
 Additional hidden columns:
 \itemize{
- \item utts utterance name (for compatibility to 'emusegs' class)
+ \item utts utterance name (for compatibility to \link{emusegs} class)
  \item db_uuid UUID of emuDB
  \item sampleStart start sample
  \item sampleEnd end sample
  \item sampleRate sample rate
 }
 The print method of emuRsegs hides the columns listed above.
-To print all columns for a segment list sl use the print method of data.frame and type:
+To print all columns of a segment list object use the print method of data.frame.
+For example to print all columns of a emuRsegs segmentlist object \code{sl} type:
 
 \code{print.data.frame(sl)}
 
@@ -38,14 +40,17 @@ Attributes:
 \itemize{
   \item database: name of emuDB
   \item query: Query string
-  \item type: type ('segment' or 'event') (for compatibility to 'emusegs' class)
+  \item type: type ('segment' or 'event') (for compatibility to \link{emusegs} class)
 }}
 \description{
-A emuR segment list is the default result of \code{\link{query}}.
-Inherits class \code{\link{emusegs}} and hence \code{\link{data.frame}}
+A segment list is a list of segment descriptors. A segment descriptor describes a sequence of annotation elements.
+}
+\details{
+An emuR segment list is the default result of \code{\link{query}} and can be used to get track data using \code{\link{get_trackdata}}.
+Inherits class \link{emusegs} and hence \code{\link{data.frame}}
 }
 \seealso{
-\code{\link{query},\link{emusegs}}
+\code{\link{query}},\code{\link{get_trackdata}},\link{emusegs}
 }
 \keyword{classes}
 

@@ -2,17 +2,17 @@
 % Please edit documentation in R/database.R
 \name{summary_emuDB}
 \alias{summary_emuDB}
-\title{Print summary for EMU database object}
+\title{Print summary of EMU database (emuDB).}
 \usage{
 summary_emuDB(dbName = NULL, dbUUID = NULL)
 }
 \arguments{
-\item{dbName}{name of EmuDB}
+\item{dbName}{name of emuDB}
 
 \item{dbUUID}{optional UUID of emuDB}
 }
 \description{
-Gives an overview of an EMU database object
-Prints database name, base directory path and informations about annoation levels, attributes, links, and signal file tracks
+Gives an overview of an EMU database.
+Prints database name, base directory path and informations about annotation levels, attributes, links, and signal file tracks
 }
 

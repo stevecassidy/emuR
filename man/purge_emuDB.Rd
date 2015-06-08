@@ -16,4 +16,13 @@ purge_emuDB(dbName = NULL, dbUUID = NULL, interactive = TRUE)
 \description{
 Purges emuDB from this R session. Does not delete any files of the emuDB.
 }
+\examples{
+\dontrun{
+  # Purge emuDB 'ae'
+  purge_emuDB('ae')
+}
+}
+\seealso{
+\code{\link{load_emuDB}},\code{\link{purge_all_emuDBs}}
+}
 
