@@ -890,7 +890,7 @@ query.database.with.eql<-function(dbConfig,query){
 ##' 
 ##' ## Query 'p' phonemes from bundles whose names start with 'msajc07' 
 ##' 
-##' query('ae','Phoneme=p',bundlePattern='msajc07.*')
+##' query('ae','Phoneme=p',bundlePattern='msajc05.*')
 ##' 
 ##' 
 ##' }
