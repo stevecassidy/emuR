@@ -17,10 +17,14 @@ internalVars<- new.env(parent = emptyenv())
 # key value map holding sqlconnection
 internalVars$sqlConnections = list()
 
+##########################################################
+# CRUD like operations for internalVars$sqlConnections
+
 get_emuDBcon <- function(dbUUID = NULL) {
   if(is.null(dbUUID)){
     return(internalVars$emuDBcon)
   }else{
+    # todo 
     return(internalVars$emuDBcon)
   }
 }
@@ -28,14 +32,33 @@ get_emuDBcon <- function(dbUUID = NULL) {
 setEmuDBcon <- function(con) {
   internalVars$emuDBcon<-con
 }
-## @param dbUUID UUID of emuDB (Note: if NULL (the default) ':memory:' connection is added) 
-add_emuDBcon <- function(con, dbUUID = NULL){
-  internalVars$sqlConnections[length(internalVars$sqlConnections) + 1] = list(dbUUID = dbUUID,
-                                                                              connection = con)
+
+## @param sql connection like the <SQLiteConnection> type
+## @param path to sqlDB
+add_emuDBcon <- function(con, path = ":memory:"){
+  found = F
+  for(c in internalVars$sqlConnections){
+    if(c$path == path){
+      found = T
+    }
+  }
+  
+  # only add if not found
+  if(!found){
+    # .initialize.DBI.database(dbUUID)
+    internalVars$sqlConnections[[length(internalVars$sqlConnections) + 1]] = list(path = path,
+                                                                                  connection = con)
+  }
 }
 
 list_emuDBcons <- function(con){
-  
+  df = data.frame(path=character(), 
+                  stringsAsFactors = F)
+  for(c in internalVars$sqlConnections){
+    df = rbind(df, data.frame(path=c$path, 
+                              stringsAsFactors = F))
+  }
+  return(df)
 }
 
 remove_emuDBcon <- function(dbUUID){
@@ -1293,9 +1316,9 @@ store.bundle.annotation <- function(dbName=NULL,bundle,dbUUID=NULL){
   .store.bundle.annot.DBI(dbUUID=dbUUID,bundle=bundle)
   # only build redunant links if non-empty bundle
   qRes = dbGetQuery(get_emuDBcon(), paste0("SELECT * FROM items WHERE ",
-                                          "db_uuid = '", dbUUID, "' AND ", 
-                                          "session = '", sessionName, "' AND ", 
-                                          "bundle = '", bName, "'"))
+                                           "db_uuid = '", dbUUID, "' AND ", 
+                                           "session = '", sessionName, "' AND ", 
+                                           "bundle = '", bName, "'"))
   if(nrow(qRes) > 0){
     build.redundant.links.all(database = db,sessionName=sessionName,bundleName=bName)
   }
@@ -1999,8 +2022,8 @@ duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
   
   # duplicate emuDBs entry
   dbSendQuery(get_emuDBcon(), paste0("INSERT INTO emuDB",
-                                    " SELECT '", newUUID,"' AS uuid, '", newName, 
-                                    "', '", newBasePath, "', DBconfigJSON, MD5DBconfigJSON FROM emuDB WHERE uuid='", oldUUID, "'"))
+                                     " SELECT '", newUUID,"' AS uuid, '", newName, 
+                                     "', '", newBasePath, "', DBconfigJSON, MD5DBconfigJSON FROM emuDB WHERE uuid='", oldUUID, "'"))
   
   # update DBconfig accordingly
   dbUUID = get_emuDB_UUID(dbName = newDB, dbUUID = newUUID)
@@ -2011,12 +2034,12 @@ duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
   
   # duplicate session entries
   dbSendQuery(get_emuDBcon(), paste0("INSERT INTO session",
-                                    " SELECT '", newUUID, "' AS db_uuid, name  FROM session",
-                                    " WHERE db_uuid='", oldUUID, "'"))
+                                     " SELECT '", newUUID, "' AS db_uuid, name  FROM session",
+                                     " WHERE db_uuid='", oldUUID, "'"))
   
   # duplicate track entries
   resTr = dbGetQuery(get_emuDBcon(), paste0(" SELECT '", newUUID, "' AS db_uuid, session, bundle, path FROM track",
-                                           " WHERE db_uuid='", oldUUID, "'"))
+                                            " WHERE db_uuid='", oldUUID, "'"))
   
   
   resTr$path = gsub(oldBasePath, newBasePath, resTr$path)
@@ -2025,7 +2048,7 @@ duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
   
   # duplicate bundle entries
   resBndls = dbGetQuery(get_emuDBcon(), paste0(" SELECT '", newUUID, "' AS db_uuid, session, name, annotates, sampleRate, mediaFilePath, MD5annotJSON FROM bundle",
-                                              " WHERE db_uuid='", oldUUID, "'"))
+                                               " WHERE db_uuid='", oldUUID, "'"))
   
   resBndls$mediaFilePath = gsub(oldBasePath, newBasePath, resBndls$mediaFilePath)
   
@@ -2033,23 +2056,23 @@ duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
   
   # duplicate items entries
   dbSendQuery(get_emuDBcon(), paste0("INSERT INTO items",
-                                    " SELECT '", newUUID, "' AS db_uuid, session, bundle, itemID, level, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur FROM items",
-                                    " WHERE db_uuid='", oldUUID, "'"))
+                                     " SELECT '", newUUID, "' AS db_uuid, session, bundle, itemID, level, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur FROM items",
+                                     " WHERE db_uuid='", oldUUID, "'"))
   
   # duplicate labels entries
   dbSendQuery(get_emuDBcon(), paste0("INSERT INTO labels",
-                                    " SELECT '", newUUID, "' AS db_uuid, session, bundle, itemID, labelIdx, name, label FROM labels",
-                                    " WHERE db_uuid='", oldUUID, "'"))
+                                     " SELECT '", newUUID, "' AS db_uuid, session, bundle, itemID, labelIdx, name, label FROM labels",
+                                     " WHERE db_uuid='", oldUUID, "'"))
   
   # duplicate links entries
   dbSendQuery(get_emuDBcon(), paste0("INSERT INTO links",
-                                    " SELECT '", newUUID, "' AS db_uuid, session, bundle, fromID, toID, label FROM links",
-                                    " WHERE db_uuid='", oldUUID, "'"))
+                                     " SELECT '", newUUID, "' AS db_uuid, session, bundle, fromID, toID, label FROM links",
+                                     " WHERE db_uuid='", oldUUID, "'"))
   
   # duplicate linksExt entries
   dbSendQuery(get_emuDBcon(), paste0("INSERT INTO linksExt",
-                                    " SELECT '", newUUID, "' AS db_uuid, session, bundle, fromID, toID, seqIdx, toLevel, type, toSeqIdx, toSeqLen, label FROM linksExt",
-                                    " WHERE db_uuid='", oldUUID, "'"))
+                                     " SELECT '", newUUID, "' AS db_uuid, session, bundle, fromID, toID, seqIdx, toLevel, type, toSeqIdx, toSeqLen, label FROM linksExt",
+                                     " WHERE db_uuid='", oldUUID, "'"))
   
   
 }
@@ -2126,6 +2149,6 @@ list_bundleFilePaths <- function(dbName, fileExtention,
 
 #######################
 # FOR DEVELOPMENT
-# library('testthat')
+library('testthat')
 # test_file('tests/testthat/test_duplicate.loaded.emuDB.R')
-
+test_file('tests/testthat/test_database.caching.R')
