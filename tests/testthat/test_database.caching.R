@@ -32,42 +32,77 @@ test_that("update_cache works", {
   file.rename(file.path(tempdir(), tmpDbName, "ae_DBconfig.json"), file.path(tempdir(), tmpDbName, "ae_copy_DBconfig.json"))
   
   ################################
-  # DBconfig update is re-cached
-  
-  # change entry
-  dbJson = fromJSON(readLines(file.path(tempdir(), tmpDbName, "ae_copy_DBconfig.json")), simplifyVector=T)
-  
-  dbJson$name = "ae_copy"
-  
-  pbpJSON=jsonlite::toJSON(dbJson,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-  writeLines(pbpJSON,file.path(tempdir(), tmpDbName, "ae_copy_DBconfig.json"))
-  
-  update_cache(tmpDbName)
-  
-  dbObj = .load.emuDB.DBI(uuid = dbUUID)
-  
-  expect_equal(dbObj$name, "ae_copy")
-  
-  ################################
-  # new bundle in new session is re-cached
-  dir.create(file.path(tempdir(),'ae_copy', 'new_ses'))
-  file.copy(from = file.path(tempdir(),'ae_copy', '0000_ses', 'msajc012_bndl'), 
-            to = file.path(tempdir(),'ae_copy', 'new_ses'),
-            recursive = T)
-  
-  update_cache(tmpDbName)
-  
-  l = list_sessions(tmpDbName)
-  
-  print(l)
-  
-  ################################
-  # deleted bundle is re-cached
-  # unlink(file.path(tempdir(),'ae_copy', '0000_ses', 'msajc012_bndl'), recursive = TRUE)
-  
-  # update_cache(tmpDbName)
-  
+  # 
+  test_that("DBconfig update is re-cached", {
+    # change entry
+    dbJson = fromJSON(readLines(file.path(tempdir(), tmpDbName, "ae_copy_DBconfig.json")), simplifyVector=T)
     
+    dbJson$name = "ae_copy"
+    
+    pbpJSON=jsonlite::toJSON(dbJson,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+    writeLines(pbpJSON,file.path(tempdir(), tmpDbName, "ae_copy_DBconfig.json"))
+    
+    update_cache(tmpDbName, verbose=F)
+    
+    dbObj = .load.emuDB.DBI(uuid = dbUUID)
+    
+    expect_equal(dbObj$name, "ae_copy")
+  })
+  
+  ################################
+  # 
+  test_that("new bundle in new session is re-cached", {
+    dir.create(file.path(tempdir(),'ae_copy', 'new_ses'))
+    file.copy(from = file.path(tempdir(),'ae_copy', '0000_ses', 'msajc012_bndl'), 
+              to = file.path(tempdir(),'ae_copy', 'new_ses'),
+              recursive = T)
+    
+    update_cache(tmpDbName, verbose=F)
+    
+    l = list_sessions(tmpDbName)
+    expect_true("new" %in% l$name)
+    b = list_bundles(tmpDbName)
+    expect_true(any(b$session == "new" & b$name == 'msajc012'))
+    
+    sl = query(tmpDbName, "Phonetic=n")
+    expect_true(any(sl$session == "new"))
+  })
+  
+  ################################
+  # 
+  test_that("change in _annot.json is re-cached", {
+    # change entry
+    annotJson = fromJSON(readLines(file.path(tempdir(), tmpDbName, "new_ses", "msajc012_bndl", "msajc012_annot.json")), simplifyVector=T)
+    
+    annotJson$levels$items[[1]]$id = 666666
+    
+    pbpJSON=jsonlite::toJSON(annotJson,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+    writeLines(pbpJSON,file.path(tempdir(), tmpDbName, "new_ses", "msajc012_bndl", "msajc012_annot.json"))
+    
+    update_cache(tmpDbName, verbose = F)
+    
+    res = dbGetQuery(getEmuDBcon(), paste0("SELECT * FROM items WHERE db_uuid='", dbUUID, "' AND session='new' AND bundle='msajc012' AND level='Utterance'"))$itemID
+
+    expect_true(res == 666666)
+    
+  })
+  
+  
+  ################################
+  # 
+  test_that("deleted bundle is re-cached", {
+    unlink(file.path(tempdir(),'ae_copy', 'new_ses', 'msajc012_bndl'), recursive = TRUE)
+    
+    update_cache(tmpDbName)
+    
+    res = dbGetQuery(getEmuDBcon(), paste0("SELECT * FROM items WHERE db_uuid='", dbUUID, "' AND session='new' AND bundle='msajc012'"))
+    
+    expect_true(nrow(res) == 0)
+    
+  })
+  
+  
+  
   # cleanup 
   unlink(file.path(tempdir(),'ae_copy'), recursive = TRUE)
   # clean up
