@@ -268,7 +268,7 @@ get.database<-function(uuid=NULL,name=NULL){
 
 
 .load.bundle.DBI<-function(dbUUID,sessionName,bundleName){
-  bQ=paste0("SELECT * FROM bundle WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND name='",bundleName,"'")
+  bQ=paste0("SELECT db_uuid, session, name, annotates, sampleRate, mediaFilePath FROM bundle WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND name='",bundleName,"'")
   bDf=dbGetQuery(getEmuDBcon(),bQ)
   spQ=paste0("SELECT * FROM track WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bundleName,"'")
   spDf=dbGetQuery(getEmuDBcon(),spQ)
