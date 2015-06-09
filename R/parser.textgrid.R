@@ -282,7 +282,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
                         
                         
                         # item entry:
-                        dbSendQuery(getEmuDBcon(), paste0("INSERT INTO items VALUES"," ('", dbUUID, "', '", session, "', '", bundle, "', '", itemCounterGlobal, 
+                        dbSendQuery(get_emuDBcon(), paste0("INSERT INTO items VALUES"," ('", dbUUID, "', '", session, "', '", bundle, "', '", itemCounterGlobal, 
                                                        "', '", currentTierName, "', '", "SEGMENT", 
                                                        "', ", itemCounterLevel, ", ", sampleRate, ", ", "NULL", ", ", currentSegmentStart, 
                                                        ", ", sampleDur, ")"))
@@ -290,7 +290,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
                         
                         
                         # label entry:
-                        dbSendQuery(getEmuDBcon(), paste0("INSERT INTO labels VALUES","('", 
+                        dbSendQuery(get_emuDBcon(), paste0("INSERT INTO labels VALUES","('", 
                                                        dbUUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
                                                        ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentSegmentLabel), "')"))
                         
@@ -362,14 +362,14 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
                       itemId = paste0(dbName, '_', session, '_', bundle, '_', itemCounterGlobal)
                       
                       
-                      dbSendQuery(getEmuDBcon(), paste0("INSERT INTO items VALUES"," ('", dbUUID, "', '", session, "', '", bundle, "', ",
+                      dbSendQuery(get_emuDBcon(), paste0("INSERT INTO items VALUES"," ('", dbUUID, "', '", session, "', '", bundle, "', ",
                                                      itemCounterGlobal, ", '", currentTierName,"', '", "EVENT", 
                                                      "', ", itemCounterLevel, ", ", sampleRate, ", ", currentPointSample, ", ", "NULL", 
                                                      ", ", "NULL", ")"))
                       
                       
                       # label entry:
-                      dbSendQuery(getEmuDBcon(), paste0("INSERT INTO labels VALUES","('", 
+                      dbSendQuery(get_emuDBcon(), paste0("INSERT INTO labels VALUES","('", 
                                                      dbUUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
                                                      ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentPointLabel), "')"))              
                       

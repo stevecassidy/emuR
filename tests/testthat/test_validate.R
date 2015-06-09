@@ -21,7 +21,7 @@ schema=.update.transient.schema.values(schema)
 db=create.database(name = schema[['name']],basePath = normalizePath(tempdir()),DBconfig = schema)
 
 .initialize.DBI.database()
-dbsDf=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
+dbsDf=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
 if(nrow(dbsDf)>0){
   stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
 }

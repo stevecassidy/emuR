@@ -81,7 +81,7 @@ test_that("update_cache works", {
     
     update_cache(tmpDbName, verbose = F)
     
-    res = dbGetQuery(getEmuDBcon(), paste0("SELECT * FROM items WHERE db_uuid='", dbUUID, "' AND session='new' AND bundle='msajc012' AND level='Utterance'"))$itemID
+    res = dbGetQuery(get_emuDBcon(), paste0("SELECT * FROM items WHERE db_uuid='", dbUUID, "' AND session='new' AND bundle='msajc012' AND level='Utterance'"))$itemID
 
     expect_true(res == 666666)
     
@@ -95,7 +95,7 @@ test_that("update_cache works", {
     
     update_cache(tmpDbName)
     
-    res = dbGetQuery(getEmuDBcon(), paste0("SELECT * FROM items WHERE db_uuid='", dbUUID, "' AND session='new' AND bundle='msajc012'"))
+    res = dbGetQuery(get_emuDBcon(), paste0("SELECT * FROM items WHERE db_uuid='", dbUUID, "' AND session='new' AND bundle='msajc012'"))
     
     expect_true(nrow(res) == 0)
     

@@ -94,7 +94,7 @@ validateBundle.emuDB.DBI <- function(dbName, session, bundle, dbUUID=NULL){
   
   
   # check that levels with same name are present
-  levelNames <- dbGetQuery(getEmuDBcon(), paste0("SELECT DISTINCT level FROM items WHERE db_uuid='", dbUUID, "'AND session = '", session,"' ",
+  levelNames <- dbGetQuery(get_emuDBcon(), paste0("SELECT DISTINCT level FROM items WHERE db_uuid='", dbUUID, "'AND session = '", session,"' ",
                                               "AND bundle ='", bundle, "'"))$level
   
   levelDefNames = sapply(dbObj$DBconfig$levelDefinitions, function(l) l$name)
@@ -112,7 +112,7 @@ validateBundle.emuDB.DBI <- function(dbName, session, bundle, dbUUID=NULL){
   }
   
   # check that levels have same types
-  levelTypes <- dbGetQuery(getEmuDBcon(), paste0("SELECT DISTINCT level, type FROM items WHERE db_uuid='", dbUUID, "' AND session = '", session,"' ",
+  levelTypes <- dbGetQuery(get_emuDBcon(), paste0("SELECT DISTINCT level, type FROM items WHERE db_uuid='", dbUUID, "' AND session = '", session,"' ",
                                               "AND bundle ='", bundle, "'"))$type
   
   levelDefTypes = sapply(dbObj$DBconfig$levelDefinitions, function(l) l$type)
@@ -124,7 +124,7 @@ validateBundle.emuDB.DBI <- function(dbName, session, bundle, dbUUID=NULL){
   }  
   
   # validate sequence and overlaps in items of type SEGMENTS
-  tmp <- dbGetQuery(getEmuDBcon(), paste0("SELECT DISTINCT * FROM items WHERE session = '", session,"' ", 
+  tmp <- dbGetQuery(get_emuDBcon(), paste0("SELECT DISTINCT * FROM items WHERE session = '", session,"' ", 
                                  "AND bundle ='", bundle, "' ",
                                  "AND type = 'SEGMENT'"))
   

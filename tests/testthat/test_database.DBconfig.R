@@ -129,12 +129,12 @@ test_that("CRUD operations work for levelDefinitions", {
     expect_error(remove_levelDefinition(dbName=tmpDbName, name="Phonetic")) # linkDef present
     dbObj = .load.emuDB.DBI(name=tmpDbName)
     
-    dbGetQuery(getEmuDBcon(), paste0("INSERT INTO items VALUES ('",dbObj$DBconfig$UUID,
+    dbGetQuery(get_emuDBcon(), paste0("INSERT INTO items VALUES ('",dbObj$DBconfig$UUID,
                                      "', '0001', 'fakeBundle', 1, 'Phonetic2', 'ITEM', 20000, 1, NULL, NULL, NULL)")) # add item
     
     expect_error(remove_levelDefinition(dbName=tmpDbName, name="Phonetic2")) # item present
     
-    dbGetQuery(getEmuDBcon(), paste0("DELETE FROM items WHERE db_uuid='", 
+    dbGetQuery(get_emuDBcon(), paste0("DELETE FROM items WHERE db_uuid='", 
                                      dbObj$DBconfig$UUID,"'")) # items present
     
     remove_levelDefinition(dbName=tmpDbName, name="Phonetic2")

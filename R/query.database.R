@@ -904,9 +904,9 @@ query<-function(dbName=NULL,query,sessionPattern=NULL,bundlePattern=NULL,queryLa
       dbConfig=db[['DBconfig']]
       # create 
       emuDBs.query.tmp<-list()
-      emuDBs.query.tmp[['queryItems']]<-dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
-      emuDBs.query.tmp[['queryLabels']]<-dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
-      emuDBs.query.tmp[['queryLinksExt']]<-dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
+      emuDBs.query.tmp[['queryItems']]<-dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
+      emuDBs.query.tmp[['queryLabels']]<-dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
+      emuDBs.query.tmp[['queryLinksExt']]<-dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
       setQueryTmpEmuDBs(emuDBs.query.tmp)
       if(!is.null(sessionPattern)){
         newTmpDBs=list()
@@ -1023,12 +1023,12 @@ contextRequery<-function(seglist, offset=0,offsetRef='START',seqLength=1,resultT
     
     # create temporary items
     emuDBs.query.tmp=list()
-    emuDBs.query.tmp[['queryItems']]<-dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
-    emuDBs.query.tmp[['queryLabels']]<-dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
-    emuDBs.query.tmp[['queryLinksExt']]<-dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
+    emuDBs.query.tmp[['queryItems']]<-dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
+    emuDBs.query.tmp[['queryLabels']]<-dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
+    emuDBs.query.tmp[['queryLinksExt']]<-dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
     setQueryTmpEmuDBs(emuDBs.query.tmp)
     
-    items=dbReadTable(getEmuDBcon(),'items')
+    items=dbReadTable(get_emuDBcon(),'items')
     itemsIdxSql='CREATE INDEX items_idx ON items(itemID,db_uuid,session,bundle,level,itemID,seqIdx,type,sampleRate,sampleStart,sampleDur,samplePoint)'
     resIdxSql='CREATE INDEX its_idx ON its(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)'
     #   

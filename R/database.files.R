@@ -35,7 +35,7 @@ import_mediaFiles<-function(dbName,dir,targetSessionName='0000',dbUUID=NULL, ver
     }
     
     qSessSql=paste0("SELECT * FROM session WHERE db_uuid='",dbUUID,"' AND name='",targetSessionName,"'")
-    sessDf<-dbGetQuery(getEmuDBcon(),qSessSql)
+    sessDf<-dbGetQuery(get_emuDBcon(),qSessSql)
     if(nrow(sessDf)==0){
       .store.session.DBI(dbUUID = dbUUID,sessionName = targetSessionName)
     }

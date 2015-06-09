@@ -46,7 +46,7 @@ test_that("Load example database ae",{
 
 test_that("Data types are correct",{
   
-  items=dbReadTable(getEmuDBcon(),'items')
+  items=dbReadTable(get_emuDBcon(),'items')
   
   expect_that(class(items[['seqIdx']]),is_equivalent_to('integer'))
   expect_that(class(items[['itemID']]),is_equivalent_to('integer'))
@@ -55,10 +55,10 @@ test_that("Data types are correct",{
   expect_that(class(items[['sampleStart']]),is_equivalent_to('integer'))
   expect_that(class(items[['sampleDur']]),is_equivalent_to('integer'))
   
-  labels=dbReadTable(getEmuDBcon(),'labels')
+  labels=dbReadTable(get_emuDBcon(),'labels')
   expect_that(class(labels[['labelIdx']]),is_equivalent_to('integer'))
   
-  links=dbReadTable(getEmuDBcon(),'links')
+  links=dbReadTable(get_emuDBcon(),'links')
   expect_that(class(links[['fromID']]),is_equivalent_to('integer'))
   expect_that(class(links[['toID']]),is_equivalent_to('integer'))
 })
@@ -74,7 +74,7 @@ test_that("Test ae samples",{
   lvCnt=length(msajc015_lab_values)
   teCnt=length(msajc015_tone_events)
   #msajc015_phonetic=ae[['items']][ae[['items']][['bundle']]=="msajc015" & ae[['items']][['level']]=='Phonetic',]
-  msajc015_phonetic=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"' AND session='0000' AND bundle='msajc015' AND level='Phonetic'"))
+  msajc015_phonetic=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"' AND session='0000' AND bundle='msajc015' AND level='Phonetic'"))
   rc=nrow(msajc015_phonetic)
   expect_equivalent(rc+1,lvCnt)
   # order by sequence index
@@ -83,7 +83,7 @@ test_that("Test ae samples",{
   expect_equivalent(rc+1,lvCnt)
   
   #msajc015_tone=ae[['items']][ae[['items']][['bundle']]=="msajc015" & ae[['items']][['level']]=='Tone',]
-  msajc015_tone=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"' AND session='0000' AND bundle='msajc015' AND level='Tone'"))
+  msajc015_tone=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"' AND session='0000' AND bundle='msajc015' AND level='Tone'"))
   msajc015_tone_ordered=msajc015_tone[order(msajc015_tone[['seqIdx']]),]
   lvSq=1:rc
   
@@ -130,10 +130,10 @@ test_that("Test ae samples",{
 })
 
 test_that("Test ae modify",{
-  orgItems=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
-  orgLabels=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
-  orgLinks=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
-  orgLinksExt=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  orgItems=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  orgLabels=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  orgLinks=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  orgLinksExt=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
   
   expect_equivalent(nrow(orgItems),736)
   expect_equivalent(nrow(orgLinks),785)
@@ -146,10 +146,10 @@ test_that("Test ae modify",{
   b015m[['levels']][['Phonetic']][['items']][[10]][['labels']][[1]][['value']]='test!!'
   store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015m)
   
-  modItems=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
-  modLabels=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
-  modLinks=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
-  modLinksExt=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  modItems=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  modLabels=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  modLinks=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  modLinksExt=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
   
   expect_equivalent(nrow(modItems),736)
   expect_equivalent(nrow(modLinks),785)
@@ -171,10 +171,10 @@ test_that("Test ae modify",{
   b015m[['levels']][['Phonetic']][['items']][[10]][['sampleDur']]=99
   store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015m)
   
-  mod2Items=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
-  mod2Labels=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
-  mod2Links=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
-  mod2LinksExt=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod2Items=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod2Labels=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod2Links=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod2LinksExt=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
   
   expect_equivalent(nrow(mod2Items),736)
   expect_equivalent(nrow(mod2Links),785)
@@ -201,10 +201,10 @@ test_that("Test ae modify",{
   b015m2=b015m
   b015m2[['links']]=b015LksM
   store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015m2)
-  mod3Items=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
-  mod3Labels=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
-  mod3Links=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
-  mod3LinksExt=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod3Items=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod3Labels=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod3Links=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod3LinksExt=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
   
   expect_equivalent(nrow(mod3Items),736)
   expect_equivalent(nrow(mod3Links),784)
@@ -226,7 +226,7 @@ test_that("Test ae modify",{
   b015m3[['links']]=b015m3Lks
   
   store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015m3)
-  mod4Links=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  mod4Links=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
   cml3=compare(orgLinks,mod4Links,allowAll=TRUE)
   expect_true(cml3$result)
   
@@ -238,10 +238,10 @@ test_that("Test ae modify",{
 #   # store original bundle
    store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015)
 #   
-   modOrgItems=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
-  modOrgLabels=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
-   modOrgLinks=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
-   modOrgLinksExt=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+   modOrgItems=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  modOrgLabels=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+   modOrgLinks=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+   modOrgLinksExt=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
 
     expect_equivalent(nrow(modOrgItems),736)
   expect_equivalent(nrow(modOrgLinks),785)

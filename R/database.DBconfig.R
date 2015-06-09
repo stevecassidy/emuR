@@ -491,7 +491,7 @@ remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
   }
   
   # check if level is empty
-  itemsDf=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM items i WHERE \
+  itemsDf=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM items i WHERE \
                         i.db_uuid='",dbObj$DBconfig$UUID,"' AND i.level='",name,"'"))
   itemsCnt=nrow(itemsDf)
   if(itemsCnt>0){
@@ -623,7 +623,7 @@ remove_attributeDefinition <- function(dbName,
   ld = get.levelDefinition(dbObj$DBconfig, levelName)
   
   # check if instances are present
-  qRes = dbGetQuery(getEmuDBcon(), paste0("SELECT * FROM items AS it, labels AS lb WHERE ",
+  qRes = dbGetQuery(get_emuDBcon(), paste0("SELECT * FROM items AS it, labels AS lb WHERE ",
                                           "it.db_uuid = lb.db_uuid AND ", 
                                           "it.session = lb.session AND ", 
                                           "it.bundle = lb.bundle AND ",
@@ -970,7 +970,7 @@ remove_linkDefinition <- function(dbName,
          "' and sublevelName '", sublevelName, "'")
   }
   # check if links are present
-  res = dbGetQuery(getEmuDBcon(), paste0("SELECT * FROM ",
+  res = dbGetQuery(get_emuDBcon(), paste0("SELECT * FROM ",
                                          "links ",
                                          "INNER JOIN (SELECT * FROM items WHERE level = '", superlevelName, "' AND db_uuid = '", dbObj$DBconfig$UUID, "') as superItems", 
                                          "    ON links.fromID = superItems.itemID ",
