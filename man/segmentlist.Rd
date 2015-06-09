@@ -12,7 +12,7 @@
   \item columnutterance name
 }}
 \description{
-A segment list is the result of emu.query() or read.emusegs().
+A segment list is the result type of legacy Emu query.
 }
 \examples{
 data(demo.vowels)

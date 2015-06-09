@@ -11,7 +11,7 @@ query(dbName = NULL, query, sessionPattern = NULL, bundlePattern = NULL,
 \arguments{
 \item{dbName}{name of EMU database}
 
-\item{query}{EQL query string}
+\item{query}{EQL2 query string}
 
 \item{sessionPattern}{A regular expression pattern matching session names to be searched from the database}
 
@@ -26,10 +26,15 @@ query(dbName = NULL, query, sessionPattern = NULL, bundlePattern = NULL,
 \item{dbUUID}{optional UUID of emuDB}
 }
 \value{
-result set object of class resultType (default 'emuRsegs', compatible to leagcy type 'emusegs')
+result set object of class resultType (default: \link{emuRsegs}, compatible to legacy type \link{emusegs})
 }
 \description{
 Query an EMU database
+}
+\details{
+Evaluates EQL2 query string on emuDB and returns a segment list of desired type.
+For details of the query language please refer to EQL vignette (type: \code{vignette('EQL')} ).
+Time information of symbolic elements (type 'ITEM') are derived from linked segment levels if available. If not available time and sample values may be set to \code{\link{NA}}.
 }
 \examples{
 \dontrun{
@@ -45,9 +50,8 @@ query('ae','[Syllable=S ^ Phoneme=t]',resultType='emusegs')
 
 
 ## Query 'p' phonemes from bundles whose names start with 'msajc07'
-## Request legacy result type 'emusegs'
 
-query('ae','Phoneme=p',bundlePattern='msajc07.*')
+query('ae','Phoneme=p',bundlePattern='msajc05.*')
 
 
 }

@@ -1,6 +1,6 @@
 ##' Segment list
 ##' 
-##' A segment list is the result of emu.query() or read.emusegs().
+##' A segment list is the result type of legacy Emu query.
 ##' 
 ##' 
 ##' @aliases segmentlist emusegs
@@ -20,6 +20,64 @@
 ##'    
 ##'    #demo.vowels is a segment list
 ##'    demo.vowels
+##' 
+NULL
+
+##' emuR segment list
+##' @description
+##' A segment list is a list of segment descriptors. A segment descriptor describes a sequence of annotation elements.
+##' 
+##' @details
+##' 
+##' An emuR segment list is the default result of \code{\link{query}} and can be used to get track data using \code{\link{get_trackdata}}.
+##' Inherits class \link{emusegs} and hence \code{\link{data.frame}}
+##' 
+##' @aliases segemntlist emuRsegs
+##'
+##' @format Attributed data.frame, one row per segment.
+##' 
+##' Objects of this class contain the ID's of start and end elements.
+##' The segment may consist only of one single element, in this case start and end ID are equal.
+##' 
+##'  
+##' Data frame columns are:
+##' \itemize{ 
+##'   \item labels: sequenced labels of segment concatenated by '->'
+##'   \item start: onset time
+##'   \item end: offset time 
+##'   \item session: session name
+##'   \item bundle: bundle name
+##'   \item startItemID: item ID of first element of sequence
+##'   \item endItemID: item ID of last element of sequence
+##'   \item type: type of "segment" row: 'ITEM': symbolic item, 'EVENT': event item, 'SEGMENT': segment
+##'
+##' }
+##' Additional hidden columns:
+##' \itemize{
+##'  \item utts utterance name (for compatibility to \link{emusegs} class)
+##'  \item db_uuid UUID of emuDB
+##'  \item sampleStart start sample
+##'  \item sampleEnd end sample
+##'  \item sampleRate sample rate
+##' }
+##' The print method of emuRsegs hides the columns listed above.
+##' To print all columns of a segment list object use the print method of data.frame.
+##' For example to print all columns of a emuRsegs segmentlist object \code{sl} type:
+##' 
+##' \code{print.data.frame(sl)}
+##' 
+##' Attributes:
+##' \itemize{
+##'   \item database: name of emuDB
+##'   \item query: Query string
+##'   \item type: type ('segment' or 'event') (for compatibility to \link{emusegs} class)
+##' }
+##' 
+##'
+##' 
+##' @seealso \code{\link{query}},\code{\link{get_trackdata}},\link{emusegs}
+##' @keywords classes
+##' @name emuRsegs
 ##' 
 NULL
 

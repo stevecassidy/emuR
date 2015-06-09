@@ -354,7 +354,7 @@ get.database<-function(uuid=NULL,name=NULL){
 
 ##' Get UUID of emuDB
 ##' @description Returns UUID if emuDB is loaded, throws error otherwise
-##' @param dbName name of emuDB to purge
+##' @param dbName name of emuDB
 ##' @param dbUUID optional UUID of emuDB
 ##' @seealso  \code{\link{is.emuDB.loaded}}
 ##' @export
@@ -416,6 +416,12 @@ list_emuDBs<-function(){
 ##' @param dbName name of emuDB to purge
 ##' @param dbUUID optional UUID of emuDB
 ##' @param interactive ask user for confirmation
+##' @seealso \code{\link{load_emuDB}},\code{\link{purge_all_emuDBs}}
+##' @examples
+##' \dontrun{
+##'   # Purge emuDB 'ae'
+##'   purge_emuDB('ae')
+##' }
 ##' @export
 purge_emuDB<-function(dbName=NULL,dbUUID=NULL,interactive=TRUE){
   .initialize.DBI.database()  
@@ -503,10 +509,10 @@ create.database <- function(name,basePath=NULL,DBconfig=create.schema.databaseDe
 
 
 
-##' Print summary for EMU database object
-##' @description Gives an overview of an EMU database object
-##' Prints database name, base directory path and informations about annoation levels, attributes, links, and signal file tracks
-##' @param dbName name of EmuDB
+##' Print summary of EMU database (emuDB).
+##' @description Gives an overview of an EMU database.
+##' Prints database name, base directory path and informations about annotation levels, attributes, links, and signal file tracks
+##' @param dbName name of emuDB
 ##' @param dbUUID optional UUID of emuDB
 ##' @export
 summary_emuDB<-function(dbName=NULL,dbUUID=NULL){
@@ -1667,7 +1673,7 @@ calculate.postions.of.links<-function(){
 ##' \dontrun{
 ##' ## Load database 'ae' in directory /homes/mylogin/EMUnew/ae
 ##' 
-##' ae=load_emuDB("ae","/homes/mylogin/EMUnew/ae")
+##' dbName=load_emuDB(/homes/mylogin/EMUnew/ae")
 ##' 
 ##' }
 load_emuDB <- function(databaseDir,verbose=TRUE){

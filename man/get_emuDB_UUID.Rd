@@ -7,7 +7,7 @@
 get_emuDB_UUID(dbName = NULL, dbUUID = NULL)
 }
 \arguments{
-\item{dbName}{name of emuDB to purge}
+\item{dbName}{name of emuDB}
 
 \item{dbUUID}{optional UUID of emuDB}
 }

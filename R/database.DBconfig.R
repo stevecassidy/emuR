@@ -350,6 +350,7 @@ load.emuDB.DBconfig<-function(DBconfigFilePath){
   return(schema)
 }
 
+# TODO
 .store.schema<-function(db,projectDir=NULL){
   
   if(is.null(projectDir)){
@@ -367,6 +368,7 @@ load.emuDB.DBconfig<-function(DBconfigFilePath){
   .store.DBconfig.DBI(DBconfig = db[['DBconfig']], MD5DBconfigJSON)
 }
 
+# TODO 
 .store.DBconfig<-function(basePath,DBconfig){
   
   # store db schema file

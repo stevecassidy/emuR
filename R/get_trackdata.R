@@ -126,6 +126,13 @@
   splUtt = str_split(seglist$utts[1], ':')[[1]]
   #   curBndl <- dbObj$sessions[[splUtt[1]]]$bundles[[splUtt[2]]]
   
+  # check if utts entry exists
+  bndls = list_bundles(dbName, dbUUID = dbUUID)
+  if(!any(bndls$session == splUtt[1] & bndls$name == splUtt[2])){
+    stop("Following utts entry not found: ", seglist$utts[1])
+  }
+  
+  
   if(!is.null(onTheFlyFunctionName)){
     funcFormals = NULL
     funcFormals$listOfFiles = dbGetQuery(getEmuDBcon(), paste0("SELECT mediaFilePath FROM bundle WHERE db_uuid='", dbUUID, "' AND session='",
@@ -173,6 +180,13 @@
   for (i in 1:length(seglist$utts)){
     
     splUtt = str_split(seglist$utts[i], ':')[[1]]
+    
+    # check if utts entry exists
+    bndls = list_bundles(dbName, dbUUID = dbUUID)
+    if(!any(bndls$session == splUtt[1] & bndls$name == splUtt[2])){
+      stop("Following utts entry not found: ", seglist$utts[i])
+    }
+
     
     allBndlTrackPaths <- dbGetQuery(getEmuDBcon(), paste0("SELECT path FROM track WHERE db_uuid='", dbUUID, "' AND session='",
                                                        splUtt[1], "' AND bundle='", splUtt[2], "'"))$path
