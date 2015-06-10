@@ -1024,7 +1024,7 @@ add_ssffTrackDefinition <- function(dbName = NULL, name =  NULL,
                                     onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
                                     onTheFlyOptLogFilePath = NULL, dbUUID = NULL,
                                     showProgress = TRUE, interactive = TRUE){
-  .initialize.DBI.database()
+  # .initialize.DBI.database()
   uuid=get_emuDB_UUID(dbName,dbUUID)
   dbObj = .load.emuDB.DBI(uuid = uuid)
   
@@ -1102,7 +1102,7 @@ add_ssffTrackDefinition <- function(dbName = NULL, name =  NULL,
 ##' @export
 ##' @author Raphael Winkelmann
 list_ssffTrackDefinitions <- function(dbName = NULL, dbUUID = NULL){
-  .initialize.DBI.database()
+  # .initialize.DBI.database()
   uuid=get_emuDB_UUID(dbName,dbUUID)
   dbObj = .load.emuDB.DBI(uuid = uuid)
   
@@ -1125,7 +1125,7 @@ modify_ssffTrackDefinition <- function(){
 ##' @export
 remove_ssffTrackDefinition <- function(dbName = NULL, name = NULL, 
                                        deleteFiles = FALSE, dbUUID = NULL){
-  .initialize.DBI.database()
+  # .initialize.DBI.database()
   uuid=get_emuDB_UUID(dbName,dbUUID)
   dbObj = .load.emuDB.DBI(uuid = uuid)
   
