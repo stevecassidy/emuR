@@ -48,37 +48,26 @@ get_emuDBcon <- function(dbUUID = NULL) {
   return(foundCon)
 }
 
-# setEmuDBcon <- function(con) {
-#   internalVars$emuDBcon<-con
-# }
 
-## @param sql connection like the <SQLiteConnection> type
+## @param connection of type returned from DBI::dbConnect() function
 ## @param path to SQLiteDB
 add_emuDBcon <- function(con, path = ":memory:"){
-  found = F
+  foundCon = NULL
   for(c in internalVars$sqlConnections){
     if(c$path == path){
-      found = T
+      foundCon = c$con
     }
   }
   
   # only add if not found to avoid duplicates
-  if(!found){
+  if(is.null(foundCon)){
     .initialize.DBI.database(con)
     internalVars$sqlConnections[[length(internalVars$sqlConnections) + 1]] = list(path = path,
                                                                                   connection = con)
+    foundCon = con
   }
+  return(foundCon)
 }
-
-# list_emuDBcons <- function(con){
-#   df = data.frame(path=character(), 
-#                   stringsAsFactors = F)
-#   for(c in internalVars$sqlConnections){
-#     df = rbind(df, data.frame(path=c$path, 
-#                               stringsAsFactors = F))
-#   }
-#   return(df)
-# }
 
 remove_emuDBcon <- function(path){
   
@@ -86,6 +75,7 @@ remove_emuDBcon <- function(path){
     if(internalVars$sqlConnections[[i]]$path == path){
       print("remove_emuDBcon")
       internalVars$sqlConnections[[i]] = NULL
+      break
     }
   }
 }
@@ -315,11 +305,11 @@ get.database<-function(uuid=NULL,name=NULL){
   }else{
     bSqlInsert=paste0("INSERT INTO bundle(db_uuid,session,name,annotates,sampleRate,mediaFilePath,MD5annotJSON) VALUES('",dbCfg[['UUID']],"','",bundle[['session']],"','",bundle[['name']],"','",bundle[['annotates']],"',",bundle[['sampleRate']],",'",bundle[['mediaFilePath']],"'",",'",MD5annotJSON,"')")
   }
-  res <- dbSendQuery(get_emuDBcon(),bSqlInsert)
+  res <- dbSendQuery(get_emuDBcon(dbCfg$UUID),bSqlInsert)
   dbClearResult(res)
   for(trackPath in bundle[['signalpaths']]){
     trSqlInsert=paste0("INSERT INTO track(db_uuid,session,bundle,path) VALUES('",dbCfg[['UUID']],"','",bundle[['session']],"','",bundle[['name']],"','",trackPath,"')")
-    res <- dbSendQuery(get_emuDBcon(),trSqlInsert)
+    res <- dbSendQuery(get_emuDBcon(dbCfg$UUID),trSqlInsert)
   }
 }
 
@@ -1734,9 +1724,9 @@ calculate.postions.of.links<-function(){
   
 }
 
-##' Load EMU database
+##' Load emuDB
 ##' 
-##' @param databaseDir directory of the EMU database
+##' @param databaseDir directory of the emuDB
 ##' @param inMemoryCache cache the loaded DB in memory
 ##' @param verbose be verbose
 ##' @return name of emuDB
@@ -1797,19 +1787,19 @@ load_emuDB <- function(databaseDir, inMemoryCache = TRUE, verbose=TRUE){
   # add new connection
   if(inMemoryCache){
     con = dbConnect(RSQLite::SQLite(), ":memory:")
-    add_emuDBcon(con)
+    con = add_emuDBcon(con)
   }else{
     stop("Not implemented yet!")
     dbPath = file.path(normalizePath(databaseDir), paste0(schema$name, database.cache.suffix))
     con = dbConnect(RSQLite::SQLite(), dbPath)
-    add_emuDBcon(con, dbPath)
+    con = add_emuDBcon(con, dbPath)
   }
   
-  beginRes=dbBegin(get_emuDBcon())
+  beginRes=dbBegin(con)
   if(!beginRes){
     stop("Could not start DBI (SQL) transaction!")
   }
-  dbsDf=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
+  dbsDf=dbGetQuery(con,paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
   if(nrow(dbsDf)>0){
     stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
   }

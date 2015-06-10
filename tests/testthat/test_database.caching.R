@@ -10,9 +10,9 @@ tmpDbName = 'ae_copy'
 path2ae = system.file("extdata/emu/DBs/ae/", package = "emuR")
 
 # load database 
-# if(!is.emuDB.loaded("ae")){
-  # load_emuDB(path2ae, verbose = F)
-# }
+if(!is.emuDB.loaded("ae")){
+  load_emuDB(path2ae, verbose = F)
+}
 
 ############################
 # test_that("update_cache works", {
@@ -117,12 +117,16 @@ path2ae = system.file("extdata/emu/DBs/ae/", package = "emuR")
 ############################
 test_that("sqlConnections CRUD operations work", {
   
-  #########################  
+  path2testDB = file.path(tempdir(), paste0("testthat", database.cache.suffix))
+  
+  fileCon = NULL
+  
+  #########################
   test_that("add works", {
     # only single instance is added 
     origLength = length(internalVars$sqlConnections)
-    add_emuDBcon(dbConnect(RSQLite::SQLite(), file.path(tempdir(), paste0("testthat", database.cache.suffix))))
-    add_emuDBcon(dbConnect(RSQLite::SQLite(), file.path(tempdir(), paste0("testthat", database.cache.suffix))))
+    fileCon = add_emuDBcon(dbConnect(RSQLite::SQLite(), path2testDB), path2testDB)
+    fileCon = add_emuDBcon(dbConnect(RSQLite::SQLite(), path2testDB), path2testDB)
     expect_equal(length(internalVars$sqlConnections), origLength + 1)
     
   })
@@ -131,9 +135,17 @@ test_that("sqlConnections CRUD operations work", {
   test_that("get works", {
     # check that :memory: connection is returned by default
     # containing loaded ae
-#     con = get_emuDBcon()
-#     res = dbGetQuery(con, "SELECT uuid FROM emuDB")
-#     expect_true(res == "0fc618dc-8980-414d-8c7a-144a649ce199")
+    inMemCon = get_emuDBcon()
+    res = dbGetQuery(inMemCon, "SELECT uuid FROM emuDB")
+    expect_true(res == "0fc618dc-8980-414d-8c7a-144a649ce199")
+    
+    # 
+    dbSqlInsert=paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('","i am a face UUID","','","fakeName","','","fakePath","','","fakeJSON","', NULL", ")")
+    dbGetQuery(fileCon,dbSqlInsert)
+    con = get_emuDBcon(dbUUID = "i am a face UUID")
+    print(con)
+    res = dbGetQuery(con, "SELECT * FROM emuDB")
+    print(res)
     
   })
 
