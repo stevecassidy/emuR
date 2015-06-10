@@ -31,7 +31,7 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName, tierNames=NULL){
   dbConfig=create.schema.databaseDefinition(name=dbName,mediafileExtension = 'wav')
   db=create.database(name=dbName,basePath=file.path(tempdir(), dbName),DBconfig = dbConfig)
   .initialize.DBI.database()
-  .store.emuDB.DBI(database = db)
+  .store.emuDB.DBI(get_emuDBcon(), database = db)
   
   # parse TextGrid  
   

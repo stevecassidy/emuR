@@ -14,27 +14,38 @@ emuDB.apiLevel=3L
 #emuDBs.con=NULL
 
 internalVars<- new.env(parent = emptyenv())
-# key value map holding sqlconnection
+# list of lists holding sqlconnection
 internalVars$sqlConnections = list()
 
 ##########################################################
 # CRUD like operations for internalVars$sqlConnections
 
 get_emuDBcon <- function(dbUUID = NULL) {
-  if(is.null(dbUUID)){
-    return(internalVars$emuDBcon)
-  }else{
-    # todo 
-    return(internalVars$emuDBcon)
+  foundCon = NULL
+  for(c in internalVars$sqlConnections){
+    if(is.null(dbUUID)){
+      if(c$path == ":memory:"){
+        foundCon = c$con
+        break
+      }
+    }else{
+      res = dbGetQuery(c$con, "SELECT uuid FROM emuDB")
+      if(dbUUID %in% res){
+        foundCon = c$con
+        break
+      }
+    }
   }
+  
+  return(foundCon)
 }
 
-setEmuDBcon <- function(con) {
-  internalVars$emuDBcon<-con
-}
+# setEmuDBcon <- function(con) {
+#   internalVars$emuDBcon<-con
+# }
 
 ## @param sql connection like the <SQLiteConnection> type
-## @param path to sqlDB
+## @param path to SQLiteDB
 add_emuDBcon <- function(con, path = ":memory:"){
   found = F
   for(c in internalVars$sqlConnections){
@@ -61,8 +72,14 @@ list_emuDBcons <- function(con){
   return(df)
 }
 
-remove_emuDBcon <- function(dbUUID){
+remove_emuDBcon <- function(path){
   
+  for(i in i:length(internalVars$sqlConnections)){
+    if(internalVars$sqlConnections[[i]]$path == path){
+      print("remove_emuDBcon")
+      internalVars$sqlConnections[[i]] = NULL
+    }
+  }
 }
 
 
@@ -220,7 +237,7 @@ database.DDL.emuDB_linksExtTmp2='CREATE TABLE linksExtTmp2 (
 
 database.DDL.emuDB_linksExtTmpIdx2='CREATE INDEX linksExtTmp2_idx ON linksExtTmp2(db_uuid,session,bundle,fromID,toID,toLevel,type)'
 
-.store.emuDB.DBI<-function(database, MD5DBconfigJSON = NULL){
+.store.emuDB.DBI<-function(con, database, MD5DBconfigJSON = NULL){
   dbCfg=database[['DBconfig']]
   dbCfgJSON=jsonlite::toJSON(dbCfg,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
   if(is.null(MD5DBconfigJSON)){
@@ -228,7 +245,7 @@ database.DDL.emuDB_linksExtTmpIdx2='CREATE INDEX linksExtTmp2_idx ON linksExtTmp
   }else{
     dbSqlInsert=paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('",dbCfg[['UUID']],"','",dbCfg[['name']],"','",database[['basePath']],"','",dbCfgJSON,"', '",MD5DBconfigJSON,"')")
   }
-  res <- dbSendQuery(get_emuDBcon(),dbSqlInsert)
+  res <- dbSendQuery(con,dbSqlInsert)
   dbClearResult(res)
   
 }
@@ -334,11 +351,12 @@ get.database<-function(uuid=NULL,name=NULL){
 }
 
 
-.initialize.DBI.database<-function(createTables=TRUE,createIndices=TRUE){
+.initialize.DBI.database<-function(dbUUID=NULL, createTables=TRUE,createIndices=TRUE){
   
   if(is.null(get_emuDBcon())){
     #emuDBs.con<<-dbConnect(RSQLite::SQLite(), "/scratch/klausj/WORK/emuDB.sqlite")
-    setEmuDBcon(dbConnect(RSQLite::SQLite(), ":memory:"))
+    # setEmuDBcon(dbConnect(RSQLite::SQLite(), ":memory:"))
+    add_emuDBcon(dbConnect(RSQLite::SQLite(), ":memory:"))
     if(createTables & !dbExistsTable(get_emuDBcon(),'emuDB')){
       res <- dbSendQuery(get_emuDBcon(), database.DDL.emuDB)
       dbClearResult(res)
@@ -395,7 +413,8 @@ get.database<-function(uuid=NULL,name=NULL){
     dbDisconnect(get_emuDBcon())
   }
   #emuDBs.con<<-NULL
-  setEmuDBcon(NULL)
+  # setEmuDBcon(NULL)
+  remove_emuDBcon()
 }
 
 ##' Get UUID of emuDB
@@ -1374,7 +1393,7 @@ create_emuDB<-function(name, targetDir, mediaFileExtension='wav',
   dbConfig=create.schema.databaseDefinition(name=name,mediafileExtension = mediaFileExtension)
   db=create.database(name=name,basePath=basePath,DBconfig = dbConfig)
   .initialize.DBI.database()
-  .store.emuDB.DBI(database = db)
+  .store.emuDB.DBI(get_emuDBcon(), database = db)
   if(store){
     store(targetDir=targetDir,dbUUID=dbConfig[['UUID']], showProgress = verbose)
   }
@@ -1709,6 +1728,7 @@ calculate.postions.of.links<-function(){
 ##' Load EMU database
 ##' 
 ##' @param databaseDir directory of the EMU database
+##' @param inMemoryCache cache the loaded DB in memory
 ##' @param verbose be verbose
 ##' @return name of emuDB
 ##' @author Klaus Jaensch
@@ -1722,7 +1742,7 @@ calculate.postions.of.links<-function(){
 ##' dbName=load_emuDB(/homes/mylogin/EMUnew/ae")
 ##' 
 ##' }
-load_emuDB <- function(databaseDir,verbose=TRUE){
+load_emuDB <- function(databaseDir, inMemoryCache = TRUE, verbose=TRUE){
   progress=0
   
   # check database dir
@@ -1757,11 +1777,25 @@ load_emuDB <- function(databaseDir,verbose=TRUE){
   # set transient values
   schema=.update.transient.schema.values(schema)
   # create db object
-  db=create.database(name = schema[['name']],basePath = normalizePath(databaseDir),DBconfig = schema)
+  db=create.database(name = schema[['name']], basePath = normalizePath(databaseDir),DBconfig = schema)
+  
+  dbUUID = schema$UUID
   
   # Tested performance if indices are created after storing the bundles: No performance benefit
   #.initialize.DBI.database(createIndices = F)
-  .initialize.DBI.database()
+  # .initialize.DBI.database()
+  
+  # add new connection
+  if(inMemoryCache){
+    con = dbConnect(RSQLite::SQLite(), ":memory:")
+    add_emuDBcon(con)
+  }else{
+    stop("Not implemented yet!")
+    dbPath = file.path(normalizePath(databaseDir), paste0(schema$name, database.cache.suffix))
+    con = dbConnect(RSQLite::SQLite(), dbPath)
+    add_emuDBcon(con, dbPath)
+  }
+  
   beginRes=dbBegin(get_emuDBcon())
   if(!beginRes){
     stop("Could not start DBI (SQL) transaction!")
@@ -1771,7 +1805,7 @@ load_emuDB <- function(databaseDir,verbose=TRUE){
     stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
   }
   
-  .store.emuDB.DBI(db, MD5DBconfigJSON)
+  .store.emuDB.DBI(con, db, MD5DBconfigJSON)
   if(verbose){
     cat("INFO: Loading EMU database from ",databaseDir,"...\n")
   }
