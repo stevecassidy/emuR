@@ -637,11 +637,11 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       # right seq items
       #rSeqIts=list.seq.items(rResIts)
       itemsIdxSql='CREATE INDEX items_idx ON items(db_uuid,session,bundle,level,itemID,seqIdx)'
-      rSeqIts=sqldf(c(itemsIdxSql,"SELECT i.* FROM items s,items i,items e,rResIts r WHERE \
-                      s.db_uuid=i.db_uuid AND s.session=i.session AND s.bundle=i.bundle AND \
-                      s.db_uuid=e.db_uuid AND s.session=e.session AND s.bundle=e.bundle AND \
-                      s.db_uuid=r.db_uuid AND s.session=r.session AND s.bundle=r.bundle AND \
-                      s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND i.level=s.level AND i.seqIdx>=s.seqIdx AND i.seqIdx<=e.seqIdx"))
+#       rSeqIts=sqldf(c(itemsIdxSql,"SELECT i.* FROM items s,items i,items e,rResIts r WHERE \
+#                       s.db_uuid=i.db_uuid AND s.session=i.session AND s.bundle=i.bundle AND \
+#                       s.db_uuid=e.db_uuid AND s.session=e.session AND s.bundle=e.bundle AND \
+#                       s.db_uuid=r.db_uuid AND s.session=r.session AND s.bundle=r.bundle AND \
+#                       s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND i.level=s.level AND i.seqIdx>=s.seqIdx AND i.seqIdx<=e.seqIdx"))
       lSeqRes=EMPTY_RESULT_DF
       
       # build dominance SQL query string 
