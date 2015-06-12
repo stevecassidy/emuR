@@ -662,7 +662,7 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       lDomQuerySelectStr="lid.db_uuid,lid.session,lid.bundle,lid.seqStartId,lid.seqEndId,lid.seqLen,lid.level"
       rDomQuerySelectStr="rid.seqStartId AS rsId,rid.seqEndId AS reId,rid.seqLen AS rL,rid.level AS rLev"
       domQueryFromStr="lResIts lid, rResIts rid,items ils, items irs,items ile,items ire"
-      domQueryStrCond0=paste0("ils.itemID=lid.seqStartId AND irs.itemID=rid.seqStartId AND ile.itemID=lid.seqEndId AND ire.itemID=rid.seqEndId AND ",itemsSameBundleCond1,itemsSameBundleCond2,itemsSameBundleCond3,itemsSameBundleCond4,itemsSameBundleCond5)
+      domQueryStrCond0=paste0(itemsSameBundleCond1,itemsSameBundleCond2,itemsSameBundleCond3,"ils.itemID=lid.seqStartId AND ile.itemID=lid.seqEndId AND ",itemsSameBundleCond4,"irs.itemID=rid.seqStartId AND ire.itemID=rid.seqEndId AND ",itemsSameBundleCond5)
       # The query has now the corners of the dominance "trapeze" in ils,ile,irs,ire
       # Check sequence start item of left result on existence of a link to the start item of the right sequence 
       domQueryStrCond1=paste0("EXISTS (SELECT * FROM links k WHERE ",linkSameBundleCond1," AND ((k.fromID=ils.itemID AND k.toID=irs.itemID) OR (k.toID=ils.itemID AND k.fromID=irs.itemID)))")
