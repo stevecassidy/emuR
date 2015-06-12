@@ -643,7 +643,7 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       
       # right seq items
       #rSeqIts=list.seq.items(rResIts)
-      itemsIdxSql='CREATE INDEX items_idx ON items(db_uuid,session,bundle,level,itemID,seqIdx)'
+      itemsIdxSql='CREATE INDEX items_idx ON items(db_uuid,session,bundle,itemID)'
 #       rSeqIts=sqldf(c(itemsIdxSql,"SELECT i.* FROM items s,items i,items e,rResIts r WHERE \
 #                       s.db_uuid=i.db_uuid AND s.session=i.session AND s.bundle=i.bundle AND \
 #                       s.db_uuid=e.db_uuid AND s.session=e.session AND s.bundle=e.bundle AND \
@@ -674,12 +674,14 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       lrDomQueryStr=paste0("SELECT DISTINCT ",lDomQuerySelectStr,",",rDomQuerySelectStr,domQueryStrTail)
       
       # Indices for left and right result items and for links
-      lResIdxSql='CREATE INDEX lResIts_idx ON lResIts(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)'
-      rResIdxSql='CREATE INDEX rResIts_idx ON rResIts(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)' 
+
+      lResIdxSql='CREATE INDEX lResIts_idx ON lResIts(db_uuid,session,bundle,seqStartId,seqEndId)'
+      rResIdxSql='CREATE INDEX rResIts_idx ON rResIts(db_uuid,session,bundle,seqStartId,seqEndId)'
       linksIdxSql='CREATE INDEX links_idx ON links(db_uuid,session,bundle,fromID,toID)'
       
+      # execute index creation and then dominance query 
       lrExpRes=sqldf(c(lResIdxSql,rResIdxSql,itemsIdxSql,linksIdxSql,lrDomQueryStr))
-      
+
       #lExpRes=data.frame(seqStartId=lrExpRes[,'seqStartId'],seqEndId=lrExpRes[,'seqEndId'],seqLen=lrExpRes[,'seqLen'],level=lrExpRes[,'level'],stringsAsFactors = FALSE)
       # lrExpRes might have double items, use a distinct select to create the data.frame for left term
       # for example in the query "[ Syllable=S ^ Phonetic=s ]" on ae there exists one Syllable S which dominates two Phonetic s items 
