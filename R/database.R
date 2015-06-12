@@ -32,7 +32,7 @@ get_emuDBcon <- function(dbUUID = NULL) {
       }
     }else{
       res = dbGetQuery(c$con, "SELECT uuid FROM emuDB")
-      if(dbUUID %in% res){
+      if(dbUUID %in% res$uuid){
         foundCon = c$con
         break
       }
@@ -480,17 +480,17 @@ list_emuDBs<-function(){
   return(df)
 }
 
-# .purge.emuDB<-function(dbUUID){
-#   dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM links WHERE db_uuid='",dbUUID,"'"))
-#   dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM linksExt WHERE db_uuid='",dbUUID,"'"))
-#   dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM labels WHERE db_uuid='",dbUUID,"'"))
-#   dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM items WHERE db_uuid='",dbUUID,"'"))
-#   dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM track WHERE db_uuid='",dbUUID,"'"))
-#   dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM bundle WHERE db_uuid='",dbUUID,"'"))
-#   dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM session WHERE db_uuid='",dbUUID,"'"))
-#   dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM emuDB WHERE uuid='",dbUUID,"'"))
-#   
-# }
+.purge.emuDB<-function(dbUUID){
+  dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM links WHERE db_uuid='",dbUUID,"'"))
+  dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM linksExt WHERE db_uuid='",dbUUID,"'"))
+  dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM labels WHERE db_uuid='",dbUUID,"'"))
+  dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM items WHERE db_uuid='",dbUUID,"'"))
+  dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM track WHERE db_uuid='",dbUUID,"'"))
+  dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM bundle WHERE db_uuid='",dbUUID,"'"))
+  dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM session WHERE db_uuid='",dbUUID,"'"))
+  dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM emuDB WHERE uuid='",dbUUID,"'"))
+  
+}
 
 ##' Purge emuDB
 ##' @description Purges emuDB from this R session. Does not delete any files of the emuDB.
@@ -520,12 +520,16 @@ purge_emuDB<-function(dbName=NULL,dbUUID=NULL,interactive=TRUE){
       for(c in internalVars$sqlConnections){
         dbDf=dbGetQuery(c$connection,dbQ)
         if(nrow(dbDf) != 0){
-          remove_emuDBcon(c$path)
+          if(c$path == ":memory:"){
+            .purge.emuDB(dbUUID)
+          }else{
+            remove_emuDBcon(c$path)
+          }  
           purged=TRUE
+          
           break
         }
       }
-      # .purge.emuDB(dbUUID)
     }
   }else{
     stop("emuDB ",dbName," not found!")
@@ -2075,7 +2079,7 @@ reload_emuDB<-function(dbName,dbUUID=NULL){
   return(invisible(NULL))
 }
 
-## 
+## SIC! Once the caching mechanics work this function should be deleted
 duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
   # get UUID (also checks if DB exists)
   oldUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
@@ -2090,58 +2094,58 @@ duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
   }
   
   # duplicate emuDBs entry
-  dbSendQuery(get_emuDBcon(), paste0("INSERT INTO emuDB",
-                                     " SELECT '", newUUID,"' AS uuid, '", newName, 
-                                     "', '", newBasePath, "', DBconfigJSON, MD5DBconfigJSON FROM emuDB WHERE uuid='", oldUUID, "'"))
+  dbSendQuery(get_emuDBcon(oldUUID), paste0("INSERT INTO emuDB",
+                                            " SELECT '", newUUID,"' AS uuid, '", newName, 
+                                            "', '", newBasePath, "', DBconfigJSON, MD5DBconfigJSON FROM emuDB WHERE uuid='", oldUUID, "'"))
   
   # update DBconfig accordingly
   dbUUID = get_emuDB_UUID(dbName = newDB, dbUUID = newUUID)
   dbObj = .load.emuDB.DBI(uuid = dbUUID)
   dbObj$DBconfig$name = newName;
   dbObj$DBconfig$UUID = newUUID;
-  .store.DBconfig.DBI(dbObj$DBconfig)
+  .store.DBconfig.DBI(con = get_emuDBcon(oldUUID), dbObj$DBconfig)
   
   # duplicate session entries
-  dbSendQuery(get_emuDBcon(), paste0("INSERT INTO session",
-                                     " SELECT '", newUUID, "' AS db_uuid, name  FROM session",
-                                     " WHERE db_uuid='", oldUUID, "'"))
+  dbSendQuery(get_emuDBcon(oldUUID), paste0("INSERT INTO session",
+                                            " SELECT '", newUUID, "' AS db_uuid, name  FROM session",
+                                            " WHERE db_uuid='", oldUUID, "'"))
   
   # duplicate track entries
-  resTr = dbGetQuery(get_emuDBcon(), paste0(" SELECT '", newUUID, "' AS db_uuid, session, bundle, path FROM track",
-                                            " WHERE db_uuid='", oldUUID, "'"))
+  resTr = dbGetQuery(get_emuDBcon(oldUUID), paste0(" SELECT '", newUUID, "' AS db_uuid, session, bundle, path FROM track",
+                                                   " WHERE db_uuid='", oldUUID, "'"))
   
   
   resTr$path = gsub(oldBasePath, newBasePath, resTr$path)
   
-  dbWriteTable(get_emuDBcon(), 'track', resTr, append=T)
+  dbWriteTable(get_emuDBcon(oldUUID), 'track', resTr, append=T)
   
   # duplicate bundle entries
-  resBndls = dbGetQuery(get_emuDBcon(), paste0(" SELECT '", newUUID, "' AS db_uuid, session, name, annotates, sampleRate, mediaFilePath, MD5annotJSON FROM bundle",
-                                               " WHERE db_uuid='", oldUUID, "'"))
+  resBndls = dbGetQuery(get_emuDBcon(oldUUID), paste0(" SELECT '", newUUID, "' AS db_uuid, session, name, annotates, sampleRate, mediaFilePath, MD5annotJSON FROM bundle",
+                                                      " WHERE db_uuid='", oldUUID, "'"))
   
   resBndls$mediaFilePath = gsub(oldBasePath, newBasePath, resBndls$mediaFilePath)
   
-  dbWriteTable(get_emuDBcon(), 'bundle', resBndls, append=T)
+  dbWriteTable(get_emuDBcon(oldUUID), 'bundle', resBndls, append=T)
   
   # duplicate items entries
-  dbSendQuery(get_emuDBcon(), paste0("INSERT INTO items",
-                                     " SELECT '", newUUID, "' AS db_uuid, session, bundle, itemID, level, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur FROM items",
-                                     " WHERE db_uuid='", oldUUID, "'"))
+  dbSendQuery(get_emuDBcon(oldUUID), paste0("INSERT INTO items",
+                                            " SELECT '", newUUID, "' AS db_uuid, session, bundle, itemID, level, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur FROM items",
+                                            " WHERE db_uuid='", oldUUID, "'"))
   
   # duplicate labels entries
-  dbSendQuery(get_emuDBcon(), paste0("INSERT INTO labels",
-                                     " SELECT '", newUUID, "' AS db_uuid, session, bundle, itemID, labelIdx, name, label FROM labels",
-                                     " WHERE db_uuid='", oldUUID, "'"))
+  dbSendQuery(get_emuDBcon(oldUUID), paste0("INSERT INTO labels",
+                                            " SELECT '", newUUID, "' AS db_uuid, session, bundle, itemID, labelIdx, name, label FROM labels",
+                                            " WHERE db_uuid='", oldUUID, "'"))
   
   # duplicate links entries
-  dbSendQuery(get_emuDBcon(), paste0("INSERT INTO links",
-                                     " SELECT '", newUUID, "' AS db_uuid, session, bundle, fromID, toID, label FROM links",
-                                     " WHERE db_uuid='", oldUUID, "'"))
+  dbSendQuery(get_emuDBcon(oldUUID), paste0("INSERT INTO links",
+                                            " SELECT '", newUUID, "' AS db_uuid, session, bundle, fromID, toID, label FROM links",
+                                            " WHERE db_uuid='", oldUUID, "'"))
   
   # duplicate linksExt entries
-  dbSendQuery(get_emuDBcon(), paste0("INSERT INTO linksExt",
-                                     " SELECT '", newUUID, "' AS db_uuid, session, bundle, fromID, toID, seqIdx, toLevel, type, toSeqIdx, toSeqLen, label FROM linksExt",
-                                     " WHERE db_uuid='", oldUUID, "'"))
+  dbSendQuery(get_emuDBcon(oldUUID), paste0("INSERT INTO linksExt",
+                                            " SELECT '", newUUID, "' AS db_uuid, session, bundle, fromID, toID, seqIdx, toLevel, type, toSeqIdx, toSeqLen, label FROM linksExt",
+                                            " WHERE db_uuid='", oldUUID, "'"))
   
   
 }

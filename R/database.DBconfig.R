@@ -365,7 +365,7 @@ load.emuDB.DBconfig<-function(DBconfigFilePath){
   psJSON=jsonlite::toJSON(sp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
   writeLines(psJSON,dbCfgPath)
   MD5DBconfigJSON = md5sum(dbCfgPath)
-  .store.DBconfig.DBI(DBconfig = db[['DBconfig']], MD5DBconfigJSON)
+  .store.DBconfig.DBI(con = get_emuDBcon(db$DBconfig$UUID),DBconfig = db[['DBconfig']], MD5DBconfigJSON)
 }
 
 # TODO 
@@ -478,6 +478,7 @@ modify_levelDefinition<-function(){
 ##' @keywords emuDB database schema Emu 
 remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
   dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
   # check if level definition (name)exists 
   if(!any(sapply(dbObj[['DBconfig']][['levelDefinitions']],function(ld) ld[['name']]==name))){
     stop("Level definition:",name," does not exist in database ",dbObj[['name']])
@@ -491,7 +492,7 @@ remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
   }
   
   # check if level is empty
-  itemsDf=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM items i WHERE \
+  itemsDf=dbGetQuery(get_emuDBcon(dbUUID),paste0("SELECT * FROM items i WHERE \
                         i.db_uuid='",dbObj$DBconfig$UUID,"' AND i.level='",name,"'"))
   itemsCnt=nrow(itemsDf)
   if(itemsCnt>0){
@@ -623,13 +624,13 @@ remove_attributeDefinition <- function(dbName,
   ld = get.levelDefinition(dbObj$DBconfig, levelName)
   
   # check if instances are present
-  qRes = dbGetQuery(get_emuDBcon(), paste0("SELECT * FROM items AS it, labels AS lb WHERE ",
-                                          "it.db_uuid = lb.db_uuid AND ", 
-                                          "it.session = lb.session AND ", 
-                                          "it.bundle = lb.bundle AND ",
-                                          "it.itemID = lb.itemID AND ",
-                                          "it.level = '", levelName, "' AND ",
-                                          "lb.name = '", attributeDefinitionName, "'"))
+  qRes = dbGetQuery(get_emuDBcon(uuid), paste0("SELECT * FROM items AS it, labels AS lb WHERE ",
+                                               "it.db_uuid = lb.db_uuid AND ", 
+                                               "it.session = lb.session AND ", 
+                                               "it.bundle = lb.bundle AND ",
+                                               "it.itemID = lb.itemID AND ",
+                                               "it.level = '", levelName, "' AND ",
+                                               "lb.name = '", attributeDefinitionName, "'"))
   
   if(nrow(qRes) > 0){
     stop("Can not remove attributeDefinition if there are labels present")
@@ -961,6 +962,7 @@ remove_linkDefinition <- function(dbName,
                                   dbUUID = NULL){
   
   dbObj = .load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
   
   curLds = list_linkDefinitions(dbName = dbName, dbUUID = dbUUID)
   
@@ -970,19 +972,19 @@ remove_linkDefinition <- function(dbName,
          "' and sublevelName '", sublevelName, "'")
   }
   # check if links are present
-  res = dbGetQuery(get_emuDBcon(), paste0("SELECT * FROM ",
-                                         "links ",
-                                         "INNER JOIN (SELECT * FROM items WHERE level = '", superlevelName, "' AND db_uuid = '", dbObj$DBconfig$UUID, "') as superItems", 
-                                         "    ON links.fromID = superItems.itemID ",
-                                         "       AND links.db_uuid = superItems.db_uuid ",
-                                         "       AND links.session = superItems.session ",
-                                         "       AND links.bundle = superItems.bundle ",
-                                         "INNER JOIN (SELECT * FROM items WHERE level = '", sublevelName, "' AND db_uuid = '", dbObj$DBconfig$UUID, "') as subItems", 
-                                         "    ON links.toID = subItems.itemID ",
-                                         "       AND links.db_uuid = subItems.db_uuid ",
-                                         "       AND links.session = subItems.session ",
-                                         "       AND links.bundle = subItems.bundle ",
-                                         "WHERE links.db_uuid = '", dbObj$DBconfig$UUID, "'"))
+  res = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT * FROM ",
+                                                "links ",
+                                                "INNER JOIN (SELECT * FROM items WHERE level = '", superlevelName, "' AND db_uuid = '", dbObj$DBconfig$UUID, "') as superItems", 
+                                                "    ON links.fromID = superItems.itemID ",
+                                                "       AND links.db_uuid = superItems.db_uuid ",
+                                                "       AND links.session = superItems.session ",
+                                                "       AND links.bundle = superItems.bundle ",
+                                                "INNER JOIN (SELECT * FROM items WHERE level = '", sublevelName, "' AND db_uuid = '", dbObj$DBconfig$UUID, "') as subItems", 
+                                                "    ON links.toID = subItems.itemID ",
+                                                "       AND links.db_uuid = subItems.db_uuid ",
+                                                "       AND links.session = subItems.session ",
+                                                "       AND links.bundle = subItems.bundle ",
+                                                "WHERE links.db_uuid = '", dbObj$DBconfig$UUID, "'"))
   
   if(nrow(res) != 0){
     stop("linkDefinition can not be remove as there are links present")
