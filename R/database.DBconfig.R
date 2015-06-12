@@ -369,7 +369,7 @@ load.emuDB.DBconfig<-function(DBconfigFilePath){
 }
 
 # TODO 
-.store.DBconfig<-function(basePath,DBconfig){
+.store.DBconfig<-function(con,basePath,DBconfig){
   
   # store db schema file
   dbCfgNm=paste0(DBconfig[['name']],database.schema.suffix)
@@ -379,7 +379,7 @@ load.emuDB.DBconfig<-function(DBconfigFilePath){
   sp=marshal.for.persistence(DBconfig,persistFilter)
   psJSON=jsonlite::toJSON(sp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
   writeLines(psJSON,dbCfgPath)
-  .store.DBconfig.DBI(DBconfig = DBconfig)
+  .store.DBconfig.DBI(con, DBconfig = DBconfig)
 }
 
 
