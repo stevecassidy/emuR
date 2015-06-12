@@ -47,6 +47,13 @@ emuR.regexprl<-function(pattern,x){
   return((m==1) & (attr(m,'match.length')==nchar(x)))
 }
 
+write_table_forced<-function(name,value){
+if(dbExistsTable(getEmuDBcon(),name)){
+  dbRemoveTable(getEmuDBcon(),name)
+}
+dbWriteTable(getEmuDBcon(),name = name,value=value)
+}
+
 query.labels<-function(ldf,conditionText){
   opr=conditionText[['opr']]
   values=conditionText[['values']]
