@@ -228,9 +228,19 @@ test_that("Query using End function",{
 test_that("Query using Num function",{
   
   # query words with exactly four phonemes
-  r1=query('ae',"Num(Word, Phoneme)=4",resultType=NULL)
+  r=query('ae',"Num(Word, Phoneme)=4",resultType=NULL) 
+  expect_that(nrow(r),equals(6))
   
-  expect_that(nrow(r1),equals(6))
+  # Test for GitHub Issue #41
+  # Num() function returns no values if level of first parameter is sublevel of second parameter.
+  r=query('ae',"Num(Phonetic,Phoneme)=1")
+  expect_that(nrow(r),equals(247))
+  r=query('ae',"Num(Phonetic,Phoneme)>1")
+  expect_that(nrow(r),equals(6))
+  r=query('ae',"Num(Phonetic,Phoneme)>=1")
+  # 247 + 6 = 253
+  expect_that(nrow(r),equals(253))
+  
   
 })
 

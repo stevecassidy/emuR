@@ -319,15 +319,28 @@ query.database.eql.FUNKA<-function(dbConfig,q,items=NULL){
         #if(is.na(numChilds)){
          # stop("Syntax error: Expected integer value after '=' in function term: '",qTrim,"'\n")
         #}
-        sqlQStr=paste0("SELECT DISTINCT d.db_uuid,d.session,d.bundle,d.itemID AS seqStartId, d.itemID AS seqEndId,1 AS seqLen,'",param1,"' AS level \
-                       FROM allItems i,items d \
-                      WHERE i.db_uuid=d.db_uuid AND i.session=d.session AND i.bundle=d.bundle \
+#         sqlQStr=paste0("SELECT DISTINCT d.db_uuid,d.session,d.bundle,d.itemID AS seqStartId, d.itemID AS seqEndId,1 AS seqLen,'",param1,"' AS level \
+#                        FROM allItems i,items d \
+#                       WHERE i.db_uuid=d.db_uuid AND i.session=d.session AND i.bundle=d.bundle \
+#                        AND i.level='",level2,"' AND d.level='",level1,"' AND EXISTS \
+#                        (SELECT * FROM links k \
+#                        WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
+#                         AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
+#                         AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toLevel=i.level AND k.toSeqLen",sqlFuncOpr,funcVal,"\
+#                        )") 
+      
+         sqlQStr=paste0("SELECT DISTINCT d.db_uuid,d.session,d.bundle,d.itemID AS seqStartId, d.itemID AS seqEndId,1 AS seqLen,'",param1,"' AS level \
+                       FROM items d \
+                      WHERE (SELECT count(*) FROM allItems i WHERE i.db_uuid=d.db_uuid AND i.session=d.session AND i.bundle=d.bundle \
                        AND i.level='",level2,"' AND d.level='",level1,"' AND EXISTS \
                        (SELECT * FROM links k \
                        WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
                         AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
-                        AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toLevel=i.level AND k.toSeqLen",sqlFuncOpr,funcVal,"\
-                       )") 
+                        AND ( \
+                         ( k.fromID=d.itemID AND k.toID=i.itemID AND k.toLevel=i.level ) OR \
+                         ( k.fromID=i.itemID AND k.toID=d.itemID AND k.toLevel=d.level ) \
+                        )\
+                       ))",sqlFuncOpr,funcVal)
         itemsAsSeqs=sqldf(c(itemsIdxSql,linksIdxSql,sqlQStr))
         resultLevel=param1
       }else{
