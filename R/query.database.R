@@ -54,6 +54,13 @@ if(dbExistsTable(getEmuDBcon(),name)){
 dbWriteTable(getEmuDBcon(),name = name,value=value)
 }
 
+check_level_attribute_name<-function(dbConfig,name){
+  aNms=get.all.attribute.names(dbConfig)
+  if(! (name %in% aNms)){
+    stop("Unknown level attribute name: '",name,"'. Database attribute names are: ",paste(aNms,collapse=','),"\n")
+  }
+}
+
 query.labels<-function(ldf,conditionText){
   opr=conditionText[['opr']]
   values=conditionText[['values']]
@@ -982,6 +989,7 @@ print.emuDB.query.result<-function(queryResult){
 ##' @param offset offset in sequence
 ##' @param offsetRef referenec of offset: 'START' start of segments, 'END': end of segments
 ##' @param seqLength item length of new segment list
+##' @param targetLevel query elemnts on this level, it will also be the result level 
 ##' @param resultType type (class name) of result
 ##' @param dbUUID optional UUID odf emuDB
 ##' @return result set object of class resultType (default: 'emuRsegs')
@@ -1003,7 +1011,7 @@ print.emuDB.query.result<-function(queryResult){
 ##' 
 ##' 
 ##' }
-contextRequery<-function(seglist, offset=0,offsetRef='START',seqLength=1,resultType=NULL,dbUUID=NULL){
+contextRequery<-function(seglist, offset=0,offsetRef='START',seqLength=1,targetLevel=NULL,resultType=NULL,dbUUID=NULL){
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType wiil be used)")
   }
@@ -1038,10 +1046,10 @@ contextRequery<-function(seglist, offset=0,offsetRef='START',seqLength=1,resultT
     itemsIdxSql='CREATE INDEX items_idx ON items(itemID,db_uuid,session,bundle,level,itemID,seqIdx,type,sampleRate,sampleStart,sampleDur,samplePoint)'
     resIdxSql='CREATE INDEX its_idx ON its(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)'
     #   
-    labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,name)'
+    #labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,name)'
     labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,db_uuid,session,bundle,name)'
     
-    
+    # query for sequential requeries
     heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndID,",seqLength," AS seqLen,il.level FROM seglist sl,items sll,items slr,items il, items ir \
                         WHERE \
                          il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle AND \
@@ -1058,6 +1066,34 @@ contextRequery<-function(seglist, offset=0,offsetRef='START',seqLength=1,resultT
        stop("Parameter offsetRef must be one of 'START' or 'END'\n")
      }
     he=sqldf(heQueryStr)
+    
+    # query for level requeries
+    if(!is.null(targetLevel)){
+      check_level_attribute_name(dbConfig,targetLevel)
+      linksExt=dbReadTable(getEmuDBcon(),'linksExt')
+      linksIdxSql='CREATE INDEX linksExt_idx ON linksExt(db_uuid,session,bundle,fromID,toID,toSeqIdx,toSeqLen)'
+      heQueryStr=paste0("SELECT DISTINCT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndId,ir.seqIdx-il.seqIdx+1 AS seqLen,il.level \
+                        FROM seglist sl,items sll,items slr,items il, items ir \
+                        WHERE \
+                        sll.db_uuid=sl.db_uuid AND sll.session=sl.session AND sll.bundle=sl.bundle AND \
+                        slr.db_uuid=sl.db_uuid AND slr.session=sl.session AND slr.bundle=sl.bundle AND \
+                        il.db_uuid=sl.db_uuid AND il.session=sl.session AND il.bundle=sl.bundle AND \
+                        ir.db_uuid=sl.db_uuid AND ir.session=sl.session AND ir.bundle=sl.bundle AND \
+                        
+                        il.level='",targetLevel,"' AND ir.level='",targetLevel,"' AND \
+                        EXISTS (SELECT * FROM linksExt ll \
+                        WHERE ll.db_uuid=sl.db_uuid AND ll.session=sl.session AND ll.bundle=sl.bundle \
+                            AND ll.fromID=sl.startitemID AND ll.toID=il.itemID AND ll.toSeqIdx=0 \
+                            ) AND \
+                        EXISTS (SELECT * FROM linksExt lr \
+                        WHERE lr.db_uuid=sl.db_uuid AND lr.session=sl.session AND lr.bundle=sl.bundle \
+                            AND lr.fromID=sl.endItemID AND lr.toID=ir.itemID AND lr.toSeqIdx+1=lr.toSeqLen \
+                            ) \
+                          ")
+       he=sqldf(c(itemsIdxSql,linksIdxSql,heQueryStr))
+                        
+    }
+    
     result=list(items=he)
     trSl=convert.query.result.to.segmentlist(dbConfig = dbConfig,result=result)
     return(trSl)
