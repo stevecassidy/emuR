@@ -380,11 +380,8 @@ query.database.eql.ETTIKETTA<-function(dbConfig,q,labels=NULL){
         lvlName=str_trim(substring(lvlTrim,2))
         projectionLevel=TRUE
       }
-      # TODO check if level exists
-      #cat("Level: '",lvlName,"'\n",sep='')
       aNms=get.all.attribute.names(dbConfig)
       if(! (lvlName %in% aNms)){
-        
         stop("Unknown level attribute name: '",lvlName,"'. Database attribute names are: ",paste(aNms,collapse=','),"\n")
       }
       labelStr=substring(q,p+oprLen)
