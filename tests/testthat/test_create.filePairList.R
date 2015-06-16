@@ -3,23 +3,27 @@
 ##' @author Raphael Winkelmann
 context("testing create_filePairList function")
 
-path2root = system.file("extdata/legacy_emu/DBs/ae/", package = "emuR")
+
+path2demoData = file.path(tempdir(), "emuR_demoData")
+path2testData = file.path(tempdir(), "emuR_testthat")
+path2tgCol = file.path(path2demoData, "TextGrid_collection")
+
 
 ext1 = 'wav'
 ext2 = 'TextGrid'
 
-wavPaths = list.files(path2root, pattern=paste(ext1, "$", sep = ""), recursive=T, full.names=T)
-tgPaths = list.files(path2root, pattern=paste(ext2, "$", sep = ""), recursive=T, full.names=T)
+wavPaths = list.files(path2tgCol, pattern=paste(ext1, "$", sep = ""), recursive=T, full.names=T)
+tgPaths = list.files(path2tgCol, pattern=paste(ext2, "$", sep = ""), recursive=T, full.names=T)
 
 testDirName = 'test_createFilePairList'
 
-path2testDir = file.path(tempdir(), testDirName)
+path2testDir = file.path(path2testData, testDirName)
 
 ##############################
 test_that("bad calls cause errors", {
   
   expect_error(create_filePairList('asdf', '', '', ''), 'ext1Path2rootDir does not exist!')
-  expect_error(create_filePairList(path2root, 'asdf', '', ''), 'ext2Path2rootDir does not exist!')
+  expect_error(create_filePairList(path2tgCol, 'asdf', '', ''), 'ext2Path2rootDir does not exist!')
   
 })
 
