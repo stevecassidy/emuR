@@ -3,3 +3,5 @@ context("init data for testing")
 
 unlink(file.path(tempdir(),"emuR_demoData"), recursive = T)
 create_emuRdemoData(precache = T)
+
+dir.create(tempdir(), "emuR_testthat")
