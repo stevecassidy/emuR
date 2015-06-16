@@ -36,7 +36,7 @@ update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
   # calc. new md5 sum
   new.MD5DBconfigJSON = md5sum(normalizePath(dbCfgPath))[[1]]
   
-  old.MD5DBconfigJSON = dbGetQuery(get_emuDBcon(), paste0("SELECT MD5DBconfigJSON FROM emuDB WHERE uuid='", dbUUID, "'"))[[1]]
+  old.MD5DBconfigJSON = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT MD5DBconfigJSON FROM emuDB WHERE uuid='", dbUUID, "'"))[[1]]
   if(is.na(old.MD5DBconfigJSON) | old.MD5DBconfigJSON != new.MD5DBconfigJSON){
     if(verbose){
       print('Reloading _DBconfig.json ...')
@@ -50,7 +50,7 @@ update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
     
     dbCfgJSON=jsonlite::toJSON(db$DBconfig, auto_unbox=TRUE, force=TRUE, pretty=TRUE)
     # update entry
-    dbGetQuery(get_emuDBcon(), paste0("UPDATE emuDB SET DBconfigJSON = '", dbCfgJSON , "', ",
+    dbGetQuery(get_emuDBcon(dbUUID), paste0("UPDATE emuDB SET DBconfigJSON = '", dbCfgJSON , "', ",
                                      "MD5DBconfigJSON = '", new.MD5DBconfigJSON, "' ",
                                      "WHERE uuid = '", dbUUID, "'"))
     
@@ -58,7 +58,7 @@ update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
   
   ######################################
   # check which _annot.json files need reloading
-  bt = dbReadTable(get_emuDBcon(), "bundle")
+  bt = dbReadTable(get_emuDBcon(dbUUID), "bundle")
   bndls = list_bundles(dbName = dbName, dbUUID = dbUUID)
   
   sesPattern=paste0('.*', session.suffix, '$')
@@ -74,7 +74,7 @@ update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
     bndlPaths=list.files(path=file.path(dbObj$basePath, s), bndlPattern)
     
     if(!sn %in% curSes$name){
-      dbGetQuery(get_emuDBcon(), paste0("INSERT INTO session VALUES ('", dbUUID, "', '", sn, "')"))
+      dbGetQuery(get_emuDBcon(dbUUID), paste0("INSERT INTO session VALUES ('", dbUUID, "', '", sn, "')"))
     }
     
     for(b in bndlPaths){
@@ -87,7 +87,7 @@ update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
       annotPath = file.path(dbObj$basePath, s, b, paste0(bn, bundle.annotation.suffix, ".json"))
       new.MD5annotJSON = md5sum(normalizePath(annotPath))
       
-      old.MD5annotJSON = dbGetQuery(get_emuDBcon(), paste0("SELECT MD5annotJSON FROM bundle WHERE ",
+      old.MD5annotJSON = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT MD5annotJSON FROM bundle WHERE ",
                                                           "db_uuid='", dbUUID, "' AND ",
                                                           "session='", sn, "' AND ",
                                                           "name='", bn, "'"))$MD5annotJSON
@@ -121,7 +121,7 @@ update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
         # check if bundle entry exists
         if(!any(curBndls$session == sn & curBndls$name == bn)){
           sR = attr(read.AsspDataObj(bundle$mediaFilePath), "sampleRate")
-          dbGetQuery(get_emuDBcon(), paste0("INSERT INTO bundle VALUES ('",dbUUID,"', '", 
+          dbGetQuery(get_emuDBcon(dbUUID), paste0("INSERT INTO bundle VALUES ('",dbUUID,"', '", 
                                            sn,"', '", 
                                            bn,"', '", 
                                            bundle$annotates,"', '", 
@@ -130,7 +130,7 @@ update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
                                            new.MD5annotJSON,"')"))
         }else{
           # update MD5 value of DBI model in bundle table
-          dbGetQuery(get_emuDBcon(), paste0("UPDATE bundle SET MD5annotJSON = '", new.MD5annotJSON , "' ",
+          dbGetQuery(get_emuDBcon(dbUUID), paste0("UPDATE bundle SET MD5annotJSON = '", new.MD5annotJSON , "' ",
                                            "WHERE db_uuid = '", dbUUID, "' AND ",
                                            "      session = '", sn, "' AND ",
                                            "      name = '", bn, "'"))
