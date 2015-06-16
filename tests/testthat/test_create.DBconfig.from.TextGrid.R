@@ -5,7 +5,9 @@ require(RSQLite)
 
 context("testing create.DBconfig.from.TextGrid function")
 
-path2tg = system.file("extdata/legacy_emu/DBs/ae/labels/msajc003.TextGrid", package = "emuR")
+path2demoData = file.path(tempdir(), "emuR_demoData")
+path2testData = file.path(tempdir(), "emuR_testthat")
+path2tg = file.path(path2demoData, "TextGrid_collection/msajc003.TextGrid")
 
 dbName = 'test12'
 
