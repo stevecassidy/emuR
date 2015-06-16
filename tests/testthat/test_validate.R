@@ -20,13 +20,13 @@ schema=.update.transient.schema.values(schema)
 # create db object
 db=create.database(name = schema[['name']],basePath = normalizePath(tempdir()),DBconfig = schema)
 
-.initialize.DBI.database()
+
 dbsDf=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
 if(nrow(dbsDf)>0){
   stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
 }
 
-.store.emuDB.DBI(db)
+.store.emuDB.DBI(get_emuDBcon(), db)
 
 
 parse.textgrid(path2tg, 20000, dbName=newDbName, bundle="msajc003", session="0000")
