@@ -5,7 +5,7 @@
 \title{Query emuR result context}
 \usage{
 contextRequery(seglist, offset = 0, offsetRef = "START", seqLength = 1,
-  resultType = NULL, dbUUID = NULL)
+  targetLevel = NULL, resultType = NULL, dbUUID = NULL)
 }
 \arguments{
 \item{seglist}{segment list}
@@ -15,6 +15,8 @@ contextRequery(seglist, offset = 0, offsetRef = "START", seqLength = 1,
 \item{offsetRef}{referenec of offset: 'START' start of segments, 'END': end of segments}
 
 \item{seqLength}{item length of new segment list}
+
+\item{targetLevel}{query elemnts on this level, it will also be the result level}
 
 \item{resultType}{type (class name) of result}
 

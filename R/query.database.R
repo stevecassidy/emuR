@@ -47,6 +47,20 @@ emuR.regexprl<-function(pattern,x){
   return((m==1) & (attr(m,'match.length')==nchar(x)))
 }
 
+write_table_forced<-function(name,value){
+if(dbExistsTable(getEmuDBcon(),name)){
+  dbRemoveTable(getEmuDBcon(),name)
+}
+dbWriteTable(getEmuDBcon(),name = name,value=value)
+}
+
+check_level_attribute_name<-function(dbConfig,name){
+  aNms=get.all.attribute.names(dbConfig)
+  if(! (name %in% aNms)){
+    stop("Unknown level attribute name: '",name,"'. Database attribute names are: ",paste(aNms,collapse=','),"\n")
+  }
+}
+
 query.labels<-function(ldf,conditionText){
   opr=conditionText[['opr']]
   values=conditionText[['values']]
@@ -305,15 +319,28 @@ query.database.eql.FUNKA<-function(dbConfig,q,items=NULL){
         #if(is.na(numChilds)){
          # stop("Syntax error: Expected integer value after '=' in function term: '",qTrim,"'\n")
         #}
-        sqlQStr=paste0("SELECT DISTINCT d.db_uuid,d.session,d.bundle,d.itemID AS seqStartId, d.itemID AS seqEndId,1 AS seqLen,'",param1,"' AS level \
-                       FROM allItems i,items d \
-                      WHERE i.db_uuid=d.db_uuid AND i.session=d.session AND i.bundle=d.bundle \
+#         sqlQStr=paste0("SELECT DISTINCT d.db_uuid,d.session,d.bundle,d.itemID AS seqStartId, d.itemID AS seqEndId,1 AS seqLen,'",param1,"' AS level \
+#                        FROM allItems i,items d \
+#                       WHERE i.db_uuid=d.db_uuid AND i.session=d.session AND i.bundle=d.bundle \
+#                        AND i.level='",level2,"' AND d.level='",level1,"' AND EXISTS \
+#                        (SELECT * FROM links k \
+#                        WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
+#                         AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
+#                         AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toLevel=i.level AND k.toSeqLen",sqlFuncOpr,funcVal,"\
+#                        )") 
+      
+         sqlQStr=paste0("SELECT DISTINCT d.db_uuid,d.session,d.bundle,d.itemID AS seqStartId, d.itemID AS seqEndId,1 AS seqLen,'",param1,"' AS level \
+                       FROM items d \
+                      WHERE (SELECT count(*) FROM allItems i WHERE i.db_uuid=d.db_uuid AND i.session=d.session AND i.bundle=d.bundle \
                        AND i.level='",level2,"' AND d.level='",level1,"' AND EXISTS \
                        (SELECT * FROM links k \
                        WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
                         AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
-                        AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toLevel=i.level AND k.toSeqLen",sqlFuncOpr,funcVal,"\
-                       )") 
+                        AND ( \
+                         ( k.fromID=d.itemID AND k.toID=i.itemID AND k.toLevel=i.level ) OR \
+                         ( k.fromID=i.itemID AND k.toID=d.itemID AND k.toLevel=d.level ) \
+                        )\
+                       ))",sqlFuncOpr,funcVal)
         itemsAsSeqs=sqldf(c(itemsIdxSql,linksIdxSql,sqlQStr))
         resultLevel=param1
       }else{
@@ -373,11 +400,8 @@ query.database.eql.ETTIKETTA<-function(dbConfig,q,labels=NULL){
         lvlName=str_trim(substring(lvlTrim,2))
         projectionLevel=TRUE
       }
-      # TODO check if level exists
-      #cat("Level: '",lvlName,"'\n",sep='')
       aNms=get.all.attribute.names(dbConfig)
       if(! (lvlName %in% aNms)){
-        
         stop("Unknown level attribute name: '",lvlName,"'. Database attribute names are: ",paste(aNms,collapse=','),"\n")
       }
       labelStr=substring(q,p+oprLen)
@@ -636,12 +660,12 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       
       # right seq items
       #rSeqIts=list.seq.items(rResIts)
-      itemsIdxSql='CREATE INDEX items_idx ON items(db_uuid,session,bundle,level,itemID,seqIdx)'
-      rSeqIts=sqldf(c(itemsIdxSql,"SELECT i.* FROM items s,items i,items e,rResIts r WHERE \
-                      s.db_uuid=i.db_uuid AND s.session=i.session AND s.bundle=i.bundle AND \
-                      s.db_uuid=e.db_uuid AND s.session=e.session AND s.bundle=e.bundle AND \
-                      s.db_uuid=r.db_uuid AND s.session=r.session AND s.bundle=r.bundle AND \
-                      s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND i.level=s.level AND i.seqIdx>=s.seqIdx AND i.seqIdx<=e.seqIdx"))
+      itemsIdxSql='CREATE INDEX items_idx ON items(db_uuid,session,bundle,itemID)'
+#       rSeqIts=sqldf(c(itemsIdxSql,"SELECT i.* FROM items s,items i,items e,rResIts r WHERE \
+#                       s.db_uuid=i.db_uuid AND s.session=i.session AND s.bundle=i.bundle AND \
+#                       s.db_uuid=e.db_uuid AND s.session=e.session AND s.bundle=e.bundle AND \
+#                       s.db_uuid=r.db_uuid AND s.session=r.session AND s.bundle=r.bundle AND \
+#                       s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND i.level=s.level AND i.seqIdx>=s.seqIdx AND i.seqIdx<=e.seqIdx"))
       lSeqRes=EMPTY_RESULT_DF
       
       # build dominance SQL query string 
@@ -655,7 +679,7 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       lDomQuerySelectStr="lid.db_uuid,lid.session,lid.bundle,lid.seqStartId,lid.seqEndId,lid.seqLen,lid.level"
       rDomQuerySelectStr="rid.seqStartId AS rsId,rid.seqEndId AS reId,rid.seqLen AS rL,rid.level AS rLev"
       domQueryFromStr="lResIts lid, rResIts rid,items ils, items irs,items ile,items ire"
-      domQueryStrCond0=paste0("ils.itemID=lid.seqStartId AND irs.itemID=rid.seqStartId AND ile.itemID=lid.seqEndId AND ire.itemID=rid.seqEndId AND ",itemsSameBundleCond1,itemsSameBundleCond2,itemsSameBundleCond3,itemsSameBundleCond4,itemsSameBundleCond5)
+      domQueryStrCond0=paste0(itemsSameBundleCond1,itemsSameBundleCond2,itemsSameBundleCond3,"ils.itemID=lid.seqStartId AND ile.itemID=lid.seqEndId AND ",itemsSameBundleCond4,"irs.itemID=rid.seqStartId AND ire.itemID=rid.seqEndId AND ",itemsSameBundleCond5)
       # The query has now the corners of the dominance "trapeze" in ils,ile,irs,ire
       # Check sequence start item of left result on existence of a link to the start item of the right sequence 
       domQueryStrCond1=paste0("EXISTS (SELECT * FROM links k WHERE ",linkSameBundleCond1," AND ((k.fromID=ils.itemID AND k.toID=irs.itemID) OR (k.toID=ils.itemID AND k.fromID=irs.itemID)))")
@@ -667,12 +691,14 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       lrDomQueryStr=paste0("SELECT DISTINCT ",lDomQuerySelectStr,",",rDomQuerySelectStr,domQueryStrTail)
       
       # Indices for left and right result items and for links
-      lResIdxSql='CREATE INDEX lResIts_idx ON lResIts(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)'
-      rResIdxSql='CREATE INDEX rResIts_idx ON rResIts(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)' 
+
+      lResIdxSql='CREATE INDEX lResIts_idx ON lResIts(db_uuid,session,bundle,seqStartId,seqEndId)'
+      rResIdxSql='CREATE INDEX rResIts_idx ON rResIts(db_uuid,session,bundle,seqStartId,seqEndId)'
       linksIdxSql='CREATE INDEX links_idx ON links(db_uuid,session,bundle,fromID,toID)'
       
+      # execute index creation and then dominance query 
       lrExpRes=sqldf(c(lResIdxSql,rResIdxSql,itemsIdxSql,linksIdxSql,lrDomQueryStr))
-      
+
       #lExpRes=data.frame(seqStartId=lrExpRes[,'seqStartId'],seqEndId=lrExpRes[,'seqEndId'],seqLen=lrExpRes[,'seqLen'],level=lrExpRes[,'level'],stringsAsFactors = FALSE)
       # lrExpRes might have double items, use a distinct select to create the data.frame for left term
       # for example in the query "[ Syllable=S ^ Phonetic=s ]" on ae there exists one Syllable S which dominates two Phonetic s items 
@@ -976,6 +1002,7 @@ print.emuDB.query.result<-function(queryResult){
 ##' @param offset offset in sequence
 ##' @param offsetRef referenec of offset: 'START' start of segments, 'END': end of segments
 ##' @param seqLength item length of new segment list
+##' @param targetLevel query elemnts on this level, it will also be the result level 
 ##' @param resultType type (class name) of result
 ##' @param dbUUID optional UUID odf emuDB
 ##' @return result set object of class resultType (default: 'emuRsegs')
@@ -997,7 +1024,7 @@ print.emuDB.query.result<-function(queryResult){
 ##' 
 ##' 
 ##' }
-contextRequery<-function(seglist, offset=0,offsetRef='START',seqLength=1,resultType=NULL,dbUUID=NULL){
+contextRequery<-function(seglist, offset=0,offsetRef='START',seqLength=1,targetLevel=NULL,resultType=NULL,dbUUID=NULL){
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType wiil be used)")
   }
@@ -1032,10 +1059,10 @@ contextRequery<-function(seglist, offset=0,offsetRef='START',seqLength=1,resultT
     itemsIdxSql='CREATE INDEX items_idx ON items(itemID,db_uuid,session,bundle,level,itemID,seqIdx,type,sampleRate,sampleStart,sampleDur,samplePoint)'
     resIdxSql='CREATE INDEX its_idx ON its(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)'
     #   
-    labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,name)'
+    #labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,name)'
     labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,db_uuid,session,bundle,name)'
     
-    
+    # query for sequential requeries
     heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndID,",seqLength," AS seqLen,il.level FROM seglist sl,items sll,items slr,items il, items ir \
                         WHERE \
                          il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle AND \
@@ -1052,6 +1079,34 @@ contextRequery<-function(seglist, offset=0,offsetRef='START',seqLength=1,resultT
        stop("Parameter offsetRef must be one of 'START' or 'END'\n")
      }
     he=sqldf(heQueryStr)
+    
+    # query for level requeries
+    if(!is.null(targetLevel)){
+      check_level_attribute_name(dbConfig,targetLevel)
+      linksExt=dbReadTable(getEmuDBcon(),'linksExt')
+      linksIdxSql='CREATE INDEX linksExt_idx ON linksExt(db_uuid,session,bundle,fromID,toID,toSeqIdx,toSeqLen)'
+      heQueryStr=paste0("SELECT DISTINCT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndId,ir.seqIdx-il.seqIdx+1 AS seqLen,il.level \
+                        FROM seglist sl,items sll,items slr,items il, items ir \
+                        WHERE \
+                        sll.db_uuid=sl.db_uuid AND sll.session=sl.session AND sll.bundle=sl.bundle AND \
+                        slr.db_uuid=sl.db_uuid AND slr.session=sl.session AND slr.bundle=sl.bundle AND \
+                        il.db_uuid=sl.db_uuid AND il.session=sl.session AND il.bundle=sl.bundle AND \
+                        ir.db_uuid=sl.db_uuid AND ir.session=sl.session AND ir.bundle=sl.bundle AND \
+                        
+                        il.level='",targetLevel,"' AND ir.level='",targetLevel,"' AND \
+                        EXISTS (SELECT * FROM linksExt ll \
+                        WHERE ll.db_uuid=sl.db_uuid AND ll.session=sl.session AND ll.bundle=sl.bundle \
+                            AND ll.fromID=sl.startitemID AND ll.toID=il.itemID AND ll.toSeqIdx=0 \
+                            ) AND \
+                        EXISTS (SELECT * FROM linksExt lr \
+                        WHERE lr.db_uuid=sl.db_uuid AND lr.session=sl.session AND lr.bundle=sl.bundle \
+                            AND lr.fromID=sl.endItemID AND lr.toID=ir.itemID AND lr.toSeqIdx+1=lr.toSeqLen \
+                            ) \
+                          ")
+       he=sqldf(c(itemsIdxSql,linksIdxSql,heQueryStr))
+                        
+    }
+    
     result=list(items=he)
     trSl=convert.query.result.to.segmentlist(dbConfig = dbConfig,result=result)
     return(trSl)
