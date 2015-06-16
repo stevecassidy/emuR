@@ -2,12 +2,14 @@
 % Please edit documentation in R/database.R
 \name{load_emuDB}
 \alias{load_emuDB}
-\title{Load EMU database}
+\title{Load emuDB}
 \usage{
-load_emuDB(databaseDir, verbose = TRUE)
+load_emuDB(databaseDir, inMemoryCache = TRUE, verbose = TRUE)
 }
 \arguments{
-\item{databaseDir}{directory of the EMU database}
+\item{databaseDir}{directory of the emuDB}
+
+\item{inMemoryCache}{cache the loaded DB in memory}
 
 \item{verbose}{be verbose}
 }
@@ -15,7 +17,7 @@ load_emuDB(databaseDir, verbose = TRUE)
 name of emuDB
 }
 \description{
-Load EMU database
+Load emuDB
 }
 \examples{
 \dontrun{
