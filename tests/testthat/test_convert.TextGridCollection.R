@@ -6,20 +6,19 @@ require(RSQLite)
 
 context("testing convert_TextGridCollection_to_emuDB function")
 
-
-path2root = system.file("extdata/legacy_emu/DBs/ae/", package = "emuR")
-
-path2tmpDir = tempdir()
+path2demoData = file.path(tempdir(), "emuR_demoData")
+path2testData = file.path(tempdir(), "emuR_testthat")
+path2tgCol = file.path(path2demoData, "TextGrid_collection")
 
 emuDBname = 'convert-TextGridCollection-testDB'
 
-path2newDb = file.path(path2tmpDir, emuDBname)
+path2newDb = file.path(path2testData, emuDBname)
 
 
 # clean up
 if(is.emuDB.loaded(emuDBname)){
   UUID = get_emuDB_UUID(dbName = emuDBname)
-  .purge.emuDB(UUID)
+  purge_emuDB(dbName = emuDBname, dbUUID = UUID)
 }
 
 unlink(path2newDb, recursive = T)
@@ -31,9 +30,10 @@ test_that("bad calls cause errors", {
   dir.create(path2newDb)
   
   # existing targetDir causes errors
-  expect_error(convert_TextGridCollection_to_emuDB(dir = path2root, 
+  expect_error(convert_TextGridCollection_to_emuDB(dir = path2tgCol, 
                                                    dbName = emuDBname,
-                                                   path2tmpDir, verbose=F))
+                                                   targetDir = path2testData, 
+                                                   verbose=F))
   # clean up
   unlink(path2newDb, recursive = T)
   
@@ -42,9 +42,9 @@ test_that("bad calls cause errors", {
 ##############################
 test_that("correct emuDB is created", {
   
-  convert_TextGridCollection_to_emuDB(dir = path2root, 
+  convert_TextGridCollection_to_emuDB(dir = path2tgCol, 
                                       dbName = emuDBname,
-                                      path2tmpDir, verbose=F)
+                                      path2testData, verbose=F)
   
   test_that("emuDB has correct file format on disc", {
     # 2 files in top level
@@ -81,11 +81,11 @@ test_that("correct emuDB is created", {
   
   test_that("emuDB _annot.json is correct", {
     # read annot
-    annotJSONLns=readLines(file.path(path2newDb, '0000_ses/signals_msajc003_bndl/signals_msajc003_annot.json'),warn=FALSE)
+    annotJSONLns=readLines(file.path(path2newDb, '0000_ses/msajc003_bndl/msajc003_annot.json'),warn=FALSE)
     annotJSON=paste(annotJSONLns,collapse='')
     annotPersisted=jsonlite::fromJSON(annotJSON,simplifyVector=FALSE)
     # general stuff
-    expect_equal(annotPersisted$name, 'signals_msajc003')
+    expect_equal(annotPersisted$name, 'msajc003')
     expect_equal(annotPersisted$annotates, 'msajc003.wav')
     expect_equal(length(annotPersisted$links), 0)
     expect_equal(length(annotPersisted$levels), 11)
@@ -120,9 +120,9 @@ test_that("correct emuDB is created", {
 ##############################
 test_that("only specified tiers are converted when tierNames is set", {
   
-  convert_TextGridCollection_to_emuDB(dir = path2root, 
+  convert_TextGridCollection_to_emuDB(dir = path2tgCol, 
                                       dbName = emuDBname,
-                                      path2tmpDir, tierNames=c("Phonetic", "Tone"), verbose=F)
+                                      path2testData, tierNames=c("Phonetic", "Tone"), verbose=F)
   
   test_that("emuDB has correct file format on disc", {
     # 2 files in top level
@@ -162,11 +162,11 @@ test_that("only specified tiers are converted when tierNames is set", {
   
   test_that("emuDB _annot.json is correct", {
     # read annot
-    annotJSONLns=readLines(file.path(path2newDb, '0000_ses/signals_msajc003_bndl/signals_msajc003_annot.json'),warn=FALSE)
+    annotJSONLns=readLines(file.path(path2newDb, '0000_ses/msajc003_bndl/msajc003_annot.json'),warn=FALSE)
     annotJSON=paste(annotJSONLns,collapse='')
     annotPersisted=jsonlite::fromJSON(annotJSON,simplifyVector=FALSE)
     # general stuff
-    expect_equal(annotPersisted$name, 'signals_msajc003')
+    expect_equal(annotPersisted$name, 'msajc003')
     expect_equal(annotPersisted$annotates, 'msajc003.wav')
     expect_equal(length(annotPersisted$links), 0)
     expect_equal(length(annotPersisted$levels), 2)
