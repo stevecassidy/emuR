@@ -17,6 +17,9 @@ internalVars<- new.env(parent = emptyenv())
 # list of lists holding sqlconnection
 internalVars$sqlConnections = list()
 
+internalVars$testingVars = list()
+internalVars$testingVars$inMemoryCache = F
+
 ##########################################################
 # CRUD like operations for internalVars$sqlConnections
 
@@ -1833,7 +1836,15 @@ load_emuDB <- function(databaseDir, inMemoryCache = TRUE, verbose=TRUE){
   #   }
   dbsDf=dbGetQuery(con,paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
   if(nrow(dbsDf)>0){
-    stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
+    # stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
+    print('Cache of DB found! Now updateing cache...')
+    # update basepath in case we are dealing with a copy
+    dbGetQuery(con, paste0("UPDATE emuDB SET basePath = '", normalizePath(databaseDir) , "' ",
+                           "WHERE uuid = '", dbUUID, "'"))
+    
+    
+    update_cache(schema[['name']], dbUUID = dbUUID)
+    return(schema$name)
   }
   
   .store.emuDB.DBI(con, db, MD5DBconfigJSON)
