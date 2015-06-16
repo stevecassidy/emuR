@@ -924,15 +924,15 @@ query.database.with.eql<-function(dbConfig,query){
 query<-function(dbName=NULL,query,sessionPattern=NULL,bundlePattern=NULL,queryLang='EQL2',timeRefSegmentLevel=NULL,resultType=NULL,dbUUID=NULL){
   
     if(queryLang=='EQL2'){
-      .initialize.DBI.database(createTables=FALSE)
+      # .initialize.DBI.database(createTables=FALSE)
       dbUUID=get_emuDB_UUID(dbName,dbUUID)
       db=.load.emuDB.DBI(uuid = dbUUID)
       dbConfig=db[['DBconfig']]
       # create 
       emuDBs.query.tmp<-list()
-      emuDBs.query.tmp[['queryItems']]<-dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
-      emuDBs.query.tmp[['queryLabels']]<-dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
-      emuDBs.query.tmp[['queryLinksExt']]<-dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
+      emuDBs.query.tmp[['queryItems']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
+      emuDBs.query.tmp[['queryLabels']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
+      emuDBs.query.tmp[['queryLinksExt']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
       setQueryTmpEmuDBs(emuDBs.query.tmp)
       if(!is.null(sessionPattern)){
         newTmpDBs=list()
