@@ -3,38 +3,34 @@
 ##' @author Raphael Winkelmann
 context("testing database.DBconfig functions")
 
-path2extdata = system.file("extdata", package = "emuR")
+dbName = 'ae'
 
-if(!is.emuDB.loaded("ae")){
-  load_emuDB(paste(path2extdata, '/emu/DBs/ae/', sep = ''), verbose = F)
-}
-
-tmpDbName = 'ae_copy'
+path2orig = file.path(tempdir(), "emuR_demoData", dbName)
+path2testData = file.path(tempdir(), "emuR_testthat")
+path2db = file.path(path2testData, dbName)
 
 ##############################
 test_that("CRUD operations work for perspectives", {
-  # pre clean (just in case)
-  unlink(file.path(tempdir(),tmpDbName), recursive = TRUE)
   
-  # copy ae and rename
-  file.copy(file.path(path2extdata, '/emu/DBs/ae/'), tempdir(), recursive = T)
-  file.rename(file.path(tempdir(), 'ae'), file.path(tempdir(), 'ae_copy'))
-  
-  # make copy of ae to mess with (caution correct DBconfig not stored)
-  fp = file.path(tempdir(), tmpDbName)
-  duplicate.loaded.emuDB("ae", tmpDbName, fp)
+  # purge, delete, copy and load
+  if(is.emuDB.loaded(dbName)){
+    purge_emuDB(dbName, interactive = F)
+  }
+  unlink(path2db, recursive = T)
+  file.copy(path2orig, path2testData, recursive = T)
+  load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
   test_that("add = (C)RUD", {
     # bad call persp. already exists
-    expect_error(add_perspective(dbName=tmpDbName, 
+    expect_error(add_perspective(dbName=dbName, 
                                  name = 'default'))
-    add_perspective(dbName=tmpDbName, 
+    add_perspective(dbName=dbName, 
                     name = 'newPersp')
     
   })
   
   test_that("list = C(R)UD", {
-    df = list_perspectives(dbName=tmpDbName)
+    df = list_perspectives(dbName=dbName)
     
     expect_true(df$name[1] == "default")
     expect_true(df$signalCanvasesOrder[1] == "OSCI; SPEC")
@@ -51,46 +47,38 @@ test_that("CRUD operations work for perspectives", {
   
   test_that("remove = CRU(D)", {
     
-    remove_perspective(dbName=tmpDbName, 
+    remove_perspective(dbName=dbName, 
                        name = 'newPersp')
     
-    df = list_perspectives(dbName=tmpDbName)
+    df = list_perspectives(dbName=dbName)
     expect_equal(nrow(df), 1)
   })
   
-  # clean up
-  if(is.emuDB.loaded(tmpDbName)){
-    UUID = get_emuDB_UUID(dbName = tmpDbName)
-    purge_emuDB(dbName = tmpDbName, dbUUID = UUID, interactive = F)
-  }
 })
 
 ##############################
 test_that("CRUD operations work for signalCanvasesOrder", {
-  # pre clean (just in case)
-  unlink(file.path(tempdir(),tmpDbName), recursive = TRUE)
   
-  # copy ae and rename
-  file.copy(file.path(path2extdata, '/emu/DBs/ae/'), tempdir(), recursive = T)
-  file.rename(file.path(tempdir(), 'ae'), file.path(tempdir(), 'ae_copy'))
+  # purge, delete, copy and load
+  purge_emuDB(dbName, interactive = F)
+  unlink(path2db, recursive = T)
+  file.copy(path2orig, path2testData, recursive = T)
+  load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
-  # make copy of ae to mess with (caution correct DBconfig not stored)
-  fp = file.path(tempdir(), tmpDbName)
-  duplicate.loaded.emuDB("ae", tmpDbName, fp)
   
   test_that("set = (C)RUD", {
-    expect_error(set_signalCanvasesOrder(tmpDbName, 
+    expect_error(set_signalCanvasesOrder(dbName, 
                                          perspectiveName = "default",
                                          order = c("OSCI", "badTrackName")))
     
-    set_signalCanvasesOrder(tmpDbName, 
+    set_signalCanvasesOrder(dbName, 
                             perspectiveName = "default",
                             order = c("OSCI", "SPEC", "fm"))
     
   })
   
   test_that("get = C(R)UD", {
-    order = get_signalCanvasesOrder(tmpDbName, perspectiveName = "default")
+    order = get_signalCanvasesOrder(dbName, perspectiveName = "default")
     
     expect_equal(order[1], "OSCI")
     expect_equal(order[2], "SPEC")
@@ -105,46 +93,37 @@ test_that("CRUD operations work for signalCanvasesOrder", {
     # currently not implemented
   })
   
-  # clean up
-  if(is.emuDB.loaded(tmpDbName)){
-    UUID = get_emuDB_UUID(dbName = tmpDbName)
-    purge_emuDB(dbName = tmpDbName, dbUUID = UUID, interactive = F)
-  }
 })
 
 ##############################
 test_that("CRUD operations work for levelCanvasesOrder", {
-  # pre clean (just in case)
-  unlink(file.path(tempdir(),tmpDbName), recursive = TRUE)
+  # purge, delete, copy and load
+  purge_emuDB(dbName, interactive = F)
+  unlink(path2db, recursive = T)
+  file.copy(path2orig, path2testData, recursive = T)
+  load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
-  # copy ae and rename
-  file.copy(file.path(path2extdata, '/emu/DBs/ae/'), tempdir(), recursive = T)
-  file.rename(file.path(tempdir(), 'ae'), file.path(tempdir(), 'ae_copy'))
-  
-  # make copy of ae to mess with (caution correct DBconfig not stored)
-  fp = file.path(tempdir(), tmpDbName)
-  duplicate.loaded.emuDB("ae", tmpDbName, fp)
   
   test_that("set = (C)RUD", {
     # bad level name
-    expect_error(set_levelCanvasesOrder(tmpDbName, 
+    expect_error(set_levelCanvasesOrder(dbName, 
                                         perspectiveName = "default",
                                         order = c("Phonetic", "badLevelName")))
     
     # bad level type
-    expect_error(set_levelCanvasesOrder(tmpDbName, 
+    expect_error(set_levelCanvasesOrder(dbName, 
                                         perspectiveName = "default",
                                         order = c("Phonetic", "Tone", "Word")))
     
-    set_levelCanvasesOrder(tmpDbName, 
+    set_levelCanvasesOrder(dbName, 
                            perspectiveName = "default",
                            order = c("Tone", "Phonetic"))
     
   })
   
   test_that("get = C(R)UD", {
-    order = get_levelCanvasesOrder(tmpDbName, perspectiveName = "default")
-
+    order = get_levelCanvasesOrder(dbName, perspectiveName = "default")
+    
     expect_equal(order[1], "Tone")
     expect_equal(order[2], "Phonetic")
   })
@@ -157,11 +136,6 @@ test_that("CRUD operations work for levelCanvasesOrder", {
     # currently not implemented
   })
   
-  # clean up
-  if(is.emuDB.loaded(tmpDbName)){
-    UUID = get_emuDB_UUID(dbName = tmpDbName)
-    purge_emuDB(dbName = tmpDbName, dbUUID = UUID, interactive = F)
-  }
 })
 
 
