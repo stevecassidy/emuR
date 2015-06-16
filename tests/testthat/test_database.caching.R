@@ -3,16 +3,25 @@
 ##' @author Raphael Winkelmann
 context("testing caching functions")
 
-suppressMessages(require('jsonlite'))
+# suppressMessages(require('jsonlite'))
+# 
+# tmpDbName = 'ae_copy'
+# purge_all_emuDBs(interactive = F)
+# 
+# unlink(file.path(tempdir(), "ae", "ae_emuDBcache.sqlite"), recursive = TRUE)
+# unlink(file.path(tempdir(), "ae", "ae_emuDBcache.sqlite-journal"), recursive = TRUE)
+# 
+# 
+# path2ae = system.file("extdata/emu/DBs/ae/", package = "emuR")
+# 
+# file.copy(path2ae,to = tempdir(), recursive = T)
+# 
+# load_emuDB(file.path(tempdir(), "ae"), inMemoryCache = T)
 
-tmpDbName = 'ae_copy'
-
-path2ae = system.file("extdata/emu/DBs/ae/", package = "emuR")
-
-# load database 
-if(!is.emuDB.loaded("ae")){
-  load_emuDB(path2ae, verbose = F)
-}
+# # load database 
+# if(!is.emuDB.loaded("ae")){
+#   load_emuDB(path2ae, verbose = F)
+# }
 
 ############################
 # test_that("update_cache works", {
@@ -114,49 +123,49 @@ if(!is.emuDB.loaded("ae")){
 #   
 # })
 
-############################
-test_that("sqlConnections CRUD operations work", {
-  
-  path2testDB = file.path(tempdir(), paste0("testthat", database.cache.suffix))
-  
-  fileCon = NULL
-  
-  #########################
-  test_that("add works", {
-    # only single instance is added 
-    origLength = length(internalVars$sqlConnections)
-    fileCon = add_emuDBcon(dbConnect(RSQLite::SQLite(), path2testDB), path2testDB)
-    fileCon = add_emuDBcon(dbConnect(RSQLite::SQLite(), path2testDB), path2testDB)
-    expect_equal(length(internalVars$sqlConnections), origLength + 1)
-    
-  })
-
-  #########################  
-  test_that("get works", {
-    # check that :memory: connection is returned by default
-    # containing loaded ae
-    inMemCon = get_emuDBcon()
-    res = dbGetQuery(inMemCon, "SELECT uuid FROM emuDB")
-    expect_true(res == "0fc618dc-8980-414d-8c7a-144a649ce199")
-    
-    # 
-    dbSqlInsert=paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('","i am a face UUID","','","fakeName","','","fakePath","','","fakeJSON","', NULL", ")")
-    dbGetQuery(fileCon,dbSqlInsert)
-    con = get_emuDBcon(dbUUID = "i am a face UUID")
-    print(con)
-    res = dbGetQuery(con, "SELECT * FROM emuDB")
-    print(res)
-    
-  })
-
-  #########################
-  test_that("remove works", {
-    
-  })
-  
-    
-    
-})
-
-
-
+# ############################
+# test_that("sqlConnections CRUD operations work", {
+#   
+#   path2testDB = file.path(tempdir(), paste0("testthat", database.cache.suffix))
+#   
+#   fileCon = NULL
+#   fileCon = add_emuDBcon(dbConnect(RSQLite::SQLite(), path2testDB), path2testDB)
+#   
+#   #########################
+#   test_that("add works", {
+#     # only single instance is added 
+#     origLength = length(internalVars$sqlConnections)
+#     fileCon = add_emuDBcon(dbConnect(RSQLite::SQLite(), path2testDB), path2testDB)
+#     expect_equal(length(internalVars$sqlConnections), origLength)
+#     
+#   })
+# 
+#   #########################  
+#   test_that("get works", {
+#     # check that :memory: connection is returned by default
+#     # containing loaded ae
+#     inMemCon = get_emuDBcon()
+#     res = dbGetQuery(inMemCon, "SELECT uuid FROM emuDB")
+#     expect_true(res == "0fc618dc-8980-414d-8c7a-144a649ce199")
+#     
+#     # 
+#     dbSqlInsert=paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('","i am a face UUID","','","fakeName","','","fakePath","','","fakeJSON","', NULL", ")")
+#     dbGetQuery(fileCon,dbSqlInsert)
+#     con = get_emuDBcon(dbUUID = "i am a face UUID")
+#     res = dbGetQuery(con, "SELECT * FROM emuDB")
+#     
+#   })
+# 
+#   #########################
+#   test_that("remove works", {
+#     
+#   })
+#   
+#   # cleanup 
+#   unlink(path2testDB)
+#   
+#     
+# })
+# 
+# 
+# 
