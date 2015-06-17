@@ -967,16 +967,17 @@ query<-function(dbName=NULL,query,sessionPattern=NULL,bundlePattern=NULL,queryLa
       
       if(is.null(resultType)){
         return(query.database.with.eql.segmentlist(dbConfig,query,timeRefSegmentLevel))
-        #return(query.database.with.eql(dbConfig,query))
       }else{
-        if(resultType=='emusegs'){
+        if(resultType=='emuRsegs'){
+          return(query.database.with.eql.segmentlist(dbConfig,query,timeRefSegmentLevel))
+        }else if(resultType=='emusegs'){
           if(!is.null(timeRefSegmentLevel)){
             # TODO 
               stop("Parameter timeRefSegmentLevel not yet supported for resultType 'emusegs'. Please use resultType 'emuRsegs' (default).")
           }
           return(query.database.with.eql.seglist(dbConfig,query))
         }else{
-          stop("Unknown result type: '",resultType,"'. Supported result types: 'emusegs', NULL")
+          stop("Unknown result type: '",resultType,"'. Supported result types: 'emuRsegs', emusegs'")
         }
       }
       # free temp tables
