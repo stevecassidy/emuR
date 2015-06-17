@@ -1024,7 +1024,7 @@ print.emuDB.query.result<-function(queryResult){
 ##' 
 ##' 
 ##' }
-contextRequery<-function(seglist, offset=0,offsetRef='START',seqLength=1,targetLevel=NULL,resultType=NULL,dbUUID=NULL){
+contextRequery<-function(seglist, offset=0,offsetRef='START',seqLength=1,level=NULL,targetLevel=NULL,resultType=NULL,dbUUID=NULL){
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType wiil be used)")
   }
@@ -1086,7 +1086,10 @@ contextRequery<-function(seglist, offset=0,offsetRef='START',seqLength=1,targetL
       linksExt=dbReadTable(getEmuDBcon(),'linksExt')
       itemsIdxSql='CREATE INDEX items_idx ON items(itemID,db_uuid,session,bundle,itemID,level,seqIdx)'
       linksIdxSql='CREATE INDEX linksExt_idx ON linksExt(db_uuid,session,bundle,fromID,toID)'
-     # leftItem
+     
+      if(!is.null(level)){
+        seglist=contextRequery(seglist = seglist,targetLevel = level)
+      }
       
       heQueryStr=paste0("SELECT DISTINCT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndId,ir.seqIdx-il.seqIdx+1 AS seqLen,il.level \
                         FROM seglist sl,items sll,items slr,
