@@ -14,7 +14,9 @@ path2db = file.path(path2testData, dbName)
 test_that("file operations work", {
   
   # purge, delete, copy and load
-  purge_emuDB(dbName, interactive = F)
+  if(is.emuDB.loaded(dbName)){
+    purge_emuDB(dbName, interactive = F)
+  }
   unlink(path2db, recursive = T)
   file.copy(path2orig, path2testData, recursive = T)
   load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
