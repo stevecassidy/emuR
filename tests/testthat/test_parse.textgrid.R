@@ -3,11 +3,13 @@
 ##' @author Raphael Winkelmann
 context("testing parse.textgrid function")
 
-path2tg = system.file("extdata/legacy_emu/DBs/ae/labels/msajc003.TextGrid", package = "emuR")
+path2demoData = file.path(tempdir(),"emuR_demoData")
+
+path2tg = file.path(path2demoData, "TextGrid_collection/msajc003.TextGrid")
 
 sR = 20000 # sample rate for audio files of ae
 
-newDbName = "ae_copy"
+newDbName = "parsedSingleTG"
 
 # clean up
 if(is.emuDB.loaded(newDbName)){
