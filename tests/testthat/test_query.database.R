@@ -10,6 +10,10 @@ context("testing queries")
 .test_emu_ae_db_uuid='3f627b7b-4fb5-4b4a-8c79-b5f49df4df25'
 .test_emu_ae_db_dir=NULL
 
+path2demoData = file.path(tempdir(),"emuR_demoData")
+path2testhatFolder = file.path(tempdir(),"emuR_testthat")
+
+
 # purge ae if loaded to make tests work
 if(is.emuDB.loaded("ae")){
   UUID = get_emuDB_UUID(dbName = "ae")
@@ -23,8 +27,9 @@ test_that("Purge example database ae",{
   }
 })
 test_that("Convert example database ae",{
-  legacyDbEmuAeTpl <- system.file("extdata/legacy_emu/DBs/ae","ae.tpl", package="emuR")
-  .test_emu_ae_db_dir<<-tempfile('test_emu_ae')
+  legacyDbEmuAeTpl <- file.path(path2demoData, "legacy_ae", "ae.tpl")
+  .test_emu_ae_db_dir<<-file.path(path2testhatFolder, 'test_emu_ae')
+  unlink(.test_emu_ae_db_dir, recursive = T)
   convert_legacyEmuDB_to_emuDB(emuTplPath=legacyDbEmuAeTpl,targetDir=.test_emu_ae_db_dir,dbUUID=.test_emu_ae_db_uuid,verbose=FALSE)
 })
 
