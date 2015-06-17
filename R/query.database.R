@@ -998,17 +998,19 @@ print.emuDB.query.result<-function(queryResult){
 
 ##' Query emuR result context
 ##' @description Requery an EMU database
-##' @param seglist segment list
+##' WARNING! Experimental, syntax and semantics may change!! 
+##' @param seglist segment list to requery on
 ##' @param offset offset in sequence
 ##' @param offsetRef referenec of offset: 'START' start of segments, 'END': end of segments
 ##' @param seqLength item length of new segment list
-##' @param targetLevel query elemnts on this level, it will also be the result level 
+##' @param level optional: query to this level first
+##' @param targetLevel query elements on this level, it will also be the result level 
 ##' @param resultType type (class name) of result
 ##' @param dbUUID optional UUID odf emuDB
 ##' @return result set object of class resultType (default: 'emuRsegs')
 ##' @author Klaus Jaensch
 ##' @import sqldf stringr
-##' @seealso \code{\link{load_emuDB}}
+##' @seealso \code{\link{query}}
 ##' @keywords emuDB database requery Emu EQL2 
 ##' @examples
 ##' \dontrun{

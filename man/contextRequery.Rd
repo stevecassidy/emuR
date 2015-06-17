@@ -5,10 +5,10 @@
 \title{Query emuR result context}
 \usage{
 contextRequery(seglist, offset = 0, offsetRef = "START", seqLength = 1,
-  targetLevel = NULL, resultType = NULL, dbUUID = NULL)
+  level = NULL, targetLevel = NULL, resultType = NULL, dbUUID = NULL)
 }
 \arguments{
-\item{seglist}{segment list}
+\item{seglist}{segment list to requery on}
 
 \item{offset}{offset in sequence}
 
@@ -16,7 +16,9 @@ contextRequery(seglist, offset = 0, offsetRef = "START", seqLength = 1,
 
 \item{seqLength}{item length of new segment list}
 
-\item{targetLevel}{query elemnts on this level, it will also be the result level}
+\item{level}{optional: query to this level first}
+
+\item{targetLevel}{query elements on this level, it will also be the result level}
 
 \item{resultType}{type (class name) of result}
 
@@ -27,6 +29,7 @@ result set object of class resultType (default: 'emuRsegs')
 }
 \description{
 Requery an EMU database
+WARNING! Experimental, syntax and semantics may change!!
 }
 \examples{
 \dontrun{
@@ -47,7 +50,7 @@ contextRequery(sl1,offset=-1,seqLength=3)
 Klaus Jaensch
 }
 \seealso{
-\code{\link{load_emuDB}}
+\code{\link{query}}
 }
 \keyword{EQL2}
 \keyword{Emu}
