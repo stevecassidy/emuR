@@ -1090,26 +1090,29 @@ contextRequery<-function(seglist, offset=0,offsetRef='START',seqLength=1,level=N
       if(!is.null(level)){
         seglist=contextRequery(seglist = seglist,targetLevel = level)
       }
+      targetRootLevelName=get.level.name.for.attribute(dbConfig = dbConfig,attributeName = targetLevel)
       
-      heQueryStr=paste0("SELECT DISTINCT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndId,ir.seqIdx-il.seqIdx+1 AS seqLen,il.level \
-                        FROM seglist sl,items sll,items slr,
+      heQueryStr=paste0("SELECT DISTINCT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndId,ir.seqIdx-il.seqIdx+1 AS seqLen,'",targetLevel,"' AS level \
+                        FROM \
                         ( SELECT ils.* FROM items ils,seglist sl WHERE \
                         ils.db_uuid=sl.db_uuid AND ils.session=sl.session AND ils.bundle=sl.bundle AND \
-                        ils.level='",targetLevel,"' AND \
-                        EXISTS (SELECT * FROM linksExt lr \
+                        ils.level='",targetRootLevelName,"' AND (\
+                        (ils.itemID=sl.startItemID) OR 
+                        (EXISTS (SELECT * FROM linksExt lr \
                         WHERE lr.db_uuid=sl.db_uuid AND lr.session=sl.session AND lr.bundle=sl.bundle \
-                            AND ((lr.fromID=sl.endItemID AND lr.toID=ils.itemID) OR (lr.fromID=ils.itemID AND lr.toID= sl.endItemID))\
-                            ) \
-                        ORDER BY ils.seqIdx ASC LIMIT 1 ) \
-                        AS il,
+                            AND ((lr.fromID=sl.startItemID AND lr.toID=ils.itemID) OR (lr.fromID=ils.itemID AND lr.toID= sl.startItemID))\
+                            )) \
+                        ) ORDER BY ils.seqIdx ASC LIMIT 1 ) \
+                        AS il, \
                         ( SELECT irs.* FROM items irs,seglist sl WHERE \
                         irs.db_uuid=sl.db_uuid AND irs.session=sl.session AND irs.bundle=sl.bundle AND \
-                        irs.level='",targetLevel,"' AND \
-                        EXISTS (SELECT * FROM linksExt lr \
+                        irs.level='",targetRootLevelName,"' AND (\
+                        (irs.itemID=sl.endItemID) OR
+                        (EXISTS (SELECT * FROM linksExt lr \
                         WHERE lr.db_uuid=sl.db_uuid AND lr.session=sl.session AND lr.bundle=sl.bundle \
                             AND ((lr.fromID=sl.endItemID AND lr.toID=irs.itemID) OR (lr.fromID=irs.itemID AND lr.toID= sl.endItemID))\
-                            ) \
-                        ORDER BY irs.seqIdx DESC LIMIT 1 ) \
+                          )) \
+                        ) ORDER BY irs.seqIdx DESC LIMIT 1 ) \
                         AS ir
                         ")
       
@@ -1119,7 +1122,17 @@ contextRequery<-function(seglist, offset=0,offsetRef='START',seqLength=1,level=N
     }
     
     result=list(items=he)
-    trSl=convert.query.result.to.segmentlist(dbConfig = dbConfig,result=result)
+    if(is.null(resultType)){
+      trSl=convert.query.result.to.segmentlist(dbConfig = dbConfig,result=result)
+    }else{
+      if(resultType=='emuRsegs'){
+        trSl=convert.query.result.to.segmentlist(dbConfig = dbConfig,result=result)
+      }else if(resultType=='emusegs'){
+        trSl=convert.query.result.to.seglist(dbConfig = dbConfig,result = result)
+      }else{
+        stop("Unknown result type: '",resultType,"'. Supported result types: 'emuRsegs','emusegs'")
+      }
+    }
     return(trSl)
   }
 }
