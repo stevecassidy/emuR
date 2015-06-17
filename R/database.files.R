@@ -20,11 +20,11 @@ import_mediaFiles<-function(dbName,dir,targetSessionName='0000',dbUUID=NULL, ver
   db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
   dbCfg=db[['DBconfig']]
   dbUUID=dbCfg['UUID']
-  if(is.null(dbCfg[['mediaFileExtension']])){
+  if(is.null(dbCfg[['mediafileExtension']])){
     pattern=NULL
     #stop("The DB has no media file extension defined.")
   }else{
-    pattern=paste0('.*[.]',dbCfg[['mediaFileExtension']],'$')
+    pattern=paste0('.*[.]',dbCfg[['mediafileExtension']],'$')
   }
   mfList=list.files(dir,pattern=pattern)
   if(length(mfList)>0){
@@ -35,7 +35,7 @@ import_mediaFiles<-function(dbName,dir,targetSessionName='0000',dbUUID=NULL, ver
     }
     
     qSessSql=paste0("SELECT * FROM session WHERE db_uuid='",dbUUID,"' AND name='",targetSessionName,"'")
-    sessDf<-dbGetQuery(get_emuDBcon(),qSessSql)
+    sessDf<-dbGetQuery(get_emuDBcon(dbUUID),qSessSql)
     if(nrow(sessDf)==0){
       .store.session.DBI(dbUUID = dbUUID,sessionName = targetSessionName)
     }
