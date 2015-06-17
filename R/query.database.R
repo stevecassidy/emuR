@@ -1084,25 +1084,33 @@ contextRequery<-function(seglist, offset=0,offsetRef='START',seqLength=1,targetL
     if(!is.null(targetLevel)){
       check_level_attribute_name(dbConfig,targetLevel)
       linksExt=dbReadTable(getEmuDBcon(),'linksExt')
-      linksIdxSql='CREATE INDEX linksExt_idx ON linksExt(db_uuid,session,bundle,fromID,toID,toSeqIdx,toSeqLen)'
+      itemsIdxSql='CREATE INDEX items_idx ON items(itemID,db_uuid,session,bundle,itemID,level,seqIdx)'
+      linksIdxSql='CREATE INDEX linksExt_idx ON linksExt(db_uuid,session,bundle,fromID,toID)'
+     # leftItem
+      
       heQueryStr=paste0("SELECT DISTINCT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndId,ir.seqIdx-il.seqIdx+1 AS seqLen,il.level \
-                        FROM seglist sl,items sll,items slr,items il, items ir \
-                        WHERE \
-                        sll.db_uuid=sl.db_uuid AND sll.session=sl.session AND sll.bundle=sl.bundle AND \
-                        slr.db_uuid=sl.db_uuid AND slr.session=sl.session AND slr.bundle=sl.bundle AND \
-                        il.db_uuid=sl.db_uuid AND il.session=sl.session AND il.bundle=sl.bundle AND \
-                        ir.db_uuid=sl.db_uuid AND ir.session=sl.session AND ir.bundle=sl.bundle AND \
-                        
-                        il.level='",targetLevel,"' AND ir.level='",targetLevel,"' AND \
-                        EXISTS (SELECT * FROM linksExt ll \
-                        WHERE ll.db_uuid=sl.db_uuid AND ll.session=sl.session AND ll.bundle=sl.bundle \
-                            AND ll.fromID=sl.startitemID AND ll.toID=il.itemID AND ll.toSeqIdx=0 \
-                            ) AND \
+                        FROM seglist sl,items sll,items slr,
+                        ( SELECT ils.* FROM items ils,seglist sl WHERE \
+                        ils.db_uuid=sl.db_uuid AND ils.session=sl.session AND ils.bundle=sl.bundle AND \
+                        ils.level='",targetLevel,"' AND \
                         EXISTS (SELECT * FROM linksExt lr \
                         WHERE lr.db_uuid=sl.db_uuid AND lr.session=sl.session AND lr.bundle=sl.bundle \
-                            AND lr.fromID=sl.endItemID AND lr.toID=ir.itemID AND lr.toSeqIdx+1=lr.toSeqLen \
+                            AND ((lr.fromID=sl.endItemID AND lr.toID=ils.itemID) OR (lr.fromID=ils.itemID AND lr.toID= sl.endItemID))\
                             ) \
-                          ")
+                        ORDER BY ils.seqIdx ASC LIMIT 1 ) \
+                        AS il,
+                        ( SELECT irs.* FROM items irs,seglist sl WHERE \
+                        irs.db_uuid=sl.db_uuid AND irs.session=sl.session AND irs.bundle=sl.bundle AND \
+                        irs.level='",targetLevel,"' AND \
+                        EXISTS (SELECT * FROM linksExt lr \
+                        WHERE lr.db_uuid=sl.db_uuid AND lr.session=sl.session AND lr.bundle=sl.bundle \
+                            AND ((lr.fromID=sl.endItemID AND lr.toID=irs.itemID) OR (lr.fromID=irs.itemID AND lr.toID= sl.endItemID))\
+                            ) \
+                        ORDER BY irs.seqIdx DESC LIMIT 1 ) \
+                        AS ir
+                        ")
+      
+                      
        he=sqldf(c(itemsIdxSql,linksIdxSql,heQueryStr))
                         
     }
