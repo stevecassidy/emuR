@@ -368,7 +368,7 @@ convert.query.result.to.segmentlist<-function(dbConfig,result,timeRefSegmentLeve
   # build query for label sequence string
   # TODO assume equal seq len for each sequence for now!!
   # this is not the case for queries like emu.query("andosl","*","[#[Phonetic=t -> Phonetic=S] -> #Phonetic=I]")
-  # which are not allowed by BNF but in fact they are working with Emu 2.3
+  # which are not allowed by BNF and in emuR but in fact they are working with Emu 2.3 and emuR requery may produce such results
   # result would be a mix with t->S and I items (sequence lengths 2 and 1)
   for(seqIdx in 1:maxSeqLen){
     selectStr=paste0(selectStr,'(SELECT l.label FROM lblsDf l WHERE l.db_uuid=i',seqIdx,'.db_uuid AND l.session=i',seqIdx,'.session AND l.bundle=i',seqIdx,'.bundle AND   l.itemID=i',seqIdx,".itemID AND l.name=r.level)")
