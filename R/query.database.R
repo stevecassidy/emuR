@@ -1075,61 +1075,142 @@ contextRequery<-function(seglist, offset=0,offsetRef='START',seqLength=1,level=N
     if(offsetRef=='START'){
       heQueryStr=paste0(heQueryStr,"il.level=sll.level AND il.seqIdx=sll.seqIdx+",offset," AND \
                           ir.level=sll.level AND ir.seqIdx=sll.seqIdx+",offset+seqLength)
-     }else if(offsetRef=='END'){
-       heQueryStr=paste0(heQueryStr,"il.level=slr.level AND il.seqIdx=slr.seqIdx+",offset," AND \
+    }else if(offsetRef=='END'){
+      heQueryStr=paste0(heQueryStr,"il.level=slr.level AND il.seqIdx=slr.seqIdx+",offset," AND \
                           ir.level=slr.level AND ir.seqIdx=slr.seqIdx+",offset+seqLength)
-     }else{
-       stop("Parameter offsetRef must be one of 'START' or 'END'\n")
-     }
+    }else{
+      stop("Parameter offsetRef must be one of 'START' or 'END'\n")
+    }
     he=sqldf(heQueryStr)
     
-    # query for level requeries
-    if(!is.null(targetLevel)){
-      check_level_attribute_name(dbConfig,targetLevel)
+    # level requeries
+    if(!is.null(level) | !is.null(targetLevel)){
       linksExt=dbReadTable(getEmuDBcon(),'linksExt')
       itemsIdxSql='CREATE INDEX items_idx ON items(itemID,db_uuid,session,bundle,itemID,level,seqIdx)'
       linksIdxSql='CREATE INDEX linksExt_idx ON linksExt(db_uuid,session,bundle,fromID,toID)'
-     
-      if(!is.null(level)){
-        seglist=contextRequery(seglist = seglist,targetLevel = level)
-      }
-      targetRootLevelName=get.level.name.for.attribute(dbConfig = dbConfig,attributeName = targetLevel)
       
-      heQueryStr=paste0("SELECT DISTINCT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndId,ir.seqIdx-il.seqIdx+1 AS seqLen,'",targetLevel,"' AS level \
+      
+      targetRootLevelName=NULL
+      if(is.null(targetLevel)){
+        heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndId,ir.seqIdx-il.seqIdx+1 AS seqLen,il.level \
                         FROM \
-                        ( SELECT ils.* FROM items ils,seglist sl WHERE \
+                        ( SELECT ils.*,min(ils.seqIdx) FROM items ils,items slil,seglist sl WHERE \
                         ils.db_uuid=sl.db_uuid AND ils.session=sl.session AND ils.bundle=sl.bundle AND \
-                        ils.level='",targetRootLevelName,"' AND (\
+                        slil.db_uuid=sl.db_uuid AND slil.session=sl.session AND slil.bundle=sl.bundle AND \
+                        slil.itemID=sl.startItemID AND ils.level=slil.level AND (\
                         (ils.itemID=sl.startItemID) OR 
                         (EXISTS (SELECT * FROM linksExt lr \
                         WHERE lr.db_uuid=sl.db_uuid AND lr.session=sl.session AND lr.bundle=sl.bundle \
                             AND ((lr.fromID=sl.startItemID AND lr.toID=ils.itemID) OR (lr.fromID=ils.itemID AND lr.toID= sl.startItemID))\
                             )) \
-                        ) ORDER BY ils.seqIdx ASC LIMIT 1 ) \
-                        AS il, \
-                        ( SELECT irs.* FROM items irs,seglist sl WHERE \
+                        ) GROUP BY sl.ROWID ) \
+                        AS il JOIN \
+                        ( SELECT irs.*,max(irs.seqIdx) FROM items irs,items slir,seglist sl WHERE \
                         irs.db_uuid=sl.db_uuid AND irs.session=sl.session AND irs.bundle=sl.bundle AND \
-                        irs.level='",targetRootLevelName,"' AND (\
+                        slir.db_uuid=sl.db_uuid AND slir.session=sl.session AND slir.bundle=sl.bundle AND \
+                        slir.itemID=sl.endItemID AND irs.level=slir.level AND (\
                         (irs.itemID=sl.endItemID) OR
                         (EXISTS (SELECT * FROM linksExt lr \
                         WHERE lr.db_uuid=sl.db_uuid AND lr.session=sl.session AND lr.bundle=sl.bundle \
                             AND ((lr.fromID=sl.endItemID AND lr.toID=irs.itemID) OR (lr.fromID=irs.itemID AND lr.toID= sl.endItemID))\
                           )) \
-                        ) ORDER BY irs.seqIdx DESC LIMIT 1 ) \
-                        AS ir
+                        ) GROUP BY sl.ROWID ) \
+                        AS ir ON il.ROWID=ir.ROWID
                         ")
+        #levelSeglist=contextRequery(seglist = seglist,targetLevel = level)
+        
+      }else{
+        if(!is.null(level)){
+          seglist=contextRequery(seglist = seglist,targetLevel = level)
+        }
+        check_level_attribute_name(dbConfig,targetLevel)
+        targetRootLevelName=get.level.name.for.attribute(dbConfig = dbConfig,attributeName = targetLevel)
+        
+        leftQuery=paste0("SELECT ils.*,min(ils.seqIdx) FROM seglist sll,items ils WHERE \
+                         ils.db_uuid=sll.db_uuid AND ils.session=sll.session AND ils.bundle=sll.bundle AND \
+                         ils.level='",targetRootLevelName,"' AND (\
+                         (ils.itemID=sll.startItemID) OR 
+                       (EXISTS (SELECT * FROM linksExt ll \
+                       WHERE ll.db_uuid=sll.db_uuid AND ll.session=sll.session AND ll.bundle=sll.bundle \
+                            AND ((ll.fromID=sll.startItemID AND ll.toID=ils.itemID) OR (ll.fromID=ils.itemID AND ll.toID= sll.startItemID))\
+                           )) \
+                         ) GROUP BY sll.ROWID ORDER BY sll.ROWID")
+        
+        rightQuery=paste0("SELECT irs.itemID AS seqEndId,irs.seqIdx AS rSeqIdx,max(irs.seqIdx) FROM seglist slr,items irs WHERE \
+                        irs.db_uuid=slr.db_uuid AND irs.session=slr.session AND irs.bundle=slr.bundle AND \
+                        irs.level='",targetRootLevelName,"' AND (\
+                        (irs.itemID=slr.endItemID) OR
+                        (EXISTS (SELECT * FROM linksExt lr \
+                        WHERE lr.db_uuid=slr.db_uuid AND lr.session=slr.session AND lr.bundle=slr.bundle \
+                            AND ((lr.fromID=slr.endItemID AND lr.toID=irs.itemID) OR (lr.fromID=irs.itemID AND lr.toID= slr.endItemID))\
+                          )) \
+                        ) GROUP BY slr.ROWID ORDER BY slr.ROWID")
+        
+        # The foolowing code produces strange error on this data:
+        # 
+        #        > fsl=query('ae',"Text=~a.* & Num(Text,Phoneme)=2")
+        #        > fsl
+        #        segment  list from database:  ae 
+        #        query was:  Text=~a.* & Num(Text,Phoneme)=2 
+        #        labels    start      end session   bundle startItemID endItemID type
+        #        1    are  662.475  775.525    0000 msajc022          19        19 ITEM
+        #        2    and 1421.975 1495.325    0000 msajc023          43        43 ITEM   
+        #        
+        #        > contextRequery(fsl,targetLevel='Phoneme')
+        #        segment  list from database:  ae 
+        #        query was:  
+        #          labels    start      end session   bundle startItemID endItemID type
+        #        1   @->r  662.475  775.525    0000 msajc022         110       103 ITEM
+        #        2   @->n 1421.975 1495.325    0000 msajc023         102       103 ITEM
+        #         
+        #         endItemID of first row is wrong !! 103 should be 111
+        #        works perfectly for some other queries and works if splitted into three spearete sqldf calls. SQLite bug ?? 
+        #        
+        #        > packageVersion('RSQLite')
+        #        [1] ‘1.0.0’
+        
+        
+        #       heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.seqEndId,(ir.rSeqIdx-il.seqIdx+1) AS seqLen,'",targetLevel,"' AS level \
+        #                         FROM 
+        #                         ( SELECT ils.*,min(ils.seqIdx) FROM seglist sll,items ils WHERE \
+        #                         ils.db_uuid=sll.db_uuid AND ils.session=sll.session AND ils.bundle=sll.bundle AND \
+        #                         ils.level='",targetRootLevelName,"' AND (\
+        #                         (ils.itemID=sll.startItemID) OR 
+        #                         (EXISTS (SELECT * FROM linksExt ll \
+        #                         WHERE ll.db_uuid=sll.db_uuid AND ll.session=sll.session AND ll.bundle=sll.bundle \
+        #                             AND ((ll.fromID=sll.startItemID AND ll.toID=ils.itemID) OR (ll.fromID=ils.itemID AND ll.toID= sll.startItemID))\
+        #                             )) \
+        #                         ) GROUP BY sll.ROWID ORDER BY sll.ROWID) \
+        #                         AS il JOIN \
+        #                         ( SELECT irs.itemID AS seqEndId,irs.seqIdx AS rSeqIdx,max(irs.seqIdx) FROM seglist slr,items irs WHERE \
+        #                         irs.db_uuid=slr.db_uuid AND irs.session=slr.session AND irs.bundle=slr.bundle AND \
+        #                         irs.level='",targetRootLevelName,"' AND (\
+        #                         (irs.itemID=slr.endItemID) OR
+        #                         (EXISTS (SELECT * FROM linksExt lr \
+        #                         WHERE lr.db_uuid=slr.db_uuid AND lr.session=slr.session AND lr.bundle=slr.bundle \
+        #                             AND ((lr.fromID=slr.endItemID AND lr.toID=irs.itemID) OR (lr.fromID=irs.itemID AND lr.toID= slr.endItemID))\
+        #                           )) \
+        #                         ) GROUP BY slr.ROWID ORDER BY slr.ROWID) \
+        #                         AS ir ON il.ROWID=ir.ROWID ")
+        
+        lIts=sqldf(c(itemsIdxSql,linksIdxSql,leftQuery))
+        rIts=sqldf(c(itemsIdxSql,linksIdxSql,rightQuery))
+        heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.seqEndId,(ir.rSeqIdx-il.seqIdx+1) AS seqLen,'",targetLevel,"' AS level \
+                         FROM lIts il JOIN rIts ir ON il.ROWID=ir.ROWID")
+      }
       
-                      
-       he=sqldf(c(itemsIdxSql,linksIdxSql,heQueryStr))
-                        
+      he=sqldf(c(itemsIdxSql,linksIdxSql,heQueryStr))
+      #he=sqldf(c(itemsIdxSql,linksIdxSql,testQuery))
+      cat("Result rows:",nrow(he),"\n")
+      #return(he)                 
     }
     
     result=list(items=he)
     if(is.null(resultType)){
-      trSl=convert.query.result.to.segmentlist(dbConfig = dbConfig,result=result)
+      trSl=convert.query.result.to.segmentlist.var(dbConfig = dbConfig,result=result)
     }else{
       if(resultType=='emuRsegs'){
-        trSl=convert.query.result.to.segmentlist(dbConfig = dbConfig,result=result)
+        trSl=convert.query.result.to.segmentlist.var(dbConfig = dbConfig,result=result)
       }else if(resultType=='emusegs'){
         trSl=convert.query.result.to.seglist(dbConfig = dbConfig,result = result)
       }else{
