@@ -2023,13 +2023,13 @@ rewrite.allAnnots.emuDB <- function(dbName, dbUUID=NULL, showProgress=TRUE){
   
   progress = 0
   if(showProgress){
-    bundleCount=length(bndls)
+    bundleCount=nrow(bndls)
     cat("INFO: Rewriting", bundleCount, "_annot.json files to file system...\n")
     pb=txtProgressBar(min=0,max=bundleCount,style=3)
     setTxtProgressBar(pb,progress)
   }
   
-  for(i in 1:length(bndls)){
+  for(i in 1:nrow(bndls)){
     b=get.bundle(sessionName=bndls[i,]$session, bundleName=bndls[i,]$name, dbUUID=dbUUID)
     bDir=paste0(b[['name']], bundle.dir.suffix)
     bfp=file.path(basePath, paste0(bndls[i,]$session, session.suffix), bDir)
