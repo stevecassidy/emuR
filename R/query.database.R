@@ -1003,7 +1003,7 @@ print.emuDB.query.result<-function(queryResult){
 ##' @param seglist segment list to requery on
 ##' @param offset offset in sequence
 ##' @param offsetRef referenec of offset: 'START' start of segments, 'END': end of segments
-##' @param seqLength item length of new segment list
+##' @param length item length of returned segment list
 ##' @param resultType type (class name) of result
 ##' @param dbUUID optional UUID odf emuDB
 ##' @return result set object of class resultType (default: 'emuRsegs')
@@ -1020,12 +1020,12 @@ print.emuDB.query.result<-function(queryResult){
 ##' 
 ##' ## Requery context (previuos and following) of 'p' on phonetic level
 ##'
-##' contextRequery(sl1,offset=-1,seqLength=3)
+##' contextRequery(sl1,offset=-1,length=3)
 ##' 
 ##' 
 ##' 
 ##' }
-requery_seq<-function(seglist, offset=0,offsetRef='START',seqLength=1,resultType=NULL,dbUUID=NULL){
+requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,resultType=NULL,dbUUID=NULL){
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType wiil be used)")
   }
@@ -1063,8 +1063,11 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',seqLength=1,resultType
     #labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,name)'
     labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,db_uuid,session,bundle,name)'
     
+    # check if out of boundaries
+    
+    
     # query for sequential requeries
-    heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndID,",seqLength," AS seqLen,il.level FROM seglist sl,items sll,items slr,items il, items ir \
+    heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndID,",length," AS seqLen,il.level FROM seglist sl,items sll,items slr,items il, items ir \
                         WHERE \
                          il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle AND \
                          il.db_uuid=sl.db_uuid AND il.session=sl.session AND il.bundle=sl.bundle AND \
@@ -1072,16 +1075,20 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',seqLength=1,resultType
                          slr.db_uuid=sl.db_uuid AND slr.session=sl.session AND slr.bundle=sl.bundle AND sl.endItemID=slr.itemID AND ")
     if(offsetRef=='START'){
       heQueryStr=paste0(heQueryStr,"il.level=sll.level AND il.seqIdx=sll.seqIdx+",offset," AND \
-                          ir.level=sll.level AND ir.seqIdx=sll.seqIdx+",offset+seqLength)
+                          ir.level=sll.level AND ir.seqIdx=sll.seqIdx+",offset+length)
     }else if(offsetRef=='END'){
       heQueryStr=paste0(heQueryStr,"il.level=slr.level AND il.seqIdx=slr.seqIdx+",offset," AND \
-                          ir.level=slr.level AND ir.seqIdx=slr.seqIdx+",offset+seqLength)
+                          ir.level=slr.level AND ir.seqIdx=slr.seqIdx+",offset+length)
     }else{
       stop("Parameter offsetRef must be one of 'START' or 'END'\n")
     }
     he=sqldf(heQueryStr)
-   
-    
+    slLen=nrow(seglist)
+    resLen=nrow(he)
+    outOfBndCnt=slLen-resLen
+    if(outOfBndCnt!=0){
+      stop(outOfBndCnt," of the requested sequence(s) is/are out of boundaries.")
+    }
     result=list(items=he)
     if(is.null(resultType)){
       trSl=convert.query.result.to.segmentlist.var(dbConfig = dbConfig,result=result)
