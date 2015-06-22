@@ -32,7 +32,7 @@ NULL
 ##' An emuR segment list is the default result of \code{\link{query}} and can be used to get track data using \code{\link{get_trackdata}}.
 ##' Inherits class \link{emusegs} and hence \code{\link{data.frame}}
 ##' 
-##' @aliases segmentlist emuRsegs
+##' @aliases segment list emuRsegs
 ##'
 ##' @format Attributed data.frame, one row per segment.
 ##' 
