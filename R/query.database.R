@@ -1294,10 +1294,8 @@ requery_hier<-function(seglist,level=NULL,resultType=NULL,dbUUID=NULL){
     }else{
       if(resultType=='emuRsegs'){
         trSl=convert.query.result.to.segmentlist.var(dbConfig = dbConfig,result=result)
-      }else if(resultType=='emusegs'){
-        trSl=convert.query.result.to.seglist(dbConfig = dbConfig,result = result)
       }else{
-        stop("Unknown result type: '",resultType,"'. Supported result types: 'emuRsegs','emusegs'")
+        stop("Unknown result type: '",resultType,"'. Supported result types: 'emuRsegs'")
       }
     }
     return(trSl)
