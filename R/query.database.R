@@ -1029,7 +1029,9 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,resultType=NU
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType wiil be used)")
   }
- 
+  if(length<=0){
+    stop("Parameter length must be greater than 0")
+  }
   #   
   distinctEmuDbs=sqldf("SELECT DISTINCT db_uuid FROM seglist")
   distinctEmuDbsCnt=nrow(distinctEmuDbs)
