@@ -1107,12 +1107,11 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,resultType=NU
   }
 }
 
-##' Requery emuR result hierarchical context
+##' Requery hierarchical context of segment list
 ##' @description Requery an EMU database on particular levels
 ##' WARNING! Experimental, syntax and semantics may change!! 
-##' @param seglist segment list to requery on
-##' @param level optional: chearcter string: query to this level first
-##' @param targetLevel caharcter string: result level 
+##' @param seglist segment list to requery on (type: 'emuRsegs')
+##' @param level character string: result level 
 ##' @param resultType type (class name) of result
 ##' @param dbUUID optional UUID odf emuDB
 ##' @return result set object of class resultType (default: 'emuRsegs')
@@ -1129,17 +1128,17 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,resultType=NU
 ##'
 ##' 
 ##' }
-requery_hier<-function(seglist,level=NULL,targetLevel=NULL,resultType=NULL,dbUUID=NULL){
+requery_hier<-function(seglist,level=NULL,resultType=NULL,dbUUID=NULL){
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType wiil be used)")
   }
   
   
-  # level requeries
-  if(is.null(level) & is.null(targetLevel)){
-    # no operation, return input seglist
-    return(seglist) 
-  }
+#   # level requeries
+#   if(is.null(level) & is.null(targetLevel)){
+#     # no operation, return input seglist
+#     return(seglist) 
+#   }
   #   
   distinctEmuDbs=sqldf("SELECT DISTINCT db_uuid FROM seglist")
   distinctEmuDbsCnt=nrow(distinctEmuDbs)
@@ -1182,7 +1181,7 @@ requery_hier<-function(seglist,level=NULL,targetLevel=NULL,resultType=NULL,dbUUI
     
     
     targetRootLevelName=NULL
-    if(is.null(targetLevel)){
+    if(is.null(level)){
       heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndId,ir.seqIdx-il.seqIdx+1 AS seqLen,il.level \
                           FROM \
                           ( SELECT ils.*,min(ils.seqIdx) FROM items ils,items slil,seglist sl WHERE \
@@ -1211,11 +1210,9 @@ requery_hier<-function(seglist,level=NULL,targetLevel=NULL,resultType=NULL,dbUUI
       #levelSeglist=contextRequery(seglist = seglist,targetLevel = level)
       
     }else{
-      if(!is.null(level)){
-        seglist=contextRequery(seglist = seglist,targetLevel = level)
-      }
-      check_level_attribute_name(dbConfig,targetLevel)
-      targetRootLevelName=get.level.name.for.attribute(dbConfig = dbConfig,attributeName = targetLevel)
+     
+      check_level_attribute_name(dbConfig,level)
+      targetRootLevelName=get.level.name.for.attribute(dbConfig = dbConfig,attributeName = level)
       
       leftQuery=paste0("SELECT ils.*,min(ils.seqIdx) FROM seglist sll,items ils WHERE \
                          ils.db_uuid=sll.db_uuid AND ils.session=sll.session AND ils.bundle=sll.bundle AND \
@@ -1237,7 +1234,7 @@ requery_hier<-function(seglist,level=NULL,targetLevel=NULL,resultType=NULL,dbUUI
                           )) \
                           ) GROUP BY slr.ROWID ORDER BY slr.ROWID")
       
-      # The foolowing code produces strange error on this data:
+      # The following code produces strange error on this data:
       # 
       #        > fsl=query('ae',"Text=~a.* & Num(Text,Phoneme)=2")
       #        > fsl
@@ -1286,15 +1283,11 @@ requery_hier<-function(seglist,level=NULL,targetLevel=NULL,resultType=NULL,dbUUI
       
       lIts=sqldf(c(itemsIdxSql,linksIdxSql,leftQuery))
       rIts=sqldf(c(itemsIdxSql,linksIdxSql,rightQuery))
-      heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.seqEndId,(ir.rSeqIdx-il.seqIdx+1) AS seqLen,'",targetLevel,"' AS level \
+      heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.seqEndId,(ir.rSeqIdx-il.seqIdx+1) AS seqLen,'",level,"' AS level \
                          FROM lIts il JOIN rIts ir ON il.ROWID=ir.ROWID")
     }
     
     he=sqldf(c(itemsIdxSql,linksIdxSql,heQueryStr))
-    #he=sqldf(c(itemsIdxSql,linksIdxSql,testQuery))
-    cat("Result rows:",nrow(he),"\n")
-    #return(he)                 
-    
     result=list(items=he)
     if(is.null(resultType)){
       trSl=convert.query.result.to.segmentlist.var(dbConfig = dbConfig,result=result)
