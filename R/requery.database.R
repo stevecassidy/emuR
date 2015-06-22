@@ -1,18 +1,18 @@
 require(sqldf)
 require(stringr)
 
-##' Requery emuR result context
-##' @description Requery an EMU database 
-##' WARNING! Experimental, syntax and semantics may change!! 
-##' @param seglist segment list to requery on
+##' Requery sequential context of segment list
+##' @description WARNING! Experimental, syntax and semantics may change!! 
+##' @param seglist segment list to requery on (type: 'emuRsegs')
 ##' @param offset offset in sequence
-##' @param offsetRef referenec of offset: 'START' start of segments, 'END': end of segments
-##' @param length item length of returned segment list
+##' @param offsetRef reference of offset: 'START' for first and 'END' for last element of segment list
+##' @param length element length of returned segment list
 ##' @param resultType type (class name) of result
 ##' @param dbUUID optional UUID odf emuDB
 ##' @return result set object of class resultType (default: 'emuRsegs')
 ##' @author Klaus Jaensch
-##' @import sqldf stringr
+##' @import sqldf
+##' @export
 ##' @seealso \code{\link{query}}
 ##' @keywords emuDB database requery Emu EQL2 
 ##' @examples
@@ -20,13 +20,25 @@ require(stringr)
 ##' 
 ##' ## Requery previous element of 'p' on phonetic level
 ##' sl1=query('ae','Phonetic=p')
+##' 
 ##' contextRequery(sl1,offset=-1)
 ##' 
 ##' ## Requery context (previuos and following) of 'p' on phonetic level
 ##'
 ##' contextRequery(sl1,offset=-1,length=3)
 ##' 
+##' ## Requery previous element of n->t sequence
+##' sl2=query('ae',"[Phoneme=n -> Phoneme=t]")
 ##' 
+##' requery_seq(sl2,offset=-1)
+##' 
+##' ## Requery following element of n->t sequence
+##' 
+##' requery_seq(sl2,offset=1,offsetRef='END')
+##' 
+##' ## Requery context (previuos and following) of n->t sequence
+##' 
+##' requery_seq(sl2,offset=-1,length=4)
 ##' 
 ##' }
 requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,resultType=NULL,dbUUID=NULL){
@@ -112,15 +124,15 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,resultType=NU
 }
 
 ##' Requery hierarchical context of segment list
-##' @description Requery an EMU database on particular levels
-##' WARNING! Experimental, syntax and semantics may change!! 
+##' @description WARNING! Experimental, syntax and semantics may change!! 
 ##' @param seglist segment list to requery on (type: 'emuRsegs')
 ##' @param level character string: result level 
-##' @param resultType type (class name) of result
+##' @param resultType type (class name) of result (for now only 'emuRsegs')
 ##' @param dbUUID optional UUID odf emuDB
 ##' @return result set object of class resultType (default: 'emuRsegs')
 ##' @author Klaus Jaensch
-##' @import sqldf stringr
+##' @import sqldf
+##' @export
 ##' @seealso \code{\link{query}}
 ##' @keywords emuDB database requery Emu EQL2 
 ##' @examples
@@ -128,7 +140,7 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,resultType=NU
 ##' 
 ##' ## Requery phoneme sequence of word (Text) 'beautiful'
 ##' sl1=query('ae','Text=beautiful')
-##' requery_hier(sl1,targetLevel='Phoneme')
+##' requery_hier(sl1,level='Phoneme')
 ##'
 ##' 
 ##' }

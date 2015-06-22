@@ -2,7 +2,8 @@
 % Please edit documentation in R/emuR-objDocs.R
 \name{emuRsegs}
 \alias{emuRsegs}
-\alias{segmentlist}
+\alias{list}
+\alias{segment}
 \title{emuR segment list}
 \format{Attributed data.frame, one row per segment.
 
