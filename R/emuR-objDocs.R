@@ -32,7 +32,7 @@ NULL
 ##' An emuR segment list is the default result of \code{\link{query}} and can be used to get track data using \code{\link{get_trackdata}}.
 ##' Inherits class \link{emusegs} and hence \code{\link{data.frame}}
 ##' 
-##' @aliases segemntlist emuRsegs
+##' @aliases segmentlist emuRsegs
 ##'
 ##' @format Attributed data.frame, one row per segment.
 ##' 
@@ -56,6 +56,7 @@ NULL
 ##' \itemize{
 ##'  \item utts utterance name (for compatibility to \link{emusegs} class)
 ##'  \item db_uuid UUID of emuDB
+##'  \item level name of level
 ##'  \item sampleStart start sample
 ##'  \item sampleEnd end sample
 ##'  \item sampleRate sample rate

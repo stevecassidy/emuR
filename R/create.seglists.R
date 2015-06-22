@@ -292,7 +292,7 @@ convert.query.result.to.segmentlist<-function(dbConfig,result,timeRefSegmentLeve
   
   
   # select columns: id,session,bundle,startItemId,endItemID ,type ...
-  selectStr="SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS startItemID ,e.itemID AS endItemID,s.type, "
+  selectStr="SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS startItemID ,e.itemID AS endItemID,r.level,s.type, "
   
   # find sequence start position
   # use sample start of sequence start item for type SEGMENT and samplePoint for type EVENT 
@@ -420,7 +420,7 @@ convert.query.result.to.segmentlist<-function(dbConfig,result,timeRefSegmentLeve
                         (CAST (sampleEnd AS REAL) + 1.5 ) / CAST( sampleRate AS REAL) * 1000.0 \
                        END AS end, \
                        session || ':' || bundle AS utts, \
-                       db_uuid,session,bundle,startItemID,endItemID,type,sampleStart,sampleEnd,sampleRate \
+                       db_uuid,session,bundle,startItemID,endItemID,level,type,sampleStart,sampleEnd,sampleRate \
                       FROM segListData")
   # set emusegs type attribute, default 'segment'
   slType='segment'
@@ -527,7 +527,7 @@ convert.query.result.to.segmentlist.var<-function(dbConfig,result,timeRefSegment
   #}
   
   # select columns: id,session,bundle,startItemId,endItemID ,type ...
-  selectStr="SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS startItemID ,e.itemID AS endItemID,s.type, "
+  selectStr="SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS startItemID ,e.itemID AS endItemID,r.level,s.type, "
   
   # find sequence start position
   # use sample start of sequence start item for type SEGMENT and samplePoint for type EVENT 
@@ -653,7 +653,7 @@ convert.query.result.to.segmentlist.var<-function(dbConfig,result,timeRefSegment
                         (CAST (sampleEnd AS REAL) + 1.5 ) / CAST( sampleRate AS REAL) * 1000.0 \
                        END AS end, \
                        session || ':' || bundle AS utts, \
-                       db_uuid,session,bundle,startItemID,endItemID,type,sampleStart,sampleEnd,sampleRate \
+                       db_uuid,session,bundle,startItemID,endItemID,level,type,sampleStart,sampleEnd,sampleRate \
                       FROM segListData")
   
   # set emusegs type attribute, default 'segment'

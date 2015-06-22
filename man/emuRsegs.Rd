@@ -2,7 +2,7 @@
 % Please edit documentation in R/emuR-objDocs.R
 \name{emuRsegs}
 \alias{emuRsegs}
-\alias{segemntlist}
+\alias{segmentlist}
 \title{emuR segment list}
 \format{Attributed data.frame, one row per segment.
 
@@ -26,6 +26,7 @@ Additional hidden columns:
 \itemize{
  \item utts utterance name (for compatibility to \link{emusegs} class)
  \item db_uuid UUID of emuDB
+ \item level name of level
  \item sampleStart start sample
  \item sampleEnd end sample
  \item sampleRate sample rate
