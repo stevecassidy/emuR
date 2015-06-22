@@ -598,9 +598,10 @@ convert.query.result.to.segmentlist.var<-function(dbConfig,result,timeRefSegment
   # order
   orderStr=''
   
+  if(itCount>0){
   selectStr=paste0(selectStr," CASE r.seqLen ")
   distinctSeqLensLength=nrow(distinctSeqLens)
-  # for each seq len, which occurs in the input segemnt list
+  # for each seq len, which occurs in the input segment list
   for(si in 1:distinctSeqLensLength){
     seqLen=distinctSeqLens[si,1]
   # append terms depending on maximum sequence length
@@ -620,7 +621,9 @@ convert.query.result.to.segmentlist.var<-function(dbConfig,result,timeRefSegment
     
   }
   selectStr=paste0(selectStr," END AS labels ")
-
+  }else{
+    selectStr=paste0(selectStr," '' AS labels ")
+  }
   queryStr=paste(selectStr,fromStr,whereStr,orderStr,sep = ' ')
   #cat(queryStr,"\n")
   
