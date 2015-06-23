@@ -77,7 +77,7 @@ test_that("Test ae samples",{
   lvCnt=length(msajc015_lab_values)
   teCnt=length(msajc015_tone_events)
   #msajc015_phonetic=ae[['items']][ae[['items']][['bundle']]=="msajc015" & ae[['items']][['level']]=='Phonetic',]
-  msajc015_phonetic=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"' AND session='0000' AND bundle='msajc015' AND level='Phonetic'"))
+  msajc015_phonetic=dbGetQuery(get_emuDBcon(.test_emu_ae_db_uuid),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"' AND session='0000' AND bundle='msajc015' AND level='Phonetic'"))
   rc=nrow(msajc015_phonetic)
   expect_equivalent(rc+1,lvCnt)
   # order by sequence index
@@ -86,7 +86,7 @@ test_that("Test ae samples",{
   expect_equivalent(rc+1,lvCnt)
   
   #msajc015_tone=ae[['items']][ae[['items']][['bundle']]=="msajc015" & ae[['items']][['level']]=='Tone',]
-  msajc015_tone=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"' AND session='0000' AND bundle='msajc015' AND level='Tone'"))
+  msajc015_tone=dbGetQuery(get_emuDBcon(.test_emu_ae_db_uuid),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"' AND session='0000' AND bundle='msajc015' AND level='Tone'"))
   msajc015_tone_ordered=msajc015_tone[order(msajc015_tone[['seqIdx']]),]
   lvSq=1:rc
   
