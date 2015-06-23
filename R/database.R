@@ -424,6 +424,7 @@ get.database<-function(uuid=NULL,name=NULL){
 ##' @param dbName name of emuDB
 ##' @param dbUUID optional UUID of emuDB
 ##' @seealso  \code{\link{is.emuDB.loaded}}
+##' @import DBI
 ##' @export
 get_emuDB_UUID<-function(dbName=NULL,dbUUID=NULL){
   if(is.null(dbUUID)){
@@ -1077,29 +1078,6 @@ get.bundle <- function(dbName=NULL,sessionName,bundleName,dbUUID=NULL){
 #   return(bundleStub)
 # }
 
-## Converts bundle in data frame format to S3 format
-## 
-## @param db database
-## @param bundle bundle stub
-## @return bundle in S3 format
-## @author Klaus Jaensch
-## @keywords emuDB database DBconfig Emu bundle
-## 
-get.bundle.s3 <- function(db,bundle){
-  
-  schema=db[['DBconfig']]
-  bName=bundle[['name']]
-  sName=bundle[['sessionName']]
-  # convert levels to s3
-  bundle[['levels']]=get.bundle.levels.s3(db,sName,bName)
-  bundle[['itemsDataFrame']]=NULL
-  # convert links
-  bundle[['links']]=get.bundle.links.s3(db,sName,bName)
-  bundle[['linksDataFrame']]=NULL
-  return(bundle)
-}
-
-
 
 emuDB.print.bundle <- function(utt){
   cat("code=",utt[['name']],"\n")
@@ -1531,7 +1509,7 @@ remove.linkDefinition<-function(dbName,linkDefinitionSuperlevelName,linkDefiniti
                         f.level='",linkDefinitionSuperlevelName,"' AND t.level='",linkDefinitionSublevelName,"'"))
   lksCnt=nrow(lksDf)
   if(lksCnt>0){
-    stop("There are ",lnksCnt," links for this link definitons. Remove these links first to delete link definition")
+    stop("There are ",lksCnt," links for this link definitons. Remove these links first to delete link definition")
   }
   
   # do removal
@@ -2172,13 +2150,13 @@ rewrite.allAnnots.emuDB <- function(dbName, dbUUID=NULL, showProgress=TRUE){
   
   progress = 0
   if(showProgress){
-    bundleCount=length(bndls)
+    bundleCount=nrow(bndls)
     cat("INFO: Rewriting", bundleCount, "_annot.json files to file system...\n")
     pb=txtProgressBar(min=0,max=bundleCount,style=3)
     setTxtProgressBar(pb,progress)
   }
   
-  for(i in 1:length(bndls)){
+  for(i in 1:nrow(bndls)){
     b=get.bundle(sessionName=bndls[i,]$session, bundleName=bndls[i,]$name, dbUUID=dbUUID)
     bDir=paste0(b[['name']], bundle.dir.suffix)
     bfp=file.path(basePath, paste0(bndls[i,]$session, session.suffix), bDir)
