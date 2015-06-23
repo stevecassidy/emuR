@@ -154,8 +154,8 @@ update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
         # only build redunant links if non-empty bundle
         qRes = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT * FROM items WHERE ",
                                                        "db_uuid = '", dbUUID, "' AND ", 
-                                                       "session = '", sessionName, "' AND ", 
-                                                       "bundle = '", bName, "'"))
+                                                       "session = '", sn, "' AND ", 
+                                                       "bundle = '", bn, "'"))
         if(nrow(qRes) > 0){
           build.redundant.links.all(database = dbObj,sessionName=sn,bundleName=bn)
         }
