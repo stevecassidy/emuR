@@ -4,7 +4,7 @@ require(stringr)
 EMPTY_RESULT_DF=data.frame(db_uuid=character(0),session=character(0),bundle=character(0),seqStartId=character(0),seqEndId=character(0),seqLen=integer(0),level=character(0),stringsAsFactors = FALSE)
 
 setQueryTmpEmuDBs<-function(queryTmpEmuDBs){
-    internalVars$queryTmpEmuDBs<-queryTmpEmuDBs
+  internalVars$queryTmpEmuDBs<-queryTmpEmuDBs
 }
 
 getQueryTmpEmuDBs<-function(){
@@ -48,10 +48,10 @@ emuR.regexprl<-function(pattern,x){
 }
 
 write_table_forced<-function(name,value){
-if(dbExistsTable(getEmuDBcon(),name)){
-  dbRemoveTable(getEmuDBcon(),name)
-}
-dbWriteTable(getEmuDBcon(),name = name,value=value)
+  if(dbExistsTable(get_emuDBcon(),name)){
+    dbRemoveTable(get_emuDBcon(),name)
+  }
+  dbWriteTable(get_emuDBcon(),name = name,value=value)
 }
 
 check_level_attribute_name<-function(dbConfig,name){
@@ -129,7 +129,7 @@ query.database.level.label<-function(ldf,levelName,conditionText){
   itemsAsSeqs=NULL
   if(nrow(itemsMatch)>0){
     itemsIdxSql='CREATE INDEX itemsMatch_idx ON itemsMatch(itemID)'
-   
+    
     itemsAsSeqQStr=paste0("SELECT db_uuid,session,bundle,itemID AS seqStartId, itemID AS seqEndId,1 AS seqLen,'",levelName,"' AS level FROM itemsMatch")
     itemsAsSeqs=sqldf(c(itemsIdxSql,itemsAsSeqQStr))
   }else{
@@ -207,7 +207,7 @@ query.database.eql.FUNKA<-function(dbConfig,q,items=NULL){
       level2=get.level.name.for.attribute(dbConfig,param2)
       
       # BNF: VOP = '=' | '!=' | '>' | '<' | '<=' | '>=';
-     
+      
       if(funcName=='Start' | funcName=='End' | funcName=='Medial'){
         
         if(funcValueTerm!=''){
@@ -302,11 +302,11 @@ query.database.eql.FUNKA<-function(dbConfig,q,items=NULL){
               stop("Syntax error: Could not parse Num function value as integer: '",funcValStr,"'\n")
             }
             break
-            }
           }
+        }
         if(is.null(funcOpr) | is.null(funcVal)){
-        stop("Syntax error: Unknown operator and/or value for Num  function: '",funcValueTerm,"'\n")
-      }
+          stop("Syntax error: Unknown operator and/or value for Num  function: '",funcValueTerm,"'\n")
+        }
         if(funcOpr=='=='){
           sqlRuncOpr='='
         }else{
@@ -314,22 +314,22 @@ query.database.eql.FUNKA<-function(dbConfig,q,items=NULL){
         }
         # BNF: NUMA = 'Num','(',EBENE,',',EBENE,')',VOP,INTPN;
         # Note return value level is param1 here
-       # sqlQStr=paste0("SELECT d.id AS seqStartId, d.id AS seqEndId FROM allItems i,items d WHERE i.level='",param2,"' AND d.level='",param1,"' AND EXISTS (SELECT * FROM links k WHERE k.bundle=i.bundle AND k.bundle=d.bundle AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toLevel=i.level AND k.toSeqLen=",funcValue,")")
+        # sqlQStr=paste0("SELECT d.id AS seqStartId, d.id AS seqEndId FROM allItems i,items d WHERE i.level='",param2,"' AND d.level='",param1,"' AND EXISTS (SELECT * FROM links k WHERE k.bundle=i.bundle AND k.bundle=d.bundle AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toLevel=i.level AND k.toSeqLen=",funcValue,")")
         #numChilds=as.integer(funcValue)
         #if(is.na(numChilds)){
-         # stop("Syntax error: Expected integer value after '=' in function term: '",qTrim,"'\n")
+        # stop("Syntax error: Expected integer value after '=' in function term: '",qTrim,"'\n")
         #}
-#         sqlQStr=paste0("SELECT DISTINCT d.db_uuid,d.session,d.bundle,d.itemID AS seqStartId, d.itemID AS seqEndId,1 AS seqLen,'",param1,"' AS level \
-#                        FROM allItems i,items d \
-#                       WHERE i.db_uuid=d.db_uuid AND i.session=d.session AND i.bundle=d.bundle \
-#                        AND i.level='",level2,"' AND d.level='",level1,"' AND EXISTS \
-#                        (SELECT * FROM links k \
-#                        WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
-#                         AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
-#                         AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toLevel=i.level AND k.toSeqLen",sqlFuncOpr,funcVal,"\
-#                        )") 
-      
-         sqlQStr=paste0("SELECT DISTINCT d.db_uuid,d.session,d.bundle,d.itemID AS seqStartId, d.itemID AS seqEndId,1 AS seqLen,'",param1,"' AS level \
+        #         sqlQStr=paste0("SELECT DISTINCT d.db_uuid,d.session,d.bundle,d.itemID AS seqStartId, d.itemID AS seqEndId,1 AS seqLen,'",param1,"' AS level \
+        #                        FROM allItems i,items d \
+        #                       WHERE i.db_uuid=d.db_uuid AND i.session=d.session AND i.bundle=d.bundle \
+        #                        AND i.level='",level2,"' AND d.level='",level1,"' AND EXISTS \
+        #                        (SELECT * FROM links k \
+        #                        WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
+        #                         AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
+        #                         AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toLevel=i.level AND k.toSeqLen",sqlFuncOpr,funcVal,"\
+        #                        )") 
+        
+        sqlQStr=paste0("SELECT DISTINCT d.db_uuid,d.session,d.bundle,d.itemID AS seqStartId, d.itemID AS seqEndId,1 AS seqLen,'",param1,"' AS level \
                        FROM items d \
                       WHERE (SELECT count(*) FROM allItems i WHERE i.db_uuid=d.db_uuid AND i.session=d.session AND i.bundle=d.bundle \
                        AND i.level='",level2,"' AND d.level='",level1,"' AND EXISTS \
@@ -510,69 +510,69 @@ query.database.eql.ETTIKETTA<-function(dbConfig,q,labels=NULL){
 }
 
 query.database.eql.KONJA<-function(dbConfig,q){
-   # BNF: KONJA = EA,{'&',EA};
-    qTrim=str_trim(q)
-    conditions=list()
-    # initialize with empty result
-    res=create.subtree(items=EMPTY_RESULT_DF,links=NULL,resultLevel=NULL,projectionItems=NULL)
-    startPos=1
-    p=0
-    items=getQueryTmpEmuDBs()[['queryItems']]
-    labels=getQueryTmpEmuDBs()[['queryLabels']]
-    resultLevel=NULL
-    projection=FALSE
+  # BNF: KONJA = EA,{'&',EA};
+  qTrim=str_trim(q)
+  conditions=list()
+  # initialize with empty result
+  res=create.subtree(items=EMPTY_RESULT_DF,links=NULL,resultLevel=NULL,projectionItems=NULL)
+  startPos=1
+  p=0
+  items=getQueryTmpEmuDBs()[['queryItems']]
+  labels=getQueryTmpEmuDBs()[['queryLabels']]
+  resultLevel=NULL
+  projection=FALSE
+  
+  # parse through all terms of and (&) operation
+  while(p>=0){
+    # find ampersand '&' char
+    p=get.string.position(string=qTrim,searchStr='&',pos=startPos,literalQuote="'")
+    if(p==-1){
+      # get single term
+      condStr=str_trim(substring(qTrim,startPos))
+    }else{
+      # get leading term
+      condStr=str_trim(substr(qTrim,startPos,p-1))
+      # advance to next
+      startPos=p+1
+    }
+    # execute query on term      
+    res=query.database.eql.EA(dbConfig,condStr,items=items,labels=labels)
+    # set resultLevel of first term
+    if(is.null(resultLevel)){
+      termResLevel=res[['resultLevel']]
+      if(!is.null(termResLevel)){
+        resultLevel=termResLevel
+      }
+    }
     
-    # parse through all terms of and (&) operation
-    while(p>=0){
-      # find ampersand '&' char
-      p=get.string.position(string=qTrim,searchStr='&',pos=startPos,literalQuote="'")
-      if(p==-1){
-        # get single term
-        condStr=str_trim(substring(qTrim,startPos))
-      }else{
-        # get leading term
-        condStr=str_trim(substr(qTrim,startPos,p-1))
-        # advance to next
-        startPos=p+1
-      }
-      # execute query on term      
-      res=query.database.eql.EA(dbConfig,condStr,items=items,labels=labels)
-      # set resultLevel of first term
-      if(is.null(resultLevel)){
-        termResLevel=res[['resultLevel']]
-        if(!is.null(termResLevel)){
-          resultLevel=termResLevel
+    seqIts=res[['items']]
+    nRes=nrow(seqIts)
+    if(nRes==0){
+      # empty result stop here and return
+      return(res)
+    }else{
+      # Proceed with items matching current condition
+      items=sqldf("SELECT i.* FROM items i,seqIts s WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.itemID=s.seqStartId")
+      labels=sqldf("SELECT l.* FROM labels l,seqIts s WHERE l.db_uuid=s.db_uuid AND l.session=s.session AND l.bundle=s.bundle AND l.itemID=s.seqStartId")
+      if(!is.null(res[['projectionItems']])){
+        # only one term can be marked with hashtag
+        if(projection){
+          stop("Only one hashtag allowed in linear query term: ",qTrim)
         }
-      }
-      
-      seqIts=res[['items']]
-      nRes=nrow(seqIts)
-      if(nRes==0){
-        # empty result stop here and return
-        return(res)
-      }else{
-        # Proceed with items matching current condition
-        items=sqldf("SELECT i.* FROM items i,seqIts s WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.itemID=s.seqStartId")
-        labels=sqldf("SELECT l.* FROM labels l,seqIts s WHERE l.db_uuid=s.db_uuid AND l.session=s.session AND l.bundle=s.bundle AND l.itemID=s.seqStartId")
-        if(!is.null(res[['projectionItems']])){
-          # only one term can be marked with hashtag
-          if(projection){
-            stop("Only one hashtag allowed in linear query term: ",qTrim)
-          }
-          # if one of the boolean terms is marked with the hashtag the whole term is marked 
-          projection=TRUE
-          projectionAttrLevel=res[['projectionAttrLevel']]
-        }
+        # if one of the boolean terms is marked with the hashtag the whole term is marked 
+        projection=TRUE
+        projectionAttrLevel=res[['projectionAttrLevel']]
       }
     }
-    res[['items']][,'level']=resultLevel
-    items=res[['items']]
-    if(projection){      
-      qStr=paste0('SELECT i.db_uuid,i.session,i.bundle,i.seqStartId,i.seqEndId,i.seqStartId AS pSeqStartId ,i.seqEndId AS pSeqEndId,i.seqLen AS pSeqLen,"',projectionAttrLevel,'" AS pLevel FROM items i')
-      res[['projectionItems']]=sqldf(qStr)
-    }
-    res[['resultLevel']]=resultLevel
-    return(res)
+  }
+  res[['items']][,'level']=resultLevel
+  items=res[['items']]
+  if(projection){      
+    qStr=paste0('SELECT i.db_uuid,i.session,i.bundle,i.seqStartId,i.seqEndId,i.seqStartId AS pSeqStartId ,i.seqEndId AS pSeqEndId,i.seqLen AS pSeqLen,"',projectionAttrLevel,'" AS pLevel FROM items i')
+    res[['projectionItems']]=sqldf(qStr)
+  }
+  res[['resultLevel']]=resultLevel
+  return(res)
 }
 
 query.database.eql.in.bracket<-function(dbConfig,q){
@@ -611,7 +611,7 @@ query.database.eql.in.bracket<-function(dbConfig,q){
     lResIts=lRes[['items']]
     lResAttrName=lRes[['resultLevel']]
     lResLvl=get.level.name.by.attribute.name(dbConfig,lResAttrName)
-   
+    
     
     rResAttrName=rRes[['resultLevel']]
     rResLvl=get.level.name.by.attribute.name(dbConfig,rResAttrName)
@@ -621,7 +621,7 @@ query.database.eql.in.bracket<-function(dbConfig,q){
     # check equal levels for sequence query
     # (Do this already at this point, fixes issue: Sequence query should always throw an error if arguments not on same level. #39 )
     if(seqPos!=-1 & lResAttrName!=rResAttrName){
-        stop("Levels of sequence query '",qTrim,"' do not match. (",lResAttrName," not equal ",rResAttrName,")")
+      stop("Levels of sequence query '",qTrim,"' do not match. (",lResAttrName," not equal ",rResAttrName,")")
     }
     
     lLvlItems=NULL
@@ -638,8 +638,8 @@ query.database.eql.in.bracket<-function(dbConfig,q){
     #}
     rResIts=rRes[['items']]
     
-   
-   
+    
+    
     rLvlItems=NULL
     # sqldf cannot handle empty data frames 
     rResItsNrows=nrow(rResIts)
@@ -661,11 +661,11 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       # right seq items
       #rSeqIts=list.seq.items(rResIts)
       itemsIdxSql='CREATE INDEX items_idx ON items(db_uuid,session,bundle,itemID)'
-#       rSeqIts=sqldf(c(itemsIdxSql,"SELECT i.* FROM items s,items i,items e,rResIts r WHERE \
-#                       s.db_uuid=i.db_uuid AND s.session=i.session AND s.bundle=i.bundle AND \
-#                       s.db_uuid=e.db_uuid AND s.session=e.session AND s.bundle=e.bundle AND \
-#                       s.db_uuid=r.db_uuid AND s.session=r.session AND s.bundle=r.bundle AND \
-#                       s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND i.level=s.level AND i.seqIdx>=s.seqIdx AND i.seqIdx<=e.seqIdx"))
+      #       rSeqIts=sqldf(c(itemsIdxSql,"SELECT i.* FROM items s,items i,items e,rResIts r WHERE \
+      #                       s.db_uuid=i.db_uuid AND s.session=i.session AND s.bundle=i.bundle AND \
+      #                       s.db_uuid=e.db_uuid AND s.session=e.session AND s.bundle=e.bundle AND \
+      #                       s.db_uuid=r.db_uuid AND s.session=r.session AND s.bundle=r.bundle AND \
+      #                       s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND i.level=s.level AND i.seqIdx>=s.seqIdx AND i.seqIdx<=e.seqIdx"))
       lSeqRes=EMPTY_RESULT_DF
       
       # build dominance SQL query string 
@@ -691,14 +691,14 @@ query.database.eql.in.bracket<-function(dbConfig,q){
       lrDomQueryStr=paste0("SELECT DISTINCT ",lDomQuerySelectStr,",",rDomQuerySelectStr,domQueryStrTail)
       
       # Indices for left and right result items and for links
-
+      
       lResIdxSql='CREATE INDEX lResIts_idx ON lResIts(db_uuid,session,bundle,seqStartId,seqEndId)'
       rResIdxSql='CREATE INDEX rResIts_idx ON rResIts(db_uuid,session,bundle,seqStartId,seqEndId)'
       linksIdxSql='CREATE INDEX links_idx ON links(db_uuid,session,bundle,fromID,toID)'
       
       # execute index creation and then dominance query 
       lrExpRes=sqldf(c(lResIdxSql,rResIdxSql,itemsIdxSql,linksIdxSql,lrDomQueryStr))
-
+      
       #lExpRes=data.frame(seqStartId=lrExpRes[,'seqStartId'],seqEndId=lrExpRes[,'seqEndId'],seqLen=lrExpRes[,'seqLen'],level=lrExpRes[,'level'],stringsAsFactors = FALSE)
       # lrExpRes might have double items, use a distinct select to create the data.frame for left term
       # for example in the query "[ Syllable=S ^ Phonetic=s ]" on ae there exists one Syllable S which dominates two Phonetic s items 
@@ -726,7 +726,7 @@ query.database.eql.in.bracket<-function(dbConfig,q){
           #qStr=paste0(lQStr," UNION ",rQStr)
           #rPrjIts=sqldf(c(lrExpResIdxSql,qStr))
           rPrjIts=sqldf(qStr)
-         
+          
         }
       }
       prjIts=NULL
@@ -819,7 +819,7 @@ query.database.eql.in.bracket<-function(dbConfig,q){
 ## @keywords emuDB database query Emu EQL 
 ## 
 query.database.with.eql.seglist<-function(dbConfig,query){
-
+  
   rs=query.database.with.eql(dbConfig,query)
   segList=convert.query.result.to.seglist(dbConfig,rs)
   return(segList)
@@ -923,69 +923,69 @@ query.database.with.eql<-function(dbConfig,query){
 
 query<-function(dbName=NULL,query,sessionPattern=NULL,bundlePattern=NULL,queryLang='EQL2',timeRefSegmentLevel=NULL,resultType=NULL,dbUUID=NULL){
   
-    if(queryLang=='EQL2'){
-      # .initialize.DBI.database(createTables=FALSE)
-      dbUUID=get_emuDB_UUID(dbName,dbUUID)
-      db=.load.emuDB.DBI(uuid = dbUUID)
-      dbConfig=db[['DBconfig']]
-      # create 
-      emuDBs.query.tmp<-list()
-      emuDBs.query.tmp[['queryItems']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
-      emuDBs.query.tmp[['queryLabels']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
-      emuDBs.query.tmp[['queryLinksExt']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
-      setQueryTmpEmuDBs(emuDBs.query.tmp)
-      if(!is.null(sessionPattern)){
-        newTmpDBs=list()
-       
-        sessSelIts=emuR.regexprl(sessionPattern,getQueryTmpEmuDBs()[['queryItems']][['session']])
-        newTmpDBs[['queryItems']]<-getQueryTmpEmuDBs()[['queryItems']][sessSelIts,]
-        
-        sessSelLks=emuR.regexprl(sessionPattern,getQueryTmpEmuDBs()[['queryLinksExt']][['session']])
-        newTmpDBs[['queryLinksExt']]<-getQueryTmpEmuDBs()[['queryLinksExt']][sessSelLks,]
-        
-        sessSelLbls=emuR.regexprl(sessionPattern,getQueryTmpEmuDBs()[['queryLabels']][['session']])
-        newTmpDBs[['queryLabels']]<-getQueryTmpEmuDBs()[['queryLabels']][sessSelLbls,]
-        setQueryTmpEmuDBs(newTmpDBs)
-      }
-      if(!is.null(bundlePattern)){
-        
-        
-        newTmpDBs=getQueryTmpEmuDBs()
-        if(is.null(newTmpDBs)){
-          newTmpDBs=list()
-        }
-        bndlSelIts=emuR.regexprl(bundlePattern,getQueryTmpEmuDBs()[['queryItems']][['bundle']])
-        newTmpDBs[['queryItems']]<-getQueryTmpEmuDBs()[['queryItems']][bndlSelIts,]
-        
-        bndlSelLks=emuR.regexprl(bundlePattern,getQueryTmpEmuDBs()[['queryLinksExt']][['bundle']])
-        newTmpDBs[['queryLinksExt']]<-getQueryTmpEmuDBs()[['queryLinksExt']][bndlSelLks,]
-        
-        bndlSelLbls=emuR.regexprl(bundlePattern,getQueryTmpEmuDBs()[['queryLabels']][['bundle']])
-        newTmpDBs[['queryLabels']]<-getQueryTmpEmuDBs()[['queryLabels']][bndlSelLbls,]
-        setQueryTmpEmuDBs(newTmpDBs)
-      }
+  if(queryLang=='EQL2'){
+    # .initialize.DBI.database(createTables=FALSE)
+    dbUUID=get_emuDB_UUID(dbName,dbUUID)
+    db=.load.emuDB.DBI(uuid = dbUUID)
+    dbConfig=db[['DBconfig']]
+    # create 
+    emuDBs.query.tmp<-list()
+    emuDBs.query.tmp[['queryItems']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
+    emuDBs.query.tmp[['queryLabels']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
+    emuDBs.query.tmp[['queryLinksExt']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
+    setQueryTmpEmuDBs(emuDBs.query.tmp)
+    if(!is.null(sessionPattern)){
+      newTmpDBs=list()
       
-      if(is.null(resultType)){
-        return(query.database.with.eql.segmentlist(dbConfig,query,timeRefSegmentLevel))
-      }else{
-        if(resultType=='emuRsegs'){
-          return(query.database.with.eql.segmentlist(dbConfig,query,timeRefSegmentLevel))
-        }else if(resultType=='emusegs'){
-          if(!is.null(timeRefSegmentLevel)){
-            # TODO 
-              stop("Parameter timeRefSegmentLevel not yet supported for resultType 'emusegs'. Please use resultType 'emuRsegs' (default).")
-          }
-          return(query.database.with.eql.seglist(dbConfig,query))
-        }else{
-          stop("Unknown result type: '",resultType,"'. Supported result types: 'emuRsegs', emusegs'")
-        }
-      }
-      # free temp tables
-      setQueryTmpEmuDBs(NULL)
+      sessSelIts=emuR.regexprl(sessionPattern,getQueryTmpEmuDBs()[['queryItems']][['session']])
+      newTmpDBs[['queryItems']]<-getQueryTmpEmuDBs()[['queryItems']][sessSelIts,]
       
-    }else{
-      stop("Unknown query language '",queryLang,"'.")
+      sessSelLks=emuR.regexprl(sessionPattern,getQueryTmpEmuDBs()[['queryLinksExt']][['session']])
+      newTmpDBs[['queryLinksExt']]<-getQueryTmpEmuDBs()[['queryLinksExt']][sessSelLks,]
+      
+      sessSelLbls=emuR.regexprl(sessionPattern,getQueryTmpEmuDBs()[['queryLabels']][['session']])
+      newTmpDBs[['queryLabels']]<-getQueryTmpEmuDBs()[['queryLabels']][sessSelLbls,]
+      setQueryTmpEmuDBs(newTmpDBs)
     }
+    if(!is.null(bundlePattern)){
+      
+      
+      newTmpDBs=getQueryTmpEmuDBs()
+      if(is.null(newTmpDBs)){
+        newTmpDBs=list()
+      }
+      bndlSelIts=emuR.regexprl(bundlePattern,getQueryTmpEmuDBs()[['queryItems']][['bundle']])
+      newTmpDBs[['queryItems']]<-getQueryTmpEmuDBs()[['queryItems']][bndlSelIts,]
+      
+      bndlSelLks=emuR.regexprl(bundlePattern,getQueryTmpEmuDBs()[['queryLinksExt']][['bundle']])
+      newTmpDBs[['queryLinksExt']]<-getQueryTmpEmuDBs()[['queryLinksExt']][bndlSelLks,]
+      
+      bndlSelLbls=emuR.regexprl(bundlePattern,getQueryTmpEmuDBs()[['queryLabels']][['bundle']])
+      newTmpDBs[['queryLabels']]<-getQueryTmpEmuDBs()[['queryLabels']][bndlSelLbls,]
+      setQueryTmpEmuDBs(newTmpDBs)
+    }
+    
+    if(is.null(resultType)){
+      return(query.database.with.eql.segmentlist(dbConfig,query,timeRefSegmentLevel))
+    }else{
+      if(resultType=='emuRsegs'){
+        return(query.database.with.eql.segmentlist(dbConfig,query,timeRefSegmentLevel))
+      }else if(resultType=='emusegs'){
+        if(!is.null(timeRefSegmentLevel)){
+          # TODO 
+          stop("Parameter timeRefSegmentLevel not yet supported for resultType 'emusegs'. Please use resultType 'emuRsegs' (default).")
+        }
+        return(query.database.with.eql.seglist(dbConfig,query))
+      }else{
+        stop("Unknown result type: '",resultType,"'. Supported result types: 'emuRsegs', emusegs'")
+      }
+    }
+    # free temp tables
+    setQueryTmpEmuDBs(NULL)
+    
+  }else{
+    stop("Unknown query language '",queryLang,"'.")
+  }
 }
 
 
