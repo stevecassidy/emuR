@@ -474,11 +474,13 @@ list_emuDBs<-function(){
                   stringsAsFactors = F)
   for(c in internalVars$sqlConnections){
     dbs=dbGetQuery(c$connection, "SELECT name,basePath,uuid FROM emuDB")
-    df = rbind(df, data.frame(name = dbs$name,
-                              basePath = dbs$basePath,
-                              uuid = dbs$uuid,
-                              cachePath = c$path,
-                              stringsAsFactors = F))
+    if(nrow(dbs) > 0){
+      df = rbind(df, data.frame(name = dbs$name,
+                                basePath = dbs$basePath,
+                                uuid = dbs$uuid,
+                                cachePath = c$path,
+                                stringsAsFactors = F))
+    }
   }
   return(df)
 }
