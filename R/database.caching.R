@@ -51,8 +51,8 @@ update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
     dbCfgJSON=jsonlite::toJSON(db$DBconfig, auto_unbox=TRUE, force=TRUE, pretty=TRUE)
     # update entry
     dbGetQuery(get_emuDBcon(dbUUID), paste0("UPDATE emuDB SET DBconfigJSON = '", dbCfgJSON , "', ",
-                                     "MD5DBconfigJSON = '", new.MD5DBconfigJSON, "' ",
-                                     "WHERE uuid = '", dbUUID, "'"))
+                                            "MD5DBconfigJSON = '", new.MD5DBconfigJSON, "' ",
+                                            "WHERE uuid = '", dbUUID, "'"))
     
   }
   
@@ -67,6 +67,16 @@ update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
   curSes = list_sessions(dbName, dbUUID=dbUUID)
   curBndls = list_bundles(dbName, dbUUID = dbUUID)
   curBndls["found"] = F
+  
+  progress = 0
+  
+  if(verbose){
+    bndlPaths = list.dirs(dbObj$basePath, recursive=T)
+    nrOfBndls = length(bndlPaths[grepl(paste0(".", "*", session.suffix, ".*", bundle.dir.suffix, "$"), bndlPaths) == T])
+    cat("INFO: Checking if cache needs update for ", nrOfBndls, " bundles...\n")
+    pb = txtProgressBar(min = 0, max = nrOfBndls, initial = progress, style=3)
+    setTxtProgressBar(pb, progress)
+  }
   
   for(s in sesPaths){
     sn = gsub(session.suffix,"", s)
@@ -88,9 +98,9 @@ update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
       new.MD5annotJSON = md5sum(normalizePath(annotPath))
       
       old.MD5annotJSON = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT MD5annotJSON FROM bundle WHERE ",
-                                                          "db_uuid='", dbUUID, "' AND ",
-                                                          "session='", sn, "' AND ",
-                                                          "name='", bn, "'"))$MD5annotJSON
+                                                                 "db_uuid='", dbUUID, "' AND ",
+                                                                 "session='", sn, "' AND ",
+                                                                 "name='", bn, "'"))$MD5annotJSON
       
       # set to empty string if NA or empty character()
       if(length(old.MD5annotJSON) == 0){
@@ -122,18 +132,18 @@ update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
         if(!any(curBndls$session == sn & curBndls$name == bn)){
           sR = attr(read.AsspDataObj(bundle$mediaFilePath), "sampleRate")
           dbGetQuery(get_emuDBcon(dbUUID), paste0("INSERT INTO bundle VALUES ('",dbUUID,"', '", 
-                                           sn,"', '", 
-                                           bn,"', '", 
-                                           bundle$annotates,"', '", 
-                                           sR,"', '", 
-                                           bundle$mediaFilePath,"', '", 
-                                           new.MD5annotJSON,"')"))
+                                                  sn,"', '", 
+                                                  bn,"', '", 
+                                                  bundle$annotates,"', '", 
+                                                  sR,"', '", 
+                                                  bundle$mediaFilePath,"', '", 
+                                                  new.MD5annotJSON,"')"))
         }else{
           # update MD5 value of DBI model in bundle table
           dbGetQuery(get_emuDBcon(dbUUID), paste0("UPDATE bundle SET MD5annotJSON = '", new.MD5annotJSON , "' ",
-                                           "WHERE db_uuid = '", dbUUID, "' AND ",
-                                           "      session = '", sn, "' AND ",
-                                           "      name = '", bn, "'"))
+                                                  "WHERE db_uuid = '", dbUUID, "' AND ",
+                                                  "      session = '", sn, "' AND ",
+                                                  "      name = '", bn, "'"))
         }
         
         # delete old items/label/links entries
@@ -141,10 +151,31 @@ update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
         # and store them
         .store.bundle.annot.DBI(dbUUID=dbUUID,bundle=bundle)
         
+        # only build redunant links if non-empty bundle
+        qRes = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT * FROM items WHERE ",
+                                                       "db_uuid = '", dbUUID, "' AND ", 
+                                                       "session = '", sessionName, "' AND ", 
+                                                       "bundle = '", bName, "'"))
+        if(nrow(qRes) > 0){
+          build.redundant.links.all(database = dbObj,sessionName=sn,bundleName=bn)
+        }
+        
+        
+      }
+      
+      # update pb
+      progress = progress + 1
+      if(verbose){
+        setTxtProgressBar(pb, progress)
       }
       
     }
     
+    
+  }
+  
+  if(verbose){
+    cat("\n")
   }
   
   # remove not found bundles from cache
