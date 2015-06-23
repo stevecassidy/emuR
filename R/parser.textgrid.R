@@ -273,9 +273,9 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
                       }
                       
                       if(!is.null(currentSegmentIndex) && 
-                         !is.null(currentSegmentStart) &&
-                         !is.null(currentSegmentEnd) &&
-                         !is.null(currentSegmentLabel)){
+                           !is.null(currentSegmentStart) &&
+                           !is.null(currentSegmentEnd) &&
+                           !is.null(currentSegmentLabel)){
                         #cat("New segment\n");
                         sampleDur = currentSegmentEnd - currentSegmentStart - 1
                         labels=list(list(name=currentTierName,value=currentSegmentLabel))
@@ -283,16 +283,16 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
                         
                         # item entry:
                         dbSendQuery(get_emuDBcon(dbUUID), paste0("INSERT INTO items VALUES"," ('", dbUUID, "', '", session, "', '", bundle, "', '", itemCounterGlobal, 
-                                                                 "', '", currentTierName, "', '", "SEGMENT", 
-                                                                 "', ", itemCounterLevel, ", ", sampleRate, ", ", "NULL", ", ", currentSegmentStart, 
-                                                                 ", ", sampleDur, ")"))
+                                                       "', '", currentTierName, "', '", "SEGMENT", 
+                                                       "', ", itemCounterLevel, ", ", sampleRate, ", ", "NULL", ", ", currentSegmentStart, 
+                                                       ", ", sampleDur, ")"))
                         
                         
                         
                         # label entry:
                         dbSendQuery(get_emuDBcon(dbUUID), paste0("INSERT INTO labels VALUES","('", 
-                                                                 dbUUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
-                                                                 ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentSegmentLabel), "')"))
+                                                       dbUUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
+                                                       ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentSegmentLabel), "')"))
                         
                         # links entry:
                         # no link entry because TextGrids don't have hierarchical infos
@@ -353,8 +353,8 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
                       }
                     }
                     if(!is.null(currentPointIndex) && 
-                       !is.null(currentPointSample) &&
-                       !is.null(currentPointLabel)){
+                         !is.null(currentPointSample) &&
+                         !is.null(currentPointLabel)){
                       
                       labels=list(list(name=currentTierName,value=currentPointLabel))
                       
@@ -363,15 +363,15 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
                       
                       
                       dbSendQuery(get_emuDBcon(dbUUID), paste0("INSERT INTO items VALUES"," ('", dbUUID, "', '", session, "', '", bundle, "', ",
-                                                               itemCounterGlobal, ", '", currentTierName,"', '", "EVENT", 
-                                                               "', ", itemCounterLevel, ", ", sampleRate, ", ", currentPointSample, ", ", "NULL", 
-                                                               ", ", "NULL", ")"))
+                                                     itemCounterGlobal, ", '", currentTierName,"', '", "EVENT", 
+                                                     "', ", itemCounterLevel, ", ", sampleRate, ", ", currentPointSample, ", ", "NULL", 
+                                                     ", ", "NULL", ")"))
                       
                       
                       # label entry:
                       dbSendQuery(get_emuDBcon(dbUUID), paste0("INSERT INTO labels VALUES","('", 
-                                                               dbUUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
-                                                               ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentPointLabel), "')"))              
+                                                     dbUUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
+                                                     ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentPointLabel), "')"))              
                       
                       
                       
