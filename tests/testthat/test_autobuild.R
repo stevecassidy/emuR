@@ -388,7 +388,9 @@ test_that("rewrite works correctly", {
   
 })
 
-# purge, delete
-purge_emuDB(dbName, interactive = F)
-unlink(path2db, recursive = T)
+# 
+test_that("purge, delete", {
+  purge_emuDB(dbName, interactive = F)
+  unlink(path2db, recursive = T)
+})
 

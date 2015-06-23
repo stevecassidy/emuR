@@ -92,7 +92,7 @@ test_that("Test ae samples",{
   
   # check sequence
   for(i in lvSq){
-   
+    
     poSampleStart=msajc015_phonetic_ordered[i,'sampleStart']
     poSampleDur=msajc015_phonetic_ordered[i,'sampleDur']
     if(i<rc){
@@ -239,34 +239,36 @@ test_that("Test ae modify",{
   #   
   #   
   
-#   # store original bundle
-   store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015)
-#   
-   modOrgItems=dbGetQuery(get_emuDBcon(dbUUID),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  #   # store original bundle
+  store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015)
+  #   
+  modOrgItems=dbGetQuery(get_emuDBcon(dbUUID),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
   modOrgLabels=dbGetQuery(get_emuDBcon(dbUUID),paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
-   modOrgLinks=dbGetQuery(get_emuDBcon(dbUUID),paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
-   modOrgLinksExt=dbGetQuery(get_emuDBcon(dbUUID),paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
-
-    expect_equivalent(nrow(modOrgItems),736)
+  modOrgLinks=dbGetQuery(get_emuDBcon(dbUUID),paste0("SELECT * FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  modOrgLinksExt=dbGetQuery(get_emuDBcon(dbUUID),paste0("SELECT * FROM linksExt WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
+  
+  expect_equivalent(nrow(modOrgItems),736)
   expect_equivalent(nrow(modOrgLinks),785)
   expect_equivalent(nrow(modOrgLinksExt),3950)
-#   
-#   # should all be equal to original 
-   cm2=compare(orgItems,modOrgItems,allowAll=TRUE)
-   expect_true(cm2$result)
-   cmLbls2=compare(orgLabels,modOrgLabels,allowAll=TRUE)
-    expect_true(cmLbls2$result)
-   cml2=compare(orgLinks,modOrgLinks,allowAll=TRUE)
-   expect_true(cml2$result)
-   cmle2=compare(orgLinksExt,modOrgLinksExt,allowAll=TRUE)
-   expect_true(cmle2$result)
-
-
-
-
+  #   
+  #   # should all be equal to original 
+  cm2=compare(orgItems,modOrgItems,allowAll=TRUE)
+  expect_true(cm2$result)
+  cmLbls2=compare(orgLabels,modOrgLabels,allowAll=TRUE)
+  expect_true(cmLbls2$result)
+  cml2=compare(orgLinks,modOrgLinks,allowAll=TRUE)
+  expect_true(cml2$result)
+  cmle2=compare(orgLinksExt,modOrgLinksExt,allowAll=TRUE)
+  expect_true(cmle2$result)
+  
+  
+  
+  
   
 })
 
-# purge & delete
-purge_emuDB(dbName='ae',dbUUID=.test_emu_ae_db_uuid,interactive=FALSE)
-unlink(.test_emu_ae_db_dir, recursive = T)
+# 
+test_that("purge & delete",{
+  purge_emuDB(dbName='ae',dbUUID=.test_emu_ae_db_uuid,interactive=FALSE)
+  unlink(.test_emu_ae_db_dir, recursive = T)
+})
