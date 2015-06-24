@@ -3,169 +3,165 @@
 ##' @author Raphael Winkelmann
 context("testing caching functions")
 
-# suppressMessages(require('jsonlite'))
-# 
-# tmpDbName = 'ae_copy'
-# purge_all_emuDBs(interactive = F)
-# 
-# unlink(file.path(tempdir(), "ae", "ae_emuDBcache.sqlite"), recursive = TRUE)
-# unlink(file.path(tempdir(), "ae", "ae_emuDBcache.sqlite-journal"), recursive = TRUE)
-# 
-# 
-# path2ae = system.file("extdata/emu/DBs/ae/", package = "emuR")
-# 
-# file.copy(path2ae,to = tempdir(), recursive = T)
-# 
-# load_emuDB(file.path(tempdir(), "ae"), inMemoryCache = T)
+suppressMessages(require('jsonlite'))
 
-# # load database 
-# if(!is.emuDB.loaded("ae")){
-#   load_emuDB(path2ae, verbose = F)
-# }
+dbName = "ae"
+
+path2orig = file.path(tempdir(), "emuR_demoData", dbName)
+path2testData = file.path(tempdir(), "emuR_testthat")
+path2db = file.path(path2testData, dbName)
+
+###########################
+test_that("update_cache works", {
+  
+  # purge, delete, copy and load
+  if(is.emuDB.loaded(dbName)){
+    purge_emuDB(dbName, interactive = F)
+  }
+  unlink(path2db, recursive = T)
+  file.copy(path2orig, path2testData, recursive = T)
+  load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
+  
+  dbUUID = get_emuDB_UUID(dbName)
+  
+  
+  
+  ################################
+  # 
+  test_that("DBconfig update is re-cached", {
+    # change entry
+    dbJson = fromJSON(readLines(file.path(path2db, "ae_DBconfig.json")), simplifyVector=T)
+    
+    dbJson$name = "ae_copy"
+    
+    pbpJSON=jsonlite::toJSON(dbJson,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+    writeLines(pbpJSON,file.path(path2db, "ae_DBconfig.json"))
+    
+    update_cache(dbName, verbose=F)
+    
+    dbObj = .load.emuDB.DBI(uuid = dbUUID)
+    
+    expect_equal(dbObj$DBconfig$name, "ae_copy")
+  })
+  
+  ################################
+  # 
+  test_that("new bundle in new session is re-cached", {
+    dir.create(file.path(path2db, 'new_ses'))
+    file.copy(from = file.path(path2db, '0000_ses', 'msajc010_bndl'), 
+              to = file.path(path2db, 'new_ses'),
+              recursive = T)
+    
+    update_cache(dbName, verbose=F)
+    
+    l = list_sessions(dbName)
+    expect_true("new" %in% l$name)
+    b = list_bundles(dbName)
+    expect_true(any(b$session == "new" & b$name == 'msajc010'))
+    
+    sl = query(dbName, "Phonetic=n")
+    expect_true(any(sl$session == "new"))
+  })
+  
+  ################################
+  # 
+  test_that("change in _annot.json is re-cached", {
+    # change entry
+    annotJson = fromJSON(readLines(file.path(path2db, "new_ses", "msajc010_bndl", "msajc010_annot.json")), simplifyVector=T)
+    
+    annotJson$levels$items[[1]]$id = 666666
+    
+    pbpJSON=jsonlite::toJSON(annotJson,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+    writeLines(pbpJSON,file.path(path2db, "new_ses", "msajc010_bndl", "msajc010_annot.json"))
+    
+    update_cache(dbName, verbose = F)
+    
+    res = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT * FROM items WHERE db_uuid='", dbUUID, "' AND session='new' AND bundle='msajc010' AND level='Utterance'"))$itemID
+
+    expect_true(res == 666666)
+    
+  })
+  
+  
+  ################################
+  # 
+  test_that("deleted bundle is re-cached", {
+    unlink(file.path(path2db, 'new_ses', 'msajc010_bndl'), recursive = TRUE)
+    
+    update_cache(dbName, verbose = F)
+    
+    res = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT * FROM items WHERE db_uuid='", dbUUID, "' AND session='new' AND bundle='msajc010'"))
+    
+    expect_true(nrow(res) == 0)
+    
+    bndls = list_bundles(dbName)
+    expect_false(any(bndls$session == "new"))
+    
+    
+  })
+  
+  ################################
+  # 
+  test_that("deleted session is re-cached", {
+    unlink(file.path(path2db, 'new_ses'), recursive = TRUE)
+    ses = list_sessions(dbName)
+    expect_true(any(ses$name == "new"))
+    
+    update_cache(dbName, verbose = F)
+    ses = list_sessions(dbName)
+
+    expect_false(any(ses$name == "new"))
+    
+  })
+  
+  # purge, delete, copy and load
+  if(is.emuDB.loaded(dbName)){
+    purge_emuDB(dbName, interactive = F)
+  }
+  unlink(path2db, recursive = T)
+  
+  
+  
+})
 
 ############################
-# test_that("update_cache works", {
-#   # pre clean (just in case)
-#   unlink(file.path(tempdir(),tmpDbName), recursive = TRUE)
-#   
-#   # make copy of ae to mess with
-#   fp = file.path(tempdir(), tmpDbName)
-#   duplicate.loaded.emuDB("ae", tmpDbName, fp)
-#   
-#   dbUUID = get_emuDB_UUID(dbName = tmpDbName, dbUUID = NULL)
-#   dbObj = .load.emuDB.DBI(uuid = dbUUID)
-#   
-#   # actually store DB to fs
-#   store("ae", tempdir(), showProgress=F)
-#   file.rename(file.path(tempdir(), "ae"), file.path(tempdir(), tmpDbName))
-#   file.rename(file.path(tempdir(), tmpDbName, "ae_DBconfig.json"), file.path(tempdir(), tmpDbName, "ae_copy_DBconfig.json"))
-#   
-#   ################################
-#   # 
-#   test_that("DBconfig update is re-cached", {
-#     # change entry
-#     dbJson = fromJSON(readLines(file.path(tempdir(), tmpDbName, "ae_copy_DBconfig.json")), simplifyVector=T)
-#     
-#     dbJson$name = "ae_copy"
-#     
-#     pbpJSON=jsonlite::toJSON(dbJson,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-#     writeLines(pbpJSON,file.path(tempdir(), tmpDbName, "ae_copy_DBconfig.json"))
-#     
-#     update_cache(tmpDbName, verbose=F)
-#     
-#     dbObj = .load.emuDB.DBI(uuid = dbUUID)
-#     
-#     expect_equal(dbObj$name, "ae_copy")
-#   })
-#   
-#   ################################
-#   # 
-#   test_that("new bundle in new session is re-cached", {
-#     dir.create(file.path(tempdir(),'ae_copy', 'new_ses'))
-#     file.copy(from = file.path(tempdir(),'ae_copy', '0000_ses', 'msajc012_bndl'), 
-#               to = file.path(tempdir(),'ae_copy', 'new_ses'),
-#               recursive = T)
-#     
-#     update_cache(tmpDbName, verbose=F)
-#     
-#     l = list_sessions(tmpDbName)
-#     expect_true("new" %in% l$name)
-#     b = list_bundles(tmpDbName)
-#     expect_true(any(b$session == "new" & b$name == 'msajc012'))
-#     
-#     sl = query(tmpDbName, "Phonetic=n")
-#     expect_true(any(sl$session == "new"))
-#   })
-#   
-#   ################################
-#   # 
-#   test_that("change in _annot.json is re-cached", {
-#     # change entry
-#     annotJson = fromJSON(readLines(file.path(tempdir(), tmpDbName, "new_ses", "msajc012_bndl", "msajc012_annot.json")), simplifyVector=T)
-#     
-#     annotJson$levels$items[[1]]$id = 666666
-#     
-#     pbpJSON=jsonlite::toJSON(annotJson,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-#     writeLines(pbpJSON,file.path(tempdir(), tmpDbName, "new_ses", "msajc012_bndl", "msajc012_annot.json"))
-#     
-#     update_cache(tmpDbName, verbose = F)
-#     
-#     res = dbGetQuery(get_emuDBcon(), paste0("SELECT * FROM items WHERE db_uuid='", dbUUID, "' AND session='new' AND bundle='msajc012' AND level='Utterance'"))$itemID
-# 
-#     expect_true(res == 666666)
-#     
-#   })
-#   
-#   
-#   ################################
-#   # 
-#   test_that("deleted bundle is re-cached", {
-#     unlink(file.path(tempdir(),'ae_copy', 'new_ses', 'msajc012_bndl'), recursive = TRUE)
-#     
-#     update_cache(tmpDbName)
-#     
-#     res = dbGetQuery(get_emuDBcon(), paste0("SELECT * FROM items WHERE db_uuid='", dbUUID, "' AND session='new' AND bundle='msajc012'"))
-#     
-#     expect_true(nrow(res) == 0)
-#     
-#   })
-#   
-#   
-#   
-#   # cleanup 
-#   unlink(file.path(tempdir(),'ae_copy'), recursive = TRUE)
-#   # clean up
-#   if(is.emuDB.loaded(tmpDbName)){
-#     UUID = get_emuDB_UUID(dbName = tmpDbName)
-#     .purge.emuDB(UUID)
-#   }
-#   
-#   
-# })
+test_that("sqlConnections CRUD operations work", {
+  
+  path2testDB = file.path(path2testData, paste0("testthat", database.cache.suffix))
+  
+  fileCon = NULL
+  
+  #########################
+  test_that("add works", {
+    # only single instance is added 
+    add_emuDBcon(dbConnect(RSQLite::SQLite(), path2testDB), path2testDB)
+    origLength = length(internalVars$sqlConnections)
+    fileCon = add_emuDBcon(dbConnect(RSQLite::SQLite(), path2testDB), path2testDB)
+    expect_equal(length(internalVars$sqlConnections), origLength)
+    
+  })
 
-# ############################
-# test_that("sqlConnections CRUD operations work", {
-#   
-#   path2testDB = file.path(tempdir(), paste0("testthat", database.cache.suffix))
-#   
-#   fileCon = NULL
-#   fileCon = add_emuDBcon(dbConnect(RSQLite::SQLite(), path2testDB), path2testDB)
-#   
-#   #########################
-#   test_that("add works", {
-#     # only single instance is added 
-#     origLength = length(internalVars$sqlConnections)
-#     fileCon = add_emuDBcon(dbConnect(RSQLite::SQLite(), path2testDB), path2testDB)
-#     expect_equal(length(internalVars$sqlConnections), origLength)
-#     
-#   })
-# 
-#   #########################  
-#   test_that("get works", {
-#     # check that :memory: connection is returned by default
-#     # containing loaded ae
-#     inMemCon = get_emuDBcon()
-#     res = dbGetQuery(inMemCon, "SELECT uuid FROM emuDB")
-#     expect_true(res == "0fc618dc-8980-414d-8c7a-144a649ce199")
-#     
-#     # 
-#     dbSqlInsert=paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('","i am a face UUID","','","fakeName","','","fakePath","','","fakeJSON","', NULL", ")")
-#     dbGetQuery(fileCon,dbSqlInsert)
-#     con = get_emuDBcon(dbUUID = "i am a face UUID")
-#     res = dbGetQuery(con, "SELECT * FROM emuDB")
-#     
-#   })
-# 
-#   #########################
-#   test_that("remove works", {
-#     
-#   })
-#   
-#   # cleanup 
-#   unlink(path2testDB)
-#   
-#     
-# })
-# 
-# 
-# 
+  #########################  
+  test_that("get works", {
+    # check that :memory: connection is returned by default
+    purge_all_emuDBs(interactive = F)
+    expect_true(length(internalVars$sqlConnections) == 0)
+    
+    inMemCon = get_emuDBcon()
+    expect_true(length(internalVars$sqlConnections) == 1)
+  
+  })
+
+  #########################
+  test_that("remove works", {
+    remove_emuDBcon(":memory:")    
+    expect_true(length(internalVars$sqlConnections) == 0)
+  })
+  
+  # cleanup 
+  unlink(path2testDB)
+  
+})
+
+
+

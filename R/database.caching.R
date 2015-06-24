@@ -65,6 +65,8 @@ update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
   sesPaths=list.files(path=dbObj$basePath, sesPattern)
   
   curSes = list_sessions(dbName, dbUUID=dbUUID)
+  curSes["found"] = F
+  
   curBndls = list_bundles(dbName, dbUUID = dbUUID)
   curBndls["found"] = F
   
@@ -86,6 +88,9 @@ update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
     if(!sn %in% curSes$name){
       dbGetQuery(get_emuDBcon(dbUUID), paste0("INSERT INTO session VALUES ('", dbUUID, "', '", sn, "')"))
     }
+    
+    # mark as found
+    curSes$found[curSes$name == sn] = T
     
     for(b in bndlPaths){
       
@@ -178,15 +183,30 @@ update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
     cat("\n")
   }
   
-  # remove not found bundles from cache
+  # remove bundles from cache that where not found
   for(i in 1:nrow(curBndls)){
     if(!curBndls[i,]$found){
-      hackBndl = list(name = curBndls[i,]$name, session = curBndls[i,]$session) # 
+      hackBndl = list(name = curBndls[i,]$name, session = curBndls[i,]$session)
       .remove.bundle.annot.DBI(dbUUID=dbUUID,bundle=hackBndl)
+      # delete bundle entry
+      dbGetQuery(get_emuDBcon(dbUUID), paste0("DELETE FROM bundle WHERE db_uuid = '",dbUUID,"' ",
+                                               "AND session = '",curBndls[i,]$session, "' ", 
+                                               "AND name = '",curBndls[i,]$name,"'"))
+    }
+  }
+  
+  # remove session from cache that where not found
+  for(i in 1:nrow(curSes)){
+    if(!curSes[i,]$found){
+      # delete session entry
+      dbGetQuery(get_emuDBcon(dbUUID), paste0("DELETE FROM session WHERE db_uuid = '",dbUUID,"' ",
+                                              "AND name = '",curSes[i,]$name, "' "))
+      
     }
   }
 }
 
 # FOR DEVELOPMENT 
 # library('testthat') 
+# test_file('tests/testthat/test_aaa_initData.R')
 # test_file('tests/testthat/test_database.caching.R')
