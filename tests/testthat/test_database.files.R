@@ -1,17 +1,18 @@
 ##' testthat tests for convert.TextGridCollection.to.emuDB
 ##'
 ##' @author Raphael Winkelmann
-context("testing add.files.to.emuDB functions")
+context("testing database.files functions")
 
-dbName = 'ae'
-
-path2orig = file.path(tempdir(), "emuR_demoData", dbName)
-path2testData = file.path(tempdir(), "emuR_testthat")
-path2db = file.path(path2testData, dbName)
 
 
 #######################################
 test_that("file operations work", {
+  
+  dbName = 'ae'
+  
+  path2orig = file.path(tempdir(), "emuR_demoData", dbName)
+  path2testData = file.path(tempdir(), "emuR_testthat")
+  path2db = file.path(path2testData, dbName)
   
   # purge, delete, copy and load
   if(is.emuDB.loaded(dbName)){
@@ -19,6 +20,7 @@ test_that("file operations work", {
   }
   unlink(path2db, recursive = T)
   file.copy(path2orig, path2testData, recursive = T)
+  
   load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
   
@@ -47,7 +49,7 @@ test_that("file operations work", {
       expect_equal(length(zcrPaths), 9)
       
     })
-
+    
     test_that("list = C(R)UD", {
       df = list_files(dbName)
       expect_equal(dim(df),c(55, 3))
@@ -62,5 +64,5 @@ test_that("file operations work", {
     UUID = get_emuDB_UUID(dbName = dbName)
     purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
   }
-
+  
 })
