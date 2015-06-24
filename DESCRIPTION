@@ -1,5 +1,5 @@
 Package: emuR
-Version: 0.0.7
+Version: 0.0.8
 Title: Interface to the Emu Speech Database System
 Authors@R: as.person(c(
     "Raphael Winkelmann <raphael@phonetik.uni-muenchen.de> [aut, cre]",
