@@ -30,8 +30,7 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName, tierNames=NULL){
   # create tmp db 
   dbConfig=create.schema.databaseDefinition(name=dbName,mediafileExtension = 'wav')
   db=create.database(name=dbName,basePath=file.path(tempdir(), dbName),DBconfig = dbConfig)
-  .initialize.DBI.database()
-  .store.emuDB.DBI(database = db)
+  .store.emuDB.DBI(get_emuDBcon(), database = db)
   
   # parse TextGrid  
   
@@ -42,14 +41,14 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName, tierNames=NULL){
     
     condStr = paste0("level!='", paste0(tierNames, collapse = paste0("' AND ", " level!='")), "'")
     # delete items
-    dbSendQuery(getEmuDBcon(), paste0("DELETE FROM items WHERE db_uuid='", dbConfig$UUID, "' AND ", condStr))
+    dbSendQuery(get_emuDBcon(), paste0("DELETE FROM items WHERE db_uuid='", dbConfig$UUID, "' AND ", condStr))
     
     # delete labels
-    dbSendQuery(getEmuDBcon(), paste0("DELETE FROM labels ", 
+    dbSendQuery(get_emuDBcon(), paste0("DELETE FROM labels ", 
                                    "WHERE db_uuid='", dbConfig$UUID, "' AND itemID NOT IN (SELECT itemID FROM items)"))
   }
   
-  levels <- dbGetQuery(getEmuDBcon(), paste0("SELECT DISTINCT level, type FROM items WHERE db_uuid='", dbConfig$UUID, "'"))
+  levels <- dbGetQuery(get_emuDBcon(), paste0("SELECT DISTINCT level, type FROM items WHERE db_uuid='", dbConfig$UUID, "'"))
   
   # create level definitions
   levelDefinitions = list()

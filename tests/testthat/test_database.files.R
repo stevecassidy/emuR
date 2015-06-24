@@ -1,37 +1,36 @@
 ##' testthat tests for convert.TextGridCollection.to.emuDB
 ##'
 ##' @author Raphael Winkelmann
-context("testing add.files.to.emuDB functions")
+context("testing database.files functions")
 
-path2extdata = system.file("extdata", package = "emuR")
-
-if(!is.emuDB.loaded("ae")){
-  load_emuDB(paste(path2extdata, '/emu/DBs/ae/', sep = ''), verbose = F) # SIC / hardcoded!!!!!!!!!!
-}
-
-tmpDbName = 'ae_copy'
 
 
 #######################################
 test_that("file operations work", {
-  # pre clean (just in case)
-  unlink(file.path(tempdir(),tmpDbName), recursive = TRUE)
   
-  # copy ae and rename
-  file.copy(file.path(path2extdata, '/emu/DBs/ae/'), tempdir(), recursive = T)
-  file.rename(file.path(tempdir(), 'ae'), file.path(tempdir(), 'ae_copy'))
+  dbName = 'ae'
   
-  # make copy of ae to mess with (caution correct DBconfig not stored)
-  fp = file.path(tempdir(), tmpDbName)
-  duplicate.loaded.emuDB("ae", tmpDbName, fp)
+  path2orig = file.path(tempdir(), "emuR_demoData", dbName)
+  path2testData = file.path(tempdir(), "emuR_testthat")
+  path2db = file.path(path2testData, dbName)
+  
+  # purge, delete, copy and load
+  if(is.emuDB.loaded(dbName)){
+    purge_emuDB(dbName, interactive = F)
+  }
+  unlink(path2db, recursive = T)
+  file.copy(path2orig, path2testData, recursive = T)
+  
+  load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
+  
   
   test_that("import_mediaFiles works", {
     wavPath = system.file('extdata', package='wrassp')
-    import_mediaFiles(tmpDbName, dir = wavPath, targetSessionName = 'newSes', verbose = F)
-    expect_true(file.exists(file.path(fp, 'newSes_ses')))
-    paths = list.files(file.path(fp, 'newSes_ses'), recursive = T, full.names = T, pattern = 'wav$')
+    import_mediaFiles(dbName, dir = wavPath, targetSessionName = 'newSes', verbose = F)
+    expect_true(file.exists(file.path(path2db, 'newSes_ses')))
+    paths = list.files(file.path(path2db, 'newSes_ses'), recursive = T, full.names = T, pattern = 'wav$')
     expect_equal(length(paths), 9)
-    paths = list.files(file.path(fp, 'newSes_ses'), recursive = T, full.names = T, pattern = '_annot.json$')
+    paths = list.files(file.path(path2db, 'newSes_ses'), recursive = T, full.names = T, pattern = '_annot.json$')
     expect_equal(length(paths), 9)
   })
   
@@ -41,18 +40,18 @@ test_that("file operations work", {
       wrasspExtdataPath = system.file('extdata', package='wrassp')
       wavFilePaths = list.files(wrasspExtdataPath, pattern = "wav$", full.names = T, recursive = T)
       
-      outDirPath = file.path(tempdir(), 'zcranaVals')
+      outDirPath = file.path(path2testData, 'zcranaVals')
       dir.create(outDirPath)
       zcrana(wavFilePaths, outputDirectory = outDirPath)
       
-      add_files(tmpDbName, dir = outDirPath, fileExtension = 'zcr', targetSessionName = 'newSes')
-      zcrPaths = list.files(fp, pattern = 'zcr$', recursive = T)
+      add_files(dbName, dir = outDirPath, fileExtension = 'zcr', targetSessionName = 'newSes')
+      zcrPaths = list.files(path2db, pattern = 'zcr$', recursive = T)
       expect_equal(length(zcrPaths), 9)
       
     })
-
+    
     test_that("list = C(R)UD", {
-      df = list_files(tmpDbName)
+      df = list_files(dbName)
       expect_equal(dim(df),c(55, 3))
     })
     
@@ -61,9 +60,9 @@ test_that("file operations work", {
   
   
   # clean up
-  if(is.emuDB.loaded(tmpDbName)){
-    UUID = get_emuDB_UUID(dbName = tmpDbName)
-    purge_emuDB(dbName = tmpDbName, dbUUID = UUID, interactive = F)
+  if(is.emuDB.loaded(dbName)){
+    UUID = get_emuDB_UUID(dbName = dbName)
+    purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
   }
-
+  
 })

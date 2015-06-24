@@ -60,13 +60,12 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
   # create db object
   db=create.database(name = schema[['name']],basePath = normalizePath(targetDir),DBconfig = schema)
   
-  .initialize.DBI.database()
-  dbsDf=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
+  dbsDf=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
   if(nrow(dbsDf)>0){
     stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
   }
   
-  .store.emuDB.DBI(db)
+  .store.emuDB.DBI(get_emuDBcon(), db)
   
   # get dbObj
   dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = NULL)
@@ -77,7 +76,7 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
   allBundles = list()
   
   # create session entry
-  dbGetQuery(getEmuDBcon(), paste0("INSERT INTO session VALUES('", dbUUID, "', '0000')"))
+  dbGetQuery(get_emuDBcon(), paste0("INSERT INTO session VALUES('", dbUUID, "', '0000')"))
   
   # loop through fpl
   for(i in 1:dim(fpl)[1]){
@@ -89,10 +88,10 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
     bndlName = gsub('^_', '', gsub(.Platform$file.sep, '_', gsub(normalizePath(dir, winslash = .Platform$file.sep),'',file_path_sans_ext(normalizePath(fpl[i,1], winslash = .Platform$file.sep)))))
     
     # create bundle entry
-    dbGetQuery(getEmuDBcon(), paste0("INSERT INTO bundle VALUES('", dbUUID, "', '0000', '", bndlName, "', '", basename(fpl[i,1]), "', ", attributes(asspObj)$sampleRate, ",'", fpl[i,1], "')"))
+    dbGetQuery(get_emuDBcon(), paste0("INSERT INTO bundle VALUES('", dbUUID, "', '0000', '", bndlName, "', '", basename(fpl[i,1]), "', ", attributes(asspObj)$sampleRate, ",'", fpl[i,1], "', 'NULL')"))
     
     # create track entry
-    dbGetQuery(getEmuDBcon(), paste0("INSERT INTO track VALUES('", dbUUID, "', '0000', '", bndlName, "', '", fpl[i,1], "')"))
+    dbGetQuery(get_emuDBcon(), paste0("INSERT INTO track VALUES('", dbUUID, "', '0000', '", bndlName, "', '", fpl[i,1], "')"))
     
     # parse TextGrid
     parse.textgrid(fpl[i,2], attributes(asspObj)$sampleRate, dbName=dbName, bundle=bndlName, session="0000")
@@ -103,10 +102,10 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
       condStr = paste0("level!='", paste0(tierNames, collapse = paste0("' AND ", " level!='")), "'")
 
       # delete items
-      dbSendQuery(getEmuDBcon(), paste0("DELETE FROM items WHERE ", "db_uuid='", dbUUID, "' AND ", condStr))
+      dbSendQuery(get_emuDBcon(), paste0("DELETE FROM items WHERE ", "db_uuid='", dbUUID, "' AND ", condStr))
       
       # delete labels
-      dbSendQuery(getEmuDBcon(), paste0("DELETE FROM labels", 
+      dbSendQuery(get_emuDBcon(), paste0("DELETE FROM labels", 
                                      " WHERE ", "db_uuid='", dbUUID, "' AND itemID NOT IN (SELECT itemID FROM items)"))
     }
     

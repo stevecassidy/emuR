@@ -3,11 +3,11 @@
 ##' @author Raphael Winkelmann
 context("testing get_trackdata function")
 
-# load database 
-if(!is.emuDB.loaded("ae")){
-  path2extdata = system.file("extdata", package = "emuR")
-  load_emuDB(paste(path2extdata, '/emu/DBs/ae/', sep = ''), verbose = F)
-}
+dbName = "ae"
+
+path2orig = file.path(tempdir(), "emuR_demoData", dbName)
+load_emuDB(path2orig, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
+
 
 # get segmentlist of type segment
 path2segl <- list.files(system.file("extdata", package = "emuR"), pattern = glob2rx("ae-n.seg"), full.names = TRUE)
@@ -91,11 +91,12 @@ test_that("on-the-fly calculations work", {
 
 ##############################
 test_that("data fields are the same as hardcoded values (taken from original emu.track(n, 'fm') command)", {
+  # note that values have slightly changed to to recalulation with wrassp
   td = get_trackdata("ae", n, 'fm', verbose=F)
-  expect_that(td$data[10,1], equals(258))
-  expect_that(td$data[10,2], equals(1504))
+  expect_that(td$data[10,1], equals(256))
+  expect_that(td$data[10,2], equals(1521))
   expect_that(td$data[10,3], equals(2382))
-  expect_that(td$data[10,4], equals(3569))
+  expect_that(td$data[10,4], equals(3573))
 })
 
 

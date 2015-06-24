@@ -57,6 +57,7 @@ serve_emuDB_files=function(path2dbFolder, sessionPattern='.*', bundlePattern='.*
                            host='127.0.0.1', port=17890, debug=FALSE, 
                            debugLevel=0){
   
+  warning('This function will be depricated in the near future (due to the new caching mechanics that enable fast loading it has become redundant)')
   # precheck if path2dbFolder is a emuDB
   if(!file.exists(file.path(path2dbFolder,paste0(basename(path2dbFolder), '_DBconfig.json')))){
     stop("Could not find _DBconfig.json in: ", path2dbFolder, ". This means the folder is no emuDB.")
@@ -314,7 +315,7 @@ serve_emuDB_files=function(path2dbFolder, sessionPattern='.*', bundlePattern='.*
         
         if(debugLevel >= 2){
           if(debugLevel >= 4){
-            cat(responseBundleJSON,"\n")
+            cat(responseJSON,"\n")
           }
           cat("Handled request GETBUNDLE\n")
         }

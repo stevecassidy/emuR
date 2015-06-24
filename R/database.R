@@ -14,18 +14,82 @@ emuDB.apiLevel=3L
 #emuDBs.con=NULL
 
 internalVars<- new.env(parent = emptyenv())
+# list of lists holding sqlconnection
+internalVars$sqlConnections = list()
 
-getEmuDBcon <- function() {
-  internalVars$emuDBcon
+internalVars$testingVars = list()
+internalVars$testingVars$inMemoryCache = F
+
+##########################################################
+# CRUD like operations for internalVars$sqlConnections
+
+get_emuDBcon <- function(dbUUID = NULL) {
+  # add in memory connection just to make sure it exists
+  
+  foundCon = NULL
+  for(c in internalVars$sqlConnections){
+    if(is.null(dbUUID)){
+      if(c$path == ":memory:"){
+        foundCon = c$con
+        break
+      }
+    }else{
+      res = dbGetQuery(c$con, "SELECT uuid FROM emuDB")
+      if(dbUUID %in% res$uuid){
+        foundCon = c$con
+        break
+      }
+    }
+  }
+  # make sure :memory: connection is always there
+  if(is.null(dbUUID) & is.null(foundCon)){
+    con = dbConnect(RSQLite::SQLite(), ":memory:")
+    add_emuDBcon(con)
+    foundCon = con
+  }
+  
+  return(foundCon)
 }
-setEmuDBcon <- function(con) {
-  internalVars$emuDBcon<-con
+
+
+## @param connection of type returned from DBI::dbConnect() function
+## @param path to SQLiteDB
+add_emuDBcon <- function(con, path = ":memory:"){
+  foundCon = NULL
+  for(c in internalVars$sqlConnections){
+    if(c$path == path){
+      foundCon = c$con
+    }
+  }
+  
+  # only add if not found to avoid duplicates
+  if(is.null(foundCon)){
+    .initialize.DBI.database(con)
+    internalVars$sqlConnections[[length(internalVars$sqlConnections) + 1]] = list(path = path,
+                                                                                  connection = con)
+    foundCon = con
+  }
+  return(foundCon)
 }
+
+remove_emuDBcon <- function(path){
+  
+  for(i in 1:length(internalVars$sqlConnections)){
+    if(internalVars$sqlConnections[[i]]$path == path){
+      dbDisconnect(internalVars$sqlConnections[[i]]$con)
+      internalVars$sqlConnections[[i]] = NULL
+      break
+    }
+  }
+}
+
 
 session.suffix='_ses'
 bundle.dir.suffix='_bndl'
 bundle.annotation.suffix='_annot'
 database.schema.suffix='_DBconfig.json'
+
+database.cache.suffix='_emuDBcache.sqlite'
 
 # global database connection
 #emuDBs.con=NULL
@@ -35,6 +99,7 @@ database.DDL.emuDB='CREATE TABLE emuDB (
   name TEXT,
   basePath TEXT,
   DBconfigJSON TEXT,
+  MD5DBconfigJSON TEXT,
   PRIMARY KEY (uuid)
 );'
 
@@ -60,6 +125,7 @@ database.DDL.emuDB_bundle='CREATE TABLE bundle (
   annotates TEXT,
   sampleRate FLOAT,
   mediaFilePath TEXT,
+  MD5annotJSON TEXT,
   PRIMARY KEY (db_uuid,session,name),
   FOREIGN KEY (db_uuid,session) REFERENCES session(db_uuid,name)
 );'
@@ -169,21 +235,31 @@ database.DDL.emuDB_linksExtTmp2='CREATE TABLE linksExtTmp2 (
   label TEXT,
   FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session,name)
 );'
+
 database.DDL.emuDB_linksExtTmpIdx2='CREATE INDEX linksExtTmp2_idx ON linksExtTmp2(db_uuid,session,bundle,fromID,toID,toLevel,type)'
 
-.store.emuDB.DBI<-function(database){
+
+.store.emuDB.DBI<-function(con, database, MD5DBconfigJSON = NULL){
   dbCfg=database[['DBconfig']]
   dbCfgJSON=jsonlite::toJSON(dbCfg,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-  dbSqlInsert=paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON) VALUES('",dbCfg[['UUID']],"','",dbCfg[['name']],"','",database[['basePath']],"','",dbCfgJSON,"')")
-  res <- dbSendQuery(getEmuDBcon(),dbSqlInsert)
+  if(is.null(MD5DBconfigJSON)){
+    dbSqlInsert=paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('",dbCfg[['UUID']],"','",dbCfg[['name']],"','",database[['basePath']],"','",dbCfgJSON,"', NULL", ")")
+  }else{
+    dbSqlInsert=paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('",dbCfg[['UUID']],"','",dbCfg[['name']],"','",database[['basePath']],"','",dbCfgJSON,"', '",MD5DBconfigJSON,"')")
+  }
+  res <- dbSendQuery(con,dbSqlInsert)
   dbClearResult(res)
   
 }
 
-.store.DBconfig.DBI<-function(DBconfig){
+.store.DBconfig.DBI<-function(con, DBconfig, MD5DBconfigJSON = NULL){
   dbCfgJSON=jsonlite::toJSON(DBconfig,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-  updDbCfgQ=paste0("UPDATE emuDB SET DBconfigJSON='",dbCfgJSON,"' WHERE uuid='", DBconfig$UUID, "'")
-  res <- dbSendQuery(getEmuDBcon(),updDbCfgQ)
+  if(is.null(MD5DBconfigJSON)){
+    updDbCfgQ=paste0("UPDATE emuDB SET DBconfigJSON='",dbCfgJSON,"', MD5DBconfigJSON=NULL WHERE uuid='", DBconfig$UUID, "'")
+  }else{
+    updDbCfgQ=paste0("UPDATE emuDB SET DBconfigJSON='",dbCfgJSON,"', MD5DBconfigJSON='", MD5DBconfigJSON,"' WHERE uuid='", DBconfig$UUID, "'")
+  }
+  res <- dbSendQuery(con,updDbCfgQ)
   dbClearResult(res)
 }
 
@@ -196,7 +272,7 @@ get.database<-function(uuid=NULL,name=NULL){
     uuid=get_emuDB_UUID(name)
   }
   dbQ=paste0("SELECT * FROM emuDB WHERE uuid='",uuid,"'")
-  dbDf=dbGetQuery(getEmuDBcon(),dbQ)
+  dbDf=dbGetQuery(get_emuDBcon(uuid),dbQ)
   dbCount=nrow(dbDf)
   if(dbCount==0){
     stop("Database not found !\n")
@@ -213,33 +289,36 @@ get.database<-function(uuid=NULL,name=NULL){
 
 .store.session.DBI<-function(dbUUID,sessionName){
   insertSessionSql=paste0("INSERT INTO session(db_uuid,name) VALUES('",dbUUID,"','",sessionName,"')")
-  res<-dbSendQuery(getEmuDBcon(),insertSessionSql)
+  res<-dbSendQuery(get_emuDBcon(dbUUID),insertSessionSql)
   dbClearResult(res)
 }
 
 .load.sessions.DBI<-function(dbUUID){
   dbQ=paste0("SELECT * FROM session WHERE db_uuid='",dbUUID,"'")
-  sesssDf=dbGetQuery(getEmuDBcon(),dbQ)
+  sesssDf=dbGetQuery(get_emuDBcon(dbUUID),dbQ)
   return(sesssDf)
 }
 
-.store.bundle.DBI<-function(database,bundle){
+.store.bundle.DBI<-function(database,bundle,MD5annotJSON=NULL){
   dbCfg=database[['DBconfig']]
   #dbCfgJSON=jsonlite::toJSON(dbCfg,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
   #dbSqlInsert=paste0("INSERT INTO emuDB(name,databaseDir,DBconfigJSON) VALUES('",dbCfg[['name']],"','",database[['databseDir']],"','",dbCfgJSON,"')")
-  
-  bSqlInsert=paste0("INSERT INTO bundle(db_uuid,session,name,annotates,sampleRate,mediaFilePath) VALUES('",dbCfg[['UUID']],"','",bundle[['session']],"','",bundle[['name']],"','",bundle[['annotates']],"',",bundle[['sampleRate']],",'",bundle[['mediaFilePath']],"')")
-  res <- dbSendQuery(getEmuDBcon(),bSqlInsert)
+  if(is.null(MD5annotJSON)){
+    bSqlInsert=paste0("INSERT INTO bundle(db_uuid,session,name,annotates,sampleRate,mediaFilePath,MD5annotJSON) VALUES('",dbCfg[['UUID']],"','",bundle[['session']],"','",bundle[['name']],"','",bundle[['annotates']],"',",bundle[['sampleRate']],",'",bundle[['mediaFilePath']],"'",",'NULL')")
+  }else{
+    bSqlInsert=paste0("INSERT INTO bundle(db_uuid,session,name,annotates,sampleRate,mediaFilePath,MD5annotJSON) VALUES('",dbCfg[['UUID']],"','",bundle[['session']],"','",bundle[['name']],"','",bundle[['annotates']],"',",bundle[['sampleRate']],",'",bundle[['mediaFilePath']],"'",",'",MD5annotJSON,"')")
+  }
+  res <- dbSendQuery(get_emuDBcon(dbCfg$UUID),bSqlInsert)
   dbClearResult(res)
   for(trackPath in bundle[['signalpaths']]){
     trSqlInsert=paste0("INSERT INTO track(db_uuid,session,bundle,path) VALUES('",dbCfg[['UUID']],"','",bundle[['session']],"','",bundle[['name']],"','",trackPath,"')")
-    res <- dbSendQuery(getEmuDBcon(),trSqlInsert)
+    res <- dbSendQuery(get_emuDBcon(dbCfg$UUID),trSqlInsert)
   }
 }
 
 .get.bundle.count.DBI<-function(dbUUID){
   bCntQ=paste0("SELECT count(*) FROM bundle WHERE db_uuid='",dbUUID,"'")
-  bCntDf=dbGetQuery(getEmuDBcon(),bCntQ)
+  bCntDf=dbGetQuery(get_emuDBcon(dbUUID),bCntQ)
   if(length(bCntDf)==0){
     stop("Could not get bundle count of emuDB ",dbUUID,"\n")
   }
@@ -247,17 +326,17 @@ get.database<-function(uuid=NULL,name=NULL){
 }
 .load.bundle.names.DBI<-function(dbUUID,sessionName){
   bQ=paste0("SELECT name FROM bundle WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"'")
-  bDf=dbGetQuery(getEmuDBcon(),bQ)
+  bDf=dbGetQuery(get_emuDBcon(dbUUID),bQ)
   return(bDf[['name']])
 }
 
 
 
 .load.bundle.DBI<-function(dbUUID,sessionName,bundleName){
-  bQ=paste0("SELECT * FROM bundle WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND name='",bundleName,"'")
-  bDf=dbGetQuery(getEmuDBcon(),bQ)
+  bQ=paste0("SELECT db_uuid, session, name, annotates, sampleRate, mediaFilePath FROM bundle WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND name='",bundleName,"'")
+  bDf=dbGetQuery(get_emuDBcon(dbUUID),bQ)
   spQ=paste0("SELECT * FROM track WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bundleName,"'")
-  spDf=dbGetQuery(getEmuDBcon(),spQ)
+  spDf=dbGetQuery(get_emuDBcon(dbUUID),spQ)
   signalpaths=as.list(spDf[['path']])
   bDfRows=nrow(bDf)
   if(bDfRows==0){
@@ -274,69 +353,71 @@ get.database<-function(uuid=NULL,name=NULL){
 }
 
 
-.initialize.DBI.database<-function(createTables=TRUE,createIndices=TRUE){
+.initialize.DBI.database<-function(con, createTables=TRUE,createIndices=TRUE){
   
-  if(is.null(getEmuDBcon())){
-    #emuDBs.con<<-dbConnect(RSQLite::SQLite(), "/scratch/klausj/WORK/emuDB.sqlite")
-    setEmuDBcon(dbConnect(RSQLite::SQLite(), ":memory:"))
-    if(createTables & !dbExistsTable(getEmuDBcon(),'emuDB')){
-      res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB)
-      dbClearResult(res)
-      res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_session) 
-      dbClearResult(res)
-      res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_track) 
-      dbClearResult(res)
-      res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_bundle) 
-      dbClearResult(res)
-      res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_items) 
-      dbClearResult(res)
-      res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_labels) 
-      dbClearResult(res)
-      res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_links) 
-      dbClearResult(res)
-      
-      res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksExt) 
-      dbClearResult(res)
-      
-      res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksTmp) 
-      dbClearResult(res)
-      res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksExtTmp) 
-      dbClearResult(res)
-      res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksExtTmp2) 
-      dbClearResult(res)
-      if(createIndices){  
-        .create.DBI.database.indices()
-      }
+  # if(is.null(get_emuDBcon())){
+  #emuDBs.con<<-dbConnect(RSQLite::SQLite(), "/scratch/klausj/WORK/emuDB.sqlite")
+  # setEmuDBcon(dbConnect(RSQLite::SQLite(), ":memory:"))
+  # add_emuDBcon(dbConnect(RSQLite::SQLite(), ":memory:"))
+  if(createTables & !dbExistsTable(con,'emuDB')){
+    res <- dbSendQuery(con, database.DDL.emuDB)
+    dbClearResult(res)
+    res <- dbSendQuery(con, database.DDL.emuDB_session) 
+    dbClearResult(res)
+    res <- dbSendQuery(con, database.DDL.emuDB_track) 
+    dbClearResult(res)
+    res <- dbSendQuery(con, database.DDL.emuDB_bundle) 
+    dbClearResult(res)
+    res <- dbSendQuery(con, database.DDL.emuDB_items) 
+    dbClearResult(res)
+    res <- dbSendQuery(con, database.DDL.emuDB_labels) 
+    dbClearResult(res)
+    res <- dbSendQuery(con, database.DDL.emuDB_links) 
+    dbClearResult(res)
+    
+    res <- dbSendQuery(con, database.DDL.emuDB_linksExt) 
+    dbClearResult(res)
+    
+    res <- dbSendQuery(con, database.DDL.emuDB_linksTmp) 
+    dbClearResult(res)
+    res <- dbSendQuery(con, database.DDL.emuDB_linksExtTmp) 
+    dbClearResult(res)
+    res <- dbSendQuery(con, database.DDL.emuDB_linksExtTmp2) 
+    dbClearResult(res)
+    if(createIndices){  
+      .create.DBI.database.indices(con)
     }
   }
+  # }
   #dbDisconnect(con)
-  return(getEmuDBcon())
+  return(con)
 }
 
-.create.DBI.database.indices<-function(){
+.create.DBI.database.indices<-function(con){
   
   #cat("Creating indices...\n")
-  res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksIdx) 
+  res <- dbSendQuery(con, database.DDL.emuDB_linksIdx) 
   dbClearResult(res)
-  res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksExtIdx) 
+  res <- dbSendQuery(con, database.DDL.emuDB_linksExtIdx) 
   dbClearResult(res)
-  res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksTmpIdx) 
+  res <- dbSendQuery(con, database.DDL.emuDB_linksTmpIdx) 
   dbClearResult(res)
-  res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksExtTmpIdx) 
+  res <- dbSendQuery(con, database.DDL.emuDB_linksExtTmpIdx) 
   dbClearResult(res)
-  res <- dbSendQuery(getEmuDBcon(), database.DDL.emuDB_linksExtTmpIdx2) 
+  res <- dbSendQuery(con, database.DDL.emuDB_linksExtTmpIdx2) 
   dbClearResult(res)
   
   return()
 }
 
-.destroy.DBI.database<-function(){
-  if(!is.null(getEmuDBcon())){
-    dbDisconnect(getEmuDBcon())
-  }
-  #emuDBs.con<<-NULL
-  setEmuDBcon(NULL)
-}
+# .destroy.DBI.database<-function(){
+#   if(!is.null(get_emuDBcon())){
+#     dbDisconnect(get_emuDBcon())
+#   }
+#   #emuDBs.con<<-NULL
+#   # setEmuDBcon(NULL)
+#   remove_emuDBcon()
+# }
 
 ##' Get UUID of emuDB
 ##' @description Returns UUID if emuDB is loaded, throws error otherwise
@@ -355,8 +436,13 @@ get_emuDB_UUID<-function(dbName=NULL,dbUUID=NULL){
   }else{
     dbQ=paste0("SELECT uuid FROM emuDB WHERE uuid='",dbUUID,"'") 
   }
-  
-  dbDf=dbGetQuery(getEmuDBcon(),dbQ)
+  dbDf = data.frame()
+  for(c in internalVars$sqlConnections){
+    dbDf=dbGetQuery(c$connection,dbQ)
+    if(nrow(dbDf) != 0){
+      break
+    }
+  }
   dbCount=nrow(dbDf)
   if(dbCount==0){
     if(is.null(dbUUID)){
@@ -381,20 +467,34 @@ get_emuDB_UUID<-function(dbName=NULL,dbUUID=NULL){
 ##' @return list of emuDBS as data.frame object
 ##' @export
 list_emuDBs<-function(){
-  .initialize.DBI.database()
-  dbs=dbGetQuery(getEmuDBcon(),"SELECT name,basePath,uuid FROM emuDB")
-  return(dbs)
+  # .initialize.DBI.database()
+  df = data.frame(name = character(),
+                  basePath = character(), 
+                  uuid = character(),
+                  cachePath = character(),
+                  stringsAsFactors = F)
+  for(c in internalVars$sqlConnections){
+    dbs=dbGetQuery(c$connection, "SELECT name,basePath,uuid FROM emuDB")
+    if(nrow(dbs) > 0){
+      df = rbind(df, data.frame(name = dbs$name,
+                                basePath = dbs$basePath,
+                                uuid = dbs$uuid,
+                                cachePath = c$path,
+                                stringsAsFactors = F))
+    }
+  }
+  return(df)
 }
 
 .purge.emuDB<-function(dbUUID){
-  dbs=dbGetQuery(getEmuDBcon(),paste0("DELETE FROM links WHERE db_uuid='",dbUUID,"'"))
-  dbs=dbGetQuery(getEmuDBcon(),paste0("DELETE FROM linksExt WHERE db_uuid='",dbUUID,"'"))
-  dbs=dbGetQuery(getEmuDBcon(),paste0("DELETE FROM labels WHERE db_uuid='",dbUUID,"'"))
-  dbs=dbGetQuery(getEmuDBcon(),paste0("DELETE FROM items WHERE db_uuid='",dbUUID,"'"))
-  dbs=dbGetQuery(getEmuDBcon(),paste0("DELETE FROM track WHERE db_uuid='",dbUUID,"'"))
-  dbs=dbGetQuery(getEmuDBcon(),paste0("DELETE FROM bundle WHERE db_uuid='",dbUUID,"'"))
-  dbs=dbGetQuery(getEmuDBcon(),paste0("DELETE FROM session WHERE db_uuid='",dbUUID,"'"))
-  dbs=dbGetQuery(getEmuDBcon(),paste0("DELETE FROM emuDB WHERE uuid='",dbUUID,"'"))
+  dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM links WHERE db_uuid='",dbUUID,"'"))
+  dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM linksExt WHERE db_uuid='",dbUUID,"'"))
+  dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM labels WHERE db_uuid='",dbUUID,"'"))
+  dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM items WHERE db_uuid='",dbUUID,"'"))
+  dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM track WHERE db_uuid='",dbUUID,"'"))
+  dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM bundle WHERE db_uuid='",dbUUID,"'"))
+  dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM session WHERE db_uuid='",dbUUID,"'"))
+  dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM emuDB WHERE uuid='",dbUUID,"'"))
   
 }
 
@@ -411,7 +511,7 @@ list_emuDBs<-function(){
 ##' }
 ##' @export
 purge_emuDB<-function(dbName=NULL,dbUUID=NULL,interactive=TRUE){
-  .initialize.DBI.database()  
+  # .initialize.DBI.database()  
   dbUUID=get_emuDB_UUID(dbName,dbUUID)
   purged=FALSE
   if(!is.null(dbUUID)){
@@ -421,8 +521,21 @@ purge_emuDB<-function(dbName=NULL,dbUUID=NULL,interactive=TRUE){
       ans='y'
     }
     if(ans=='y'){
-      .purge.emuDB(dbUUID)
-      purged=TRUE
+      dbQ=paste0("SELECT uuid FROM emuDB WHERE uuid='",dbUUID,"'")
+      dbDf = data.frame()
+      for(c in internalVars$sqlConnections){
+        dbDf=dbGetQuery(c$connection,dbQ)
+        if(nrow(dbDf) != 0){
+          if(c$path == ":memory:"){
+            .purge.emuDB(dbUUID)
+          }else{
+            remove_emuDBcon(c$path)
+          }  
+          purged=TRUE
+          
+          break
+        }
+      }
     }
   }else{
     stop("emuDB ",dbName," not found!")
@@ -442,8 +555,11 @@ purge_all_emuDBs<-function(interactive=TRUE){
     ans='y'
   }
   if(ans=='y'){
-    .destroy.DBI.database()
-    .initialize.DBI.database()
+    for(c in internalVars$sqlConnections){
+      remove_emuDBcon(c$path)
+    }
+    # .destroy.DBI.database()
+    # .initialize.DBI.database()
     cleared=TRUE
   }
   return(cleared)
@@ -456,9 +572,9 @@ purge_all_emuDBs<-function(interactive=TRUE){
 ##' @return data.frame object with session names
 ##' @export
 list_sessions<-function(dbName=NULL,dbUUID=NULL){
-  .initialize.DBI.database()
+  # .initialize.DBI.database()
   uuid=get_emuDB_UUID(dbName,dbUUID)
-  dbs=dbGetQuery(getEmuDBcon(),paste0("SELECT name FROM session WHERE db_uuid='",uuid,"'"))
+  dbs=dbGetQuery(get_emuDBcon(uuid),paste0("SELECT name FROM session WHERE db_uuid='",uuid,"'"))
   return(dbs)
 }
 
@@ -470,18 +586,18 @@ list_sessions<-function(dbName=NULL,dbUUID=NULL){
 ##' @return data.frame object with columns session and name of bundles
 ##' @export
 list_bundles<-function(dbName=NULL,session=NULL,dbUUID=NULL){
-  .initialize.DBI.database()
+  # .initialize.DBI.database()
   uuid=get_emuDB_UUID(dbName,dbUUID)
   baseQ=paste0("SELECT session,name FROM bundle WHERE db_uuid='",uuid,"'")
   if(is.null(session)){
     # list all bundles
-    dbs=dbGetQuery(getEmuDBcon(),baseQ)
+    dbs=dbGetQuery(get_emuDBcon(uuid),baseQ)
   }else{
-    sQ=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM session WHERE db_uuid='",uuid,"' AND name='",session,"'"))
+    sQ=dbGetQuery(get_emuDBcon(uuid),paste0("SELECT * FROM session WHERE db_uuid='",uuid,"' AND name='",session,"'"))
     if(nrow(sQ)<1){
       stop("Session ",session," not found!")
     }
-    dbs=dbGetQuery(getEmuDBcon(),paste0(baseQ," AND session='",session,"'"))
+    dbs=dbGetQuery(get_emuDBcon(uuid),paste0(baseQ," AND session='",session,"'"))
   }
   return(dbs)
 }
@@ -515,10 +631,10 @@ summary_emuDB<-function(dbName=NULL,dbUUID=NULL){
   
   cat("Bundle count:",bndlCnt,"\n")
   itCntQ=paste0("SELECT count(*) FROM items WHERE db_uuid='",uuid,"'")
-  itCntDf=dbGetQuery(getEmuDBcon(),itCntQ)
+  itCntDf=dbGetQuery(get_emuDBcon(uuid),itCntQ)
   itemCnt=itCntDf[[1]]
   liCntQ=paste0("SELECT count(*) FROM links WHERE db_uuid='",uuid,"'")
-  liCntDf=dbGetQuery(getEmuDBcon(),liCntQ)
+  liCntDf=dbGetQuery(get_emuDBcon(uuid),liCntQ)
   linkCnt=liCntDf[[1]]
   cat("Annotation item count: ",itemCnt,", links count: ",linkCnt,"\n")
   cat("\nDatabase configuration:\n\n")
@@ -605,7 +721,7 @@ build.redundant.links.for.pathes<-function(database,lfs,sessionName='0000',bundl
     }
   }
   
-  res<-dbSendQuery(getEmuDBcon(),'DELETE FROM linksTmp')
+  res<-dbSendQuery(get_emuDBcon(database$DBconfig$UUID),'DELETE FROM linksTmp')
   dbClearResult(res)
   
   lfsLen=length(lfs)
@@ -687,11 +803,11 @@ build.redundant.links.for.pathes<-function(database,lfs,sessionName='0000',bundl
     
     
     #cat(sqlQuery,"\n")
-    #res<-dbSendQuery(getEmuDBcon(),comQuery)
-    res<-dbSendQuery(getEmuDBcon(),sqlQuery)
+    #res<-dbSendQuery(get_emuDBcon(),comQuery)
+    res<-dbSendQuery(get_emuDBcon(database$DBconfig$UUID),sqlQuery)
     dbClearResult(res)
   }
-  #print(dbReadTable(getEmuDBcon(),'linksTmp'))
+  #print(dbReadTable(get_emuDBcon(),'linksTmp'))
   
 }
 
@@ -710,20 +826,20 @@ get.level.name.for.attribute<-function(dbConfig,attributeName){
   sessionName=bundle[['session']]
   bName=bundle[['name']]
   cntSqlQuery=paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bName,"'")
-  res<-dbGetQuery(getEmuDBcon(),cntSqlQuery)
+  res<-dbGetQuery(get_emuDBcon(dbUUID),cntSqlQuery)
   delSqlQuery=paste0("DELETE FROM items WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bName,"'")
-  res<-dbSendQuery(getEmuDBcon(),delSqlQuery)
+  res<-dbSendQuery(get_emuDBcon(dbUUID),delSqlQuery)
   dbClearResult(res)
   delSqlQuery=paste0("DELETE FROM labels WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bName,"'")
-  res<-dbSendQuery(getEmuDBcon(),delSqlQuery)
+  res<-dbSendQuery(get_emuDBcon(dbUUID),delSqlQuery)
   dbClearResult(res)
   delSqlQuery=paste0("DELETE FROM links WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bName,"'")
-  res<-dbSendQuery(getEmuDBcon(),delSqlQuery)
+  res<-dbSendQuery(get_emuDBcon(dbUUID),delSqlQuery)
   dbClearResult(res)
   cntSqlQuery=paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bName,"'")
-  res<-dbGetQuery(getEmuDBcon(),cntSqlQuery)
+  res<-dbGetQuery(get_emuDBcon(dbUUID),cntSqlQuery)
   delSqlQuery=paste0("DELETE FROM linksExt WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bName,"'")
-  res<-dbSendQuery(getEmuDBcon(),delSqlQuery)
+  res<-dbSendQuery(get_emuDBcon(dbUUID),delSqlQuery)
   dbClearResult(res)
 }
 
@@ -766,7 +882,7 @@ get.level.name.for.attribute<-function(dbConfig,attributeName){
       
       sqlInsert=paste0("INSERT INTO items(db_uuid,session,bundle,itemID,level,type,seqIdx,sampleRate,samplePoint,sampleStart,sampleDur) VALUES('",dbUUID,"','",bundle[['session']],"','",bName,"',",itemId,",'",lvl[['name']],"','",lvl[['type']],"',",seqIdx,",",bundle[['sampleRate']],",",spCol,",",ssCol,",",sdurCol,")")
       #cat('SQL:',sqlInsert,"\n")
-      res<-dbSendQuery(getEmuDBcon(),sqlInsert)
+      res<-dbSendQuery(get_emuDBcon(dbUUID),sqlInsert)
       dbClearResult(res)
       itCnt=itCnt+1
       
@@ -782,7 +898,7 @@ get.level.name.for.attribute<-function(dbConfig,attributeName){
           #sqlInsert=paste0("INSERT INTO labels VALUES('",dbUUID,"','",bundle[['session']],"','",bName,"',",itemId,",",i-1L,",'",lbl[['name']],"',\"",rLbl,"\")")
           sqlInsert=paste0("INSERT INTO labels VALUES('",dbUUID,"','",bundle[['session']],"','",bName,"',",itemId,",",i-1L,",'",lbl[['name']],"','",sqlEscapedLbl,"')")
           #cat('SQL:',sqlInsert,"\n")
-          res<-dbSendQuery(getEmuDBcon(),sqlInsert)
+          res<-dbSendQuery(get_emuDBcon(dbUUID),sqlInsert)
           dbClearResult(res)
         }
         #}
@@ -802,7 +918,7 @@ get.level.name.for.attribute<-function(dbConfig,attributeName){
     sqlInsert=paste0("INSERT INTO links(db_uuid,session,bundle,fromID,toID,label) VALUES('",dbUUID,"','",bundle[['session']],"','",bName,"',",lk[['fromID']],",",lk[['toID']],",",lblCol,")")
     
     #cat('SQL:',sqlInsert,"\n")
-    res<-dbSendQuery(getEmuDBcon(),sqlInsert)
+    res<-dbSendQuery(get_emuDBcon(dbUUID),sqlInsert)
     dbClearResult(res)
     
     
@@ -825,14 +941,14 @@ get.level.name.for.attribute<-function(dbConfig,attributeName){
   # create all levels
   levels=list()
   lblsQ=paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bundleName,"'")
-  bundleLabels=dbGetQuery(getEmuDBcon(),lblsQ)
+  bundleLabels=dbGetQuery(get_emuDBcon(dbUUID),lblsQ)
   
   for(ld in levelDefinitions){
     lvlNm=ld[['name']]
     levels[[lvlNm]]=create.bundle.level(name=ld[['name']],type=ld[['type']])
     
     itsQ=paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bundleName,"' AND level='",lvlNm,"'")
-    itemsOfLevel=dbGetQuery(getEmuDBcon(),itsQ)
+    itemsOfLevel=dbGetQuery(get_emuDBcon(dbUUID),itsQ)
     nrows=nrow(itemsOfLevel)
     
     if(nrows>0){
@@ -885,7 +1001,7 @@ get.level.name.for.attribute<-function(dbConfig,attributeName){
 
 .load.bundle.links.s3 <-function(dbUUID,sessionName,bundleName){
   lksQ=paste0("SELECT * FROM links WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bundleName,"'")
-  linksDf=dbGetQuery(getEmuDBcon(),lksQ)
+  linksDf=dbGetQuery(get_emuDBcon(dbUUID),lksQ)
   nrows=nrow(linksDf)
   
   #links=vector(mode='list',length=nrows)
@@ -1229,22 +1345,22 @@ store.bundle.annotation <- function(dbName=NULL,bundle,dbUUID=NULL){
   }
   sessionName=bundle[['session']]
   bName=bundle[['name']]
-  .initialize.DBI.database(createTables=FALSE)
+  .initialize.DBI.database(get_emuDBcon(dbUUID), createTables=FALSE)
   .remove.bundle.annot.DBI(dbUUID=dbUUID,bundle=bundle)
   .store.bundle.annot.DBI(dbUUID=dbUUID,bundle=bundle)
   # only build redunant links if non-empty bundle
-  qRes = dbGetQuery(getEmuDBcon(), paste0("SELECT * FROM items WHERE ",
-                                          "db_uuid = '", dbUUID, "' AND ", 
-                                          "session = '", sessionName, "' AND ", 
-                                          "bundle = '", bName, "'"))
+  qRes = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT * FROM items WHERE ",
+                                                 "db_uuid = '", dbUUID, "' AND ", 
+                                                 "session = '", sessionName, "' AND ", 
+                                                 "bundle = '", bName, "'"))
   if(nrow(qRes) > 0){
     build.redundant.links.all(database = db,sessionName=sessionName,bundleName=bName)
   }
   #build.redundant.links.all(database = db)
-  #res<-dbSendQuery(getEmuDBcon(),'DELETE FROM linksExt')
+  #res<-dbSendQuery(get_emuDBcon(),'DELETE FROM linksExt')
   #dbClearResult(res)
-  #linksTmp=dbReadTable(getEmuDBcon(),'linksTmp')
-  calculate.postions.of.links()
+  #linksTmp=dbReadTable(get_emuDBcon(),'linksTmp')
+  calculate.postions.of.links(dbUUID)
   
   # persist to filesystem
   # TODO error handling
@@ -1291,8 +1407,8 @@ create_emuDB<-function(name, targetDir, mediaFileExtension='wav',
   basePath=file.path(targetDir,name)
   dbConfig=create.schema.databaseDefinition(name=name,mediafileExtension = mediaFileExtension)
   db=create.database(name=name,basePath=basePath,DBconfig = dbConfig)
-  .initialize.DBI.database()
-  .store.emuDB.DBI(database = db)
+  # .initialize.DBI.database()
+  .store.emuDB.DBI(get_emuDBcon(), database = db)
   if(store){
     store(targetDir=targetDir,dbUUID=dbConfig[['UUID']], showProgress = verbose)
   }
@@ -1387,7 +1503,7 @@ remove.linkDefinition<-function(dbName,linkDefinitionSuperlevelName,linkDefiniti
   }
   
   # check if links exist
-  lksDf=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM links l,items f,items t WHERE \
+  lksDf=dbGetQuery(get_emuDBcon(uuid),paste0("SELECT * FROM links l,items f,items t WHERE \
                         l.db_uuid='",uuid,"' AND f.db_uuid=l.db_uuid AND t.db_uuid=l.db_uuid AND \
                         l.fromID=f.itemID AND l.toID=t.itemID AND \
                         f.level='",linkDefinitionSuperlevelName,"' AND t.level='",linkDefinitionSublevelName,"'"))
@@ -1507,7 +1623,7 @@ store<-function(dbName=NULL,targetDir,dbUUID=NULL,options=NULL,showProgress=TRUE
     #    sessBundleCount=length(s[['bundles']])
     #    bundleCount=bundleCount+sessBundleCount
     #}
-    bundleCount=as.integer(dbGetQuery(getEmuDBcon(),paste0("SELECT count(*) FROM bundle WHERE db_uuid='",dbUUID,"'")))
+    bundleCount=as.integer(dbGetQuery(get_emuDBcon(dbUUID),paste0("SELECT count(*) FROM bundle WHERE db_uuid='",dbUUID,"'")))
     cat("INFO: Storing EMU database containing",bundleCount,"bundles...\n")
     pb=txtProgressBar(min=0,max=bundleCount+1L,style=3)
     setTxtProgressBar(pb,progress)
@@ -1589,44 +1705,45 @@ store<-function(dbName=NULL,targetDir,dbUUID=NULL,options=NULL,showProgress=TRUE
   
 }
 
-calculate.postions.of.links<-function(){
+calculate.postions.of.links<-function(dbUUID){
   
   # for all position related functions we need to calculate the sequence indices of dominated items grouped to one dominance item 
   # Extend links table with sequence index of the targeted (dominated) item
   #links2=sqldf("SELECT k.*,i.seqIdx FROM links k,items i WHERE i.bundle=k.bundle AND k.toID=i.itemID")
   
   # since version 2.8.x of sqlite the query is very slow without indices
-  #res<-dbSendQuery(getEmuDBcon(),'CREATE INDEX items_idx2 ON items(db_uuid,session,bundle,level,itemID,seqIdx)')
+  #res<-dbSendQuery(get_emuDBcon(),'CREATE INDEX items_idx2 ON items(db_uuid,session,bundle,level,itemID,seqIdx)')
   #dbClearResult(res)
   
-  res<-dbSendQuery(getEmuDBcon(),"DELETE FROM linksExtTmp")
+  res<-dbSendQuery(get_emuDBcon(dbUUID),"DELETE FROM linksExtTmp")
   dbClearResult(res)
-  #print(dbReadTable(getEmuDBcon(),'linksTmp'))
-  res<-dbSendQuery(getEmuDBcon(),"INSERT INTO linksExtTmp(db_uuid,session,bundle,fromID,toID,seqIdx,toLevel,type,label) SELECT k.db_uuid,k.session,k.bundle,k.fromID,k.toID,i.seqIdx,i.level AS toLevel,i.type,NULL AS label FROM linksTmp k,items i WHERE i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle AND k.toID=i.itemID")
+  #print(dbReadTable(get_emuDBcon(),'linksTmp'))
+  res<-dbSendQuery(get_emuDBcon(dbUUID),"INSERT INTO linksExtTmp(db_uuid,session,bundle,fromID,toID,seqIdx,toLevel,type,label) SELECT k.db_uuid,k.session,k.bundle,k.fromID,k.toID,i.seqIdx,i.level AS toLevel,i.type,NULL AS label FROM linksTmp k,items i WHERE i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle AND k.toID=i.itemID")
   dbClearResult(res)
-  #dbSendQuery(getEmuDBcon(),"DELETE FROM linksExt")
+  #dbSendQuery(get_emuDBcon(),"DELETE FROM linksExt")
   # extend links table with relative sequence index
   
-  res<-dbSendQuery(getEmuDBcon(),"INSERT INTO linksExtTmp2(db_uuid,session,bundle,seqIdx,fromID,toID,toLevel,type,label,toSeqIdx) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toLevel,k.type,k.label,k.seqIdx-(SELECT MIN(m.seqIdx) FROM linksExtTmp m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqIdx FROM linksExtTmp k")
+  res<-dbSendQuery(get_emuDBcon(dbUUID),"INSERT INTO linksExtTmp2(db_uuid,session,bundle,seqIdx,fromID,toID,toLevel,type,label,toSeqIdx) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toLevel,k.type,k.label,k.seqIdx-(SELECT MIN(m.seqIdx) FROM linksExtTmp m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqIdx FROM linksExtTmp k")
   dbClearResult(res)
   
-  res<-dbSendQuery(getEmuDBcon(),"DELETE FROM linksExtTmp")
+  res<-dbSendQuery(get_emuDBcon(dbUUID),"DELETE FROM linksExtTmp")
   dbClearResult(res)
   # Add length of dominance group sequence
   #links3IdxSql='CREATE INDEX links3_idx ON links3(session,bundle,fromID,toID,toLevel,type)'
-  res<-dbSendQuery(getEmuDBcon(),"INSERT INTO linksExt(db_uuid,session,bundle,seqIdx,fromID,toID,toSeqIdx,toLevel,type,label,toSeqLen) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toSeqIdx,k.toLevel,k.type,k.label,(SELECT MAX(m.seqIdx)-MIN(m.seqIdx)+1 FROM linksExtTmp2 m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqLen FROM linksExtTmp2 k")
+  res<-dbSendQuery(get_emuDBcon(dbUUID),"INSERT INTO linksExt(db_uuid,session,bundle,seqIdx,fromID,toID,toSeqIdx,toLevel,type,label,toSeqLen) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toSeqIdx,k.toLevel,k.type,k.label,(SELECT MAX(m.seqIdx)-MIN(m.seqIdx)+1 FROM linksExtTmp2 m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqLen FROM linksExtTmp2 k")
   dbClearResult(res)
   
-  res<-dbSendQuery(getEmuDBcon(),"DELETE FROM linksExtTmp2")
+  res<-dbSendQuery(get_emuDBcon(dbUUID),"DELETE FROM linksExtTmp2")
   dbClearResult(res)
-  #res<-dbSendQuery(getEmuDBcon(),"INSERT INTO linksExt SELECT * FROM linksExtTmp")
+  #res<-dbSendQuery(get_emuDBcon(),"INSERT INTO linksExt SELECT * FROM linksExtTmp")
   #dbClearResult(res)
   
 }
 
-##' Load EMU database
+##' Load emuDB
 ##' 
-##' @param databaseDir directory of the EMU database
+##' @param databaseDir directory of the emuDB
+##' @param inMemoryCache cache the loaded DB in memory
 ##' @param verbose be verbose
 ##' @return name of emuDB
 ##' @author Klaus Jaensch
@@ -1640,7 +1757,7 @@ calculate.postions.of.links<-function(){
 ##' dbName=load_emuDB(/homes/mylogin/EMUnew/ae")
 ##' 
 ##' }
-load_emuDB <- function(databaseDir,verbose=TRUE){
+load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
   progress=0
   
   # check database dir
@@ -1668,26 +1785,48 @@ load_emuDB <- function(databaseDir,verbose=TRUE){
   if(!file.exists(dbCfgPath)){
     stop("Could not find database info file: ",dbCfgPath,"\n")
   }
+  # calc. md5 sum
+  MD5DBconfigJSON = md5sum(normalizePath(dbCfgPath))
   # load DBconfig
   schema=load.emuDB.DBconfig(dbCfgPath)
   # set transient values
   schema=.update.transient.schema.values(schema)
   # create db object
-  db=create.database(name = schema[['name']],basePath = normalizePath(databaseDir),DBconfig = schema)
+  db=create.database(name = schema[['name']], basePath = normalizePath(databaseDir),DBconfig = schema)
+  
+  dbUUID = schema$UUID
   
   # Tested performance if indices are created after storing the bundles: No performance benefit
   #.initialize.DBI.database(createIndices = F)
-  .initialize.DBI.database()
-  beginRes=dbBegin(getEmuDBcon())
-  if(!beginRes){
-    stop("Could not start DBI (SQL) transaction!")
-  }
-  dbsDf=dbGetQuery(getEmuDBcon(),paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
-  if(nrow(dbsDf)>0){
-    stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
+  # .initialize.DBI.database()
+  
+  # add new connection
+  if(inMemoryCache){
+    con = dbConnect(RSQLite::SQLite(), ":memory:")
+    con = add_emuDBcon(con)
+  }else{
+    dbPath = file.path(normalizePath(databaseDir), paste0(schema$name, database.cache.suffix))
+    con = dbConnect(RSQLite::SQLite(), dbPath)
+    con = add_emuDBcon(con, dbPath)
   }
   
-  .store.emuDB.DBI(db)
+  #   beginRes=dbBegin(con)
+  #   if(!beginRes){
+  #     stop("Could not start DBI (SQL) transaction!")
+  #   }
+  dbsDf=dbGetQuery(con,paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
+  if(nrow(dbsDf)>0){
+    # stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
+    # update basepath in case we are dealing with a copy
+    dbGetQuery(con, paste0("UPDATE emuDB SET basePath = '", normalizePath(databaseDir) , "' ",
+                           "WHERE uuid = '", dbUUID, "'"))
+    
+    
+    update_cache(schema[['name']], dbUUID = dbUUID, verbose = verbose)
+    return(schema$name)
+  }
+  
+  .store.emuDB.DBI(con, db, MD5DBconfigJSON)
   if(verbose){
     cat("INFO: Loading EMU database from ",databaseDir,"...\n")
   }
@@ -1786,7 +1925,9 @@ load_emuDB <- function(databaseDir,verbose=TRUE){
       
       schema=db[['DBconfig']]
       #maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
-      .store.bundle.DBI(db,bundle)
+      #calc md5
+      MD5annotJSON = md5sum(normalizePath(file.path(absBd,annotFile)))
+      .store.bundle.DBI(db,bundle, MD5annotJSON)
       .store.bundle.annot.DBI(schema[['UUID']],bundle)
       
       bundle[['levels']]=NULL
@@ -1824,7 +1965,7 @@ load_emuDB <- function(databaseDir,verbose=TRUE){
   #tmpDf=data.frame(db[['items']],stringsAsFactors = FALSE)
   #db[['items']]=tmpDf[0:itemsIdx,]
   
-  db[['items']]=dbReadTable(getEmuDBcon(),'items')
+  db[['items']]=dbReadTable(get_emuDBcon(dbUUID),'items')
   progress=progress+ppBuildDataFrame
   if(verbose){
     setTxtProgressBar(pb,progress)
@@ -1834,7 +1975,7 @@ load_emuDB <- function(databaseDir,verbose=TRUE){
   #tmpLblsDf=data.frame(db[['labels']],stringsAsFactors = FALSE)
   #db[['labels']]=tmpLblsDf[0:labelsIdx,]
   
-  #db[['labels']]=dbReadTable(getEmuDBcon(),'labels')
+  #db[['labels']]=dbReadTable(get_emuDBcon(),'labels')
   progress=progress+ppBuildDataFrame
   if(verbose){
     setTxtProgressBar(pb,progress)
@@ -1845,7 +1986,7 @@ load_emuDB <- function(databaseDir,verbose=TRUE){
   
   #db[['links']]=tmpLksdf[0:linksIdx,]
   
-  db[['links']]=dbReadTable(getEmuDBcon(),'links')
+  db[['links']]=dbReadTable(get_emuDBcon(dbUUID),'links')
   
   progress=progress+ppBuildDataFrame
   if(verbose){
@@ -1858,12 +1999,13 @@ load_emuDB <- function(databaseDir,verbose=TRUE){
   if(verbose){
     setTxtProgressBar(pb,progress)
   }
-  calculate.postions.of.links()
-  #db[['linksExt']]=dbReadTable(getEmuDBcon(),'linksExt')
-  commitRes=dbCommit(getEmuDBcon())
-  if(!commitRes){
-    stop("Could not commit database transaction!")
-  }
+  calculate.postions.of.links(dbUUID)
+  #db[['linksExt']]=dbReadTable(get_emuDBcon(),'linksExt')
+  
+  #   commitRes=dbCommit(get_emuDBcon(dbUUID))
+  #   if(!commitRes){
+  #     stop("Could not commit database transaction!")
+  #   }
   progress=progress+ppBuildExtLinks
   if(verbose){
     setTxtProgressBar(pb,progress)
@@ -1889,13 +2031,20 @@ load_emuDB <- function(databaseDir,verbose=TRUE){
 ##' }
 
 is.emuDB.loaded<-function(dbName=NULL,dbUUID=NULL){
-  .initialize.DBI.database()
+  # .initialize.DBI.database()
   if(is.null(dbUUID)){
     q=paste0("SELECT * FROM emuDB WHERE name='",dbName,"'")
   }else{
     q=paste0("SELECT * FROM emuDB WHERE uuid='",dbUUID,"'")
   }
-  dbsDf=dbGetQuery(getEmuDBcon(),q)
+  dbsDf = data.frame()
+  for(c in internalVars$sqlConnections){
+    dbsDf=dbGetQuery(c$connection,q)
+    if(nrow(dbsDf)>0){
+      break
+    }
+  }
+  
   return((nrow(dbsDf)>0))
 }
 
@@ -1920,84 +2069,84 @@ reload_emuDB<-function(dbName,dbUUID=NULL){
   return(invisible(NULL))
 }
 
-## 
-duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
-  # get UUID (also checks if DB exists)
-  oldUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
-  oldBasePath = dbGetQuery(getEmuDBcon(), paste0("SELECT basePath FROM emuDB WHERE uuid='", oldUUID, "'"))
-  newUUID = UUIDgenerate()
-  
-  # check if dbName already exists
-  tcRes = tryCatch(get_emuDB_UUID(dbName = newName), error = function(e) e)
-  
-  if(!inherits(tcRes, 'error')){
-    stop("emuDB with name: ", newName, " already exists!")
-  }
-  
-  # duplicate emuDBs entry
-  dbSendQuery(getEmuDBcon(), paste0("INSERT INTO emuDB",
-                                 " SELECT '", newUUID,"' AS uuid, '", newName, 
-                                 "', '", newBasePath, "', DBconfigJSON FROM emuDB WHERE uuid='", oldUUID, "'"))
-  
-  # update DBconfig accordingly
-  dbUUID = get_emuDB_UUID(dbName = newDB, dbUUID = newUUID)
-  dbObj = .load.emuDB.DBI(uuid = dbUUID)
-  dbObj$DBconfig$name = newName;
-  dbObj$DBconfig$UUID = newUUID;
-  .store.DBconfig.DBI(dbObj$DBconfig)
-  
-  # duplicate session entries
-  dbSendQuery(getEmuDBcon(), paste0("INSERT INTO session",
-                                 " SELECT '", newUUID, "' AS db_uuid, name  FROM session",
-                                 " WHERE db_uuid='", oldUUID, "'"))
-  
-  # duplicate track entries
-  resTr = dbGetQuery(getEmuDBcon(), paste0(" SELECT '", newUUID, "' AS db_uuid, session, bundle, path FROM track",
-                                        " WHERE db_uuid='", oldUUID, "'"))
-  
-  
-  resTr$path = gsub(oldBasePath, newBasePath, resTr$path)
-  
-  dbWriteTable(getEmuDBcon(), 'track', resTr, append=T)
-  
-  # duplicate bundle entries
-  resBndls = dbGetQuery(getEmuDBcon(), paste0(" SELECT '", newUUID, "' AS db_uuid, session, name, annotates, sampleRate, mediaFilePath FROM bundle",
-                                           " WHERE db_uuid='", oldUUID, "'"))
-  
-  resBndls$mediaFilePath = gsub(oldBasePath, newBasePath, resBndls$mediaFilePath)
-  
-  dbWriteTable(getEmuDBcon(), 'bundle', resBndls, append=T)
-  
-  # duplicate items entries
-  dbSendQuery(getEmuDBcon(), paste0("INSERT INTO items",
-                                 " SELECT '", newUUID, "' AS db_uuid, session, bundle, itemID, level, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur FROM items",
-                                 " WHERE db_uuid='", oldUUID, "'"))
-  
-  # duplicate labels entries
-  dbSendQuery(getEmuDBcon(), paste0("INSERT INTO labels",
-                                 " SELECT '", newUUID, "' AS db_uuid, session, bundle, itemID, labelIdx, name, label FROM labels",
-                                 " WHERE db_uuid='", oldUUID, "'"))
-  
-  # duplicate links entries
-  dbSendQuery(getEmuDBcon(), paste0("INSERT INTO links",
-                                 " SELECT '", newUUID, "' AS db_uuid, session, bundle, fromID, toID, label FROM links",
-                                 " WHERE db_uuid='", oldUUID, "'"))
-  
-  # duplicate linksExt entries
-  dbSendQuery(getEmuDBcon(), paste0("INSERT INTO linksExt",
-                                 " SELECT '", newUUID, "' AS db_uuid, session, bundle, fromID, toID, seqIdx, toLevel, type, toSeqIdx, toSeqLen, label FROM linksExt",
-                                 " WHERE db_uuid='", oldUUID, "'"))
-  
-  
-}
+## SIC! Once the caching mechanics work this function should be deleted
+# duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
+#   # get UUID (also checks if DB exists)
+#   oldUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
+#   oldBasePath = dbGetQuery(get_emuDBcon(oldUUID), paste0("SELECT basePath FROM emuDB WHERE uuid='", oldUUID, "'"))
+#   newUUID = UUIDgenerate()
+#   
+#   # check if dbName already exists
+#   tcRes = tryCatch(get_emuDB_UUID(dbName = newName), error = function(e) e)
+#   
+#   if(!inherits(tcRes, 'error')){
+#     stop("emuDB with name: ", newName, " already exists!")
+#   }
+#   
+#   # duplicate emuDBs entry
+#   dbSendQuery(get_emuDBcon(oldUUID), paste0("INSERT INTO emuDB",
+#                                             " SELECT '", newUUID,"' AS uuid, '", newName, 
+#                                             "', '", newBasePath, "', DBconfigJSON, MD5DBconfigJSON FROM emuDB WHERE uuid='", oldUUID, "'"))
+#   
+#   # update DBconfig accordingly
+#   dbUUID = get_emuDB_UUID(dbName = newDB, dbUUID = newUUID)
+#   dbObj = .load.emuDB.DBI(uuid = dbUUID)
+#   dbObj$DBconfig$name = newName;
+#   dbObj$DBconfig$UUID = newUUID;
+#   .store.DBconfig.DBI(con = get_emuDBcon(oldUUID), dbObj$DBconfig)
+#   
+#   # duplicate session entries
+#   dbSendQuery(get_emuDBcon(oldUUID), paste0("INSERT INTO session",
+#                                             " SELECT '", newUUID, "' AS db_uuid, name  FROM session",
+#                                             " WHERE db_uuid='", oldUUID, "'"))
+#   
+#   # duplicate track entries
+#   resTr = dbGetQuery(get_emuDBcon(oldUUID), paste0(" SELECT '", newUUID, "' AS db_uuid, session, bundle, path FROM track",
+#                                                    " WHERE db_uuid='", oldUUID, "'"))
+#   
+#   
+#   resTr$path = gsub(oldBasePath, newBasePath, resTr$path)
+#   
+#   dbWriteTable(get_emuDBcon(oldUUID), 'track', resTr, append=T)
+#   
+#   # duplicate bundle entries
+#   resBndls = dbGetQuery(get_emuDBcon(oldUUID), paste0(" SELECT '", newUUID, "' AS db_uuid, session, name, annotates, sampleRate, mediaFilePath, MD5annotJSON FROM bundle",
+#                                                       " WHERE db_uuid='", oldUUID, "'"))
+#   
+#   resBndls$mediaFilePath = gsub(oldBasePath, newBasePath, resBndls$mediaFilePath)
+#   
+#   dbWriteTable(get_emuDBcon(oldUUID), 'bundle', resBndls, append=T)
+#   
+#   # duplicate items entries
+#   dbSendQuery(get_emuDBcon(oldUUID), paste0("INSERT INTO items",
+#                                             " SELECT '", newUUID, "' AS db_uuid, session, bundle, itemID, level, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur FROM items",
+#                                             " WHERE db_uuid='", oldUUID, "'"))
+#   
+#   # duplicate labels entries
+#   dbSendQuery(get_emuDBcon(oldUUID), paste0("INSERT INTO labels",
+#                                             " SELECT '", newUUID, "' AS db_uuid, session, bundle, itemID, labelIdx, name, label FROM labels",
+#                                             " WHERE db_uuid='", oldUUID, "'"))
+#   
+#   # duplicate links entries
+#   dbSendQuery(get_emuDBcon(oldUUID), paste0("INSERT INTO links",
+#                                             " SELECT '", newUUID, "' AS db_uuid, session, bundle, fromID, toID, label FROM links",
+#                                             " WHERE db_uuid='", oldUUID, "'"))
+#   
+#   # duplicate linksExt entries
+#   dbSendQuery(get_emuDBcon(oldUUID), paste0("INSERT INTO linksExt",
+#                                             " SELECT '", newUUID, "' AS db_uuid, session, bundle, fromID, toID, seqIdx, toLevel, type, toSeqIdx, toSeqLen, label FROM linksExt",
+#                                             " WHERE db_uuid='", oldUUID, "'"))
+#   
+#   
+# }
 
 ##
 rewrite.allAnnots.emuDB <- function(dbName, dbUUID=NULL, showProgress=TRUE){
   
   # get UUID (also checks if DB exists)
   dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
-  basePath = dbGetQuery(getEmuDBcon(), paste0("SELECT basePath FROM emuDB WHERE uuid='", dbUUID, "'"))
-  bndls = dbGetQuery(getEmuDBcon(), paste0("SELECT * FROM bundle WHERE db_uuid='", dbUUID, "'"))
+  basePath = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT basePath FROM emuDB WHERE uuid='", dbUUID, "'"))
+  bndls = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT * FROM bundle WHERE db_uuid='", dbUUID, "'"))
   
   progress = 0
   if(showProgress){
@@ -2041,7 +2190,7 @@ rewrite.allAnnots.emuDB <- function(dbName, dbUUID=NULL, showProgress=TRUE){
 list_bundleFilePaths <- function(dbName, fileExtention, 
                                  sessionPattern='.*', bundlePattern='*', 
                                  dbUUID=NULL){
-  .initialize.DBI.database()
+  # .initialize.DBI.database()
   uuid=get_emuDB_UUID(dbName,dbUUID)
   
   bndls = list_bundles(dbName, dbUUID)
@@ -2051,7 +2200,7 @@ list_bundleFilePaths <- function(dbName, fileExtention,
          sessionPattern, "' and the bundlePattern '", bundlePattern, "'")
   }
   
-  res = dbGetQuery(getEmuDBcon(), paste0("SELECT basePath FROM emuDB WHERE uuid='", uuid, "'"))
+  res = dbGetQuery(get_emuDBcon(uuid), paste0("SELECT basePath FROM emuDB WHERE uuid='", uuid, "'"))
   fp = file.path(res$basePath, paste0(postPatternBndls$session,'_ses'), paste0(postPatternBndls$name, '_bndl'), paste0(postPatternBndls$name, '.', fileExtention))
   
   # return only files that exist (should maybe issue warning)
@@ -2065,4 +2214,4 @@ list_bundleFilePaths <- function(dbName, fileExtention,
 # FOR DEVELOPMENT
 # library('testthat')
 # test_file('tests/testthat/test_duplicate.loaded.emuDB.R')
-
+# test_file('tests/testthat/test_database.caching.R')

@@ -759,10 +759,10 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
   dbConfig[['EMUwebAppConfig']][['activeButtons']]=list(saveBundle=TRUE)
   
   # initialize DBI
-  .initialize.DBI.database()
+  # .initialize.DBI.database()
   
   # store db schema file
-  .store.DBconfig(pp,dbConfig)
+  .store.DBconfig(get_emuDBcon(), pp,dbConfig)
   progress=progress+1L
   
   # load primary track file list first

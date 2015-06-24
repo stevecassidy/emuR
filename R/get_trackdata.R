@@ -51,7 +51,7 @@
   
   #########################
   # parameter checks  
-
+  
   # check if all values for minimal call are set
   if( is.null(dbName) || is.null(seglist) || is.null(ssffTrackName)) {
     stop("dbName, seglist and ssffTrackName have to all be set!\n")
@@ -135,13 +135,13 @@
   
   if(!is.null(onTheFlyFunctionName)){
     funcFormals = NULL
-    funcFormals$listOfFiles = dbGetQuery(getEmuDBcon(), paste0("SELECT mediaFilePath FROM bundle WHERE db_uuid='", dbUUID, "' AND session='",
-                                                            splUtt[1], "' AND name='", splUtt[2], "'"))$mediaFilePath
+    funcFormals$listOfFiles = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT mediaFilePath FROM bundle WHERE db_uuid='", dbUUID, "' AND session='",
+                                                                      splUtt[1], "' AND name='", splUtt[2], "'"))$mediaFilePath
     funcFormals$toFile = FALSE
     curDObj = do.call(onTheFlyFunctionName,funcFormals)
   }else{
-    allBndlTrackPaths <- dbGetQuery(getEmuDBcon(), paste0("SELECT path FROM track WHERE db_uuid='", dbUUID, "' AND session='",
-                                                       splUtt[1], "' AND bundle='", splUtt[2], "'"))$path
+    allBndlTrackPaths <- dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT path FROM track WHERE db_uuid='", dbUUID, "' AND session='",
+                                                                 splUtt[1], "' AND bundle='", splUtt[2], "'"))$path
     fpath <- allBndlTrackPaths[grepl(paste(trackDef[[1]]$fileExtension, '$', sep = ''), allBndlTrackPaths)]
     curDObj <- read.AsspDataObj(fpath)
   }
@@ -186,10 +186,10 @@
     if(!any(bndls$session == splUtt[1] & bndls$name == splUtt[2])){
       stop("Following utts entry not found: ", seglist$utts[i])
     }
-
     
-    allBndlTrackPaths <- dbGetQuery(getEmuDBcon(), paste0("SELECT path FROM track WHERE db_uuid='", dbUUID, "' AND session='",
-                                                       splUtt[1], "' AND bundle='", splUtt[2], "'"))$path
+    
+    allBndlTrackPaths <- dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT path FROM track WHERE db_uuid='", dbUUID, "' AND session='",
+                                                                 splUtt[1], "' AND bundle='", splUtt[2], "'"))$path
     
     fpath <- allBndlTrackPaths[grepl(paste0(trackDef[[1]]$fileExtension, '$'), allBndlTrackPaths)]
     
@@ -198,8 +198,8 @@
     #get data object
     
     if(!is.null(onTheFlyFunctionName)){
-      funcFormals$listOfFiles = dbGetQuery(getEmuDBcon(), paste0("SELECT mediaFilePath FROM bundle WHERE db_uuid='", dbUUID, "' AND session='",
-                                                              splUtt[1], "' AND name='", splUtt[2], "'"))$mediaFilePath
+      funcFormals$listOfFiles = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT mediaFilePath FROM bundle WHERE db_uuid='", dbUUID, "' AND session='",
+                                                                        splUtt[1], "' AND name='", splUtt[2], "'"))$mediaFilePath
       
       curDObj = do.call(onTheFlyFunctionName, funcFormals)
       if(verbose){
