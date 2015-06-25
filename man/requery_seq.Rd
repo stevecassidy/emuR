@@ -10,9 +10,9 @@ requery_seq(seglist, offset = 0, offsetRef = "START", length = 1,
 \arguments{
 \item{seglist}{segment list to requery on (type: 'emuRsegs')}
 
-\item{offset}{offset in sequence}
+\item{offset}{start offset in sequence}
 
-\item{offsetRef}{reference of offset: 'START' for first and 'END' for last element of segment list}
+\item{offsetRef}{reference elemnt for offset: 'START' for first and 'END' for last element of segment list}
 
 \item{length}{element length of returned segment list}
 
@@ -32,16 +32,20 @@ WARNING! Experimental, syntax and semantics may change!!
 ## Requery previous element of 'p' on phonetic level
 sl1=query('ae','Phonetic=p')
 
-contextRequery(sl1,offset=-1)
+requery_seq(sl1,offset=-1)
 
-## Requery context (previuos and following) of 'p' on phonetic level
+## Requery context (adding previuos and following elements) of 'p' on phonetic level
 
-contextRequery(sl1,offset=-1,length=3)
+requery_seq(sl1,offset=-1,length=3)
 
 ## Requery previous element of n->t sequence
 sl2=query('ae',"[Phoneme=n -> Phoneme=t]")
 
 requery_seq(sl2,offset=-1)
+
+## Requery last element of n->t sequence
+
+requery_seq(sl2,offsetRef='END')
 
 ## Requery following element of n->t sequence
 

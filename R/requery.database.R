@@ -4,8 +4,8 @@ require(stringr)
 ##' Requery sequential context of segment list
 ##' @description WARNING! Experimental, syntax and semantics may change!! 
 ##' @param seglist segment list to requery on (type: 'emuRsegs')
-##' @param offset offset in sequence
-##' @param offsetRef reference of offset: 'START' for first and 'END' for last element of segment list
+##' @param offset start offset in sequence
+##' @param offsetRef reference elemnt for offset: 'START' for first and 'END' for last element of segment list
 ##' @param length element length of returned segment list
 ##' @param resultType type (class name) of result
 ##' @param dbUUID optional UUID odf emuDB
@@ -21,16 +21,20 @@ require(stringr)
 ##' ## Requery previous element of 'p' on phonetic level
 ##' sl1=query('ae','Phonetic=p')
 ##' 
-##' contextRequery(sl1,offset=-1)
+##' requery_seq(sl1,offset=-1)
 ##' 
-##' ## Requery context (previuos and following) of 'p' on phonetic level
+##' ## Requery context (adding previuos and following elements) of 'p' on phonetic level
 ##'
-##' contextRequery(sl1,offset=-1,length=3)
+##' requery_seq(sl1,offset=-1,length=3)
 ##' 
 ##' ## Requery previous element of n->t sequence
 ##' sl2=query('ae',"[Phoneme=n -> Phoneme=t]")
 ##' 
 ##' requery_seq(sl2,offset=-1)
+##' 
+##' ## Requery last element of n->t sequence
+##' 
+##' requery_seq(sl2,offsetRef='END')
 ##' 
 ##' ## Requery following element of n->t sequence
 ##' 
@@ -138,10 +142,20 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,resultType=NU
 ##' @examples
 ##' \dontrun{
 ##' 
-##' ## Requery phoneme sequence of word (Text) 'beautiful'
+##' ## Downward requery phoneme sequence of word (level Text) 'beautiful'
+##' 
 ##' sl1=query('ae','Text=beautiful')
 ##' requery_hier(sl1,level='Phoneme')
 ##'
+##' ## Upward requery words (level Text) of Phonetic p elements
+##' 
+##' sl1=query('ae','Phonetic=p')
+##' requery_hier(sl1,level='Text')
+##' 
+##' ## Combined requery: last phonemes of words beginning with 'an'
+##' 
+##' sl1=query('ae',"Text=~an.*")
+##' requery_seq(requery_hier(sl1,level='Phoneme'),offsetRef = 'END')
 ##' 
 ##' }
 requery_hier<-function(seglist,level=NULL,resultType=NULL,dbUUID=NULL){

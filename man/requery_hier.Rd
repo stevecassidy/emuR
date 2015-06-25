@@ -24,10 +24,20 @@ WARNING! Experimental, syntax and semantics may change!!
 \examples{
 \dontrun{
 
-## Requery phoneme sequence of word (Text) 'beautiful'
+## Downward requery phoneme sequence of word (level Text) 'beautiful'
+
 sl1=query('ae','Text=beautiful')
 requery_hier(sl1,level='Phoneme')
 
+## Upward requery words (level Text) of Phonetic p elements
+
+sl1=query('ae','Phonetic=p')
+requery_hier(sl1,level='Text')
+
+## Combined requery: last phonemes of words beginning with 'an'
+
+sl1=query('ae',"Text=~an.*")
+requery_seq(requery_hier(sl1,level='Phoneme'),offsetRef = 'END')
 
 }
 }
