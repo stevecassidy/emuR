@@ -60,7 +60,7 @@ make.emuRsegs <- function(dbName,seglist,query,type)
   #class(x) <- "data.frame"
   #}
   
-  printX='[.data.frame'(x,c('labels','start','end','session','bundle','startItemID','endItemID','type'))
+  printX='[.data.frame'(x,c('labels','start','end','session','bundle','level','type'))
   
   print.data.frame(printX, ...)
 }
