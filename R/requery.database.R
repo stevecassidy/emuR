@@ -97,10 +97,10 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,resultType=NU
                          slr.db_uuid=sl.db_uuid AND slr.session=sl.session AND slr.bundle=sl.bundle AND sl.endItemID=slr.itemID AND ")
     if(offsetRef=='START'){
       heQueryStr=paste0(heQueryStr,"il.level=sll.level AND il.seqIdx=sll.seqIdx+",offset," AND \
-                          ir.level=sll.level AND ir.seqIdx=sll.seqIdx+",offset+length)
+                          ir.level=sll.level AND ir.seqIdx=sll.seqIdx+",offset+length-1)
     }else if(offsetRef=='END'){
       heQueryStr=paste0(heQueryStr,"il.level=slr.level AND il.seqIdx=slr.seqIdx+",offset," AND \
-                          ir.level=slr.level AND ir.seqIdx=slr.seqIdx+",offset+length)
+                          ir.level=slr.level AND ir.seqIdx=slr.seqIdx+",offset+length-1)
     }else{
       stop("Parameter offsetRef must be one of 'START' or 'END'\n")
     }

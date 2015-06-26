@@ -63,11 +63,20 @@ test_that("Requery sequential",{
   expect_that(nrow(rsl1),equals(2))
   expect_that('[.data.frame'(rsl1,1,'labels'),is_equivalent_to('l->@->n->t->l'))
   expect_that('[.data.frame'(rsl1,1,'startItemID'),equals(144))
-  expect_that('[.data.frame'(rsl1,1,'endItemID'),equals(149))
+  expect_that('[.data.frame'(rsl1,1,'endItemID'),equals(148))
   
   expect_that('[.data.frame'(rsl1,2,'labels'),is_equivalent_to('s->@->n->t->ei'))
   expect_that('[.data.frame'(rsl1,2,'startItemID'),equals(101))
-  expect_that('[.data.frame'(rsl1,2,'endItemID'),equals(106))
+  expect_that('[.data.frame'(rsl1,2,'endItemID'),equals(105))
+  
+  # Bug ID 42
+  sl1=query('ae',"[[Phonetic=k -> Phonetic=~.*]->Phonetic=~.*]")
+  sl1w=requery_hier(sl1,level='Word')
+  # sl1w has sequence length 1
+  sl1w2=requery_seq(sl1w[1,])
+  # Bug startItemID != endItemID, and label is not a sequence !!
+  expect_that('[.data.frame'(sl1w2,1,'startItemID'),equals(61))
+  expect_that('[.data.frame'(sl1w2,1,'endItemID'),equals(61))
  
 })
 
