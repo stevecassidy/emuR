@@ -45,7 +45,7 @@ require(stringr)
 ##' requery_seq(sl2,offset=-1,length=4)
 ##' 
 ##' }
-requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,resultType=NULL,dbUUID=NULL){
+requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBounds=FALSE,resultType=NULL,dbUUID=NULL){
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType wiil be used)")
   }
@@ -108,8 +108,12 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,resultType=NU
     slLen=nrow(seglist)
     resLen=nrow(he)
     outOfBndCnt=slLen-resLen
-    if(outOfBndCnt!=0){
-      stop(outOfBndCnt," of the requested sequence(s) is/are out of boundaries.")
+    if(!ignoreOutOfBounds & outOfBndCnt>0){
+      if(outOfBndCnt==slLen){
+        stop("All (",outOfBndCnt,") of the requested sequence(s) is/are out of boundaries.")
+      }else{
+        stop(outOfBndCnt," of the requested sequence(s) is/are out of boundaries.\nSet parameter 'ignoreOutOfBounds=TRUE' to get residual result segments that lie within the bounds.")
+      }
     }
     result=list(items=he)
     if(is.null(resultType)){
