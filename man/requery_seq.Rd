@@ -5,7 +5,7 @@
 \title{Requery sequential context of segment list}
 \usage{
 requery_seq(seglist, offset = 0, offsetRef = "START", length = 1,
-  resultType = NULL, dbUUID = NULL)
+  ignoreOutOfBounds = FALSE, resultType = NULL, dbUUID = NULL)
 }
 \arguments{
 \item{seglist}{segment list to requery on (type: 'emuRsegs')}
@@ -15,6 +15,8 @@ requery_seq(seglist, offset = 0, offsetRef = "START", length = 1,
 \item{offsetRef}{reference elemnt for offset: 'START' for first and 'END' for last element of segment list}
 
 \item{length}{element length of returned segment list}
+
+\item{ignoreOutOfBounds}{ignore result segments that are out of bundle bounds}
 
 \item{resultType}{type (class name) of result}
 
@@ -54,6 +56,14 @@ requery_seq(sl2,offset=1,offsetRef='END')
 ## Requery context (previuos and following) of n->t sequence
 
 requery_seq(sl2,offset=-1,length=4)
+
+## Requery next word contexts (sequence includes target word)
+
+sl3=query('ae',"Text=to")
+requery_seq(sl3,length=2)
+
+## Requery following two word contexts, ignoring segment sequences that are out of bundle end bounds
+requery_seq(sl3,length=3,ignoreOutOfBounds=TRUE)
 
 }
 }

@@ -7,6 +7,7 @@ require(stringr)
 ##' @param offset start offset in sequence
 ##' @param offsetRef reference elemnt for offset: 'START' for first and 'END' for last element of segment list
 ##' @param length element length of returned segment list
+##' @param ignoreOutOfBounds ignore result segments that are out of bundle bounds
 ##' @param resultType type (class name) of result
 ##' @param dbUUID optional UUID odf emuDB
 ##' @return result set object of class resultType (default: 'emuRsegs')
@@ -43,6 +44,14 @@ require(stringr)
 ##' ## Requery context (previuos and following) of n->t sequence
 ##' 
 ##' requery_seq(sl2,offset=-1,length=4)
+##' 
+##' ## Requery next word contexts (sequence includes target word)
+##' 
+##' sl3=query('ae',"Text=to")
+##' requery_seq(sl3,length=2)
+##' 
+##' ## Requery following two word contexts, ignoring segment sequences that are out of bundle end bounds 
+##' requery_seq(sl3,length=3,ignoreOutOfBounds=TRUE)
 ##' 
 ##' }
 requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBounds=FALSE,resultType=NULL,dbUUID=NULL){
