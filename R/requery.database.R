@@ -80,13 +80,6 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBo
     # load config
     dbConfig=db[['DBconfig']]
     
-    # create temporary items
-    emuDBs.query.tmp=list()
-    emuDBs.query.tmp[['queryItems']]<-dbGetQuery(get_emuDBcon(dbUUID),paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
-    emuDBs.query.tmp[['queryLabels']]<-dbGetQuery(get_emuDBcon(dbUUID),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
-    emuDBs.query.tmp[['queryLinksExt']]<-dbGetQuery(get_emuDBcon(dbUUID),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
-    setQueryTmpEmuDBs(emuDBs.query.tmp)
-    
     items=dbReadTable(get_emuDBcon(dbUUID),'items')
     itemsIdxSql='CREATE INDEX items_idx ON items(itemID,db_uuid,session,bundle,level,itemID,seqIdx,type,sampleRate,sampleStart,sampleDur,samplePoint)'
     resIdxSql='CREATE INDEX its_idx ON its(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)'
@@ -200,13 +193,6 @@ requery_hier<-function(seglist,level=NULL,resultType=NULL,dbUUID=NULL){
     db=.load.emuDB.DBI(uuid = dbUUID)
     # load config
     dbConfig=db[['DBconfig']]
-    
-    # create temporary items
-    emuDBs.query.tmp=list()
-    emuDBs.query.tmp[['queryItems']]<-dbGetQuery(get_emuDBcon(dbUUID),paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
-    emuDBs.query.tmp[['queryLabels']]<-dbGetQuery(get_emuDBcon(dbUUID),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
-    emuDBs.query.tmp[['queryLinksExt']]<-dbGetQuery(get_emuDBcon(dbUUID),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
-    setQueryTmpEmuDBs(emuDBs.query.tmp)
     
     items=dbReadTable(get_emuDBcon(dbUUID),'items')
     itemsIdxSql='CREATE INDEX items_idx ON items(itemID,db_uuid,session,bundle,level,itemID,seqIdx,type,sampleRate,sampleStart,sampleDur,samplePoint)'
