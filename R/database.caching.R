@@ -118,7 +118,7 @@ update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
       
       if(old.MD5annotJSON != new.MD5annotJSON){
         if(verbose){
-          print(paste0("Reloading _annot.json for bundle in session : '", sn,"' with name: '", sn, "'"))
+          print(paste0("Reloading _annot.json for bundle in session : '", sn,"' with name: '", bn, "'"))
         }
         annoJSONLns=readLines(annotPath,encoding="UTF-8")
         annoJSON=paste(annoJSONLns,collapse='')
