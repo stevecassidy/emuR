@@ -373,5 +373,5 @@
 
 #######################
 # FOR DEVELOPMENT
-library('testthat')
-test_file('tests/testthat/test_get_trackdata.R')
+# library('testthat')
+# test_file('tests/testthat/test_get_trackdata.R')
