@@ -117,7 +117,7 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
       }
       jr=jsonlite::fromJSON(D,simplifyVector = FALSE)
       if(debugLevel >= 2 ){
-        cat("Received command from EMU-webApp: ",jr[['type']],"\n")
+        cat("Received command from EMU-Webapp: ",jr[['type']],"\n")
         if(debugLevel >= 3){
           jrNms=names(jr)
           
@@ -207,7 +207,7 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
           
           bp=database[['basePath']]
           
-          mediaFilePath=b$mediaFilePath
+          mediaFilePath=file.path(bp, paste0(b$session, session.suffix), paste0(b$name, bundle.dir.suffix), b$annotates)
           if(debugLevel>4){
             cat("Mediafile: ",mediaFilePath," for ",b$name,"\n")
           }
