@@ -240,12 +240,14 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
           for(ssffTr in sc[['ssffTrackDefinitions']]){
             if(ssffTr[['name']] %in% ssffTrackNmsInUse){
               fe=ssffTr[['fileExtension']]
-              feRe=paste0('[.]',fe,'$')
-              for(sp in b[['signalpaths']]){
-                if(length(grep(feRe,sp))==1){
-                  ssffFilesHash[fe]=sp
-                }
-              }
+              ssffFilesHash[fe]=file.path(bp, paste0(b$session, session.suffix), paste0(b$name, bundle.dir.suffix), paste0(b$name, ".", fe))
+              # commented out to not use signalpaths that rely on track table
+              # feRe=paste0('[.]',fe,'$')
+              # for(sp in b[['signalpaths']]){
+                # if(length(grep(feRe,sp))==1){
+                  # ssffFilesHash[fe]=sp
+                # }
+              # }
             }
           }
           
@@ -255,7 +257,7 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
             ssffFilePath=ssffFilesHash[ssffFileExt]
             mf=tryCatch(file(ssffFilePath, "rb"),error=function(e) {err<<-e})
             if(is.null(err)){
-              mfData=readBin(mf, raw(), n=file.info(sp)$size)
+              mfData=readBin(mf, raw(), n=file.info(ssffFilePath)$size)
               if(inherits(mfData,'error')){
                 err=mfData
                 break
