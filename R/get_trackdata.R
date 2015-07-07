@@ -135,14 +135,16 @@
   
   if(!is.null(onTheFlyFunctionName)){
     funcFormals = NULL
-    funcFormals$listOfFiles = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT mediaFilePath FROM bundle WHERE db_uuid='", dbUUID, "' AND session='",
-                                                                      splUtt[1], "' AND name='", splUtt[2], "'"))$mediaFilePath
+    qr = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT * FROM bundle WHERE db_uuid='", dbUUID, "' AND session='",
+                                                 splUtt[1], "' AND name='", splUtt[2], "'"))
+    funcFormals$listOfFiles = file.path(dbObj$basePath, paste0(qr$session, session.suffix), paste0(qr$name, bundle.dir.suffix), qr$annotates)
     funcFormals$toFile = FALSE
     curDObj = do.call(onTheFlyFunctionName,funcFormals)
   }else{
-    allBndlTrackPaths <- dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT path FROM track WHERE db_uuid='", dbUUID, "' AND session='",
-                                                                 splUtt[1], "' AND bundle='", splUtt[2], "'"))$path
-    fpath <- allBndlTrackPaths[grepl(paste(trackDef[[1]]$fileExtension, '$', sep = ''), allBndlTrackPaths)]
+#     allBndlTrackPaths <- dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT path FROM track WHERE db_uuid='", dbUUID, "' AND session='",
+#                                                                  splUtt[1], "' AND bundle='", splUtt[2], "'"))$path
+    # fpath <- allBndlTrackPaths[grepl(paste(trackDef[[1]]$fileExtension, '$', sep = ''), allBndlTrackPaths)]
+    fpath <- file.path(dbObj$basePath, paste0(splUtt[1], session.suffix), paste0(splUtt[2], bundle.dir.suffix), paste0(splUtt[2], ".", trackDef[[1]]$fileExtension))
     curDObj <- read.AsspDataObj(fpath)
   }
   tmpData <- eval(parse(text = paste("curDObj$", trackDef[[1]]$columnName, sep = "")))
@@ -188,18 +190,19 @@
     }
     
     
-    allBndlTrackPaths <- dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT path FROM track WHERE db_uuid='", dbUUID, "' AND session='",
-                                                                 splUtt[1], "' AND bundle='", splUtt[2], "'"))$path
+    # allBndlTrackPaths <- dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT path FROM track WHERE db_uuid='", dbUUID, "' AND session='",
+                                                                 # splUtt[1], "' AND bundle='", splUtt[2], "'"))$path
     
-    fpath <- allBndlTrackPaths[grepl(paste0(trackDef[[1]]$fileExtension, '$'), allBndlTrackPaths)]
-    
+    # fpath <- allBndlTrackPaths[grepl(paste0(trackDef[[1]]$fileExtension, '$'), allBndlTrackPaths)]
+    fpath <- file.path(dbObj$basePath, paste0(splUtt[1], session.suffix), paste0(splUtt[2], bundle.dir.suffix), paste0(splUtt[2], ".", trackDef[[1]]$fileExtension))
     
     ################
     #get data object
     
     if(!is.null(onTheFlyFunctionName)){
-      funcFormals$listOfFiles = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT mediaFilePath FROM bundle WHERE db_uuid='", dbUUID, "' AND session='",
-                                                                        splUtt[1], "' AND name='", splUtt[2], "'"))$mediaFilePath
+      qr = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT * FROM bundle WHERE db_uuid='", dbUUID, "' AND session='",
+                                                   splUtt[1], "' AND name='", splUtt[2], "'"))
+      funcFormals$listOfFiles = file.path(dbObj$basePath, paste0(qr$session, session.suffix), paste0(qr$name, bundle.dir.suffix), qr$annotates)
       
       curDObj = do.call(onTheFlyFunctionName, funcFormals)
       if(verbose){
@@ -370,5 +373,5 @@
 
 #######################
 # FOR DEVELOPMENT
-# library('testthat')
-# test_file('tests/testthat/test_get_trackdata.R')
+library('testthat')
+test_file('tests/testthat/test_get_trackdata.R')
