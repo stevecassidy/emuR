@@ -33,7 +33,7 @@ segs <- vowlax
 rsegs <- randomise.segs( segs )
 }
 \seealso{
-\code{\link{emu.query}}
+\code{\link{query}}
 }
 \keyword{misc}
 

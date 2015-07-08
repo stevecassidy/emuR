@@ -8,7 +8,7 @@
 ##' @param file The name of the file to read
 ##' @return An Emu segment list.
 ##' @author Steve Cassidy
-##' @seealso \code{\link{emu.query}}
+##' @seealso \code{\link{query}}
 ##' @keywords IO
 ##' @examples
 ##' 
@@ -95,7 +95,7 @@ if( version$major >= 5 ) {
 ##' has all of the required components.
 ##' 
 ##' An Emu segment list is the result of a query to a speech database (see
-##' \code{\link{emu.query}}) and has one row per matching segment or event from
+##' \code{\link{query}}) and has one row per matching segment or event from
 ##' the query. Each row lists the label, start and end times (in milliseconds)
 ##' and utterance name for the segment.  This information is used by
 ##' \code{\link{get_trackdata}} and other functions to extract data corresponding
@@ -224,7 +224,7 @@ is.seglist <- function(object) {
 ##' @param database A new database name
 ##' @return An Emu segment list.
 ##' @author Steve Cassidy
-##' @seealso \code{\link{emu.query}}
+##' @seealso \code{\link{query}}
 ##' @keywords misc
 ##' @examples
 ##' 
@@ -453,7 +453,7 @@ is.seglist <- function(object) {
 ##' @section Side Effects: The segment list is written to a file in the
 ##' standard format, suitable for input to \code{gettrack} or other Emu utility
 ##' programs.
-##' @seealso \code{\link{emu.query}}
+##' @seealso \code{\link{query}}
 ##' @keywords misc
 ##' @examples
 ##' 

@@ -32,7 +32,7 @@ data(dip)
    \dontrun{unlink("write.emusegs.example.txt")}
 }
 \seealso{
-\code{\link{emu.query}}
+\code{\link{query}}
 }
 \keyword{misc}
 

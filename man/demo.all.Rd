@@ -12,7 +12,7 @@ the result of a database query, that searched all segments at level
 Phonetic.
 }
 \details{
-A segment list is created via emu.query() or by using the EMU Query Tool.
+A segment list is created via \code{\link{query}}.
 }
 \seealso{
 \code{\link{demo.vowels}} \code{\link{segmentlist}}

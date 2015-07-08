@@ -61,7 +61,7 @@ newsegs <-  modify.seglist( segs, database="notdemo" )
 Steve Cassidy
 }
 \seealso{
-\code{\link{emu.query}}
+\code{\link{query}}
 }
 \keyword{misc}
 

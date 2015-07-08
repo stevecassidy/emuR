@@ -15,8 +15,7 @@ the result of get F0 data for the segment list demo.vowels (see
 data(demo.vowels)).
 }
 \details{
-A track list is created via emu.track() or via get data within the EMU
-Query Tool.
+A track list is created via the \code{\link{get_trackdata}} function.
 }
 \seealso{
 \code{\link{demo.all.rms}} \code{\link{segmentlist}}

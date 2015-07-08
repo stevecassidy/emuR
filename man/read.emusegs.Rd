@@ -44,7 +44,7 @@ ei	20315.2	20655.2	msdjc006"
 Steve Cassidy
 }
 \seealso{
-\code{\link{emu.query}}
+\code{\link{query}}
 }
 \keyword{IO}
 

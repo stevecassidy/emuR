@@ -161,7 +161,7 @@ NULL
 ##' the result of a database query, that searched all segments at level
 ##' Phonetic.
 ##' 
-##' A segment list is created via emu.query() or by using the EMU Query Tool.
+##' A segment list is created via \code{\link{query}}.
 ##' 
 ##' @format First Column labels Second start time of the segment Third end time
 ##' of the segment Fourth utterance name of the utterance the segment was found
@@ -180,8 +180,7 @@ NULL
 ##' A track list of the demo database that is part of the Emu system.  It is
 ##' the result of get rms data for the segment list demo.all (data(demo.all)).
 ##' 
-##' A track list is created via emu.track() or via get data within the EMU
-##' Query Tool.
+##' A track list is created via the \code{\link{get_trackdata}} function.
 ##' 
 ##' @format A object with \$index, \$ftime and \$data
 ##' 
@@ -205,8 +204,7 @@ NULL
 ##' the result of get F0 data for the segment list demo.vowels (see
 ##' data(demo.vowels)).
 ##' 
-##' A track list is created via emu.track() or via get data within the EMU
-##' Query Tool.
+##' A track list is created via the \code{\link{get_trackdata}} function.
 ##' 
 ##' @format An object with \$index, \$ftime and \$data
 ##' 
@@ -230,8 +228,7 @@ NULL
 ##' the result of get fm data for the segment list demo.vowels (see
 ##' data(demo.vowels)).
 ##' 
-##' A track list is created via emu.track() or via get data within the EMU
-##' Query Tool.
+##' A track list is created via the \code{\link{get_trackdata}} function.
 ##' 
 ##' @format index: a two columned matrix with the range of the \$data rows that
 ##' belong to the segment ftime: a two columned matrix with the times marks of
@@ -254,7 +251,7 @@ NULL
 ##' the result of a database query, that searched all vowel segments at level
 ##' Phonetic.
 ##' 
-##' A segment list is created via emu.query() or by using the EMU Query Tool.
+##' A segment list is created via \code{\link{query}}.
 ##' 
 ##' @format First Column labels Second start time of the segment Third end time
 ##' of the segment Fourth utterance name of the utterance the segment was found
@@ -271,8 +268,7 @@ NULL
 #' result of get F0 data for the segment list demo.vowels (see
 #' data(demo.vowels)).
 #' 
-#' A track list is created via emu.track() or via get data within the EMU Query
-#' Tool.
+#' A track list is created via the \code{\link{get_trackdata}} function.
 #' 
 #' @format An object with \$index, \$ftime and \$data
 #' 
@@ -292,8 +288,7 @@ NULL
 #' result of get fm data for the segment list demo.vowels (see
 #' data(demo.vowels)).
 #' 
-#' A track list is created via emu.track() or via get data within the EMU Query
-#' Tool.
+#' A track list is created via the \code{\link{get_trackdata}} funciton.
 #' 
 #' @format index: a two columned matrix with the range of the \$data rows that
 #' belong to the segment ftime: a two columned matrix with the times marks of
