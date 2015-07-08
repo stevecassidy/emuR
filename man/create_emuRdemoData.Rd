@@ -16,9 +16,9 @@ Create a folder in the folder specified
 by the dir argument called emuR_demoData.
 This folder contains the folders:
 \itemize{
-\item{ae: }{Containing an emuDB that adheres to the new formant specification (as expected by the \code{load_emuDB()} function)}
-\item{TextGrid_collection: }{Containing a TextGrid collection (as expected from the \code{convert_TextGridCollection_to_emuDB()} function)}
-\item{legacy_ae: }{Containing legacyEmuDB (as expected by the \code{convert_legacyEmuDB_to_emuDB()} function)}
+\item{ae: }{Containing an emuDB that adheres to the new formant specification (as expected by the \code{\link{load_emuDB}} function)}
+\item{TextGrid_collection: }{Containing a TextGrid collection (as expected from the \code{\link{convert_TextGridCollection_to_emuDB}} function)}
+\item{legacy_ae: }{Containing legacyEmuDB (as expected by the \code{\link{convert_legacyEmuDB_to_emuDB}} function)}
 }
 }
 \author{
