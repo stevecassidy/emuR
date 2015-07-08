@@ -50,9 +50,10 @@ The `emuR` package provides a function for converting existing legacyEmuDBs to t
 ```{r}
 # load the package
 library(emuR)
-# get the path to a .tpl file of a legacyEmuDB that comes with the emuR package
-path2extdata = system.file("extdata", package = "emuR")
-tplPath = list.files(path2extdata, pattern=glob2rx('*.tpl'), full.names=TRUE, recursive = T)
+# create demo data in folder provided by the tempdir() function
+create_emuRdemoData()
+# get the path to a .tpl file of a legacyEmuDB that is included the demo data
+tplPath = file.path(tempdir(), "emuR_demoData", "legacy_ae", "ae.tpl")
 # convert this legacyEmuDB to the emuDB format
 convert_legacyEmuDB_to_emuDB(emuTplPath = tplPath, targetDir = tempdir(), verbose = F)
 ```
@@ -62,9 +63,8 @@ This will create a new emuDB in a temporary folder that is provided by `R` funct
 A further function provided is the `convert_TextGridCollection_to_emuDB()` function. This function converts an existing `.TextGrid` & `.wav` file collection to the emuDB format. In order to  pair the correct files together the `.TextGrid` files as well as the `.wav` files must have the same name (i.e. file name without extension). A further restriction is that the tiers contained within all the `.TextGrid` files have to be equal in name & type (equal subsets can be chosen using the `tierNames` argument of the function). For example, if all `.TextGrid` files contain the tiers `Syl: IntervalTier`, `Phonetic: IntervalTier` and `Tone: TextTier` the conversion will work. However, if a single `.TextGrid` of the collection has the additional tier `Word: IntervalTier` the conversion will fail, although it can be made to work by specifying the equal subset `equalSubset = c('Syl', 'Phonetic', 'Tone')` and passing it into the function argument `convert_TextGridCollection_to_emuDB(..., tierNames = equalSubset, ...)`. 
 
 ```{r}
-# get the path to a folder containing .wav & .TextGrid files that come with the package
-path2extdata = system.file("extdata", package = "emuR")
-path2folder = file.path(path2extdata, 'legacy_emu')
+# get the path to a folder containing .wav & .TextGrid files that is part of the demo data
+path2folder = file.path(tempdir(), "emuR_demoData", "TextGrid_collection")
 
 # convert this TextGridCollection to the emuDB format
 convert_TextGridCollection_to_emuDB(path2folder, dbName = 'myTGcolDB', 
