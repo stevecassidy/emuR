@@ -4,9 +4,9 @@
 ##' by the dir argument called emuR_demoData.
 ##' This folder contains the folders:
 ##' \itemize{
-##' \item{ae: }{Containing an emuDB that adheres to the new formant specification (as expected by the \code{load_emuDB()} function)} 
-##' \item{TextGrid_collection: }{Containing a TextGrid collection (as expected from the \code{convert_TextGridCollection_to_emuDB()} function)}
-##' \item{legacy_ae: }{Containing legacyEmuDB (as expected by the \code{convert_legacyEmuDB_to_emuDB()} function)}
+##' \item{ae: }{Containing an emuDB that adheres to the new formant specification (as expected by the \code{\link{load_emuDB}} function)} 
+##' \item{TextGrid_collection: }{Containing a TextGrid collection (as expected from the \code{\link{convert_TextGridCollection_to_emuDB}} function)}
+##' \item{legacy_ae: }{Containing legacyEmuDB (as expected by the \code{\link{convert_legacyEmuDB_to_emuDB}} function)}
 ##' }
 ##' @param dir directory to create demo data in (default= tempdir())
 ##' @param precache load and purge the create ae database to create an on-file-system cache
@@ -16,9 +16,7 @@ create_emuRdemoData <- function(dir = tempdir(), precache = F){
   
   ddPath = file.path(dir,"emuR_demoData")
   
-  path2legacyData = system.file("extdata/legacy_emu", package = "emuR")
-  path2newData = system.file("extdata/emu", package = "emuR") # SIC path2legacyData & path2newData should be the same to reduce package size!
-  
+  path2data = system.file("extdata", package = "emuR")
   
   if(file.exists(ddPath)){
     stop("Path '", ddPath,"' already exists!")
@@ -27,9 +25,9 @@ create_emuRdemoData <- function(dir = tempdir(), precache = F){
   dir.create(ddPath)
   #################################
   # create ae
-  configPath = list.files(path2newData, pattern = "DBconfig.json$", recursive = T, full.names = T)
-  wavPaths = list.files(path2newData, pattern = ".wav$", recursive = T, full.names = T)
-  annotPaths = list.files(path2newData, pattern = "_annot.json$", recursive = T, full.names = T)
+  configPath = list.files(path2data, pattern = "DBconfig.json$", recursive = T, full.names = T)
+  wavPaths = list.files(path2data, pattern = ".wav$", recursive = T, full.names = T)
+  annotPaths = list.files(path2data, pattern = "_annot.json$", recursive = T, full.names = T)
   aePath = file.path(ddPath, "ae")
   
   dir.create(aePath)
@@ -64,7 +62,7 @@ create_emuRdemoData <- function(dir = tempdir(), precache = F){
   
   ####################################
   # create TextGrid_collection
-  fpl = create_filePairList(path2legacyData, path2legacyData, "wav", "TextGrid")
+  fpl = create_filePairList(path2data, path2data, "wav", "TextGrid")
   tgcPath = file.path(ddPath, "TextGrid_collection")
   
   dir.create(tgcPath)
@@ -74,11 +72,11 @@ create_emuRdemoData <- function(dir = tempdir(), precache = F){
   
   #################################
   # create legacyEmuDB
-  tplPath = list.files(path2legacyData, pattern = ".tpl$", recursive = T, full.names = T)
-  wavPaths = list.files(path2legacyData, pattern = ".wav$", recursive = T, full.names = T)
-  hlbPaths = list.files(path2legacyData, pattern = "hlb$", recursive = T, full.names = T)
-  labPaths = list.files(path2legacyData, pattern = "lab$", recursive = T, full.names = T)
-  tonePaths = list.files(path2legacyData, pattern = "tone$", recursive = T, full.names = T)
+  tplPath = list.files(path2data, pattern = ".tpl$", recursive = T, full.names = T)
+  wavPaths = list.files(path2data, pattern = ".wav$", recursive = T, full.names = T)
+  hlbPaths = list.files(path2data, pattern = "hlb$", recursive = T, full.names = T)
+  labPaths = list.files(path2data, pattern = "lab$", recursive = T, full.names = T)
+  tonePaths = list.files(path2data, pattern = "tone$", recursive = T, full.names = T)
   
   legacyAePath = file.path(ddPath, "legacy_ae")
   dir.create(legacyAePath)
