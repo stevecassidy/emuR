@@ -279,7 +279,7 @@ test_that("Projection operator # for emusegs result type ",{
 
 test_that("Check Phonetic tier seglist",{
   # load legacy emu seglist
-  legacyEmuAePhoneticSeglist <- system.file("extdata/legacy_emu/seglist","legacy_emu_ae_phonetic_seglist.RData", package="emuR")
+  legacyEmuAePhoneticSeglist <- system.file("extdata","legacy_emu_ae_phonetic_seglist.RData", package="emuR")
   load(file=legacyEmuAePhoneticSeglist)
   tsl=.legacy_emu_ae_phonetic_seglist
   # get original query string
