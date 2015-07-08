@@ -22,7 +22,7 @@ stored in the emuDB format (see \code{vignette('emuDB_intro')}).
 Typical workflow (emuDB required):
 
 \enumerate{
-\item Query database - \code{\link{query}} (sometimes followed by \code{\link{requery_hier()}} or \code{\link{requery_seq()}})
+\item Query database - \code{\link{query}} (sometimes followed by \code{\link{requery_hier}} or \code{\link{requery_seq}})
 \item Get trackdata (e.g. formant values) for the result of a query - \code{\link{get_trackdata}}
 \item Data preparation - \code{\link{dcut}}, \code{\link{mel}}
 \item Visual data inspection - \code{\link{plot}}, \code{\link{dplot}}, \code{\link{eplot}}
