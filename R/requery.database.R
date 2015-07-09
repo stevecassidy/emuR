@@ -7,9 +7,8 @@ require(stringr)
 ##' @param offsetRef reference elemnt for offset: 'START' for first and 'END' for last element of segment list
 ##' @param length element length of returned segment list
 ##' @param ignoreOutOfBounds ignore result segments that are out of bundle bounds
-##' @param resultType type (class name) of result
 ##' @param dbUUID optional UUID odf emuDB
-##' @return result set object of class resultType (default: 'emuRsegs')
+##' @return result set object of class 'emuRsegs'
 ##' @author Klaus Jaensch
 ##' @import sqldf
 ##' @export
@@ -53,7 +52,7 @@ require(stringr)
 ##' requery_seq(sl3,length=3,ignoreOutOfBounds=TRUE)
 ##' 
 ##' }
-requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBounds=FALSE,resultType=NULL,dbUUID=NULL){
+requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBounds=FALSE,dbUUID=NULL){
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType wiil be used)")
   }
@@ -117,17 +116,7 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBo
       }
     }
     result=list(items=he)
-    if(is.null(resultType)){
-      trSl=convert.query.result.to.segmentlist.var(dbConfig = dbConfig,result=result)
-    }else{
-      if(resultType=='emuRsegs'){
-        trSl=convert.query.result.to.segmentlist.var(dbConfig = dbConfig,result=result)
-      }else if(resultType=='emusegs'){
-        trSl=convert.query.result.to.seglist(dbConfig = dbConfig,result = result)
-      }else{
-        stop("Unknown result type: '",resultType,"'. Supported result types: 'emuRsegs','emusegs'")
-      }
-    }
+    trSl=convert.query.result.to.segmentlist.var(dbConfig = dbConfig,result=result)
     return(trSl)
   }
 }
@@ -135,9 +124,8 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBo
 ##' Requery hierarchical context of segment list
 ##' @param seglist segment list to requery on (type: 'emuRsegs')
 ##' @param level character string: result level 
-##' @param resultType type (class name) of result (for now only 'emuRsegs')
 ##' @param dbUUID optional UUID odf emuDB
-##' @return result set object of class resultType (default: 'emuRsegs')
+##' @return result set object of class 'emuRsegs'
 ##' @author Klaus Jaensch
 ##' @import sqldf
 ##' @export
@@ -162,7 +150,7 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBo
 ##' requery_seq(requery_hier(sl1,level='Phoneme'),offsetRef = 'END')
 ##' 
 ##' }
-requery_hier<-function(seglist,level=NULL,resultType=NULL,dbUUID=NULL){
+requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType wiil be used)")
   }
@@ -316,15 +304,7 @@ requery_hier<-function(seglist,level=NULL,resultType=NULL,dbUUID=NULL){
     
     he=sqldf(c(itemsIdxSql,linksIdxSql,heQueryStr))
     result=list(items=he)
-    if(is.null(resultType)){
-      trSl=convert.query.result.to.segmentlist.var(dbConfig = dbConfig,result=result)
-    }else{
-      if(resultType=='emuRsegs'){
-        trSl=convert.query.result.to.segmentlist.var(dbConfig = dbConfig,result=result)
-      }else{
-        stop("Unknown result type: '",resultType,"'. Supported result types: 'emuRsegs'")
-      }
-    }
+    trSl=convert.query.result.to.segmentlist.var(dbConfig = dbConfig,result=result)
     return(trSl)
   }
 }

@@ -5,7 +5,7 @@
 \title{Requery sequential context of segment list}
 \usage{
 requery_seq(seglist, offset = 0, offsetRef = "START", length = 1,
-  ignoreOutOfBounds = FALSE, resultType = NULL, dbUUID = NULL)
+  ignoreOutOfBounds = FALSE, dbUUID = NULL)
 }
 \arguments{
 \item{seglist}{segment list to requery on (type: 'emuRsegs')}
@@ -18,15 +18,13 @@ requery_seq(seglist, offset = 0, offsetRef = "START", length = 1,
 
 \item{ignoreOutOfBounds}{ignore result segments that are out of bundle bounds}
 
-\item{resultType}{type (class name) of result}
-
 \item{dbUUID}{optional UUID odf emuDB}
 }
 \value{
-result set object of class resultType (default: 'emuRsegs')
+result set object of class 'emuRsegs'
 }
 \description{
-WARNING! Experimental, syntax and semantics may change!!
+Requery sequential context of segment list
 }
 \examples{
 \dontrun{
