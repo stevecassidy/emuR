@@ -2,7 +2,6 @@ require(sqldf)
 require(stringr)
 
 ##' Requery sequential context of segment list
-##' @description WARNING! Experimental, syntax and semantics may change!! 
 ##' @param seglist segment list to requery on (type: 'emuRsegs')
 ##' @param offset start offset in sequence
 ##' @param offsetRef reference elemnt for offset: 'START' for first and 'END' for last element of segment list
@@ -134,7 +133,6 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBo
 }
 
 ##' Requery hierarchical context of segment list
-##' @description WARNING! Experimental, syntax and semantics may change!! 
 ##' @param seglist segment list to requery on (type: 'emuRsegs')
 ##' @param level character string: result level 
 ##' @param resultType type (class name) of result (for now only 'emuRsegs')
