@@ -21,7 +21,7 @@ number of segments x number of tracks.  c(nrow(x$index), ncol(x$data))
 #isol.fdat is the formant track of the segment list isol
 
    #write out the dimension of the track data object
-   dim.trackdata(isol.fdat)
+   dim(isol.fdat)
 
    #because there are 13 segments
    isol.fdat$ftime

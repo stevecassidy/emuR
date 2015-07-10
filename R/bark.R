@@ -123,7 +123,7 @@
 }
 
 
-##' @export bark.default
+##' @export
 "bark.default" <- function (f, inv = FALSE, ...) 
 {
   if (!inv) {

@@ -205,12 +205,12 @@
 ##' plot(vowlax.dft.5[1:20,], vowlax.l[1:20], fun=mean, power=TRUE)
 ##' 
 ##' # All the spectra of one segment in a trackdata object
-##' plot.spectral(fric.dft[1,])
+##' plot(fric.dft[1,])
 ##' 
 ##' 
 ##' 
 ##' 
-##' @export plot.spectral
+##' @export
 "plot.spectral" <- function (x, labs, ylim, xlim,  col, lty, 
                              lwd, fun, freq, type = "l", 
                              power = FALSE, powcoeffs = c(10, 10), 

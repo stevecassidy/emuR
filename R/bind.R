@@ -25,7 +25,7 @@
 ##' 
 ##' 
 ##' @keywords internal
-##' @export bind.default
+##' @export
 "bind.default" <- function(...)
 {
   rbind(...)
@@ -46,7 +46,7 @@
 ##' 
 ##' @param \dots trackdata objects
 ##' @keywords methods
-##' @export bind.trackdata
+##' @export
 "bind.trackdata" <- function(...)
 {
   ## function to combine datasets into one single datasets

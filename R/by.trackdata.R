@@ -50,7 +50,7 @@
 ##' 
 ##' 
 ##' 
-##' @export by.trackdata
+##' @export
 `by.trackdata` <- function (data, INDICES = NULL, FUN, ..., simplify = FALSE) 
 {
   #there might be a problem with data$data therefore data is replaced by abitrary datam

@@ -15,7 +15,7 @@
 ##'    #isol.fdat is the formant track of the segment list isol
 ##' 
 ##'    #write out the dimension of the track data object 
-##'    dim.trackdata(isol.fdat)
+##'    dim(isol.fdat)
 ##' 
 ##'    #because there are 13 segments
 ##'    isol.fdat$ftime
@@ -23,7 +23,7 @@
 ##'    #and there are 4 rows for each segment (see here for the first segment)
 ##'    isol.fdat$data[1,]
 ##' 
-##' @export dim.trackdata
+##' @export
 dim.trackdata <- function(x)
 {
   # function returns the dimension attributes of
@@ -41,7 +41,7 @@ dim.trackdata <- function(x)
 ##' 
 ##' @param x trackdata object
 ##' @keywords methods
-##' @export dimnames.trackdata
+##' @export
 "dimnames.trackdata" <- function(x)
 {
   trackdata = x

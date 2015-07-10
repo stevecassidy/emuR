@@ -335,8 +335,8 @@ is.seglist <- function(object) {
 ##' 
 ##' 
 ##' @keywords internal
-##' @export print.emusegs
-"print.emusegs" <-  function(x, ...) 
+##' @export
+"print.emusegs" <-  function(x, ...)
 {
   cat(attributes(x)$type, " list from database: ", attributes(x)$database, "\n")
   cat("query was: ", attributes(x)$query, "\n" )
@@ -357,8 +357,8 @@ is.seglist <- function(object) {
 ##' @param object the segmentlist
 ##' @param \dots nothing special
 ##' @keywords internal
-##' @export summary.emusegs
-"summary.emusegs" <- function(object, ...)
+##' @export
+summary.emusegs <- function(object, ...)
 {
   cat(attributes(object)$type, " list from database: ", attributes(object)$database, "\n")
   cat("query was: ", attributes(object)$query, "\n" )
@@ -428,7 +428,7 @@ is.seglist <- function(object) {
 ##' 
 ##' 
 ##' @keywords internal
-##' @export as.matrix.emusegs
+##' @export
 "as.matrix.emusegs" <- function(x, ...)
 {
   cbind( as.character(x$label), x$start, x$end, as.character(x$utt) )
@@ -529,7 +529,7 @@ is.seglist <- function(object) {
 ##' @return a vector of durations
 ##' @author Jonathan Harrington
 ##' @keywords internal
-##' @export dur.emusegs
+##' @export
 "dur.emusegs" <- function (x) 
 {
   if(all(end(x)==0))

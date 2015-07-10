@@ -76,7 +76,7 @@ plot(vowlax.dft.5[1:20,], vowlax.l[1:20])
 plot(vowlax.dft.5[1:20,], vowlax.l[1:20], fun=mean, power=TRUE)
 
 # All the spectra of one segment in a trackdata object
-plot.spectral(fric.dft[1,])
+plot(fric.dft[1,])
 }
 \author{
 Jonathan Harrington
