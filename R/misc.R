@@ -187,7 +187,7 @@
 ##' @return A segment list containing the original elements in random or
 ##' reversed order. This is useful if the segment list is to be used as the
 ##' source for a set of stimuli in a perception experiment.
-##' @seealso \code{\link{emu.query}}
+##' @seealso \code{\link{query}}
 ##' @keywords misc
 ##' @examples
 ##' 

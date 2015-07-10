@@ -8,7 +8,7 @@
 ##' @param file The name of the file to read
 ##' @return An Emu segment list.
 ##' @author Steve Cassidy
-##' @seealso \code{\link{emu.query}}
+##' @seealso \code{\link{query}}
 ##' @keywords IO
 ##' @examples
 ##' 
@@ -95,7 +95,7 @@ if( version$major >= 5 ) {
 ##' has all of the required components.
 ##' 
 ##' An Emu segment list is the result of a query to a speech database (see
-##' \code{\link{emu.query}}) and has one row per matching segment or event from
+##' \code{\link{query}}) and has one row per matching segment or event from
 ##' the query. Each row lists the label, start and end times (in milliseconds)
 ##' and utterance name for the segment.  This information is used by
 ##' \code{\link{get_trackdata}} and other functions to extract data corresponding
@@ -224,7 +224,7 @@ is.seglist <- function(object) {
 ##' @param database A new database name
 ##' @return An Emu segment list.
 ##' @author Steve Cassidy
-##' @seealso \code{\link{emu.query}}
+##' @seealso \code{\link{query}}
 ##' @keywords misc
 ##' @examples
 ##' 
@@ -335,8 +335,8 @@ is.seglist <- function(object) {
 ##' 
 ##' 
 ##' @keywords internal
-##' @export print.emusegs
-"print.emusegs" <-  function(x, ...) 
+##' @export
+"print.emusegs" <-  function(x, ...)
 {
   cat(attributes(x)$type, " list from database: ", attributes(x)$database, "\n")
   cat("query was: ", attributes(x)$query, "\n" )
@@ -357,8 +357,8 @@ is.seglist <- function(object) {
 ##' @param object the segmentlist
 ##' @param \dots nothing special
 ##' @keywords internal
-##' @export summary.emusegs
-"summary.emusegs" <- function(object, ...)
+##' @export
+summary.emusegs <- function(object, ...)
 {
   cat(attributes(object)$type, " list from database: ", attributes(object)$database, "\n")
   cat("query was: ", attributes(object)$query, "\n" )
@@ -428,7 +428,7 @@ is.seglist <- function(object) {
 ##' 
 ##' 
 ##' @keywords internal
-##' @export as.matrix.emusegs
+##' @export
 "as.matrix.emusegs" <- function(x, ...)
 {
   cbind( as.character(x$label), x$start, x$end, as.character(x$utt) )
@@ -453,7 +453,7 @@ is.seglist <- function(object) {
 ##' @section Side Effects: The segment list is written to a file in the
 ##' standard format, suitable for input to \code{gettrack} or other Emu utility
 ##' programs.
-##' @seealso \code{\link{emu.query}}
+##' @seealso \code{\link{query}}
 ##' @keywords misc
 ##' @examples
 ##' 
@@ -529,7 +529,7 @@ is.seglist <- function(object) {
 ##' @return a vector of durations
 ##' @author Jonathan Harrington
 ##' @keywords internal
-##' @export dur.emusegs
+##' @export
 "dur.emusegs" <- function (x) 
 {
   if(all(end(x)==0))

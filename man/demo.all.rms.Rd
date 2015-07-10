@@ -14,8 +14,7 @@ A track list of the demo database that is part of the Emu system.  It is
 the result of get rms data for the segment list demo.all (data(demo.all)).
 }
 \details{
-A track list is created via emu.track() or via get data within the EMU
-Query Tool.
+A track list is created via the \code{\link{get_trackdata}} function.
 }
 \seealso{
 \code{\link{demo.vowels.fm}} \code{\link{segmentlist}}

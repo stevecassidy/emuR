@@ -18,7 +18,7 @@ source track data objects and with \$data that includes all columns of
 \description{
 Different track data objects from one segment list are bound by combining
 the \$data columns of the track data object by rows.  Track data objects
-are created by emu.track().
+are created by \code{\link{get_trackdata}}.
 }
 \details{
 All track data objects have to be track data of the same segment list.
@@ -51,7 +51,7 @@ Jonathan Harrington
 }
 \seealso{
 \code{\link{rbind}} \code{\link{cbind.trackdata}}
-\code{\link{trackdata}} \code{\link{emu.track}}
+\code{\link{trackdata}} \code{\link{get_trackdata}}
 }
 \keyword{methods}
 

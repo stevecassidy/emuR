@@ -30,7 +30,7 @@ has all of the required components.
 }
 \details{
 An Emu segment list is the result of a query to a speech database (see
-\code{\link{emu.query}}) and has one row per matching segment or event from
+\code{\link{query}}) and has one row per matching segment or event from
 the query. Each row lists the label, start and end times (in milliseconds)
 and utterance name for the segment.  This information is used by
 \code{\link{get_trackdata}} and other functions to extract data corresponding

@@ -2,7 +2,7 @@
 ##' 
 ##' Different track data objects from one segment list are bound by combining
 ##' the \$data columns of the track data object by rows.  Track data objects
-##' are created by emu.track().
+##' are created by \code{\link{get_trackdata}}.
 ##' 
 ##' All track data objects have to be track data of the same segment list.
 ##' Thus \$index and \$ftime values have to be identically for all track data
@@ -17,7 +17,7 @@
 ##' \$data of the source track data objects.
 ##' @author Jonathan Harrington
 ##' @seealso \code{\link{rbind}} \code{\link{cbind.trackdata}}
-##' \code{\link{trackdata}} \code{\link{emu.track}}
+##' \code{\link{trackdata}} \code{\link{get_trackdata}}
 ##' @keywords methods
 ##' @examples
 ##' 

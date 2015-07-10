@@ -11,7 +11,7 @@
 ##'   \item columnsegment offset time 
 ##'   \item columnutterance name 
 ##' }
-##' @seealso \code{\link{emu.query}}, \code{\link{demo.vowels}}
+##' @seealso \code{\link{query}}, \code{\link{demo.vowels}}
 ##' @keywords classes
 ##' @name segmentlist
 ##' @examples

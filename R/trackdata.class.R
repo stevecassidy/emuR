@@ -10,7 +10,7 @@
 ##' 
 ##' 
 ##' @keywords internal
-##' @export print.trackdata
+##' @export
 "print.trackdata"<- function(x, ...)
 {
   if(is.null(x$trackname)) 
@@ -96,7 +96,7 @@
 ##' @param object track data object
 ##' @param \dots see summary
 ##' @keywords internal
-##' @export summary.trackdata
+##' @export
 "summary.trackdata" <- function(object, ...)
 {
   if( is.matrix(object$data)){
@@ -314,7 +314,7 @@
 ##'  
 ##' 
 ##' 
-##' @export plot.trackdata
+##' @export
 `plot.trackdata` <- function (x, timestart = NULL, xlim = NULL, 
                               ylim = NULL, labels = NULL, col = TRUE, 
                               lty = FALSE, type="p", pch=NULL, 
@@ -548,7 +548,7 @@
 ##' @return a vector of durations
 ##' @author Jonathan Harrington
 ##' @keywords internal
-##' @export dur.trackdata
+##' @export
 "dur.trackdata" <- function (x) 
 {
   x$ftime[,2] - x$ftime[,1]

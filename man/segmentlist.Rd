@@ -21,7 +21,7 @@ data(demo.vowels)
    demo.vowels
 }
 \seealso{
-\code{\link{emu.query}}, \code{\link{demo.vowels}}
+\code{\link{query}}, \code{\link{demo.vowels}}
 }
 \keyword{classes}
 
