@@ -357,6 +357,7 @@ is.seglist <- function(object) {
 ##' @param object the segmentlist
 ##' @param \dots nothing special
 ##' @keywords internal
+##' @method summary emusegs
 ##' @export
 summary.emusegs <- function(object, ...)
 {
