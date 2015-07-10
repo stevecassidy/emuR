@@ -8,20 +8,25 @@
 \alias{emuR-package}
 \title{emuR - Main package of the EMU Speech Database Management System}
 \description{
-The EMU Speech Database Management System is for creation, analysis and querying of speech
-databases including acoustic and articulaty data as well as the
-annotations themselves. It provides annotation, signal processing, evaluation and visualization
-facilities. The querying of annotations can be perfomed using either
-EMU's own EQL2 (EMU Query Language Version 2) or SQL (intended for expert users only).
+The emuR package provides the next iteration of the EMU Speech
+Database Management System with database management, data
+extraction, data preparation and data visualization facilities.
+It also contains a server that
+is intended to host databases in the emuDB format (see \code{vignette('emuDB_intro')}) to the EMU-webApp
+(\url{http://ips-lmu.github.io/EMU-webApp/}). The querying of annotations is
+perfomed using EMU's own EQL2 (EMU Query Language Version 2).
 }
 \details{
-This package is part of the EMU System and provides native R
-functions for querying and the analysis of the speech data
-stored in the emuDB format (see \code{vignette('emuDB_intro')}).
+This package is part of the next iteration of the EMU Speech Database Management System
+which aims to be as close to an all-in-one solution for generating, manipulating, querying,
+analyzing and managing speech databases as possible.
+For an overview of the system please visit this URL: \url{http://ips-lmu.github.io/EMU.html}.
 
-Typical workflow (emuDB required):
+Typical workflow in emuR (emuDB required):
 
 \enumerate{
+\item Load database into current R session - \code{\link{load_emuDB}}
+\item Database annotation / visual inspection - \code{\link{serve}} and connect the EMU-webApp to the local server
 \item Query database - \code{\link{query}} (sometimes followed by \code{\link{requery_hier}} or \code{\link{requery_seq}})
 \item Get trackdata (e.g. formant values) for the result of a query - \code{\link{get_trackdata}}
 \item Data preparation - \code{\link{dcut}}, \code{\link{mel}}
