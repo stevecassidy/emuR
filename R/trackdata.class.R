@@ -96,6 +96,7 @@
 ##' @param object track data object
 ##' @param \dots see summary
 ##' @keywords internal
+##' @method summary trackdata
 ##' @export
 "summary.trackdata" <- function(object, ...)
 {
