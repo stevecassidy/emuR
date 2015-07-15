@@ -110,13 +110,13 @@ database.DDL.emuDB_session='CREATE TABLE session (
   FOREIGN KEY (db_uuid) REFERENCES emuDB(uuid)
 );'
 
-database.DDL.emuDB_track='CREATE TABLE track (
-  db_uuid VARCHAR(36),
-  session TEXT,
-  bundle TEXT,
-  path TEXT,
-  FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session_name,name)
-);'
+# database.DDL.emuDB_track='CREATE TABLE track (
+#   db_uuid VARCHAR(36),
+#   session TEXT,
+#   bundle TEXT,
+#   path TEXT,
+#   FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session_name,name)
+# );'
 
 database.DDL.emuDB_bundle='CREATE TABLE bundle (
   db_uuid VARCHAR(36),
@@ -310,10 +310,10 @@ get.database<-function(uuid=NULL,name=NULL){
   }
   res <- dbSendQuery(get_emuDBcon(dbCfg$UUID),bSqlInsert)
   dbClearResult(res)
-  for(trackPath in bundle[['signalpaths']]){
-    trSqlInsert=paste0("INSERT INTO track(db_uuid,session,bundle,path) VALUES('",dbCfg[['UUID']],"','",bundle[['session']],"','",bundle[['name']],"','",trackPath,"')")
-    res <- dbSendQuery(get_emuDBcon(dbCfg$UUID),trSqlInsert)
-  }
+#   for(trackPath in bundle[['signalpaths']]){
+#     trSqlInsert=paste0("INSERT INTO track(db_uuid,session,bundle,path) VALUES('",dbCfg[['UUID']],"','",bundle[['session']],"','",bundle[['name']],"','",trackPath,"')")
+#     res <- dbSendQuery(get_emuDBcon(dbCfg$UUID),trSqlInsert)
+#   }
 }
 
 .get.bundle.count.DBI<-function(dbUUID){
@@ -364,8 +364,8 @@ get.database<-function(uuid=NULL,name=NULL){
     dbClearResult(res)
     res <- dbSendQuery(con, database.DDL.emuDB_session) 
     dbClearResult(res)
-    res <- dbSendQuery(con, database.DDL.emuDB_track) 
-    dbClearResult(res)
+    # res <- dbSendQuery(con, database.DDL.emuDB_track) 
+    # dbClearResult(res)
     res <- dbSendQuery(con, database.DDL.emuDB_bundle) 
     dbClearResult(res)
     res <- dbSendQuery(con, database.DDL.emuDB_items) 
