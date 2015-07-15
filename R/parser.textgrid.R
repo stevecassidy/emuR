@@ -31,7 +31,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
     stop("The only encoding that is currently supported is UTF-8\n")
   }
   if(is.null(dbName)){
-    stop("Argument db must not be NULL!\n")
+    stop("Argument dbName must not be NULL!\n")
   }
   if(is.null(bundle)){
     stop("Argument bundle must not be NULL!\n")
