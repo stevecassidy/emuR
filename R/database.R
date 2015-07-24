@@ -335,15 +335,15 @@ get.database<-function(uuid=NULL,name=NULL){
 .load.bundle.DBI<-function(dbUUID,sessionName,bundleName){
   bQ=paste0("SELECT db_uuid, session, name, annotates, sampleRate, mediaFilePath FROM bundle WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND name='",bundleName,"'")
   bDf=dbGetQuery(get_emuDBcon(dbUUID),bQ)
-  spQ=paste0("SELECT * FROM track WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bundleName,"'")
-  spDf=dbGetQuery(get_emuDBcon(dbUUID),spQ)
-  signalpaths=as.list(spDf[['path']])
+  # spQ=paste0("SELECT * FROM track WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bundleName,"'")
+  # spDf=dbGetQuery(get_emuDBcon(dbUUID),spQ)
+  # signalpaths=as.list(spDf[['path']])
   bDfRows=nrow(bDf)
   if(bDfRows==0){
     return(NULL)
   }else if(bDfRows==1){
     bList=as.list(bDf)
-    bList[['signalpaths']]=signalpaths
+    # bList[['signalpaths']]=signalpaths
     return(bList)
   }else{
     stop("Ambigious result for bundle lookup")
@@ -491,7 +491,7 @@ list_emuDBs<-function(){
   dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM linksExt WHERE db_uuid='",dbUUID,"'"))
   dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM labels WHERE db_uuid='",dbUUID,"'"))
   dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM items WHERE db_uuid='",dbUUID,"'"))
-  dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM track WHERE db_uuid='",dbUUID,"'"))
+  # dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM track WHERE db_uuid='",dbUUID,"'"))
   dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM bundle WHERE db_uuid='",dbUUID,"'"))
   dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM session WHERE db_uuid='",dbUUID,"'"))
   dbs=dbGetQuery(get_emuDBcon(dbUUID),paste0("DELETE FROM emuDB WHERE uuid='",dbUUID,"'"))
