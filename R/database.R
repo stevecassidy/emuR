@@ -947,7 +947,7 @@ get.level.name.for.attribute<-function(dbConfig,attributeName){
     lvlNm=ld[['name']]
     levels[[lvlNm]]=create.bundle.level(name=ld[['name']],type=ld[['type']])
     
-    itsQ=paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bundleName,"' AND level='",lvlNm,"'")
+    itsQ=paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bundleName,"' AND level='",lvlNm,"' ORDER BY seqIdx")
     itemsOfLevel=dbGetQuery(get_emuDBcon(dbUUID),itsQ)
     nrows=nrow(itemsOfLevel)
     
