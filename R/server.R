@@ -321,36 +321,40 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
           # error
           err=simpleError(paste('Could not load bundle ',bundleSession,bundleName))
         }else{
+          bp=database[['basePath']]
           for(ssffFile in ssffFiles){
             #cat("SSFF file: ",names(ssffFile),"  name: ",ssffFile[['ssffTrackName']],"\n")
+            inCfg=FALSE
             for(ssffTrackDef in database[['DBconfig']][['ssffTrackDefinitions']]){
               ssffTrackExt=ssffTrackDef[['fileExtension']]
               if(ssffTrackExt==ssffFile[['fileExtension']]){
-                extPatt=paste0('[.]',ssffTrackExt,'$')
-                # TODO store signal paths in a better way!
-                for(sp in oldBundle[['signalpaths']]){
-                  if(grepl(extPatt,sp)){
-                    # store
-                    if(debugLevel>3){
-                      cat("Writing SSFF track to file: ",sp,"\n")
-                    }
-                    ssffTrackBin=base64decode(ssffFile[['data']])
-                    ssffCon=tryCatch(file(sp,'wb'),error=function(e){err<<-e})
-                    if(is.null(err)){
-                      res=tryCatch(writeBin(ssffTrackBin,ssffCon))
-                      if(inherits(res,'error')){
-                        err=res
-                        break
-                      }
-                      modified<<-TRUE
-                    }
+                inCfg=TRUE
+                
+                sp=file.path(bp, paste0(oldBundle$session, session.suffix), paste0(oldBundle$name, bundle.dir.suffix), paste0(oldBundle$name, ".", ssffTrackExt))
+                # store
+                if(debugLevel>3){
+                  cat("Writing SSFF track to file: ",sp,"\n")
+                }
+                ssffTrackBin=base64decode(ssffFile[['data']])
+                ssffCon=tryCatch(file(sp,'wb'),error=function(e){err<<-e})
+                if(is.null(err)){
+                  res=tryCatch(writeBin(ssffTrackBin,ssffCon))
+                  close(ssffCon)
+                  if(inherits(res,'error')){
+                    err=res
+                    break
                   }
+                  modified<<-TRUE
                 }
               }
               if(!is.null(err)){
                 break
               }
-            } 
+            }
+            if(!inCfg){
+              err=simpleError("SSFF track definition for file extension ",ssffFile[['fileExtension']]," not found!")
+              break
+            }
           }
           bundleData=jr[['data']][['annotation']]
           bundle=as.bundle(bundleData=bundleData)
