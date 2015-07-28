@@ -338,6 +338,7 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
                     ssffCon=tryCatch(file(sp,'wb'),error=function(e){err<<-e})
                     if(is.null(err)){
                       res=tryCatch(writeBin(ssffTrackBin,ssffCon))
+                      close(ssffCon)
                       if(inherits(res,'error')){
                         err=res
                         break
