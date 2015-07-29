@@ -682,6 +682,37 @@ as.bundle <- function(bundleData){
   invisible(bundleData)
 }
 
+# Get track file path either by extnsion or by name
+# @param database database object
+# @param bundle bundle object
+# @param sffTrackExt track extension
+# @param ssffTrackName track name
+# @return full path to track file or null if the track is not defined
+# @author Klaus Jaensch
+get_ssfftrack_file_path<-function(database,bundle,ssffTrackExt=NULL,ssffTrackName=NULL){
+  basePath=database['basePath']
+  sp=NULL
+  if(!is.null(ssffTrackExt)){
+    for(ssffTrackDef in database[['DBconfig']][['ssffTrackDefinitions']]){
+      ssffTrackDefExt=ssffTrackDef[['fileExtension']]
+      if(ssffTrackExt==ssffTrackDefExt){
+        sp=file.path(basePath, paste0(bundle$session, session.suffix), paste0(bundle$name, bundle.dir.suffix), paste0(bundle$name, ".", ssffTrackExt))
+      }
+    }
+  }else if(!is.null(ssffTrackName)){
+    for(ssffTrackDef in database[['DBconfig']][['ssffTrackDefinitions']]){
+      ssffTrackDefName=ssffTrackDef[['name']]
+      if(ssffTrackName==ssffTrackDefName){
+        ssffTrackExt=ssffTrackDef[['fileExtension']]
+        sp=file.path(basePath, paste0(bundle$session, session.suffix), paste0(bundle$name, bundle.dir.suffix), paste0(bundle$name, ".", ssffTrackExt))
+      }
+    }
+  }else{
+    stop("Either track extension or track name must be given.")
+  }
+  return(sp)
+}
+
 build.redundant.links.all<-function(database,sessionName=NULL,bundleName=NULL){
   # Legacy EMU and query functions link collections contain links for each possible connection between levels
   # We consider links that do not follow link definition constraints as redundant and therefore we remove them from the
