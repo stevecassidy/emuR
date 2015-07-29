@@ -310,10 +310,6 @@ get.database<-function(uuid=NULL,name=NULL){
   }
   res <- dbSendQuery(get_emuDBcon(dbCfg$UUID),bSqlInsert)
   dbClearResult(res)
-#   for(trackPath in bundle[['signalpaths']]){
-#     trSqlInsert=paste0("INSERT INTO track(db_uuid,session,bundle,path) VALUES('",dbCfg[['UUID']],"','",bundle[['session']],"','",bundle[['name']],"','",trackPath,"')")
-#     res <- dbSendQuery(get_emuDBcon(dbCfg$UUID),trSqlInsert)
-#   }
 }
 
 .get.bundle.count.DBI<-function(dbUUID){
@@ -335,15 +331,11 @@ get.database<-function(uuid=NULL,name=NULL){
 .load.bundle.DBI<-function(dbUUID,sessionName,bundleName){
   bQ=paste0("SELECT db_uuid, session, name, annotates, sampleRate, mediaFilePath FROM bundle WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND name='",bundleName,"'")
   bDf=dbGetQuery(get_emuDBcon(dbUUID),bQ)
-  # spQ=paste0("SELECT * FROM track WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND bundle='",bundleName,"'")
-  # spDf=dbGetQuery(get_emuDBcon(dbUUID),spQ)
-  # signalpaths=as.list(spDf[['path']])
   bDfRows=nrow(bDf)
   if(bDfRows==0){
     return(NULL)
   }else if(bDfRows==1){
     bList=as.list(bDf)
-    # bList[['signalpaths']]=signalpaths
     return(bList)
   }else{
     stop("Ambigious result for bundle lookup")
@@ -1110,18 +1102,6 @@ get.bundle <- function(dbName=NULL,sessionName,bundleName,dbUUID=NULL){
 # }
 
 
-emuDB.print.bundle <- function(utt){
-  cat("code=",utt[['name']],"\n")
-  cat("signalurls:\n")
-  for(mf in utt[['signalpaths']]){
-    print(mf) 
-  }
-  cat("levels:\n")
-  for(a in utt[['levels']]){
-    print(a) 
-  }
-}
-
 emuDB.session <- function(name,path=NULL,bundles=list){
   o <- list(name=name,path=path,bundles=bundles)
   class(o) <- 'emuDB.session'
@@ -1165,119 +1145,119 @@ is.relative.file.path<-function(nativeFilePathStr,forRunningPlatform=FALSE){
   return(TRUE)
 }
 
-extractTrackdata <- function(db=NULL,segmentList=NULL,trackName=NULL){
-  schema=db[['DBconfig']]
-  signalExt=NULL
-  for(tr in schema[['tracks']]){
-    if(tr[['name']]==trackName){
-      signalExt=tr[['fileExtension']]
-    }
-  }
-  signalExtPatt=paste0('[.]',signalExt,'$')
-  currentUtt=''
-  currentAsspObj=NULL
-  utts=segmentList[['utts']]
-  
-  index <- matrix(ncol=2, nrow=length(utts))
-  colnames(index) <- c("start","end")
-  
-  ftime <- matrix(ncol=2, nrow=length(utts))
-  colnames(ftime) <- c("start","end")
-  
-  data <- NULL
-  origFreq <- NULL
-  
-  #########################
-  # LOOP OVER UTTS
-  curIndexStart = 1
-  for (i in 1:length(utts)){
-    
-    un=segmentList[['utts']][[i]]
-    if(currentUtt!=un){
-      #cat("Utt: ",un,"\n")
-      u=get.bundle(db,un)
-      for(sp in u[['signalpaths']]){ 
-        if(length(grep(signalExtPatt,sp))==1){
-          #cat("Signal path: ",sp,"\n")
-          currentAsspObj=read.AsspDataObj(sp)
-        }
-      }
-    }
-    # we should have the corresponding (complete) ASSP data obj for the segment here
-    completeData=currentAsspObj[[trackName]] 
-    ncols=ncol(completeData) 
-    if(is.null(data)){
-      data <- matrix(ncol=ncols, nrow=0)
-    }
-    
-    sampleRate=attr(currentAsspObj,"sampleRate")
-    #cat("Cols: ",ncols,"\n")
-    origFreq <- attr(currentAsspObj, "origFreq")
-    
-    curStart <- segmentList[['start']][i]
-    curEnd <- segmentList[['end']][i]
-    
-    fSampleRateInMS <- (1/sampleRate)*1000
-    fStartTime <- attr(currentAsspObj,"startTime")*1000
-    #cat("Seq: ",fStartTime, curEnd, fSampleRateInMS,"\n")
-    timeStampSeq <- seq(fStartTime, curEnd, fSampleRateInMS)
-    ###########################################
-    # search for first item larger than start time
-    breakVal <- -1
-    for (j in 1:length(timeStampSeq)){
-      if (timeStampSeq[j] >= curStart){
-        breakVal <- j
-        break
-      }
-    }
-    curStartDataIdx <- breakVal
-    curEndDataIdx <- length(timeStampSeq)
-    
-    ####################
-    # set index and ftime
-    curIndexEnd <- curIndexStart+curEndDataIdx-curStartDataIdx
-    index[i,] <- c(curIndexStart, curIndexEnd)
-    ftime[i,] <- c(timeStampSeq[curStartDataIdx], timeStampSeq[curEndDataIdx])
-    
-    #############################
-    # calculate size of and create new data matrix
-    #tmpData <- eval(parse(text=paste("curDObj$",colName,sep="")))
-    
-    
-    rowSeq <- seq(timeStampSeq[curStartDataIdx],timeStampSeq[curEndDataIdx], fSampleRateInMS) 
-    curData <- matrix(ncol=ncol(completeData), nrow=length(rowSeq))
-    colnames(curData) <- paste("T", 1:ncol(curData), sep="")
-    rownames(curData) <- rowSeq
-    curData[,] <- completeData[curStartDataIdx:curEndDataIdx,] 
-    
-    ##############################
-    # Append to global data matrix app
-    data <- rbind(data, curData)
-    
-    curIndexStart <- curIndexEnd+1
-    
-    curDObj = NULL
-  }
-  ########################################
-  #convert data, index, ftime to trackdata
-  FileExtAndtrackname=paste0(signalExt,':',trackName)
-  myTrackData <- as.trackdata(data, index=index, ftime, FileExtAndtrackname)
-  
-  if(any(trackName %in% c("dft", "css", "lps", "cep"))){
-    if(!is.null(origFreq)){
-      attr(myTrackData[['data']], "fs") <- seq(0, origFreq/2, length=ncol(myTrackData[['data']]))
-      class(myTrackData[['data']]) <- c(class(myTrackData[['data']]), "spectral")
-    }else{
-      stop("no origFreq entry in spectral data file!")
-    }
-  }
-  
-  #if(!is.null(OnTheFlyFunctionName)){
-  #  close(pb)
-  #}
-  
-  return(myTrackData)
-}
+# extractTrackdata <- function(db=NULL,segmentList=NULL,trackName=NULL){
+#   schema=db[['DBconfig']]
+#   signalExt=NULL
+#   for(tr in schema[['tracks']]){
+#     if(tr[['name']]==trackName){
+#       signalExt=tr[['fileExtension']]
+#     }
+#   }
+#   signalExtPatt=paste0('[.]',signalExt,'$')
+#   currentUtt=''
+#   currentAsspObj=NULL
+#   utts=segmentList[['utts']]
+#   
+#   index <- matrix(ncol=2, nrow=length(utts))
+#   colnames(index) <- c("start","end")
+#   
+#   ftime <- matrix(ncol=2, nrow=length(utts))
+#   colnames(ftime) <- c("start","end")
+#   
+#   data <- NULL
+#   origFreq <- NULL
+#   
+#   #########################
+#   # LOOP OVER UTTS
+#   curIndexStart = 1
+#   for (i in 1:length(utts)){
+#     
+#     un=segmentList[['utts']][[i]]
+#     if(currentUtt!=un){
+#       #cat("Utt: ",un,"\n")
+#       u=get.bundle(db,un)
+#       for(sp in u[['signalpaths']]){ 
+#         if(length(grep(signalExtPatt,sp))==1){
+#           #cat("Signal path: ",sp,"\n")
+#           currentAsspObj=read.AsspDataObj(sp)
+#         }
+#       }
+#     }
+#     # we should have the corresponding (complete) ASSP data obj for the segment here
+#     completeData=currentAsspObj[[trackName]] 
+#     ncols=ncol(completeData) 
+#     if(is.null(data)){
+#       data <- matrix(ncol=ncols, nrow=0)
+#     }
+#     
+#     sampleRate=attr(currentAsspObj,"sampleRate")
+#     #cat("Cols: ",ncols,"\n")
+#     origFreq <- attr(currentAsspObj, "origFreq")
+#     
+#     curStart <- segmentList[['start']][i]
+#     curEnd <- segmentList[['end']][i]
+#     
+#     fSampleRateInMS <- (1/sampleRate)*1000
+#     fStartTime <- attr(currentAsspObj,"startTime")*1000
+#     #cat("Seq: ",fStartTime, curEnd, fSampleRateInMS,"\n")
+#     timeStampSeq <- seq(fStartTime, curEnd, fSampleRateInMS)
+#     ###########################################
+#     # search for first item larger than start time
+#     breakVal <- -1
+#     for (j in 1:length(timeStampSeq)){
+#       if (timeStampSeq[j] >= curStart){
+#         breakVal <- j
+#         break
+#       }
+#     }
+#     curStartDataIdx <- breakVal
+#     curEndDataIdx <- length(timeStampSeq)
+#     
+#     ####################
+#     # set index and ftime
+#     curIndexEnd <- curIndexStart+curEndDataIdx-curStartDataIdx
+#     index[i,] <- c(curIndexStart, curIndexEnd)
+#     ftime[i,] <- c(timeStampSeq[curStartDataIdx], timeStampSeq[curEndDataIdx])
+#     
+#     #############################
+#     # calculate size of and create new data matrix
+#     #tmpData <- eval(parse(text=paste("curDObj$",colName,sep="")))
+#     
+#     
+#     rowSeq <- seq(timeStampSeq[curStartDataIdx],timeStampSeq[curEndDataIdx], fSampleRateInMS) 
+#     curData <- matrix(ncol=ncol(completeData), nrow=length(rowSeq))
+#     colnames(curData) <- paste("T", 1:ncol(curData), sep="")
+#     rownames(curData) <- rowSeq
+#     curData[,] <- completeData[curStartDataIdx:curEndDataIdx,] 
+#     
+#     ##############################
+#     # Append to global data matrix app
+#     data <- rbind(data, curData)
+#     
+#     curIndexStart <- curIndexEnd+1
+#     
+#     curDObj = NULL
+#   }
+#   ########################################
+#   #convert data, index, ftime to trackdata
+#   FileExtAndtrackname=paste0(signalExt,':',trackName)
+#   myTrackData <- as.trackdata(data, index=index, ftime, FileExtAndtrackname)
+#   
+#   if(any(trackName %in% c("dft", "css", "lps", "cep"))){
+#     if(!is.null(origFreq)){
+#       attr(myTrackData[['data']], "fs") <- seq(0, origFreq/2, length=ncol(myTrackData[['data']]))
+#       class(myTrackData[['data']]) <- c(class(myTrackData[['data']]), "spectral")
+#     }else{
+#       stop("no origFreq entry in spectral data file!")
+#     }
+#   }
+#   
+#   #if(!is.null(OnTheFlyFunctionName)){
+#   #  close(pb)
+#   #}
+#   
+#   return(myTrackData)
+# }
 
 
 
@@ -1681,37 +1661,42 @@ store<-function(dbName=NULL,targetDir,dbUUID=NULL,options=NULL,showProgress=TRUE
       pFilter=emuR.persist.filters.bundle
       bp=marshal.for.persistence(b,pFilter)
       
-      for(sf in b[['signalpaths']]){
-        #cat("Signalpath: ",sf,"\n")
-        bn=basename(sf)
-        nsfp=file.path(bfp,bn)
-        # check if SSFF type
-        isSSFFFile=FALSE
-        for(ssffTrDef in db[['DBconfig']][['ssffTrackDefinitions']]){
-          ssffTrFileExt=ssffTrDef[['fileExtension']]
-          fileExtPatt=paste0('[.]',ssffTrFileExt,'$')
-          if(length(grep(fileExtPatt,sf))==1){
-            isSSFFFile=TRUE
-            break
-          }
+      # store or link media file
+      mfPath=b$mediaFilePath
+      mfBn=basename(mfPath)
+      newMfPath=file.path(bfp,mfBn)
+      if(file.exists(mfPath)){
+        if(mergedOptions[['symbolicLinkSignalFiles']]){
+          file.symlink(from=mfPath,to=newMfPath)
+        }else{
+          file.copy(from=mfPath,to=newMfPath)
         }
-        if(file.exists(sf)){
+      }else{
+        stop("Media file :'",mfPath,"' does not exist!")
+      }
+      
+      # store or link SSFF tracks
+      for(ssffTrDef in db[['DBconfig']][['ssffTrackDefinitions']]){
+        ssffTrFileExt=ssffTrDef[['fileExtension']]
+        trPath=get_ssfftrack_file_path(db,b,ssffTrackExt = ssffTrFileExt)
+        trBn=basename(trPath)
+        # build path for copy
+        newTrPath=file.path(bfp,trBn)
+        if(file.exists(trPath)){
           if(mergedOptions[['symbolicLinkSignalFiles']]){
-            file.symlink(from=sf,to=nsfp)
-          }else if(mergedOptions[['rewriteSSFFTracks']] && isSSFFFile){
-            # is SSFF track
+            # link to original file
+            file.symlink(from=trPath,to=newTrPath)
+          }else if(mergedOptions[['rewriteSSFFTracks']]){
             # read/write instead of copy to get rid of big endian encoded SSFF files (SPARC)
-            pfAssp=read.AsspDataObj(sf)
-            write.AsspDataObj(pfAssp,nsfp)
-            #cat("Rewritten SSFF: ",sf," to ",nsfp,"\n")
+            pfAssp=read.AsspDataObj(trPath)
+            write.AsspDataObj(pfAssp,newTrPath)
           }else{
-            # media file (likely a wav file)
-            file.copy(from=sf,to=nsfp)
-            #cat("Copied: ",sf," to ",nsfp,"\n")
+            # copy
+            file.copy(from=trPath,to=newTrPath)
           }
         }else{
           if(!mergedOptions[['ignoreMissingSSFFTrackFiles']]){
-            stop("SSFF track file :'",sf,"' does not exist!")
+            stop("SSFF track file :'",trPath,"' does not exist!")
           }
         }
       }
@@ -1915,7 +1900,6 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
       bundleFilePattern=paste0('^',bName,'.*$')
       bfs=list.files(absBd,pattern=bundleFilePattern)
       
-      signalpaths=list()
       bundle=NULL
       for(bf in bfs){
         annotFile=paste0(bName,bundle.annotation.suffix,'.json')
@@ -1937,10 +1921,7 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
           for(ssffTr in schema[['ssffTrackDefinitions']]){
             ssffExt=ssffTr[['fileExtension']]
             ssffFn=paste0(bName,'.',ssffExt)
-            
-            if(ssffFn==bf){
-              signalpaths[[length(signalpaths)+1L]]=absBf
-            }
+            # TODO is this loop still necessary
           }
           
         }
@@ -1948,11 +1929,6 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
       bundle[['db_UUID']]=schema[['UUID']]
       # set session name
       bundle[['session']]=sessionName
-      
-      # add media file path to signalpaths
-      sps=list(bundle[['mediaFilePath']])
-      sps=c(sps,signalpaths)
-      bundle[['signalpaths']]=sps
       
       schema=db[['DBconfig']]
       #maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
