@@ -240,18 +240,11 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
           for(ssffTr in sc[['ssffTrackDefinitions']]){
             if(ssffTr[['name']] %in% ssffTrackNmsInUse){
               fe=ssffTr[['fileExtension']]
-              ssffFilesHash[fe]=file.path(bp, paste0(b$session, session.suffix), paste0(b$name, bundle.dir.suffix), paste0(b$name, ".", fe))
-              # commented out to not use signalpaths that rely on track table
-              # feRe=paste0('[.]',fe,'$')
-              # for(sp in b[['signalpaths']]){
-                # if(length(grep(feRe,sp))==1){
-                  # ssffFilesHash[fe]=sp
-                # }
-              # }
+              #ssffFilesHash[fe]=file.path(bp, paste0(b$session, session.suffix), paste0(b$name, bundle.dir.suffix), paste0(b$name, ".", fe))
+              ssffFilesHash[fe]=get_ssfftrack_file_path_by_ext(database,b,fe)
             }
           }
-          
-          # build ssff files list
+          # read SSFF track file data
           ssffFileExts=names(ssffFilesHash)
           for(ssffFileExt in ssffFileExts){
             ssffFilePath=ssffFilesHash[ssffFileExt]
@@ -323,43 +316,33 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
         }else{
           bp=database[['basePath']]
           for(ssffFile in ssffFiles){
-            #cat("SSFF file: ",names(ssffFile),"  name: ",ssffFile[['ssffTrackName']],"\n")
             inCfg=FALSE
-            for(ssffTrackDef in database[['DBconfig']][['ssffTrackDefinitions']]){
-              ssffTrackExt=ssffTrackDef[['fileExtension']]
-              if(ssffTrackExt==ssffFile[['fileExtension']]){
-                inCfg=TRUE
-                
-                sp=file.path(bp, paste0(oldBundle$session, session.suffix), paste0(oldBundle$name, bundle.dir.suffix), paste0(oldBundle$name, ".", ssffTrackExt))
-                # store
-                if(debugLevel>3){
-                  cat("Writing SSFF track to file: ",sp,"\n")
-                }
-                ssffTrackBin=base64decode(ssffFile[['data']])
-                ssffCon=tryCatch(file(sp,'wb'),error=function(e){err<<-e})
-                if(is.null(err)){
-                  res=tryCatch(writeBin(ssffTrackBin,ssffCon))
-                  close(ssffCon)
-                  if(inherits(res,'error')){
-                    err=res
-                    break
-                  }
-                  modified<<-TRUE
-                }
+            sp=get_ssfftrack_file_path_by_ext(database,oldBundle,ssffFile[['fileExtension']])
+            if(is.null(sp)){
+              errMsg=paste0("SSFF track definition for file extension '",ssffFile[['fileExtension']],"' not found!")
+              err=simpleError(errMsg)
+            }else{
+              # store
+              if(debugLevel>3){
+                cat("Writing SSFF track to file: ",sp,"\n")
               }
-              if(!is.null(err)){
-                break
+              ssffTrackBin=base64decode(ssffFile[['data']])
+              ssffCon=tryCatch(file(sp,'wb'),error=function(e){err<<-e})
+              if(is.null(err)){
+                res=tryCatch(writeBin(ssffTrackBin,ssffCon))
+                close(ssffCon)
+                if(inherits(res,'error')){
+                  err=res
+                  break
+                }
+                modified<<-TRUE
               }
-            }
-            if(!inCfg){
-              err=simpleError("SSFF track definition for file extension ",ssffFile[['fileExtension']]," not found!")
-              break
             }
           }
           bundleData=jr[['data']][['annotation']]
           bundle=as.bundle(bundleData=bundleData)
           bundle[['session']]=bundleSession
-
+          
           # if we do not have an (error) response already
           if(is.null(err)){
             # try to store annotation, dummy error function, use result type to detect errors
