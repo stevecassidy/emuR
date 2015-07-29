@@ -241,7 +241,7 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
             if(ssffTr[['name']] %in% ssffTrackNmsInUse){
               fe=ssffTr[['fileExtension']]
               #ssffFilesHash[fe]=file.path(bp, paste0(b$session, session.suffix), paste0(b$name, bundle.dir.suffix), paste0(b$name, ".", fe))
-              ssffFilesHash[fe]=get_ssfftrack_file_path_by_ext(database,b,fe)
+              ssffFilesHash[fe]=get_ssfftrack_file_path(database,b,ssffTrackExt = fe)
             }
           }
           # read SSFF track file data
@@ -317,7 +317,7 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
           bp=database[['basePath']]
           for(ssffFile in ssffFiles){
             inCfg=FALSE
-            sp=get_ssfftrack_file_path_by_ext(database,oldBundle,ssffFile[['fileExtension']])
+            sp=get_ssfftrack_file_path(database,oldBundle,ssffTrackExt = ssffFile[['fileExtension']])
             if(is.null(sp)){
               errMsg=paste0("SSFF track definition for file extension '",ssffFile[['fileExtension']],"' not found!")
               err=simpleError(errMsg)
