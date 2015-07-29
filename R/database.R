@@ -4,7 +4,6 @@ require(wrassp)
 require(DBI)
 #require(data.table)
 
-
 # constants
 
 # API level of database object format
