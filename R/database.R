@@ -124,7 +124,6 @@ database.DDL.emuDB_bundle='CREATE TABLE bundle (
   name TEXT,
   annotates TEXT,
   sampleRate FLOAT,
-  mediaFilePath TEXT,
   MD5annotJSON TEXT,
   PRIMARY KEY (db_uuid,session,name),
   FOREIGN KEY (db_uuid,session) REFERENCES session(db_uuid,name)
@@ -304,9 +303,9 @@ get.database<-function(uuid=NULL,name=NULL){
   #dbCfgJSON=jsonlite::toJSON(dbCfg,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
   #dbSqlInsert=paste0("INSERT INTO emuDB(name,databaseDir,DBconfigJSON) VALUES('",dbCfg[['name']],"','",database[['databseDir']],"','",dbCfgJSON,"')")
   if(is.null(MD5annotJSON)){
-    bSqlInsert=paste0("INSERT INTO bundle(db_uuid,session,name,annotates,sampleRate,mediaFilePath,MD5annotJSON) VALUES('",dbCfg[['UUID']],"','",bundle[['session']],"','",bundle[['name']],"','",bundle[['annotates']],"',",bundle[['sampleRate']],",'",bundle[['mediaFilePath']],"'",",'NULL')")
+    bSqlInsert=paste0("INSERT INTO bundle(db_uuid,session,name,annotates,sampleRate,MD5annotJSON) VALUES('",dbCfg[['UUID']],"','",bundle[['session']],"','",bundle[['name']],"','",bundle[['annotates']],"',",bundle[['sampleRate']],",'NULL')")
   }else{
-    bSqlInsert=paste0("INSERT INTO bundle(db_uuid,session,name,annotates,sampleRate,mediaFilePath,MD5annotJSON) VALUES('",dbCfg[['UUID']],"','",bundle[['session']],"','",bundle[['name']],"','",bundle[['annotates']],"',",bundle[['sampleRate']],",'",bundle[['mediaFilePath']],"'",",'",MD5annotJSON,"')")
+    bSqlInsert=paste0("INSERT INTO bundle(db_uuid,session,name,annotates,sampleRate,MD5annotJSON) VALUES('",dbCfg[['UUID']],"','",bundle[['session']],"','",bundle[['name']],"','",bundle[['annotates']],"',",bundle[['sampleRate']],",'",MD5annotJSON,"')")
   }
   res <- dbSendQuery(get_emuDBcon(dbCfg$UUID),bSqlInsert)
   dbClearResult(res)
@@ -329,7 +328,7 @@ get.database<-function(uuid=NULL,name=NULL){
 
 
 .load.bundle.DBI<-function(dbUUID,sessionName,bundleName){
-  bQ=paste0("SELECT db_uuid, session, name, annotates, sampleRate, mediaFilePath FROM bundle WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND name='",bundleName,"'")
+  bQ=paste0("SELECT db_uuid, session, name, annotates, sampleRate FROM bundle WHERE db_uuid='",dbUUID,"' AND session='",sessionName,"' AND name='",bundleName,"'")
   bDf=dbGetQuery(get_emuDBcon(dbUUID),bQ)
   bDfRows=nrow(bDf)
   if(bDfRows==0){
@@ -655,8 +654,8 @@ summary_emuDB<-function(dbName=NULL,dbUUID=NULL){
 # @param legacyBundleID legacy bundle ID
 # @param annotates annotated signal file
 # @param sampleRate sample rate
-# @param signalpaths pathes of signal files
-# @param mediaFilePath path pattern of samples track
+# @param signalpaths pathes of signal files (legacy only)
+# @param mediaFilePath path pattern of samples track (legacy only)
 # @param levels list of annotation levels
 # @param links list of links containing the hierarchical information of the annotation levels
 # @return object of class emuDB.bundle
@@ -672,6 +671,18 @@ as.bundle <- function(bundleData){
   class(bundleData) <- 'emuDB.bundle'
   attr(bundleData,'ips.persist')<-list(typesJSON=list(levels='array'))
   invisible(bundleData)
+}
+
+# Get media file full path
+# @param database database object
+# @param bundle bundle object
+# @return full path of media file
+# @author Klaus Jaensch
+get_media_file_path<-function(database,bundle){
+  basePath=database['basePath']
+  mfp=NULL
+  mfp=file.path(basePath, paste0(bundle$session, session.suffix), paste0(bundle$name, bundle.dir.suffix), b$annotates)
+  return(mfp)
 }
 
 # Get track file path either by extnsion or by name
@@ -1662,7 +1673,7 @@ store<-function(dbName=NULL,targetDir,dbUUID=NULL,options=NULL,showProgress=TRUE
       bp=marshal.for.persistence(b,pFilter)
       
       # store or link media file
-      mfPath=b$mediaFilePath
+      mfPath=get_media_file_path(db,b)
       mfBn=basename(mfPath)
       newMfPath=file.path(bfp,mfBn)
       if(file.exists(mfPath)){
@@ -1915,7 +1926,7 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
           bundle=as.bundle(bundle)
           namedLevels=set.list.names(bundle[['levels']],'name')
           bundle[['levels']]=namedLevels
-          bundle[['mediaFilePath']]=file.path(absBd,bundle[['annotates']])
+          #bundle[['mediaFilePath']]=file.path(absBd,bundle[['annotates']])
         }else{
           
           for(ssffTr in schema[['ssffTrackDefinitions']]){

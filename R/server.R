@@ -207,7 +207,8 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
           
           bp=database[['basePath']]
           
-          mediaFilePath=file.path(bp, paste0(b$session, session.suffix), paste0(b$name, bundle.dir.suffix), b$annotates)
+          #mediaFilePath=file.path(bp, paste0(b$session, session.suffix), paste0(b$name, bundle.dir.suffix), b$annotates)
+          mediaFilePath=get_media_file_path(database,b)
           if(debugLevel>4){
             cat("Mediafile: ",mediaFilePath," for ",b$name,"\n")
           }

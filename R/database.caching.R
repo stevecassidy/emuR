@@ -128,20 +128,19 @@ update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
         # set missing fields
         namedLevels=set.list.names(bundle[['levels']],'name')
         bundle[['levels']]=namedLevels
-        bundle[['mediaFilePath']]=file.path(file.path(dbObj$basePath, s, b),bundle[['annotates']])
+        mediaFilePath=file.path(file.path(dbObj$basePath, s, b),bundle[['annotates']])
         bundle[['db_UUID']]=dbObj$DBconfig[['UUID']]
         # set session name
         bundle[['session']]=sn
         
         # check if bundle entry exists
         if(!any(curBndls$session == sn & curBndls$name == bn)){
-          sR = attr(read.AsspDataObj(bundle$mediaFilePath), "sampleRate")
+          sR = attr(read.AsspDataObj(mediaFilePath), "sampleRate")
           dbGetQuery(get_emuDBcon(dbUUID), paste0("INSERT INTO bundle VALUES ('",dbUUID,"', '", 
                                                   sn,"', '", 
                                                   bn,"', '", 
                                                   bundle$annotates,"', '", 
                                                   sR,"', '", 
-                                                  bundle$mediaFilePath,"', '", 
                                                   new.MD5annotJSON,"')"))
         }else{
           # update MD5 value of DBI model in bundle table

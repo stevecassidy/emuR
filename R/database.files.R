@@ -61,7 +61,7 @@ import_mediaFiles<-function(dbName,dir,targetSessionName='0000',dbUUID=NULL, ver
     
     pfAssp=read.AsspDataObj(newMediaFileFullPath,0,4000)
     sampleRate=attr(pfAssp,'sampleRate')
-    b=create.bundle(name = bundleName,sessionName = targetSessionName,mediaFilePath = newMediaFileFullPath,annotates=mf,sampleRate=sampleRate)
+    b=create.bundle(name = bundleName,sessionName = targetSessionName,annotates=mf,sampleRate=sampleRate)
     b[['session']]=targetSessionName
     .store.bundle.DBI(database = db,bundle=b)
     #db[['sessions']][[targetSessionName]][['bundles']][[bundleName]]=b
