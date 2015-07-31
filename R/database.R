@@ -681,7 +681,7 @@ as.bundle <- function(bundleData){
 get_media_file_path<-function(database,bundle){
   basePath=database['basePath']
   mfp=NULL
-  mfp=file.path(basePath, paste0(bundle$session, session.suffix), paste0(bundle$name, bundle.dir.suffix), b$annotates)
+  mfp=file.path(basePath, paste0(bundle$session, session.suffix), paste0(bundle$name, bundle.dir.suffix), bundle$annotates)
   return(mfp)
 }
 
