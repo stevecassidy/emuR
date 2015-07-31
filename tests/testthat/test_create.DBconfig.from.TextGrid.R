@@ -10,10 +10,13 @@ path2testData = file.path(tempdir(), "emuR_testthat")
 path2tg = file.path(path2demoData, "TextGrid_collection/msajc003.TextGrid")
 
 dbName = 'test12'
+# tmp project base path
+basePath=file.path(tempdir(), dbName)
+dir.create(basePath)
 
 ##############################
 test_that("test that correct values are set for msajc003", {
-  conf = create.DBconfig.from.TextGrid(path2tg, dbName)
+  conf = create.DBconfig.from.TextGrid(path2tg, dbName,basePath)
   expect_equal(length(conf$linkDefinitions), 0)
   expect_equal(length(conf$ssffTrackDefinitions), 0)
   expect_equal(length(conf$levelDefinitions), 11)
@@ -28,7 +31,7 @@ test_that("test that correct values are set for msajc003", {
 
 ##############################
 test_that("test only correct tiers are extracted if tierNames is set", {
-  conf = create.DBconfig.from.TextGrid(path2tg, dbName, c("Phonetic", "Tone"))
+  conf = create.DBconfig.from.TextGrid(path2tg, dbName, basePath, c("Phonetic", "Tone"))
 
   expect_equal(conf$levelDefinitions[[1]]$name, 'Phonetic')
   expect_equal(conf$levelDefinitions[[1]]$type, 'SEGMENT')

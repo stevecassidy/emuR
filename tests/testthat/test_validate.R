@@ -15,12 +15,16 @@ if(is.emuDB.loaded(newDbName)){
   .purge.emuDB(UUID)
 }
 
-# gereate schema from TextGrid
-schema = create.DBconfig.from.TextGrid(path2tg, newDbName)
+# create base path
+basePath=file.path(tempdir(),newDbName)
+dir.create(basePath)
+# generate schema from TextGrid
+schema = create.DBconfig.from.TextGrid(path2tg, newDbName,basePath)
 # set transient values
 schema=.update.transient.schema.values(schema)
+
 # create db object
-db=create.database(name = schema[['name']],basePath = normalizePath(tempdir()),DBconfig = schema)
+db=create.database(name = schema[['name']],basePath = normalizePath(basePath),DBconfig = schema)
 
 
 dbsDf=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
