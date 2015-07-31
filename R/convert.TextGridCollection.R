@@ -55,7 +55,7 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
   }
   
   # gereate schema from first TextGrid in fpl
-  schema = create.DBconfig.from.TextGrid(fpl[1,2], dbName, tierNames)
+  schema = create.DBconfig.from.TextGrid(fpl[1,2], dbName, basePath,tierNames)
   # set transient values
   schema=.update.transient.schema.values(schema)
   

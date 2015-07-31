@@ -4,6 +4,7 @@ require(RSQLite)
 ##' 
 ##' @param tgPath path to TextGrid file
 ##' @param dbName name of the database
+##' @param basePath project base path
 ##' @param tierNames character vector containing names of tiers to extract and convert. If NULL (the default) all
 ##' tiers are converted.
 ##' @return object of class emuDB.schema.db
@@ -11,7 +12,7 @@ require(RSQLite)
 ##' @import stringr uuid wrassp RSQLite
 ##' @keywords emuDB database schema Emu TextGrid
 ## 
-create.DBconfig.from.TextGrid = function(tgPath, dbName, tierNames=NULL){
+create.DBconfig.from.TextGrid = function(tgPath, dbName, basePath,tierNames=NULL){
   
   ####################
   # check parameters
@@ -29,7 +30,7 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName, tierNames=NULL){
   
   # create tmp db 
   dbConfig=create.schema.databaseDefinition(name=dbName,mediafileExtension = 'wav')
-  db=create.database(name=dbName,basePath=file.path(tempdir(), dbName),DBconfig = dbConfig)
+  db=create.database(name=dbName,basePath=basePath,DBconfig = dbConfig)
   .store.emuDB.DBI(get_emuDBcon(), database = db)
   
   # parse TextGrid  
