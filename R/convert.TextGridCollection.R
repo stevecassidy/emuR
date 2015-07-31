@@ -37,9 +37,10 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
     stop("targetDir does not exist!")
   }
   
-  # check if target dir already exists
-  if(file.exists(file.path(targetDir, dbName))){
-    stop('The directory ', file.path(targetDir, dbName), ' already exists. Can not generate new emuDB if directory called ', dbName, ' already exists!')
+  basePath=file.path(targetDir, dbName)
+  # check if base path dir already exists
+  if(file.exists(basePath)){
+    stop('The directory ', basePath, ' already exists. Can not generate new emuDB if directory called ', dbName, ' already exists!')
   }
   
   # gernerate file pail list
@@ -57,8 +58,9 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
   schema = create.DBconfig.from.TextGrid(fpl[1,2], dbName, tierNames)
   # set transient values
   schema=.update.transient.schema.values(schema)
+  
   # create db object
-  db=create.database(name = schema[['name']],basePath = normalizePath(targetDir),DBconfig = schema)
+  db=create.database(name = schema[['name']],basePath = normalizePath(basePath),DBconfig = schema)
   
   dbsDf=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
   if(nrow(dbsDf)>0){
