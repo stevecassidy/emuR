@@ -32,18 +32,26 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
     stop("dir does not exist!")
   }
   
-  # check if targetDir exists
+  # create
   if(!file.exists(targetDir)){
-    stop("targetDir does not exist!")
+    res=dir.create(targetDir,recursive = TRUE)
+    if(!res){
+      stop("Could not create target directory: ",basePath," !\n")
+    }
   }
   
   basePath=file.path(targetDir, dbName)
   # check if base path dir already exists
   if(file.exists(basePath)){
     stop('The directory ', basePath, ' already exists. Can not generate new emuDB if directory called ', dbName, ' already exists!')
+  }else{
+    res=dir.create(basePath)
+    if(!res){
+      stop("Could not create base directory: ",basePath," !\n")
+    }
   }
   
-  # gernerate file pail list
+  # generate file pair list
   fpl = create_filePairList(dir, dir, audioExt, tgExt)
   
   progress = 0
