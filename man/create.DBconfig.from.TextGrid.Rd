@@ -4,12 +4,14 @@
 \alias{create.DBconfig.from.TextGrid}
 \title{Create emuDB DBconfig object from a TextGrid file}
 \usage{
-create.DBconfig.from.TextGrid(tgPath, dbName, tierNames = NULL)
+create.DBconfig.from.TextGrid(tgPath, dbName, basePath, tierNames = NULL)
 }
 \arguments{
 \item{tgPath}{path to TextGrid file}
 
 \item{dbName}{name of the database}
+
+\item{basePath}{project base path}
 
 \item{tierNames}{character vector containing names of tiers to extract and convert. If NULL (the default) all
 tiers are converted.}
