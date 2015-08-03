@@ -9,3 +9,7 @@ vignettes/pics/db_structure.pdf
 *.gz
 *.fdb_latexmk
 inst/doc
+
+*.o
+
+*.so

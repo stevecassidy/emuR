@@ -4,22 +4,20 @@
 \alias{requery_hier}
 \title{Requery hierarchical context of segment list}
 \usage{
-requery_hier(seglist, level = NULL, resultType = NULL, dbUUID = NULL)
+requery_hier(seglist, level = NULL, dbUUID = NULL)
 }
 \arguments{
 \item{seglist}{segment list to requery on (type: 'emuRsegs')}
 
 \item{level}{character string: result level}
 
-\item{resultType}{type (class name) of result (for now only 'emuRsegs')}
-
 \item{dbUUID}{optional UUID odf emuDB}
 }
 \value{
-result set object of class resultType (default: 'emuRsegs')
+result set object of class 'emuRsegs'
 }
 \description{
-WARNING! Experimental, syntax and semantics may change!!
+Requery hierarchical context of segment list
 }
 \examples{
 \dontrun{
