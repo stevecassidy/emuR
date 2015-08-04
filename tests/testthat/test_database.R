@@ -261,11 +261,66 @@ test_that("Test ae modify",{
   cmle2=compare(orgLinksExt,modOrgLinksExt,allowAll=TRUE)
   expect_true(cmle2$result)
   
+  b015ModInsrt=b015
+  # insert segment
+  its=b015ModInsrt[['levels']][['Phonetic']][['items']]
   
+  #b$levels[['Phonetic']][['items']][[9]]
+  #$id
+  #[1] 193
+  #
+  #$sampleStart
+  #[1] 16132
+  #  
+  #$sampleDur
+  #[1] 3989
+  #
+  #$labels
+  #$labels[[1]]
+  #$labels[[1]]$name
+  #[1] "Phonetic"
+  #
+  #$labels[[1]]$value
+  #[1] "ai"
   
+  # split this item:
+  # shrink item to length 3500
+  b015ModInsrt[['levels']][['Phonetic']][['items']][[9]]$sampleDur=3500
+  b015ModInsrt[['levels']][['Phonetic']][['items']][[9]]$labels[[1]]$value='a'
   
+  # shift items to the right to free index 10
+  itCnt=length(b015ModInsrt[['levels']][['Phonetic']][['items']])
+  shiftSeq=itCnt:10
   
+  for(itIdx in shiftSeq){
+    b015ModInsrt[['levels']][['Phonetic']][['items']][[itIdx+1]]=b015ModInsrt[['levels']][['Phonetic']][['items']][[itIdx]]
+  }
+  
+  # insert item at index 10
+  itLbl=list(name='Phonetic',value='i')
+  itLbls=list(itLbl)
+  insertIt=list(id=999,sampleStart=19633,sampleDur=488,labels=itLbls)
+  b015ModInsrt[['levels']][['Phonetic']][['items']][[10]]=insertIt
+  
+  store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015ModInsrt)
+
+  # read again
+  b015Read=get.bundle(sessionName='0000',bundleName = 'msajc015',dbUUID = .test_emu_ae_db_uuid)
+  rItCnt=length(b015Read[['levels']][['Phonetic']][['items']])
+  # check insert sequence
+  for(itIdx in 1:9){
+    expect_equal(b015[['levels']][['Phonetic']][['items']][[itIdx]][['id']],b015Read[['levels']][['Phonetic']][['items']][[itIdx]][['id']])
+  }
+  expect_equivalent(b015Read[['levels']][['Phonetic']][['items']][[10]]$id,999)
+  
+  for(itIdx in 11:rItCnt){
+    expect_equal(b015[['levels']][['Phonetic']][['items']][[itIdx-1]][['id']],b015Read[['levels']][['Phonetic']][['items']][[itIdx]][['id']])
+  }
+  
+    
 })
+
+
 
 # 
 test_that("purge & delete",{
