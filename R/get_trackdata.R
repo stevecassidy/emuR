@@ -55,7 +55,7 @@
 ##' 
 ##' # get the corresponding F0 trackdata
 ##' # as there is no F0 ssffTrack defined in the 'ae' emuDB we will calculate the necessary values on-the-fly
-##' td = get_trackdata(dbName = 'ae', seglist = sl, ssffTrackName = 'ksvF0')
+##' td = get_trackdata(dbName = 'ae', seglist = sl, onTheFlyFunctionName = 'ksvF0')
 ##' }
 
 "get_trackdata" <- function(dbName = NULL, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
