@@ -90,6 +90,12 @@ test_that("on-the-fly calculations work", {
 })
 
 ##############################
+test_that("on-the-fly calculations work if ssffTrackName is not set", {
+  td = get_trackdata('ae', n, onTheFlyFunctionName = 'ksvF0')
+  expect_equal(dim(td$index)[1], 12)
+})
+
+##############################
 test_that("data fields are the same as hardcoded values (taken from original emu.track(n, 'fm') command)", {
   # note that values have slightly changed to to recalulation with wrassp
   td = get_trackdata("ae", n, 'fm', verbose=F)

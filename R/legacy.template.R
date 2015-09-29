@@ -200,7 +200,7 @@ load.database.schema.from.emu.template=function(tplPath,dbUUID=NULL,encoding=NUL
             for(i in 1:length(levelDefinitions)){
               td=levelDefinitions[[i]]
               ads=td[['attributeDefinitions']]
-              for(j in length(ads)){
+              for(j in 1:length(ads)){
                 ad=ads[[j]]
                 if(ad[['name']]==attrName){
                   lblGrIdx=length(ad[['labelGroups']])+1

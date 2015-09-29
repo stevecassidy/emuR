@@ -1008,8 +1008,12 @@ remove_linkDefinition <- function(dbName,
 ##' @description Add ssffTrackDefinitions to emuDB
 ##' @param dbName name of emuDB
 ##' @param name name of ssffTrackDefinitions
-##' @param columnName columnName of ssffTrackDefinitions
-##' @param fileExtension fileExtension of ssffTrackDefinitions
+##' @param columnName columnName of ssffTrackDefinitions.
+##' If the \code{onTheFlyFunctionName} parameter is set and this one isn't the
+##' \code{columnName} will default to the first entry in \code{wrasspOutputInfos[[onTheFlyFunctionName]]$tracks}.
+##' @param fileExtension fileExtension of ssffTrackDefinitions.
+##' If the \code{onTheFlyFunctionName} parameter is set and this one isn't the
+##' \code{fileExtension} will default to the first entry in \code{wrasspOutputInfos[[onTheFlyFunctionName]]$ext}.
 ##' @param onTheFlyFunctionName name of wrassp function to do on-the-fly calculation 
 ##' @param onTheFlyParams a list parameters that will be given to the function 
 ##' passed in by the onTheFlyFunctionName parameter. This list can easily be 
@@ -1019,6 +1023,7 @@ remove_linkDefinition <- function(dbName,
 ##' @param showProgress show progress bar
 ##' @param interactive ask user for confirmation
 ##' @param dbUUID optional UUID of emuDB
+##' @seealso wrasspOutputInfos
 ##' @export
 ##' @author Raphael Winkelmann
 add_ssffTrackDefinition <- function(dbName = NULL, name =  NULL, 
@@ -1031,7 +1036,18 @@ add_ssffTrackDefinition <- function(dbName = NULL, name =  NULL,
   dbObj = .load.emuDB.DBI(uuid = uuid)
   
   #########################
-  # parameter checks  
+  # parameter checks
+  
+  # set columnName to fist tracks entry in wrasspOutputInfos if columnName is not set
+  if(!is.null(onTheFlyFunctionName) && is.null(columnName)){
+    columnName = wrasspOutputInfos[[onTheFlyFunctionName]]$tracks[1]
+  }
+
+  # set fileExtension to fist ext entry in wrasspOutputInfos if fileExtension is not set
+  if(!is.null(onTheFlyFunctionName) && is.null(fileExtension)){
+    fileExtension = wrasspOutputInfos[[onTheFlyFunctionName]]$ext[1]
+  }
+  
   
   # check if three main parameters are not null
   if(is.null(name) || is.null(columnName) || is.null(fileExtension)){

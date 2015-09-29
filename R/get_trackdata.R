@@ -1,38 +1,41 @@
-##' Extract trackdata information from a given emuDB object that 
+##' Get trackdata from loaded emuDB
+##' 
+##' Extract trackdata information from a loaded emuDB that 
 ##' corresponds to the entries in a segment list.
 ##' 
-##' This is the emuR equivalent of the depricated \code{emu.track()} 
-##' function. It utilizes the wrassp package for signal processing and 
+##' This function utilizes the wrassp package for signal processing and 
 ##' SSFF/audio file handling. It reads time relevant data from a given 
 ##' segmentlist, extracts the specified trackdata and places it into a 
-##' trackdata object (analogous to the depricated emu.track).
+##' trackdata object (analogous to the depricated \code{emu.track}). This function
+##' replaces the depricated \code{emu.track} function.
 ##' 
-##' @title get.trackdata(): get trackdata from emuDB object
-##' @param dbName name of EMU database
-##' @param seglist seglist obtained by querying the emuDB object
-##' @param ssffTrackName the name of track that one wishes to extract (see 
-##' \code{DBconfig$ssffTrackDefinitions} for the defined ssffTracks of the 
-##' dbObj). If the parameter \code{onTheFlyFunctionName} is set then 
+##' @param dbName Name of loaded emuDB
+##' @param seglist \code{\link{emuRsegs}} or \code{\link{emusegs}} object obtained by \code{\link{query}}ing a loaded emuDB 
+##' @param ssffTrackName The name of track that one wishes to extract (see 
+##' \code{\link{list_ssffTrackDefinitions}} for the defined ssffTracks of the 
+##' emuDB). If the parameter \code{onTheFlyFunctionName} is set then 
 ##' this corresponds to the column name af the AsspDataObj (see
-##' wrasspOutputInfos$<wrassp-function-name>$tracks).
+##' \code{wrasspOutputInfos[[onTheFlyFunctionName]]$tracks} and \code{\link{wrasspOutputInfos}}). 
+##' If the parameter \code{onTheFlyFunctionName} is set and this one isn't then per default
+##' the fist track listed in the \code{wrasspOutputInfos} is chosen (\code{wrasspOutputInfos[[onTheFlyFunctionName]]$tracks[1]}).
 ##' @param cut An optional cut time for segment data, ranges between 
 ##' 0 and 1, a value of 0.5 will extract data only at the segment midpoint.
 ##' @param npoints An optional number of points to retrieve for each segment or event. 
-##' For segments this requires a cut= argument and data is extracted around the cut time. 
+##' For segments this requires the \code{cut} parameter to be set and then data is extracted around the resulting cut time. 
 ##' For events data is extracted around the event time. If npoints is an odd number the 
 ##' samples are centered around the cut-time-sample, if not they are sqewed to the
 ##' right by one sample.
-##' @param onTheFlyFunctionName name of wrassp function to do on-the-fly calculation 
-##' @param onTheFlyParams a list parameters that will be given to the function 
-##' passed in by the onTheFlyFunctionName parameter. This list can easily be 
+##' @param onTheFlyFunctionName Name of wrassp function that will perform the on-the-fly calculation 
+##' @param onTheFlyParams A list parameters that will be given to the function 
+##' passed in by the \code{onTheFlyFunctionName} parameter. This list can easily be 
 ##' generated using the \code{formals} function and then setting the according 
 ##' parameter one wishes to change.     
-##' @param onTheFlyOptLogFilePath path to optional log file for on-the-fly function
-##' @param nrOfAllocationRows If the size limit of the data matrix is reached 
-##' a further nrOfAllocationRows more rows will be allocated (this will lead 
-##' performance drops). 
-##' @param dbUUID optional UUID of emuDB
-##' @param verbose show progress bars and other infos
+##' @param onTheFlyOptLogFilePath Path to optional log file for on-the-fly function
+##' @param nrOfAllocationRows If this size limit of the data matrix is reached 
+##' a further \code{nrOfAllocationRows} more rows will be allocated. As this allocation leads to
+##' a performance penalty one should consider increasing this number for large emuDBs. 
+##' @param dbUUID Optional UUID of emuDB
+##' @param verbose Show progress bars and further information
 ##' @return If \code{dcut} is not set (the default) an object of type trackdata 
 ##' is returned. If \code{dcut} is set and \code{npoints} is not, or the seglist 
 ##' is of type event and npoints is not set a data.frame is returned
@@ -40,7 +43,22 @@
 ##' @seealso \code{\link{formals}}, \code{\link{wrasspOutputInfos}}, \code{\link{trackdata}}
 ##' @keywords misc
 ##' @import wrassp
+##' @aliases emu.track
 ##' @export
+##' @examples
+##' \dontrun{
+##' ## query loaded 'ae' emuDB for all 'i:' segments of the Phonetic level
+##' sl = query('ae', "Phonetic=i:")
+##' 
+##' ## get the corresponding formant trackdata
+##' td = get_trackdata(dbName = 'ae', seglist = sl, ssffTrackName = 'fm')
+##' 
+##' ## get the corresponding F0 trackdata
+##' # as there is no F0 ssffTrack defined in the 'ae' emuDB we will 
+##' # calculate the necessary values on-the-fly
+##' td = get_trackdata(dbName = 'ae', seglist = sl, onTheFlyFunctionName = 'ksvF0')
+##' }
+
 "get_trackdata" <- function(dbName = NULL, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
                             npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
                             onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, dbUUID = NULL, verbose = TRUE){
@@ -51,6 +69,11 @@
   
   #########################
   # parameter checks  
+  
+  # set ssffTrackName to fist tracks entry in wrasspOutputInfos if ssffTrackName is not set
+  if(!is.null(onTheFlyFunctionName) && is.null(ssffTrackName)){
+    ssffTrackName = wrasspOutputInfos[[onTheFlyFunctionName]]$tracks[1]
+  }
   
   # check if all values for minimal call are set
   if( is.null(dbName) || is.null(seglist) || is.null(ssffTrackName)) {
