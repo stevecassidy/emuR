@@ -14,9 +14,13 @@ add_ssffTrackDefinition(dbName = NULL, name = NULL, columnName = NULL,
 
 \item{name}{name of ssffTrackDefinitions}
 
-\item{columnName}{columnName of ssffTrackDefinitions}
+\item{columnName}{columnName of ssffTrackDefinitions.
+If the \code{onTheFlyFunctionName} parameter is set and this one isn't the
+\code{columnName} will default to the first entry in \code{wrasspOutputInfos[[onTheFlyFunctionName]]$tracks}.}
 
-\item{fileExtension}{fileExtension of ssffTrackDefinitions}
+\item{fileExtension}{fileExtension of ssffTrackDefinitions.
+If the \code{onTheFlyFunctionName} parameter is set and this one isn't the
+\code{fileExtension} will default to the first entry in \code{wrasspOutputInfos[[onTheFlyFunctionName]]$ext}.}
 
 \item{onTheFlyFunctionName}{name of wrassp function to do on-the-fly calculation}
 
@@ -38,5 +42,8 @@ Add ssffTrackDefinitions to emuDB
 }
 \author{
 Raphael Winkelmann
+}
+\seealso{
+wrasspOutputInfos
 }
 
