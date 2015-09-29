@@ -756,7 +756,7 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
   dbUUID=dbConfig[['UUID']]
   
   # set user editable
-  dbConfig[['EMUwebAppConfig']][['activeButtons']]=list(saveBundle=TRUE)
+  dbConfig[['EMUwebAppConfig']][['activeButtons']]=list(saveBundle=TRUE, showHierarchy=TRUE)
   
   # initialize DBI
   # .initialize.DBI.database()
