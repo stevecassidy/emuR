@@ -43,6 +43,7 @@ get.ssfftrack.names.used.by.webapp.config<-function(EMUwebAppConfig){
     twoDimCanvaces=perspective[['twoDimCanvases']]
     if(!is.null(twoDimCanvaces)){
       for(twoDimDrawDef in twoDimCanvaces[['twoDimDrawingDefinitions']]){
+        # check dots
         for(dot in twoDimDrawDef[['dots']]){
           
           xSsffTrack=dot[['xSsffTrack']]
@@ -54,6 +55,20 @@ get.ssfftrack.names.used.by.webapp.config<-function(EMUwebAppConfig){
           if(!is.null(ySsffTrack)){
             nms=c(nms,ySsffTrack)
           }
+        }
+        # check staticContours
+        for(sC in twoDimDrawDef[['staticContours']]){
+          
+          xSsffTrack=sC[['xSsffTrack']]
+          ySsffTrack=sC[['ySsffTrack']]
+          if(!is.null(xSsffTrack)){
+            nms=c(nms,xSsffTrack)
+          }
+          
+          if(!is.null(ySsffTrack)){
+            nms=c(nms,ySsffTrack)
+          }
+          
         }
       }
     }
