@@ -35,6 +35,7 @@
 ##' a further \code{nrOfAllocationRows} more rows will be allocated. As this allocation leads to
 ##' a performance penalty one should consider increasing this number for large emuDBs. 
 ##' @param dbUUID Optional UUID of emuDB
+##' @param resultType Specify class of returned object. Either 'emuRtrackdata' or 'trackdata'.
 ##' @param verbose Show progress bars and further information
 ##' @return If \code{dcut} is not set (the default) an object of type trackdata 
 ##' is returned. If \code{dcut} is set and \code{npoints} is not, or the seglist 
@@ -61,7 +62,8 @@
 
 "get_trackdata" <- function(dbName = NULL, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
                             npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
-                            onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, dbUUID = NULL, verbose = TRUE){
+                            onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, dbUUID = NULL, 
+                            resultType = "trackdata", verbose = TRUE){
   #########################
   # get dbObj
   dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
@@ -107,6 +109,14 @@
     stop('Both onTheFlyFunctionName and onTheFlyParams have to be set for you to be able to use the onTheFlyOptLogFilePath parameter!')
   }
   
+  # check resultType if valid string
+  if(!resultType %in% c("emuRtrackdata", "trackdata")){
+    stop("resultType has to either be 'emuRtrackdata' or 'trackdata'")
+  }
+  
+  if(resultType == "emuRtrackdata" && class(seglist) =="emusegs"){
+    stop("resultType can only be 'trackdata' if a seglist of class 'emusegs' is passed in")
+  }
   
   
   #########################
@@ -388,6 +398,11 @@
   # close progress bar if open
   if(exists('pb')){
     close(pb)
+  }
+  
+  # convert to emuRtrackdata if resultType is 'emuRtrackdata'
+  if(resultType =="emuRtrackdata"){
+    resObj = create_emuRtrackdata(seglist, resObj)
   }
   
   return(resObj)
