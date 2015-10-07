@@ -8,7 +8,8 @@
 get_trackdata(dbName = NULL, seglist = NULL, ssffTrackName = NULL,
   cut = NULL, npoints = NULL, onTheFlyFunctionName = NULL,
   onTheFlyParams = NULL, onTheFlyOptLogFilePath = NULL,
-  nrOfAllocationRows = 10000, dbUUID = NULL, verbose = TRUE)
+  nrOfAllocationRows = 10000, dbUUID = NULL, resultType = "trackdata",
+  verbose = TRUE)
 }
 \arguments{
 \item{dbName}{Name of loaded emuDB}
@@ -46,6 +47,8 @@ a further \code{nrOfAllocationRows} more rows will be allocated. As this allocat
 a performance penalty one should consider increasing this number for large emuDBs.}
 
 \item{dbUUID}{Optional UUID of emuDB}
+
+\item{resultType}{Specify class of returned object. Either 'emuRtrackdata' or 'trackdata'.}
 
 \item{verbose}{Show progress bars and further information}
 }

@@ -38,6 +38,9 @@ test_that("correct classes are returned", {
   td = get_trackdata("ae", hStar, 'fm', npoints=3, verbose=F)
   expect_that(class(td), equals('trackdata'))
   
+  sl = query("ae", "Phonetic=@|i:")
+  td = get_trackdata("ae", sl, "fm", resultType = "emuRtrackdata", verbose=F)
+  expect_true(inherits(td, 'emuRtrackdata'))
 })
 
 #############################
@@ -50,6 +53,7 @@ test_that("bad calls", {
   expect_error(get_trackdata("ae", n, 'fm', npoints=3, verbose=F)) # npoint with no cut argument error
   expect_error(get_trackdata("ae", n, 'fm', onTheFlyParams = formals(open), verbose=F)) # no onTheFlyFunctionName error
   expect_error(get_trackdata(aeDB, n, 'fm', onTheFlyOptLogFilePath = '/path/to/bla/', verbose=F)) # onTheFlyOptLogFilePath error
+  expect_error(get_trackdata("ae", n, resultType = "emuRtrackdata", verbose = F)) # bad resultType for seglist of type 'emusegs'
 })
 
 ##############################
