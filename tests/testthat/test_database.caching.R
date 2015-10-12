@@ -134,9 +134,9 @@ test_that("sqlConnections CRUD operations work", {
   #########################
   test_that("add works", {
     # only single instance is added 
-    add_emuDBcon(dbConnect(RSQLite::SQLite(), path2testDB), path2testDB)
+    add_emuDBhandle(dbConnect(RSQLite::SQLite(), path2testDB),path2testData, path2testDB)
     origLength = length(internalVars$sqlConnections)
-    fileCon = add_emuDBcon(dbConnect(RSQLite::SQLite(), path2testDB), path2testDB)
+    fileCon = add_emuDBhandle(dbConnect(RSQLite::SQLite(), path2testDB),path2testData, path2testDB)
     expect_equal(length(internalVars$sqlConnections), origLength)
     
   })
@@ -154,7 +154,7 @@ test_that("sqlConnections CRUD operations work", {
 
   #########################
   test_that("remove works", {
-    remove_emuDBcon(":memory:")    
+    remove_emuDBhandle(":memory:")    
     expect_true(length(internalVars$sqlConnections) == 0)
   })
   

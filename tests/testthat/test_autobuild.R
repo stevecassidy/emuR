@@ -33,7 +33,7 @@ test_that("bad calls to autobuild_linkFromTimes", {
 
 ##############################
 test_that("correct links are present after autobuild_linkFromTimes with EVENTS", {
-  
+
   # purge, delete, copy and load
   purge_emuDB(dbName, interactive = F)
   unlink(path2db, recursive = T)
@@ -383,8 +383,10 @@ test_that("rewrite works correctly", {
   expect_equal(dbJson$linkDefinitions[10,]$sublevelName, "Phonetic2")
   
   # annot.jsons has new fields
-  annotJson = fromJSON(readLines(file.path(path2db, "0000_ses", "msajc003_bndl", "msajc003_annot.json")), simplifyVector=T)
-  expect_equal(annotJson$levels$name[11], "Phonetic-autobuildBackup")
+  testAnnoFilePath=file.path(path2db, "0000_ses", "msajc003_bndl", "msajc003_annot.json")
+  annotJson = fromJSON(readLines(testAnnoFilePath), simplifyVector=T)
+  lastLvlName=annotJson$levels$name[11]
+  expect_equal(lastLvlName, "Phonetic-autobuildBackup")
   
 })
 
