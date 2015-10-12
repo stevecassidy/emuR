@@ -761,6 +761,9 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
   # initialize DBI
   # .initialize.DBI.database()
   
+  # add handle for in memory DB
+  dbHandle=add_emuDBhandle(basePath=pp)
+  
   # store db schema file
   .store.DBconfig(get_emuDBcon(), pp,dbConfig)
   progress=progress+1L

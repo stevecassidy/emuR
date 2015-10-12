@@ -22,6 +22,35 @@ internalVars$testingVars$inMemoryCache = F
 ##########################################################
 # CRUD like operations for internalVars$sqlConnections
 
+get_emuDBhandle <- function(dbUUID = NULL) {
+  # add in memory connection just to make sure it exists
+  
+  foundHandle = NULL
+  for(c in internalVars$sqlConnections){
+    if(is.null(dbUUID)){
+      if(c$path == ":memory:"){
+        foundHandle = c
+        break
+      }
+    }else{
+      res = dbGetQuery(c$con, "SELECT uuid FROM emuDB")
+      if(dbUUID %in% res$uuid){
+        foundHandle = c
+        break
+      }
+    }
+  }
+  ## make sure :memory: connection is always there
+  #if(is.null(dbUUID) & is.null(foundHandle)){
+  #  con = dbConnect(RSQLite::SQLite(), ":memory:")
+  #  add_emuDBcon(con)
+  #  foundCon = con
+  #}
+  
+  return(foundHandle)
+}
+
+
 get_emuDBcon <- function(dbUUID = NULL) {
   # add in memory connection just to make sure it exists
   
@@ -41,37 +70,42 @@ get_emuDBcon <- function(dbUUID = NULL) {
     }
   }
   # make sure :memory: connection is always there
-  if(is.null(dbUUID) & is.null(foundCon)){
-    con = dbConnect(RSQLite::SQLite(), ":memory:")
-    add_emuDBcon(con)
-    foundCon = con
-  }
+  #if(is.null(dbUUID) & is.null(foundCon)){
+  #  con = dbConnect(RSQLite::SQLite(), ":memory:")
+  #  add_emuDBcon(con)
+  #  foundCon = con
+  #}
   
   return(foundCon)
 }
 
 
 ## @param connection of type returned from DBI::dbConnect() function
+## @param basePath base path of emuDB
 ## @param path to SQLiteDB
-add_emuDBcon <- function(con, path = ":memory:"){
-  foundCon = NULL
-  for(c in internalVars$sqlConnections){
-    if(c$path == path){
-      foundCon = c$con
+## @return new or already existing emuDB handle
+add_emuDBhandle <- function(con=NULL,basePath, path = ":memory:"){
+  foundHandle = NULL
+  for(h in internalVars$sqlConnections){
+    if(h$path == path){
+      foundHandle = h
     }
   }
   
   # only add if not found to avoid duplicates
-  if(is.null(foundCon)){
+  if(is.null(foundHandle)){
+    if(is.null(con)){
+      con = dbConnect(RSQLite::SQLite(), ":memory:")
+    }
     .initialize.DBI.database(con)
-    internalVars$sqlConnections[[length(internalVars$sqlConnections) + 1]] = list(path = path,
-                                                                                  connection = con)
-    foundCon = con
+    newHandle=list(path = path,basePath=basePath,connection = con)
+    internalVars$sqlConnections[[length(internalVars$sqlConnections) + 1]] = newHandle
+    foundHandle = newHandle
   }
-  return(foundCon)
+  return(foundHandle)
 }
 
-remove_emuDBcon <- function(path){
+remove_emuDBhandle <- function(path){
   
   for(i in 1:length(internalVars$sqlConnections)){
     if(internalVars$sqlConnections[[i]]$path == path){
@@ -269,15 +303,17 @@ get.database<-function(uuid=NULL,name=NULL){
   if(is.null(uuid)){
     uuid=get_emuDB_UUID(name)
   }
+  handle=get_emuDBhandle(uuid)
+  con=handle$connection
   dbQ=paste0("SELECT * FROM emuDB WHERE uuid='",uuid,"'")
-  dbDf=dbGetQuery(get_emuDBcon(uuid),dbQ)
+  dbDf=dbGetQuery(con,dbQ)
   dbCount=nrow(dbDf)
   if(dbCount==0){
     stop("Database not found !\n")
   }else if (dbCount==1){
     dbCfgObj=jsonlite::fromJSON(dbDf[['DBconfigJSON']],simplifyVector=FALSE)
     dbCfg=unmarshal.from.persistence(x=dbCfgObj,classMap = emuR.persist.class.DBconfig)
-    db=create.database(name = dbDf[['name']],basePath = dbDf[['basePath']],DBconfig = dbCfg)
+    db=create.database(name = dbDf[['name']],basePath = handle$basePath,DBconfig = dbCfg)
   }else{
     stop("Found ",dbCount," databases with same name: ",name,". Please specify database UUID!\n")
   }
@@ -519,7 +555,7 @@ purge_emuDB<-function(dbName=NULL,dbUUID=NULL,interactive=TRUE){
           if(c$path == ":memory:"){
             .purge.emuDB(dbUUID)
           }else{
-            remove_emuDBcon(c$path)
+            remove_emuDBhandle(c$path)
           }  
           purged=TRUE
           
@@ -546,7 +582,7 @@ purge_all_emuDBs<-function(interactive=TRUE){
   }
   if(ans=='y'){
     for(c in internalVars$sqlConnections){
-      remove_emuDBcon(c$path)
+      remove_emuDBhandle(c$path)
     }
     # .destroy.DBI.database()
     # .initialize.DBI.database()
@@ -1817,8 +1853,10 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
   schema=load.emuDB.DBconfig(dbCfgPath)
   # set transient values
   schema=.update.transient.schema.values(schema)
+  # normalize base path
+  basePath = normalizePath(databaseDir)
   # create db object
-  db=create.database(name = schema[['name']], basePath = normalizePath(databaseDir),DBconfig = schema)
+  db=create.database(name = schema[['name']],basePath=basePath ,DBconfig = schema)
   
   dbUUID = schema$UUID
   
@@ -1828,12 +1866,14 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
   
   # add new connection
   if(inMemoryCache){
-    con = dbConnect(RSQLite::SQLite(), ":memory:")
-    con = add_emuDBcon(con)
+    con = dbConnect(RSQLite::SQLite(),basePath, ":memory:")
+    handle = add_emuDBhandle(con,basePath)
+    con=handle$connection
   }else{
     dbPath = file.path(normalizePath(databaseDir), paste0(schema$name, database.cache.suffix))
     con = dbConnect(RSQLite::SQLite(), dbPath)
-    con = add_emuDBcon(con, dbPath)
+    handle = add_emuDBhandle(con,basePath, dbPath)
+    con=handle$connection
   }
   
   #   beginRes=dbBegin(con)
@@ -1844,8 +1884,8 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
   if(nrow(dbsDf)>0){
     # stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
     # update basepath in case we are dealing with a copy
-    dbGetQuery(con, paste0("UPDATE emuDB SET basePath = '", normalizePath(databaseDir) , "' ",
-                           "WHERE uuid = '", dbUUID, "'"))
+    #dbGetQuery(con, paste0("UPDATE emuDB SET basePath = '", normalizePath(databaseDir) , "' ",
+    #                       "WHERE uuid = '", dbUUID, "'"))
     
     
     update_cache(schema[['name']], dbUUID = dbUUID, verbose = verbose)
@@ -2162,7 +2202,9 @@ rewrite.allAnnots.emuDB <- function(dbName, dbUUID=NULL, showProgress=TRUE){
   
   # get UUID (also checks if DB exists)
   dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
-  basePath = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT basePath FROM emuDB WHERE uuid='", dbUUID, "'"))
+  handle=get_emuDBhandle(dbUUID = dbUUID)
+  #basePath = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT basePath FROM emuDB WHERE uuid='", dbUUID, "'"))
+  basePath=handle$basePath
   bndls = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT * FROM bundle WHERE db_uuid='", dbUUID, "'"))
   
   progress = 0
