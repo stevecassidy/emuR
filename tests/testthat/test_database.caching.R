@@ -134,20 +134,21 @@ test_that("sqlConnections CRUD operations work", {
   #########################
   test_that("add works", {
     # only single instance is added 
-    add_emuDBhandle(dbConnect(RSQLite::SQLite(), path2testDB),path2testData, path2testDB)
+    add_emuDBhandle(path2testData, path2testDB)
     origLength = length(internalVars$sqlConnections)
-    fileCon = add_emuDBhandle(dbConnect(RSQLite::SQLite(), path2testDB),path2testData, path2testDB)
+    dbHandle = add_emuDBhandle(path2testData, path2testDB)
+    fileCon=dbHandle$connection
     expect_equal(length(internalVars$sqlConnections), origLength)
     
   })
 
   #########################  
-  test_that("get works", {
+  test_that("add handle works", {
     # check that :memory: connection is returned by default
     purge_all_emuDBs(interactive = F)
     expect_true(length(internalVars$sqlConnections) == 0)
     
-    inMemCon = get_emuDBcon()
+    inMemHandle = add_emuDBhandle(basePath="arbitrary path")
     expect_true(length(internalVars$sqlConnections) == 1)
   
   })

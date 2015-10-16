@@ -80,24 +80,30 @@ get_emuDBcon <- function(dbUUID = NULL) {
 }
 
 
-## @param connection of type returned from DBI::dbConnect() function
 ## @param basePath base path of emuDB
 ## @param path to SQLiteDB
 ## @return new or already existing emuDB handle
-add_emuDBhandle <- function(con=NULL,basePath, path = ":memory:"){
+add_emuDBhandle <- function(basePath, path = NULL){
   foundHandle = NULL
+  if(is.null(path)){
+    # create empty db in memory and initialize tables
+    path=":memory:"
+    initialize=T
+    con = dbConnect(RSQLite::SQLite(), path)
+  }else{
+    initialize=(!file.exists(path))
+    con= dbConnect(RSQLite::SQLite(),path)
+  }
+  if(initialize){
+    .initialize.DBI.database(con)
+  }
   for(h in internalVars$sqlConnections){
     if(h$path == path){
       foundHandle = h
     }
   }
-  
   # only add if not found to avoid duplicates
   if(is.null(foundHandle)){
-    if(is.null(con)){
-      con = dbConnect(RSQLite::SQLite(), path)
-    }
-    .initialize.DBI.database(con)
     newHandle=list(path = path,basePath=basePath,connection = con)
     internalVars$sqlConnections[[length(internalVars$sqlConnections) + 1]] = newHandle
     foundHandle = newHandle
@@ -1866,13 +1872,13 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
   
   # add new connection
   if(inMemoryCache){
-    con = dbConnect(RSQLite::SQLite(),basePath, ":memory:")
-    handle = add_emuDBhandle(con,basePath)
+    #con = dbConnect(RSQLite::SQLite(),basePath, ":memory:")
+    handle = add_emuDBhandle(basePath)
     con=handle$connection
   }else{
     dbPath = file.path(normalizePath(databaseDir), paste0(schema$name, database.cache.suffix))
-    con = dbConnect(RSQLite::SQLite(), dbPath)
-    handle = add_emuDBhandle(con,basePath, dbPath)
+    #con = dbConnect(RSQLite::SQLite(), dbPath)
+    handle = add_emuDBhandle(basePath, dbPath)
     con=handle$connection
   }
   
