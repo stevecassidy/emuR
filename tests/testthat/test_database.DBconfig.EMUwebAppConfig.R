@@ -1,7 +1,7 @@
 ##' testthat tests for database.DBconfig.EMUwebAppConfig
 ##'
 ##' @author Raphael Winkelmann
-context("testing database.DBconfig functions")
+context("testing database.DBconfig.EMUwebAppConfig functions")
 
 dbName = 'ae'
 
