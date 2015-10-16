@@ -95,7 +95,7 @@ add_emuDBhandle <- function(con=NULL,basePath, path = ":memory:"){
   # only add if not found to avoid duplicates
   if(is.null(foundHandle)){
     if(is.null(con)){
-      con = dbConnect(RSQLite::SQLite(), ":memory:")
+      con = dbConnect(RSQLite::SQLite(), path)
     }
     .initialize.DBI.database(con)
     newHandle=list(path = path,basePath=basePath,connection = con)
