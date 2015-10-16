@@ -31,6 +31,7 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName, basePath,tierNames=NULL
   # create tmp db 
   dbConfig=create.schema.databaseDefinition(name=dbName,mediafileExtension = 'wav')
   db=create.database(name=dbName,basePath=basePath,DBconfig = dbConfig)
+  add_emuDBhandle(basePath=basePath)
   .store.emuDB.DBI(get_emuDBcon(), database = db)
   
   # parse TextGrid  
