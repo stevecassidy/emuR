@@ -134,8 +134,9 @@ add_files <- function(dbName, dir, fileExtension, targetSessionName='0000', dbUU
   
   # get all basePath + bundles
   l = list_emuDBs()
-  bp = l[l$uuid == dbUUID, ]$basePath
-  
+  #bp = l[l$uuid == dbUUID, ]$basePath
+  dbHandle=get_emuDBhandle(dbUUID)
+  bp=dbHandle$basePath
   
   bndls = list_bundles(dbName, session = targetSessionName, dbUUID=dbUUID)
   
@@ -175,7 +176,9 @@ list_files <- function(dbName,
   
   # get all basePath + bundles
   l = list_emuDBs()
-  bp = l[l$uuid == dbUUID, ]$basePath
+  #bp = l[l$uuid == dbUUID, ]$basePath
+  dbHandle=get_emuDBhandle(dbUUID)
+  bp=dbHandle$basePath
   
   bndls = list_bundles(dbName, dbUUID = dbUUID)
   
