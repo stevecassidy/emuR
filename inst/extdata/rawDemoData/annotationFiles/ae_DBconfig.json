@@ -349,7 +349,8 @@
             }
         ],
         "activeButtons": {
-            "saveBundle": true
+            "saveBundle": true,
+            "showHierarchy": true
         }
     }
 }

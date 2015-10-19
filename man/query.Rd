@@ -49,9 +49,10 @@ seglistTs=query('ae','[Phonetic=t -> Phonetic=s]')
 query('ae','[Syllable=S ^ Phoneme=t]',resultType='emusegs')
 
 
-## Query 'p' phonemes from bundles whose names start with 'msajc07'
+## Query 'p' phonemes from bundles whose bundle names start with 'msajc07'
+## and whose session names start with '00'
 
-query('ae','Phoneme=p',bundlePattern='msajc05.*')
+query('ae','Phoneme=p',bundlePattern='msajc05.*',sessionPattern ='00.*')
 
 
 }

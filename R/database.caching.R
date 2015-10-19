@@ -164,6 +164,7 @@ update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
           build.redundant.links.all(database = dbObj,sessionName=sn,bundleName=bn)
         }
         
+        calculate.postions.of.links(dbUUID)
         
       }
       
