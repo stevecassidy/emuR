@@ -37,14 +37,53 @@ test_that("Convert example database ae",{
   
 })
 
+check_ae_db=function(){
+  
+}
+
 test_that("Load example database ae",{
-  
-  
-  load_emuDB(file.path(.test_emu_ae_db_dir, 'ae'), inMemoryCache = internalVars$testingVars$inMemoryCache, verbose=FALSE)
-  #load_emuDB("/scratch/klausj/WORK/EmuDbs/ae")
-  
+  bp=file.path(.test_emu_ae_db_dir, 'ae')
+  load_emuDB(bp, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose=FALSE)
   db=get.database(uuid=.test_emu_ae_db_uuid)
   expect_that(db[['name']],is_equivalent_to('ae'))
+  expect_that(db[['DBconfig']][['UUID']],is_equivalent_to(.test_emu_ae_db_uuid))
+  expect_that(db[['basePath']],is_equivalent_to(bp))
+  sesss=.load.sessions.DBI(dbUUID = .test_emu_ae_db_uuid)
+  expect_that(nrow(sesss),is_equivalent_to(1))
+  bndlCnt=.get.bundle.count.DBI(.test_emu_ae_db_uuid)
+  expect_that(bndlCnt,is_equivalent_to(7))
+  itCntQ=paste0("SELECT count(*) FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'")
+  itCntDf=dbGetQuery(get_emuDBcon(.test_emu_ae_db_uuid),itCntQ)
+  itemCnt=itCntDf[[1]]
+  liCntQ=paste0("SELECT count(*) FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'")
+  liCntDf=dbGetQuery(get_emuDBcon(.test_emu_ae_db_uuid),liCntQ)
+  linkCnt=liCntDf[[1]]
+  expect_that(itemCnt,is_equivalent_to(736))
+  expect_that(linkCnt,is_equivalent_to(785))
+  
+})
+
+test_that("Reload example database ae",{
+  bp=file.path(.test_emu_ae_db_dir, 'ae')
+  #load_emuDB(file.path(.test_emu_ae_db_dir, 'ae'), inMemoryCache = internalVars$testingVars$inMemoryCache, verbose=FALSE)
+  reload_emuDB('ae')
+  db=get.database(uuid=.test_emu_ae_db_uuid)
+  expect_that(db[['name']],is_equivalent_to('ae'))
+  expect_that(db[['DBconfig']][['UUID']],is_equivalent_to(.test_emu_ae_db_uuid))
+  expect_that(db[['basePath']],is_equivalent_to(bp))
+  sesss=.load.sessions.DBI(dbUUID = .test_emu_ae_db_uuid)
+  expect_that(nrow(sesss),is_equivalent_to(1))
+  bndlCnt=.get.bundle.count.DBI(.test_emu_ae_db_uuid)
+  expect_that(bndlCnt,is_equivalent_to(7))
+  itCntQ=paste0("SELECT count(*) FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'")
+  itCntDf=dbGetQuery(get_emuDBcon(.test_emu_ae_db_uuid),itCntQ)
+  itemCnt=itCntDf[[1]]
+  liCntQ=paste0("SELECT count(*) FROM links WHERE db_uuid='",.test_emu_ae_db_uuid,"'")
+  liCntDf=dbGetQuery(get_emuDBcon(.test_emu_ae_db_uuid),liCntQ)
+  linkCnt=liCntDf[[1]]
+  expect_that(itemCnt,is_equivalent_to(736))
+  expect_that(linkCnt,is_equivalent_to(785))
+  
 })
 
 test_that("Data types are correct",{
