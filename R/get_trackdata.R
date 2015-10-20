@@ -287,6 +287,11 @@
         break
       }
     }
+    # check if breakVal was found
+    if(breakVal == -1){
+      stop("No track samples found belonging to sl_rowIdx: ", i, " with values: ", paste0(seglist[i,], collapse = " "), 
+           "! This is probably due to a very short SEGMENT that doesn't contain any '", ssffTrackName, "' values.")
+    }
     
     curStartDataIdx <- breakVal
     curEndDataIdx <- length(timeStampSeq)
