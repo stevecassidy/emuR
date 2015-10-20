@@ -281,9 +281,9 @@ database.DDL.emuDB_linksExtTmpIdx2='CREATE INDEX linksExtTmp2_idx ON linksExtTmp
   dbCfg=database[['DBconfig']]
   dbCfgJSON=jsonlite::toJSON(dbCfg,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
   if(is.null(MD5DBconfigJSON)){
-    dbSqlInsert=paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('",dbCfg[['UUID']],"','",dbCfg[['name']],"','",database[['basePath']],"','",dbCfgJSON,"', NULL", ")")
+    dbSqlInsert=paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('",dbCfg[['UUID']],"','",dbCfg[['name']],"',NULL,'",dbCfgJSON,"', NULL", ")")
   }else{
-    dbSqlInsert=paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('",dbCfg[['UUID']],"','",dbCfg[['name']],"','",database[['basePath']],"','",dbCfgJSON,"', '",MD5DBconfigJSON,"')")
+    dbSqlInsert=paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('",dbCfg[['UUID']],"','",dbCfg[['name']],"',NULL,'",dbCfgJSON,"', '",MD5DBconfigJSON,"')")
   }
   res <- dbSendQuery(con,dbSqlInsert)
   dbClearResult(res)
