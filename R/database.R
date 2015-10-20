@@ -2048,9 +2048,10 @@ is.emuDB.loaded<-function(dbName=NULL,dbUUID=NULL){
 }
 
 ##' Reload EMU database
-##' @description Reload an EMU database from disk storage
+##' @description Reload EMU database from disk storage
 ##' @param dbName name of emuDB
 ##' @param dbUUID optional UUID of EmuDB
+##' @export
 ##' @author Klaus Jaensch
 ##' @seealso \code{\link{load_emuDB}}
 ##' @keywords emuDB database Emu
