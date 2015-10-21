@@ -14,6 +14,11 @@ create.EMUwebAppConfig.levelCanvas <- function(order){
   class(o) <- 'emuDB.EMUwebAppConfig.levelCanvas'
   invisible(o)
 }
+create.EMUwebAppConfig.twoDimCanvases <- function(order){
+  o <- list(order=order)
+  class(o) <- 'emuDB.EMUwebAppConfig.twoDimCanvases'
+  invisible(o)
+}
 create.EMUwebAppConfig.perspective <- function(name,signalCanvases,levelCanvases,twoDimCanvases){
   o <- list(name=name,signalCanvases=signalCanvases,levelCanvases=levelCanvases,twoDimCanvases=twoDimCanvases)
   class(o) <- 'emuDB.EMUwebAppConfig.perspective'
@@ -104,7 +109,7 @@ add_perspective <- function(dbName,
                                              signalCanvases = create.EMUwebAppConfig.signalCanvas(order = c("OSCI", "SPEC"), 
                                                                                                   assign = NULL, contourLims = NULL),
                                              levelCanvases = create.EMUwebAppConfig.levelCanvas(order = NULL),
-                                             twoDimCanvases = NULL)
+                                             twoDimCanvases = create.EMUwebAppConfig.twoDimCanvases(order = NULL))
   
   l = length(dbObj$DBconfig$EMUwebAppConfig$perspectives)
   
