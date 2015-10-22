@@ -133,8 +133,6 @@ add_files <- function(dbName, dir, fileExtension, targetSessionName='0000', dbUU
   dbObj = .load.emuDB.DBI(name = dbName, uuid = dbUUID)
   
   # get all basePath + bundles
-  l = list_emuDBs()
-  #bp = l[l$uuid == dbUUID, ]$basePath
   dbHandle=get_emuDBhandle(dbUUID)
   bp=dbHandle$basePath
   
@@ -175,8 +173,6 @@ list_files <- function(dbName,
   dbObj = .load.emuDB.DBI(name = dbName, uuid = dbUUID)
   
   # get all basePath + bundles
-  l = list_emuDBs()
-  #bp = l[l$uuid == dbUUID, ]$basePath
   dbHandle=get_emuDBhandle(dbUUID)
   bp=dbHandle$basePath
   

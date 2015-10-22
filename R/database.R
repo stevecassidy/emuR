@@ -1872,12 +1872,10 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
   
   # add new connection
   if(inMemoryCache){
-    #con = dbConnect(RSQLite::SQLite(),basePath, ":memory:")
     handle = add_emuDBhandle(basePath)
     con=handle$connection
   }else{
     dbPath = file.path(normalizePath(databaseDir), paste0(schema$name, database.cache.suffix))
-    #con = dbConnect(RSQLite::SQLite(), dbPath)
     handle = add_emuDBhandle(basePath, dbPath)
     con=handle$connection
   }
@@ -1889,11 +1887,6 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
   dbsDf=dbGetQuery(con,paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
   if(nrow(dbsDf)>0){
     # stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
-    # update basepath in case we are dealing with a copy
-    #dbGetQuery(con, paste0("UPDATE emuDB SET basePath = '", normalizePath(databaseDir) , "' ",
-    #                       "WHERE uuid = '", dbUUID, "'"))
-    
-    
     update_cache(schema[['name']], dbUUID = dbUUID, verbose = verbose)
     return(schema$name)
   }
@@ -2213,7 +2206,6 @@ rewrite.allAnnots.emuDB <- function(dbName, dbUUID=NULL, showProgress=TRUE){
   # get UUID (also checks if DB exists)
   dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
   handle=get_emuDBhandle(dbUUID = dbUUID)
-  #basePath = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT basePath FROM emuDB WHERE uuid='", dbUUID, "'"))
   basePath=handle$basePath
   bndls = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT * FROM bundle WHERE db_uuid='", dbUUID, "'"))
   
