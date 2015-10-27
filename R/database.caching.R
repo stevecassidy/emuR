@@ -136,7 +136,8 @@ update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
         # check if bundle entry exists
         if(!any(curBndls$session == sn & curBndls$name == bn)){
           sR = attr(read.AsspDataObj(mediaFilePath), "sampleRate")
-          dbGetQuery(get_emuDBcon(dbUUID), paste0("INSERT INTO bundle VALUES ('",dbUUID,"', '", 
+          dbGetQuery(get_emuDBcon(dbUUID), paste0("INSERT INTO bundle (db_uuid,session,name,annotates,sampleRate,MD5annotJSON) VALUES 
+                                                  ('",dbUUID,"', '", 
                                                   sn,"', '", 
                                                   bn,"', '", 
                                                   bundle$annotates,"', '", 
