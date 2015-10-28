@@ -12,7 +12,7 @@ reload_emuDB(dbName, dbUUID = NULL)
 \item{dbUUID}{optional UUID of EmuDB}
 }
 \description{
-Reload an EMU database from disk storage
+Reload EMU database from disk storage
 }
 \examples{
 \dontrun{
