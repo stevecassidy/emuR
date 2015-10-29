@@ -235,7 +235,7 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
             cat("\n")
           }
           ssffFiles=list()
-          # Hash (here: named charcter vector) with SSFF files extension as key and file path as value
+          # Hash (here: named character vector) with SSFF files extension as key and file path as value
           # avoids duplicates in ssff files list
           ssffFilesHash=character(0)
           for(ssffTr in sc[['ssffTrackDefinitions']]){
