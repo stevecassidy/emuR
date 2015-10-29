@@ -39,10 +39,11 @@ test_that("Convert example database ae",{
 
 check_properties_of_ae_db=function(){
   bp=file.path(.test_emu_ae_db_dir, 'ae')
+  nbp=normalizePath(bp)
   db=get.database(uuid=.test_emu_ae_db_uuid)
   expect_that(db[['name']],is_equivalent_to('ae'))
   expect_that(db[['DBconfig']][['UUID']],is_equivalent_to(.test_emu_ae_db_uuid))
-  expect_that(db[['basePath']],is_equivalent_to(bp))
+  expect_that(db[['basePath']],is_equivalent_to(nbp))
   sesss=.load.sessions.DBI(dbUUID = .test_emu_ae_db_uuid)
   expect_that(nrow(sesss),is_equivalent_to(1))
   bndlCnt=.get.bundle.count.DBI(.test_emu_ae_db_uuid)
