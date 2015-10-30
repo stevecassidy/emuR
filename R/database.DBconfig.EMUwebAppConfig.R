@@ -30,56 +30,7 @@ create.EMUwebAppConfig <- function(perspectives){
   invisible(o)
 }
 
-get.ssfftrack.names.used.by.webapp.config<-function(EMUwebAppConfig){
-  nms=c()
-  for(perspective in EMUwebAppConfig[['perspectives']]){
-    scvss=perspective[['signalCanvases']]
-    if(!is.null(scvss)){
-      for(cvsNm in scvss[['order']]){
-        if(cvsNm!='OSCI' & cvsNm!='SPEC'){
-          nms=c(nms,cvsNm)
-        }
-      }
-      for(ass in scvss[['assign']]){
-        nms=c(nms,ass[['ssffTrackName']])
-      }
-    }
-    
-    twoDimCanvaces=perspective[['twoDimCanvases']]
-    if(!is.null(twoDimCanvaces)){
-      for(twoDimDrawDef in twoDimCanvaces[['twoDimDrawingDefinitions']]){
-        # check dots
-        for(dot in twoDimDrawDef[['dots']]){
-          
-          xSsffTrack=dot[['xSsffTrack']]
-          ySsffTrack=dot[['ySsffTrack']]
-          if(!is.null(xSsffTrack)){
-            nms=c(nms,xSsffTrack)
-          }
-          
-          if(!is.null(ySsffTrack)){
-            nms=c(nms,ySsffTrack)
-          }
-        }
-        # check staticContours
-        for(sC in twoDimDrawDef[['staticContours']]){
-          
-          xSsffTrack=sC[['xSsffTrack']]
-          ySsffTrack=sC[['ySsffTrack']]
-          if(!is.null(xSsffTrack)){
-            nms=c(nms,xSsffTrack)
-          }
-          
-          if(!is.null(ySsffTrack)){
-            nms=c(nms,ySsffTrack)
-          }
-          
-        }
-      }
-    }
-  }
-  return(unique(nms))
-}
+
 
 ###########################################
 # CRUD operation for perspectives

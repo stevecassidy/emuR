@@ -224,8 +224,12 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
             }
           }
         }
-        if(is.null(err)){          
-          ssffTrackNmsInUse=get.ssfftrack.names.used.by.webapp.config(database[['DBconfig']][['EMUwebAppConfig']])
+        if(is.null(err)){   
+          ssffTracksInUse=get_ssffTracks_used_by_DBconfig(database[['DBconfig']])
+          ssffTrackNmsInUse=c()
+          for(ssffTrackInUse in ssffTracksInUse){
+            ssffTrackNmsInUse=c(ssffTrackNmsInUse,ssffTrackInUse[['name']])
+          }          
           if(debugLevel >= 4){
             
             cat(length(ssffTrackNmsInUse)," track definitions in use:\n")
