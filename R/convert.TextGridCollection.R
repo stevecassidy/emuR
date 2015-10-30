@@ -70,6 +70,10 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
   # create db object
   db=create.database(name = schema[['name']],basePath = normalizePath(basePath),DBconfig = schema)
   
+  # set editable + showHierarchy
+  schema$EMUwebAppConfig$activeButtons=list(saveBundle=TRUE,
+                                           showHierarchy=TRUE)
+  
   dbsDf=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
   if(nrow(dbsDf)>0){
     stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
