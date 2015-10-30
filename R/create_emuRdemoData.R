@@ -61,14 +61,27 @@ create_emuRdemoData <- function(dir = tempdir(), precache = F){
   }
   
   ####################################
-  # create TextGrid_collection
-  fpl = create_filePairList(path2data, path2data, "wav", "TextGrid")
+  # create TextGrid_collection and BPF_collections
+  fpltgc = create_filePairList(path2data, path2data, "wav", "TextGrid")
+  fplbpf_original = create_filePairList(path2data, path2data, "wav", "par")
+  fplbpf_manipulated = create_filePairList(path2data, path2data, "wav", "parmanipulated")
   tgcPath = file.path(ddPath, "TextGrid_collection")
+  bpfPath_original = file.path(ddPath, "BPF_collection_original")
+  bpfPath_manipulated = file.path(ddPath, "BPF_collection_manipulated")
   
   dir.create(tgcPath)
+  dir.create(bpfPath_original)
+  dir.create(bpfPath_manipulated)
   
-  file.copy(fpl[,1], tgcPath)
-  file.copy(fpl[,2], tgcPath)
+  dir.create(file.path(bpfPath_original, "0000"))
+  dir.create(file.path(bpfPath_manipulated, "0000"))
+  
+  file.copy(fpltgc[,1], tgcPath)
+  file.copy(fpltgc[,2], tgcPath)
+  file.copy(fplbpf_original[,1], file.path(bpfPath_original, "0000"))
+  file.copy(fplbpf_original[,2], file.path(bpfPath_original, "0000"))
+  file.copy(fplbpf_manipulated[,1], file.path(bpfPath_manipulated, "0000"))
+  file.copy(fplbpf_manipulated[,2], file.path(bpfPath_manipulated, "0000"))
   
   #################################
   # create legacyEmuDB
