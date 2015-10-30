@@ -36,7 +36,7 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
   if(!file.exists(targetDir)){
     res=dir.create(targetDir,recursive = TRUE)
     if(!res){
-      stop("Could not create target directory: ",basePath," !\n")
+      stop("Could not create target directory: ",targetDir," !\n")
     }
   }
   
@@ -90,17 +90,28 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
   # create session entry
   dbGetQuery(get_emuDBcon(), paste0("INSERT INTO session VALUES('", dbUUID, "', '0000')"))
   
-  # session file path
-  sfp=file.path(basePath,paste0('0000',session.suffix))
-  res=dir.create(sfp)
-  if(!res){
-    # purge tmp emuDB
-    .purge.emuDB(dbUUID)
-    stop("Could not create session directory: ",sfp," !\n")
-  }
   
   # loop through fpl
   for(i in 1:dim(fpl)[1]){
+    
+    # create session name
+    sesName = gsub('^_', '', gsub(.Platform$file.sep, '_', gsub(normalizePath(dir, winslash = .Platform$file.sep),'',dirname(normalizePath(fpl[i,1], winslash = .Platform$file.sep)))))
+    
+    # session file path
+    if(sesName == ""){
+      sfp=file.path(basePath,paste0("0000",session.suffix))
+    }else{
+      sfp=file.path(basePath,paste0(sesName,session.suffix))
+    }
+    if(!dir.exists(sfp)){
+      res=dir.create(sfp)
+      if(!res){
+        # purge tmp emuDB
+        .purge.emuDB(dbUUID)
+        stop("Could not create session directory: ",sfp," !\n")
+      }
+    }
+    
     # media file
     mfPath=fpl[i,1]
     mfBn=basename(mfPath)
@@ -109,13 +120,13 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
     asspObj = read.AsspDataObj(mfPath)
     sampleRate=attributes(asspObj)$sampleRate
     # create bundle name
-    bndlName = gsub('^_', '', gsub(.Platform$file.sep, '_', gsub(normalizePath(dir, winslash = .Platform$file.sep),'',file_path_sans_ext(normalizePath(fpl[i,1], winslash = .Platform$file.sep)))))
+    bndlName = file_path_sans_ext(basename(fpl[i,1]))
     
     # create bundle entry
     dbGetQuery(get_emuDBcon(), paste0("INSERT INTO bundle VALUES('", dbUUID, "', '0000', '", bndlName, "', '", mfBn, "', ", sampleRate, ", 'NULL')"))
     #b=create.bundle(bndlName,sessionName = '0000',annotates=basename(fpl[i,1]),sampleRate = sampleRate)
     
-     
+    
     ## create track entry
     #dbGetQuery(get_emuDBcon(), paste0("INSERT INTO track VALUES('", dbUUID, "', '0000', '", bndlName, "', '", fpl[i,1], "')"))
     
@@ -126,13 +137,13 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
     if(!is.null(tierNames)){
       
       condStr = paste0("level!='", paste0(tierNames, collapse = paste0("' AND ", " level!='")), "'")
-
+      
       # delete items
       dbSendQuery(get_emuDBcon(), paste0("DELETE FROM items WHERE ", "db_uuid='", dbUUID, "' AND ", condStr))
       
       # delete labels
       dbSendQuery(get_emuDBcon(), paste0("DELETE FROM labels", 
-                                     " WHERE ", "db_uuid='", dbUUID, "' AND itemID NOT IN (SELECT itemID FROM items)"))
+                                         " WHERE ", "db_uuid='", dbUUID, "' AND itemID NOT IN (SELECT itemID FROM items)"))
     }
     
     # validate bundle
@@ -156,7 +167,7 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
     # store media file
     newMfPath=file.path(bfp,mfBn)
     if(file.exists(mfPath)){
-        file.copy(from=mfPath,to=newMfPath)
+      file.copy(from=mfPath,to=newMfPath)
     }else{
       stop("Media file :'",mfPath,"' does not exist!")
     }
@@ -178,7 +189,7 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
   if(verbose){
     cat('\n') # hack to have newline after pb
   }
-
+  
   # purge tmp emuDB
   .purge.emuDB(dbUUID)
   
