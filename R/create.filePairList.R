@@ -9,8 +9,8 @@
 ##' @param ext1 first extention to look for. This extention is considered the primary extention. 
 ##' This means that this extentions genarates the basename list that the second extentions list is matched against.
 ##' @param ext2 second extention to pair base names of first extention with
-##' @import tools
 ##' @export
+##' @import tools
 ##'
 create_filePairList <- function(ext1Path2rootDir, ext2Path2rootDir, ext1, ext2){
   # normalize paths
