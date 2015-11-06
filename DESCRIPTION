@@ -35,3 +35,7 @@ LazyData: yes
 ZipData: no
 URL: https://github.com/IPS-LMU/emuR
 BugReports: https://github.com/IPS-LMU/emuR/issues
+<<<<<<< HEAD
+=======
+RoxygenNote: 5.0.0
+>>>>>>> 2fbcbe8ffff9b3c566c9ba2709617b98695cfcbd
