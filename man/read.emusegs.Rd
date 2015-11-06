@@ -19,6 +19,14 @@ Create an Emu segment list from a file saved by the Emu query tools.
 Reads segment lists created by programs external to R/Splus and stored in
 text files on disk.
 }
+\examples{
+
+## create a segment list file and write it out
+seglist.txt <- "database:demo"\\
+query:Phonetic=vowel\\
+type:segment\\
+#\\
+}
 \author{
 Steve Cassidy
 }

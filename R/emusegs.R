@@ -13,7 +13,7 @@
 ##' @examples
 ##' 
 ##' ## create a segment list file and write it out
-##' seglist.txt <- "database:demo\
+##' seglist.txt <- "database:demo"\
 ##' query:Phonetic=vowel\
 ##' type:segment\
 ##' #\

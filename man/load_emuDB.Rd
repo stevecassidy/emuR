@@ -19,6 +19,14 @@ name of emuDB
 \description{
 Load emuDB
 }
+\examples{
+\dontrun{
+## Load database 'ae' in directory /homes/mylogin/EMUnew/ae
+
+dbName=load_emuDB("/homes/mylogin/EMUnew/ae")
+
+}
+}
 \author{
 Klaus Jaensch
 }

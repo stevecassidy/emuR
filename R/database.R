@@ -1822,7 +1822,7 @@ calculate.postions.of.links<-function(dbUUID){
 ##' \dontrun{
 ##' ## Load database 'ae' in directory /homes/mylogin/EMUnew/ae
 ##' 
-##' dbName=load_emuDB(/homes/mylogin/EMUnew/ae")
+##' dbName=load_emuDB("/homes/mylogin/EMUnew/ae")
 ##' 
 ##' }
 load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){

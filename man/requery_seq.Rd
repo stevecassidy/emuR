@@ -60,7 +60,8 @@ requery_seq(sl2,offset=-1,length=4)
 sl3=query('ae',"Text=to")
 requery_seq(sl3,length=2)
 
-## Requery following two word contexts, ignoring segment sequences that are out of bundle end bounds 
+## Requery following two word contexts, ignoring segment 
+## sequences that are out of bundle end bounds 
 requery_seq(sl3,length=3,ignoreOutOfBounds=TRUE)
 
 }
