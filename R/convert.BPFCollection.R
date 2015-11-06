@@ -75,25 +75,25 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
   )
   
   # ---------------------------------------------------------------------------
-  # ---------------------- Default session name -------------------------------
-  # ---------------------------------------------------------------------------
-  
-  SESSION = "0000"
-  
-  # ---------------------------------------------------------------------------
   # -------------------------- Get directories --------------------------------
   # ---------------------------------------------------------------------------
   
   sourceDir = suppressWarnings(normalizePath(sourceDir))
   targetDir = suppressWarnings(normalizePath(targetDir))
+  basePath = file.path(targetDir, dbName)
+  
+  res = try(suppressWarnings(dir.create(targetDir)))
+  if(class(res) == "try-error")
+  {
+    stop("Could not create target directory ", targetDir)
+  }
   
   # ---------------------------------------------------------------------------
   # --------------- First round of argument checks ----------------------------
   # ---------------------------------------------------------------------------
   
   bpf_argument_checks_without_level_classes(sourceDir = sourceDir,
-                                            targetDir = targetDir,
-                                            dbName = dbName,
+                                            basePath = basePath,
                                             newLevels = newLevels,
                                             newLevelClasses = newLevelClasses,
                                             standardLevels = STANDARD_LEVELS,
@@ -124,14 +124,26 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
   # -------------------------- Get file pair list ----------------------------
   # ---------------------------------------------------------------------------
 
-  filePairList = create_filePairList(sourceDir, sourceDir, bpfExt, audioExt)
+  filePairList = create_filePairList(sourceDir, 
+                                     sourceDir, 
+                                     bpfExt, 
+                                     audioExt)
   
   # ---------------------------------------------------------------------------
   # ------------------------ Initialize temporary data base -------------------
   # ---------------------------------------------------------------------------
   
-  dbUUID = UUIDgenerate()
-  .initialize.DBI.database(get_emuDBcon())
+  dbUUID = uuid::UUIDgenerate()
+  dbSchema = create.schema.databaseDefinition(name = dbName,
+                                              UUID = dbUUID)
+  
+  dbSchema=.update.transient.schema.values(dbSchema)
+  
+  db = create.database(name = dbName, 
+                       basePath = basePath, 
+                       DBconfig = dbSchema)
+  
+  add_emuDBhandle(basePath = basePath)
   
   # ---------------------------------------------------------------------------
   # ------------------------ Initialize progress bar --------------------------
@@ -140,7 +152,6 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
   if(verbose)
   {
     progress = 0
-    counter = 0
     nbFilePairs = length(filePairList) / 2
     
     cat("INFO: Parsing BPF collection containing", nbFilePairs, "file pair(s)...\n")
@@ -149,38 +160,41 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
   }
   
   # ---------------------------------------------------------------------------
-  # -------------------- Initialize container variables -----------------------
+  # -------------------- Initialize "tracker" variables -----------------------
   # ---------------------------------------------------------------------------
   
-  # "Tracker" containers for levels and links in the parsed BPFs. Used for config file and post-processing.
+  # Trackers record data returned from the parsing process for later use.
+  # Level and link tracker record all level types and link types/directions found.
+  # They are used for creating the config file and post-processing.
   levelTracker = list()
   linkTracker = list()
   
-  # Tracker for warnings produced by the parser. Warnings displayed in batch after the whole collection has been parsed.
+  # Tracker for warnings produced by the parser. 
+  # Will be displayed in batch after parsing is complete (less annoying than cluttering the terminal).
   warningsTracker = list(semicolonFound = list())
   
   # ---------------------------------------------------------------------------
-  # ------------------------------------- Parsing -----------------------------
+  # --------------------------- Loop over bundles -----------------------------
   # ---------------------------------------------------------------------------
-  
-  # -------------------------------------------------------------------------
-  # ----------------------- Write session to temp DB ------------------------
-  # -------------------------------------------------------------------------
     
-  queryTxt = paste0("INSERT INTO session VALUES('", dbUUID, "', '", SESSION, "')")
-  dbSendQuery(get_emuDBcon(), queryTxt)
-    
-  for(idx in 1:dim(filePairList)[1])
+  for(idx in 1:nrow(filePairList)[1])
   {
-    bundle = basename(file_path_sans_ext(normalizePath(filePairList[idx, 2], winslash = .Platform$file.sep)))
-    bundleBasename = basename(filePairList[idx, 2])
-    mediaPath = filePairList[idx, 2]
-    bpfPath = filePairList[idx, 1]
     
-    # Escaping single quotes in anything user-generated that will be put into the SQL db
+    # ---------------------------------------------------------------------------
+    # ------------------ Get session and bundle names ---------------------------
+    # ---------------------------------------------------------------------------
+    
+    session = bpf_get_session(filePath = filePairList[idx, 1],
+                              sourceDir = sourceDir)
+    
+    bpfPath = normalizePath(filePairList[idx, 1], winslash = .Platform$file.sep)
+    bundle = file_path_sans_ext(basename(bpfPath))
+    annotates = basename(filePairList[idx, 2])
+    
+    # Escaping single quotes in anything user-generated that will be fed into SQL
+    session = str_replace_all(session, "'", "''")
     bundle = str_replace_all(bundle, "'", "''")
-    bundleBasename = str_replace_all(bundleBasename, "'", "''")
-    mediaPath = str_replace_all(mediaPath, "'", "''")
+    annotates = str_replace_all(annotates, "'", "''")
     
     # -----------------------------------------------------------------------
     # -------- Get sample rate for comparison with info in BPF header -------
@@ -190,29 +204,32 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
     samplerate = attributes(asspObj)$sampleRate
       
     # -----------------------------------------------------------------------
-    # ---------------- Write track and  bundle to temp DB -------------------
+    # --------------- Write session and bundle to temp DB -------------------
     # -----------------------------------------------------------------------
-      
-    queryTxt = paste0("INSERT INTO track VALUES('", dbUUID, "', '", SESSION, "', '", bundle, "', '",
-                      mediaPath, "')")
-    dbGetQuery(get_emuDBcon(), queryTxt)
     
-    queryTxt = paste0("INSERT INTO bundle VALUES('", dbUUID, "', '", SESSION, "', '", bundle, "', '",
-                      bundleBasename, "', ", samplerate, ",'", mediaPath, "', 'NULL')")
+    queryTxt = paste0("SELECT name from session WHERE name='", session, "'")
+    all_sessions = dbGetQuery(get_emuDBcon(), queryTxt)
+    
+    if(!session %in% all_sessions)
+    {
+      queryTxt = paste0("INSERT INTO session VALUES('", dbUUID, "', '", session, "')")
+      dbSendQuery(get_emuDBcon(), queryTxt)
+    }
+    
+    queryTxt = paste0("INSERT INTO bundle VALUES('", dbUUID, "', '", session, "', '", bundle, "', '",
+                      annotates, "', ", samplerate, ", 'NULL')")
+    
     dbSendQuery(get_emuDBcon(), queryTxt)
       
     # -----------------------------------------------------------------------
     # ------------------------------ Parse BPF ------------------------------
     # -----------------------------------------------------------------------
       
-    # returnContainer is a container for BPF's info about levels (returnContainer$levelInfo) and
-    # links (returnContainer$linkInfo) found in the BPF.
-      
     returnContainer = parse_BPF(bpfPath = bpfPath,
                                 dbName = dbName, 
                                 bundle = bundle, 
                                 dbUUID = dbUUID,
-                                session = SESSION,
+                                session = session,
                                 refLevel = refLevel, 
                                 extractLevels = extractLevels,
                                 samplerate = samplerate, 
@@ -251,8 +268,7 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
       
     if(verbose)
     {
-      counter = counter + 1
-      setTxtProgressBar(pb, counter)
+      setTxtProgressBar(pb, idx)
     }
   }
   
@@ -302,19 +318,33 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
                                dbUUID = dbUUID,
                                audioExt = audioExt)
   
+  db[['DBconfig']] = dbSchema
+  
   # ---------------------------------------------------------------------------
-  # -------------------- Create, store and purge temp DB ----------------------
+  # ------------------------- Create and store database -----------------------
   # ---------------------------------------------------------------------------
   
-  db=create.database(name = dbName, 
-                     basePath = normalizePath(targetDir), 
-                     DBconfig = dbSchema)
+  res = try(dir.create(basePath))
+  if(class(res) == "try-error")
+  {
+    stop("Could not create directory ", basePath)
+  }
   
-  db[['DBconfig']][['EMUwebAppConfig']][['activeButtons']]=list(saveBundle=TRUE,
-                                                                showHierarchy=TRUE)
+  .store.emuDB.DBI(get_emuDBcon(), db)
+  .store.DBconfig(get_emuDBcon(), basePath, dbSchema)
   
-  .store.emuDB.DBI(con = get_emuDBcon(), database = db)
-  store(dbName, targetDir, showProgress = verbose)
+  bpf_make_db_skeleton(basePath = basePath,
+                       dbUUID = dbUUID)
+  
+  bpf_copy_media_files(basePath = basePath,
+                       sourceDir = sourceDir,
+                       mediaFiles = filePairList[,2],
+                       verbose = verbose)
+  
+  bpf_write_annot_files(basePath = basePath,
+                        dbUUID = dbUUID,
+                        verbose = verbose)
+  
   .purge.emuDB(dbUUID)
   
   # ---------------------------------------------------------------------------
@@ -333,13 +363,210 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
 
 
 
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+
+## Write info from temporary database to EMU database
+## 
+## @param bastPath
+## @param dbUUID
+## @param verbose
+## @keywords emuR BPF Emu
+## @return session
+
+bpf_write_annot_files <- function(basePath,
+                                  dbUUID,
+                                  verbose)
+{
+  # ---------------------------------------------------------------------------
+  # -------------------------- Initialize progress bar ------------------------
+  # ---------------------------------------------------------------------------
+  
+  if(verbose)
+  {
+    progress = 0
+    counter = 0
+    
+    queryTxt = paste0("SELECT count(name) FROM bundle WHERE db_uuid = '", dbUUID, "'")
+    nbBundles = dbGetQuery(get_emuDBcon(), queryTxt)[1,]
+    
+    cat("INFO: Writing", nbBundles, "annotation files to EMU database...\n")
+    pb = txtProgressBar(min = 0, max = nbBundles, initial = progress, style=3)
+    setTxtProgressBar(pb, progress)
+  }
+  
+  # ---------------------------------------------------------------------------
+  # ------- Get session/bundle from temp db to construct target path ----------
+  # ---------------------------------------------------------------------------
+  
+  queryTxt = paste0("SELECT name FROM session WHERE db_uuid = '", dbUUID, "'")
+  sessions = dbGetQuery(get_emuDBcon(), queryTxt)
+  for(idx in 1:nrow(sessions)) 
+  {
+    queryTxt = paste0("SELECT name FROM bundle WHERE db_uuid = '", dbUUID, "' AND session = '", sessions[idx,], "'")
+    bundles = dbGetQuery(get_emuDBcon(), queryTxt)
+    for(jdx in 1:nrow(bundles)) 
+    {
+      JSONPath = file.path(basePath, 
+                           paste0(sessions[idx,], session.suffix), 
+                           paste0(bundles[jdx,], bundle.dir.suffix), 
+                           paste0(bundles[jdx,], bundle.annotation.suffix, '.json')
+      )
+      
+      # -----------------------------------------------------------------------
+      # -------------------------- Construct annot JSON -----------------------
+      # -----------------------------------------------------------------------
+      
+      b=get.bundle(sessionName = sessions[idx,], 
+                   bundleName = bundles[jdx,], 
+                   dbUUID = dbUUID)
+      pFilter = emuR.persist.filters.bundle
+      bp = marshal.for.persistence(b, pFilter)
+      pbpJSON = jsonlite::toJSON(bp, auto_unbox=TRUE, force=TRUE, pretty=TRUE)
+      
+      # -----------------------------------------------------------------------
+      # ---------------------------- Write JSON file --------------------------
+      # -----------------------------------------------------------------------
+      
+      res = try(writeLines(pbpJSON, JSONPath))
+      if(class(res) == "try-error") 
+      {
+        stop("Could not write to file ", JSONPath)
+      }
+      
+      # -----------------------------------------------------------------------
+      # ------------------------- Update progress bar -------------------------
+      # -----------------------------------------------------------------------
+      
+      if(verbose)
+      {
+        counter = counter + 1
+        setTxtProgressBar(pb, counter)
+      }
+    }
+  }
+  # Newline after progress bar
+  if(verbose)
+  {
+    cat("\n")
+  }
+}
+
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+
+## Copy media files from BPF collection to emu DB
+## 
+## @param basePath
+## @param sourceDir
+## @param mediaFiles
+## @param audioExt
+## @param verbose
+## @keywords emuR BPF Emu
+## @return session
+
+bpf_copy_media_files <- function(basePath,
+                                 mediaFiles,
+                                 sourceDir,
+                                 verbose)
+{
+  # ---------------------------------------------------------------------------
+  # -------------------------- Initialize progress bar ------------------------
+  # ---------------------------------------------------------------------------
+  
+  if(verbose)
+  {
+    progress = 0
+    nbMediaFiles = length(mediaFiles)
+    
+    cat("INFO: Copying", nbMediaFiles, "media files to EMU database...\n")
+    pb = txtProgressBar(min = 0, max = nbMediaFiles, initial = progress, style=3)
+    setTxtProgressBar(pb, progress)
+  }
+  
+  
+  for(idx in 1:length(mediaFiles))
+  {
+    
+    # -------------------------------------------------------------------------
+    # ------------------- Deduce target dir from media file path --------------
+    # -------------------------------------------------------------------------
+    
+    targetDir = file.path(basePath,
+                          paste0(bpf_get_session(filePath = mediaFiles[[idx]],
+                                                 sourceDir = sourceDir),
+                                 session.suffix),
+                          paste0(file_path_sans_ext(basename(mediaFiles[[idx]])), 
+                                 bundle.dir.suffix)
+    )
+    
+    # -------------------------------------------------------------------------
+    # ---------------------------------- Copy file ----------------------------
+    # -------------------------------------------------------------------------
+    
+    res = try(file.copy(mediaFiles[[idx]], targetDir))
+    if(class(res) == "try-error")
+    {
+      stop("Could not copy media file from ", mediaFiles[[idx]], " to ", targetDir)
+    }
+    
+    # -------------------------------------------------------------------------
+    # ---------------------------- Update progress bar ------------------------
+    # -------------------------------------------------------------------------
+    
+    if(verbose)
+    {
+      setTxtProgressBar(pb, idx)
+    }
+    
+  # Newline after progress bar:
+  }
+  if(verbose)
+  {
+    cat("\n")
+  }
+}
+
+ 
+  
 
 
 
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
 
-# -----------------------------------------------------------------------------
-# --------------------------- HELPER FUNCTIONS --------------------------------
-# -----------------------------------------------------------------------------
+## Deduce session name from file path (complex paths concatenated by underscores)
+## 
+## @param filePath
+## @param sourceDir
+## @keywords emuR BPF Emu
+## @return session
+
+bpf_get_session <- function(filePath,
+                            sourceDir)
+{
+  DEFAULT_SESSION_NAME = "0000"
+  
+  session = dirname(filePath)
+  session = str_replace_all(session, sourceDir, "")
+  session = str_replace_all(session, .Platform$file.sep, "_")
+  session = str_replace_all(session, "^_", "")
+  
+  if(session == "")
+  {
+    session = DEFAULT_SESSION_NAME
+  }
+  return(session)
+}
 
 ###############################################################################
 ###############################################################################
@@ -350,8 +577,7 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
 ## First round of argument checks
 ## 
 ## @param sourceDir
-## @param targetDir
-## @param dbName
+## @param basePath
 ## @param newLevels
 ## @param newLevelClasses
 ## @param standardLevels
@@ -363,8 +589,7 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
 ## @return
 
 bpf_argument_checks_without_level_classes <- function(sourceDir,
-                                                      targetDir,
-                                                      dbName,
+                                                      basePath,
                                                       newLevels,
                                                       newLevelClasses,
                                                       standardLevels,
@@ -378,14 +603,9 @@ bpf_argument_checks_without_level_classes <- function(sourceDir,
     stop("Source directory does not exist!")
   }
   
-  if(!file.exists(targetDir))
+  if(file.exists(basePath))
   {
-    stop("Target directory does not exist!")
-  }
-  
-  if(file.exists(file.path(targetDir, dbName)))
-  {
-    stop('The directory ', file.path(targetDir, dbName), ' already exists. Can not generate a new emuDB here.')
+    stop('The directory ', basePath, ' already exists. Can not generate a new emuDB here.')
   }
   
   if(length(newLevels) != length(newLevelClasses))
@@ -1049,6 +1269,9 @@ bpf_create_schema <- function(levelTracker,
                                               tracks = list(),
                                               flags=list())
   
+  dbSchema[['EMUwebAppConfig']][['activeButtons']] = list(saveBundle=TRUE,
+                                                          showHierarchy=TRUE)
+  
   dbSchema = .update.transient.schema.values(dbSchema)
   
   return(dbSchema)
@@ -1144,6 +1367,56 @@ bpf_get_link_definitions <- function(linkTracker = linkTracker)
     }
   }
   return(linkDefinitions)
+}
+
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
+
+## Construct a skeleton (empty folders) for the EMU database
+## 
+## @param basePath
+## @param dbUUID
+## @keywords emuR BPF Emu
+## @return
+
+bpf_make_db_skeleton <- function(basePath,
+                                 dbUUID)
+{
+  # ---------------------------------------------------------------------------
+  # ------------------------- Create session directories ----------------------
+  # ---------------------------------------------------------------------------
+  
+  queryTxt = paste0("SELECT name FROM session WHERE db_uuid = '", dbUUID, "'")
+  sessions = dbGetQuery(get_emuDBcon(), queryTxt)
+  
+  for(idx in 1:nrow(sessions))
+  {
+    session = paste0(sessions[idx,], session.suffix)
+    res = try(dir.create(file.path(basePath, session)))
+    if(class(res) == "try-error")
+    {
+      stop("Could not create session directory ", file.path(basePath, session))
+    }
+  }
+  # ---------------------------------------------------------------------------
+  # ------------------------- Create bundle directories -----------------------
+  # ---------------------------------------------------------------------------
+  
+  queryTxt = paste0("SELECT name, session FROM bundle WHERE db_uuid = '", dbUUID, "'")
+  bundles = dbGetQuery(get_emuDBcon(), queryTxt)
+  for(jdx in 1:nrow(bundles))
+  {
+    bundle = paste0(bundles[jdx,1], bundle.dir.suffix)
+    session = paste0(bundles[jdx,2], session.suffix)
+    res = try(dir.create(file.path(basePath, session, bundle)))
+    if(class(res) == "try-error")
+    {
+      stop("Could not create bundle directory ", file.path(basePath, session, bundle))
+    }
+  }
 }
 
 ###############################################################################
