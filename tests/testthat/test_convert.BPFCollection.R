@@ -12,7 +12,7 @@ dbName = "bpf_converter_test"
 if(is.emuDB.loaded(dbName))
 {
   UUID = get_emuDB_UUID(dbName = dbName)
-  purge_emuDB(dbName = dbName, dbUUID = UUID)
+  purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
 }
 
 unlink(file.path(testDir, dbName), recursive = T)
@@ -45,14 +45,6 @@ test_that("Code throws error when new levels are declared incorrectly",
 # ---------------------------------------------------------------------------
 test_that("Code throws error for failed directory checks",
           {
-            # non-existent source dir
-            expect_error(convert_BPFCollection_to_emuDB(sourceDir = file.path(sourceDirMain, "something_silly"), targetDir = testDir, dbName = dbName, verbose = F),
-                         regexp = "source dir", ignore.case = T)
-            
-            # non-existent target dir
-            expect_error(convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = file.path(sourceDirMain, "something_silly"), dbName = dbName, verbose = F),
-                         regexp = "target dir", ignore.case = T)
-            
             # there is already a database of with the same name in the target dir
             dir.create(file.path(testDir, "something_silly"))
             expect_error(convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = "something_silly", verbose = F),
@@ -112,6 +104,15 @@ test_that("Error when segmentToEventLevels is used with a non-segment level",
                          regexp = "segment", ignore.case = T)
             }
           )
+
+# Cleaning up (just in case)
+if(is.emuDB.loaded(dbName))
+{
+  UUID = get_emuDB_UUID(dbName = dbName)
+  purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
+}
+
+unlink(file.path(testDir, dbName), recursive = T)
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 test_that("Conversion without reference level.",
@@ -189,6 +190,13 @@ test_that("Conversion without reference level.",
 # Cleaning up.
 unlink(file.path(testDir, dbName), recursive = T)
 
+if(is.emuDB.loaded(dbName))
+{
+  UUID = get_emuDB_UUID(dbName = dbName)
+  purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
+}
+
+
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 test_that("Conversion with reference level.",
@@ -230,6 +238,12 @@ test_that("Conversion with reference level.",
 
 # Cleaning up
 unlink(file.path(testDir, dbName), recursive = T)
+
+if(is.emuDB.loaded(dbName))
+{
+  UUID = get_emuDB_UUID(dbName = dbName)
+  purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
+}
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -277,6 +291,12 @@ test_that("Conversion with unifyLevels",
 # Cleaning up
 unlink(file.path(testDir, dbName), recursive = T)
 
+if(is.emuDB.loaded(dbName))
+{
+  UUID = get_emuDB_UUID(dbName = dbName)
+  purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
+}
+
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 test_that("Conversion with extractLevels.",
@@ -308,6 +328,12 @@ test_that("Conversion with extractLevels.",
           )
 # Cleaning up
 unlink(file.path(testDir, dbName), recursive = T)
+
+if(is.emuDB.loaded(dbName))
+{
+  UUID = get_emuDB_UUID(dbName = dbName)
+  purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
+}
 
 # ---------------------------------------------------------------------------
 # Testing with manipulated BPFs
@@ -409,6 +435,12 @@ test_that("Correct call with necessary arguments",
 # Cleaning up
 unlink(file.path(testDir, dbName), recursive = T)
 
+if(is.emuDB.loaded(dbName))
+{
+  UUID = get_emuDB_UUID(dbName = dbName)
+  purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
+}
+
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 test_that("Warnings (semicolon) are displayed if verbose.",
@@ -451,6 +483,12 @@ test_that("Conversion with a mismatch between level class and BPF line causes er
 # ---------------------------------------------------------------------------
 # Final clean-up (just in case)
 unlink(file.path(testDir, dbName), recursive = T)
+
+if(is.emuDB.loaded(dbName))
+{
+  UUID = get_emuDB_UUID(dbName = dbName)
+  purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
+}
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
  
