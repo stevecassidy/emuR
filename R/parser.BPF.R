@@ -304,7 +304,8 @@ bpf_parse_header <- function(bpfLines,
   # ---------------------------------------------------------------------------
   
   samplerate = bpf_compare_samplerate(samplerate = samplerate,
-                                      header = header)
+                                      header = header,
+                                      bpfPath = bpfPath)
   
   # ---------------------------------------------------------------------------
   # ---------------------------------- Return  --------------------------------
@@ -329,7 +330,8 @@ bpf_parse_header <- function(bpfLines,
 ## @return samplerate
 
 bpf_compare_samplerate <- function(header,
-                                   samplerate)
+                                   samplerate,
+                                   bpfPath)
 {
   # Throw an exception if we can't get a sample rate from the BPF or the audio file.
   if(is.null(header$SAM) && is.null(samplerate))
