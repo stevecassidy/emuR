@@ -29,7 +29,7 @@ require(RSQLite)
 ##' 
 ##' @import RSQLite
 ##' @export
-##' @author Nina Pörner
+##' @author Nina Poerner
 
 convert_BPFCollection_to_emuDB <- function(sourceDir,
                                            targetDir,
