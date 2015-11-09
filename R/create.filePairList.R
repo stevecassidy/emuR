@@ -1,17 +1,17 @@
-##' Create a file-pair-list
-##'
-##' Recursivly searches through a root directory and matches the
-##' basenames of files that have the extentions provided.
-##'
-##' 
-##' @param ext1Path2rootDir path to root directory of first file extention 
-##' @param ext2Path2rootDir path to root directory of second file extention (CAUTION: think of DB size and search space!) 
-##' @param ext1 first extention to look for. This extention is considered the primary extention. 
-##' This means that this extentions genarates the basename list that the second extentions list is matched against.
-##' @param ext2 second extention to pair base names of first extention with
-##' @export
-##' @import tools
-##'
+require(tools)
+## Create a file-pair-list
+##
+## Recursivly searches through a root directory and matches the
+## basenames of files that have the extentions provided.
+##
+## 
+## @param ext1Path2rootDir path to root directory of first file extention 
+## @param ext2Path2rootDir path to root directory of second file extention (CAUTION: think of DB size and search space!) 
+## @param ext1 first extention to look for. This extention is considered the primary extention. 
+## This means that this extentions genarates the basename list that the second extentions list is matched against.
+## @param ext2 second extention to pair base names of first extention with
+## @import tools
+##
 create_filePairList <- function(ext1Path2rootDir, ext2Path2rootDir, ext1, ext2){
   # normalize paths
   ext1Path2rootDir = suppressWarnings(normalizePath(ext1Path2rootDir))
