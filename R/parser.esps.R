@@ -68,7 +68,7 @@ parse.esps.label.file <- function(labFilePath=NULL,tierName,tierType=NULL,sample
       }
     }else{
      # cat("Trimmed line: ",trimmedLine,"\n")
-      lineTokensLst=strsplit(trimmedLine,'[[:space:]]+')
+      lineTokensLst=str_split(trimmedLine,'[[:space:]]+',3)
       lineTokens=lineTokensLst[[1]]
       lineTokenCount=length(lineTokens);
       #cat("Tokens: ",lineTokenCount,"\n")
