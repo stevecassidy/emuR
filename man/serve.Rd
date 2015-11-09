@@ -2,7 +2,7 @@
 % Please edit documentation in R/server.R
 \name{serve}
 \alias{serve}
-\title{Serve EMU database to EMU-Webapp}
+\title{Serve EMU database to EMU-webApp}
 \usage{
 serve(dbName, host = "127.0.0.1", port = 17890, debug = FALSE,
   debugLevel = 0)
@@ -22,7 +22,7 @@ serve(dbName, host = "127.0.0.1", port = 17890, debug = FALSE,
 TRUE if the database was modified, FALSE otherwise
 }
 \description{
-Server for EMU-Webapp browser GUI \url{http://ips-lmu.github.io/EMU-webApp/}
+Server for EMU-webApp browser GUI \url{http://ips-lmu.github.io/EMU-webApp/}
 
 Start instructions:
 

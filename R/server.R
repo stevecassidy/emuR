@@ -8,9 +8,9 @@ setServerHandle <- function(sh) {
   internalVars$serverHandle<-sh
 }
 
-##' Serve EMU database to EMU-Webapp
+##' Serve EMU database to EMU-webApp
 ##' 
-##' @description Server for EMU-Webapp browser GUI \url{http://ips-lmu.github.io/EMU-webApp/}
+##' @description Server for EMU-webApp browser GUI \url{http://ips-lmu.github.io/EMU-webApp/}
 ##' 
 ##' Start instructions:
 ##' 
