@@ -1,15 +1,15 @@
-##' Update cache of emuDB
-##' 
-##' Updates sqlite cache of loaded emuDB. This can and should be used
-##' to update changes to precached/loaded DBs as it only updates the deltas 
-##' in the cache which is considerably faster than reloading and therefore 
-##' recacheing the entire DB.
-##' @param dbName name of EMU database
-##' @param dbUUID optional UUID of emuDB
-##' @param verbose display infos
-##' @author Raphael Winkelmann
-##' @export
-##' @keywords emuDB database Emu 
+## Update cache of emuDB
+## 
+## Updates sqlite cache of loaded emuDB. This can be used
+## to update changes to precached/loaded DBs as it only updates the deltas 
+## in the cache which is considerably faster than reloading and therefore 
+## recacheing the entire DB. This function is now called by load_emuDB if 
+## load_emuDB finds a preexisting cache.
+## @param dbName name of EMU database
+## @param dbUUID optional UUID of emuDB
+## @param verbose display infos
+## @author Raphael Winkelmann
+## @keywords emuDB database Emu 
 update_cache <- function(dbName, dbUUID=NULL, verbose = TRUE){
   #########################
   # get dbObj
