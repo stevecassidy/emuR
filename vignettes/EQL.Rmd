@@ -29,11 +29,11 @@ most of the EBNF was adapted from [@john:2012a]
 | --- | --- |
 | # | Result modifier (projection) |
 | , | Parameter list separator |
-| == | Equality |
+| == | Equality (new in version 2 of the EQL; for cleaner syntax)|
+| = | Equality (optional; for backwards compatibility)|
 | != | Unequality |
 | =~ | Regular expression match
 | !~ | Regular expression not match
-| = | Equality |
 | > | Greater than |
 | >= | Equal or greater than  |
 | < | Less than |
