@@ -16,6 +16,7 @@ require(RSQLite)
 ##' @param tierNames character vector containing names of tiers to extract and convert. If NULL (the default) all
 ##' tiers are converted.
 ##' @param verbose display infos & show progress bar
+##' @import tools
 ##' @export
 ##' @author Raphael Winkelmann
 ##' 
