@@ -11,6 +11,8 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
+# WARNING: DOCUMENT STILL BEING WRITTEN!
+
 # Introduction
 
 This document describes the emuDB format that is used by the `emuR` package and shows how to create and interact with this format. The emuDB format is meant as a simple, general purpose way of storing speech databases that may contain complex, rich, hierarchical annotations as well as derived and complementary speech data. These different components will be described throughout this document and examples given as to how to generate and manipulate them. This document is meant as a practical guide / reference document to the emuDB format. The examples given below can be executed in any R session with the `emuR` package installed and may of course be adapted to your personal needs. First let us have a look at the general structure of an emuDB.
