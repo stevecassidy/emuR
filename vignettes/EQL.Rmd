@@ -11,8 +11,6 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
-# WARNING: DOCUMENT STILL BEING WRITTEN!
-
 # Introduction
 
 This document formaly introduces and defines version 2 of the **E**mu 
@@ -51,7 +49,7 @@ most of the EBNF was adapted from [@john:2012a]
 | ( | Function parameter list begin |
 | ) | Function parameter list end |
 | &#91; | Sequence or dominance enclosing begin bracket  |
-| &#93; | Sequence or dominance enclosing end bracketr |
+| &#93; | Sequence or dominance enclosing end bracket |
 
 ## Terminal symbols of EQL2 (functions) and their meaning
 
@@ -76,7 +74,7 @@ most of the EBNF was adapted from [@john:2012a]
 | POSA | = POSFCT, '(',LEVEL,',',LEVEL,')','=','0'\| '1'; (*Levels must be hierarchically or sequentially associated*) (*second level determines semantic*) |
 | NUMA | = 'Num','(',LEVEL,',',LEVEL,')',VOP,INTPN; (*Levels must be hierarchically or sequentially associated*) (*first level determines semantic*) |
 | LABELALTERNATIVES | = LABEL , {'|',LABEL}; |
-| LABEL | = LABELING \| (“'“,LABELING,“'“); (*LEVEL levels must be part of the database structure*) (*LABELING is an arbitrary charcter string or a label group class configured in the emuDB*) (*The result modifier hash tag '#' must only occur once*)
+| LABEL | = LABELING \| (“'“,LABELING,“'“); (*LEVEL levels must be part of the database structure*) (*LABELING is an arbitrary character string or a label group class configured in the emuDB*) (*The result modifier hash tag '#' must only occur once*)
 
 
 
@@ -155,11 +153,11 @@ oder
 **`[Phoneme != p | t | k ^ # Syllable !=x ]`**
 
 **4.2. Multiple Domination**  
-A dominance relationship sequnce a1, a2, a3, a4, is noted this way:  
+A dominance relationship sequence a1, a2, a3, a4, is noted this way:  
 **[[[[a1^ a2] ^a3]^a4] ^a5]**  
 H\* syllables containing a phoneme /p/, dominated by words ‘price’ or ‘space'  
 **`[[Pitch_Accent=H\* ^ Phoneme=p] ^ Text = price|space]`**  
-The same – but we want the  appropriate words  
+The same – but we want the appropriate words  
 **`[[Pitch_Accent=H* ^ Phoneme=p] ^ #Text = price|space]`**  
 
 
@@ -274,7 +272,7 @@ The text is ‘the’
 7. W syllables, which contain a /@/ phoneme.  
 8. The text of words, which contain either a L\* or L\+H\* a tonic accent.  
 9. H\* tonic accents of word-final syllables, which occur in three-syllable words.  
-10. All phonemes, domaibnting Phonetic element [H], at the beginning of a syllable; and which occur in accentuated (S) words.  
+10. All phonemes, dominating Phonetic element [H], at the beginning of a syllable; and which occur in accentuated (S) words.  
 
 ##**Answers**
 1. m or n phonemes, which occur in the middle of the word.  
@@ -295,21 +293,21 @@ The text is ‘the’
 `[Text!=x ^ Pitch_Accent = L* | L+H*]`
 9. H\* tonic accents of word-final syllables, which occur in three-syllable words.  
 `[Pitch_Accent = H* & End(Word, Syllable)=1 ^ Num(Word, Syllable) =3]`  
-10. All phonemes, domaibnting Phonetic element [H], at the beginning of a syllable; and which occur in accentuated (S) words.  
+10. All phonemes, dominating Phonetic element [H], at the beginning of a syllable; and which occur in accentuated (S) words.  
 `[[[Phoneme!=x ^ Phonetic = H] ^ Start(Word, Syllable)=1] ^ Accent = S]`  
 
 
-# Differences and incompatibilities to legacy EMU query language (R package version 4.2)
+# Differences and incompatibilities to legacy EMU query language (R package 'emu', version 4.2)
 
 ## Function call syntax
-For emuR it is required that the emuDB is loaded in current R session.
+For emuR it is required that the emuDB is loaded in current R session using function load_emuDB.
+
 EQL2 query function is part of R package emuR. See help(query)  
 Examples:
 ```
 query('andosl',"[Phoneme = p ^ Syllable = S]")
 ```
-
-Session and bundle selection patterns are optional and expect regular expression pattrens.
+Session and bundle selection patterns are optional and expect regular expression patterns.
 
 Example:
 ```
@@ -322,19 +320,19 @@ Parameter bundlePattern selects all bundle names starting with 'msajc01' or 'msa
 
 ## Result type
 
-Default result type of a query is an object of R S3 class 'emuRsegs'. The class inherits legacy Emu class 'emusegs' and R standard class 'data.frame'.
+Default result type of a query is an object of R S3 class 'emuRsegs'. The class inherits legacy Emu class 'emusegs' and R standard class 'data.frame'. That means it is mostly compatible to the legacy seglist, but contains some additional data, e.g. the ID's of start and end item of each segment.
 Each row of this data.frame is a sequence of one or more annotation elements on one level; a segment.   
 Details:
 ```
 help(emuRsegs)
 ```
-emuR returns an empty segment list (zero row count) if the query does not match any element, in opposite to legacy Emu which throws an error ("Can't find the query results in emu.query: there may have been a problem with the query command.")
+emuR returns an empty segment list (zero row count) if the query does not match any element, in opposite to legacy Emu which throws an error: ("Can't find the query results in emu.query: there may have been a problem with the query command.")
 
 
 ## Bundle (utterance) names
 
 emuR package arranges bundles (utterances) in sessions. Converted legacy EMU databases have one default session '0000' containing all bundles. Therefore the 'utts' column of all segment lists is prefixed by the session name and starts with '0000:' for example '0000:msajc003'.
-See emuDB vigniette for details.
+See emuDB vignette for details.
 
 ## The result modifier hash tag '#'
 
@@ -374,7 +372,7 @@ query was:  [Text=spring & #Accent=S]
 1      S 2288.975 2704.475 0000:msajc094
 ```
 Returns the same segment (same item), but with the label of the hashed attribute name.
-The second legacy example is not valid in emuR query (two has tags).
+The second legacy example is not valid in emuR query (two hash tags).
 
 ```
 > query('andosl',"[#Text=spring & #Accent=S]")
@@ -383,7 +381,7 @@ The second legacy example is not valid in emuR query (two has tags).
   Only one hashtag allowed in linear query term: #Text=spring & #Accent=S 
 ```
 
-EQL2 throws an error here, because to fulfill the request it would be necessary to return each item doubled to get both Text and Accent labels  
+EQL2 throws an error here, because to fulfill the request it would be necessary to return each item doubled to get both Text and Accent labels.  
 
 ## Probable bugs in legacy EMU EQL
 
