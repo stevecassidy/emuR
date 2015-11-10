@@ -8,5 +8,6 @@ unlink(path2demoData, recursive = T)
 unlink(path2testhatFolder, recursive = T)
 
 create_emuRdemoData(precache = T)
+create_BPFcollectionManipulated(path2demoData)
 
 dir.create(file.path(tempdir(), "emuR_testthat"))

@@ -61,27 +61,20 @@ create_emuRdemoData <- function(dir = tempdir(), precache = F){
   }
   
   ####################################
-  # create TextGrid_collection and BPF_collections
+  # create TextGrid_collection and BPF_collection
   fpltgc = create_filePairList(path2data, path2data, "wav", "TextGrid")
   fplbpf_original = create_filePairList(path2data, path2data, "wav", "par")
   fplbpf_manipulated = create_filePairList(path2data, path2data, "wav", "parmanipulated")
   tgcPath = file.path(ddPath, "TextGrid_collection")
-  bpfPath_original = file.path(ddPath, "BPF_collection_original")
-  bpfPath_manipulated = file.path(ddPath, "BPF_collection_manipulated")
+  bpfPath_original = file.path(ddPath, "BPF_collection")
   
   dir.create(tgcPath)
   dir.create(bpfPath_original)
-  dir.create(bpfPath_manipulated)
-  
-  dir.create(file.path(bpfPath_original, "0000"))
-  dir.create(file.path(bpfPath_manipulated, "0000"))
   
   file.copy(fpltgc[,1], tgcPath)
   file.copy(fpltgc[,2], tgcPath)
-  file.copy(fplbpf_original[,1], file.path(bpfPath_original, "0000"))
-  file.copy(fplbpf_original[,2], file.path(bpfPath_original, "0000"))
-  file.copy(fplbpf_manipulated[,1], file.path(bpfPath_manipulated, "0000"))
-  file.copy(fplbpf_manipulated[,2], file.path(bpfPath_manipulated, "0000"))
+  file.copy(fplbpf_original[,1], bpfPath_original)
+  file.copy(fplbpf_original[,2], bpfPath_original)
   
   #################################
   # create legacyEmuDB
@@ -109,6 +102,29 @@ create_emuRdemoData <- function(dir = tempdir(), precache = F){
   wps = list.files(signalsPath, pattern = ".wav$", recursive = T, full.names = T)
   dftSpectrum(wps)
   forest(wps)
+  
+}
+
+## create manipulated BPF_collection
+##
+## @param dir directory in that the BPF_collection is created
+create_BPFcollectionManipulated = function(dir){
+  
+  path2data = system.file("extdata", package = "emuR")
+  
+  bpfPath_manipulated = file.path(dir, "BPF_collection_manipulated")
+  
+  if(file.exists(bpfPath_manipulated)){
+    stop("Path '", bpfPath_manipulated,"' already exists!")
+  }
+  
+  dir.create(bpfPath_manipulated)
+  
+  fplbpf_manipulated = create_filePairList(path2data, path2data, "wav", "parmanipulated")
+  
+  dir.create(file.path(bpfPath_manipulated, "0000"))
+  file.copy(fplbpf_manipulated[,1], file.path(bpfPath_manipulated, "0000"))
+  file.copy(fplbpf_manipulated[,2], file.path(bpfPath_manipulated, "0000"))
   
 }
 

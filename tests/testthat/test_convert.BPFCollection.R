@@ -21,7 +21,7 @@ unlink(file.path(testDir, dbName), recursive = T)
 # Testing with original BPFs
 # ---------------------------------------------------------------------------
 
-sourceDir = file.path(sourceDirMain, "BPF_collection_original")
+sourceDir = file.path(sourceDirMain, "BPF_collection")
 configPath = file.path(testDir, dbName, paste0(dbName, '_DBconfig.json')) 
             
 # ---------------------------------------------------------------------------
