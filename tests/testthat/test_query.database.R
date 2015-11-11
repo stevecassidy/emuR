@@ -15,15 +15,18 @@ path2testhatFolder = file.path(tempdir(),"emuR_testthat")
 
 
 # purge ae if loaded to make tests work
-if(is.emuDB.loaded("ae")){
-  UUID = get_emuDB_UUID(dbName = "ae")
-  .purge.emuDB(UUID)
+if(is.emuDB.loaded(dbUUID=.test_emu_ae_db_uuid)){
+  #UUID = get_emuDB_UUID(dbName = "ae")
+  purge_emuDB(dbUUID = .test_emu_ae_db_uuid,interactive = F)
 }
 
 
 test_that("Purge example database ae",{
   if(is.emuDB.loaded(dbUUID=.test_emu_ae_db_uuid)){
-    purge_emuDB(dbName='ae',dbUUID=.test_emu_ae_db_uuid,interactive=FALSE)
+    purge_emuDB(dbUUID=.test_emu_ae_db_uuid,interactive=FALSE)
+  }
+  if(is.emuDB.loaded('ae')){
+    purge_emuDB('ae',interactive=FALSE)
   }
 })
 test_that("Convert example database ae",{
