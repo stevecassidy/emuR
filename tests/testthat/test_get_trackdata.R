@@ -6,6 +6,9 @@ context("testing get_trackdata function")
 dbName = "ae"
 
 path2orig = file.path(tempdir(), "emuR_demoData", dbName)
+if(is.emuDB.loaded(dbName)){
+  purge_emuDB(dbName,interactive = F)
+}
 load_emuDB(path2orig, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
 
 
