@@ -908,7 +908,8 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
       setTxtProgressBar(pb,progress)
     }
   }
-  
+  #purge_emuDB(dbUUID = dbUUID,interactive = FALSE)
+  remove_emuDBhandle(dbUUID)
   if(verbose){
     setTxtProgressBar(pb,progress)
     cat("\n")
