@@ -2,7 +2,7 @@
 % Please edit documentation in R/legacy.R
 \name{convert_legacyEmuDB_by_name_to_emuDB}
 \alias{convert_legacyEmuDB_by_name_to_emuDB}
-\title{Convert legacy EMU database and store it in new format}
+\title{Convert a known legacy EMU database to emuDB format}
 \usage{
 convert_legacyEmuDB_by_name_to_emuDB(dbName, targetDir, options = NULL,
   verbose = TRUE)
@@ -17,7 +17,7 @@ convert_legacyEmuDB_by_name_to_emuDB(dbName, targetDir, options = NULL,
 \item{verbose}{be verbose}
 }
 \description{
-Converts an existing legacy EMU database to the new EMU format. Conversion is done in two steps. In the first step the legacy database configuration and the annotations are loaded.
+Converts an existing known legacy EMU database to emuDB format. The legacy database is addressed by its name. Creates the target directory for the new structure, converts the database configuration, copies/rewrites signal files and converts annotations.
 In the second step the target directory for the new database structure is created, the configuration and annoation files are stored in the new format and the signal files are copied.
 }
 \details{
