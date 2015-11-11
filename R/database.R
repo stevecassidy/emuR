@@ -63,8 +63,8 @@ add_emuDBhandle <- function(basePath, dbUUID,path = NULL){
   foundHandle = NULL
   for(h in internalVars$sqlConnections){
     if(h$dbUUID == dbUUID){
-     #stop("EmuDB already loaded")
       foundHandle=h
+      stop("EmuDB already loaded")
     }
   }
   
@@ -92,10 +92,9 @@ add_emuDBhandle <- function(basePath, dbUUID,path = NULL){
 }
 
 remove_emuDBhandle <- function(dbUUID){
-  # TODO
   for(i in 1:length(internalVars$sqlConnections)){
     if(internalVars$sqlConnections[[i]]$dbUUID == dbUUID){
-      dbDisconnect(internalVars$sqlConnections[[i]]$con)
+      dbDisconnect(internalVars$sqlConnections[[i]]$connection)
       internalVars$sqlConnections[[i]] = NULL
       break
     }
@@ -448,14 +447,15 @@ get_emuDB_UUID<-function(dbName=NULL,dbUUID=NULL){
   }else{
     dbQ=paste0("SELECT uuid FROM emuDB WHERE uuid='",dbUUID,"'") 
   }
-  dbDf = data.frame()
+  #dbDf = data.frame()
+  allDbsDf=data.frame()
   for(c in internalVars$sqlConnections){
     dbDf=dbGetQuery(c$connection,dbQ)
-    if(nrow(dbDf) != 0){
-      break
-    }
+    #if(nrow(dbDf) != 0){
+      allDbsDf=rbind(allDbsDf,dbDf)
+    #}
   }
-  dbCount=nrow(dbDf)
+  dbCount=nrow(allDbsDf)
   if(dbCount==0){
     if(is.null(dbUUID)){
       stop("Database '",dbName,"'' not found !\n")
@@ -463,12 +463,12 @@ get_emuDB_UUID<-function(dbName=NULL,dbUUID=NULL){
       stop("Database with UUID '",dbUUID,"' not found !\n")
     }
   }else if (dbCount==1){
-    return(dbDf[['uuid']])
+    return(allDbsDf[['uuid']])
   }else{
     if(is.null(dbUUID)){
-      stop("Found ",dbCount," databases with same name: ",dbDf[1,'name'],". Please use database UUID!\n")
+      stop("Found ",dbCount," databases with same name: ",allDbsDf[1,'name'],". Please use database UUID!\n")
     }else{
-      stop("Internal error: Found ",dbCount," databases with same UUID: ",dbDf[1,'uuid'],"\n")
+      stop("Internal error: Found ",dbCount," databases with same UUID: ",allDbsDf[1,'uuid'],"\n")
     }
   }
 }
@@ -541,13 +541,11 @@ purge_emuDB<-function(dbName=NULL,dbUUID=NULL,interactive=TRUE){
           if(nrow(dbDf) != 0){
             if(c$path == ":memory:"){
               .purge.emuDB(dbUUID)
-            }else{
-              remove_emuDBhandle(c$dbUUID)
-            }  
-            purged=TRUE
-            
-            break
+            }
           }
+          remove_emuDBhandle(c$dbUUID)
+          purged=TRUE
+          break
         }
       }
     }
@@ -1455,7 +1453,7 @@ create_emuDB<-function(name, targetDir, mediaFileExtension='wav',
   # .initialize.DBI.database()
   dbUUID=dbConfig[['UUID']]
   add_emuDBhandle(basePath = basePath,dbUUID=dbUUID)
-  .store.emuDB.DBI(get_emuDBcon(), database = db)
+  .store.emuDB.DBI(get_emuDBcon(dbUUID), database = db)
   if(store){
     store(targetDir=targetDir,dbUUID=dbUUID, showProgress = verbose)
   }
