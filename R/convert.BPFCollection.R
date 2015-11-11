@@ -143,7 +143,7 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
                        basePath = basePath, 
                        DBconfig = dbSchema)
   
-  add_emuDBhandle(basePath = basePath)
+  add_emuDBhandle(basePath = basePath,dbUUID=dbUUID)
   
   # ---------------------------------------------------------------------------
   # ------------------------ Initialize progress bar --------------------------
@@ -208,18 +208,18 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
     # -----------------------------------------------------------------------
     
     queryTxt = paste0("SELECT name from session WHERE name='", session, "'")
-    all_sessions = dbGetQuery(get_emuDBcon(), queryTxt)
+    all_sessions = dbGetQuery(get_emuDBcon(dbUUID), queryTxt)
     
     if(!session %in% all_sessions)
     {
       queryTxt = paste0("INSERT INTO session VALUES('", dbUUID, "', '", session, "')")
-      dbSendQuery(get_emuDBcon(), queryTxt)
+      dbSendQuery(get_emuDBcon(dbUUID), queryTxt)
     }
     
     queryTxt = paste0("INSERT INTO bundle VALUES('", dbUUID, "', '", session, "', '", bundle, "', '",
                       annotates, "', ", samplerate, ", 'NULL')")
     
-    dbSendQuery(get_emuDBcon(), queryTxt)
+    dbSendQuery(get_emuDBcon(dbUUID), queryTxt)
       
     # -----------------------------------------------------------------------
     # ------------------------------ Parse BPF ------------------------------
@@ -289,7 +289,7 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
 
   if(length(linkTracker) > 0)
   {
-    linkTracker = bpf_link_disambiguation(linkTracker = linkTracker,
+    linkTracker = bpf_link_disambiguation(dbUUID=dbUUID,linkTracker = linkTracker,
                                           refLevel = refLevel)
   }
 
@@ -299,7 +299,7 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
   
   if(length(linkTracker) > 0)
   {
-    linkTracker = bpf_link_utterance_level(linkTracker = linkTracker,
+    linkTracker = bpf_link_utterance_level(dbUUID=dbUUID,linkTracker = linkTracker,
                                            refLevel = refLevel)
   }
   
@@ -330,8 +330,8 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
     stop("Could not create directory ", basePath)
   }
   
-  .store.emuDB.DBI(get_emuDBcon(), db)
-  .store.DBconfig(get_emuDBcon(), basePath, dbSchema)
+  .store.emuDB.DBI(get_emuDBcon(dbUUID), db)
+  .store.DBconfig(get_emuDBcon(dbUUID), basePath, dbSchema)
   
   bpf_make_db_skeleton(basePath = basePath,
                        dbUUID = dbUUID)
@@ -391,7 +391,7 @@ bpf_write_annot_files <- function(basePath,
     counter = 0
     
     queryTxt = paste0("SELECT count(name) FROM bundle WHERE db_uuid = '", dbUUID, "'")
-    nbBundles = dbGetQuery(get_emuDBcon(), queryTxt)[1,]
+    nbBundles = dbGetQuery(get_emuDBcon(dbUUID), queryTxt)[1,]
     
     cat("INFO: Writing", nbBundles, "annotation files to EMU database...\n")
     pb = txtProgressBar(min = 0, max = nbBundles, initial = progress, style=3)
@@ -403,11 +403,11 @@ bpf_write_annot_files <- function(basePath,
   # ---------------------------------------------------------------------------
   
   queryTxt = paste0("SELECT name FROM session WHERE db_uuid = '", dbUUID, "'")
-  sessions = dbGetQuery(get_emuDBcon(), queryTxt)
+  sessions = dbGetQuery(get_emuDBcon(dbUUID), queryTxt)
   for(idx in 1:nrow(sessions)) 
   {
     queryTxt = paste0("SELECT name FROM bundle WHERE db_uuid = '", dbUUID, "' AND session = '", sessions[idx,], "'")
-    bundles = dbGetQuery(get_emuDBcon(), queryTxt)
+    bundles = dbGetQuery(get_emuDBcon(dbUUID), queryTxt)
     for(jdx in 1:nrow(bundles)) 
     {
       JSONPath = file.path(basePath, 
@@ -807,12 +807,13 @@ bpf_update_link_tracker <- function(linkTracker,
 
 ## Disambiguate link directions and types in case individual BPFs did not agree on them
 ## 
+## @param dbUUID
 ## @param linkTracker
 ## @param refLevel
 ## @keywords emuR BPF Emu
 ## @return list(linkTracker)
 
-bpf_link_disambiguation <- function(linkTracker, 
+bpf_link_disambiguation <- function(dbUUID,linkTracker, 
                                     refLevel)
 {
   # ------------------------------- THE PROBLEM -------------------------------
@@ -861,7 +862,7 @@ bpf_link_disambiguation <- function(linkTracker,
   
   if(length(turnAround) > 0)
   {
-    bpf_turn_links(turnAround = turnAround)
+    bpf_turn_links(dbUUID=dbUUID,turnAround = turnAround)
     linkTracker = bpf_turn_link_tracker_entries(turnAround = turnAround,
                                                 linkTracker = linkTracker)
   }
@@ -981,11 +982,12 @@ bpf_get_turn_around <- function(linkTracker)
 
 ## Turn around eligible links in the temp DB
 ## 
+## @param dbUUID
 ## @param turnAround
 ## @keywords emuR BPF Emu
 ## @return
 
-bpf_turn_links <- function(turnAround)
+bpf_turn_links <- function(dbUUID,turnAround)
 {
   for(link in turnAround)
   {
@@ -994,7 +996,7 @@ bpf_turn_links <- function(turnAround)
                       "' AND db_uuid = links.db_uuid AND session = links.session AND bundle = links.bundle) ",
                       "AND toID IN(SELECT itemID FROM items WHERE level = '", link[["tokey"]], "' ",
                       "AND db_uuid = links.db_uuid AND session = links.session AND bundle = links.bundle);")
-    dbSendQuery(get_emuDBcon(), queryTxt)
+    dbSendQuery(get_emuDBcon(dbUUID), queryTxt)
   }
 }
 
@@ -1079,12 +1081,13 @@ bpf_merge_link_types <- function(linkTracker)
 
 ## Create links from the utterance level to the next highest level(s)
 ## 
+## @param dbUUID
 ## @param linkTracker
 ## @param refLevel
 ## @keywords emuR BPF Emu
 ## @return list(linkTracker)
 
-bpf_link_utterance_level <- function(linkTracker,
+bpf_link_utterance_level <- function(dbUUID,linkTracker,
                                      refLevel)
 {
   # ---------------------------------------------------------------------------
@@ -1102,7 +1105,7 @@ bpf_link_utterance_level <- function(linkTracker,
     # --------- Create links from Utterance to current level in temp DB -------
     # -------------------------------------------------------------------------
     
-    nbItems = bpf_link_utterance_level_to_current_level(currentLevel = level)
+    nbItems = bpf_link_utterance_level_to_current_level(dbUUID=dbUUID,currentLevel = level)
     
     # -------------------------------------------------------------------------
     # ----------------- Determine link type (cardinality) ---------------------
@@ -1112,7 +1115,7 @@ bpf_link_utterance_level <- function(linkTracker,
     # This determines whether the links from 'Utterance' are ONE_TO_ONE or ONE_TO_MANY.
     
     queryTxt = paste0("SELECT DISTINCT db_uuid, session, bundle FROM items WHERE level = '", level, "'")
-    distinctUuidSessionBundle = dbGetQuery(get_emuDBcon(), queryTxt)
+    distinctUuidSessionBundle = dbGetQuery(get_emuDBcon(dbUUID), queryTxt)
     nbBundles = nrow(distinctUuidSessionBundle)
     
     if(nbBundles < nbItems)
@@ -1178,15 +1181,16 @@ bpf_get_levels_under_utterance <- function(linkTracker,
 
 ## Link utterance level with current level
 ## 
+## @param dbUUID
 ## @param currentLevel
 ## @keywords emuR BPF Emu
 ## @return nbItems 
 
-bpf_link_utterance_level_to_current_level <- function(currentLevel)
+bpf_link_utterance_level_to_current_level <- function(dbUUID,currentLevel)
 {
   # Get UUID, session, bundle and itemID of all items of the relevant level
   queryTxt = paste0("SELECT db_uuid, session, bundle, itemID FROM items WHERE level = '", currentLevel, "'")
-  uuidSessionBundleItemID = dbGetQuery(get_emuDBcon(), queryTxt)
+  uuidSessionBundleItemID = dbGetQuery(get_emuDBcon(dbUUID), queryTxt)
   
   # Loop over all items on this level
   for(idx in 1:nrow(uuidSessionBundleItemID))
@@ -1199,7 +1203,7 @@ bpf_link_utterance_level_to_current_level <- function(currentLevel)
     # Link all items to their corresponding Utterance item 
     # (same UUID, session & bundle, Utterance itemID is always 1).
     queryTxt = paste0("INSERT INTO links VALUES('", db_uuid, "', '", session, "', '", bundle, "', 1, ", itemID, ", NULL)")
-    dbSendQuery(get_emuDBcon(), queryTxt)
+    dbSendQuery(get_emuDBcon(db_uuid), queryTxt)
   }
   
   nbItems = nrow(uuidSessionBundleItemID)
@@ -1390,7 +1394,7 @@ bpf_make_db_skeleton <- function(basePath,
   # ---------------------------------------------------------------------------
   
   queryTxt = paste0("SELECT name FROM session WHERE db_uuid = '", dbUUID, "'")
-  sessions = dbGetQuery(get_emuDBcon(), queryTxt)
+  sessions = dbGetQuery(get_emuDBcon(dbUUID), queryTxt)
   
   for(idx in 1:nrow(sessions))
   {
@@ -1406,7 +1410,7 @@ bpf_make_db_skeleton <- function(basePath,
   # ---------------------------------------------------------------------------
   
   queryTxt = paste0("SELECT name, session FROM bundle WHERE db_uuid = '", dbUUID, "'")
-  bundles = dbGetQuery(get_emuDBcon(), queryTxt)
+  bundles = dbGetQuery(get_emuDBcon(dbUUID), queryTxt)
   for(jdx in 1:nrow(bundles))
   {
     bundle = paste0(bundles[jdx,1], bundle.dir.suffix)

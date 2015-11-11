@@ -134,11 +134,13 @@ test_that("sqlConnections CRUD operations work", {
   #########################
   test_that("add works", {
     # only single instance is added 
-    add_emuDBhandle(path2testData, path2testDB)
-    origLength = length(internalVars$sqlConnections)
-    dbHandle = add_emuDBhandle(path2testData, path2testDB)
-    fileCon=dbHandle$connection
-    expect_equal(length(internalVars$sqlConnections), origLength)
+    # klausj: not the case anymore we need a handel for each database
+    
+    #add_emuDBhandle(path2testData, path2testDB)
+    #origLength = length(internalVars$sqlConnections)
+    #dbHandle = add_emuDBhandle(path2testData, path2testDB)
+    #fileCon=dbHandle$connection
+    #expect_equal(length(internalVars$sqlConnections), origLength)
     
   })
 
@@ -148,14 +150,14 @@ test_that("sqlConnections CRUD operations work", {
     purge_all_emuDBs(interactive = F)
     expect_true(length(internalVars$sqlConnections) == 0)
     
-    inMemHandle = add_emuDBhandle(basePath="arbitrary path")
+    inMemHandle = add_emuDBhandle(basePath="arbitrary path",dbUUID="aec09a3e-130f-4c6e-b6e2-88b3667c1b6c")
     expect_true(length(internalVars$sqlConnections) == 1)
   
   })
 
   #########################
   test_that("remove works", {
-    remove_emuDBhandle(":memory:")    
+    remove_emuDBhandle(dbUUID="aec09a3e-130f-4c6e-b6e2-88b3667c1b6c")    
     expect_true(length(internalVars$sqlConnections) == 0)
   })
   

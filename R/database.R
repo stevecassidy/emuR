@@ -22,23 +22,17 @@ internalVars$testingVars$inMemoryCache = F
 ##########################################################
 # CRUD like operations for internalVars$sqlConnections
 
-get_emuDBhandle <- function(dbUUID = NULL) {
+get_emuDBhandle <- function(dbUUID) {
   # add in memory connection just to make sure it exists
   
   foundHandle = NULL
   for(c in internalVars$sqlConnections){
-    if(is.null(dbUUID)){
-      if(c$path == ":memory:"){
+      #res = dbGetQuery(c$con, "SELECT uuid FROM emuDB")
+      #if(dbUUID %in% res$uuid){
+      if(c$dbUUID==dbUUID){
         foundHandle = c
         break
       }
-    }else{
-      res = dbGetQuery(c$con, "SELECT uuid FROM emuDB")
-      if(dbUUID %in% res$uuid){
-        foundHandle = c
-        break
-      }
-    }
   }
   ## make sure :memory: connection is always there
   #if(is.null(dbUUID) & is.null(foundHandle)){
@@ -51,70 +45,56 @@ get_emuDBhandle <- function(dbUUID = NULL) {
 }
 
 
-get_emuDBcon <- function(dbUUID = NULL) {
-  # add in memory connection just to make sure it exists
-  
-  foundCon = NULL
+get_emuDBcon <- function(dbUUID) {
   for(c in internalVars$sqlConnections){
-    if(is.null(dbUUID)){
-      if(c$path == ":memory:"){
-        foundCon = c$con
-        break
-      }
-    }else{
-      res = dbGetQuery(c$con, "SELECT uuid FROM emuDB")
-      if(dbUUID %in% res$uuid){
-        foundCon = c$con
-        break
-      }
+    if(c$dbUUID==dbUUID){
+      return(c$connection)
     }
   }
-  # make sure :memory: connection is always there
-  #if(is.null(dbUUID) & is.null(foundCon)){
-  #  con = dbConnect(RSQLite::SQLite(), ":memory:")
-  #  add_emuDBcon(con)
-  #  foundCon = con
-  #}
-  
-  return(foundCon)
+  return(NULL)
 }
 
 
 ## @param basePath base path of emuDB
+## @param dbUUID UUID of database
 ## @param path to SQLiteDB
 ## @return new or already existing emuDB handle
-add_emuDBhandle <- function(basePath, path = NULL){
+add_emuDBhandle <- function(basePath, dbUUID,path = NULL){
   foundHandle = NULL
-  if(is.null(path)){
-    # create empty db in memory and initialize tables
-    path=":memory:"
-    initialize=T
-    con = dbConnect(RSQLite::SQLite(), path)
-  }else{
-    initialize=(!file.exists(path))
-    con= dbConnect(RSQLite::SQLite(),path)
-  }
-  if(initialize){
-    .initialize.DBI.database(con)
-  }
   for(h in internalVars$sqlConnections){
-    if(h$path == path){
-      foundHandle = h
+    if(h$dbUUID == dbUUID){
+     #stop("EmuDB already loaded")
+      foundHandle=h
     }
   }
+  
   # only add if not found to avoid duplicates
   if(is.null(foundHandle)){
-    newHandle=list(path = path,basePath=basePath,connection = con)
+    
+    if(is.null(path)){
+      # create empty db in memory and initialize tables
+      path=":memory:"
+      initialize=T
+      con = dbConnect(RSQLite::SQLite(), path)
+    }else{
+      initialize=(!file.exists(path))
+      con= dbConnect(RSQLite::SQLite(),path)
+    }
+    if(initialize){
+      .initialize.DBI.database(con)
+    }
+  
+    newHandle=list(path = path,dbUUID=dbUUID,basePath=basePath,connection = con)
     internalVars$sqlConnections[[length(internalVars$sqlConnections) + 1]] = newHandle
     foundHandle = newHandle
   }
   return(foundHandle)
 }
 
-remove_emuDBhandle <- function(path){
-  
+remove_emuDBhandle <- function(dbUUID){
+  # TODO
   for(i in 1:length(internalVars$sqlConnections)){
-    if(internalVars$sqlConnections[[i]]$path == path){
+    if(internalVars$sqlConnections[[i]]$dbUUID == dbUUID){
       dbDisconnect(internalVars$sqlConnections[[i]]$con)
       internalVars$sqlConnections[[i]] = NULL
       break
@@ -556,16 +536,18 @@ purge_emuDB<-function(dbName=NULL,dbUUID=NULL,interactive=TRUE){
       dbQ=paste0("SELECT uuid FROM emuDB WHERE uuid='",dbUUID,"'")
       dbDf = data.frame()
       for(c in internalVars$sqlConnections){
-        dbDf=dbGetQuery(c$connection,dbQ)
-        if(nrow(dbDf) != 0){
-          if(c$path == ":memory:"){
-            .purge.emuDB(dbUUID)
-          }else{
-            remove_emuDBhandle(c$path)
-          }  
-          purged=TRUE
-          
-          break
+        if(c$dbUUID==dbUUID){
+          dbDf=dbGetQuery(c$connection,dbQ)
+          if(nrow(dbDf) != 0){
+            if(c$path == ":memory:"){
+              .purge.emuDB(dbUUID)
+            }else{
+              remove_emuDBhandle(c$dbUUID)
+            }  
+            purged=TRUE
+            
+            break
+          }
         }
       }
     }
@@ -588,7 +570,7 @@ purge_all_emuDBs<-function(interactive=TRUE){
   }
   if(ans=='y'){
     for(c in internalVars$sqlConnections){
-      remove_emuDBhandle(c$path)
+      remove_emuDBhandle(c$dbUUID)
     }
     # .destroy.DBI.database()
     # .initialize.DBI.database()
@@ -1471,9 +1453,11 @@ create_emuDB<-function(name, targetDir, mediaFileExtension='wav',
   dbConfig=create.schema.databaseDefinition(name=name,mediafileExtension = mediaFileExtension)
   db=create.database(name=name,basePath=basePath,DBconfig = dbConfig)
   # .initialize.DBI.database()
+  dbUUID=dbConfig[['UUID']]
+  add_emuDBhandle(basePath = basePath,dbUUID=dbUUID)
   .store.emuDB.DBI(get_emuDBcon(), database = db)
   if(store){
-    store(targetDir=targetDir,dbUUID=dbConfig[['UUID']], showProgress = verbose)
+    store(targetDir=targetDir,dbUUID=dbUUID, showProgress = verbose)
   }
   if(purge){
     purge_emuDB(name, interactive = F)
@@ -1872,11 +1856,11 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
   
   # add new connection
   if(inMemoryCache){
-    handle = add_emuDBhandle(basePath)
+    handle = add_emuDBhandle(basePath,dbUUID)
     con=handle$connection
   }else{
     dbPath = file.path(normalizePath(databaseDir), paste0(schema$name, database.cache.suffix))
-    handle = add_emuDBhandle(basePath, dbPath)
+    handle = add_emuDBhandle(basePath, dbUUID,dbPath)
     con=handle$connection
   }
   

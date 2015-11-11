@@ -47,11 +47,11 @@ emuR.regexprl<-function(pattern,x){
   return((m==1) & (attr(m,'match.length')==nchar(x)))
 }
 
-write_table_forced<-function(name,value){
-  if(dbExistsTable(get_emuDBcon(),name)){
-    dbRemoveTable(get_emuDBcon(),name)
+write_table_forced<-function(dbUUID,name,value){
+  if(dbExistsTable(get_emuDBcon(dbUUID),name)){
+    dbRemoveTable(get_emuDBcon(dbUUID),name)
   }
-  dbWriteTable(get_emuDBcon(),name = name,value=value)
+  dbWriteTable(get_emuDBcon(dbUUID),name = name,value=value)
 }
 
 check_level_attribute_name<-function(dbConfig,name){

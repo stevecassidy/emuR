@@ -74,17 +74,18 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
   # set editable + showHierarchy
   schema$EMUwebAppConfig$activeButtons=list(saveBundle=TRUE,
                                            showHierarchy=TRUE)
-  
-  dbsDf=dbGetQuery(get_emuDBcon(),paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
+  sdbUUID=schema[['UUID']]
+  add_emuDBhandle(basePath,sdbUUID)
+  dbsDf=dbGetQuery(get_emuDBcon(sdbUUID),paste0("SELECT * FROM emuDB WHERE uuid='",sdbUUID,"'"))
   if(nrow(dbsDf)>0){
     stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
   }
   
   # store to tmp DBI
-  .store.emuDB.DBI(get_emuDBcon(), db)
+  .store.emuDB.DBI(get_emuDBcon(sdbUUID), db)
   
   # store db schema file
-  .store.DBconfig(get_emuDBcon(), basePath,schema)
+  .store.DBconfig(get_emuDBcon(sdbUUID), basePath,schema)
   
   # get dbObj
   dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = NULL)
@@ -93,7 +94,7 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
   allBundles = list()
   
   # create session entry
-  dbGetQuery(get_emuDBcon(), paste0("INSERT INTO session VALUES('", dbUUID, "', '0000')"))
+  dbGetQuery(get_emuDBcon(dbUUID), paste0("INSERT INTO session VALUES('", dbUUID, "', '0000')"))
   
   
   # loop through fpl
@@ -128,7 +129,7 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
     bndlName = file_path_sans_ext(basename(fpl[i,1]))
     
     # create bundle entry
-    dbGetQuery(get_emuDBcon(), paste0("INSERT INTO bundle VALUES('", dbUUID, "', '0000', '", bndlName, "', '", mfBn, "', ", sampleRate, ", 'NULL')"))
+    dbGetQuery(get_emuDBcon(dbUUID), paste0("INSERT INTO bundle VALUES('", dbUUID, "', '0000', '", bndlName, "', '", mfBn, "', ", sampleRate, ", 'NULL')"))
     #b=create.bundle(bndlName,sessionName = '0000',annotates=basename(fpl[i,1]),sampleRate = sampleRate)
     
     
@@ -144,10 +145,10 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
       condStr = paste0("level!='", paste0(tierNames, collapse = paste0("' AND ", " level!='")), "'")
       
       # delete items
-      dbSendQuery(get_emuDBcon(), paste0("DELETE FROM items WHERE ", "db_uuid='", dbUUID, "' AND ", condStr))
+      dbSendQuery(get_emuDBcon(dbUUID), paste0("DELETE FROM items WHERE ", "db_uuid='", dbUUID, "' AND ", condStr))
       
       # delete labels
-      dbSendQuery(get_emuDBcon(), paste0("DELETE FROM labels", 
+      dbSendQuery(get_emuDBcon(dbUUID), paste0("DELETE FROM labels", 
                                          " WHERE ", "db_uuid='", dbUUID, "' AND itemID NOT IN (SELECT itemID FROM items)"))
     }
     

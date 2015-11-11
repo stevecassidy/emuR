@@ -761,10 +761,10 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
   # .initialize.DBI.database()
   
   # add handle for in memory DB
-  dbHandle=add_emuDBhandle(basePath=pp)
+  dbHandle=add_emuDBhandle(basePath=pp,dbUUID=dbUUID)
   
   # store db schema file
-  .store.DBconfig(get_emuDBcon(), pp,dbConfig)
+  .store.DBconfig(get_emuDBcon(dbUUID), pp,dbConfig)
   progress=progress+1L
   
   # load primary track file list first
