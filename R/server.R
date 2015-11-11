@@ -8,9 +8,9 @@ setServerHandle <- function(sh) {
   internalVars$serverHandle<-sh
 }
 
-##' Serve EMU database to EMU-Webapp
+##' Serve EMU database to EMU-webApp
 ##' 
-##' @description Server for EMU-Webapp browser GUI \url{http://ips-lmu.github.io/EMU-webApp/}
+##' @description Server for EMU-webApp browser GUI \url{http://ips-lmu.github.io/EMU-webApp/}
 ##' 
 ##' Start instructions:
 ##' 
@@ -117,7 +117,7 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
       }
       jr=jsonlite::fromJSON(D,simplifyVector = FALSE)
       if(debugLevel >= 2 ){
-        cat("Received command from EMU-Webapp: ",jr[['type']],"\n")
+        cat("Received command from EMU-webApp: ",jr[['type']],"\n")
         if(debugLevel >= 3){
           jrNms=names(jr)
           
@@ -134,7 +134,7 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
       }
       if(!is.null(jr$type)){
         if(debugLevel >= 2 ){
-          cat("Received type from EMU-Webapp: ",jr[['type']],"\n")
+          cat("Received type from EMU-webApp: ",jr[['type']],"\n")
         }
         
       }
@@ -385,7 +385,7 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
         result=ws$send(responseJSON)
         emuRserverRunning<<-FALSE
         ws$close()
-        cat("emuR websocket service closed by EMU-Webapp\n")
+        cat("emuR websocket service closed by EMU-webApp\n")
       }
     }
     ws$onMessage(serverReceive)
@@ -408,10 +408,10 @@ serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
   }
   # store handle global for recovery after crash otr terminated R session
   setServerHandle(sh)
-  cat("Navigate your browser to the EMU-Webapp URL: http://ips-lmu.github.io/EMU-webApp/\n")
+  cat("Navigate your browser to the EMU-webApp URL: http://ips-lmu.github.io/EMU-webApp/\n")
   cat("Server connection URL: ws://localhost:",port,"\n",sep='')
-  cat("To stop the server press EMU-Webapp 'clear' button or reload the page in your browser.\n")
-  #cat("EMU-Webapp server handle:",sh,"\n")
+  cat("To stop the server press EMU-webApp 'clear' button or reload the page in your browser.\n")
+  #cat("EMU-webApp server handle:",sh,"\n")
   emuRserverRunning=TRUE
   
   while(emuRserverRunning) {

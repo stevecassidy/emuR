@@ -38,7 +38,7 @@ install_github("IPS-LMU/emuR", build_vignettes = TRUE)
 ## Quick start
 
 
-* for more information see the `An introduction to the emuDB format` vignette: 
+* for more information see the `An introduction to the emuR package` vignette: 
 ```r
-vignette('emuDB_intro')
+vignette('emuR_intro')
 ```
