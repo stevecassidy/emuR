@@ -42,11 +42,9 @@ For more detailed information about the file formats used see the [File descript
 
 # Creating a emuDB
 
-There are multiple ways of creating emuDBs. The two main strategies are to either convert existing databases or file collections to the new format or to create new databases from scratch. Both strategies are described below.
+There are multiple ways of creating emuDBs. The two main strategies are to either convert existing databases or file collections to the new format or to create new databases from scratch. As the emuR\_intro vignette, that can be accessed by envoking this command: `vignette("emuR_intro", package="emuR")`, describes how existing databases can be converted, only the latter of both strategies are described below.
 
-## Converting existing databases
-
-The `emuR` package provides a function for converting existing legacyEmuDBs to the new emuDB format. Here is an example of how to use this function:
+## SIC! This code should be removed
 
 ```{r}
 # load the package
@@ -58,10 +56,6 @@ tplPath = file.path(tempdir(), "emuR_demoData", "legacy_ae", "ae.tpl")
 # convert this legacyEmuDB to the emuDB format
 convert_legacyEmuDB_to_emuDB(emuTplPath = tplPath, targetDir = tempdir(), verbose = F)
 ```
-
-This will create a new emuDB in a temporary folder that is provided by the `R` function `tempdir()` containing all the information specified in the `.tpl` file. The name of the new emuDB is the same as the basename of the `.tpl` file from which it was generated. In other words, if the template file of your legacyEmuDB has the path `A` and the directory to which the converted database is to be written has the path `B`, then  `convert_legacyEmuDB_to_emuDB("A", targetdir = "B")` will perform the conversion.
-
-A further function provided is the `convert_TextGridCollection_to_emuDB()` function. This function converts an existing `.TextGrid` & `.wav` file collection to the emuDB format. In order to  pair the correct files together the `.TextGrid` files as well as the `.wav` files must have the same name (i.e. file name without extension). A further restriction is that the tiers contained within all the `.TextGrid` files have to be equal in name & type (equal subsets can be chosen using the `tierNames` argument of the function). For example, if all `.TextGrid` files contain the tiers `Syl: IntervalTier`, `Phonetic: IntervalTier` and `Tone: TextTier` the conversion will work. However, if a single `.TextGrid` of the collection has the additional tier `Word: IntervalTier` the conversion will fail, although it can be made to work by specifying the equal subset `equalSubset = c('Syl', 'Phonetic', 'Tone')` and passing it into the function argument `convert_TextGridCollection_to_emuDB(..., tierNames = equalSubset, ...)`. 
 
 ```{r}
 # get the path to a folder containing .wav & .TextGrid files that is part of the demo data
@@ -77,9 +71,13 @@ This will create a new emuDB in the folder `tempdir()` called 'myTGcolDB'. The e
 
 ## Creating an emuDB from scratch
 
+
 To create an emuDB from scratch simply call:
 
 ```{r}
+# load the package
+library(emuR)
+
 create_emuDB(name = 'fromScratchDB', 
              targetDir = tempdir(), 
              verbose=F)
