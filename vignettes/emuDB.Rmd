@@ -1,6 +1,6 @@
 ---
 title: "The emuDB format"
-subtitle: "The database format of the next iteration of the EMU speech database management system"
+subtitle: "The database format of the next iteration of the EMU Speech Database Management System"
 affiliation: "Institute Of Phonetics And Speech Processing (LMU Munich)"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -42,7 +42,7 @@ For more detailed information about the file formats used see the [File descript
 
 # Creating a emuDB
 
-There are multiple ways of creating emuDBs. The two main strategies are to either convert existing databases or file collections to the new format or to create new databases from scratch. As the emuR\_intro vignette, that can be accessed by envoking this command: `vignette("emuR_intro", package="emuR")`, describes how existing databases can be converted, only the latter of both strategies are described below.
+There are multiple ways of creating emuDBs. The two main strategies are to either convert existing databases or file collections to the new format or to create new databases from scratch. As the emuR\_intro vignette, that can be accessed by envoking this command: `vignette("emuR_intro", package="emuR")`, describes how existing databases can be converted, only the latter of both strategies is described below.
 
 ## SIC! This code should be removed
 
@@ -56,17 +56,6 @@ tplPath = file.path(tempdir(), "emuR_demoData", "legacy_ae", "ae.tpl")
 # convert this legacyEmuDB to the emuDB format
 convert_legacyEmuDB_to_emuDB(emuTplPath = tplPath, targetDir = tempdir(), verbose = F)
 ```
-
-```{r}
-# get the path to a folder containing .wav & .TextGrid files that is part of the demo data
-path2folder = file.path(tempdir(), "emuR_demoData", "TextGrid_collection")
-
-# convert this TextGridCollection to the emuDB format
-convert_TextGridCollection_to_emuDB(path2folder, dbName = 'myTGcolDB', 
-                                    targetDir = tempdir(), verbose = F)
-```
-
-This will create a new emuDB in the folder `tempdir()` called 'myTGcolDB'. The emuDB will contain all the tier information from the `.TextGrid` files but will not contain hierarchical information as `.TextGrid` files do not contain any linking information. To generate links between the generated `SEGMENTS` and `EVENTS` see the [Autobuilding](#autobuilding) section of this document.
 
 
 ## Creating an emuDB from scratch
@@ -87,7 +76,7 @@ This will create an empty emuDB that does not have any ssffTrackDefinitions or l
 
 # Editing a database
 
-The initial step in manipulating or generally interacting with a database is to load the according database into your current R session. People interested in the way the `emuR` package caches the database are referred to the [emuDB caching](#emudb-caching) section of this document.
+The initial step in manipulating or generally interacting with a database is to load the according database into your current R session.
 
 ```{r}
 # generate path to the empty fromScratchDB created above
@@ -103,9 +92,9 @@ This will load the database into it's cached form for quick access to the data. 
 list_emuDBs()
 ```
 
-The `emuR package contains two functions to purge (i.e. unload/remove) loaded databases from the current R session. These functions are `purge_emuDB()` and `purge_all_emuDBs()`. We will not invoke these functions here as we still wish to edit the loaded database. A further thing to note is that if there are duplicate database names among the databases loaded, each database can still be accessed separately using an additional unique identifier that each emuDB has called the UUID. This UUID is also listed by the `list_emuDBs()` function.
+The `emuR` package contains two functions to purge (i.e. unload/remove) loaded databases from the current R session. These functions are `purge_emuDB()` and `purge_all_emuDBs()`. We will not invoke these functions here as we still wish to edit the loaded database. A further thing to note is that if there are duplicate database names among the databases loaded, each database can still be accessed separately using an additional unique identifier that each emuDB has called the UUID. This UUID is also listed by the `list_emuDBs()` function.
 
-Next, let us look at some actual manipulation functions. The general function prefix naming convention of database manipulation functions for loaded databases are:
+Next, let us look at some actual database manipulation functions. The general function prefix naming convention of database manipulation functions for loaded databases are:
 
 - `add_XXX` add a new instance of `XXX` / `set_` set the current instance of `XXX`
 - `list_XXX` list the current instances of `XXX` / `get_` get the current instance of `XXX`
@@ -113,9 +102,9 @@ Next, let us look at some actual manipulation functions. The general function pr
 
 ## Level definitions
 
-Unlike other systems the EMU speech database management system requires the user to formally define the structure of the database. An essential structural element of any emuDB are its levels. A level is a more general term for what is often referred to as a "tier". It is more general in the sense that people usually expect tiers to contain time information. Levels can either contain time information if they are of the type "EVENT" or of the type "SEGMENT" but are timeless if they are of the type "ITEM". Generally speaking, every unit of annotation is referred to as an "ITEM" in the context of an emuDB and "EVENT"s and "SEGMENT"s are special instances of these containing time information in the form of sample values.
+Unlike other systems the EMU Speech Database Management System requires the user to formally define the structure of the database. An essential structural element of any emuDB are its levels. A level is a more general term for what is often referred to as a "tier". It is more general in the sense that people usually expect tiers to contain time information. Levels can either contain time information if they are of the type "EVENT" or of the type "SEGMENT" but are timeless if they are of the type "ITEM". Generally speaking, every unit of annotation is referred to as an "ITEM" in the context of an emuDB and "EVENT"s and "SEGMENT"s are special instances of these containing time information in the form of sample values.
 
-The EMU system generally distinguishes between the actual representations of a structural element which are contained within the database and their formal definitions. An example of an actual representation would be a level contained in an annotation file that that contains "SEGMENT"s that annotate a recording. The corresponding formal definition would be this level's level definition, which specifies and validates the level's existence within the database.
+The EMU system generally distinguishes between the actual representations of a structural element which are contained within the database and their formal definitions. An example of an actual representation would be a level contained in an annotation file that contains "SEGMENT"s that annotate a recording. The corresponding formal definition would be this level's level definition, which specifies and validates the level's existence within the database.
 
 *NOTE: if instances are mentioned in the course of this document, the actual representations are meant. Formal definitions are referred to as such.*
 
@@ -133,12 +122,12 @@ To check if this action was successful we can simply list the current level defi
 list_levelDefinitions(dbName)
 ```
 
-Let us add a further level definition that will contain the orthographic word transcriptions for the words uttered in our recordings. This level will be of the type "ITEM"" meaning that elements contained within the level are sequentially ordered but do not contain any time information:
+Let us add a further level definition that will contain the orthographic word transcriptions for the words uttered in our recordings. This level will be of the type "ITEM" meaning that elements contained within the level are sequentially ordered but do not contain any time information:
 
 ```{r}
 # add
-add_levelDefinition(dbName, 
-                    name = 'Word', 
+add_levelDefinition(dbName,
+                    name = 'Word',
                     type = 'ITEM')
 # list
 list_levelDefinitions(dbName)
@@ -150,7 +139,7 @@ Finally we could remove one of the level definitions with the function `remove_l
 
 ### Attribute definitions
 
-Each level definition can contain multiple attributes, the most common attribute being a label (`"type": "STRING"`). Thus it is possible to have multiple parallel labels in a single level. This means that a single annotation item instance can contain multiple labels while sharing other properties such as the start and duration information. This can be quite useful when modeling certain types of data. A illustrative example of this would be the 'Phonetic' level created above. It is often the case that databases contain both the phonetic transcript using IPA UTF-8 symbols as well as using the Speech Assessment Methods Phonetic Alphabet (SAMPA). This is a perfect choice for using multiple attribute definitions within a single level:
+Each level definition can contain multiple attributes, the most common and currently only supported attribute being a label (`"type": "STRING"`). Thus it is possible to have multiple parallel labels in a single level. This means that a single annotation item instance can contain multiple labels while sharing other properties such as the start and duration information. This can be quite useful when modeling certain types of data. A illustrative example of this would be the 'Phonetic' level created above. It is often the case that databases contain both the phonetic transcript using IPA UTF-8 symbols as well as using the Speech Assessment Methods Phonetic Alphabet (SAMPA). This is a perfect choice for using multiple attribute definitions within a single level:
 
 ```{r}
 # list
@@ -162,11 +151,11 @@ Even though we have not added a single attribute definition to the 'phonetic' le
 
 ```{r}
 # add
-add_attributeDefinition(dbName, 
-                        levelName = 'Phonetic', 
+add_attributeDefinition(dbName,
+                        levelName = 'Phonetic',
                         name = 'SAMPA')
 # list
-list_attributeDefinitions(dbName, 
+list_attributeDefinitions(dbName,
                           levelName = 'Phonetic')
 ```
 
@@ -213,7 +202,7 @@ get_legalLabels(dbName,
 
 #### Label groups
 
-A further optional field is the labelGroups field. It contains specifications of groups of labels that can be referenced by a name given to the group while querying the emuDB. Say we wish to reference all the long vowels in our 'Phonetic' attribute definition with the name 'long' and all our short vowels with the name 'short'. Let us now update our emuDB to contain these label groups:
+A further optional field is the `labelGroups` field. It contains specifications of groups of labels that can be referenced by a name given to the group while querying the emuDB. Say we wish to reference all the long vowels in our `Phonetic` attribute definition with the name 'long' and all our short vowels with the name 'short'. Let us now update our emuDB to contain these label groups:
 
 ```{r}
 # add long vowels
@@ -238,9 +227,9 @@ list_attrDefLabelGroups(dbName,
 
 ```
 
-*NOTE: It is also possible to define label groups for the entire DB. For more information on this see the R documentation for the `add/list/remove_labelGroups` functions (not yet accessible in `query()` function!).*
+*NOTE: It is also possible to define label groups for the entire DB. For more information on this see the R documentation for the `add/list/remove_labelGroups` functions (not yet accessible in the `query()` function!).*
 
-**INFO: For users who are familiar with or transitioning from the previous EMU system the label groups correspond to the unfavorably named 'Legal Labels' entries of the GTemplate Editor (i.e. legal entries in the .tpl file) of the previous system. In the new system the legalLabel entries specify the legal / allowed labels values of an attribute definitions while the label groups specify groups of labels that can be referenced by the names given to the groups while performing queries.**
+**INFO: For users who are familiar with or transitioning from the legacy EMU system the label groups correspond to the unfavorably named 'Legal Labels' entries of the GTemplate Editor (i.e. legal entries in the .tpl file) of the legacy system. In the new system the legalLabel entries specify the legal / allowed labels values of an attribute definitions while the label groups specify groups of labels that can be referenced by the names given to the groups while performing queries.**
 
 ## Link definitions
 
@@ -250,7 +239,7 @@ An essential and very powerful conceptual and structural element of any emuDB is
 - "MANY_TO_MANY"
 - "ONE_TO_ONE"
 
-As the names imply these links specify the permitted relationships between instances of annotation items of one level and those of another. The structure of the hierarchy of the 'ae' demo database that comes with the `emuR` package can be seen below. This hierarchy demonstrates a reasonably complex hierarchy including how hierarchical annotation structures can be used to accurately model data. "ITEM" levels that do not contain time information inherit their time information from the levels they are linked to. This de-referencing of time information is provided by the querying mechanism that the `emuR` package provides.
+As the names imply these links specify the permitted relationships between instances of annotation items of one level and those of another. The structure of the hierarchy of the 'ae' demo database that comes with the `emuR` package can be seen below. This hierarchy demonstrates a reasonably complex hierarchy including how hierarchical annotation structures can be used to accurately model data. "ITEM" levels that do not contain time information inherit their time information from the levels they are linked to. This de-referencing of time information is provided by the querying mechanism that the `emuR` package provides.
 
 ![Alt text](pics/aeGraph.svg)
 
@@ -310,7 +299,7 @@ dir.create(outDirPath)
 zcrana(listOfFiles = wavFilePaths, 
        outputDirectory = outDirPath)
 # add zcr files to emuDB
-add_files(dbName, 
+add_files(dbName,
           dir = outDirPath, 
           fileExtension = 'zcr',
           targetSessionName = 'filesFromWrassp')
@@ -345,7 +334,7 @@ list_ssffTrackDefinitions(dbName)
 head(list_files(dbName))
 ```
 
-**INFO: to see the fileExtension and columnName defaults produced by the various signal processing functions of the wrassp package see `?wrasspOutputInfos`**
+**INFO: to see the fileExtension and columnName defaults produced by the various signal processing functions of the wrassp package see `?wrasspOutputInfos`. For a list of all the available signal processing functions that the wrassp package provides see `?wrassp`.**
 
 As you might have noticed the `.zcr` files we added in the previous section are listed as being part of the bundles but have no ssffTrackDefinition associated with them. Let's fix that by adding another ssffTrackDefinition to the database:
 
@@ -362,7 +351,7 @@ list_ssffTrackDefinitions(dbName)
 
 **INFO: as the `get_trackdata()` function can perform signal processing functions and calculates all necessary values in real time, it is seldom necessary to define ssffTracks for tracks produced by the wrassp package. For complementary data as well as data that has to be manipulated manually (e.g. manual formant corrections) this is still a feasible and necessary option. Also, if you wish to display SSFF data in the EMU-webApp it is necessary to pre-calculate the ssffTracks as the web application can not perform real-time calculations.**
 
-Note also that there are currently two special ssffTrackDefinitions. They are special in the sense that if they have either the name "FORMANTS" or the name "EPG" the EMU-webApp will expect the according SSFF files to be formated in a specific way and will also display them differently to the other tracks. If the track is named "FORMANTS" and this track is assigned to be overlayed on the spectrogram the EMU-webApp will frequency align the formant contours to the spectrogram and will permit these contours to be edited. If the track is called "EPG" and the EMU-webApp is configured to display this track in the twoDimCanvases it will display an EPG plot of the data (see the [File descriptions](#file-descriptions) section of this document for more information on twoDimCanvases).
+Note also that there are currently two special ssffTrackDefinitions. They are special in the sense that if they have either the name "FORMANTS" or the name "EPG" the EMU-webApp will expect the according SSFF files to be formated in a specific way and will also display them differently to the other tracks. If the track is named "FORMANTS" and this track is assigned to be overlayed on the spectrogram the EMU-webApp will frequency align the formant contours to the spectrogram and will permit these contours to be manually corrected. If the track is called "EPG" and the EMU-webApp is configured to display this track in the twoDimCanvases it will display an EPG plot of the data (see the [File descriptions](#file-descriptions) section of this document for more information on twoDimCanvases).
 
 ## Configuring the EMU-webApp
 
@@ -380,7 +369,7 @@ As you can see there is already a perspective available called 'default'. This p
 get_levelCanvasesOrder(dbName, 
                        perspectiveName = 'default')
 # set order array of levels of default perspective
-set_levelCanvasesOrder(dbName, 
+set_levelCanvasesOrder(dbName,
                        perspectiveName = 'default',
                        order = c('Phonetic'))
 
@@ -390,7 +379,7 @@ get_levelCanvasesOrder(dbName,
 
 ```
 
-As you can see we only added the "Phonetic" and not the "Word" level to be displayed in the "default" perspective as only levels of the type "SEGMENT" or "EVENT" are allowed to be displayed. All "ITEM" levels can be viewed by clicking the "showHierarchy" button in the top menu bar of the EMU-webApp and choosing an appropriate path through the hierarchy. 
+As you can see we only added the "Phonetic" and not the "Word" level to be displayed in the "default" perspective as only levels of the type "SEGMENT" or "EVENT" are allowed to be displayed. All "ITEM" levels can be viewed by clicking the "showHierarchy" button in the top menu bar of the EMU-webApp and choosing an appropriate path through the hierarchy.
 
 As the final configuration step let us also add the ssffTracks we defined and calculated above to the "default" perspective:
 
@@ -588,8 +577,3 @@ The `_annot.json` file contains the following fields:
 - `"links"` array containing links between two items. These links have to adhere to the links specified in `"linkDefinitions"` of the according emuDB. Each link consists of:
     - `"fromID"` ID value of item to link from (i.e. item in superlevel)
     - `"toID"` ID value of item to link to (i.e. item in sublevel)
-
-          
-# emuDB caching
-
-TODO: Write about object relational mapping of emuDB into SQL(ite) DB and MD5 caching mechanics (caching to file system / intelligent + fast reloading not implemented yet) 
