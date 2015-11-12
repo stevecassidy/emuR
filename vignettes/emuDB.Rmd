@@ -42,7 +42,7 @@ For more detailed information about the file formats used see the [File descript
 
 # Creating a emuDB
 
-There are multiple ways of creating emuDBs. The two main strategies are to either convert existing databases or file collections to the new format or to create new databases from scratch. As the emuR\_intro vignette, that can be accessed by envoking this command: `vignette("emuR_intro", package="emuR")`, describes how existing databases can be converted, only the latter of both strategies is described below.
+There are multiple ways of creating emuDBs. The two main strategies are to either convert existing databases or file collections to the new format or to create new databases from scratch. As the emuR\_intro vignette, that can be accessed by invoking this command: `vignette("emuR_intro", package="emuR")`, describes how existing databases can be converted, only the latter of both strategies is described below.
 
 ## SIC! This code should be removed
 
