@@ -29,7 +29,8 @@ Imports:
 Suggests:
     testthat(>= 0.7.1.99),
     knitr(>= 1.7),
-    compare(>= 0.2.4)
+    compare(>= 0.2.4),
+    ggplot2(>= 3.2.0)
 LazyLoad: yes
 LazyData: yes
 ZipData: no
