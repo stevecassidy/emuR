@@ -1,11 +1,11 @@
 Package: emuR
 Version: 0.0.11
 Title: Main package of the EMU Speech Database Management System
-Authors@R: as.person(c(
-    "Raphael Winkelmann <raphael@phonetik.uni-muenchen.de> [aut, cre]",
-    "Klaus Jaensch <klausj@phonetik.uni-muenchen.de> [aut, ctb]",
-    "Steve Cassidy <steve.cassidy@mq.edu.au> [aut, ctb]",
-    "Jonathan Harrington <jmh@phonetik.uni-muenchen.de> [aut, ctb]"))
+Authors@R: c(
+    person("Raphael", "Winkelmann", , "raphael@phonetik.uni-muenchen.de", c("aut", "cre")),
+    person("Klaus", "Jaensch", , "klausj@phonetik.uni-muenchen.de", c("aut", "ctb")),
+    person("Steve", "Cassidy", , "steve.cassidy@mq.edu.au", c("aut", "ctb")),
+    person("Jonathan", "Harrington", , "jmh@phonetik.uni-muenchen.de", c("aut", "ctb")))
 Description: Provides many special purpose functions for display and analysis
     of speech data.
 License: GPL (>= 2)

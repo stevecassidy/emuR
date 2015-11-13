@@ -271,7 +271,7 @@ requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
       #        works perfectly for some other queries and works if splitted into three spearete sqldf calls. SQLite bug ?? 
       #        
       #        > packageVersion('RSQLite')
-      #        [1] ‘1.0.0’
+      #        [1] '1.0.0'
       
       
       #       heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.seqEndId,(ir.rSeqIdx-il.seqIdx+1) AS seqLen,'",targetLevel,"' AS level \
