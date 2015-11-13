@@ -71,7 +71,6 @@ test_that("Reload example database ae",{
 })
 
 test_that("Create emuDB from scratch works",{
-  browser()
   if(is.emuDB.loaded('create_emuDB_test1')){
     purge_emuDB('create_emuDB_test1',interactive = F)
   }
