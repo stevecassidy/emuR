@@ -70,6 +70,27 @@ test_that("Reload example database ae",{
   check_properties_of_ae_db()
 })
 
+test_that("Create emuDB from scratch works",{
+  browser()
+  if(is.emuDB.loaded('create_emuDB_test1')){
+    purge_emuDB('create_emuDB_test1',interactive = F)
+  }
+  create_emuDB('create_emuDB_test1',tempdir())
+  t1BasePath=file.path(tempdir(),'create_emuDB_test1')
+  t1=load_emuDB(t1BasePath)
+  expect_that(t1,is_equivalent_to('create_emuDB_test1'))
+ 
+  expect_true('create_emuDB_test1' %in% list_emuDBs()[,'name'])
+  sss=list_emuDBs()[['name']]=='create_emuDB_test1'
+  
+  t1List=list_emuDBs()[sss,]
+  expect_that(nrow(t1List),is_equivalent_to(1))
+  expect_that(t1List[1,'basePath'],is_equivalent_to(t1BasePath))
+  
+  purge_emuDB('create_emuDB_test1',interactive = F)
+  unlink(t1BasePath,recursive = T)
+  })
+
 test_that("Data types are correct",{
   #dbUUID = get_emuDB_UUID("ae")
   items=dbReadTable(get_emuDBcon(.test_emu_ae_db_uuid),'items')
