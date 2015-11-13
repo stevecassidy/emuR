@@ -84,7 +84,7 @@ test_that("Create emuDB from scratch works",{
   
   t1List=list_emuDBs()[sss,]
   expect_that(nrow(t1List),is_equivalent_to(1))
-  expect_that(t1List[1,'basePath'],is_equivalent_to(t1BasePath))
+  expect_that(t1List[1,'basePath'],is_equivalent_to(normalizePath(t1BasePath)))
   
   purge_emuDB('create_emuDB_test1',interactive = F)
   unlink(t1BasePath,recursive = T)
