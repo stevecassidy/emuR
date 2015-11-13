@@ -15,13 +15,27 @@ vignette: >
 
 # Introduction
 
-This document is meant as an introduction to the `emuR` package and is meant to provide an overview of what the package is capable of and how it interacts with the other components of the EMU Speech Database Management System (EMU\_SDMS). It is by no means meant as a definite guide but rather tries to give an outline of what it is like working with speech databases in the EMU\_SDMS by walking you through a few typical use cases.
+This document is meant as an introduction to the `emuR` package and is meant to provide an overview of what the package is capable of and how it interacts with the other components of the EMU Speech Database Management System (EMU\_SDMS). It is by no means a definite guide to the EMU\_SDMS but rather tries to give an outline of what it is like working with and analysing speech databases in the EMU\_SDMS by walking you through a few typical use cases.
 
-The `emuR` beeing only one component of serveral of the EMU\_SDMS can be viewed as the central instance of EMU and as such will be the main component that the user will interact with.
+The `emuR` package can be viewed as the main component of the EMU\_SDMS as it acts as the central instance that is able to interact with every component of the system. It takes care of database managing duties by beeing able to interact with a speech database that is stored in the emuDB format (see `emuDB` vignette for details). Further, it has easy to understand and learn yet expressive and powerfull querying mechanics, that allow the user to easily query the annotation structrures of the database. Lastly it provides easy data extraction capabilities that extracts data which corresponds to the result of a query.
+
+If a database in the emuDB format is present the typical work-flow in `emuR` is usually something like this:
+
+1.) Load database into current R session - `load\_emuDB`
+2.) Database annotation / visual inspection - `serve` and connect the EMU-webApp to the local server
+3.) Query database - `query` (sometimes followed by `requery_hier` or `requery_seq`)
+4.) Get trackdata (e.g. formant values) for the result of a query - `get_trackdata`
+5.) Data preparation
+6.) Visual data inspection
+7.) Further analysis and statistical processing
 
 # Converting existing databases
 
-The `emuR` package provides a function for converting existing legacyEmuDBs to the new emuDB format. Here is an example of how to use this function:
+As most people that are starting to use the EMU\_SDMS will probably already have annotated data we will now show how you can easily convert this existing data to the `emuDB` format (for a guide on how to create an `emuDB` from scratch see the `emuDB` vignette). 
+
+## legacy EMU databases
+For people transitioning to `emuR` from the legacy EMU system the package provides a function for converting existing legacyEmuDBs to the new emuDB format. Here is an example of how to use this function:
+
 
 ```{r}
 # load the package
@@ -36,6 +50,8 @@ convert_legacyEmuDB_to_emuDB(emuTplPath = tplPath, targetDir = tempdir(), verbos
 
 This will create a new emuDB in a temporary folder that is provided by the `R` function `tempdir()` containing all the information specified in the `.tpl` file. The name of the new emuDB is the same as the basename of the `.tpl` file from which it was generated. In other words, if the template file of your legacyEmuDB has the path `A` and the directory to which the converted database is to be written has the path `B`, then  `convert_legacyEmuDB_to_emuDB("A", targetdir = "B")` will perform the conversion.
 
+## TextGrid collections
+
 A further function provided is the `convert_TextGridCollection_to_emuDB()` function. This function converts an existing `.TextGrid` & `.wav` file collection to the emuDB format. In order to  pair the correct files together the `.TextGrid` files as well as the `.wav` files must have the same name (i.e. file name without extension). A further restriction is that the tiers contained within all the `.TextGrid` files have to be equal in name & type (equal subsets can be chosen using the `tierNames` argument of the function). For example, if all `.TextGrid` files contain the tiers `Syl: IntervalTier`, `Phonetic: IntervalTier` and `Tone: TextTier` the conversion will work. However, if a single `.TextGrid` of the collection has the additional tier `Word: IntervalTier` the conversion will fail, although it can be made to work by specifying the equal subset `equalSubset = c('Syl', 'Phonetic', 'Tone')` and passing it into the function argument `convert_TextGridCollection_to_emuDB(..., tierNames = equalSubset, ...)`. 
 
 ```{r}
@@ -49,6 +65,8 @@ convert_TextGridCollection_to_emuDB(path2folder, dbName = 'myTGcolDB',
 
 This will create a new emuDB in the folder `tempdir()` called 'myTGcolDB'. The emuDB will contain all the tier information from the `.TextGrid` files but will not contain hierarchical information as `.TextGrid` files do not contain any linking information. To generate links between the generated `SEGMENTS` and `EVENTS` see the [Autobuilding](#autobuilding) section of this document.
 
+
+## BPF collections
 
 # extracting / manipulating and visualizing data
 
