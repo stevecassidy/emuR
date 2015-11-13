@@ -150,7 +150,7 @@ test_that("sqlConnections CRUD operations work", {
     purge_all_emuDBs(interactive = F)
     expect_true(length(internalVars$sqlConnections) == 0)
     
-    inMemHandle = add_emuDBhandle(basePath="arbitrary path",dbUUID="aec09a3e-130f-4c6e-b6e2-88b3667c1b6c")
+    inMemHandle = add_emuDBhandle(name=dbName,basePath="arbitrary path",dbUUID="aec09a3e-130f-4c6e-b6e2-88b3667c1b6c")
     expect_true(length(internalVars$sqlConnections) == 1)
   
   })

@@ -11,8 +11,7 @@ newDbName = "ae_copy"
 
 # clean up
 if(is.emuDB.loaded(newDbName)){
-  UUID = get_emuDB_UUID(dbName = newDbName)
-  .purge.emuDB(UUID)
+  purge_emuDB(dbName=newDbName)
 }
 
 # create base path
@@ -25,7 +24,7 @@ schema=.update.transient.schema.values(schema)
 
 # create db object
 db=create.database(name = schema[['name']],basePath = normalizePath(basePath),DBconfig = schema)
-add_emuDBhandle(basePath,schema[['UUID']])
+add_emuDBhandle(name=db[['name']],basePath,schema[['UUID']])
 
 dbsDf=dbGetQuery(get_emuDBcon(schema[['UUID']]),paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
 if(nrow(dbsDf)>0){

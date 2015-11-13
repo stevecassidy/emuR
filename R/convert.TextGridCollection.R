@@ -75,7 +75,7 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
   schema$EMUwebAppConfig$activeButtons=list(saveBundle=TRUE,
                                            showHierarchy=TRUE)
   sdbUUID=schema[['UUID']]
-  add_emuDBhandle(basePath,sdbUUID)
+  add_emuDBhandle(dbName,basePath,sdbUUID)
   dbsDf=dbGetQuery(get_emuDBcon(sdbUUID),paste0("SELECT * FROM emuDB WHERE uuid='",sdbUUID,"'"))
   if(nrow(dbsDf)>0){
     stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
@@ -113,7 +113,7 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
       res=dir.create(sfp)
       if(!res){
         # purge tmp emuDB
-        .purge.emuDB(dbUUID)
+        purge_emuDB(dbUUID=dbUUID,interactive=F)
         stop("Could not create session directory: ",sfp," !\n")
       }
     }
@@ -164,7 +164,7 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
     res=dir.create(bfp)
     if(!res){
       # purge tmp emuDB
-      .purge.emuDB(dbUUID)
+      purge_emuDB(dbUUID=dbUUID,interactive = F)
       stop("Could not create bundle directory ",bfp," !\n")
     }
     pFilter=emuR.persist.filters.bundle
@@ -197,7 +197,7 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
   }
   
   # purge tmp emuDB
-  .purge.emuDB(dbUUID)
+  purge_emuDB(dbUUID=dbUUID,interactive=F)
   
 }
 

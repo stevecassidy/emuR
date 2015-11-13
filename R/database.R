@@ -54,12 +54,12 @@ get_emuDBcon <- function(dbUUID) {
   return(NULL)
 }
 
-
+## @param name name of emuDB
 ## @param basePath base path of emuDB
 ## @param dbUUID UUID of database
 ## @param path to SQLiteDB
 ## @return new or already existing emuDB handle
-add_emuDBhandle <- function(basePath, dbUUID,path = NULL){
+add_emuDBhandle <- function(name,basePath, dbUUID,path = NULL){
   foundHandle = NULL
   for(h in internalVars$sqlConnections){
     if(h$dbUUID == dbUUID){
@@ -84,7 +84,7 @@ add_emuDBhandle <- function(basePath, dbUUID,path = NULL){
       .initialize.DBI.database(con)
     }
   
-    newHandle=list(path = path,dbUUID=dbUUID,basePath=basePath,connection = con)
+    newHandle=list(name=name,path = path,dbUUID=dbUUID,basePath=basePath,connection = con)
     internalVars$sqlConnections[[length(internalVars$sqlConnections) + 1]] = newHandle
     foundHandle = newHandle
   }
@@ -442,34 +442,33 @@ get_emuDB_UUID<-function(dbName=NULL,dbUUID=NULL){
     if(!is.character(dbName)){
       stop("Parameter dbName must be of type character vector!")
     }
-    dbQ=paste0("SELECT uuid FROM emuDB WHERE name='",dbName,"'")
-    
-  }else{
-    dbQ=paste0("SELECT uuid FROM emuDB WHERE uuid='",dbUUID,"'") 
+    # find handle by name
+    dbCount=0
+    for(h in internalVars$sqlConnections){
+      if(h$name==dbName){
+          dbUUID=h$dbUUID
+          dbCount=dbCount+1;
+      }
+    }
+    if(dbCount==0){
+      stop("Database '",dbName,"' not found !\n")
+    }else if(dbCount>1){
+      stop("Found ",dbCount," databases with same name: ",dbName,". Please use database UUID!\n")
+    }
   }
-  #dbDf = data.frame()
-  allDbsDf=data.frame()
-  for(c in internalVars$sqlConnections){
-    dbDf=dbGetQuery(c$connection,dbQ)
-    #if(nrow(dbDf) != 0){
-      allDbsDf=rbind(allDbsDf,dbDf)
-    #}
+  # check if loaded
+  dbCount=0
+  for(h in internalVars$sqlConnections){
+    if(h$dbUUID==dbUUID){
+      dbCount=dbCount+1
+    }
   }
-  dbCount=nrow(allDbsDf)
   if(dbCount==0){
-    if(is.null(dbUUID)){
-      stop("Database '",dbName,"'' not found !\n")
-    }else{
-      stop("Database with UUID '",dbUUID,"' not found !\n")
-    }
+    stop("Database with UUID '",dbUUID,"' not found !\n")
   }else if (dbCount==1){
-    return(allDbsDf[['uuid']])
+    return(dbUUID)
   }else{
-    if(is.null(dbUUID)){
-      stop("Found ",dbCount," databases with same name: ",allDbsDf[1,'name'],". Please use database UUID!\n")
-    }else{
-      stop("Internal error: Found ",dbCount," databases with same UUID: ",allDbsDf[1,'uuid'],"\n")
-    }
+    stop("Internal error: Found ",dbCount," databases with same UUID: ",dbUUID,"\n")
   }
 }
 
@@ -1452,7 +1451,7 @@ create_emuDB<-function(name, targetDir, mediaFileExtension='wav',
   db=create.database(name=name,basePath=basePath,DBconfig = dbConfig)
   # .initialize.DBI.database()
   dbUUID=dbConfig[['UUID']]
-  add_emuDBhandle(basePath = basePath,dbUUID=dbUUID)
+  add_emuDBhandle(name=name,basePath = basePath,dbUUID=dbUUID)
   .store.emuDB.DBI(get_emuDBcon(dbUUID), database = db)
   if(store){
     store(targetDir=targetDir,dbUUID=dbUUID, showProgress = verbose)
@@ -1844,7 +1843,8 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
   # normalize base path
   basePath = normalizePath(databaseDir)
   # create db object
-  db=create.database(name = schema[['name']],basePath=basePath ,DBconfig = schema)
+  dbName=schema[['name']]
+  db=create.database(name = dbName,basePath=basePath ,DBconfig = schema)
   
   dbUUID = schema$UUID
   
@@ -1854,11 +1854,11 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
   
   # add new connection
   if(inMemoryCache){
-    handle = add_emuDBhandle(basePath,dbUUID)
+    handle = add_emuDBhandle(dbName,basePath,dbUUID)
     con=handle$connection
   }else{
     dbPath = file.path(normalizePath(databaseDir), paste0(schema$name, database.cache.suffix))
-    handle = add_emuDBhandle(basePath, dbUUID,dbPath)
+    handle = add_emuDBhandle(dbName,basePath, dbUUID,dbPath)
     con=handle$connection
   }
   

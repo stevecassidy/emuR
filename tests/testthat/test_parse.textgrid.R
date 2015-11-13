@@ -13,8 +13,7 @@ newDbName = "parsedSingleTG"
 
 # clean up
 if(is.emuDB.loaded(newDbName)){
-  UUID = get_emuDB_UUID(dbName = newDbName)
-  .purge.emuDB(UUID)
+  purge_emuDB(dbName = newDbName,interactive=F)
 }
 # tmp project base path
 basePath=file.path(tempdir(), newDbName)
@@ -27,7 +26,7 @@ schema=.update.transient.schema.values(schema)
 db=create.database(name = schema[['name']],basePath = normalizePath(basePath) ,DBconfig = schema)
 
 # .initialize.DBI.database()
-add_emuDBhandle(basePath,schema[['UUID']])
+add_emuDBhandle(name=schema[['name']],basePath,schema[['UUID']])
 dbsDf=dbGetQuery(get_emuDBcon(schema[['UUID']]),paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
 if(nrow(dbsDf)>0){
   stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
@@ -183,8 +182,7 @@ test_that("SQLite label table has correct values", {
 
 # clean up
 if(is.emuDB.loaded(newDbName)){
-  UUID = get_emuDB_UUID(dbName = newDbName)
-  .purge.emuDB(UUID)
+  purge_emuDB(dbName = newDbName,interactive = F)
 }
 
 # print(dbReadTable(get_emuDBcon(dbUUID), 'emuDB'))

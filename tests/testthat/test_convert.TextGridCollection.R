@@ -41,7 +41,7 @@ test_that("bad calls cause errors", {
 
 ##############################
 test_that("correct emuDB is created", {
-  
+
   convert_TextGridCollection_to_emuDB(dir = path2tgCol, 
                                       dbName = emuDBname,
                                       path2testData, verbose=F)
@@ -113,6 +113,9 @@ test_that("correct emuDB is created", {
   })
   
   # clean up
+  if(is.emuDB.loaded(emuDBname)){
+    purge_emuDB(dbName = emuDBname,interactive = F)
+  }
   unlink(path2newDb, recursive = T)
   
 })
@@ -196,6 +199,9 @@ test_that("only specified tiers are converted when tierNames is set", {
   
   
   # clean up
+  if(is.emuDB.loaded(emuDBname)){
+    purge_emuDB(dbName = emuDBname,interactive = F)
+  }
   unlink(path2newDb, recursive = T)
   
 })

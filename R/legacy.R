@@ -754,6 +754,9 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
   # get UUID
   dbUUID=dbConfig[['UUID']]
   
+  # get name
+  dbName=dbConfig[['name']]
+  
   # set user editable
   dbConfig[['EMUwebAppConfig']][['activeButtons']]=list(saveBundle=TRUE, showHierarchy=TRUE)
   
@@ -761,7 +764,7 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
   # .initialize.DBI.database()
   
   # add handle for in memory DB
-  dbHandle=add_emuDBhandle(basePath=pp,dbUUID=dbUUID)
+  dbHandle=add_emuDBhandle(name=dbName,basePath=pp,dbUUID=dbUUID)
   
   # store db schema file
   .store.DBconfig(get_emuDBcon(dbUUID), pp,dbConfig)

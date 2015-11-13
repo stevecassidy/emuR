@@ -143,7 +143,7 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
                        basePath = basePath, 
                        DBconfig = dbSchema)
   
-  add_emuDBhandle(basePath = basePath,dbUUID=dbUUID)
+  add_emuDBhandle(name=dbName,basePath = basePath,dbUUID=dbUUID)
   
   # ---------------------------------------------------------------------------
   # ------------------------ Initialize progress bar --------------------------
@@ -345,7 +345,7 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
                         dbUUID = dbUUID,
                         verbose = verbose)
   
-  .purge.emuDB(dbUUID)
+  purge_emuDB(dbUUID=dbUUID,interactive=F)
   
   # ---------------------------------------------------------------------------
   # -------------- Display any warnings collected during parsing --------------

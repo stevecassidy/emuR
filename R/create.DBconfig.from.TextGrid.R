@@ -31,7 +31,7 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName, basePath,tierNames=NULL
   # create tmp db 
   dbConfig=create.schema.databaseDefinition(name=dbName,mediafileExtension = 'wav')
   db=create.database(name=dbName,basePath=basePath,DBconfig = dbConfig)
-  add_emuDBhandle(basePath=basePath,dbUUID=dbConfig$UUID)
+  add_emuDBhandle(name=dbName,basePath=basePath,dbUUID=dbConfig$UUID)
   .store.emuDB.DBI(get_emuDBcon(dbConfig$UUID), database = db)
   
   # parse TextGrid  
@@ -105,8 +105,7 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName, basePath,tierNames=NULL
   dbSchema$maxNumberOfLabels = 1
   
   # purge tmp DB 
-  UUID = get_emuDB_UUID(dbName = dbName)
-  .purge.emuDB(UUID)
+  purge_emuDB(dbName=dbName,interactive = F)
   
   
   return(dbSchema)
