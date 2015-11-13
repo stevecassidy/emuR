@@ -1,7 +1,7 @@
 ---
-title: "An introduction to the emuR package"
+title: "An Introduction to the emuR package"
 subtitle: "The Main Package of the EMU Speech Database Management System"
-affiliation: "Institute Of Phonetics And Speech Processing (LMU Munich)"
+affiliation: "Institute of Phonetics and Speech Processing (LMU Munich)"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 bibliography: vignettes.bib
