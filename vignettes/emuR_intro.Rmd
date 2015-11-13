@@ -15,6 +15,10 @@ vignette: >
 
 # Introduction
 
+This document is meant as an introduction to the `emuR` package and is meant to provide an overview of what the package is capable of and how it interacts with the other components of the EMU Speech Database Management System (EMU\_SDMS). It is by no means meant as a definite guide but rather tries to give an outline of what it is like working with speech databases in the EMU\_SDMS by walking you through a few typical use cases.
+
+The `emuR` beeing only one component of serveral of the EMU\_SDMS can be viewed as the central instance of EMU and as such will be the main component that the user will interact with.
+
 # Converting existing databases
 
 The `emuR` package provides a function for converting existing legacyEmuDBs to the new emuDB format. Here is an example of how to use this function:

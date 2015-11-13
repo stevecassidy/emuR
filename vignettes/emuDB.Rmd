@@ -405,11 +405,44 @@ We have now completed the configuration of the 'fromScratchDB' emuDB. By calling
 
 # Autobuilding
 
-TODO: Write about Autobuilding 
+Autobuilding is a process that let's the emuDB maintainer semi-automatically build hierarchical structrues from preexisting annotations by programatically linking ITEMS together. To have some preexisting annotations to play with, let us convert a TextGridCollection and load the newly created emuDB into the current R session.
 
-The available functions are:
+```{r}
+# load the package
+library(emuR)
+# create demo data in folder provided by the tempdir() function
+# create_emuRdemoData() #<- SIC this should not be commented out 
+# get the path to a folder containing .wav & .TextGrid files that is part of the demo data
+path2folder = file.path(tempdir(), "emuR_demoData", "TextGrid_collection")
+# convert this TextGridCollection to the emuDB format
+convert_TextGridCollection_to_emuDB(path2folder, dbName = "myTGcolDB", 
+                                    targetDir = tempdir(), verbose = F)
+# load database
+# dbName = load_emuDB(file.path(tempdir(), "myTGcolDB"), verbose = F)
+```
 
-- autobuild_linkFromTimes()
+By inspecting the emuDB we can see that it has 11 levelDefinitions but no linkDefinitions. This means that it will not be possible to perform hierarchical queries on this emuDB as there is no explicit hierarchical information in the database.
+
+```{r}
+# list
+list_levelDefinitions(dbName)
+# list
+list_ssffTrackDefinitions(dbName)
+```
+
+## autobuild_linkFromTimes
+
+As it is a very laborious task to manually link ITEMs together using the EMU-webApp and the hierachical information is already implicitaly contained in the time information of the SEGMENTs and EVENTs of each level (see figure below), the `emuR` package provides a function to link these build hierarchical structures from this information. 
+
+![Alt text](pics/msajc003tg.png "you smell")
+
+This 
+
+
+
+
+
+
 
 ```{r}
 # cleanup
