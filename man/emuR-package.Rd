@@ -4,7 +4,7 @@
 \name{emuR-package}
 \alias{emuR}
 \alias{emuR-package}
-\title{emuR - Main package of the EMU Speech Database Management System}
+\title{emuR - Main Package of the EMU Speech Database Management System}
 \description{
 The emuR package provides the next iteration of the EMU Speech 
 Database Management System with database management, data 

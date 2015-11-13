@@ -1,4 +1,4 @@
-##' emuR - Main package of the EMU Speech Database Management System
+##' emuR - Main Package of the EMU Speech Database Management System
 ##' 
 ##' The emuR package provides the next iteration of the EMU Speech 
 ##' Database Management System with database management, data 
