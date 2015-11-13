@@ -44,26 +44,12 @@ For more detailed information about the file formats used see the [File descript
 
 There are multiple ways of creating emuDBs. The two main strategies are to either convert existing databases or file collections to the new format or to create new databases from scratch. As the emuR\_intro vignette, that can be accessed by invoking this command: `vignette("emuR_intro", package="emuR")`, describes how existing databases can be converted, only the latter of both strategies is described below.
 
-## SIC! This code should be removed
-
-```{r}
-# load the package
-library(emuR)
-# create demo data in folder provided by the tempdir() function
-create_emuRdemoData()
-# get the path to a .tpl file of a legacyEmuDB that is part of the demo data
-tplPath = file.path(tempdir(), "emuR_demoData", "legacy_ae", "ae.tpl")
-# convert this legacyEmuDB to the emuDB format
-convert_legacyEmuDB_to_emuDB(emuTplPath = tplPath, targetDir = tempdir(), verbose = F)
-```
-
-
 ## Creating an emuDB from scratch
 
 
 To create an emuDB from scratch simply call:
 
-```{r}
+```{r results='hide', message=FALSE, warning=FALSE}
 # load the package
 library(emuR)
 
@@ -319,7 +305,7 @@ A further important structural element of any emuDB are the so called ssffTracks
 
 Let us now add an ssffTrackDefinition to our database and calculate the SSFF files at the same time:
 
-```{r}
+```{r results='hide', message=FALSE, warning=FALSE}
 # add track and calculate SSFF files by specifying 
 # one of the signal processing functions the wrassp package provides
 # (in this case the forest (formant estimation) function)
@@ -407,11 +393,9 @@ We have now completed the configuration of the 'fromScratchDB' emuDB. By calling
 
 Autobuilding is a process that let's the emuDB maintainer semi-automatically build hierarchical structrues from preexisting annotations by programatically linking ITEMS together. To have some preexisting annotations to play with, let us convert a TextGridCollection and load the newly created emuDB into the current R session.
 
-```{r}
-# load the package
-library(emuR)
+```{r results='hide', message=FALSE, warning=FALSE}
 # create demo data in folder provided by the tempdir() function
-# create_emuRdemoData() #<- SIC this should not be commented out 
+create_emuRdemoData()
 # get the path to a folder containing .wav & .TextGrid files that is part of the demo data
 path2folder = file.path(tempdir(), "emuR_demoData", "TextGrid_collection")
 # convert this TextGridCollection to the emuDB format
