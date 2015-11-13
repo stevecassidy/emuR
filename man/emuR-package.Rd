@@ -27,8 +27,8 @@ Typical work-flow in emuR (emuDB required):
 \item Database annotation / visual inspection - \code{\link{serve}} and connect the EMU-webApp to the local server
 \item Query database - \code{\link{query}} (sometimes followed by \code{\link{requery_hier}} or \code{\link{requery_seq}})
 \item Get trackdata (e.g. formant values) for the result of a query - \code{\link{get_trackdata}}
-\item Data preparation - \code{\link{dcut}}, \code{\link{mel}}
-\item Visual data inspection - \code{\link{plot}}, \code{\link{dplot}}, \code{\link{eplot}}
+\item Data preparation
+\item Visual data inspection
 \item Further analysis and statistical processing
 }
 }
