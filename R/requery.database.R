@@ -300,7 +300,7 @@ requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
       lIts=sqldf(c(itemsIdxSql,linksIdxSql,leftQuery))
       rIts=sqldf(c(itemsIdxSql,linksIdxSql,rightQuery))
       heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.seqEndId,(ir.rSeqIdx-il.seqIdx+1) AS seqLen,'",level,"' AS level \
-                         FROM lIts il JOIN rIts ir ON il.ROWID=ir.ROWID")
+                         FROM lIts il JOIN rIts ir ON il.ROWID=ir.ROWID ORDER BY il.ROWID")
     }
     
     he=sqldf(c(itemsIdxSql,linksIdxSql,heQueryStr))
