@@ -199,7 +199,9 @@ convert.query.result.to.seglist<-function(dbConfig,result){
     }
     }
   segList=make.seglist(labels=labels, start=start, end=end, utts=bundles, query=result[['queryStr']], type=slType, database=dbConfig[['name']])
-  return(segList)
+  # segList is now ordered by temporary seglist ID's, but we need order uuid,session,bundle,sampleStart,samplePoint
+  segListOrdered=segList[order(segList[['utts']],segList[['start']]),]
+  return(segListOrdered)
 }
 
 
@@ -421,7 +423,7 @@ convert.query.result.to.segmentlist<-function(dbConfig,result,timeRefSegmentLeve
                        END AS end, \
                        session || ':' || bundle AS utts, \
                        db_uuid,session,bundle,startItemID,endItemID,level,type,sampleStart,sampleEnd,sampleRate \
-                      FROM segListData")
+                      FROM segListData ORDER BY db_uuid,session,bundle,sampleStart")
   # set emusegs type attribute, default 'segment'
   slType='segment'
   if(nrow(seglist)>0){

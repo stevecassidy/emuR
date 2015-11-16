@@ -886,6 +886,7 @@ query.database.with.eql<-function(dbConfig,query){
 ##' @details Evaluates EQL2 query string on emuDB and returns a segment list of desired type.  
 ##' For details of the query language please refer to EQL vignette (type: \code{vignette('EQL')} ). 
 ##' Time information of symbolic elements (type 'ITEM') are derived from linked segment levels if available. If not available time and sample values may be set to \code{\link{NA}}.
+##' emuRsegs result lists will be ordered by UUID,session,bundle and sample start position. Legacy emusegs lists are ordered by the fields utts and start.
 ##' @param dbName name of EMU database
 ##' @param query EQL2 query string
 ##' @param sessionPattern A regular expression pattern matching session names to be searched from the database

@@ -418,6 +418,10 @@ Legacy Emu query requires blanks around some operators or brackets in some queri
 
 emuR accepts these queries without blanks.
 
+### Order of result segment list
+It is unknown if legacy Emu returns the seglist ordered.
+emuR returns emuRsegs result lists ordered by UUID,session,bundle and sample start position and emusegs lists by the fields utts and start.
+
 ### Additional features
 
 emuR accepts also the double equal character string '==' as equal operator.
