@@ -153,7 +153,7 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBo
 ##' }
 requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
   if(!inherits(seglist,"emuRsegs")){
-    stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType wiil be used)")
+    stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType will be used)")
   }
   
   
