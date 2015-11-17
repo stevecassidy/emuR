@@ -306,6 +306,11 @@ requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
     he=sqldf(c(itemsIdxSql,linksIdxSql,heQueryStr))
     result=list(items=he)
     trSl=convert.query.result.to.segmentlist.var(dbConfig = dbConfig,result=result)
+    inSlLen=nrow(seglist)
+    trSlLen=nrow(trSl)
+    if(inSlLen!=trSlLen){
+      warning("Length of requery segment list (",inSlLen,") differs from input list (",trSlLen,")!")
+    }
     return(trSl)
   }
 }
