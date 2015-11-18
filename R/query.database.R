@@ -458,7 +458,7 @@ query.database.eql.ETTIKETTA<-function(dbConfig,q,labels=NULL){
           label=substr(labelAlt,2,lblTrimLen-1)
           labelAltsUq=c(labelAltsUq,label)
         }else{
-          # check for labelGroup
+          # check for labelGroup on level
           lvlDefs=dbConfig[['levelDefinitions']]
           isLabelGroup=FALSE
           for(lvlDef in lvlDefs){
@@ -472,8 +472,23 @@ query.database.eql.ETTIKETTA<-function(dbConfig,q,labels=NULL){
                       labelAltsUq=c(labelAltsUq,lblGrpVal)
                     }
                     isLabelGroup=TRUE
+                    break
                   }
                 }
+              }
+            }
+          }
+          if(!isLabelGroup){
+            # check for database labelGroup
+            dbLblGrps=dbConfig$labelGroups
+            for(dbLblGrp in dbLblGrps){
+              if(labelAlt==dbLblGrp[['name']]){
+                # is label group, expand
+                for(dbLblGrpVal in dbLblGrp[['values']]){
+                  labelAltsUq=c(labelAltsUq,dbLblGrpVal)
+                }
+                isLabelGroup=TRUE
+                break
               }
             }
           }

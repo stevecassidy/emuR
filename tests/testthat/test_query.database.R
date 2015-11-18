@@ -76,7 +76,7 @@ test_that("Query labels",{
   expect_that('[.data.frame'(sl1,1,'utts'),is_identical_to(I('0000:msajc057')))
 })
 
-test_that("Query label groups",{
+test_that("Query level label groups",{
   
   
   sl1=query('ae',"Phoneme=nasal",resultType='emusegs')
@@ -85,6 +85,14 @@ test_that("Query label groups",{
   sl2=query('ae',"Phonetic=nasal",resultType='emusegs')
   # TODO check some items
   expect_that(nrow(sl2),equals(19))
+})
+
+test_that("Query database label groups",{
+  
+  add_labelGroup('ae','testGroup1',c('p','r'))
+  sl1=query('ae',"Phoneme=testGroup1")
+  expect_that(nrow(sl1),equals(11))
+  
 })
 
 # 
