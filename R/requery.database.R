@@ -2,18 +2,22 @@ require(sqldf)
 require(stringr)
 
 ##' Requery sequential context of segment list
+##' @details Builds a new segment list on the same hierarchical level. The result segments may have different start position and length controlled by the \code{offset},\code{offsetRef} and \code{length} parameter.
+##' \code{offsetRef} determines if the position offset is referenced to the start or the end item of the input list. Parameter \code{offset} determines the offset of the result start position to this reference item.
+##' Parameter length sets the length of the result segments.
+##' If the requested segments are out of bundle boundaries and parameter \code{ignoreOutOfBounds} is \code{TRUE} (the default) an error is generated. To get residual result segments that lie within the bounds the \code{ignoreOutOfBounds} parameter can be set to \code{TRUE}.
 ##' @param seglist segment list to requery on (type: 'emuRsegs')
 ##' @param offset start offset in sequence
-##' @param offsetRef reference elemnt for offset: 'START' for first and 'END' for last element of segment list
+##' @param offsetRef reference element for offset: 'START' for first and 'END' for last element of segment list
 ##' @param length element length of returned segment list
 ##' @param ignoreOutOfBounds ignore result segments that are out of bundle bounds
-##' @param dbUUID optional UUID odf emuDB
+##' @param dbUUID optional UUID of emuDB
 ##' @return result set object of class 'emuRsegs'
 ##' @author Klaus Jaensch
 ##' @import sqldf
 ##' @export
-##' @seealso \code{\link{query}}
-##' @keywords emuDB database requery Emu EQL2 
+##' @seealso \code{\link{query}} \code{\link{emuRsegs}}
+##' @keywords emuDB database requery
 ##' @examples
 ##' \dontrun{
 ##' 
@@ -105,6 +109,7 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBo
     }else{
       stop("Parameter offsetRef must be one of 'START' or 'END'\n")
     }
+    heQueryStr=paste0(heQueryStr," ORDER BY il.ROWID");
     he=sqldf(heQueryStr)
     slLen=nrow(seglist)
     resLen=nrow(he)
@@ -123,15 +128,20 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBo
 }
 
 ##' Requery hierarchical context of segment list
-##' @param seglist segment list to requery on (type: 'emuRsegs')
+##' @details For each segment of the input list the function looks for hierarchically connected items of start and end item for the result segment on the given target level.
+##'       For the start item the item with the lowest sample position is chosen, for the end item with the highest sample position.
+##'       The result list will have the same order as the input list. If result and the input list have the same length, the result segments have the same position as the corresponding ones in the input list. 
+##'       If the length of the lists differ a synchronous ordering is not possible and therefore a warning is generated.
+##' 
+##' @param seglist segment list to requery on (type: \link{emuRsegs})
 ##' @param level character string: result level 
 ##' @param dbUUID optional UUID odf emuDB
-##' @return result set object of class 'emuRsegs'
+##' @return result set object of class \link{emuRsegs}
 ##' @author Klaus Jaensch
 ##' @import sqldf
 ##' @export
-##' @seealso \code{\link{query}}
-##' @keywords emuDB database requery Emu EQL2 
+##' @seealso \code{\link{query}} \code{\link{emuRsegs}}
+##' @keywords emuDB database requery
 ##' @examples
 ##' \dontrun{
 ##' 

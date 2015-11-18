@@ -32,10 +32,13 @@ result set object of class resultType (default: \link{emuRsegs}, compatible to l
 Query an EMU database
 }
 \details{
-Evaluates EQL2 query string on emuDB and returns a segment list of desired type.  
-For details of the query language please refer to EQL vignette (type: \code{vignette('EQL')} ). 
-Time information of symbolic elements (type 'ITEM') are derived from linked segment levels if available. If not available time and sample values may be set to \code{\link{NA}}.
-emuRsegs result lists will be ordered by UUID,session,bundle and sample start position. Legacy emusegs lists are ordered by the fields utts and start.
+Evaluates EQL2 query string on an emuDB refrenced by dbName and returns a segment list of desired type.  
+For details of the query language please refer to EQL vignette (type: \code{vignette('EQL')} ).
+Returns a list of segments which meet the conditions given by the query string. A segment is determined by a start and end item. Segments with item length one have the same start and end item.
+Segment objects contain the start and end time information of the segment. \link{emuRsegs} objects additionally contain sample position of start and end item. 
+Time information of symbolic elements (type 'ITEM') are derived from linked segment levels if available. If time and sample values cannot be derived they will be set to \code{\link{NA}}.
+\link{emuRsegs} result lists will be ordered by the hidden columns UUID,session,bundle and sample start position. Legacy \link{emusegs} lists are ordered by the columns utts and start.
+The query may be limited to session and/or bundle names specified by regular expression pattern strings (see \link{regex}) for parameters \code{sessionPattern} respectively \code{bundlePattern}.
 }
 \examples{
 \dontrun{

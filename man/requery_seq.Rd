@@ -12,19 +12,25 @@ requery_seq(seglist, offset = 0, offsetRef = "START", length = 1,
 
 \item{offset}{start offset in sequence}
 
-\item{offsetRef}{reference elemnt for offset: 'START' for first and 'END' for last element of segment list}
+\item{offsetRef}{reference element for offset: 'START' for first and 'END' for last element of segment list}
 
 \item{length}{element length of returned segment list}
 
 \item{ignoreOutOfBounds}{ignore result segments that are out of bundle bounds}
 
-\item{dbUUID}{optional UUID odf emuDB}
+\item{dbUUID}{optional UUID of emuDB}
 }
 \value{
 result set object of class 'emuRsegs'
 }
 \description{
 Requery sequential context of segment list
+}
+\details{
+Builds a new segment list on the same hierarchical level. The result segments may have different start position and length controlled by the \code{offset},\code{offsetRef} and \code{length} parameter.
+\code{offsetRef} determines if the position offset is referenced to the start or the end item of the input list. Parameter \code{offset} determines the offset of the result start position to this reference item.
+Parameter length sets the length of the result segments.
+If the requested segments are out of bundle boundaries and parameter \code{ignoreOutOfBounds} is \code{TRUE} (the default) an error is generated. To get residual result segments that lie within the bounds the \code{ignoreOutOfBounds} parameter can be set to \code{TRUE}.
 }
 \examples{
 \dontrun{
@@ -70,10 +76,8 @@ requery_seq(sl3,length=3,ignoreOutOfBounds=TRUE)
 Klaus Jaensch
 }
 \seealso{
-\code{\link{query}}
+\code{\link{query}} \code{\link{emuRsegs}}
 }
-\keyword{EQL2}
-\keyword{Emu}
 \keyword{database}
 \keyword{emuDB}
 \keyword{requery}
