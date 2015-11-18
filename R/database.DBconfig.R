@@ -130,11 +130,27 @@ summary.emuDB.schema.databaseDefinition<-function(schema,header=TRUE){
     cat("\n")
   }
   cat("\n")
+  lblGrps=schema[['labelGroups']]
+  if(length(lblGrps)>0){
+    cat("Database label group definitions:\n")
+    for(lblGrp in lblGrps){
+      print.emuDB.schema.labelGroup(lblGrp)
+    }
+  }
+  cat("\n")
   cat("Link definitions:\n")
   for(ld in schema[['linkDefinitions']]){
     print(ld)
   }
   
+}
+
+print.emuDB.schema.labelGroup<-function(labelGroup){
+  labelVals=c()
+  for(lblGrpVal in labelGroup[['values']]){
+    labelVals=c(labelVals,lblGrpVal)
+  }
+  cat("\tLabel group: ",labelGroup[['name']],": ",labelVals,"\n")
 }
 
 print.emuDB.schema.levelDefinition<-function(levelDefinition){
@@ -143,6 +159,13 @@ print.emuDB.schema.levelDefinition<-function(levelDefinition){
 
 print.emuDB.schema.attributeDefinition<-function(attributeDefinition){
   cat(attributeDefinition[['name']],"\ttype:\t",attributeDefinition[['type']],"\n")
+  lblGrps=attributeDefinition[['labelGroups']]
+  if(length(lblGrps)>0){
+    cat("\n\tLabel group definitions:\n")
+    for(lblGrp in lblGrps){
+      print.emuDB.schema.labelGroup(lblGrp)
+    }
+  }
 }
 
 print.emuDB.schema.linkDefinition<-function(linkDefinition){
