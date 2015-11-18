@@ -625,7 +625,7 @@ create.database <- function(name,basePath=NULL,DBconfig=create.schema.databaseDe
 
 ##' Print summary of EMU database (emuDB).
 ##' @description Gives an overview of an EMU database.
-##' Prints database name, base directory path and informations about annotation levels, attributes, links, and signal file tracks
+##' Prints database name, UUID, base directory path, session and bundle count and informations about signal track, annotation level, attribute and link definitions.
 ##' @param dbName name of emuDB
 ##' @param dbUUID optional UUID of emuDB
 ##' @export

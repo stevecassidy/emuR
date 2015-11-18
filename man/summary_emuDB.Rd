@@ -13,6 +13,6 @@ summary_emuDB(dbName = NULL, dbUUID = NULL)
 }
 \description{
 Gives an overview of an EMU database.
-Prints database name, base directory path and informations about annotation levels, attributes, links, and signal file tracks
+Prints database name, UUID, base directory path, session and bundle count and informations about signal track, annotation level, attribute and link definitions.
 }
 
