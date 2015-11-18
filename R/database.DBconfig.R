@@ -118,7 +118,11 @@ get_ssffTracks_used_by_DBconfig <- function(DBconfig){
 
 
 summary.emuDB.schema.databaseDefinition<-function(schema,header=TRUE){
-  
+  cat("SSFF track definitions:\n")
+  for(td in schema[['ssffTrackDefinitions']]){
+    cat("\tName: ",td[['name']],"\tColumn: ",td[['columnName']],"\tExt.: ",td[['fileExtension']],"\n")
+  }
+  cat("\n")
   cat("Level definitions:\n")
   for(ld in schema[['levelDefinitions']]){
     print(ld)
