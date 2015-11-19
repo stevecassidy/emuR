@@ -4,7 +4,7 @@
 ##' Database Management System with database management, data 
 ##' extraction, data preparation and data visualization facilities. 
 ##' It also contains a server that 
-##' is intended to host databases in the emuDB format (see \code{vignette('emuDB_intro')}) to the EMU-webApp 
+##' is intended to host databases in the emuDB format (see \code{vignette('emuDB')}) to the EMU-webApp 
 ##' (\url{http://ips-lmu.github.io/EMU-webApp/}). The querying of annotations is 
 ##' performed using EMU's own EQL2 (EMU Query Language Version 2).
 ##' 
@@ -12,7 +12,10 @@
 ##' which aims to be as close to an all-in-one solution for generating, manipulating, querying, 
 ##' analyzing and managing speech databases as possible. 
 ##' For an overview of the system please visit this URL: \url{http://ips-lmu.github.io/EMU.html}.
-##'  
+##'
+##' For an introduction to the emuR package please see the emuR_intro 
+##' by calling: vignette b\code{vignette('emuR_intro')} 
+##'    
 ##' Typical work-flow in emuR (emuDB required):
 ##' 
 ##' \enumerate{
