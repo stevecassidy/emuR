@@ -2,7 +2,7 @@
 % Please edit documentation in R/requery.database.R
 \name{requery_hier}
 \alias{requery_hier}
-\title{Requery hierarchical context of segment list in an emuDB}
+\title{Requery hierarchical context of a segment list in an emuDB}
 \usage{
 requery_hier(seglist, level = NULL, dbUUID = NULL)
 }
@@ -21,9 +21,9 @@ Function to requery hierarchical context of a segment list in an emuDB
 }
 \details{
 For each segment of the input list the function looks for hierarchically connected items of start and end item for the result segment on the given target level.
-      For the start item the item with the lowest sample position is chosen, for the end item with the highest sample position.
-      The result list will have the same order as the input list. If result and the input list have the same length, the result segments have the same position as the corresponding ones in the input list. 
-      If the length of the lists differ a synchronous ordering is not possible and therefore a warning is generated.
+      For the start item the item with the lowest sample position is chosen, for the end item that with the highest sample position.
+      The result list will have the same order as the input list. If result and input list have the same length, the result segments have the same position as the corresponding ones in the input list. 
+      If the length of the lists differ, a synchronous ordering is not possible and therefore a warning is generated.
 }
 \examples{
 \dontrun{
