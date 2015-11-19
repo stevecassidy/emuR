@@ -117,8 +117,46 @@ path2folder = file.path(tempdir(), "emuR_demoData", "ae")
 ae = load_emuDB(path2folder, verbose = FALSE)
 ```
 
-Now that we have loaded the 'ae' `emuDB` into our R session the next step is usually to visually inspect the annotations. The EMU\_SDMS has 
-a fairly unique approach to this, as it utilizes a web application called the EMU-webApp to act as it's graphical user interface. To be
+## Overview
+
+Now that we have loaded the 'ae' `emuDB` into our R session let us get a first impression of what the 'ae' `emuDB` looks like
+by calling:
+
+```{r}
+summary_emuDB(ae)
+```
+
+As you can see this command displays a lot of information. Most of the information is about the level and link definitions of the `emuDB`. 
+The summary information about the level definitions shows for instance that the 'ae' database has a 'Word' level (that most likely contains 
+word labels), which is of type 'ITEM' and therefore does not contain any time information. It also shows that a 'Phonetic' level (that most likely 
+contains phonetic symbols) of type 'SEGMENT' is present, which means that each phonetic annotational unit carries start time and segment duration
+information.
+
+The summary information about the Link definitions shows, among others, these three 'Link definitions':
+
+```
+Word    ->      Syllable        ONE_TO_MANY 
+Syllable        ->      Phoneme ONE_TO_MANY 
+Phoneme ->      Phonetic        MANY_TO_MANY
+```
+
+This implicates annoational units from the 'Word' level can somehow be connected to units from the 'Phonetic' level via 
+two other levels called 'Syllable' and 'Phoneme'. This is indeed the case and also the reason `emuR` is able to 
+deduce the time information for annotational units without time information (`type: 'ITEM'`) if they are connected, 
+even over multiple other levels, to annotational units with time information (`type: 'SEGMENT'`, `type: 'EVENT`).
+
+
+The easiest way to think of levels and links is a graph for each recording where levels are different 
+linguistic representations and the Links are the relations between them. Hence for our 'ae' `emuDB` we could say:
+Each recording has words, syllables and phones, and the relations are: 
+words consist of syllables, and syllables in turn consists of abstract phonemes, 
+which are produced as certain phones. An schematic excerpt of such an annotation can be seen below:
+
+![Alt text](pics/msajc003.svg)
+
+## Database annotation / visual inspection
+
+The EMU\_SDMS has a fairly unique approach to this, as it utilizes a web application called the EMU-webApp to act as it's graphical user interface. To be
 able to transfer the necessary data to the web application let us now serve the `emuDB` to it by using the `serve()` function:
 
 ```{r eval=FALSE}
@@ -137,15 +175,14 @@ By navigating to the above URL and clicking `connect` in the top menu bar and `c
 your current R session are able to connect to each other. You can now use the EMU-webApp to visually inspect your `emuDB`, annotate your data and more.
 Once you are finished using the EMU-webApp simply click the clear button in the top menu bar and your R console will free up again.
 
-**INFO: For more information about how to use the EMU-webApp click the EMU-webApp icon in the top right hand corner. For more 
+**INFO: For more information about how to use the EMU-webApp click the EMU-webApp icon in the top right hand corner in the webApps top menu bar. For more 
 information about how to configure the EMU-webApp see the 'Configuring the EMU-webApp' section of the `emuDB` vignette.**
-
 
 # Use cases
 
-As we have already completed the first two steps described in the typical work-flow example in the introduction, we will now describe the the rest of the 
+As we have already completed the first three steps described in the typical work-flow example in the introduction, we will now describe the the rest of the 
 work-flow by walking through a few use cases. The use cases will start by asking a question about the 'ae' database and will continue by walking
-you through the process of answering these questions by using the the mechanics the `emuR` package provides. 
+you through the process of answering these questions by using the the mechanics the `emuR` package provides.
 
 ## 1.) *What is the average length of all 'n' Phonetic SEGMENTs in the 'ae' emuDB?*
 
@@ -214,9 +251,10 @@ ggplot(td, aes(x=T2, y=T1, label=td$labels)) +
   guides(colour=FALSE)
 ```
 
-## 3.) ???
+## 3.) Do the sibilants in the 'ae' emuDB differ with respect to their 1st spectral moment?
 
-## 4.) ???
+To answer this question we first have to find out what the labels are available in the Phonetic level. 
+
 
 
 # Further reading
