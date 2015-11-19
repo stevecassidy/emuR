@@ -2,7 +2,7 @@
 % Please edit documentation in R/requery.database.R
 \name{requery_hier}
 \alias{requery_hier}
-\title{Requery hierarchical context of segment list}
+\title{Requery hierarchical context of segment list in an emuDB}
 \usage{
 requery_hier(seglist, level = NULL, dbUUID = NULL)
 }
@@ -17,7 +17,7 @@ requery_hier(seglist, level = NULL, dbUUID = NULL)
 result set object of class \link{emuRsegs}
 }
 \description{
-Requery hierarchical context of segment list
+Function to requery hierarchical context of a segment list in an emuDB
 }
 \details{
 For each segment of the input list the function looks for hierarchically connected items of start and end item for the result segment on the given target level.

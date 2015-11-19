@@ -1,7 +1,8 @@
 require(sqldf)
 require(stringr)
 
-##' Requery sequential context of segment list
+##' Requery sequential context of segment list in an emuDB
+##' @description Function to requery sequential context of segment list in an emuDB
 ##' @details Builds a new segment list on the same hierarchical level. The result segments may have different start position and length controlled by the \code{offset},\code{offsetRef} and \code{length} parameter.
 ##' \code{offsetRef} determines if the position offset is referenced to the start or the end item of the input list. Parameter \code{offset} determines the offset of the result start position to this reference item.
 ##' Parameter length sets the length of the result segments.
@@ -127,7 +128,8 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBo
   }
 }
 
-##' Requery hierarchical context of segment list
+##' Requery hierarchical context of segment list in an emuDB
+##' @description Function to requery hierarchical context of a segment list in an emuDB
 ##' @details For each segment of the input list the function looks for hierarchically connected items of start and end item for the result segment on the given target level.
 ##'       For the start item the item with the lowest sample position is chosen, for the end item with the highest sample position.
 ##'       The result list will have the same order as the input list. If result and the input list have the same length, the result segments have the same position as the corresponding ones in the input list. 

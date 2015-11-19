@@ -896,8 +896,8 @@ query.database.with.eql<-function(dbConfig,query){
   stop("Unknown syntax error.")
 }
 
-##' Query EMU database
-##' @description Query an EMU database
+##' Query emuDB
+##' @description Function to query an emuDB
 ##' @details Evaluates EQL2 query string on an emuDB refrenced by dbName and returns a segment list of desired type.  
 ##' For details of the query language please refer to EQL vignette (type: \code{vignette('EQL')} ).
 ##' Returns a list of segments which meet the conditions given by the query string. A segment is determined by a start and end item. Segments with item length one have the same start and end item.

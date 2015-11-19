@@ -2,7 +2,7 @@
 % Please edit documentation in R/requery.database.R
 \name{requery_seq}
 \alias{requery_seq}
-\title{Requery sequential context of segment list}
+\title{Requery sequential context of segment list in an emuDB}
 \usage{
 requery_seq(seglist, offset = 0, offsetRef = "START", length = 1,
   ignoreOutOfBounds = FALSE, dbUUID = NULL)
@@ -24,7 +24,7 @@ requery_seq(seglist, offset = 0, offsetRef = "START", length = 1,
 result set object of class 'emuRsegs'
 }
 \description{
-Requery sequential context of segment list
+Function to requery sequential context of segment list in an emuDB
 }
 \details{
 Builds a new segment list on the same hierarchical level. The result segments may have different start position and length controlled by the \code{offset},\code{offsetRef} and \code{length} parameter.

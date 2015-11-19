@@ -2,7 +2,7 @@
 % Please edit documentation in R/query.database.R
 \name{query}
 \alias{query}
-\title{Query EMU database}
+\title{Query emuDB}
 \usage{
 query(dbName = NULL, query, sessionPattern = NULL, bundlePattern = NULL,
   queryLang = "EQL2", timeRefSegmentLevel = NULL, resultType = NULL,
@@ -29,7 +29,7 @@ query(dbName = NULL, query, sessionPattern = NULL, bundlePattern = NULL,
 result set object of class resultType (default: \link{emuRsegs}, compatible to legacy type \link{emusegs})
 }
 \description{
-Query an EMU database
+Function to query an emuDB
 }
 \details{
 Evaluates EQL2 query string on an emuDB refrenced by dbName and returns a segment list of desired type.  
