@@ -17,21 +17,40 @@ load_emuDB(databaseDir, inMemoryCache = FALSE, verbose = TRUE)
 name of emuDB
 }
 \description{
-Load emuDB
+Function loads emuDB from filesystem to R session
+}
+\details{
+In order to use an emuDB from R it is necessary to load the annotation and configuration files to an emuR internal database format.
+The function expects an emuDB file structure in directory \code{databaseDir}. The emuDB configuration file is loaded first. On success the function iterates through session and bundle directories and loads found annotation files.
+Parameter \code{inMemoryCache} determines where the internal database is stored:
+If \code{FALSE} a databse cache file in \code{databaseDir} is used. When the database is loaded for the first time the function will create a new cache file and store the data to it. On subsequent loading of the same database the cache is only updated if files have changed, therefore the loading is then much faster.
+The user needs write permissions to \code{databaseDir} and the cache file.
+The database is loaded to a volatile in-memory database if \code{inMemoryCache} is set to \code{TRUE}.
+If the requested emuDB is already loaded to the R session, data of changed annotation or configuration files get updated. The reloaded representation of the database is then in sync with the filesystem.
 }
 \examples{
 \dontrun{
-## Load database 'ae' in directory /homes/mylogin/EMUnew/ae
+## Load database 'ae' in directory /homes/mylogin/EMUnew/ae 
+## assuming an existing emuDB structure in this directory
 
-dbName=load_emuDB("/homes/mylogin/EMUnew/ae")
+dbName=load_emuDB("/homes/mylogin/EMU/ae")
+
+## Load database 'ae' from demo data
+
+# create demo data in temporary directory
+create_emuRdemoData()
+# build base path to demo emuDB
+demoDatabaseDir=file.path(tempdir(),"emuR_demoData","ae")
+
+load demo emuDB
+demoDbName=load_emuDB(demoDatabaseDir)
 
 }
 }
 \author{
 Klaus Jaensch
 }
-\keyword{Emu}
+\keyword{DBconfig}
 \keyword{database}
 \keyword{emuDB}
-\keyword{schema}
 

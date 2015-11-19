@@ -32,7 +32,7 @@ result set object of class resultType (default: \link{emuRsegs}, compatible to l
 Function to query an emuDB
 }
 \details{
-Evaluates EQL2 query string on an emuDB refrenced by dbName and returns a segment list of desired type.  
+Evaluates EQL2 query string on an emuDB referenced by dbName and returns a segment list of desired type.  
 For details of the query language please refer to EQL vignette (type: \code{vignette('EQL')} ).
 Returns a list of segments which meet the conditions given by the query string. A segment is determined by a start and end item. Segments with item length one have the same start and end item.
 Segment objects contain the start and end time information of the segment. \link{emuRsegs} objects additionally contain sample position of start and end item. 

@@ -64,7 +64,8 @@ add_emuDBhandle <- function(name,basePath, dbUUID,path = NULL){
   for(h in internalVars$sqlConnections){
     if(h$dbUUID == dbUUID){
       foundHandle=h
-      stop("EmuDB already loaded")
+      #stop("EmuDB already loaded")
+      return(h)
     }
   }
   
@@ -1791,19 +1792,38 @@ calculate.postions.of.links<-function(dbUUID){
 
 ##' Load emuDB
 ##' 
+##' @description Function loads emuDB from filesystem to R session
+##' @details In order to use an emuDB from R it is necessary to load the annotation and configuration files to an emuR internal database format.
+##' The function expects an emuDB file structure in directory \code{databaseDir}. The emuDB configuration file is loaded first. On success the function iterates through session and bundle directories and loads found annotation files.
+##' Parameter \code{inMemoryCache} determines where the internal database is stored:
+##' If \code{FALSE} a databse cache file in \code{databaseDir} is used. When the database is loaded for the first time the function will create a new cache file and store the data to it. On subsequent loading of the same database the cache is only updated if files have changed, therefore the loading is then much faster.
+##' The user needs write permissions to \code{databaseDir} and the cache file.
+##' The database is loaded to a volatile in-memory database if \code{inMemoryCache} is set to \code{TRUE}.
+##' If the requested emuDB is already loaded to the R session, data of changed annotation or configuration files get updated. The reloaded representation of the database is then in sync with the filesystem. 
 ##' @param databaseDir directory of the emuDB
 ##' @param inMemoryCache cache the loaded DB in memory
 ##' @param verbose be verbose
 ##' @return name of emuDB
 ##' @author Klaus Jaensch
-##' @import jsonlite
+##' @import jsonlite DBI
 ##' @export
-##' @keywords emuDB database schema Emu 
+##' @keywords emuDB database DBconfig
 ##' @examples
 ##' \dontrun{
-##' ## Load database 'ae' in directory /homes/mylogin/EMUnew/ae
+##' ## Load database 'ae' in directory /homes/mylogin/EMUnew/ae 
+##' ## assuming an existing emuDB structure in this directory
 ##' 
-##' dbName=load_emuDB("/homes/mylogin/EMUnew/ae")
+##' dbName=load_emuDB("/homes/mylogin/EMU/ae")
+##' 
+##' ## Load database 'ae' from demo data
+##' 
+##' # create demo data in temporary directory
+##' create_emuRdemoData()
+##' # build base path to demo emuDB
+##' demoDatabaseDir=file.path(tempdir(),"emuR_demoData","ae")
+##' 
+##' load demo emuDB
+##' demoDbName=load_emuDB(demoDatabaseDir)
 ##' 
 ##' }
 load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
@@ -2086,30 +2106,6 @@ is.emuDB.loaded<-function(dbName=NULL,dbUUID=NULL){
   return((nrow(dbsDf)>0))
 }
 
-##' Reload EMU database
-##' @description Reload EMU database from disk storage
-##' @param dbName name of emuDB
-##' @param dbUUID optional UUID of EmuDB
-##' @export
-##' @author Klaus Jaensch
-##' @seealso \code{\link{load_emuDB}}
-##' @keywords emuDB database Emu
-##' @examples
-##' \dontrun{
-##' ## Reload database 'ae'
-##' 
-##' reload_emuDB('ae')
-##' }
-
-reload_emuDB<-function(dbName,dbUUID=NULL){
-  dbUUID=get_emuDB_UUID(dbName=dbName,dbUUID = dbUUID)
-  db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  dbHandle=get_emuDBhandle(dbUUID)
-  basePath=dbHandle[['basePath']]
-  purge_emuDB(dbName = dbName,dbUUID=dbUUID,interactive=FALSE)
-  load_emuDB(basePath)
-  return(invisible(NULL))
-}
 
 ## SIC! Once the caching mechanics work this function should be deleted
 # duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){

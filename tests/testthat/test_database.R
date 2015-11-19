@@ -66,7 +66,8 @@ test_that("Load example database ae",{
 
 test_that("Reload example database ae",{
   bp=file.path(.test_emu_ae_db_dir, 'ae')
-  reload_emuDB(dbUUID = .test_emu_ae_db_uuid)
+  #reload_emuDB(dbUUID = .test_emu_ae_db_uuid)
+  load_emuDB(bp, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose=FALSE)
   check_properties_of_ae_db()
 })
 
