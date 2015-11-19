@@ -1,5 +1,3 @@
-# test eins zwei
-
 require(sqldf)
 require(stringr)
 
