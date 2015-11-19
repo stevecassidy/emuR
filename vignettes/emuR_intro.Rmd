@@ -156,7 +156,8 @@ which are produced as certain phones. An schematic excerpt of such an annotation
 
 ## Database annotation / visual inspection
 
-The EMU\_SDMS has a fairly unique approach to this, as it utilizes a web application called the EMU-webApp to act as it's graphical user interface. To be
+The EMU\_SDMS has a fairly unique approach to the database annotation and the visual inspection of the database, as it 
+utilizes a web application called the EMU-webApp to act as it's graphical user interface. To be
 able to transfer the necessary data to the web application let us now serve the `emuDB` to it by using the `serve()` function:
 
 ```{r eval=FALSE}
