@@ -181,7 +181,7 @@ information about how to configure the EMU-webApp see the 'Configuring the EMU-w
 
 # Use cases
 
-As we have already completed the first three steps described in the typical work-flow example in the introduction, we will now describe the the rest of the 
+As we have already completed the first two steps described in the typical work-flow example in the introduction, we will now describe the the rest of the 
 work-flow by walking through a few use cases. The use cases will start by asking a question about the 'ae' database and will continue by walking
 you through the process of answering these questions by using the the mechanics the `emuR` package provides.
 
@@ -190,12 +190,12 @@ you through the process of answering these questions by using the the mechanics 
 The first thing that we will need to do to answer this fairly simple question, is query the database for all 'n' SEGMENTs.
 This can easily be achieved using the `query()` function:
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 sl = query(ae, query = "Phonetic==n")
 print(sl)
 ```
 
-The second argument of the `query()` contains a string that represents an EMU Query Language Version 2 (EQL2) statement. For multiple examples and an overview of what you can formulate in the EQL2 please see the EQL vignette.
+The second argument of the `query()` contains a string that represents an EMU Query Language Version 2 (EQL2) statement. For multiple examples and an overview of what type of queries you can produce in EQL2 please see the `EQL` vignette.
 
 Let us now calculate the mean durations of these segments:
 
@@ -225,8 +225,8 @@ td = get_trackdata(ae, sl,
                    verbos = FALSE)
 ```
 
-In this example the `get_trackdata` function uses a formant estimation function called 'forest' to calculate the formant values 
-on-the-fly. This signal processing function is part of the `wrassp` package that can be used by the emuR package to perform signal
+In this example the `get_trackdata` function uses a formant estimation function called `forest` to calculate the formant values 
+on-the-fly. This signal processing function is part of the `wrassp` package that is used by the `emuR` package to perform signal
 processing duties as is the case with the above `get_trackdata` command.
 
 **INFO: For more information about the wrassp package and it's available signal processing functions see the wrassp_intro vignette 
