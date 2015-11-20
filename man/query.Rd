@@ -9,21 +9,21 @@ query(dbName = NULL, query, sessionPattern = NULL, bundlePattern = NULL,
   dbUUID = NULL)
 }
 \arguments{
-\item{dbName}{name of EMU database}
+\item{dbName}{name of (loaded) EMU database (see \link{load_emuDB})}
 
-\item{query}{EQL2 query string}
+\item{query}{string (see vignette \code{EQL})}
 
 \item{sessionPattern}{A regular expression pattern matching session names to be searched from the database}
 
 \item{bundlePattern}{A regular expression pattern matching bundle names to be searched from the database}
 
-\item{queryLang}{query language}
+\item{queryLang}{query language used for evaluating the query string}
 
 \item{timeRefSegmentLevel}{set time derivation segment level}
 
 \item{resultType}{type (class name) of result}
 
-\item{dbUUID}{optional UUID of emuDB}
+\item{dbUUID}{optional UUID of emuDB to resolve an ambique dbName}
 }
 \value{
 result set object of class resultType (default: \link{emuRsegs}, compatible to legacy type \link{emusegs})
@@ -32,29 +32,31 @@ result set object of class resultType (default: \link{emuRsegs}, compatible to l
 Function to query an emuDB
 }
 \details{
-Evaluates EQL2 query string on an emuDB referenced by dbName and returns a segment list of desired type.  
-For details of the query language please refer to EQL vignette (type: \code{vignette('EQL')} ).
-Returns a list of segments which meet the conditions given by the query string. A segment is determined by a start and end item. Segments with item length one have the same start and end item.
-Segment objects contain the start and end time information of the segment. \link{emuRsegs} objects additionally contain sample position of start and end item. 
-Time information of symbolic elements (type 'ITEM') are derived from linked segment levels if available. If time and sample values cannot be derived they will be set to \code{\link{NA}}.
-\link{emuRsegs} result lists will be ordered by the hidden columns UUID,session,bundle and sample start position. Legacy \link{emusegs} lists are ordered by the columns utts and start.
-The query may be limited to session and/or bundle names specified by regular expression pattern strings (see \link{regex}) for parameters \code{sessionPattern} respectively \code{bundlePattern}.
+Evaluates a query string of query language queryLang on an emuDB referenced by dbName and returns a segment list of desired type resultType.  
+For details of the query language please refer to the EQL vignette (type: \code{vignette('EQL')} ).
+Returns a list of segments which meet the conditions given by the query string. A segment can consist of one (e.g. 's') or more (e.g. 's->t') items from the specified emuDB level. 
+Segment objects (type 'SEGMENT') contain the label string and the start and end time information of the segment (in msec). \link{emuRsegs} objects additionally contain sample position of start and end item. 
+Time information of symbolic elements (type 'ITEM') are derived from linked SEGMENT levels if available. If multiple linked SEGMENT levels exist, you can specify the level by argument \code{timeRefSegmentLevel}. If time and sample values cannot be derived they will be set to \code{\link{NA}}.
+\link{emuRsegs} result lists will be ordered by the hidden columns UUID, session, bundle and sample start position. Legacy \link{emusegs} lists are ordered by the columns utts and start.
+The query may be limited to session and/or bundle names specified by regular expression pattern strings (see \link{regex}) in parameters \code{sessionPattern} respectively \code{bundlePattern}.
 }
 \examples{
 \dontrun{
-## Query database 'ae' using EQL query [Phonetic=t -> Phonetic=s] 
+## Query database 'ae' using EQL query [Phonetic=t -> Phonetic=s]:
+## 'Find all sequences /ts/ in level Phonetics'.
 ## and store result seglist in variable segListTs
 
-seglistTs=query('ae','[Phonetic=t -> Phonetic=s]')
+seglistTs=query('ae','[Phonetic==t -> Phonetic==s]')
 
-## Query seglist from database ae using EQL query [Syllable=S ^ Phoneme=t]
-## Request legacy result type 'emusegs'
+## Query database 'ae' using EQL query [Syllable=S ^ Phoneme=t]:
+## 'Find all items 't' in level Phoneme that are dominated by items 'S' in level Syllable.'
+## Return legacy Emu result type 'emusegs'
 
-query('ae','[Syllable=S ^ Phoneme=t]',resultType='emusegs')
+query('ae','[Syllable==S ^ Phoneme==t]',resultType='emusegs')
 
-
-## Query 'p' phonemes from bundles whose bundle names start with 'msajc07' 
+## Query 'p' items of level Phoneme from bundles whose bundle names start with 'msajc07' 
 ## and whose session names start with '00'
+## (Note that here the query uses the operator '=' (meaning '==') which is kept for backwards compatibilty to EQL1.)  
 
 query('ae','Phoneme=p',bundlePattern='msajc05.*',sessionPattern ='00.*')
 
