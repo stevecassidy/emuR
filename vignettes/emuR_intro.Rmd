@@ -218,8 +218,11 @@ Once again we will start by querying our annotation structure for the SEGMENTs w
 
 ```{r results='hide', message=FALSE, warning=FALSE}
 # query emuDB
-sl = query(ae, "Phonetic==I|o:|u:|V|@")
+sl = query(ae, query = "Phonetic==I|o:|u:|V|@")
 ```
+
+**INFO: the EQL2 introduces a new operand which is the regular expression operand: =~. So alternatively we could also formulate the query
+like follows: "Phonetic=~'[szSZ]'"**
 
 Now that we have extracted the neccesary SEGMENT information we can simply call:
 
@@ -258,7 +261,7 @@ ggplot(td, aes(x=T2, y=T1, label=td$labels)) +
   guides(colour=FALSE)
 ```
 
-## 3.) What words do the phonetic SEGMENTs that carry the labels s, z, S or Z occur in an what is their Phonetic context?
+## 3.) What words do the phonetic SEGMENTs that carry the labels s, z, S or Z occur in an what is their perceeding phonetic context?
 
 As we have done before, let us query the `emuDB` for the SEGMENTs we are intersted in:
 
@@ -288,22 +291,17 @@ words = requery_hier(sibil, level = "Text")
 head(words)
 ```
 
-**NOTE: this two step process can also be completed in a single hierarchical query. See the EQL vignette for more details.**
+**NOTE: this two step process can also be completed in a single hierarchical query using the dominance operation: ^. See the EQL 
+vignette for more details.**
 
 Now that we have answered the first part of the question let us now look at the left and right context of the extracted sibillants by
 using the `requery_seq()` function.
 
 ```{r}
 # get left context by offsetting one annotational unit to the left
-#left = requery_seq(sibil, offset = -1)
+left = requery_seq(sibil, offset = -1)
 
-#head(left)
-
-# get right context by offsetting one annotational unit to the right
-#right = requery_seq(sibil, offset = 1)
-
-#head(right)
-
+head(left)
 
 ```
 
@@ -312,12 +310,29 @@ using the `requery_seq()` function.
 
 ## 4.) Do the sibilants Phonetic SEGMENTs that carry the labels s; z; S or Z in the 'ae' emuDB differ with respect to their 1st spectral moment?
 
-As we have done before let us query the `emuDB` for the SEGMENTs we are interssted in:  
+Once again let us query the `emuDB` for the SEGMENTs we are interssted in:  
 
 ```{r}
-sibil = query(ae,"Phonetic==s|z|S|Z")
+sibil = query(ae,"Phonetic=~'[szSZ]'")
 ```
 
+```{r results='hide', message=FALSE, warning=FALSE}
+sib.tr = get_trackdata(dbName = ae, 
+                       seglist = sibil, 
+                       onTheFlyFunctionName = 'dftSpectrum')
+```
+
+
+
+### Alternative method using the emuRtrackdata resultType
+
+
+```{r results='hide', message=FALSE, warning=FALSE}
+sib.tr = get_trackdata(dbName = ae, 
+                       seglist = sibil, 
+                       onTheFlyFunctionName = 'dftSpectrum',
+                       resultType = "emuRtrackdata")
+```
 
 
 
@@ -329,6 +344,6 @@ In this vignette we tried to give you a quick practical overview of what it is l
 EMU_SDMS. If you are new to the system we definitely also recommend that you read the `emuDB` and `EQL` vignettes that are part of the `emuR`
 package. These will give more insight into the structure of / how you can interact with with `emuDB`s and what the EMU Query Language offers.
 As the new EMU system has kept most of the concepts of the legacy EMU system in place it is definitely also worth looking at
-Jonathan Harrington's Book *Phonetic Analysis of Speech Corpora* [@harrington:2010a] even though some things will be outdated.
+Jonathan Harrington's Book *Phonetic Analysis of Speech Corpora* [@harrington:2010a].
 
 # References
