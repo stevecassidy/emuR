@@ -181,32 +181,38 @@ information about how to configure the EMU-webApp see the 'Configuring the EMU-w
 
 # Use cases
 
-As we have already completed the first three steps described in the typical work-flow example in the introduction, we will now describe the the rest of the 
+As we have already completed the first two steps described in the typical work-flow example in the introduction, we will now describe the the rest of the 
 work-flow by walking through a few use cases. The use cases will start by asking a question about the 'ae' database and will continue by walking
 you through the process of answering these questions by using the the mechanics the `emuR` package provides.
 
-## 1.) *What is the average length of all 'n' Phonetic SEGMENTs in the 'ae' emuDB?*
+## 1.) *What is the average length of all 'n' phonetic SEGMENTs in the 'ae' emuDB?*
 
 The first thing that we will need to do to answer this fairly simple question, is query the database for all 'n' SEGMENTs.
 This can easily be achieved using the `query()` function:
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 sl = query(ae, query = "Phonetic==n")
-print(sl)
+
+head(sl)
 ```
 
-The second argument of the `query()` contains a string that represents an EMU Query Language Version 2 (EQL2) statement. For multiple examples and an overview of what you can formulate in the EQL2 please see the EQL vignette.
+The second argument of the `query()` contains a string that represents an EMU Query Language Version 2 (EQL2) statement. This fairly simple EQL2
+statement consists of the level name 'Phonetic' on the left, the operator '==' which is the equality operator of the EQL, and finally on the right 
+hand side of the operator the label 'n' that we are looking for. For multiple examples and an overview of what type of queries you can 
+produce in EQL2 please see the `EQL` vignette.
 
-Let us now calculate the mean durations of these segments:
+The `query()` function returns an object with the class `emuRsegs` that is a superclass of the well known `data.frame`. We can now use the information
+in this object to calculate the mean durations of these segments:
 
 ```{r}
 # calculate durations
 d = dur(sl)
-# calculate mean
+
+# calculate mean and by doing so answering the question
 mean(d)
 ```
 
-## 2.) *What does the F1/F2 distribution of all Phonetic SEGMENTs that contain the labels I,o:,u:,V or @ look like?*
+## 2.) *What does the F1/F2 distribution of all phonetic SEGMENTs that contain the labels I, o:, u:, V or @ look like?*
 
 Once again we will start by querying our annotation structure for the SEGMENTs we are interessted in:
 
@@ -225,14 +231,14 @@ td = get_trackdata(ae, sl,
                    verbos = FALSE)
 ```
 
-In this example the `get_trackdata` function uses a formant estimation function called 'forest' to calculate the formant values 
-on-the-fly. This signal processing function is part of the `wrassp` package that can be used by the emuR package to perform signal
+In this example the `get_trackdata` function uses a formant estimation function called `forest` to calculate the formant values 
+on-the-fly. This signal processing function is part of the `wrassp` package that is used by the `emuR` package to perform signal
 processing duties as is the case with the above `get_trackdata` command.
 
 **INFO: For more information about the wrassp package and it's available signal processing functions see the wrassp_intro vignette 
 that is part of the `wrassp` package.**
 
-If the resultType parameter is set to "emuRtrackdata" the `get_trackdata` function returns an object with the following classes:
+If the `resultType` parameter is set to "emuRtrackdata" the `get_trackdata` function returns an object with the following classes:
 
 ```{r}
 class(td)
@@ -252,9 +258,68 @@ ggplot(td, aes(x=T2, y=T1, label=td$labels)) +
   guides(colour=FALSE)
 ```
 
-## 3.) Do the sibilants in the 'ae' emuDB differ with respect to their 1st spectral moment?
+## 3.) What words do the phonetic SEGMENTs that carry the labels s, z, S or Z occur in an what is their Phonetic context?
 
-To answer this question we first have to find out what the labels are available in the Phonetic level. 
+As we have done before, let us query the `emuDB` for the SEGMENTs we are intersted in:
+
+```{r}
+sibil = query(ae,"Phonetic==s|z|S|Z")
+
+head(sibil)
+```
+
+We can now use the `requery_hier()` function to perform an hierarchical requery using the result set of our initial query. This requery follows
+the hierarchical links described earlier to find the linked annotational units of a different level.
+
+```{r}
+words = requery_hier(sibil, level = "Word")
+
+head(words)
+```
+
+As we can see, the result is not quite what we would have expected as it does not contain the orthographic word transcriptions but 
+a classification of the words into content words ('C') and function words ('F'). Looking back at the output of `summary_emuDB()` we can 
+see that the 'Words' level has multiple `attributeDefintions` which indicates that each annotational unit in the `Words` level has muliple
+parallel labels defined for it. So let us try the `attributeDefintion` called 'Text'.
+
+```{r}
+words = requery_hier(sibil, level = "Text")
+
+head(words)
+```
+
+**NOTE: this two step process can also be completed in a single hierarchical query. See the EQL vignette for more details.**
+
+Now that we have answered the first part of the question let us now look at the left and right context of the extracted sibillants by
+using the `requery_seq()` function.
+
+```{r}
+# get left context by offsetting one annotational unit to the left
+#left = requery_seq(sibil, offset = -1)
+
+#head(left)
+
+# get right context by offsetting one annotational unit to the right
+#right = requery_seq(sibil, offset = 1)
+
+#head(right)
+
+
+```
+
+
+
+
+## 4.) Do the sibilants Phonetic SEGMENTs that carry the labels s; z; S or Z in the 'ae' emuDB differ with respect to their 1st spectral moment?
+
+As we have done before let us query the `emuDB` for the SEGMENTs we are interssted in:  
+
+```{r}
+sibil = query(ae,"Phonetic==s|z|S|Z")
+```
+
+
+
 
 
 
