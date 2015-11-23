@@ -168,3 +168,40 @@ NULL
 ##' 
 NULL
 
+##' emuR track data object
+##' 
+##' A emuR track data object is the result of \code{\link{get_trackdata}} if the 
+##' \code{resultType} parameter is set to \code{"emuRtrackdata"} or the result of 
+##' an explicit call to \code{\link{create_emuRtrackdata}}. Compared to 
+##' the \code{\link{trackdata}} object it is a superclass of a \code{\link{data.table}}
+##' / \code{\link{data.frame}} which is meant to ease integration with other
+##' packages for further processing. It can be viewed as an amalgamation of
+##' a \code{\link{emuRsegs}} and a \code{\link{trackdata}} object as it
+##' contains the information stored in both object.
+##' 
+##' 
+##' @format The \code{\link{data.table}} / \code{\link{data.frame}} has the following columns:
+##' 
+##' \describe{
+##'   \item{$sl_rowIdx}{column to indicate \code{\link{emuRsegs}} row index that 
+##'                     the value belongs to}
+##'   \item{$labels - $sampleRate}{duplicated information of \code{\link{emuRsegs}} row entries}
+##'   \item{$times_rel}{relative time stamps of sample values in milliseconds}
+##'   \item{$times_orig}{absolute time stamps of sample values in milliseconds}
+##'   \item{$T1 - $TN}{actual data values (e.g. formant values / F0 values / DFT values / ...)}
+##' }
+##' 
+##' Note that $labels - $sampleRate as well as $T1 - $TN (where the N in TN is to be read as the n-th T value) 
+##' refer to multiple columns of the object.
+##' 
+##' @section Methods: The following methods are implemented for emuRtrackdata objects: 
+##' 
+##' \describe{ 
+##'   \item{cut}{Function to extract a emuRtrackdata object from an emuRtrackdata at a single time point 
+##'             or between two times}
+##' }
+##' @seealso \code{\link{get_trackdata}}, \code{\link{create_emuRtrackdata}}
+##' @keywords classes
+##' @name emuRtrackdata
+##' @seealso trackdata
+NULL
