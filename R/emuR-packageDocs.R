@@ -3,18 +3,29 @@
 ##' The emuR package provides the next iteration of the EMU Speech 
 ##' Database Management System with database management, data 
 ##' extraction, data preparation and data visualization facilities. 
-##' It also contains a server that 
-##' is intended to host databases in the emuDB format (see \code{vignette('emuDB')}) to the EMU-webApp 
-##' (\url{http://ips-lmu.github.io/EMU-webApp/}). The querying of annotations is 
-##' performed using EMU's own EQL2 (EMU Query Language Version 2).
 ##' 
-##' This package is part of the next iteration of the EMU Speech Database Management System 
+##' This package is part of the next iteration of the EMU Speech Database Management System (EMU_SDMS) 
 ##' which aims to be as close to an all-in-one solution for generating, manipulating, querying, 
 ##' analyzing and managing speech databases as possible. 
 ##' For an overview of the system please visit this URL: \url{http://ips-lmu.github.io/EMU.html}.
 ##'
-##' For an introduction to the emuR package please see the emuR_intro 
-##' by calling: vignette b\code{vignette('emuR_intro')} 
+##' It can be viewed as the main component of the EMU_SDMS as it acts as 
+##' the central instance that is able to interact with every component of the system.
+##' It takes care of database managing duties by being able to interact with a speech 
+##' database that is stored in the emuDB format. Further, it has easy to understand and 
+##' learn yet expressive and powerful querying mechanics, that allow the user to easily query 
+##' the annotation structures of the database. Lastly it provides easy data extraction 
+##' capabilities that extract data (e.g. formant values) which corresponds to the 
+##' result of a query.
+##' 
+##' For an introduction to the emuR package please see the \code{emuR_intro} vignette 
+##' by calling: \code{vignette('emuR_intro')} 
+##' 
+##' For information about the \code{emuDB} database format please see the \code{emuDB}
+##' vignette by calling: \code{vignette('emuDB')}
+##' 
+##' For information about the query language used by the EMU_SDMS please see the \code{EQL}
+##' vignette by calling: \code{vignette('EQL')}
 ##'    
 ##' Typical work-flow in emuR (emuDB required):
 ##' 
@@ -40,7 +51,7 @@
 ##' @examples
 ##' \dontrun{
 ##' # create demo data including an emuDB called "ae" 
-##' create_emuRdemoData()
+##' create_emuRdemoData(dir = tempdir())
 ##' 
 ##' # construct path to demo emuDB
 ##' path2ae = file.path(tempdir(), "emuR_demoData", "ae")
@@ -61,7 +72,7 @@
 ##' lvowels.fm = get_trackdata(dbName, lvowels, "fm")
 ##' 
 ##' # extract track values at temporal midpoint of segments
-##' lvowels.fmCut = dcut(lvowels.fm, .5, prop =TRUE)
+##' lvowels.fmCut = dcut(lvowels.fm, .5, prop = TRUE)
 ##' 
 ##' # Plot the data as time signal and formant card
 ##' dplot(lvowels.fm[,1:2], lvowels.labs, normalise=TRUE, main = "Formants over vowel duration")
