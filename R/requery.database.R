@@ -2,27 +2,29 @@ require(sqldf)
 require(stringr)
 
 ##' Requery sequential context of segment list in an emuDB
-##' @description Function to requery sequential context of segment list in an emuDB
-##' @details Builds a new segment list on the same hierarchical level. The result segments may have different start position and length controlled by the \code{offset},\code{offsetRef} and \code{length} parameter.
-##' \code{offsetRef} determines if the position offset is referenced to the start or the end item of the input list. Parameter \code{offset} determines the offset of the result start position to this reference item.
-##' Parameter length sets the length of the result segments.
-##' If the requested segments are out of bundle boundaries and parameter \code{ignoreOutOfBounds} is \code{TRUE} (the default) an error is generated. To get residual result segments that lie within the bounds the \code{ignoreOutOfBounds} parameter can be set to \code{TRUE}.
+##' @description Function to requery sequential context of a segment list queried from an emuDB
+##' @details Builds a new segment list on the same hierarchical level and the same length as the segment list given in \code{seglist}. The resulting segments usually have different start position and length (in terms of items of the respective level) controlled by the \code{offset},\code{offsetRef} and \code{length} parameters.
+##' A segment here is defined as a single item or a chain of items from the respective level, e.g. if a level in a bundle instance has labels 'a', 'b' and 'c' in that order, 'a' or 'a->b' oder 'a->b->c' are all valid segments, but not 'a->c'.
+##' \code{offsetRef} determines if the position offset is referenced to the start or the end item of the segments in the input list \code{seglist}; parameter \code{offset} determines the offset of the resulting item start position to this reference item;
+##' parameter \code{length} sets the item length of the result segments.
+##' If the requested segments are out of bundle item boundaries and parameter \code{ignoreOutOfBounds} is \code{FALSE} (the default), an error is generated. To get residual resulting segments that lie within the bounds the \code{ignoreOutOfBounds} parameter can be set to \code{TRUE}.
+##' The returned segment list is usually of the same length and order as the input \code{seglist}; if \code{ignoreOutOfBounds=FALSE}, the resulting segment list may be out of sync.
 ##' @param seglist segment list to requery on (type: 'emuRsegs')
-##' @param offset start offset in sequence
-##' @param offsetRef reference element for offset: 'START' for first and 'END' for last element of segment list
-##' @param length element length of returned segment list
+##' @param offset start item offset in sequence (default is 0, meaning the start or end item of the input segment)
+##' @param offsetRef reference item for offset: 'START' for first and 'END' for last item of segment
+##' @param length item length of segments in the returned segment list
 ##' @param ignoreOutOfBounds ignore result segments that are out of bundle bounds
-##' @param dbUUID optional UUID of emuDB
-##' @return result set object of class 'emuRsegs'
+##' @param dbUUID optional UUID of emuDB, if the emuDB name in the input segment list is not unique
+##' @return result set object of class 'emuRsegs' containing the requeried segments
 ##' @author Klaus Jaensch
 ##' @import sqldf
 ##' @export
-##' @seealso \code{\link{query}} \code{\link{emuRsegs}}
+##' @seealso \code{\link{query}} \code{\link{requery_hier}} \code{\link{emuRsegs}}
 ##' @keywords emuDB database requery
 ##' @examples
 ##' \dontrun{
 ##' 
-##' ## Requery previous element of 'p' on phonetic level
+##' ## Requery previous item of 'p' on level 'Phonetic'
 ##' sl1=query('ae','Phonetic=p')
 ##' 
 ##' requery_seq(sl1,offset=-1)
@@ -31,20 +33,20 @@ require(stringr)
 ##'
 ##' requery_seq(sl1,offset=-1,length=3)
 ##' 
-##' ## Requery previous element of n->t sequence
+##' ## Requery previous item of n->t sequence
 ##' sl2=query('ae',"[Phoneme=n -> Phoneme=t]")
 ##' 
 ##' requery_seq(sl2,offset=-1)
 ##' 
-##' ## Requery last element of n->t sequence
+##' ## Requery last item within n->t sequence
 ##' 
 ##' requery_seq(sl2,offsetRef='END')
 ##' 
-##' ## Requery following element of n->t sequence
+##' ## Requery following item after n->t sequence
 ##' 
 ##' requery_seq(sl2,offset=1,offsetRef='END')
 ##' 
-##' ## Requery context (previuos and following) of n->t sequence
+##' ## Requery context (previous and following items) of n->t sequence
 ##' 
 ##' requery_seq(sl2,offset=-1,length=4)
 ##' 
@@ -60,7 +62,7 @@ require(stringr)
 ##' }
 requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBounds=FALSE,dbUUID=NULL){
   if(!inherits(seglist,"emuRsegs")){
-    stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType wiil be used)")
+    stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter in the query() command; then the default resultType=emuRsegs will be used)")
   }
   if(length<=0){
     stop("Parameter length must be greater than 0")
@@ -136,35 +138,47 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBo
 }
 
 ##' Requery hierarchical context of a segment list in an emuDB
-##' @description Function to requery hierarchical context of a segment list in an emuDB
-##' @details For each segment of the input list the function looks for hierarchically connected items of start and end item for the result segment on the given target level.
-##'       For the start item the item with the lowest sample position is chosen, for the end item that with the highest sample position.
-##'       The result list will have the same order as the input list. If result and input list have the same length, the result segments have the same position as the corresponding ones in the input list. 
-##'       If the length of the lists differ, a synchronous ordering is not possible and therefore a warning is generated.
+##' @description Function to requery hierarchical context of a segment list queried from an emuDB
+##' @details A segment is defined as a single item or a chain of items from the respective level, e.g. if a level in a bundle instance has labels 'a', 'b' and 'c' in that order, 'a' or 'a->b' oder 'a->b->c' are all valid segments, but not 'a->c'.
+##' For each segment of the input segment list \code{seglist} the function checks the start and end item for hierarchically linked items in the given target level, and based on them constructs segments in the target level.
+##' As the start item in the resulting segment the item with the lowest sample position is chosen; for the end item that with the highest sample position.
+##' If result and input segment list have the same length (for each input segment one segment on the target level was found), the result segment list has the same length and order as the input list; 
+##' in 'upwards' requeries this can cause a resulting segment list to contain two (or more) copies of the same segment, if the same item from the input list was linked twice or more to an item of the target level, e.g. a phoneme 'p' requeried to the word level might result in two identical segments 'Papa' in the result list. 
+##' If the length of input and output list differ (e.g. because a link is missing in the emuDB), a synchronous ordering is not possible and therefore a warning is generated.
 ##' 
 ##' @param seglist segment list to requery on (type: \link{emuRsegs})
-##' @param level character string: result level 
-##' @param dbUUID optional UUID odf emuDB
+##' @param level character string: name of target level 
+##' @param dbUUID optional UUID of emuDB, if the emuDB name in the input segment list is not unique
 ##' @return result set object of class \link{emuRsegs}
 ##' @author Klaus Jaensch
 ##' @import sqldf
 ##' @export
-##' @seealso \code{\link{query}} \code{\link{emuRsegs}}
+##' @seealso \code{\link{query}} \code{\link{requery_seq}} \code{\link{emuRsegs}}
 ##' @keywords emuDB database requery
 ##' @examples
 ##' \dontrun{
 ##' 
-##' ## Downward requery phoneme sequence of word (level Text) 'beautiful'
-##' 
+##' ## Downward requery: find 'Phoneme' sequences of all words 'beautiful' (of level 'Text')
+##' ## Note that the resulting segments consists of phoneme sequences and have therefore the same length as the word segments.
+##'
 ##' sl1=query('ae','Text=beautiful')
 ##' requery_hier(sl1,level='Phoneme')
 ##'
-##' ## Upward requery words (level Text) of Phonetic p elements
+##' ## Upward requery: find all word segments that dominate a 'p' on level 'Phoneme'
+##' ## Note that the resulting segments are larger than the input segments, because they contain the complete words.
 ##' 
-##' sl1=query('ae','Phonetic=p')
-##' requery_hier(sl1,level='Text')
+##' sl1=query('ae','Phonetic==p')
+##' wl1=requery_hier(sl1,level='Text')
+##' wl1
 ##' 
-##' ## Combined requery: last phonemes of words beginning with 'an'
+##' ## Why is there a 'p' the word 'emphazised'? Requery the whole words back down to 'Phoneme' level:
+##'
+##' requery_hier(wl1,level='Phoneme')
+##'
+##' ## ... because of 'stop epenthesis' a 'p' is inserted between 'm' and 'f'
+##' 
+##' ## Combined requery: last phonemes of all words beginning with 'an'.
+##' ## Note that we use a regular expression 'an.*' (EQL operator '=~') in the query.
 ##' 
 ##' sl1=query('ae',"Text=~an.*")
 ##' requery_seq(requery_hier(sl1,level='Phoneme'),offsetRef = 'END')
