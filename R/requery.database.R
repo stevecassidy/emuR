@@ -340,9 +340,6 @@ requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
     
     he=sqldf(c(itemsIdxSql,linksIdxSql,heQueryStr))
     result=list(items=he)
-    dbUUID=get_emuDB_UUID(dbName,dbUUID)
-    db=.load.emuDB.DBI(uuid = dbUUID)
-    dbConfig=db[['DBconfig']]
     
     emuDBs.query.tmp<-list()
     emuDBs.query.tmp[['queryItems']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
