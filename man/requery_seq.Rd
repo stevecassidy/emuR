@@ -10,32 +10,34 @@ requery_seq(seglist, offset = 0, offsetRef = "START", length = 1,
 \arguments{
 \item{seglist}{segment list to requery on (type: 'emuRsegs')}
 
-\item{offset}{start offset in sequence}
+\item{offset}{start item offset in sequence (default is 0, meaning the start or end item of the input segment)}
 
-\item{offsetRef}{reference element for offset: 'START' for first and 'END' for last element of segment list}
+\item{offsetRef}{reference item for offset: 'START' for first and 'END' for last item of segment}
 
-\item{length}{element length of returned segment list}
+\item{length}{item length of segments in the returned segment list}
 
 \item{ignoreOutOfBounds}{ignore result segments that are out of bundle bounds}
 
-\item{dbUUID}{optional UUID of emuDB}
+\item{dbUUID}{optional UUID of emuDB, if the emuDB name in the input segment list is not unique}
 }
 \value{
-result set object of class 'emuRsegs'
+result set object of class 'emuRsegs' containing the requeried segments
 }
 \description{
-Function to requery sequential context of segment list in an emuDB
+Function to requery sequential context of a segment list queried from an emuDB
 }
 \details{
-Builds a new segment list on the same hierarchical level. The result segments may have different start position and length controlled by the \code{offset},\code{offsetRef} and \code{length} parameter.
-\code{offsetRef} determines if the position offset is referenced to the start or the end item of the input list. Parameter \code{offset} determines the offset of the result start position to this reference item.
-Parameter length sets the length of the result segments.
-If the requested segments are out of bundle boundaries and parameter \code{ignoreOutOfBounds} is \code{TRUE} (the default) an error is generated. To get residual result segments that lie within the bounds the \code{ignoreOutOfBounds} parameter can be set to \code{TRUE}.
+Builds a new segment list on the same hierarchical level and the same length as the segment list given in \code{seglist}. The resulting segments usually have different start position and length (in terms of items of the respective level) controlled by the \code{offset},\code{offsetRef} and \code{length} parameters.
+A segment here is defined as a single item or a chain of items from the respective level, e.g. if a level in a bundle instance has labels 'a', 'b' and 'c' in that order, 'a' or 'a->b' oder 'a->b->c' are all valid segments, but not 'a->c'.
+\code{offsetRef} determines if the position offset is referenced to the start or the end item of the segments in the input list \code{seglist}; parameter \code{offset} determines the offset of the resulting item start position to this reference item;
+parameter \code{length} sets the item length of the result segments.
+If the requested segments are out of bundle item boundaries and parameter \code{ignoreOutOfBounds} is \code{FALSE} (the default), an error is generated. To get residual resulting segments that lie within the bounds the \code{ignoreOutOfBounds} parameter can be set to \code{TRUE}.
+The returned segment list is usually of the same length and order as the input \code{seglist}; if \code{ignoreOutOfBounds=FALSE}, the resulting segment list may be out of sync.
 }
 \examples{
 \dontrun{
 
-## Requery previous element of 'p' on phonetic level
+## Requery previous item of 'p' on level 'Phonetic'
 sl1=query('ae','Phonetic=p')
 
 requery_seq(sl1,offset=-1)
@@ -44,20 +46,20 @@ requery_seq(sl1,offset=-1)
 
 requery_seq(sl1,offset=-1,length=3)
 
-## Requery previous element of n->t sequence
+## Requery previous item of n->t sequence
 sl2=query('ae',"[Phoneme=n -> Phoneme=t]")
 
 requery_seq(sl2,offset=-1)
 
-## Requery last element of n->t sequence
+## Requery last item within n->t sequence
 
 requery_seq(sl2,offsetRef='END')
 
-## Requery following element of n->t sequence
+## Requery following item after n->t sequence
 
 requery_seq(sl2,offset=1,offsetRef='END')
 
-## Requery context (previuos and following) of n->t sequence
+## Requery context (previous and following items) of n->t sequence
 
 requery_seq(sl2,offset=-1,length=4)
 
@@ -76,7 +78,7 @@ requery_seq(sl3,length=3,ignoreOutOfBounds=TRUE)
 Klaus Jaensch
 }
 \seealso{
-\code{\link{query}} \code{\link{emuRsegs}}
+\code{\link{query}} \code{\link{requery_hier}} \code{\link{emuRsegs}}
 }
 \keyword{database}
 \keyword{emuDB}
