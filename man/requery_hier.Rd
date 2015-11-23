@@ -31,13 +31,15 @@ If the length of input and output list differ (e.g. because a link is missing in
 \dontrun{
 
 ## Downward requery: find 'Phoneme' sequences of all words 'beautiful' (of level 'Text')
-## Note that the resulting segments consists of phoneme sequences and have therefore the same length as the word segments.
+## Note that the resulting segments consists of phoneme sequences and have therefore 
+## the same length as the word segments.
 
 sl1=query('ae','Text=beautiful')
 requery_hier(sl1,level='Phoneme')
 
 ## Upward requery: find all word segments that dominate a 'p' on level 'Phoneme'
-## Note that the resulting segments are larger than the input segments, because they contain the complete words.
+## Note that the resulting segments are larger than the input segments,
+## because they contain the complete words.
 
 sl1=query('ae','Phonetic==p')
 wl1=requery_hier(sl1,level='Text')
