@@ -76,7 +76,7 @@ test_that("Create emuDB from scratch works",{
     purge_emuDB('create_emuDB_test1',interactive = F)
   }
   create_emuDB('create_emuDB_test1',tempdir())
-  t1BasePath=file.path(tempdir(),'create_emuDB_test1')
+  t1BasePath=file.path(tempdir(),'create_emuDB_test1_emuDB')
   t1=load_emuDB(t1BasePath)
   expect_that(t1,is_equivalent_to('create_emuDB_test1'))
  
