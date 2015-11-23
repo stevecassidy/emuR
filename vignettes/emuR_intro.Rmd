@@ -17,11 +17,11 @@ vignette: >
 
 This document is meant as an introduction to the `emuR` package and is meant to provide an overview of what the package is capable of and how it interacts with the other components of the EMU Speech Database Management System (EMU\_SDMS). It is by no means a definite guide to the EMU\_SDMS but rather tries to give an outline of what it is like working with and analyzing speech databases in the EMU\_SDMS by walking you through a few typical use cases.
 
-The `emuR` package can be viewed as the main component of the EMU\_SDMS as it acts as the central instance that is able to interact with every component of the system. It takes care of database managing duties by being able to interact with a speech database that is stored in the `emuDB` format (see `emuDB` vignette for further details). Further, it has easy to understand and learn yet expressive and powerful querying mechanics, that allow the user to easily query the annotation structures of the database (see `EQL` vignette for further details). Lastly it provides easy data extraction capabilities that extracts data which corresponds to the result of a query.
+The `emuR` package can be viewed as the main component of the EMU\_SDMS as it acts as the central instance that is able to interact with every component of the system. It takes care of database managing duties by being able to interact with a speech database that is stored in the `emuDB` format (see `emuDB` vignette for further details). Further, it has easy to understand and learn yet expressive and powerful querying mechanics, that allow the user to easily query the annotation structures of the database (see `EQL` vignette for further details). Lastly it provides easy data extraction capabilities that extracts data (e.g. formant values) which corresponds to the result of a query.
 
 If a database in the `emuDB` format is present the typical work-flow in `emuR` is usually something like this:
 
-1. Load database into current R session - `load\_emuDB`
+1. Load database into current R session - `load_emuDB`
 2. Database annotation / visual inspection - `serve` and connect the EMU-webApp to the local server
 3. Query database - `query` (sometimes followed by `requery_hier` or `requery_seq`)
 4. Get trackdata (e.g. formant values) for the result of a query - `get_trackdata`
@@ -58,7 +58,7 @@ This will create a new `emuDB` in a temporary folder that is provided by the `R`
 ```{r}
 # remove the newly generated emuDB as we will not be needing it 
 # throughout the rest of this vignette
-unlink(file.path(tempdir(), "ae"), recursive = T)
+unlink(file.path(tempdir(), "ae"), recursive = TRUE)
 ```
 
 ## TextGrid collections
@@ -74,12 +74,12 @@ convert_TextGridCollection_to_emuDB(path2folder, dbName = "myTGcolDB",
                                     targetDir = tempdir())
 ```
 
-This will create a new `emuDB` in the folder `tempdir()` called 'myTGcolDB'. The `emuDB` will contain all the tier information from the `.TextGrid` files but will not contain hierarchical information as `.TextGrid` files do not contain any linking information. If you are interested int how to programmatically generate links between the generated `SEGMENTS` and `EVENTS` see the Autobuilding section of the `emuDB` vignette.
+This will create a new `emuDB` in the folder `tempdir()` called 'myTGcolDB'. The `emuDB` will contain all the tier information from the `.TextGrid` files but will not contain hierarchical information as `.TextGrid` files do not contain any linking information. If you are interested in how to programmatically generate links between the generated `SEGMENT`s and `EVENT`s see the Autobuilding section of the `emuDB` vignette.
 
 ```{r}
 # remove the newly generated emuDB as we will not be needing it 
 # throughout the rest of this vignette
-unlink(file.path(tempdir(), "myTGcolDB"), recursive = T)
+unlink(file.path(tempdir(), "myTGcolDB"), recursive = TRUE)
 ```
 
 
@@ -101,7 +101,7 @@ As the BPF format also permits annotational units to be linked to one another, t
 ```{r}
 # remove the newly generated emuDB as we will not be needing it 
 # throughout the rest of this vignette
-unlink(file.path(tempdir(), "myBPF-DB"), recursive = T)
+unlink(file.path(tempdir(), "myBPF-DB"), recursive = TRUE)
 ```
 
 
@@ -126,9 +126,9 @@ by calling:
 summary_emuDB(ae)
 ```
 
-As you can see this command displays a lot of information. Most of the information is about the level and link definitions of the `emuDB`. 
-The summary information about the level definitions shows for instance that the 'ae' database has a 'Word' level (that most likely contains 
-word labels), which is of type 'ITEM' and therefore does not contain any time information. It also shows that a 'Phonetic' level (that most likely 
+As you can see this displays a lot of information. Most of the information is about the various level and link definitions of the `emuDB`. 
+The summary information about the level definitions shows for instance that the 'ae' database has a 'Word' level, which is of type 'ITEM' and 
+therefore does not contain any time information. It also shows that a 'Phonetic' level (that most likely 
 contains phonetic symbols) of type 'SEGMENT' is present, which means that each phonetic annotational unit carries start time and segment duration
 information.
 
@@ -140,7 +140,7 @@ Syllable        ->      Phoneme ONE_TO_MANY
 Phoneme ->      Phonetic        MANY_TO_MANY
 ```
 
-This implicates annoational units from the 'Word' level can somehow be connected to units from the 'Phonetic' level via 
+This implicates annotational units from the 'Word' level can somehow be connected to units from the 'Phonetic' level via 
 two other levels called 'Syllable' and 'Phoneme'. This is indeed the case and also the reason `emuR` is able to 
 deduce the time information for annotational units without time information (`type: 'ITEM'`) if they are connected, 
 even over multiple other levels, to annotational units with time information (`type: 'SEGMENT'`, `type: 'EVENT`).
@@ -150,13 +150,13 @@ The easiest way to think of levels and links is a graph for each recording where
 linguistic representations and the Links are the relations between them. Hence for our 'ae' `emuDB` we could say:
 Each recording has words, syllables and phones, and the relations are: 
 words consist of syllables, and syllables in turn consists of abstract phonemes, 
-which are produced as certain phones. An schematic excerpt of such an annotation can be seen below:
+which are produced as concrete phones. An schematic excerpt of such an annotation can be seen below:
 
 ![Alt text](pics/msajc003.svg)
 
 ## Database annotation / visual inspection
 
-The EMU\_SDMS has a fairly unique approach to the database annotation and the visual inspection of the database, as it 
+The EMU\_SDMS has a fairly unique approach to annotating and the visually inspecting databases, as it 
 utilizes a web application called the EMU-webApp to act as it's graphical user interface. To be
 able to transfer the necessary data to the web application let us now serve the `emuDB` to it by using the `serve()` function:
 
@@ -176,18 +176,18 @@ By navigating to the above URL and clicking `connect` in the top menu bar and `c
 your current R session are able to connect to each other. You can now use the EMU-webApp to visually inspect your `emuDB`, annotate your data and more.
 Once you are finished using the EMU-webApp simply click the clear button in the top menu bar and your R console will free up again.
 
-**INFO: For more information about how to use the EMU-webApp click the EMU-webApp icon in the top right hand corner in the webApps top menu bar. For more 
+**INFO: For more information about how to use the EMU-webApp click the EMU-webApp icon in the top right hand corner in the webApp's top menu bar. For more 
 information about how to configure the EMU-webApp see the 'Configuring the EMU-webApp' section of the `emuDB` vignette.**
 
 # Use cases
 
 As we have already completed the first two steps described in the typical work-flow example in the introduction, we will now describe the the rest of the 
-work-flow by walking through a few use cases. The use cases will start by asking a question about the 'ae' database and will continue by walking
-you through the process of answering these questions by using the the mechanics the `emuR` package provides.
+work-flow by walking through a few use cases. Every use case will start off by asking a question about the 'ae' database and will continue by walking
+you through the process of answering this question by using the mechanics the `emuR` package provides.
 
-## 1.) *What is the average length of all 'n' phonetic SEGMENTs in the 'ae' emuDB?*
+## 1.) *What is the average length of all 'n' phonetic segments in the 'ae' emuDB?*
 
-The first thing that we will need to do to answer this fairly simple question, is query the database for all 'n' SEGMENTs.
+The first thing that we will need to do to answer this fairly simple question, is query the database for all 'n' segments.
 This can easily be achieved using the `query()` function:
 
 ```{r message=FALSE, warning=FALSE}
@@ -199,10 +199,11 @@ head(sl)
 The second argument of the `query()` contains a string that represents an EMU Query Language Version 2 (EQL2) statement. This fairly simple EQL2
 statement consists of the level name 'Phonetic' on the left, the operator '==' which is the equality operator of the EQL, and finally on the right 
 hand side of the operator the label 'n' that we are looking for. For multiple examples and an overview of what type of queries you can 
-produce in EQL2 please see the `EQL` vignette.
+produce with the EQL2 please see the `EQL` vignette.
 
-The `query()` function returns an object with the class `emuRsegs` that is a superclass of the well known `data.frame`. We can now use the information
-in this object to calculate the mean durations of these segments:
+The `query()` function returns an object of the class `emuRsegs` that is a superclass of the well known `data.frame`. The various columns of this 
+object should be fairly self explanatory: `labels` displays the extracted labels, `start` / `end` are the start time and end times in milliseconds of 
+each segment and so on. We can now use the information in this object to calculate the mean durations of these segments:
 
 ```{r}
 # calculate durations
@@ -212,9 +213,9 @@ d = dur(sl)
 mean(d)
 ```
 
-## 2.) *What does the F1/F2 distribution of all phonetic SEGMENTs that contain the labels I, o:, u:, V or @ look like?*
+## 2.) *What does the F1/F2 distribution of all phonetic segments that contain the labels I, o:, u:, V or @ look like?*
 
-Once again we will start by querying our annotation structure for the SEGMENTs we are interessted in:
+Once again we will start by querying our annotation structure for the segments we are interested in:
 
 ```{r results='hide', message=FALSE, warning=FALSE}
 # query emuDB
@@ -224,10 +225,10 @@ sl = query(ae, query = "Phonetic==I|o:|u:|V|@")
 **INFO: the EQL2 introduces a new operand which is the regular expression operand: =~. So alternatively we could also formulate the query
 like follows: "Phonetic=~'[szSZ]'"**
 
-Now that we have extracted the neccesary SEGMENT information we can simply call:
+Now that we have extracted the necessary segment information we can simply call:
 
 ```{r}
-# get formant values for those SEGMENTs
+# get formant values for those segments
 td = get_trackdata(ae, sl,
                    onTheFlyFunctionName = "forest",
                    resultType = "emuRtrackdata",
@@ -238,22 +239,23 @@ In this example the `get_trackdata` function uses a formant estimation function 
 on-the-fly. This signal processing function is part of the `wrassp` package that is used by the `emuR` package to perform signal
 processing duties as is the case with the above `get_trackdata` command.
 
-**INFO: For more information about the wrassp package and it's available signal processing functions see the wrassp_intro vignette 
+**INFO: For more information about the wrassp package and it's available signal processing functions see the `wrassp_intro` vignette 
 that is part of the `wrassp` package.**
 
-If the `resultType` parameter is set to "emuRtrackdata" the `get_trackdata` function returns an object with the following classes:
+If the `resultType` parameter is set to `"emuRtrackdata"` the `get_trackdata` function returns an object with the following classes 
+(see `?emuRtrackdata` for more details):
 
 ```{r}
 class(td)
 ```
 
-As we are dealing with a `data.table`/`data.frame` we can now simply use a package like `ggplot2` to visualize our F1/F2 distribution:
+As we are dealing with a `data.table` / `data.frame` we can now simply use a package like `ggplot2` to visualize our F1/F2 distribution:
 
 ```{r, fig.height = 5, fig.width = 5}
 # load package
 library(ggplot2)
 
-# scatter plot F1 and F2 values using ggplot2
+# scatter plot of F1 and F2 values using ggplot
 ggplot(td, aes(x=T2, y=T1, label=td$labels)) + 
   geom_text(aes(colour=factor(labels))) + 
   scale_y_reverse() + scale_x_reverse() + 
@@ -261,9 +263,9 @@ ggplot(td, aes(x=T2, y=T1, label=td$labels)) +
   guides(colour=FALSE)
 ```
 
-## 3.) What words do the phonetic SEGMENTs that carry the labels s, z, S or Z occur in an what is their perceeding phonetic context?
+## 3.) What words do the phonetic segments that carry the labels s, z, S or Z in the 'ae' emuDB occur in and what is their preceding phonetic context?
 
-As we have done before, let us query the `emuDB` for the SEGMENTs we are intersted in:
+As we have done before, let us query the `emuDB` for the segments we are interested in:
 
 ```{r}
 sibil = query(ae,"Phonetic==s|z|S|Z")
@@ -282,8 +284,8 @@ head(words)
 
 As we can see, the result is not quite what we would have expected as it does not contain the orthographic word transcriptions but 
 a classification of the words into content words ('C') and function words ('F'). Looking back at the output of `summary_emuDB()` we can 
-see that the 'Words' level has multiple `attributeDefintions` which indicates that each annotational unit in the `Words` level has muliple
-parallel labels defined for it. So let us try the `attributeDefintion` called 'Text'.
+see that the 'Words' level has multiple `attributeDefintions` which indicates that each annotational unit in the 'Words' level has multiple
+parallel labels defined for it. So let us instead try the `attributeDefintion` called 'Text'.
 
 ```{r}
 words = requery_hier(sibil, level = "Text")
@@ -291,50 +293,158 @@ words = requery_hier(sibil, level = "Text")
 head(words)
 ```
 
-**NOTE: this two step process can also be completed in a single hierarchical query using the dominance operation: ^. See the EQL 
+We can now see that for example the first segment in `sibil` occured in the word 'amongst' which starts at '187.475' ms
+and ends at '674.225' ms.
+
+**INFO: this two step process can also be completed in a single hierarchical query using the dominance operation: ^. See the `EQL` 
 vignette for more details.**
 
-Now that we have answered the first part of the question let us now look at the left and right context of the extracted sibillants by
+Now that we have answered the first part of the question let us look at the left and right context of the extracted sibilants by
 using the `requery_seq()` function.
 
 ```{r}
-# get left context by offsetting one annotational unit to the left
-left = requery_seq(sibil, offset = -1)
+# get left context by off-setting the annotational units in sibil one unit to the left
+leftContext = requery_seq(sibil, offset = -1)
 
-head(left)
-
+head(leftContext)
 ```
 
+And the right context:
 
+```{r eval=FALSE}
+# get right context by off-setting the annotational units in sibil one unit to the right
+rightContext = requery_seq(sibil, offset = 1)
+```
 
+This will throw an error as four of the sibilants occur at the very end of the recording and therefore have no phonetic post-context. We can get the 
+remaining post-context by setting the `ignoreOutOfBounds` argument to `TRUE`:
 
-## 4.) Do the sibilants Phonetic SEGMENTs that carry the labels s; z; S or Z in the 'ae' emuDB differ with respect to their 1st spectral moment?
+```{r}
+rightContext = requery_seq(sibil, 
+                           offset = 1, 
+                           ignoreOutOfBounds = TRUE)
 
-Once again let us query the `emuDB` for the SEGMENTs we are interssted in:  
+head(rightContext)
+```
+
+**NOTE: The resulting `rightContext` and the original `sibil` objects are not "in sync" any more! It is therefore dangerous to use 
+this option per default, as one often relies on the rows in multiple `emuRsegs` objects that where created from each other by
+using either `requery_hier()` or `requery_seq()` to be "in sync" with each other (i.e. that the same row index implicitly indicates a relationship).**
+
+## 4.) Do the sibilant Phonetic segments that carry the labels s; z; S or Z in the 'ae' emuDB differ with respect to their first spectral moment?
+
+Once again let us query the `emuDB` for the segments we are interested in (this time using the new regex operand:=~):
 
 ```{r}
 sibil = query(ae,"Phonetic=~'[szSZ]'")
 ```
 
+Let us now use `get_trackdata()`, this time to extract the discrete Fourier transform values for our segments:
+
 ```{r results='hide', message=FALSE, warning=FALSE}
-sib.tr = get_trackdata(dbName = ae, 
-                       seglist = sibil, 
-                       onTheFlyFunctionName = 'dftSpectrum')
+dftTd = get_trackdata(dbName = ae, 
+                      seglist = sibil,
+                      onTheFlyFunctionName = 'dftSpectrum')
 ```
 
 
+As we have not set the `resultType` parameter to `"emuRtrackdata"` an object of the class `trackdata` is returned. This object, just
+like an object of the class `emuRtrackdata`, contains the extracted trackdata information. Compared to the `emuRtrackdata` class
+the object is however not "flat" and in the form of a `data.table` / `data.frame` but has a more nested structure (see `?trackdata` for
+more details).
 
-### Alternative method using the emuRtrackdata resultType
+```{r results='hide'}
+# execute this to show 16 spectra calculated from the first segment in sibil (an 's')
+# (console output will not be shown here as it is very lengthy)
+dftTd[1]
+```
 
+Since we want to analyse sibilant spectral data we will now reduce the spectral range of the data to 1000 - 10000 Hz. This is due to 
+the fact that there is a lot of unwanted noise in the lower bands that is irrelevant for the problem at hand and can even 
+skew the end results. To achieve this we can use a property of a `trackdata` object that also carries the class `spectral`, which is that it is
+indexed using frequencies. We will now use this trait to extract the relevant spectral frequencies of the `trackdata` object:
 
-```{r results='hide', message=FALSE, warning=FALSE}
-sib.tr = get_trackdata(dbName = ae, 
-                       seglist = sibil, 
-                       onTheFlyFunctionName = 'dftSpectrum',
-                       resultType = "emuRtrackdata")
+```{r}
+dftTdRelFreq = dftTd[, 1000:10000]
+```
+
+Now we are ready to calculate the spectral moments from the reduced spectra:
+
+```{r}
+dftTdRelFreqMom = fapply(dftTdRelFreq, moments, minval = T)
+```
+
+The resulting `dftTdRelFreqMom` object is once again a trackdata object of the same length. Contained in it are the first four spectral moments:
+
+```{r}
+dftTdRelFreqMom[1]
+```
+
+We can now use the information stored in the `dftTdRelFreqMom` and `sibil` objects to plot 
+by-phonetic-category ensemble and time normalized version of the first spectral moments using `emuR`'s `dplot()` function:
+
+```{r fig.height = 5, fig.width = 5}
+dplot(dftTdRelFreqMom[, 1], 
+      sibil$labels,
+      normalise = TRUE, 
+      xlab = "Normalized Time [%]", 
+      ylab = "1st spectral moment [Hz]")
+```
+
+As one might expect, the first spectral moment (= the center of gravity) is significantly lower for 'S' and 'Z' (green & blue lines) than for 's' and 'z' (black & red lines).
+
+Alternatively we can average the ensembles into single trajectories by setting the `average` parameter of `dplot()` to `TRUE`:
+
+```{r fig.height = 5, fig.width = 5}
+dplot(dftTdRelFreqMom[,1],
+      sibil$labels,
+      normalise = TRUE,
+      average = TRUE,
+      xlab = "Normalized Time [%]",
+      ylab = "1st spectral moment [Hz]")
 ```
 
 
+As can be seen from the previous two plots, transitions to and from a sort of "steady state" around the temporal 
+midpoint of the sibilants are clearly visible. To focus on this "steady state" part of the sibilant we 
+will not cut out the middle 60% portion of the previously calculated moments using the `dcut()`
+function:
+
+```{r}
+# cut out the middle 60% portion
+dftTdRelFreqMomMid = dcut(dftTdRelFreqMom, 
+                          left.time = 0.2, 
+                          right.time = 0.8, 
+                          prop = T)
+
+# display original moments of the first segment
+dftTdRelFreqMom[1]
+
+# display 60% portion moments of the first segment
+dftTdRelFreqMomMid[1]
+```
+
+To wrap up, let us calculate the averages of these middle trajectories using the `trapply` function:
+
+```{r}
+meanFirstMoments = trapply(dftTdRelFreqMomMid[,1],
+                           fun = mean,
+                           simplify = T)
+
+# display resulting vector
+meanFirstMoments
+```
+
+As the resulting `meanFirstMoments` vector has the same length as the initial `sibil` segment list, 
+we can now easily visualize these values in the form of a boxplot:
+
+```{r fig.height = 5, fig.width = 5}
+boxplot(meanFirstMoments ~ sibil$labels)
+```
+
+**INFO: Using the `"emuRtrackdata"` `resultType` of `get_trackdata` function we could have performed a comparable analysis 
+by utilizing packages such as `dplyr` for `data.table` / `data.frame` manipulation and `lattice` or `ggplot2` for data
+visualisation.**
 
 
 
