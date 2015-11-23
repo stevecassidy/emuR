@@ -102,7 +102,7 @@ remove_emuDBhandle <- function(dbUUID){
   }
 }
 
-
+emuDB.suffix='_emuDB'
 session.suffix='_ses'
 bundle.dir.suffix='_bndl'
 bundle.annotation.suffix='_annot'
@@ -1447,7 +1447,8 @@ bundle.iterator<-function(db,apply){
 ##' @export
 create_emuDB<-function(name, targetDir, mediaFileExtension='wav', 
                        purge=TRUE, store=TRUE, verbose=TRUE){
-  basePath=file.path(targetDir,name)
+  dbDirName=paste0(name,emuDB.suffix)
+  basePath=file.path(targetDir,dbDirName)
   dbConfig=create.schema.databaseDefinition(name=name,mediafileExtension = mediaFileExtension)
   db=create.database(name=name,basePath=basePath,DBconfig = dbConfig)
   # .initialize.DBI.database()
@@ -1642,8 +1643,10 @@ store<-function(dbName=NULL,targetDir,dbUUID=NULL,options=NULL,showProgress=TRUE
   # get UUID of DB
   dbUUID=db[['DBconfig']][['UUID']]
   
+  # build db dir name
+  dbDirName=paste0(db[['name']],emuDB.suffix)
   # create database dir in targetdir
-  pp=file.path(targetDir,db[['name']])
+  pp=file.path(targetDir,dbDirName)
   # check existence
   if(file.exists(pp)){
     stop(pp," already exists.")

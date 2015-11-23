@@ -732,7 +732,7 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
   # load database schema and metadata to get db name
   dbConfig=load.database.schema.from.emu.template(emuTplPath,dbUUID=dbUUID,encoding=mergedOptions[['sourceFileTextEncoding']])
   # database dir
-  pp=file.path(targetDir,dbConfig[['name']])
+  pp=file.path(targetDir,paste0(dbConfig[['name']],emuDB.suffix))
   
   # check existence of database dir
   if(file.exists(pp)){
