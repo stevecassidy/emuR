@@ -15,11 +15,11 @@ vignette: >
 
 # Introduction
 
-This document is meant as an introduction to the `emuR` package and is meant to provide an overview of what the package is capable of and how it interacts with the other components of the EMU Speech Database Management System (EMU\_SDMS). It is by no means a definite guide to the EMU\_SDMS but rather tries to give an outline of what it is like working with and analyzing speech databases in the EMU\_SDMS by walking you through a few typical use cases.
+This document is an introduction to the `emuR` package and provides an overview of what the package is capable of and how it interacts with the other components of the EMU Speech Database Management System (EMU\_SDMS). It is by no means a complete guide to the EMU\_SDMS but rather tries to give an outline of what it is like working with and analyzing speech databases in the EMU\_SDMS by walking you through a few typical use cases.
 
-The `emuR` package can be viewed as the main component of the EMU\_SDMS as it acts as the central instance that is able to interact with every component of the system. It takes care of database managing duties by being able to interact with a speech database that is stored in the `emuDB` format (see `emuDB` vignette for further details). Further, it has easy to understand and learn yet expressive and powerful querying mechanics, that allow the user to easily query the annotation structures of the database (see `EQL` vignette for further details). Lastly it provides easy data extraction capabilities that extracts data (e.g. formant values) which corresponds to the result of a query.
+The `emuR` package can be viewed as the main component of the EMU\_SDMS as it acts as the central instance that is able to interact with every component of the system. It takes care of database managing duties by being able to interact with a speech database that is stored in the `emuDB` format (see `emuDB` vignette for further details). Further, it has easy to understand and learn yet expressive and powerful querying mechanics that allow the user to easily query the annotation structures of the database (see `EQL` vignette for further details). Finally it provides easy data extraction capabilities that extracts data (e.g. formant values) which corresponds to the result of a query.
 
-If a database in the `emuDB` format is present the typical work-flow in `emuR` is usually something like this:
+If a database in the `emuDB` format is present, the typical workflow in `emuR` is usually something like this:
 
 1. Load database into current R session - `load_emuDB`
 2. Database annotation / visual inspection - `serve` and connect the EMU-webApp to the local server
@@ -31,7 +31,7 @@ If a database in the `emuDB` format is present the typical work-flow in `emuR` i
 
 # Converting existing databases
 
-As most people that are starting to use the EMU\_SDMS will probably already have some form of annotated data, we will initially show how you can easily convert this existing data to the `emuDB` format (for a guide on how to create an `emuDB` from scratch and for information about this format see the `emuDB` vignette).
+As most people that are starting to use the EMU\_SDMS will probably already have some form of annotated data, we will initially show how to easily convert this existing data to the `emuDB` format (for a guide on how to create an `emuDB` from scratch and for information about this format see the `emuDB` vignette).
 
 ## legacy EMU databases
 
@@ -74,7 +74,7 @@ convert_TextGridCollection_to_emuDB(path2folder, dbName = "myTGcolDB",
                                     targetDir = tempdir())
 ```
 
-This will create a new `emuDB` in the folder `tempdir()` called 'myTGcolDB'. The `emuDB` will contain all the tier information from the `.TextGrid` files but will not contain hierarchical information as `.TextGrid` files do not contain any linking information. If you are interested in how to programmatically generate links between the generated `SEGMENT`s and `EVENT`s see the Autobuilding section of the `emuDB` vignette.
+This will create a new `emuDB` in the folder `tempdir()` called 'myTGcolDB'. The `emuDB` will contain all the tier information from the `.TextGrid` files but will not contain hierarchical information as `.TextGrid` files do not contain any linking information. If you are interested in how to semi-automatically generate links between the generated `SEGMENT`s and `EVENT`s see the Autobuilding section of the `emuDB` vignette.
 
 ```{r}
 # remove the newly generated emuDB as we will not be needing it 
@@ -85,7 +85,7 @@ unlink(file.path(tempdir(), "myTGcolDB"), recursive = TRUE)
 
 ## BPF collections
 
-Similar to the `convert_TextGridCollection_to_emuDB()` function the `emuR` package also provides a function for converting file collection consisting of BAS Partitur Format (BPF) and `.wav` files to the `emuDB` format.
+Similar to the `convert_TextGridCollection_to_emuDB()` function the `emuR` package also provides a function for converting file collections consisting of BAS Partitur Format (BPF) and `.wav` files to the `emuDB` format.
 
 ```{r}
 # get the path to a folder containing .wav & .par files that is part of the demo data
@@ -96,7 +96,7 @@ convert_BPFCollection_to_emuDB(path2folder, dbName = 'myBPF-DB',
                                targetDir = tempdir(), verbose = F)
 ```
 
-As the BPF format also permits annotational units to be linked to one another, this conversion function can optionaly preserve this hierachical information by specifying the `refLevel` argument.
+As the BPF format also permits annotational units to be linked to one another, this conversion function can optionally preserve this hierachical information by specifying the `refLevel` argument.
 
 ```{r}
 # remove the newly generated emuDB as we will not be needing it 
@@ -119,7 +119,7 @@ ae = load_emuDB(path2folder, verbose = FALSE)
 
 ## Overview
 
-Now that we have loaded the 'ae' `emuDB` into our R session let us get a first impression of what the 'ae' `emuDB` looks like
+Now that we have loaded the 'ae' `emuDB` into our R session, let's get a first impression of what the 'ae' `emuDB` looks like
 by calling:
 
 ```{r}
@@ -140,7 +140,7 @@ Syllable        ->      Phoneme ONE_TO_MANY
 Phoneme ->      Phonetic        MANY_TO_MANY
 ```
 
-This implicates annotational units from the 'Word' level can somehow be connected to units from the 'Phonetic' level via 
+This implies that annotational units from the 'Word' level can somehow be connected to units from the 'Phonetic' level via 
 two other levels called 'Syllable' and 'Phoneme'. This is indeed the case and also the reason `emuR` is able to 
 deduce the time information for annotational units without time information (`type: 'ITEM'`) if they are connected, 
 even over multiple other levels, to annotational units with time information (`type: 'SEGMENT'`, `type: 'EVENT`).
@@ -158,7 +158,7 @@ which are produced as concrete phones. An schematic excerpt of such an annotatio
 
 The EMU\_SDMS has a fairly unique approach to annotating and the visually inspecting databases, as it 
 utilizes a web application called the EMU-webApp to act as it's graphical user interface. To be
-able to transfer the necessary data to the web application let us now serve the `emuDB` to it by using the `serve()` function:
+able to transfer the necessary data to the web application let's now serve the `emuDB` to it by using the `serve()` function:
 
 ```{r eval=FALSE}
 serve(ae)
@@ -182,7 +182,7 @@ information about how to configure the EMU-webApp see the 'Configuring the EMU-w
 # Use cases
 
 As we have already completed the first two steps described in the typical work-flow example in the introduction, we will now describe the the rest of the 
-work-flow by walking through a few use cases. Every use case will start off by asking a question about the 'ae' database and will continue by walking
+workflow by walking through a few use cases. Every use case will start off by asking a question about the 'ae' database and will continue by walking
 you through the process of answering this question by using the mechanics the `emuR` package provides.
 
 ## 1.) *What is the average length of all 'n' phonetic segments in the 'ae' emuDB?*
@@ -265,7 +265,7 @@ ggplot(td, aes(x=T2, y=T1, label=td$labels)) +
 
 ## 3.) What words do the phonetic segments that carry the labels s, z, S or Z in the 'ae' emuDB occur in and what is their preceding phonetic context?
 
-As we have done before, let us query the `emuDB` for the segments we are interested in:
+As we have done before, let's query the `emuDB` for the segments we are interested in:
 
 ```{r}
 sibil = query(ae,"Phonetic==s|z|S|Z")
@@ -285,7 +285,7 @@ head(words)
 As we can see, the result is not quite what we would have expected as it does not contain the orthographic word transcriptions but 
 a classification of the words into content words ('C') and function words ('F'). Looking back at the output of `summary_emuDB()` we can 
 see that the 'Words' level has multiple `attributeDefintions` which indicates that each annotational unit in the 'Words' level has multiple
-parallel labels defined for it. So let us instead try the `attributeDefintion` called 'Text'.
+parallel labels defined for it. So let's instead try the `attributeDefintion` called 'Text'.
 
 ```{r}
 words = requery_hier(sibil, level = "Text")
@@ -299,7 +299,7 @@ and ends at '674.225' ms.
 **INFO: this two step process can also be completed in a single hierarchical query using the dominance operation: ^. See the `EQL` 
 vignette for more details.**
 
-Now that we have answered the first part of the question let us look at the left and right context of the extracted sibilants by
+Now that we have answered the first part of the question let's look at the left and right context of the extracted sibilants by
 using the `requery_seq()` function.
 
 ```{r}
@@ -333,13 +333,13 @@ using either `requery_hier()` or `requery_seq()` to be "in sync" with each other
 
 ## 4.) Do the sibilant Phonetic segments that carry the labels s; z; S or Z in the 'ae' emuDB differ with respect to their first spectral moment?
 
-Once again let us query the `emuDB` for the segments we are interested in (this time using the new regex operand:=~):
+Once again let's query the `emuDB` for the segments we are interested in (this time using the new regex operand:=~):
 
 ```{r}
 sibil = query(ae,"Phonetic=~'[szSZ]'")
 ```
 
-Let us now use `get_trackdata()`, this time to extract the discrete Fourier transform values for our segments:
+let's now use `get_trackdata()`, this time to extract the discrete Fourier transform values for our segments:
 
 ```{r results='hide', message=FALSE, warning=FALSE}
 dftTd = get_trackdata(dbName = ae, 
@@ -424,7 +424,7 @@ dftTdRelFreqMom[1]
 dftTdRelFreqMomMid[1]
 ```
 
-To wrap up, let us calculate the averages of these middle trajectories using the `trapply` function:
+To wrap up, let's calculate the averages of these middle trajectories using the `trapply` function:
 
 ```{r}
 meanFirstMoments = trapply(dftTdRelFreqMomMid[,1],
