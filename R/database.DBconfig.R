@@ -822,7 +822,17 @@ remove_legalLabels <- function(dbName,
 ###################################################
 # CRUD operations for attributeDefinition$labelGroups
 
-##' Add labelGroup of attributeDefinition to emuDB
+##' Add labelGroup to attributeDefinition of emuDB
+##' 
+##' Adds labelGroup that can be used as a short hand  
+##' to reference groups of labels specific
+##' to an attribute definition (compared to global label groups that 
+##' are added by \code{\link{add_labelGroup}}) in a 
+##' \code{\link{query}}. A common example would be to
+##' add a label group for something like the phonetic
+##' category of nasals to be able reference them 
+##' as "nasals" in a \code{\link{query}}.
+##' 
 ##' 
 ##' @param dbName name of loaded emuDB
 ##' @param levelName name of level
@@ -830,9 +840,30 @@ remove_legalLabels <- function(dbName,
 ##' @param labelGroupName name of label group
 ##' @param labelGroupValues character vector of labels
 ##' @param dbUUID optional UUID of loaded emuDB
-##' @author Raphael Winkelmann
 ##' @export
 ##' @keywords emuDB database schema Emu
+##' @seealso list_attrDefLabelGroups, add_labelGroup
+##' @examples
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' sampaNasals = c("m", "F", "n", "J", "N")
+##' 
+##' # add these values to the default Phonetic attribute
+##' # definition of the Phonetic level of the "ae" emuDB
+##' add_attrDefLabelGroup(dbName = "ae",
+##'                       levelName = "Phonetic",
+##'                       attributeDefinitionName = "Phonetic",
+##'                       labelGroupName = "sampaNasals",
+##'                       labelGroupValues = sampaNasals)
+##' 
+##' # query the labelGroup
+##' query("ae", "Phonetic=sampaNasals")
+##' 
+##' }
 add_attrDefLabelGroup <- function(dbName,
                                   levelName,
                                   attributeDefinitionName, 
