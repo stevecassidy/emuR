@@ -32,6 +32,9 @@ setServerHandle <- function(sh) {
 ##' 
 ##' @details  Function opens a HTTP/websocket and waits in a loop for browser requests. The R console will be blocked. On successfull connection the server sends the session and bundle list of the given database object. The Web application requests bundle data for editing. If a bundle is modified with the EMU-webApp and the save button is pressed the server modifies the database object and saves the changes to disk. Communication is defined by EMU-webApp-websocket-protocol version 0.0.2
 ##' @param dbName name of a loaded EMU database
+##' @param sessionPattern A regular expression pattern matching session names to be served
+##' @param bundlePattern A regular expression pattern matching bundle names to be served
+##' @param dbUUID optional UUID of emuDB, if the emuDB name in the input segment list is not unique
 ##' @param host host IP to listen to (default: 127.0.0.1  (localhost))
 ##' @param port the port number to listen on (default: 17890)
 ##' @param debug TRUE to enable debugging (default: no debugging messages)
@@ -49,17 +52,26 @@ setServerHandle <- function(sh) {
 ##' serve('myDb')
 ##' }
 ##' 
-serve=function(dbName,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
+serve=function(dbName,sessionPattern=NULL,bundlePattern=NULL,dbUUID=NULL,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
   if(debug && debugLevel==0){
     debugLevel=2
   }
   modified=FALSE
   emuDBserverRunning=FALSE
   bundleCount=0
-  dbUUID=get_emuDB_UUID(dbName=dbName)
+  dbUUID=get_emuDB_UUID(dbName=dbName,dbUUID = dbUUID)
   database=.load.emuDB.DBI(uuid = dbUUID)
   if(!is.null(dbUUID)){
-    bundlesDf=list_bundles(dbUUID = dbUUID)
+    allBundlesDf=list_bundles(dbUUID = dbUUID)
+    bundlesDf=allBundlesDf
+    if(!is.null(sessionPattern)){
+      ssl=emuR.regexprl(sessionPattern,bundlesDf[['session']])
+      bundlesDf=bundlesDf[ssl,]
+    }
+    if(!is.null(bundlePattern)){
+      bsl=emuR.regexprl(bundlePattern,bundlesDf[['name']])
+      bundlesDf=bundlesDf[bsl,]
+    }
   }else{
     stop("Emu database ",dbName, " not found!");
   }
