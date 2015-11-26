@@ -80,6 +80,10 @@ add_emuDBhandle <- function(name,basePath, dbUUID,path = NULL){
     }else{
       initialize=(!file.exists(path))
       con= dbConnect(RSQLite::SQLite(),path)
+      # by default RSQLite sets file permissions 0022 and ignores the umask
+      # We overwrite the permissions with the umask here
+      # Not yet enabled
+      #Sys.chmod(path,mode='0666',use_umask = TRUE)
     }
     if(initialize){
       .initialize.DBI.database(con)
