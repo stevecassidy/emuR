@@ -944,11 +944,13 @@ query.database.with.eql<-function(dbConfig,query){
 ##' }
 ##' 
 
-query<-function(dbName=NULL,query,sessionPattern=NULL,bundlePattern=NULL,queryLang='EQL2',timeRefSegmentLevel=NULL,resultType=NULL,dbUUID=NULL){
-  
+query<-function(dbName,query,sessionPattern=NULL,bundlePattern=NULL,queryLang='EQL2',timeRefSegmentLevel=NULL,resultType=NULL,dbUUID){
+  if(missing(dbUUID)){
+    dbUUID=get_emuDB_UUID(dbName)
+  }
   if(queryLang=='EQL2'){
     # .initialize.DBI.database(createTables=FALSE)
-    dbUUID=get_emuDB_UUID(dbName,dbUUID)
+    
     db=.load.emuDB.DBI(uuid = dbUUID)
     dbConfig=db[['DBconfig']]
     # create 

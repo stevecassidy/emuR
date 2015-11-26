@@ -4,9 +4,9 @@
 \alias{query}
 \title{Query emuDB}
 \usage{
-query(dbName = NULL, query, sessionPattern = NULL, bundlePattern = NULL,
+query(dbName, query, sessionPattern = NULL, bundlePattern = NULL,
   queryLang = "EQL2", timeRefSegmentLevel = NULL, resultType = NULL,
-  dbUUID = NULL)
+  dbUUID)
 }
 \arguments{
 \item{dbName}{name of (loaded) EMU database (see \link{load_emuDB})}
