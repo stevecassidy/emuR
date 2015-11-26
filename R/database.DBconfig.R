@@ -1294,7 +1294,7 @@ add_labelGroup <- function(dbName,
                            dbUUID = NULL){
   
   dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  curLgs = list_labelGroups(dbName)
+  curLgs = list_labelGroups(dbName,dbUUID)
   
   if(name %in% curLgs$name){
     stop("labelGroup with name '", name ,"' already exists!")
