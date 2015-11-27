@@ -28,7 +28,7 @@ serve(dbName, sessionPattern = NULL, bundlePattern = NULL, dbUUID = NULL,
 TRUE if the database was modified, FALSE otherwise
 }
 \description{
-Serves emuDB media files, SSFF tracks and annoations for EMU-webApp browser GUI \url{http://ips-lmu.github.io/EMU-webApp/}
+Serves emuDB media files, SSFF tracks and annotations for EMU-webApp browser GUI \url{http://ips-lmu.github.io/EMU-webApp/}
 
 Instructions:
 

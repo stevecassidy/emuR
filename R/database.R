@@ -673,7 +673,7 @@ summary_emuDB<-function(dbName=NULL,dbUUID=NULL){
 
 
 # Create emuDB bundle object
-# @description A bundle typically contains media files and annoations of an utterance
+# @description A bundle typically contains media files and annotations of an utterance
 # @param name name of the bundle
 # @param sessionName session ID of the bundle
 # @param legacyBundleID legacy bundle ID
