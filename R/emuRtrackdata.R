@@ -41,15 +41,13 @@ create_emuRtrackdata <- function(sl, td){
 }
 
 
-# cut_td <- function(td, ...) UseMethod("cut_td")
-
-##' First try of a simple cut implementation 
+##' Function to extract an emuRtrackdata at a single time point of to create another EMU-trackdata object between two times
 ##' 
 ##' lets try it using dplyr... 
 ##' 
 ##' this function is intended to mimic some of the dcut behaviour
 ##' 
-##' @param td emuRtrackdata object
+##' @param emuRtrackdata emuRtrackdata object
 ##' @param left.time Either: a numeric vector of the same length as there are
 ##' obsverations in trackdata. Or: a single value between 0 and 1. In the first
 ##' case, the left time boundary of trackdata[n,] is cut at left.time[n], in
@@ -73,15 +71,19 @@ create_emuRtrackdata <- function(sl, td){
 ##' unspecified and the trackdata object has a single column of data.
 ##' @return emuRtrackdata object
 ##' @import dplyr
-# cut_td.emuRtrackdata = function(td, left.time, right.time, 
-#                                 single = TRUE, average = TRUE, prop = FALSE){
+# cut.emuRtrackdata = function(emuRtrackdata, leftTime, rightTime, 
+#                              single = TRUE, average = TRUE, prop = FALSE){
 #   
-#   if (prop && missing(right.time)) {
-#     res = td %>% 
-#       group_by(sl_rowIdx) %>% 
-#       mutate(times_propDiff = 1 + (times_orig - min(times_orig)) / (max(times_orig) - min(times_orig)) - left.time) %>%
-#       filter(times_propDiff == min(times_propDiff)) %>%
-#       dplyr::select(-times_propDiff)
+#   if (missing(rightTime)) {
+#     if(length(leftTime == 1)){
+#       res = emuRtrackdata %>% 
+#         group_by(sl_rowIdx) %>% 
+#         mutate(times_propDiff = 1 + (times_orig - min(times_orig)) / (max(times_orig) - min(times_orig)) - leftTime) %>%
+#         filter(times_propDiff == min(times_propDiff)) %>%
+#         dplyr::select(-times_propDiff)
+#     }else{
+#       
+#     }
 #   }
 #   return(as.data.table(res))
 # }

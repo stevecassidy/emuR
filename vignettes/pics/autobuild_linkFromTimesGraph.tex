@@ -1,0 +1,21 @@
+\documentclass[tikz, convert={outfile=\jobname.svg}]{standalone}
+\usetikzlibrary{shapes,arrows, backgrounds}
+\begin{document}
+
+\tikzstyle{element}=[rectangle, thick,
+                     inner sep=0.1cm, rounded corners]
+\begin{tikzpicture}
+  \node (syl) at (0, 1) [element] {Syllable (ITEM)};
+  
+  \node (phoneme) at (0, 0) [element] {Phoneme (ITEM)};
+  
+  \node (phonetic) at (0, -1) [element] {Phonetic (SEGMENT)};
+  
+
+  \draw [->] (syl) to node{\tiny{\texttt{ONE\_TO\_MANY}}} (phoneme);
+
+  \draw [->] (phoneme) to node{\tiny{\texttt{MANY\_TO\_MANY}}} (phonetic);
+  
+\end{tikzpicture}
+
+\end{document}
