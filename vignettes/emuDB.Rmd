@@ -485,6 +485,9 @@ This time we chose to add a `linkDefinition` of the type `MANY_TO_MANY` between 
 # throughout the rest of this vignette
 unlink(file.path(tempdir(), "emuR_demoData"), recursive = TRUE)
 unlink(file.path(tempdir(),'myTGcolDB'), recursive = T)
+
+# and purge all loaded emuDBs
+purge_all_emuDBs(interactive = FALSE)
 ```
 
 
