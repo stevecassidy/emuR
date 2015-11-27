@@ -1,6 +1,5 @@
 ---
 title: "Version 2 of the Emu Query Language"
-author: "Raphael Winkelmann & Klaus Jänsch"
 affiliation: "Institute Of Phonetic And Speech Processing (LMU Munich)"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -13,190 +12,116 @@ vignette: >
 
 # Introduction
 
-This document formaly introduces and defines version 2 of the **E**mu 
-**Q**uery **L**anguage (**EQL**).
+This document introduces and defines version 2 of the **E**mu **Q**uery **L**anguage (**EQL**) and tries to show what it is capable of by giving numerous examples. The EQL is a query language that is aimed at speech and language researchers that is supposed to be easy to understand and learn yet expressive and powerful. It enables researchers to easily query annotation structures of databases stored in the emuDB format. The `emuR` package provides a `query()` function to query emuDBs that are loaded into the current R session (for more information see the `emuR_intro` as well as the `emuDB` vignettes). The main argument of the `query()` function is the `query` argument (`query(..., query="XXX", ...)` where `XXX` is the query string). In this document we will be focusing soley on this argument and the query strings that can be passed into it.  
 
-# Extended Backus–Naur Form (EBNF)
+To revise what was already mentioned in the `emuR_intro` as well as the `emuDB` vignette: The annotation structure of an `emuDB` can be thought of as a graph. Each annotation consist of annotational units (called ITEMs) that are grouped together in an ordered array. Each ITEM can be linked to other ITEMs of other levels if an according linkDefinition is present in the `emuDB`. An exemplary excerpt of such an annotation can be seen below.
 
-most of the EBNF was adapted from [@john:2012a]
+![Alt text](pics/msajc003.svg)
 
-## Terminal symbols of EQL2 (operators) and their meaning.
-## Sorted descending by their binding priority
-
-| Operator | Meaning |
-| --- | --- |
-| # | Result modifier (projection) |
-| , | Parameter list separator |
-| == | Equality (new in version 2 of the EQL; for cleaner syntax)|
-| = | Equality (optional; for backwards compatibility)|
-| != | Unequality |
-| =~ | Regular expression match
-| !~ | Regular expression not match
-| > | Greater than |
-| >= | Equal or greater than  |
-| < | Less than |
-| >= | Equal or less than |
-| \| | Alternatives separator |
-| & | Conjunction of equal rank |
-| ^ | Dominanceconjunction |
-| -> | Sequenceoperator |
-
-## Terminal symbols of EQL2 (brackets) and their meaning.
-
-| Bracket | Meaning |
-| --- | --- |
-| ' | Quotes literal string |
-| ( | Function parameter list begin |
-| ) | Function parameter list end |
-| &#91; | Sequence or dominance enclosing begin bracket  |
-| &#93; | Sequence or dominance enclosing end bracket |
-
-## Terminal symbols of EQL2 (functions) and their meaning
-
-| Function | Meaning |
-| --- | --- |
-| Start | Start | 
-| Medial | Medial |
-| End | Final |
-| Num | Count |
-
-## Nearly complete formal description of EMU query language EQL2
-
-| X | Y |
-| --- | --- |
-| EQL | = KONJA \| SEQA \| DOMA; |
-| DOMA | ='[',(KONJA|DOMA|SEQA),'ˆ',(KONJA|DOMA|SEQA),']'; (*Levels must be hierarchically or sequentially associated*) |
-| SEQA | ='[',(KONJA|SEQA|DOMA),'->',(KONJA|SEQA|DOMA),']'; (*Levels must be linear associated*) |
-| KONJA | = {'['},EA,{'&',EA},{']'}; (*Levels must be linear associated*) |
-| EA | = LABELA \| FUNKA; |
-| LABELA | = ['#'],LEVEL,('=' \| '==' \| '!=' \| '=~' \| '!~'),LABELALTERNATIVES; |
-| FUNKA | = POSA \| NUMA; |
-| POSA | = POSFCT, '(',LEVEL,',',LEVEL,')','=','0'\| '1'; (*Levels must be hierarchically or sequentially associated*) (*second level determines semantic*) |
-| NUMA | = 'Num','(',LEVEL,',',LEVEL,')',VOP,INTPN; (*Levels must be hierarchically or sequentially associated*) (*first level determines semantic*) |
-| LABELALTERNATIVES | = LABEL , {'|',LABEL}; |
-| LABEL | = LABELING \| (“'“,LABELING,“'“); (*LEVEL levels must be part of the database structure*) (*LABELING is an arbitrary character string or a label group class configured in the emuDB*) (*The result modifier hash tag '#' must only occur once*)
-
-
-
-| POSFCT = | 'Start'\|'Medial'\|'End'; |
-| VOP =  | '=' \| '==' \| '!=' \| '>' \| '<' \| '<=' \| '>='; |
-| INTPN = | '0' \| INTP; |
-| INTP = | DIGIT-'0',{DIGIT}; |
-| DIGIT = | '0'\|'1'\|'2'\|'3'\|'4'\|'5'\|'6'\|'7'\|'8'\|'9'; |
-
-## Limitations 
-One query can only contain one result modifier '#' (hashtag)
-
+As we will not be mentioning it thoughout the rest of the vignette: one thing to note about the `query()` function are the parameters `bundlePattern` and `sessionPattern`. These can be used to restrict which session and bundle the query will be run against. They both expect a regular expression string to restrict the sessions or bundles one wishes to query.
 
 # Examples
 
-## Examples adapted from [@harrington:2002],[@cassidy_harrington:2001]
+We will jump right in by giving you a bunch of examples of the query string that where adapted from [@harrington:2002, @cassidy_harrington:2001].
 
-**1. Simple queries (one argument)**
+## Simple queries (single argument)
 
-- All m elements on level Phonetic: **`[Phonetic = m]`**
-- m or n elements on level Phonetic: **`[Phonetic = m | n]`**
-- All elements except m oder n: **`[Phonetic != m | n]`**
-- All syllables (Assuming that no syllable x exists): **`[Syllable !=x ]`**
-- All syllables: **`[Syllable =~.* ]`**
-- All Text level elements beginning with 'fi': **`[Text=~fi.*]`**
+- All ITEMs containing the label "m" in the "Phonetic" level: `"[Phonetic == m]"`
+- All ITEMs containing the label "m" or "n" in the "Phonetic" level: `"[Phonetic == m | n]"`
+- All ITEMs that don't contain the label "m" oder "n": `"[Phonetic != m | n]"`
+- All ITEMs in the "Syllable" level: `"[Syllable =~ .*]"`
+- All ITEMs in the "Text" level beginning with 'fi': `"[Text =~ fi.*]"`
 
-**2. Sequence queries ->**  
-   **2.1. Simple sequences**  
-   The arguments are connected with **->** (follows).  
-   Syntax: **[L = a -> L = b]**  
-   Semantic: Element a on level L precedes elemnt b on level L, both arguments must be on the same level (or linear level)  
-A sequence of m I segments on the Phonetic level **`[Phonetic = m -> Phonetic = I]`**  
-( all elements in the segent list have start time of m and end time of I)  
-Same as above – but we want only m elements as result **`[#Phonetic = m -> Phonetic = I]`**  
-(start time of m, end time of m)  
-Same, but only I elements as result   **`[Phonetic = m -> # Phonetic = I]`**  
 
-**2.2. Subsequent sequences**  
-A sequence of arguments a1, a2, a3, a4, can be queried this way  
-**[[[[a1-> a2] ->a3]->a4] ->a5]**  
-All sequences of [m I n]  
-**`[[ Phonetic = m -> Phonetic = I ] -> Phonetic = n ]`**  
-all sequences of ‘john could lend’ (on Text level)  
-**`[[ Text = john -> Text = could ] -> Text = lend ]`**  
-‘the’, then arbitrary two words, then ‘managed’ (all on Text level, assume no word x exists)  
-**`[[[ Text = the -> Text != x ] -> Text !=x ] -> Text = managed]`**  
-same using EQL2 regular expression operator  
-**`[[[ Text = the -> Text =~ .* ] -> Text =~ .* ] -> Text = managed]`**
+*Note: The above examples use two new operands. One beeing the "==" equal operand that has the same meaning as the "=" operand of EQL1 while providing a cleaner more precise syntax. The other beeing the "=~" which is the new regular expression operand.*
 
-**3. Boolean &**  
-Syntax: **[L1=a &L2=b&L3=c&L4=d&...Ln=n]**  
+## Sequence queries using the "->" sequence operand
+
+The general syntax of a query string using the "->" sequence operand is `"[L == A -> L == B]"` where element "A" on level "L" precedes element "B" on level "L". For a sequential query to work both arguments must be on the same level (alternativly parallel attributeDefinitions of the same level may also be chosen).
+   
+- A sequence of "m" followed by "I" ITEMs on the "Phonetic"" level: `"[Phonetic == m -> Phonetic == I]"`** (all row entries in the segment list have the start time of "m"" and end time of "I" and the labels will be "m->I")
+- Same as above but this time we are only interessted in the "m" ITEMs: `"[#Phonetic == m -> Phonetic == I]"`  (all row entries in the segment list have the start time of "m" and the end time of "m")  
+- Same as above but this time we are only interessted in the "I" ITEMs:   `"[Phonetic == m -> #Phonetic == I]"`
+
+## Subsequent sequence queries using nesting of the "->" sequence operand   
+
+The general syntax to performing subsequent sequences of labels is to nest muliple sequences while paying attention to the correct placement of the parentheses. An abstracted version of a query string for the subsequent sequence of arguments A1, A2, A3, A4 would be: `"[[[[A1-> A2] -> A3] -> A4] -> a5]"`  
+
+- All sequences of ITEMs containing ["m" "I" "n"] labels on the "Phonetic" level: `"[[ Phonetic == m -> Phonetic == I ] -> Phonetic == n ]"` 
+- All sequences of ITEMs containing ["john"" "could" "lend"] labels on the "Text" level: `"[[ Text == john -> Text == could ] -> Text == lend ]"`
+- All sequences of ITEMs containging labels "the" followed by two arbitrary labels followed by "managed" `"[[[Text == the -> Text =~ .*] -> Text =~ .* ] -> Text == managed]"`
+
+*Note: As the EQL1 didn't have a regular expression operand users often resorted to using queries such as "[Phonetic != XXX]" (where XXX is a label that was not part of the labels selt of the "Phonetic" level) to match every label on the "Phonetic" level. Although this is still possible in the EQL2 we strongly recommend using regular expressions as these provide a much clearer and preciser syntax.*
+
+
+## The conjunction operand &
+
+Syntax: `"[L1 == a & L2 == b & L3 == c & L4 == d & ... & Ln == n]"`
 Semantics: All a elements on level L1 which have properties b, c, d..n as well.  
 Condition: All arguments must be on the same level or linear level  
-S syllables which are labeled with L+H* too  
-**`[Syllable = S & Pitch_Accent=L+H*]`**  
-Text of all function words  
-**`[Text !=x & Word = F]`**  
-Text of all content words which are also accentuated (S)  
-**`[Text!=x & Word=C & Accent=S]`**  
 
-**4. Domination**
-Syntax: Semantik: **[L1=a^ L2=b]**  
+
+- S syllables which are labeled with L+H\* too: `"[Syllable == S & Pitch_Accent == L+H*]"`
+- Text of all function words `"[Text != x & Word == F]"`
+- Text of all content words which are also accentuated (S) `"[Text != x & Word == C & Accent == S]"`
+
+## The disjunction operand |
+
+
+
+## Hierarchical queries using the domination operand ^
+
+Syntax: Semantik: `"[L1 == a ^ L2 == b]"`
 Semantics: a dominated by b or a dominated by b  
 Condition: L1 dominates L2 or L2 dominates L1
 
-**4.1. Simple Domination**
-All /p/ phonemes in S Syllables  
-**`[Phoneme = p ^ Syllable = S]`**  
-All syllables, which contain a phonmeme /p/  
-**`[Syllable !=x ^ Phoneme = p]`**  
-or  
-**`[Phoneme = p ^ #Syllable !=x]`**  
-All syllables, which neither contain /k/ nor /p/ nor /t/  
-**`[Syllable!=x ^ Phoneme != p | t | k]`**  
-oder  
-**`[Phoneme != p | t | k ^ # Syllable !=x ]`**
+### Simple Domination
 
-**4.2. Multiple Domination**  
-A dominance relationship sequence a1, a2, a3, a4, is noted this way:  
-**[[[[a1^ a2] ^a3]^a4] ^a5]**  
-H\* syllables containing a phoneme /p/, dominated by words ‘price’ or ‘space'  
-**`[[Pitch_Accent=H\* ^ Phoneme=p] ^ Text = price|space]`**  
-The same – but we want the appropriate words  
-**`[[Pitch_Accent=H* ^ Phoneme=p] ^ #Text = price|space]`**  
+- All "p"" phonemes in S Syllables  `"[Phoneme = p ^ Syllable = S]"`
+- All syllables, which contain a phonmeme /p/  `"[Syllable != x ^ Phoneme = p]"` or `"[Phoneme = p ^ #Syllable =~ .*]"`
+- All syllables, which neither contain /k/ nor /p/ nor /t/  `"[Syllable != x ^ Phoneme != p | t | k]"` or `"[Phoneme != p | t | k ^ # Syllable =~ .*]"`
+
+### Multiple Domination
+
+A dominance relationship sequence a1, a2, a3, a4, is noted this way:  **[[[[a1 ^ a2] ^ a3] ^ a4] ^ a5]**  
+
+- H\* syllables containing a phoneme /p/, dominated by words ‘price’ or ‘space' `"[[Pitch_Accent == H\* ^ Phoneme = p] ^ Text == price | space]"`  
+- The same – but we want the appropriate words: `"[[Pitch_Accent == H* ^ Phoneme == p] ^ #Text == price | space]"`
 
 
-**5. Position**  
-**5.1 Simple usage**  
+## Position
+
+### Simple usage
+
 Syntax: **Start(La, Lb) = 1  **
 Semantics: Lb occurs at the beginning of La
 Condition: La dominates Lb  
 Note: Simple usage generates the segment list of Lb
-e.g.:
-Syllables at begining of word **`[Start(Word, Syllable)=1]`**
-Phonemes at begining of word **`[Start(Word, Phoneme)=1]`**
-Syllables not at begining of word **`[Start(Word, Syllable)=0]`**
-Functions Medial(La, Lb) and End(La, Lb)
-Word-final syllables **`[End(Word, Syllable)=1]`** and so on  
 
-**6. Position und Boolean &**  
+- Syllables at begining of word `"[Start(Word, Syllable) == 1]"`
+- Phonemes at begining of word `"[Start(Word, Phoneme) == 1]"`
+- Syllables not at begining of word `"[Start(Word, Syllable) == 0]"`
+- Functions Medial(La, Lb) and End(La, Lb)
+- Word-final syllables "`[End(Word, Syllable) == 1]"` and so on  
+
+## Position and Boolean &
 Syntax: L = e & Start(La, Lb) = 1  
 Semantics: Element e on level L occurs at the bginning of La  
 Condition: La dominates Lb  (L and Lb are on the same level or linear level).  
 
-e.g.:
-all /p/ phonemes at the beginning of a syllable  
-**`[Phoneme = p & Start(Syllable, Phoneme)=1]`**  
-All word-final /m/ phonemes  
-**`[Phoneme = m & End(Word, Phoneme)=1]`**  
-All non-word-final S syllables which are labeled with tonic accent L+H*  
-**`[Syllable =S & Pitch_Accent=L+H* & (Word, Syllable)=0]`**  
+- All /p/ phonemes at the beginning of a syllable  `"[Phoneme == p & Start(Syllable, Phoneme) == 1]"`  
+- All word-final /m/ phonemes `"[Phoneme = m & End(Word, Phoneme)=1]"`
+- All non-word-final "S"" syllables which are labeled with tonic accent L+H\*  `"[Syllable =S & Pitch_Accent=L+H* & (Word, Syllable)=0]"`
 
-**6.1. Position und Boolean ^**  
+### Position and Boolean ^
 Syntax/Semantics as for 5.2, but:
 If L und Lb are different levels (L dominates Lb, or Lb dominates L) use ^ instead of & :
-/p/ phonemes, which occur in the first syllable of the word  
-**`[Phoneme = p ^ Start(Word, Syllable)=1]`**  
-All phonemes, which do not occur in the last syllable of the word  
-**`[Phoneme !=x ^ End(Word, Syllable)=0]`**  
 
-**7. Count**  
-**Simple usage**  
+- /p/ phonemes, which occur in the first syllable of the word  `"[Phoneme = p ^ Start(Word, Syllable)=1]"`
+- All phonemes, which do not occur in the last syllable of the word `"[Phoneme !=x ^ End(Word, Syllable)=0]"`
+
+## Count
+
 Syntax: **Num(La, Lb) = n**
 Semantics: La contains n Lb elements
 Condition: La dominates Lb. n is a number
@@ -207,41 +132,34 @@ Syllables, which have more than 6 phonemes
 **`[Num(Syllable, Phoneme)>6]`**  
 and so on  
 
-**7.1. Count and Boolean &**  
+### Count and Boolean &
+
 Syntax: **L = e & Num(La, Lb) = n**  
 Semantics: Element e on level L is dominated by La ; and La contains n Lb elements, La dominates Lb  
 Condition: (L and La (not Lb!) are on the same level or linear level).  
-Text of all words, which consist of 11 phonemes:  
-**`[Text!=x & Num(Text, Phoneme) > 11 ] =`**  
-or  
-**`[Text=~.* & Num(Word, Phoneme) > 11 ]`**  
-H* tonic accents in syllables of 5 phonemes:  
-**`[Pitch_Accent = H* & Num(Syllable, Phoneme) = 5]`**  
 
-**7.2. Count and ^**  
+- Text of all words, which consist of 11 phonemes: `"[Text!=x & Num(Text, Phoneme) > 11 ] ="` or  `"[Text =~ .* & Num(Word, Phoneme) > 11]"`
+- H\* tonic accents in syllables of 5 phonemes:  `"[Pitch_Accent = H* & Num(Syllable, Phoneme) = 5]"`
+
+### Count and ^
+
 Syntax/Semantics as with 6.2, but:
 If L and La are different levels (L dominates La, or La dominates L) use ^ instead of & :
-All m phonemes in 4-syllable words  
-**`[Phoneme=m ^ Num(Word, Syllable)=4]`**
-All W-Syllables in words of 3 or less syllables
-**`[Syllable = W ^ Num(Word, Syllable) < 3]`**  
-All words, which contain syllable, which contain 4 phonemes  
-**`[Text!=x ^ Num(Syllable, Phoneme) = 4]`**
+- All m phonemes in 4-syllable words  `"[Phoneme == m ^ Num(Word, Syllable) == 4]"`
+- All W-Syllables in words of 3 or less syllables `"[Syllable = W ^ Num(Word, Syllable) < 3]"`
+- All words, which contain syllable, which contain 4 phonemes  `[Text != x ^ Num(Syllable, Phoneme) == 4]"`
 
-**8. Combinations **  
-**8.1. ^ und -> (Domination and Sequence)  
-Condition: The sequence -> must connect only same or levels or linear levels! (See 2.)  
+## Combinations
+
+### ^ and -> (Domination and Sequence)  
+Condition: The sequence -> must connect only same or levels or linear levels! (See 2.)
 **[[a1 ^ a2] -> a3] [a1 -> [a2 ^ a3]]**  
-m precedes I and m is part of a S-syllable  
-**`[[Phoneme = m -> Phoneme = I] ^ Syllable=S]`**  
-s precedes p and p is part of a W-syllable  
-**`[Phoneme = s -> [Phoneme = p ^ Syllable = W]]`**  
-all S-syllables, which contain phoneme p and precede a S-syllable  
-**`[[Syllable = S ^ Phoneme = p] -> Syllable = S]`**  
-but now we want p: p is part of a S-syllable and this S-syllable precedes a S-syllable  
-**`[[Phoneme = p ^ Syllable = S] -> Syllable = S]`**  
-Not allowed! Because Phoneme = p and Syllable = S are not on the same level, therefore:  
-**`[[Syllable = S ^ #Phoneme=p] -> Syllable = S]`**  
+
+- m precedes I and m is part of a S-syllable  `"[[Phoneme = m -> Phoneme = I] ^ Syllable=S]"`
+- s precedes p and p is part of a W-syllable  `"[Phoneme = s -> [Phoneme = p ^ Syllable = W]]"`
+- all S-syllables, which contain phoneme p and precede a S-syllable  `"[[Syllable = S ^ Phoneme = p] -> Syllable = S]"`
+- but now we want p: p is part of a S-syllable and this S-syllable precedes a S-syllable: `"[[Phoneme = p ^ Syllable = S] -> Syllable = S]"`
+- Not allowed! Because Phoneme = p and Syllable = S are not on the same level, therefore:  `"[[Syllable = S ^ #Phoneme=p] -> Syllable = S]"`
 
 **8.2. ^ and -> and & (Domination and Sequence and Boolean &)**  
 Words, beginning with a schwa:  
@@ -437,5 +355,78 @@ query was:  Text=~.*tz.*
 1 blitzed 1586.875 2112.475    0000 msadb081          54        54 ITEM
 2 blitzed 1540.225 2022.475    0000 msajc081          59        59 ITEM
 ```
+
+
+# Extended Backus–Naur Form (EBNF)
+
+most of the EBNF was adapted from [@john:2012a]
+
+## Terminal symbols of EQL2 (operators) and their meaning.
+## Sorted descending by their binding priority
+
+| Operator | Meaning |
+| --- | --- |
+| # | Result modifier (projection) |
+| , | Parameter list separator |
+| == | Equality (new in version 2 of the EQL; for cleaner syntax)|
+| = | Equality (optional; for backwards compatibility)|
+| != | Unequality |
+| =~ | Regular expression match
+| !~ | Regular expression not match
+| > | Greater than |
+| >= | Equal or greater than  |
+| < | Less than |
+| >= | Equal or less than |
+| \| | Alternatives separator |
+| & | Conjunction of equal rank |
+| ^ | Dominanceconjunction |
+| -> | Sequenceoperator |
+
+## Terminal symbols of EQL2 (brackets) and their meaning.
+
+| Bracket | Meaning |
+| --- | --- |
+| ' | Quotes literal string |
+| ( | Function parameter list begin |
+| ) | Function parameter list end |
+| &#91; | Sequence or dominance enclosing begin bracket  |
+| &#93; | Sequence or dominance enclosing end bracket |
+
+## Terminal symbols of EQL2 (functions) and their meaning
+
+| Function | Meaning |
+| --- | --- |
+| Start | Start | 
+| Medial | Medial |
+| End | Final |
+| Num | Count |
+
+## Nearly complete formal description of EMU query language EQL2
+
+| X | Y |
+| --- | --- |
+| EQL | = KONJA \| SEQA \| DOMA; |
+| DOMA | ='[',(KONJA|DOMA|SEQA),'ˆ',(KONJA|DOMA|SEQA),']'; (*Levels must be hierarchically or sequentially associated*) |
+| SEQA | ='[',(KONJA|SEQA|DOMA),'->',(KONJA|SEQA|DOMA),']'; (*Levels must be linear associated*) |
+| KONJA | = {'['},EA,{'&',EA},{']'}; (*Levels must be linear associated*) |
+| EA | = LABELA \| FUNKA; |
+| LABELA | = ['#'],LEVEL,('=' \| '==' \| '!=' \| '=~' \| '!~'),LABELALTERNATIVES; |
+| FUNKA | = POSA \| NUMA; |
+| POSA | = POSFCT, '(',LEVEL,',',LEVEL,')','=','0'\| '1'; (*Levels must be hierarchically or sequentially associated*) (*second level determines semantic*) |
+| NUMA | = 'Num','(',LEVEL,',',LEVEL,')',VOP,INTPN; (*Levels must be hierarchically or sequentially associated*) (*first level determines semantic*) |
+| LABELALTERNATIVES | = LABEL , {'|',LABEL}; |
+| LABEL | = LABELING \| (“'“,LABELING,“'“); (*LEVEL levels must be part of the database structure*) (*LABELING is an arbitrary character string or a label group class configured in the emuDB*) (*The result modifier hash tag '#' must only occur once*)
+
+
+
+| POSFCT = | 'Start'\|'Medial'\|'End'; |
+| VOP =  | '=' \| '==' \| '!=' \| '>' \| '<' \| '<=' \| '>='; |
+| INTPN = | '0' \| INTP; |
+| INTP = | DIGIT-'0',{DIGIT}; |
+| DIGIT = | '0'\|'1'\|'2'\|'3'\|'4'\|'5'\|'6'\|'7'\|'8'\|'9'; |
+
+## Limitations 
+One query can only contain one result modifier '#' (hashtag)
+
 
 # References
