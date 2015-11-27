@@ -26,7 +26,7 @@ The database structure is basically a set of files and folders that adhere to a 
 
 The database root directory contains a single `_DBconfig.json` file which, as the name implies, contains the configuration options of the database such as its level definitions, how these levels are linked in the database hierarchy and what is displayed in the EMU-webApp. The database root folder also contains session folders (ending with `_ses`). These session folders can be used to logically group the `_bndl` folders described below.
 
-Each session folder can contain any number of `_bndl` folders. All the files belonging to a bundle, for example a recorded sentence, are stored in the corresponding bundle folder. This includes the actual recording (`.wav`) and derived/complimentary signal files in the SSFF format [@cassidy:2013a] such as formants (`.fms`) or the fundamental frequency (`.f0`), both of which can be generated using the `wrassp` package. Each bundle folder also contains the annotation file (`_annot.json`) of that bundle. This file contains the actual annotations including the hierarchical linking information. JSON schema files are provided to ensure the syntactic integrity of the database (*https://github.com/IPS-LMU/EMU-webApp/tree/master/dist/schemaFiles*). The following naming restrictions apply:
+Each session folder can contain any number of `_bndl` folders. All the files belonging to a bundle, for example a recorded sentence, are stored in the corresponding bundle folder. This includes the actual recording (`.wav`) and derived / complimentary signal files in the SSFF format [@cassidy:2013a] such as formants (`.fms`) or the fundamental frequency (`.f0`), both of which can be generated using the `wrassp` package. Each bundle folder also contains the annotation file (`_annot.json`) of that bundle. This file contains the actual annotations including the hierarchical linking information. JSON schema files are provided to ensure the syntactic integrity of the database (*https://github.com/IPS-LMU/EMU-webApp/tree/master/dist/schemaFiles*). The following naming restrictions apply:
 
 - the database folder has to have the same name as the `_DBconfig.json` prefix and may optionally have the suffix `_emuDB`. Note that the `_DBconfig.json` contains the field `name` which specifies the name of the emuDB. This also has to have the same name as the folder and `_DBconfig.json` prefix.
 - all session folders must be named using the suffix `_ses`. Their prefixes can be chosen by the database maintainer.
@@ -78,7 +78,7 @@ This will load the database into it's cached form for quick access to the data. 
 list_emuDBs()
 ```
 
-The `emuR` package contains two functions to purge (i.e. unload/remove) loaded databases from the current R session. These functions are `purge_emuDB()` and `purge_all_emuDBs()`. We will not invoke these functions here as we still wish to edit the loaded database. A further thing to note is that if there are duplicate database names among the databases loaded, each database can still be accessed separately using an additional unique identifier that each emuDB has called the UUID. This UUID is also listed by the `list_emuDBs()` function.
+The `emuR` package contains two functions to purge (i.e. unload / remove) loaded databases from the current R session. These functions are `purge_emuDB()` and `purge_all_emuDBs()`. We will not invoke these functions here as we still wish to edit the loaded database. A further thing to note is that if there are duplicate database names among the databases loaded, each database can still be accessed separately using an additional unique identifier that each emuDB has called the UUID. This UUID is also listed by the `list_emuDBs()` function.
 
 Next, let us look at some actual database manipulation functions. The general function prefix naming convention of database manipulation functions for loaded databases are:
 
@@ -467,7 +467,7 @@ add_linkDefinition(dbName, type = "MANY_TO_MANY",
 # list
 list_linkDefinitions(dbName)
 
-# envoke autobuild function
+# invoke autobuild function
 autobuild_linkFromTimes(dbName, 
                         superlevelName = "Phoneme",
                         sublevelName = "Phonetic",
@@ -483,7 +483,7 @@ This time we chose to add a `linkDefinition` of the type `MANY_TO_MANY` between 
 ```{r}
 # remove the newly generated emuDB and emuR_demoData as we will not be needing it 
 # throughout the rest of this vignette
-unlink(file.path(tempdir(), "ae"), recursive = TRUE)
+unlink(file.path(tempdir(), "emuR_demoData"), recursive = TRUE)
 unlink(file.path(tempdir(),'myTGcolDB'), recursive = T)
 ```
 
@@ -569,7 +569,7 @@ The `_DBconfig.json` file contains the following fields:
             - `"order"` array specifying order in which the levels are to be displayed. Note that only levels of the type "EVENT" or "SEGMENT" can be displayed as `"levelCanvases"`
         - `"twoDimCanvases"` configuration options for the 2D canvas
             - `"order"` array specifying order in which the levels are to be displayed. Note that currently only a single twoDimDrawingDefinition can be displayed so this array may currently only contain a single element.
-            - `"twoDimDrawingDefinitions"` array containing two dimentional drawing definitions. Each two dimensional drawing definition consist of: 
+            - `"twoDimDrawingDefinitions"` array containing two dimensional drawing definitions. Each two dimensional drawing definition consist of: 
                 - `"dots"` array containing dot definitions. Each dot definition consist of:
                     - `"name"` name of dot
                     - `"xSsffTrack"` ssffTrackName of track that contains the x axis values
@@ -577,7 +577,7 @@ The `_DBconfig.json` file contains the following fields:
                     - `"ySsffTrack"` ssffTrackName of track that contains the y axis values
                     - `"yContourNr"` contour number of track that contains the y axis values
                     - `"color"` rgb color string specifying color given to dot
-                - `"connectLines"` array specifying which of the dots specified in the dots definition array should be connected with a line
+                - `"connectLines"` array specifying which of the dots specified in the `"dots"` definition array should be connected by a line
                     - `"fromDot"` dot from which the line should start
                     - `"toDot"` dot to which the line should go
                     - `"type"` rgb string defining the color of the line
@@ -615,7 +615,7 @@ The `_DBconfig.json` file contains the following fields:
         - `"drawSampleNrs"` boolean value specifying whether to draw the samples numbers in the OSCI canvas if zoomed in close enough to see samples (mainly for debugging / development purposes)
         - `"drawZeroLine"` boolean value specifying whether to draw zero value line in OSCI canvas
         - `"bundleComments"` boolean value specifying whether to allow the annotator to add comments to bundles she / he has annotated. A bundle comment field will show up in the bundle list side bar for each bundle if this is set to true. Note that the server has to support saving these comments which the `serve()` function of the `emuR` package doesn't.
-        - `"bundleFinishedEditing"` boolean value specifying whether to allow the annotator to mark when she / he has finished annotating a bundle. A finished editing toggle button will show up int the bundle list side bar for each bundle if this is set to true. Note that the server has to support saving these comments which the `serve()` function of the `emuR` package doesn't.
+        - `"bundleFinishedEditing"` boolean value specifying whether to allow the annotator to mark when she / he has finished annotating a bundle. A finished editing toggle button will show up in the bundle list side bar for each bundle if this is set to `true. Note that the server has to support saving these comments which the `serve()` function of the `emuR` package doesn't.
         - `"showPerspectivesSidebar"` boolean value specifying whether to show the perspectives side bar
     - `"activeButtons"` specifications of which top-/bottom-menu buttons should be active / displayed by the EMU-webApp
         - `"addLevelSeg"` boolean value specifying whether to show the add SEGMENT level button in the top menu bar 
@@ -629,13 +629,13 @@ The `_DBconfig.json` file contains the following fields:
         - `"deleteSingleLevel"` boolean value specifying whether to allow the user to delete a level containing time information
         - `"resizeSingleLevel"` boolean value specifying whether to allow the user to resize a level 
         - `"saveSingleLevel"` boolean value specifying whether to allow the user to download a single level in the ESPS/waves+ format
-        - `"resizePerspectives"` ???
+        - `"resizeSignalCanvas"` boolean value specifying whether to allow the user to resize the signalCanvases (`"OSCI"`, `"SPEC"`, ...)
         - `"openDemoDB"` boolean value specifying whether to show the open demoDB button
-        - `"saveBundle"` boolean value specifying whether to show save button in bundle list side bar for each bundle
-        - `"openMenu"` boolean value specifying whether open bundle list side bar button is displayed
-        - `"showHierarchy"` boolean value specifying whether to show "show hierarchy"" button
+        - `"saveBundle"` boolean value specifying whether to show the save button in bundle list side bar for each bundle
+        - `"openMenu"` boolean value specifying whether open bundle list side bar button (== ☰) is displayed
+        - `"showHierarchy"` boolean value specifying whether to show the "show hierarchy"" button
         - `"editEMUwebAppConfig"` boolean value specifying whether to show "edit EMUwebAppConfig" button
-    - `"demoDBs"` array of stings specifying which demoDBs to display in the `open demo` dropdown menu. Currently availale demo databases are `["ae", "ema", "epgdorsal"]`
+    - `"demoDBs"` array of stings specifying which demoDBs to display in the `open demo` dropdown menu. Currently available demo databases are `["ae", "ema", "epgdorsal"]`
 
                 
 ## _annot.json
