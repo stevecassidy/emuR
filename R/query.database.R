@@ -211,11 +211,18 @@ query.database.eql.FUNKA<-function(dbConfig,q,items=NULL){
       if(funcName=='Start' | funcName=='End' | funcName=='Medial'){
         
         if(funcValueTerm!=''){
+          # check equals operator == or =
           expEqualSign=substr(funcValueTerm,1,1)
           if(expEqualSign!='='){
-            stop("Syntax error: Expected equal sign '=' for in function term: '",qTrim,"'\n")
+            stop("Syntax error: Expected equal sign '==' for in function term: '",qTrim,"'\n")
           }
-          funcValue=str_trim(substring(funcValueTerm,2,))
+          op='='
+          funcValuePos=2
+          if(substr(funcValueTerm,2,2)=='='){
+            funcValuePos=3
+            op='=='
+          }
+          funcValue=str_trim(substring(text=funcValueTerm,first=funcValuePos))
         }else{
           stop("Syntax error: function ",funcName," requires function value in: '",qTrim,"'\n")
         }
@@ -229,7 +236,7 @@ query.database.eql.FUNKA<-function(dbConfig,q,items=NULL){
         }else if(funcValue=='1'){
           cond='='
         }else{
-          stop("Syntax error: Expected function value 0 or 1 after '=' in function term: '",qTrim,"'\n")
+          stop("Syntax error: Expected function value 0 or 1 after '",op,"' in function term: '",qTrim,"'\n")
         }
         sqlQStr=paste0("SELECT DISTINCT i.db_uuid,i.session,i.bundle,i.itemID AS seqStartId, i.itemID AS seqEndId,1 AS seqLen,'",param2,"' AS level \
                         FROM items i,allItems d \
@@ -254,7 +261,7 @@ query.database.eql.FUNKA<-function(dbConfig,q,items=NULL){
           cond='!='
           bOp='AND'
         }else{
-          stop("Syntax error: Expected function value 0 or 1 after '=' in function term: '",qTrim,"'\n")
+          stop("Syntax error: Expected function value 0 or 1 after '",op,"' in function term: '",qTrim,"'\n")
         }
         sqlQStr=paste0("SELECT DISTINCT i.db_uuid,i.session,i.bundle,i.itemID AS seqStartId, i.itemID AS seqEndId,1 AS seqLen,'",param2,"' AS level \
                        FROM items i,allItems d \
@@ -275,7 +282,7 @@ query.database.eql.FUNKA<-function(dbConfig,q,items=NULL){
         }else if(funcValue=='1'){
           cond='='
         }else{
-          stop("Syntax error: Expected function value 0 or 1 after '=' in function term: '",qTrim,"'\n")
+          stop("Syntax error: Expected function value 0 or 1 after '",op,"' in function term: '",qTrim,"'\n")
         }
         sqlQStr=paste0("SELECT DISTINCT i.db_uuid,i.session,i.bundle,i.itemID AS seqStartId, i.itemID AS seqEndId,1 AS seqLen,'",param2,"' AS level FROM \
                        items i,allItems d \
@@ -308,7 +315,7 @@ query.database.eql.FUNKA<-function(dbConfig,q,items=NULL){
           stop("Syntax error: Unknown operator and/or value for Num  function: '",funcValueTerm,"'\n")
         }
         if(funcOpr=='=='){
-          sqlRuncOpr='='
+          sqlFuncOpr='='
         }else{
           sqlFuncOpr=funcOpr
         }
