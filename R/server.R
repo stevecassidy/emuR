@@ -59,7 +59,7 @@ setServerHandle <- function(sh) {
 ##' serve('myDb')
 ##' }
 ##' 
-serve=function(dbName,sessionPattern=NULL,bundlePattern=NULL,dbUUID=NULL,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
+serve=function(dbName,sessionPattern='.*',bundlePattern='.*',dbUUID=NULL,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
   if(debug && debugLevel==0){
     debugLevel=2
   }
@@ -71,11 +71,11 @@ serve=function(dbName,sessionPattern=NULL,bundlePattern=NULL,dbUUID=NULL,host='1
   if(!is.null(dbUUID)){
     allBundlesDf=list_bundles(dbUUID = dbUUID)
     bundlesDf=allBundlesDf
-    if(!is.null(sessionPattern)){
+    if(!is.null(sessionPattern) && sessionPattern!='.*'){
       ssl=emuR.regexprl(sessionPattern,bundlesDf[['session']])
       bundlesDf=bundlesDf[ssl,]
     }
-    if(!is.null(bundlePattern)){
+    if(!is.null(bundlePattern) && bundlePattern!='.*'){
       bsl=emuR.regexprl(bundlePattern,bundlesDf[['name']])
       bundlesDf=bundlesDf[bsl,]
     }
