@@ -951,7 +951,7 @@ query.database.with.eql<-function(dbConfig,query){
 ##' }
 ##' 
 
-query<-function(dbName,query,sessionPattern=NULL,bundlePattern=NULL,queryLang='EQL2',timeRefSegmentLevel=NULL,resultType=NULL,dbUUID){
+query<-function(dbName,query,sessionPattern='.*',bundlePattern='.*',queryLang='EQL2',timeRefSegmentLevel=NULL,resultType=NULL,dbUUID){
   if(missing(dbUUID)){
     dbUUID=get_emuDB_UUID(dbName)
   }
@@ -966,7 +966,7 @@ query<-function(dbName,query,sessionPattern=NULL,bundlePattern=NULL,queryLang='E
     emuDBs.query.tmp[['queryLabels']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
     emuDBs.query.tmp[['queryLinksExt']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
     setQueryTmpEmuDBs(emuDBs.query.tmp)
-    if(!is.null(sessionPattern)){
+    if(!is.null(sessionPattern) && sessionPattern!='.*'){
       newTmpDBs=list()
       
       sessSelIts=emuR.regexprl(sessionPattern,getQueryTmpEmuDBs()[['queryItems']][['session']])
@@ -979,7 +979,7 @@ query<-function(dbName,query,sessionPattern=NULL,bundlePattern=NULL,queryLang='E
       newTmpDBs[['queryLabels']]<-getQueryTmpEmuDBs()[['queryLabels']][sessSelLbls,]
       setQueryTmpEmuDBs(newTmpDBs)
     }
-    if(!is.null(bundlePattern)){
+    if(!is.null(bundlePattern) && bundlePattern!='.*'){
       
       
       newTmpDBs=getQueryTmpEmuDBs()
