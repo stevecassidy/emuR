@@ -4,7 +4,7 @@
 \alias{serve}
 \title{Serve EMU database to EMU-webApp}
 \usage{
-serve(dbName, sessionPattern = NULL, bundlePattern = NULL, dbUUID = NULL,
+serve(dbName, sessionPattern = ".*", bundlePattern = ".*", dbUUID = NULL,
   host = "127.0.0.1", port = 17890, debug = FALSE, debugLevel = 0)
 }
 \arguments{

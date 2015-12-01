@@ -4,7 +4,7 @@
 \alias{query}
 \title{Query emuDB}
 \usage{
-query(dbName, query, sessionPattern = NULL, bundlePattern = NULL,
+query(dbName, query, sessionPattern = ".*", bundlePattern = ".*",
   queryLang = "EQL2", timeRefSegmentLevel = NULL, resultType = NULL,
   dbUUID)
 }
