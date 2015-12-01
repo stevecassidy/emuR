@@ -10,14 +10,6 @@ require(DBI)
 # increment this value if the internal database object format changes  
 emuDB.apiLevel=3L
 
-#emuDBs.con=NULL
-
-internalVars<- new.env(parent = emptyenv())
-# list of lists holding sqlconnection
-internalVars$sqlConnections = list()
-
-internalVars$testingVars = list()
-internalVars$testingVars$inMemoryCache = F
 
 ##########################################################
 # CRUD like operations for internalVars$sqlConnections
@@ -442,7 +434,7 @@ get.database<-function(uuid=NULL,name=NULL){
 ##' @seealso  \code{\link{is.emuDB.loaded}}
 ##' @import DBI
 ##' @export
-get_emuDB_UUID<-function(dbName=NULL,dbUUID=NULL){
+get_emuDB_UUID<-function(dbName,dbUUID=NULL){
   if(is.null(dbUUID)){
     if(!is.character(dbName)){
       stop("Parameter dbName must be of type character vector!")
