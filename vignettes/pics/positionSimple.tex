@@ -1,0 +1,64 @@
+\documentclass[tikz, convert={outfile=\jobname.svg}]{standalone}
+\usetikzlibrary{shapes,arrows, backgrounds}
+\begin{document}
+
+\tikzstyle{element}=[rectangle, thick,
+                     inner sep=0.1cm, rounded corners]
+\begin{tikzpicture}
+
+  %%%%%%%%%%%%%%%%%%
+  %%%%%%%%%%%%%%%%%%
+  \node (Syllable) at (-4, 3) [element] {Syllable:}; 
+  
+  \node (S_Syllable) at (-0.5, 3) [element] {S};
+
+  %%%%%%%%%%%%%%%%%%
+  \node (Phoneme) at (-4, 2) [circle] {Phoneme:}; 
+
+  \node (m_Phoneme) at (-1.5, 2) [element] {m};
+  
+  \node (V_Phoneme) at (-0.5, 2) [element] {V};
+  
+  \node (N_Phoneme) at (0.5, 2) [element] {N}; 
+
+  %%%%%%%%%%%%%%%%%%%
+  \node (Start_true) at (-3.5, 1) [element, green] {\tiny{\texttt{"[Start(Syllable, Phoneme) == 1]"}}}; 
+
+  \node (Medial_true) at (-3.5, 0.5) [element, green] {\tiny{\texttt{"[Medial(Syllable, Phoneme) == 1]"}}}; 
+
+  \node (End_true) at (-3.5, 0) [element, green] {\tiny{\texttt{"[End(Syllable, Phoneme) == 1]"}}}; 
+
+  %%%%%%%%%%%%%%%%%%%
+  \node (Start_false) at (2.5, 1) [element, red] {\tiny{\texttt{"[Start(Syllable, Phoneme) == 0]"}}}; 
+
+  \node (Medial_false) at (2.5, 0.5) [element, red] {\tiny{\texttt{"[Medial(Syllable, Phoneme) == 0]"}}}; 
+
+  \node (End_false) at (2.5, 0) [element, red] {\tiny{\texttt{"[End(Syllable, Phoneme) == 0]"}}}; 
+
+  %%%%%%%%%%%%%%%%%%%%
+  \draw [->] (S_Syllable) to (m_Phoneme);
+  
+  \draw [->] (S_Syllable) to (V_Phoneme);
+
+  \draw [->] (S_Syllable) to (N_Phoneme);
+
+  %%%%%%%%%%%%%%%%%%%%
+  \draw [green, dotted] (Start_true.east) to (m_Phoneme);
+
+  \draw [green, dotted] (Medial_true.east) to (V_Phoneme);
+
+  \draw [green, dotted] (End_true.east) to (N_Phoneme);
+
+  %%%%%%%%%%%%%%%%%%%%
+  \draw [red, dotted] (Start_false.west) to (V_Phoneme);
+  \draw [red, dotted] (Start_false.west) to (N_Phoneme);
+
+  \draw [red, dotted] (Medial_false.west) to (m_Phoneme);
+  \draw [red, dotted] (Medial_false.west) to (N_Phoneme);
+
+  \draw [red, dotted] (End_false.west) to (m_Phoneme);
+  \draw [red, dotted] (End_false.west) to (V_Phoneme);
+
+\end{tikzpicture}
+
+\end{document}
