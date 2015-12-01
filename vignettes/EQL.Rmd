@@ -2,7 +2,10 @@
 title: "Version 2 of the Emu Query Language"
 affiliation: "Institute Of Phonetic And Speech Processing (LMU Munich)"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    fig_width: 6
+    fig_height: 6
 bibliography: vignettes.bib
 vignette: >
   %\VignetteIndexEntry{Version 2 of the Emu Query Language}
@@ -14,7 +17,7 @@ vignette: >
 
 # Introduction
 
-This document introduces and defines version 2 of the **E**mu **Q**uery **L**anguage (**EQL**) and tries to show what it is capable of by giving numerous examples. The EQL is a query language that is aimed at speech and language researchers that is supposed to be easy to understand and learn yet expressive and powerful. It enables researchers to easily query annotation structures of databases stored in the emuDB format. The `emuR` package provides a `query()` function to query emuDBs that are loaded into the current R session (for more information see the `emuR_intro` as well as the `emuDB` vignettes). The main argument of the `query()` function is the `query` argument (`query(..., query="XXX", ...)` where `XXX` is the query string). In this document we will be focusing soley on this argument and the query strings that can be passed into it.  
+This document introduces and defines version 2 of the **E**mu **Q**uery **L**anguage (**EQL**) and tries to show what it is capable of by giving numerous examples. The EQL is a query language that is aimed at speech and language researchers that is supposed to be easy to understand and learn yet expressive and powerful. It enables researchers to easily query annotation structures of databases stored in the emuDB format. The `emuR` package provides a `query()` function to query emuDBs that are loaded into the current R session (for more information see the `emuR_intro` as well as the `emuDB` vignettes). The main argument of the `query()` function is the `query` argument (`query(..., query = "XXX", ...)` where `XXX` is the query string). In this document we will be focusing soley on these query and how to compile them.  
 
 To revise what was already mentioned in the `emuR_intro` as well as the `emuDB` vignette: The annotation structure of an `emuDB` can be thought of as a graph. Each annotation consist of annotational units (called ITEMs) that are grouped together in an ordered array. Each ITEM can be linked to other ITEMs of other levels if an according linkDefinition is present in the `emuDB`. An exemplary excerpt of such an annotation can be seen below.
 
@@ -24,11 +27,11 @@ As we will not be mentioning it thoughout the rest of the vignette: one thing to
 
 # Examples
 
-We will jump right in by giving you a bunch of examples of query strings that where adapted from [@harrington:2002, @cassidy_harrington:2001].
+We will now jump right in by giving you a bunch of examples of query strings that where adapted from [@harrington:2002, @cassidy_harrington:2001].
 
 ## Simple equality / unequality / matching / non-matching queries (single argument)
 
-The syntax of a simple equality / unequality / matching / non-matching query is `"[L OPERAND A]"` where "L" specifies a level, "OPERAND" is one of the following operands: "==" (equality); "!=" (unequality); "=~" (matching) or "!~" (non-matching) and "A" is an expression specifying the labels of the ITEMs of "L".
+The syntax of a simple equality / unequality / matching / non-matching query is `"[L OPERAND A]"` where "L" specifies a level (or alternativly the name of a parallel attributeDefinitions), "OPERAND" is one of the following operands: "==" (equality); "!=" (unequality); "=~" (matching) or "!~" (non-matching) and "A" is an expression specifying the labels of the ITEMs of "L".
 
 Example **Q** & **A**'s:
 
@@ -36,7 +39,7 @@ Example **Q** & **A**'s:
     - **A**: `"[Phonetic == m]"`
 - **Q**: *What is the query string to retrieve all ITEMs containing the label "m" or "n" in the "Phonetic" level?*
     - **A**: `"[Phonetic == m | n]"`
-- **Q**: *What is the query string to retrieve all ITEMs that don't contain the label "m" oder "n"?*
+- **Q**: *What is the query string to retrieve all ITEMs that don't contain the label "m" or "n"?*
     - **A**: `"[Phonetic != m | n]"`
 - **Q**: *What is the query string to retrieve all ITEMs in the "Syllable" level?*
     - **A**: `"[Syllable =~ .*]"`
@@ -46,24 +49,24 @@ Example **Q** & **A**'s:
     - **A**: `"[Text !~ fi.*]"`
 
 
-**INFO: The above examples use three new operands. One beeing the "==" equal operand that has the same meaning as the "=" operand of the EQL1 (which is still available as well) while providing a cleaner more precise syntax. The other two beeing the "=~" and "!~" which are the new matching and non-matching regular expression operands.**
+**INFO: The above examples use three operands that are new to the EQL as of version 2. One beeing the "==" equal operand that has the same meaning as the "=" operand of the EQL1 (which is also still available) while providing a cleaner more precise syntax. The other two beeing the "=~" and "!~" which are the new matching and non-matching regular expression operands.**
 
 ## Sequence queries using the "->" sequence operand
 
-The syntax of a query string using the "->" sequence operand is `"[L == A -> L == B]"` where element "A" on level "L" precedes element "B" on level "L". For a sequential query to work both arguments must be on the same level (alternativly parallel attributeDefinitions of the same level may also be chosen).
+The syntax of a query string using the "->" sequence operand is `"[L == A -> L == B]"` where ITEM "A" on level "L" precedes ITEM "B" on level "L". For a sequential query to work both arguments must be on the same level (alternativly parallel attributeDefinitions of the same level may also be chosen).
    
 Example **Q** & **A**'s:
 
 - **Q**: *What is the query string to retrieve all sequences of ITEMs containing the label "m" followed by ITEMs containing the label "I" on the "Phonetic" level?*
     - **A**: `"[Phonetic == m -> Phonetic == I]"` (all row entries in the resulting segment list have the start time of "m" and end time of "I" and the labels will be "m->I")
 - **Q**: *Same as the question above but this time we are only interessted in the ITEMs containing the label "m" of the sequences.*
-    - **A**: `"[#Phonetic == m -> Phonetic == I]"`  (all row entries in the resulting segment list have the start time of "m" and the end time of "m")  
+    - **A**: `"[#Phonetic == m -> Phonetic == I]"`  (all row entries in the resulting segment list have the start time of "m" and the end time of "m" and the labels will be "m")  
 - **Q**: *Same as the first question but this time we are only interessted in the ITEMs containing the label "I".*
-    - **A**: `"[Phonetic == m -> #Phonetic == I]"`
+    - **A**: `"[Phonetic == m -> #Phonetic == I]"` (all row entries in the resulting segment list have the start time of "I" and the end time of "I" and the labels will be "I")  
 
 ### Subsequent sequence queries using nesting of the "->" sequence operand   
 
-The general notion to constructing a query string that retrieves subsequent sequences of labels is to nest muliple sequences while paying close attention to the correct placement of the parentheses. An abstracted version of such a query string for the subsequent sequence of arguments A1, A2, A3, A4 would be: `"[[[[A1-> A2] -> A3] -> A4] -> A5]"` where each argument (e.g. "A1") represents an equality / unequality / matching / non-matching expression on the same level (alternativly parallel attributeDefinitions of the same level may also be chosen).
+The general strategy to constructing a query string that retrieves subsequent sequences of labels is to nest muliple sequences while paying close attention to the correct placement of the parentheses. An abstracted version of such a query string for the subsequent sequence of arguments A1, A2, A3, A4 would be: `"[[[[A1-> A2] -> A3] -> A4] -> A5]"` where each argument (e.g. "A1") represents an equality / unequality / matching / non-matching expression on the same level (alternativly parallel attributeDefinitions of the same level may also be chosen).
 
 Example **Q** & **A**'s:
 
@@ -74,12 +77,12 @@ Example **Q** & **A**'s:
 - **Q**: *What is the query string to retrieve all sequences of ITEMs containging labels "the" followed by two arbitrary labels followed by "managed"?*
     - **A**: `"[[[Text == the -> Text =~ .*] -> Text =~ .* ] -> Text == managed]"`
 
-**INFO: As the EQL1 didn't have a regular expression operand users often resorted to using queries such as "[Phonetic != XXX]" (where XXX is a label that was not part of the labels set of the "Phonetic" level) to match every label on the "Phonetic" level. Although this is still possible in the EQL2 we strongly recommend using regular expressions as they provide a much clearer and preciser syntax.**
+**INFO: As the EQL1 didn't have a regular expression operand, users often resorted to using queries such as "[Phonetic != XXX]" (where XXX is a label that was not part of the label set of the "Phonetic" level) to match every label on the "Phonetic" level. Although this is still possible in the EQL2, we strongly recommend using regular expressions as they provide a much clearer and preciser syntax and are less error prone.**
 
 
 ## The conjunction operand &
 
-The syntax of a query string using the conjunction operand can schematically be written as: `"[L1 == A & L2 == B & L3 == C & L4 == D & ... & Ln == N]"` where all "A" elements on level "L1" also have the properties "B", "C", "D", ..., "N". Same as with the sequence operand all arguments must be on the same level (alternativly parallel attributeDefinitions of the same level may also be chosen).
+The syntax of a query string using the conjunction operand can schematically be written as: `"[L1 == A & L2 == B & L3 == C & L4 == D & ... & Ln == N]"` where all "A" ITEMs on level "L1" also have the properties "B", "C", "D", ..., "N". Same as with the sequence operand all expressions must be on the same level (parallel attributeDefinitions of the same level may also be chosen).
 
 Example **Q** & **A**'s:
 
@@ -87,13 +90,13 @@ Example **Q** & **A**'s:
     - **A**: `"[Syllable == S & Pitch_Accent == L+H*]"`
 - **Q**: *What is the query string to retrieve all ITEMs of the attributeDefintion "Text" of the level "Word" that where also labeled to be function words (labeled "F" in the "Word" level)?*
     - **A**: `"[Text =~ .* & Word == F]"`
-- **Q**: *What is the query string to retrieve all ITEMs of the attributeDefintion "Text" of the level "Word" that where also labeled to be accentuated (labeled "S" in the attributeDefintions "S" of the same level)?*
+- **Q**: *What is the query string to retrieve all ITEMs of the attributeDefintion "Text" of the level "Word" that where also labeled to be content words (labeled "C" in the "Word" level) and labeled to be accentuated (labeled "S" in the attributeDefintion "Accent" of the same level)?*
     - **A**: `"[Text =~ .* & Word == C & Accent == S]"`
 
 
 ## Domination operand ^ (== hierarchical queries)
 
-A schematic representation of a simple domination query string that retrieves all ITEMs "A" of level "L1" that are dominated by i.e. are directly or indirectly linked to, ITEMs "B" in level "L2" would be `"[L1 == A ^ L2 == B]"`. The dominates operand is not directional, meaning that either ITEMs in "L1" dominate ITEMs in "L2" or ITEMs in "L2" dominate ITEMs in "L1". Note that linkDefinitions that specify the validity of the domination have to be present in the emuDB for this to work (see `emuDB` vignette for details).
+A schematic representation of a simple domination query string that retrieves all ITEMs "A" of level "L1" that are dominated by i.e. are directly or indirectly linked to ITEMs "B" in level "L2" would be `"[L1 == A ^ L2 == B]"`. The dominates operand is not directional, meaning that either ITEMs in "L1" dominate ITEMs in "L2" or ITEMs in "L2" dominate ITEMs in "L1". Note that linkDefinitions that specify the validity of the domination have to be present in the emuDB for this to work (see `emuDB` vignette for details).
 
 ### Simple Domination
 
@@ -101,36 +104,34 @@ Example **Q** & **A**'s:
 
 - **Q**: *What is the query string to retrieve all ITEMs containing the label "p" in the "Phoneme" level that occur in strong syllables (i.e. dominated by / linked to ITEMs of the level "Syllable" that contain the label "S")?*
     - **A**: `"[Phoneme == p ^ Syllable == S]"`
-- **Q**: *What is the query string to retrieve all syllable ITEMs which contain a phoneme ITEM labeled "p"*
+- **Q**: *What is the query string to retrieve all syllable ITEMs which contain a phoneme ITEM labeled "p"?*
     - **A**: `"[Syllable =~ .* ^ Phoneme == p]"` or `"[Phoneme == p ^ #Syllable =~ .*]"`
-- **Q**: *What is the query string to retrieve all syllable ITEMs which neither contain a phoneme ITEM labeled "k" nor "p" nor "t"*
+- **Q**: *What is the query string to retrieve all syllable ITEMs which neither contain a phoneme ITEM labeled "k" nor "p" nor "t"?*
     - **A**: `"[Syllable =~ .* ^ Phoneme != p | t | k]"` or `"[Phoneme != p | t | k ^ #Syllable =~ .*]"`
 
-**Note: Even though the domination operand is not directional, what you place to the left and to the right of the operand does have an impact on what is returned. If no result modifier (the hash tag "#") is used the query engine will automaticall assume that the expression to the left of the operand specifies what is to be returned. This means that the schematic query string: `"[L1 == A ^ L2 == B]"` is equal to the query string: `"[#L1 == A ^ L2 == B]"`. As it is more explicit to mark the desired result expression we recommend you always use the result modifier in query strings that use the ^ operand.**
+**INFO: Even though the domination operand is not directional, what you place to the left and to the right of the operand does have an impact on the result. If no result modifier (the hash tag "#") is used the query engine will automaticall assume that the expression to the left of the operand specifies what is to be returned. This means that the schematic query string: `"[L1 == A ^ L2 == B]"` is semantically equal to the query string: `"[#L1 == A ^ L2 == B]"`. As it is more explicit to mark the desired result expression we recommend you always use the result modifier in query strings.**
 
 ### Multiple Domination
 
-The general notion to constructing a query string that retrieves subsequent sequences of labels is to nest muliple domination expressions while paying close attention to the correct placement of the parentheses. A dominance relationship sequence A1, A2, A3, A4, can therefore be noted:  **[[[[A1 ^ A2] ^ A3] ^ A4] ^ A5]**.
+The general strategy to constructing a query string that specifies multiple dominaiton relations of ITEMs is to nest muliple domination expressions while paying close attention to the correct placement of the parentheses. A dominance relationship sequence "A1", "A2", "A3", "A4", can therefore be noted as:  **[[[[A1 ^ A2] ^ A3] ^ A4] ^ A5]**.
 
 Example **Q** & **A**'s:
 
-- **Q**: *What is the query string to retrieve all ITEMs on the "Syllable" level that where labeled "H\*" that containing a phoneme /p/, belonging to the words ‘price’ or ‘space'?*
-    - **A**: `"[[Pitch_Accent == H\* ^ Phoneme = p] ^ Text == price | space]"`
+- **Q**: *What is the query string to retrieve all ITEMs on the "Pitch_Accent" level that where labeled "H\*" that contain a phoneme "p" and belong to the words "price" or "space"?*
+    - **A**: `"[[Pitch_Accent == H\* ^ Phoneme == p] ^ Text == price | space]"`
 - **Q**: *The same as the question above but this time we want the appropriate words.*
     - **A**: `"[[Pitch_Accent == H* ^ Phoneme == p] ^ #Text == price | space]"`
 
 
 ## Position
 
-The EQL has four function terms to specify where in a dominance relationship a child level ITEM is allowed to occur. The four terms are "Start()", "End()", "Medial" and "Num".
+The EQL has four function terms to specify where in a dominance relationship a child level ITEM is allowed to occur. The four function terms are "Start()", "End()", "Medial()" and "Num()".
 
-### Simple usage
+### Simple usage of Start(), End() and Medial()
 
+A schematic representation of a query string representing a simple usage of the "Start()", "End()" and "Medial()" function would be: `"POSFCT(L1, L2) == 1"`. In this representation "POSFCT" is a placeholder for one of the three function where the level "L1" conditionally dominates level "L2". The "== 1" part of the query string indicates that if a match is found (match is `TRUE` or "== 1") then the ITEM of the level "L2" is returned. If this is expression is set to "== 0" (== `FALSE`), all the ITEMs that do not match the condition of "L2" will be returned. 
 
-Syntax: **Start(La, Lb) == 1**
-Semantics: Lb occurs at the beginning of La
-Condition: La dominates Lb  
-Note: Simple usage generates the segment list of Lb
+![Alt text](pics/positionSimple.svg)
 
 Example **Q** & **A**'s:
 
@@ -466,12 +467,12 @@ The terminal symbols described below are ordered descending by their binding pri
 +-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
 | `LABELALTERNATIVES = LABEL , { "|", LABEL };`                                     | **label alternatives**             |                                               |
 +-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
-| `LABEL= LABELING | ( "'", LABELING, "'" );`                                       |                                    | levels must be part of the database structure;|
+| `LABEL= LABELING | ( "'", LABELING, "'" );`                                       | **label**                          | levels must be part of the database structure;|
 |                                                                                   |                                    | LABELING is an arbitrary character string or a|
 |                                                                                   |                                    | label group class configured in the emuDB;    |
 |                                                                                   |                                    | result modifier '#' may only occur once       |
 +-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
-| `POSFCT = "Start" | "Medial" | "End";`                                            |                                    |                                               |
+| `POSFCT = "Start" | "Medial" | "End";`                                            | **pos**ition **f**un**ct**ion      |                                               |
 +-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
 | `VOP = "="" | "==" | "!=" | ">" | "<" | "<=" | ">=";`                             |                                    |                                               |
 +-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
