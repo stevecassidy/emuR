@@ -28,9 +28,9 @@ As we will not be mentioning it throughout the rest of the vignette: one thing t
 
 We will now jump right in by giving you a bunch of examples of query strings that where adapted from [@harrington:2002, @cassidy_harrington:2001].
 
-## Simple equality / unequality / matching / non-matching queries (single argument)
+## Simple equality / inequality / matching / non-matching queries (single argument)
 
-The syntax of a simple equality / unequality / matching / non-matching query is `"[L OPERAND A]"` where "L" specifies a level (or alternatively the name of a parallel attributeDefinitions), "OPERAND" is one of the following operands: "==" (equality); "!=" (unequality); "=~" (matching) or "!~" (non-matching) and "A" is an expression specifying the labels of the ITEMs of "L".
+The syntax of a simple equality / inequality / matching / non-matching query is `"[L OPERATOR A]"` where "L" specifies a level (or alternatively the name of a parallel attributeDefinitions), "OPERATOR" is one of the following operators: "==" (equality); "!=" (inequality); "=~" (matching) or "!~" (non-matching) and "A" is an expression specifying the labels of the ITEMs of "L".
 
 Example **Q** & **A**'s:
 
@@ -48,11 +48,11 @@ Example **Q** & **A**'s:
     - **A**: `"[Text !~ fi.*]"`
 
 
-**INFO: The above examples use three operands that are new to the EQL as of version 2. One beeing the "==" equal operand that has the same meaning as the "=" operand of the EQL1 (which is also still available) while providing a cleaner more precise syntax. The other two being the "=~" and "!~" which are the new matching and non-matching regular expression operands.**
+**INFO: The above examples use three operators that are new to the EQL as of version 2. One beeing the "==" equal operator that has the same meaning as the "=" operator of the EQL1 (which is also still available) while providing a cleaner more precise syntax. The other two being the "=~" and "!~" which are the new matching and non-matching regular expression operators.**
 
-## Sequence queries using the "->" sequence operand
+## Sequence queries using the "->" sequence operator
 
-The syntax of a query string using the "->" sequence operand is `"[L == A -> L == B]"` where ITEM "A" on level "L" precedes ITEM "B" on level "L". For a sequential query to work both arguments must be on the same level (alternatively parallel attributeDefinitions of the same level may also be chosen).
+The syntax of a query string using the "->" sequence operator is `"[L == A -> L == B]"` where ITEM "A" on level "L" precedes ITEM "B" on level "L". For a sequential query to work both arguments must be on the same level (alternatively parallel attributeDefinitions of the same level may also be chosen).
    
 Example **Q** & **A**'s:
 
@@ -63,9 +63,9 @@ Example **Q** & **A**'s:
 - **Q**: *Same as the first question but this time we are only interested in the ITEMs containing the label "I".*
     - **A**: `"[Phonetic == m -> #Phonetic == I]"` (all row entries in the resulting segment list have the start time of "I" and the end time of "I" and the labels will be "I")  
 
-### Subsequent sequence queries using nesting of the "->" sequence operand   
+### Subsequent sequence queries using nesting of the "->" sequence operator   
 
-The general strategy to constructing a query string that retrieves subsequent sequences of labels is to nest multiple sequences while paying close attention to the correct placement of the parentheses. An abstracted version of such a query string for the subsequent sequence of arguments A1, A2, A3, A4 would be: `"[[[[A1-> A2] -> A3] -> A4] -> A5]"` where each argument (e.g. "A1") represents an equality / unequality / matching / non-matching expression on the same level (alternatively parallel attributeDefinitions of the same level may also be chosen).
+The general strategy to constructing a query string that retrieves subsequent sequences of labels is to nest multiple sequences while paying close attention to the correct placement of the parentheses. An abstracted version of such a query string for the subsequent sequence of arguments A1, A2, A3, A4 would be: `"[[[[A1-> A2] -> A3] -> A4] -> A5]"` where each argument (e.g. "A1") represents an equality / inequality / matching / non-matching expression on the same level (alternatively parallel attributeDefinitions of the same level may also be chosen).
 
 Example **Q** & **A**'s:
 
@@ -76,12 +76,12 @@ Example **Q** & **A**'s:
 - **Q**: *What is the query string to retrieve all sequences of ITEMs containing labels "the" followed by two arbitrary labels followed by "managed"?*
     - **A**: `"[[[Text == the -> Text =~ .*] -> Text =~ .* ] -> Text == managed]"`
 
-**INFO: As the EQL1 didn't have a regular expression operand, users often resorted to using queries such as "[Phonetic != XXX]" (where XXX is a label that was not part of the label set of the "Phonetic" level) to match every label on the "Phonetic" level. Although this is still possible in the EQL2, we strongly recommend using regular expressions as they provide a much clearer and preciser syntax and are less error prone.**
+**INFO: As the EQL1 didn't have a regular expression operator, users often resorted to using queries such as "[Phonetic != XXX]" (where XXX is a label that was not part of the label set of the "Phonetic" level) to match every label on the "Phonetic" level. Although this is still possible in the EQL2, we strongly recommend using regular expressions as they provide a much clearer and preciser syntax and are less error prone.**
 
 
-## The conjunction operand &
+## The conjunction operator &
 
-The syntax of a query string using the conjunction operand can schematically be written as: `"[L1 == A & L2 == B & L3 == C & L4 == D & ... & Ln == N]"` where all "A" ITEMs on level "L1" also have the properties "B", "C", "D", ..., "N". Same as with the sequence operand all expressions must be on the same level (parallel attributeDefinitions of the same level may also be chosen).
+The syntax of a query string using the conjunction operator can schematically be written as: `"[L1 == A & L2 == B & L3 == C & L4 == D & ... & Ln == N]"` where all "A" ITEMs on level "L1" also have the properties "B", "C", "D", ..., "N". Same as with the sequence operator all expressions must be on the same level (parallel attributeDefinitions of the same level may also be chosen).
 
 Example **Q** & **A**'s:
 
@@ -93,9 +93,9 @@ Example **Q** & **A**'s:
     - **A**: `"[Text =~ .* & Word == C & Accent == S]"`
 
 
-## Domination operand ^ (== hierarchical queries)
+## Domination operator ^ (== hierarchical queries)
 
-A schematic representation of a simple domination query string that retrieves all ITEMs "A" of level "L1" that are dominated by i.e. are directly or indirectly linked to ITEMs "B" in level "L2" would be `"[L1 == A ^ L2 == B]"`. The dominates operand is not directional, meaning that either ITEMs in "L1" dominate ITEMs in "L2" or ITEMs in "L2" dominate ITEMs in "L1". Note that linkDefinitions that specify the validity of the domination have to be present in the emuDB for this to work (see `emuDB` vignette for details).
+A schematic representation of a simple domination query string that retrieves all ITEMs "A" of level "L1" that are dominated by i.e. are directly or indirectly linked to ITEMs "B" in level "L2" would be `"[L1 == A ^ L2 == B]"`. The dominates operator is not directional, meaning that either ITEMs in "L1" dominate ITEMs in "L2" or ITEMs in "L2" dominate ITEMs in "L1". Note that linkDefinitions that specify the validity of the domination have to be present in the emuDB for this to work (see `emuDB` vignette for details).
 
 ### Simple Domination
 
@@ -108,7 +108,7 @@ Example **Q** & **A**'s:
 - **Q**: *What is the query string to retrieve all syllable ITEMs which neither contain a phoneme ITEM labeled "k" nor "p" nor "t"?*
     - **A**: `"[Syllable =~ .* ^ Phoneme != p | t | k]"` or `"[Phoneme != p | t | k ^ #Syllable =~ .*]"`
 
-**INFO: Even though the domination operand is not directional, what you place to the left and to the right of the operand does have an impact on the result. If no result modifier (the hash tag "#") is used the query engine will automaticall assume that the expression to the left of the operand specifies what is to be returned. This means that the schematic query string: `"[L1 == A ^ L2 == B]"` is semantically equal to the query string: `"[#L1 == A ^ L2 == B]"`. As it is more explicit to mark the desired result expression we recommend you always use the result modifier in query strings.**
+**INFO: Even though the domination operator is not directional, what you place to the left and to the right of the operator does have an impact on the result. If no result modifier (the hash tag "#") is used the query engine will automaticall assume that the expression to the left of the operator specifies what is to be returned. This means that the schematic query string: `"[L1 == A ^ L2 == B]"` is semantically equal to the query string: `"[#L1 == A ^ L2 == B]"`. As it is more explicit to mark the desired result expression we recommend you always use the result modifier in query strings.**
 
 ### Multiple Domination
 
@@ -147,7 +147,7 @@ Example **Q** & **A**'s:
     
 ### Position and Boolean &
 
-The syntax for combining a position function with the boolean operand is `"[L == E & Start(L1, L2) == 1]"` where ITEM E on level L occurs at the beginning of L1. Once again L1 has to dominate L2 as well as being on the same level (parallel attributeDefinitions of the same level may also be chosen). 
+The syntax for combining a position function with the boolean operator is `"[L == E & Start(L1, L2) == 1]"` where ITEM E on level L occurs at the beginning of L1. Once again L1 has to dominate L2 as well as being on the same level (parallel attributeDefinitions of the same level may also be chosen). 
 
 Example **Q** & **A**'s:
 
@@ -160,7 +160,7 @@ Example **Q** & **A**'s:
 
 ### Position and Boolean ^
 
-The syntax for combining a position function with the boolean hierarchical operand is `"[L == E ^ Start(L1, L2) == 1]"` where level "L" and level "L2" refer to different levels where either "L" dominates "L2", or "L2" dominates "L".
+The syntax for combining a position function with the boolean hierarchical operator is `"[L == E ^ Start(L1, L2) == 1]"` where level "L" and level "L2" refer to different levels where either "L" dominates "L2", or "L2" dominates "L".
 
 Example **Q** & **A**'s:
 
@@ -171,69 +171,76 @@ Example **Q** & **A**'s:
 
 ## Count
 
-Syntax: `"[Num(L1, L2) == N]"`
-Semantics: L1 contains N L2 ITEMs
-Condition: La dominates Lb. n is a number
-Note: Generates segment list on La (not on Lb, as with 4-syllable words position)
-**`[Num(Word, Syllable)=4]`**  
-There are also the operators > (more than), < (less than) and != (not equal).  
-Syllables, which have more than 6 phonemes
-**`[Num(Syllable, Phoneme)>6]`**  
-and so on  
+A schematic representation of a query string utilizing the count mechanism would be: `"[Num(L1, L2) == N]"` where "L1" contains "N" number of ITEMs in "L2". For this type of query to work "L1" has to dominate "L2". As the query matches to a number ("N") it is also possible to use the operators > (more than), < (less than) and != (not equal). The resulting segment list contains ITEMs of "L1".
+
+Example **Q** & **A**'s:
+
+- **Q**: *What is the query string to retrieve all words that contain four syllables?*
+    - **A**: `"[Num(Word, Syllable) == 4]"`
+- **Q**: *What is the query string to retrieve all syllables that contain more than six phonemes?*
+    - **A**: `"[Num(Syllable, Phoneme) > 6]"`
 
 ### Count and Boolean &
 
-Syntax: **L = e & Num(La, Lb) = n**  
-Semantics: Element e on level L is dominated by La ; and La contains n Lb elements, La dominates Lb  
-Condition: (L and La (not Lb!) are on the same level or linear level).  
+A schematic representation of a query string combinding the count and the boolean operators would be: `"[L == E & Num(L1, L2) == N]"` where ITEMs "E" on level "L" are dominated by "L1" and "L1" contains "N" number of "L2" Items. Further "L1" dominates "L2" under the condition that "L" and "L1" (not "L2") refer to the same level (parallel attributeDefinitions of the same level may also be chosen).
 
-- Text of all words, which consist of 11 phonemes: `"[Text!=x & Num(Text, Phoneme) > 11 ] ="` or  `"[Text =~ .* & Num(Word, Phoneme) > 11]"`
-- H\* tonic accents in syllables of 5 phonemes:  `"[Pitch_Accent = H* & Num(Syllable, Phoneme) = 5]"`
+Example **Q** & **A**'s:
+
+- **Q**: *What is the query string to retrieve the "Text" of all words, which consist of 11 phonemes?* 
+    - **A**: `"[Text!=x & Num(Text, Phoneme) > 11 ] ="` or  `"[Text =~ .* & Num(Word, Phoneme) > 11]"`
+- **Q**: *What is the query string to retrieve all "H\*" tonic accents in syllables of 5 phonemes?*
+    - **A**: `"[Pitch_Accent = H* & Num(Syllable, Phoneme) = 5]"`
 
 ### Count and ^
 
-Syntax/Semantics as with 6.2, but:
-If L and La are different levels (L dominates La, or La dominates L) use ^ instead of & :
+A schematic representation of a query string combinding the count and the boolean operators would be: `"[L == E ^ Num(L1, L2) == N]"` where ITEMs "E" on level "L" are dominated by "L1" and "L1" contains "N" number of "L2" Items. Further "L1" dominates "L2" under the condition that "L" and "L1" DO NOT refer to the same level. 
 
-- All m phonemes in 4-syllable words  `"[Phoneme == m ^ Num(Word, Syllable) == 4]"`
-- All W-Syllables in words of 3 or less syllables `"[Syllable = W ^ Num(Word, Syllable) < 3]"`
-- All words, which contain syllable, which contain 4 phonemes  `[Text != x ^ Num(Syllable, Phoneme) == 4]"`
+Example **Q** & **A**'s:
+
+- **Q**: *What is the query string to retrieve all "m" phonemes in 4-syllable words?* 
+    - **A**: `"[Phoneme == m ^ Num(Word, Syllable) == 4]"`
+- **Q**: *What is the query string to retrieve all "W"-Syllables in words of 3 or less syllables?*
+    - **A**: `"[Syllable = W ^ Num(Word, Syllable) < 3]"`
+- **Q**: *What is the query string to retrieve all words, which contain syllable, which contain 4 phonemes*
+    - **A**: `[Text != x ^ Num(Syllable, Phoneme) == 4]"`
 
 ## Combinations
 
-### ^ and -> (Domination and Sequence)  
-Condition: The sequence -> must connect only same or levels or linear levels! (See 2.)
-`"[[a1 ^ a2] -> a3] [a1 -> [a2 ^ a3]]"`
+### ^ and -> (Domination and Sequence)
 
-- m precedes I and m is part of a S-syllable  `"[[Phoneme = m -> Phoneme = I] ^ Syllable=S]"`
-- s precedes p and p is part of a W-syllable  `"[Phoneme = s -> [Phoneme = p ^ Syllable = W]]"`
-- all S-syllables, which contain phoneme p and precede a S-syllable  `"[[Syllable = S ^ Phoneme = p] -> Syllable = S]"`
-- but now we want p: p is part of a S-syllable and this S-syllable precedes a S-syllable: `"[[Phoneme = p ^ Syllable = S] -> Syllable = S]"`
-- Not allowed! Because Phoneme = p and Syllable = S are not on the same level, therefore:  `"[[Syllable = S ^ #Phoneme=p] -> Syllable = S]"`
+A schematic representation of a query string combinding the domination and the sequence operators would be: `"[[A1 ^ A2] -> A3]"` where "A1" and "A3" refer to the same level (parallel attributeDefinitions of the same level may also be chosen).
+
+
+Example **Q** & **A**'s:
+
+- **Q**: *What is the query string to retrieve all "m" preceding "I" and "m" is part of a "S"-syllable?*
+    - **A**: `"[[Phoneme == m -> Phoneme == I] ^ Syllable == S]"`
+- **Q**: *What is the query string to retrieve all "s" preceding "p" and "p" is part of a "W"-syllable?*
+    - **A**: `"[Phoneme == s -> [Phoneme == p ^ Syllable == W]]"`
+- **Q**: *What is the query string to retrieve all "S"-syllables, which contain phoneme "p" and precede a "S"-syllable?*
+    - **A**: `"[[Syllable == S ^ Phoneme == p] -> Syllable == S]"`
+- **Q**: *Same question as the question above but this time we want all "p" ITEMs where "p" is part of a "S"-syllable and this "S"-syllable precedes a "S"-syllable.*
+    - **A**: `"[[Phoneme == p ^ Syllable == S] -> Syllable == S]"` this will cause an error as `Phoneme == p` and `Syllable == S` are not on the same level. Therefore the correct answer is: `"[[Syllable == S ^ #Phoneme == p] -> Syllable == S]"`
 
 ### ^ and -> and & (Domination and Sequence and Boolean &)
 
-Words, beginning with a schwa:  
-**`[Text!=x ^ Phoneme = @ & Start(Text, Phoneme)=1]`**
-A word-beginning m in a string syllable, which precedes I  
-**`[[Phoneme = m & Start(Word, Phoneme)=1 -> Phoneme=I] ^ Syllable=S]`**  
-same but we want the text:  
-**`[[[Phoneme = m & Start(Word, Phoneme)=1 -> Phoneme=I] ^ Syllable=S] ^ #Text!=x]`**
-The text of all three-syllable words, which contain a schwa in the first syllable; these three-syllable words must precede ‘the’
-The text of all three-syllable words  
-1. Text!=x & Num(Text, Syllable)=3  
-Schwa occurs in the first syllable  
-2. Phoneme=@ ^ Start(Word, Syllable)=1  
-The text is ‘the’  
-3. Text = the  
-[1 ^ 2]  
-[[1 ^ 2] -> 3]
+Example **Q** & **A**'s:
 
-**`[[Text!=x & Num(Text, Syllable) =3 ^ [Phoneme=@ ^ Start(Word, Syllable)=1]] -> Text=the ]`**  
+- **Q**: *What is the query string to retrieve the "Text" of all words, beginning with a schwa?*
+    - **A**: `"[Text =~ .* ^ Phoneme == @ & Start(Text, Phoneme) == 1]"`
+- **Q**: *What is the query string to retrieve all word-initial "m" ITEMs in a strong syllable, which precedes "I"?*
+    - **A**: `"[[Phoneme == m & Start(Word, Phoneme) == 1 -> Phoneme == I] ^ Syllable == S]"`
+- **Q**: *Same question as the question above but this time we want the text.*  
+    - **A**: `"[[[Phoneme == m & Start(Word, Phoneme) == 1 -> Phoneme == I] ^ Syllable == S] ^ #Text != x]"`
+- **Q**: *What is the query string to retrieve the text of all three-syllable words that also precede the word "the", which contain a schwa in the first syllable?*
+    - **A**: As this is a large multi part question, let's break it down:
+        - 1.) The text of all three-syllable words : `"[Text =~ .* & Num(Text, Syllable) == 3]"`
+        - 2.) A schwa occurs in the first syllable: `"[Phoneme == @ ^ Start(Word, Syllable) == 1]"`
+        - 3.) The text is "the": `"[Text == the]"`
+        - Let's now combind all three by saying `"[1. ^ 2.]"` and these are followed by three (`"[1. ^ 2.] -> 3.]"`): `"[[Text =~ .* & Num(Text, Syllable) == 3 ^ [Phoneme == @ ^ Start(Word, Syllable) == 1]] -> Text == the]"`
 
-## A few more Q & A's
 
-To revisit the various points lets go through a few typical questions and their respective answers.
+## A few more Q & A's (because pratice makes perfect)
 
 - **Q**: *What is the query string to retrieve all "m" or "n" phonemes, which occur in the word-medial position?*
     - **A**: `"[Phoneme == m | n & Medial(Word, Phoneme) == 1]"`
@@ -298,7 +305,7 @@ The `emuDB` format used by the `emuR` package introduces the concept of bundles 
 
 Compared to the legacy EMU system which allowed multiple occurrences of the hash tag "#" to be present in a query, the `query()` function only allows a single result modifier. This assures that only consistent result sets are returned. If you however desire to have multiple result sets in one segment list, we recommend you simply  concatenate the result sets of separate queries using the `rbind()` function.
 
-## Interpretation of the hash tag "#" conjunction operand queries
+## Interpretation of the hash tag "#" conjunction operator queries
 #### legacy Emu
 
 ```
@@ -344,7 +351,7 @@ The `query()` function throws an error as it would be necessary to return each i
 
 ## Bugs in legacy EMU function emu.query
 
-### Alternative labels in unequality queries
+### Alternative labels in inequality queries
 
 Example:
 
@@ -363,7 +370,7 @@ query was:  [Text!=beautiful|futile ^ Phoneme=u:]
 4 beautiful 2033.739 2604.489 msajc003
 ```
 
-We assume that the OR operand "|" was simply ignored when used in conjunction with the unequality operand "!=".
+We assume that the OR operator "|" was simply ignored when used in conjunction with the inequality operator "!=".
 
 #### emuR
 
@@ -378,29 +385,18 @@ query was:  [Text!=beautiful|futile ^ Phoneme=u:]
 
 ### Errors caused by missing or superfluous blanks / parenthesis
 
-Certain queries in the legacy EMU system required blanks around certain operands to be present or absent as well as certain parenthesis to be present or absent. If this was not the case the query engine threw cryptic errors or sometimes even crashed and in the worst case took the entire R session with it. The query engine of the `emuR` package is much more robust against missing or superfluous blank / parenthesis.
+Certain queries in the legacy EMU system required blanks around certain operators to be present or absent as well as certain parenthesis to be present or absent. If this was not the case the sometimes the legacy query engine threw cryptic errors and sometimes even crashed and in the worst case took the entire R session with it. The query engine of the `emuR` package is much more robust against missing or superfluous blank / parenthesis.
 
 ### Order of result segment list
 
-It is unknown if legacy Emu returns the seglist ordered.
-emuR returns emuRsegs result lists ordered by UUID, session, bundle and sample start position and emusegs lists by the fields utts and start.
+For the legacy EMU query it was never explicitly defined, at least to our knowlage, if and how the resulting segment list was ordered ordered. If the result type of  the `query()` function is set to `"emuRsegs"` the resulting list is ordered by UUID, session, bundle and sample start position. If it is set to `"emusegs"` the resulting list is ordered by the fields utts and start.
 
 ### Additional features
 
-emuR accepts also the double equal character string '==' as equal operator.
-
-emuR EQL2 has the capability to query labels by matching regular expressions using the '=~' (match) and '!~' (not match) operators.
-
-#### Example
-```
-> query('andosl',"Text=~.*tz.*")
-segment  list from database:  andosl 
-query was:  Text=~.*tz.* 
-   labels    start      end session   bundle startItemID endItemID type
-1 blitzed 1586.875 2112.475    0000 msadb081          54        54 ITEM
-2 blitzed 1540.225 2022.475    0000 msajc081          59        59 ITEM
-```
-
+- The query mechanics of `emuR` accepts the double equal character string "==" as well as the single "=" equal character string as an equal operator.
+- EQL2 has the capability to query labels by matching regular expressions using the '=~' (matching) and '!~' (non-matching) operators.
+  - For example: `query("andosl", "Text =~ .*tz.*")`
+  
 
 # Extended Backus–Naur Form (EBNF)
 
@@ -416,7 +412,7 @@ The terminal symbols described below are ordered descending by their binding pri
 | `,` | Parameter list separator |
 | `==` | Equality (new in version 2 of the EQL; for cleaner syntax)|
 | `=` | Equality (optional; for backwards compatibility)|
-| `!=` | Unequality |
+| `!=` | inequality |
 | `=~` | Regular expression match |
 | `!~` | Regular expression not match |
 | `>` | Greater than |
@@ -494,7 +490,7 @@ The terminal symbols described below are ordered descending by their binding pri
 
 ## Restrictions 
 
-A query can only contain a single result modifier "#" (hash tag)
+A query may only contain a single result modifier "#" (hash tag)
 
 
 # References
