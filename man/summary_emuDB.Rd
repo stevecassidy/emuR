@@ -4,7 +4,7 @@
 \alias{summary_emuDB}
 \title{Print summary of EMU database (emuDB).}
 \usage{
-summary_emuDB(dbName = NULL, dbUUID = NULL)
+summary_emuDB(dbName, dbUUID = NULL)
 }
 \arguments{
 \item{dbName}{name of emuDB}

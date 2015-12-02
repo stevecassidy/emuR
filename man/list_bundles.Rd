@@ -4,7 +4,7 @@
 \alias{list_bundles}
 \title{List bundles of emuDB}
 \usage{
-list_bundles(dbName = NULL, session = NULL, dbUUID = NULL)
+list_bundles(dbName, session = NULL, dbUUID = NULL)
 }
 \arguments{
 \item{dbName}{name of emuDB}

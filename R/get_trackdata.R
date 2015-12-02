@@ -60,7 +60,7 @@
 ##' td = get_trackdata(dbName = 'ae', seglist = sl, onTheFlyFunctionName = 'ksvF0')
 ##' }
 
-"get_trackdata" <- function(dbName = NULL, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
+"get_trackdata" <- function(dbName, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
                             npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
                             onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, dbUUID = NULL, 
                             resultType = "trackdata", verbose = TRUE){

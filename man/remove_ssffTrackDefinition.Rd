@@ -4,8 +4,7 @@
 \alias{remove_ssffTrackDefinition}
 \title{Remove ssffTrackDefinition of emuDB}
 \usage{
-remove_ssffTrackDefinition(dbName = NULL, name = NULL,
-  deleteFiles = FALSE, dbUUID = NULL)
+remove_ssffTrackDefinition(dbName, name, deleteFiles = FALSE, dbUUID = NULL)
 }
 \arguments{
 \item{dbName}{name of emuDB}

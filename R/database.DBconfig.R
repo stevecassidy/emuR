@@ -1130,7 +1130,7 @@ remove_linkDefinition <- function(dbName,
 ##' @seealso wrasspOutputInfos
 ##' @export
 ##' @author Raphael Winkelmann
-add_ssffTrackDefinition <- function(dbName = NULL, name =  NULL, 
+add_ssffTrackDefinition <- function(dbName, name =  NULL, 
                                     columnName = NULL, fileExtension = NULL, 
                                     onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
                                     onTheFlyOptLogFilePath = NULL, dbUUID = NULL,
@@ -1223,7 +1223,7 @@ add_ssffTrackDefinition <- function(dbName = NULL, name =  NULL,
 ##' @return data.frame object containing ssffTrackDefinitions infos
 ##' @export
 ##' @author Raphael Winkelmann
-list_ssffTrackDefinitions <- function(dbName = NULL, dbUUID = NULL){
+list_ssffTrackDefinitions <- function(dbName, dbUUID = NULL){
   # .initialize.DBI.database()
   uuid=get_emuDB_UUID(dbName,dbUUID)
   dbObj = .load.emuDB.DBI(uuid = uuid)
@@ -1245,7 +1245,7 @@ modify_ssffTrackDefinition <- function(){
 ##' @param deleteFiles deletes all files with the fileExtension of the ssffTrackDefinition
 ##' @param dbUUID optional UUID of emuDB
 ##' @export
-remove_ssffTrackDefinition <- function(dbName = NULL, name = NULL, 
+remove_ssffTrackDefinition <- function(dbName, name, 
                                        deleteFiles = FALSE, dbUUID = NULL){
   # .initialize.DBI.database()
   uuid=get_emuDB_UUID(dbName,dbUUID)

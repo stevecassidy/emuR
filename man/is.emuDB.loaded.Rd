@@ -4,7 +4,7 @@
 \alias{is.emuDB.loaded}
 \title{Test if EMU database is loaded}
 \usage{
-is.emuDB.loaded(dbName = NULL, dbUUID = NULL)
+is.emuDB.loaded(dbName, dbUUID = NULL)
 }
 \arguments{
 \item{dbName}{name of emuDB}

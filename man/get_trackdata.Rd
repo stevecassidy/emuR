@@ -5,11 +5,10 @@
 \alias{get_trackdata}
 \title{Get trackdata from loaded emuDB}
 \usage{
-get_trackdata(dbName = NULL, seglist = NULL, ssffTrackName = NULL,
-  cut = NULL, npoints = NULL, onTheFlyFunctionName = NULL,
-  onTheFlyParams = NULL, onTheFlyOptLogFilePath = NULL,
-  nrOfAllocationRows = 10000, dbUUID = NULL, resultType = "trackdata",
-  verbose = TRUE)
+get_trackdata(dbName, seglist = NULL, ssffTrackName = NULL, cut = NULL,
+  npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParams = NULL,
+  onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000,
+  dbUUID = NULL, resultType = "trackdata", verbose = TRUE)
 }
 \arguments{
 \item{dbName}{Name of loaded emuDB}

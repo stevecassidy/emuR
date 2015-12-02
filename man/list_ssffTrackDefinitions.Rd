@@ -4,7 +4,7 @@
 \alias{list_ssffTrackDefinitions}
 \title{List ssffTrackDefinitions of emuDB}
 \usage{
-list_ssffTrackDefinitions(dbName = NULL, dbUUID = NULL)
+list_ssffTrackDefinitions(dbName, dbUUID = NULL)
 }
 \arguments{
 \item{dbName}{name of emuDB}

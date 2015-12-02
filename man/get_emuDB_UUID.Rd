@@ -4,7 +4,7 @@
 \alias{get_emuDB_UUID}
 \title{Get UUID of emuDB}
 \usage{
-get_emuDB_UUID(dbName = NULL, dbUUID = NULL)
+get_emuDB_UUID(dbName, dbUUID = NULL)
 }
 \arguments{
 \item{dbName}{name of emuDB}

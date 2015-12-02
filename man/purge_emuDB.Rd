@@ -4,7 +4,7 @@
 \alias{purge_emuDB}
 \title{Purge emuDB}
 \usage{
-purge_emuDB(dbName = NULL, dbUUID = NULL, interactive = TRUE)
+purge_emuDB(dbName, dbUUID = NULL, interactive = TRUE)
 }
 \arguments{
 \item{dbName}{name of emuDB to purge}

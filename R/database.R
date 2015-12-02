@@ -518,13 +518,18 @@ list_emuDBs<-function(){
 ##'   purge_emuDB('ae')
 ##' }
 ##' @export
-purge_emuDB<-function(dbName=NULL,dbUUID=NULL,interactive=TRUE){
+purge_emuDB<-function(dbName,dbUUID=NULL,interactive=TRUE){
   # .initialize.DBI.database()  
   dbUUID=get_emuDB_UUID(dbName,dbUUID)
   purged=FALSE
   if(!is.null(dbUUID)){
     if(interactive){
-      ans=readline(paste0("Are you sure you want to purge emuDB '",dbName,"' from this R session? (y/n)"))
+      if(missing(dbName)){
+        dbRefName=dbUUID
+      }else{
+        dbRefName=dbName
+      }
+      ans=readline(paste0("Are you sure you want to purge emuDB '",dbRefName,"' from this R session? (y/n)"))
     }else{
       ans='y'
     }
@@ -579,7 +584,7 @@ purge_all_emuDBs<-function(interactive=TRUE){
 ##' @param dbUUID optional UUID of emuDB
 ##' @return data.frame object with session names
 ##' @export
-list_sessions<-function(dbName=NULL,dbUUID=NULL){
+list_sessions<-function(dbName,dbUUID=NULL){
   # .initialize.DBI.database()
   uuid=get_emuDB_UUID(dbName,dbUUID)
   dbs=dbGetQuery(get_emuDBcon(uuid),paste0("SELECT name FROM session WHERE db_uuid='",uuid,"'"))
@@ -593,7 +598,7 @@ list_sessions<-function(dbName=NULL,dbUUID=NULL){
 ##' @param dbUUID optional UUID of emuDB
 ##' @return data.frame object with columns session and name of bundles
 ##' @export
-list_bundles<-function(dbName=NULL,session=NULL,dbUUID=NULL){
+list_bundles<-function(dbName,session=NULL,dbUUID=NULL){
   # .initialize.DBI.database()
   uuid=get_emuDB_UUID(dbName,dbUUID)
   baseQ=paste0("SELECT session,name FROM bundle WHERE db_uuid='",uuid,"'")
@@ -626,7 +631,7 @@ create.database <- function(name,basePath=NULL,DBconfig=create.schema.databaseDe
 ##' @param dbName name of emuDB
 ##' @param dbUUID optional UUID of emuDB
 ##' @export
-summary_emuDB<-function(dbName=NULL,dbUUID=NULL){
+summary_emuDB<-function(dbName,dbUUID=NULL){
   uuid=get_emuDB_UUID(dbName,dbUUID)
   object=.load.emuDB.DBI(uuid)
   cat("Name:\t",object[['name']],"\n")
@@ -2087,7 +2092,7 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
 ##'   is.emuDB.loaded('ae')
 ##' }
 
-is.emuDB.loaded<-function(dbName=NULL,dbUUID=NULL){
+is.emuDB.loaded<-function(dbName,dbUUID=NULL){
   # .initialize.DBI.database()
   if(is.null(dbUUID)){
     q=paste0("SELECT * FROM emuDB WHERE name='",dbName,"'")
