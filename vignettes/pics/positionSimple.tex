@@ -10,7 +10,7 @@
   %%%%%%%%%%%%%%%%%%
   \node (Syllable) at (-4, 3) [element] {Syllable:}; 
   
-  \node (S_Syllable) at (-0.5, 3) [element] {S};
+  \node (S_Syllable) at (0, 3) [element] {S};
 
   %%%%%%%%%%%%%%%%%%
   \node (Phoneme) at (-4, 2) [circle] {Phoneme:}; 
@@ -21,19 +21,21 @@
   
   \node (N_Phoneme) at (0.5, 2) [element] {N}; 
 
-  %%%%%%%%%%%%%%%%%%%
-  \node (Start_true) at (-3.5, 1) [element, green] {\tiny{\texttt{"[Start(Syllable, Phoneme) == 1]"}}}; 
-
-  \node (Medial_true) at (-3.5, 0.5) [element, green] {\tiny{\texttt{"[Medial(Syllable, Phoneme) == 1]"}}}; 
-
-  \node (End_true) at (-3.5, 0) [element, green] {\tiny{\texttt{"[End(Syllable, Phoneme) == 1]"}}}; 
+  \node (s_Phoneme) at (1.5, 2) [element] {s}; 
 
   %%%%%%%%%%%%%%%%%%%
-  \node (Start_false) at (2.5, 1) [element, red] {\tiny{\texttt{"[Start(Syllable, Phoneme) == 0]"}}}; 
+  \node (Start_true) at (-4.5, 1) [element, green] {\small{\texttt{"[Start(Syllable, Phoneme) == 1]"}}}; 
 
-  \node (Medial_false) at (2.5, 0.5) [element, red] {\tiny{\texttt{"[Medial(Syllable, Phoneme) == 0]"}}}; 
+  \node (Medial_true) at (-4.5, 0.5) [element, green] {\small{\texttt{"[Medial(Syllable, Phoneme) == 1]"}}}; 
 
-  \node (End_false) at (2.5, 0) [element, red] {\tiny{\texttt{"[End(Syllable, Phoneme) == 0]"}}}; 
+  \node (End_true) at (-4.5, 0) [element, green] {\small{\texttt{"[End(Syllable, Phoneme) == 1]"}}}; 
+
+  %%%%%%%%%%%%%%%%%%%
+  \node (Start_false) at (4.5, 1) [element, red] {\small{\texttt{"[Start(Syllable, Phoneme) == 0]"}}}; 
+
+  \node (Medial_false) at (4.5, 0.5) [element, red] {\small{\texttt{"[Medial(Syllable, Phoneme) == 0]"}}}; 
+
+  \node (End_false) at (4.5, 0) [element, red] {\small{\texttt{"[End(Syllable, Phoneme) == 0]"}}}; 
 
   %%%%%%%%%%%%%%%%%%%%
   \draw [->] (S_Syllable) to (m_Phoneme);
@@ -42,22 +44,26 @@
 
   \draw [->] (S_Syllable) to (N_Phoneme);
 
+  \draw [->] (S_Syllable) to (s_Phoneme);
+  
   %%%%%%%%%%%%%%%%%%%%
-  \draw [green, dotted] (Start_true.east) to (m_Phoneme);
+  \draw [green, bend right] (Start_true.east) to (m_Phoneme);
 
-  \draw [green, dotted] (Medial_true.east) to (V_Phoneme);
+  \draw [green, bend right] (Medial_true.east) to (V_Phoneme);
+  \draw [green, bend right] (Medial_true.east) to (N_Phoneme);
 
-  \draw [green, dotted] (End_true.east) to (N_Phoneme);
+  \draw [green, bend right] (End_true.east) to (s_Phoneme);
 
   %%%%%%%%%%%%%%%%%%%%
-  \draw [red, dotted] (Start_false.west) to (V_Phoneme);
-  \draw [red, dotted] (Start_false.west) to (N_Phoneme);
+  \draw [red, bend left] (Start_false.west) to (V_Phoneme);
+  \draw [red, bend left] (Start_false.west) to (N_Phoneme);
 
-  \draw [red, dotted] (Medial_false.west) to (m_Phoneme);
-  \draw [red, dotted] (Medial_false.west) to (N_Phoneme);
+  \draw [red, bend left] (Medial_false.west) to (m_Phoneme);
+  \draw [red, bend left] (Medial_false.west) to (s_Phoneme);
 
-  \draw [red, dotted] (End_false.west) to (m_Phoneme);
-  \draw [red, dotted] (End_false.west) to (V_Phoneme);
+  \draw [red, bend left] (End_false.west) to (m_Phoneme);
+  \draw [red, bend left] (End_false.west) to (V_Phoneme);
+  \draw [red, bend left] (End_false.west) to (N_Phoneme);
 
 \end{tikzpicture}
 
