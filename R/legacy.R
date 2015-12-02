@@ -812,7 +812,7 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
   #utts=vector(mode='list',length=bundlesCount)
   us=1:bundlesCount
   if(verbose){
-    cat("INFO: Loading legacy EMU database containing",bundlesCount,"bundles...\n")
+    cat("INFO: Converting legacy EMU database containing",bundlesCount,"bundles...\n")
     pb=txtProgressBar(min=0,max=bundlesCount+2,initial=progress,style=3)
     
     setTxtProgressBar(pb,progress)
