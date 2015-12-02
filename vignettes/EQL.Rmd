@@ -108,7 +108,7 @@ Example **Q** & **A**'s:
 - **Q**: *What is the query string to retrieve all syllable ITEMs which neither contain a phoneme ITEM labeled "k" nor "p" nor "t"?*
     - **A**: `"[Syllable =~ .* ^ Phoneme != p | t | k]"` or `"[Phoneme != p | t | k ^ #Syllable =~ .*]"`
 
-**INFO: Even though the domination operator is not directional, what you place to the left and to the right of the operator does have an impact on the result. If no result modifier (the hash tag "#") is used the query engine will automaticall assume that the expression to the left of the operator specifies what is to be returned. This means that the schematic query string: `"[L1 == A ^ L2 == B]"` is semantically equal to the query string: `"[#L1 == A ^ L2 == B]"`. As it is more explicit to mark the desired result we recommend you always use the result modifier where possible.**
+**INFO: Even though the domination operator is not directional, what you place to the left and to the right of the operator does have an impact on the result. If no result modifier (the hash tag "#") is used the query engine will automatically assume that the expression to the left of the operator specifies what is to be returned. This means that the schematic query string: `"[L1 == A ^ L2 == B]"` is semantically equal to the query string: `"[#L1 == A ^ L2 == B]"`. As it is more explicit to mark the desired result we recommend you always use the result modifier where possible.**
 
 ### Multiple Domination
 
@@ -182,7 +182,7 @@ Example **Q** & **A**'s:
 
 ### Count and Boolean &
 
-A schematic representation of a query string combinding the count and the boolean operators would be: `"[L == E & Num(L1, L2) == N]"` where ITEMs "E" on level "L" are dominated by "L1" and "L1" contains "N" number of "L2" Items. Further "L1" dominates "L2" under the condition that "L" and "L1" (not "L2") refer to the same level (parallel attributeDefinitions of the same level may also be chosen).
+A schematic representation of a query string combining the count and the boolean operators would be: `"[L == E & Num(L1, L2) == N]"` where ITEMs "E" on level "L" are dominated by "L1" and "L1" contains "N" number of "L2" Items. Further "L1" dominates "L2" under the condition that "L" and "L1" (not "L2") refer to the same level (parallel attributeDefinitions of the same level may also be chosen).
 
 Example **Q** & **A**'s:
 
@@ -193,7 +193,7 @@ Example **Q** & **A**'s:
 
 ### Count and ^
 
-A schematic representation of a query string combinding the count and the boolean operators would be: `"[L == E ^ Num(L1, L2) == N]"` where ITEMs "E" on level "L" are dominated by "L1" and "L1" contains "N" number of "L2" ITEMs. Further "L1" dominates "L2" under the condition that "L" and "L1" do **not** refer to the same level. 
+A schematic representation of a query string combining the count and the boolean operators would be: `"[L == E ^ Num(L1, L2) == N]"` where ITEMs "E" on level "L" are dominated by "L1" and "L1" contains "N" number of "L2" ITEMs. Further "L1" dominates "L2" under the condition that "L" and "L1" do **not** refer to the same level. 
 
 Example **Q** & **A**'s:
 
@@ -208,7 +208,7 @@ Example **Q** & **A**'s:
 
 ### ^ and -> (Domination and Sequence)
 
-A schematic representation of a query string combinding the domination and the sequence operators would be: `"[[A1 ^ A2] -> A3]"` where "A1" and "A3" refer to the same level (parallel attributeDefinitions of the same level may also be chosen).
+A schematic representation of a query string combining the domination and the sequence operators would be: `"[[A1 ^ A2] -> A3]"` where "A1" and "A3" refer to the same level (parallel attributeDefinitions of the same level may also be chosen).
 
 
 Example **Q** & **A**'s:
@@ -237,7 +237,7 @@ Example **Q** & **A**'s:
         - 1.) The text of all three-syllable words : `"[Text =~ .* & Num(Text, Syllable) == 3]"`
         - 2.) A schwa occurs in the first syllable: `"[Phoneme == @ ^ Start(Word, Syllable) == 1]"`
         - 3.) The text is "the": `"[Text == the]"`
-        - Let's now combind all three by saying `"[1. ^ 2.]"` and these are followed by three (`"[1. ^ 2.] -> 3.]"`): `"[[Text =~ .* & Num(Text, Syllable) == 3 ^ [Phoneme == @ ^ Start(Word, Syllable) == 1]] -> Text == the]"`
+        - Let's now combined all three by saying `"[1. ^ 2.]"` and these are followed by three (`"[1. ^ 2.] -> 3.]"`): `"[[Text =~ .* & Num(Text, Syllable) == 3 ^ [Phoneme == @ ^ Start(Word, Syllable) == 1]] -> Text == the]"`
 
 
 ## A few more Q & A's (because practice makes perfect)
@@ -245,13 +245,13 @@ Example **Q** & **A**'s:
 - **Q**: *What is the query string to retrieve all "m" or "n" phonemes, which occur in the word-medial position?*
     - **A**: `"[Phoneme == m | n & Medial(Word, Phoneme) == 1]"`
 - **Q**: *What is the query string to retrieve all "H" phonetic segments, next an arbitrary segment, next either "I" or "U"?*
-    - **A**: `"[[Phonetic == H -> Phonetic != x ] -> Phonetic == I | U ]"`
+    - **A**: `"[[Phonetic == H -> Phonetic =~ .*] -> Phonetic == I | U ]"`
 - **Q**: *What is the query string to retrieve all syllables, which do not occur in the word-medial position?*
-    - **A**: `"[Syllable != x & Medial(Word, Syllable) == 0]"`
+    - **A**: `"[Syllable =~ .* & Medial(Word, Syllable) == 0]"`
 - **Q**: *What is the query string to retrieve the text of all words, which contain two syllables?*
-    - **A**: `"[Text != x & Num(Text, Syllable) == 2]"`
+    - **A**: `"[Text =~ .* & Num(Text, Syllable) == 2]"`
 - **Q**: *What is the query string to retrieve the text of all accentuated words following "the"?*.  
-    - **A**: `"[Text == the -> #Text != x & Accent == S]"`
+    - **A**: `"[Text == the -> #Text =~ .* & Accent == S]"`
 - **Q**: *What is the query string to retrieve all "S" (strong) syllables consisting of 5 phonemes?*
     - **A**: `"[Syllable = S ^ Num(Word, Phoneme) == 5]"`
 - **Q**: *What is the query string to retrieve all "W" (weak) syllables, which contain a "@" phoneme?*
@@ -261,76 +261,88 @@ Example **Q** & **A**'s:
 - **Q**: *What is the query string to retrieve all "H\*" tonic accents of word-final syllables, which occur in three-syllable words?*
     - **A**: `"[Pitch_Accent == H* & End(Word, Syllable) == 1 ^ Num(Word, Syllable) == 3]"`
 - **Q**: *What is the query string to retrieve all phonemes, dominating Phonetic ITEMs "H", at the beginning of a syllable; and which occur in accentuated (S) words?*
-    - **A**: `"[[[Phoneme!=x ^ Phonetic = H] ^ Start(Word, Syllable)=1] ^ Accent = S]"`
+    - **A**: `"[[[Phoneme =~ .* ^ Phonetic == H] ^ Start(Word, Syllable) == 1] ^ Accent == S]"`
 
 
 # Differences and incompatibilities to legacy EMU query language (R package 'emu', version 4.2)
 
-In this section we will try to give a quick overview of the major changes concerning the query mechanics of `emuR` compared to the legacy R package `emu` in the version 4.2. This is mainly meant for people transitioning to `emuR` from the legacy system.
+In this section we will try to give a quick overview of the major changes concerning the query mechanics of `emuR` compared to the legacy R package `emu` in the version 4.2. This section is mainly meant for people transitioning to `emuR` from the legacy system.
 
 ## Function call syntax
 
-In `emuR` it is required that a emuDB is loaded into your current R session before beeing able to use the `query()` function. This is achieved using the `load_emuDB()` function (see `emuR_intro` vignette for details). This was not necessary using the legacy `emu.query()` function.
+In `emuR` it is required that a emuDB is loaded into your current R session before being able to use the `query()` function. This is achieved using the `load_emuDB()` function (see `emuR_intro` vignette for details). This was not necessary using the legacy `emu.query()` function.
 
-EQL2 `query()` function is part of R package emuR. See `help(query)`
+Example calls to the `query()` function (prerequisite: a loaded emuDB called "andosl"):
 
-Examples:
+```{r, eval=FALSE}
+# query all "p" ITEMs on the "Phoneme" level that are dominated by "S" (strong) syllables
+query(dbName = "andosl", 
+      query = "[Phoneme == p ^ Syllable == S]")
 
+# same query as before but this time using
+# the sessionPattern and bundlePattern arguments 
+# to only select specific sessions / bundles
+# using regular expressions (RegEx)
+query(dbName = "andosl", 
+      query = "[Phoneme == p ^ Syllable == S]", 
+      sessionPattern = "000.", # RegEx that matches session 0000; 000a; 0001; ...
+      bundlePattern = "msajc0[1-2].") # RegEx that matches bundles msajc01a; msajc02a; msajc021; ...
 ```
-query("andosl", "[Phoneme == p ^ Syllable == S]")
-```
-
-Session and bundle selection patterns are optional and expect regular expression pattern strings.
-
-Example:
-
-```
-query("andosl", "[Phoneme == p ^ Syllable == S]", sessionPattern = "000.", bundlePattern = "msajc0[1-2].")
-```
-
-In this case the sessionPattern parameter has no effect as the "andosl" is an emuDB that only has the dummy session "0000". The bundlePattern parameter however selects only bundles starting with 'msajc01' or 'msajc02'.
-
 
 ## Result type
 
 The new default result type of a query is an object of the S3 class "emuRsegs". This class inherits from the legacy EMU class "emusegs" and the well known "data.frame" class. This means it is fully compatible to the legacy "emusegs" class, while containing some additional data, for example the ID's of the start and end ITEMs of each segment list row. Each row of this "data.frame" is a sequence of one or more annotational units (i.e. ITEMs) on a single level. For more information about this object see `help(emuRsegs)`.
 
-The `query` function of `emuR` returns an empty segment list (row count is zero) if the query does not match any ITEM. If the legacy EMU function `emu.query()` didn't find any matches it would throw an error of the form: `"Can't find the query results in emu.query: there may have been a problem with the query command."`.
+The `query` function of `emuR` returns an empty segment list (row count is zero) if the query does not match any ITEM. If the legacy EMU function `emu.query()` didn't find any matches it would throw an error with the message: `"Can't find the query results in emu.query: there may have been a problem with the query command."`.
 
 ## Bundle (utterance) names
 
-The `emuDB` format used by the `emuR` package introduces the concept of bundles that are grouped together in sessions (see `emuDB` vignette for further details). As legacy EMU databases did not have the concept of a session, all the utterances of a legacy database are place in a single default session called "0000". Therefore the "utts" column of a segment list is prefixed by the session name for example "0000:msajc003" instead of just being "msajc003" as in the legacy system.
+The emuDB format used by the `emuR` package introduces the concept of bundles that are grouped together in sessions (see emuDB vignette for further details). As legacy EMU databases did not have the concept of a session, all the utterances of a legacy database are place in a single default session called "0000". Therefore the "utts" column of a segment list is prefixed by the session name for example "0000:msajc003" instead of just being "msajc003" as in the legacy system.
 
 ## The result modifier hash tag '#'
 
-Compared to the legacy EMU system which allowed multiple occurrences of the hash tag "#" to be present in a query, the `query()` function only allows a single result modifier. This assures that only consistent result sets are returned. If you however desire to have multiple result sets in one segment list, we recommend you simply  concatenate the result sets of separate queries using the `rbind()` function.
+Compared to the legacy EMU system which allowed multiple occurrences of the hash tag "#" to be present in a query string, the `query()` function only allows a single result modifier. This assures that only consistent result sets are returned. If you however desire to have multiple result sets in one segment list, we recommend you simply  concatenate the result sets of separate queries using the `rbind()` function.
 
-## Interpretation of the hash tag "#" conjunction operator queries
-#### legacy Emu
+## Interpretation of the hash tag "#" in conjunction operator queries
+#### legacy EMU
 
+```{r eval=FALSE}
+emu.query(template = "andosl", 
+          pattern = "*", 
+          query = "[Text=spring & #Accent=S]")
 ```
-> emu.query('andosl','*','[Text=spring & #Accent=S]')
+```
 moving data from Tcl to R
 Read 1 records
 segment  list from database:  andosl 
 query was:  [Text=spring & #Accent=S] 
   labels    start      end     utts
 1 spring 2288.959 2704.466 msajc094
-
-> emu.query('andosl','*','[#Text=spring & #Accent=S]')
+```
+```{r eval=FALSE}
+emu.query(template = "andosl",
+          pattern = "*",
+          query = "[#Text=spring & #Accent=S]")
+```
+```
 moving data from Tcl to R
 Read 1 records
 segment  list from database:  andosl 
 query was:  [#Text=spring & #Accent=S] 
   labels    start      end     utts
 1 spring 2288.959 2704.466 msajc094
+"
 ```
 
 The hash tag "#" had no effect.
 
 #### emuR
+```{r eval=FALSE}
+> query(dbName = andosl,
+        query = "[Text == spring & #Accent == S]", 
+        resultType == "emusegs")
 ```
-> query(andosl,"[Text == spring & #Accent == S]", resultType == "emusegs")
+```
 segment  list from database:  andosl 
 query was:  [Text=spring & #Accent=S] 
   labels    start      end          utts
@@ -340,11 +352,13 @@ query was:  [Text=spring & #Accent=S]
 Returns the same ITEM, but with the label of the hashed attributeDefinition name.
 The second legacy example is not a valid `emuR` query (two hash tags).
 
+```{r eval=FALSE}
+> query(dbName = "andosl",
+        query = "[#Text == spring & #Accent == S]")
 ```
-> query('andosl',"[#Text=spring & #Accent=S]")
-
- Error in query.database.eql.KONJA(dbConfig, qTrim) : 
-  Only one hashtag allowed in linear query term: #Text=spring & #Accent=S 
+```
+Error in query.database.eql.KONJA(dbConfig, qTrim) : 
+Only one hashtag allowed in linear query term: #Text=spring & #Accent=S 
 ```
 
 The `query()` function throws an error as it would be necessary to return each item twice to get both the "Text" and "Accent" labels.
@@ -355,10 +369,14 @@ The `query()` function throws an error as it would be necessary to return each i
 
 Example:
 
-#### (legacy) EMU
+#### legacy EMU
 
+```{r eval=FALSE}
+emu.query(template = "ae",
+          pattern = "*",
+          query = "[Text!=beautiful|futile ^ Phoneme=u:]")
 ```
-> emu.query('ae','*',"[Text!=beautiful|futile ^ Phoneme=u:]")
+```
 moving data from Tcl to R
 Read 4 records
 segment  list from database:  ae 
@@ -374,8 +392,12 @@ We assume that the OR operator "|" was simply ignored when used in conjunction w
 
 #### emuR
 
+```{r eval=FALSE}
+query(dbName = "ae",
+      query = "[Text != beautiful | futile ^ Phoneme == u:]", 
+      resultType = "emusegs")
 ```
-> query(ae,"[Text != beautiful | futile ^ Phoneme == u:]", resultType = "emusegs")
+```
 segment  list from database:  ae 
 query was:  [Text!=beautiful|futile ^ Phoneme=u:] 
   labels    start      end          utts
@@ -385,48 +407,48 @@ query was:  [Text!=beautiful|futile ^ Phoneme=u:]
 
 ### Errors caused by missing or superfluous blanks / parenthesis
 
-Certain queries in the legacy EMU system required blanks around certain operators to be present or absent as well as certain parenthesis to be present or absent. If this was not the case the sometimes the legacy query engine threw cryptic errors and sometimes even crashed and in the worst case took the entire R session with it. The query engine of the `emuR` package is much more robust against missing or superfluous blank / parenthesis.
+Certain queries in the legacy EMU system required blanks around certain operators to be present or absent as well as certain parenthesis to be present or absent. If this was not the case the legacy query engine sometimes threw cryptic errors and sometimes even crashed and in the worst cases took the entire R session with it. The query engine of the `emuR` package is much more robust against missing or superfluous blanks / parenthesis.
 
 ### Order of result segment list
 
-For the legacy EMU query it was never explicitly defined, at least to our knowlage, if and how the resulting segment list was ordered ordered. If the result type of  the `query()` function is set to `"emuRsegs"` the resulting list is ordered by UUID, session, bundle and sample start position. If it is set to `"emusegs"` the resulting list is ordered by the fields utts and start.
+For the legacy EMU query it was never explicitly defined, at least to our knowledge, if and how the resulting segment list was ordered. If the result type of  the `query()` function is set to `"emuRsegs"` the resulting list is ordered by UUID, session, bundle and sample start position. If it is set to `"emusegs"` the resulting list is ordered by the fields utts and start.
 
 ### Additional features
 
-- The query mechanics of `emuR` accepts the double equal character string "==" as well as the single "=" equal character string as an equal operator.
-- EQL2 has the capability to query labels by matching regular expressions using the '=~' (matching) and '!~' (non-matching) operators.
-  - For example: `query("andosl", "Text =~ .*tz.*")`
+- The query mechanics of `emuR` accepts the double equal character string "==" (recommended) as well as the single "=" equal character string as an equal operator.
+- The EQL2 has the capability to query labels by matching regular expressions using the '=~' (matching) and '!~' (non-matching) operators.
+    - For example: `query("andosl", "Text =~ .*tz.*")`
   
 
 # Extended Backus–Naur Form (EBNF)
 
-EBNF adapted from [@john:2012a]. As the original EBNF was formulated in German a few of the abbreviation terms (e.g. "DOMA" is German abbreviation for "**Dom**inanz**a**bfrage") where translated into English abbreviations (e.g. "DOMQ" is an English abbreviation for "**dom**inance **q**uery").
+EBNF adapted from [@john:2012a]. As the original EBNF was formulated in German a few of the abbreviation terms (e.g. "DOMA" is the abbreviation for the German term "**Dom**inanz**a**bfrage") where translated into English abbreviations (e.g. "DOMQ" is the abbreviation for the English term "**dom**inance **q**uery").
 
 ## Terminal symbols of EQL2 (operators) and their meaning.
 
 The terminal symbols described below are ordered descending by their binding priority.
 
-| Operator | Meaning |
+| Symbol | Meaning |
 | --- | --- |
 | `#` | Result modifier (projection) |
 | `,` | Parameter list separator |
-| `==` | Equality (new in version 2 of the EQL; for cleaner syntax)|
+| `==` | Equality (new in version 2 of the EQL; added for cleaner syntax)|
 | `=` | Equality (optional; for backwards compatibility)|
 | `!=` | inequality |
-| `=~` | Regular expression match |
-| `!~` | Regular expression not match |
+| `=~` | Regular expression matching |
+| `!~` | Regular expression non-matching |
 | `>` | Greater than |
 | `>=` | Equal or greater than  |
 | `<` | Less than |
 | `>=` | Equal or less than |
 | `|` | Alternatives separator |
 | `&` | Conjunction of equal rank |
-| `^` | Dominanceconjunction |
-| `->` | Sequenceoperator |
+| `^` | Dominance conjunction |
+| `->` | Sequence operator |
 
 ## Terminal symbols of EQL2 (brackets) and their meaning.
 
-| Bracket | Meaning |
+| Symbol | Meaning |
 | --- | --- |
 | `'` | Quotes literal string |
 | `(` | Function parameter list begin |
@@ -436,57 +458,57 @@ The terminal symbols described below are ordered descending by their binding pri
 
 ## Terminal symbols of EQL2 (functions) and their meaning
 
-| Function | Meaning |
+| Symbol | Meaning |
 | --- | --- |
 | `Start` | Start | 
 | `Medial` | Medial |
 | `End` | Final |
 | `Num` | Count |
 
-## Nearly complete formal description of EMU query language EQL2
+## Formal description of EMU query language EQL2
 
-+-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
-| EBNF term                                                                         | Abriviation                        | Conditions                                    |
-+===================================================================================+====================================+===============================================+
-| `EQL = CONJQ | SEQQ | DOMQ;`                                                      | **E**MU **Q**uery **L**anguage     |                                               |
-+-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
-| `DOMQ = "[", ( CONJQ | DOMQ | SEQQ ), "^", ( CONJQ | DOMQ | SEQQ ), "]";`         | **dom**inance **q**uery            | levels must be hierarchically associated      |
-+-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
-| `SEQQ = "[", ( CONJQ | SEQQ | DOMQ ), "->", ( CONJQ | SEQQ | DOMQ ), "]";`        | **seq**uential **q**uery           | levels must be linearly associated            |
-+-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
-| `CONJQ = { "[" }, SQ, { "&", SQ }, { "]" };`                                      | **conj**unction **q**uery          | levels must be linearly associated            |
-+-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
-| `SQ = LABELQ | FUNCQ;`                                                            | *s*imple *q*uery                   |                                               |
-+-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
-| `LABELQ = [ "#" ], LEVEL, ( "=" | "==" | "!=" | "=~" | "!~" ), LABELALTERNATIVES;`| **label** **q**uery                |                                               |
-+-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
-| `FUNCQ = POSQ | NUMQ;`                                                            | **fun**ction **q**uery             |                                               |
-+-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
-| `POSQ = POSFCT, "(", LEVEL, ",", LEVEL, ")", "=", "0" | "1";`                     | **position** **q**uery             | levels must be hierarchically associated;     |
-|                                                                                   |                                    | second level determines semantic              |
-+-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
-| `NUMQ = "Num", "(", LEVEL, ",", LEVEL, ")", COP, INTPN;`                          | **number**  **q**uery              | levels must be hierarchically associated;     |
-|                                                                                   |                                    | first level determines semantic               |
-+-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
-| `LABELALTERNATIVES = LABEL , { "|", LABEL };`                                     | **label alternatives**             |                                               |
-+-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
-| `LABEL= LABELING | ( "'", LABELING, "'" );`                                       | **label**                          | levels must be part of the database structure;|
-|                                                                                   |                                    | LABELING is an arbitrary character string or a|
-|                                                                                   |                                    | label group class configured in the emuDB;    |
-|                                                                                   |                                    | result modifier '#' may only occur once       |
-+-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
-| `POSFCT = "Start" | "Medial" | "End";`                                            | **pos**ition **f**un**ct**ion      |                                               |
-+-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
-| `COP = "=" | "==" | "!=" | ">" | "<" | "<=" | ">=";`                              | **c**omparison **o**perand         |                                               |
-+-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
-| `INTPN = "0" | INTP;`                                                             |                                    |                                               |
-+-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
-| `INTP = DIGIT-"0", { DIGIT };`                                                    |                                    |                                               |
-+-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
-| `DIGIT = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";`              | **digit**                          |                                               |
-+-----------------------------------------------------------------------------------+------------------------------------+-----------------------------------------------+
++-----------------------------------------------------------------------------------+-------------------------------------+-----------------------------------------------+
+| EBNF term                                                                         | Abriviation                         | Conditions                                    |
++===================================================================================+=====================================+===============================================+
+| `EQL = CONJQ | SEQQ | DOMQ;`                                                      | **E**MU **Q**uery **L**anguage      |                                               |
++-----------------------------------------------------------------------------------+-------------------------------------+-----------------------------------------------+
+| `DOMQ = "[", ( CONJQ | DOMQ | SEQQ ), "^", ( CONJQ | DOMQ | SEQQ ), "]";`         | **dom**inance **q**uery             | levels must be hierarchically associated      |
++-----------------------------------------------------------------------------------+-------------------------------------+-----------------------------------------------+
+| `SEQQ = "[", ( CONJQ | SEQQ | DOMQ ), "->", ( CONJQ | SEQQ | DOMQ ), "]";`        | **seq**uential **q**uery            | levels must be linearly associated            |
++-----------------------------------------------------------------------------------+-------------------------------------+-----------------------------------------------+
+| `CONJQ = { "[" }, SQ, { "&", SQ }, { "]" };`                                      | **conj**unction **q**uery           | levels must be linearly associated            |
++-----------------------------------------------------------------------------------+-------------------------------------+-----------------------------------------------+
+| `SQ = LABELQ | FUNCQ;`                                                            | *s*imple *q*uery                    |                                               |
++-----------------------------------------------------------------------------------+-------------------------------------+-----------------------------------------------+
+| `LABELQ = [ "#" ], LEVEL, ( "=" | "==" | "!=" | "=~" | "!~" ), LABELALTERNATIVES;`| **label** **q**uery                 |                                               |
++-----------------------------------------------------------------------------------+-------------------------------------+-----------------------------------------------+
+| `FUNCQ = POSQ | NUMQ;`                                                            | **fun**ction **q**uery              |                                               |
++-----------------------------------------------------------------------------------+-------------------------------------+-----------------------------------------------+
+| `POSQ = POSFCT, "(", LEVEL, ",", LEVEL, ")", "=", "0" | "1";`                     | **position** **q**uery              | levels must be hierarchically associated;     |
+|                                                                                   |                                     | second level determines semantic              |
++-----------------------------------------------------------------------------------+-------------------------------------+-----------------------------------------------+
+| `NUMQ = "Num", "(", LEVEL, ",", LEVEL, ")", COP, INTPN;`                          | **number**  **q**uery               | levels must be hierarchically associated;     |
+|                                                                                   |                                     | first level determines semantic               |
++-----------------------------------------------------------------------------------+-------------------------------------+-----------------------------------------------+
+| `LABELALTERNATIVES = LABEL , { "|", LABEL };`                                     | **label alternatives**              |                                               |
++-----------------------------------------------------------------------------------+-------------------------------------+-----------------------------------------------+
+| `LABEL = LABELING | ( "'", LABELING, "'" );`                                      | **label**                           | levels must be part of the database structure;|
+|                                                                                   |                                     | LABELING is an arbitrary character string or a|
+|                                                                                   |                                     | label group class configured in the emuDB;    |
+|                                                                                   |                                     | result modifier '#' may only occur once       |
++-----------------------------------------------------------------------------------+-------------------------------------+-----------------------------------------------+
+| `POSFCT = "Start" | "Medial" | "End";`                                            | **pos**ition **f**un**ct**ion       |                                               |
++-----------------------------------------------------------------------------------+-------------------------------------+-----------------------------------------------+
+| `COP = "=" | "==" | "!=" | ">" | "<" | "<=" | ">=";`                              | **c**omparison **o**perator         |                                               |
++-----------------------------------------------------------------------------------+-------------------------------------+-----------------------------------------------+
+| `INTPN = "0" | INTP;`                                                             | **integer **p**ositive with **n**ull|                                               |
++-----------------------------------------------------------------------------------+-------------------------------------+-----------------------------------------------+
+| `INTP = DIGIT-"0", { DIGIT };`                                                    | **int**eger **p**ositive            |                                               |
++-----------------------------------------------------------------------------------+-------------------------------------+-----------------------------------------------+
+| `DIGIT = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";`              | **digit**                           |                                               |
++-----------------------------------------------------------------------------------+-------------------------------------+-----------------------------------------------+
 
-
+**INFO: The LABELING term used in the LABEL EBNF term can represent any character string that is present in the annotation. As this can be any combination of Unicode characters we chose not to explicitly list them as part of the EBNF.**
 
 ## Restrictions 
 
