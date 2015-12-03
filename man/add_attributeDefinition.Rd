@@ -19,10 +19,28 @@ add_attributeDefinition(dbName, levelName, name, type = "STRING",
 \item{dbUUID}{optional UUID of loaded emuDB}
 }
 \description{
-Add attribute definition to emuDB
+Add additional attribute definition to an existing level definition
+of a emuDB. Each level definition is required to have at least one 
+default attribute definition that has the same name as the level definition
+(automatically created by \code{\link{add_levelDefinition}}). Attribute
+definitions can be viewed as definitions of
+parallel labels for the annotational units (ITEMs) of the emuDB.
 }
-\author{
-Raphael Winkelmann
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "ae" emuDB 
+# (see ?load_emuDB for more information)
+
+# add additional attribute definition to the "Phonetic" level
+# of the "ae" emuDB that will contain the UTF8 IPA
+# symbols of the phonetic transrictions
+add_attributeDefinition(dbName = "ae",
+                        levelName = "Phonetic",
+                        name = "IPA-UTF8")
+
+}
 }
 \keyword{DBconfig}
 \keyword{Emu}

@@ -595,14 +595,35 @@ remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
 
 ##' Add attribute definition to emuDB
 ##' 
+##' Add additional attribute definition to an existing level definition
+##' of a emuDB. Each level definition is required to have at least one 
+##' default attribute definition that has the same name as the level definition
+##' (automatically created by \code{\link{add_levelDefinition}}). Attribute
+##' definitions can be viewed as definitions of
+##' parallel labels for the annotational units (ITEMs) of the emuDB.
+##' 
 ##' @param dbName name of loaded emuDB
 ##' @param levelName name of level
 ##' @param name name af new attributeDefinition
 ##' @param type type of new attributeDefinition
 ##' @param dbUUID optional UUID of loaded emuDB
-##' @author Raphael Winkelmann
 ##' @export
 ##' @keywords emuDB database DBconfig Emu 
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' # add additional attribute definition to the "Phonetic" level
+##' # of the "ae" emuDB that will contain the UTF8 IPA
+##' # symbols of the phonetic transrictions
+##' add_attributeDefinition(dbName = "ae",
+##'                         levelName = "Phonetic",
+##'                         name = "IPA-UTF8")
+##' 
+##' }
 add_attributeDefinition <- function(dbName, levelName, 
                                     name, type = "STRING",
                                     dbUUID=NULL){
