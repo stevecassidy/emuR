@@ -4,7 +4,7 @@
 \alias{add_ssffTrackDefinition}
 \title{Add ssffTrackDefinition to emuDB}
 \usage{
-add_ssffTrackDefinition(dbName, name = NULL, columnName = NULL,
+add_ssffTrackDefinition(dbName, name, columnName = NULL,
   fileExtension = NULL, onTheFlyFunctionName = NULL,
   onTheFlyParams = NULL, onTheFlyOptLogFilePath = NULL, dbUUID = NULL,
   showProgress = TRUE, interactive = TRUE)
@@ -38,10 +38,46 @@ parameter one wishes to change.}
 \item{interactive}{ask user for confirmation}
 }
 \description{
-Add ssffTrackDefinitions to emuDB
+Add new ssffTrackDefinitions to emuDB. 
+An ssffTrack (often simply referred to as a track) references 
+data that is stored in the Simple Signal File Format (SSFF) 
+in the according bundle folders. The two most common types of data are:
+\itemize{
+\item{complementary data that was acquired during the recording 
+such as data acquired during electromagnetic 
+articulographic (EMA) or electropalatography (EPG) recordings;}
+\item{derived data, i.e. data that was calculated from the original audio signal 
+such as formant values and their bandwidths or the short-term Root Mean Square amplitude of the signal.}
 }
-\author{
-Raphael Winkelmann
+For more information on the structural elements of an emuDB see \code{vignette(emuDB)}.
+}
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "ae" emuDB 
+# (see ?load_emuDB for more information)
+
+# add ssffTrackDefinition to "ae" emuDB
+# calculating the according SSFF files on-the-fly
+# using the wrassp function "zcrana" (zero-crossing-rate analysis)
+add_ssffTrackDefinition(dbName = "ae",
+                        name = "ZCRtrack",
+                        onTheFlyFunctionName = "zcrana")
+                        
+# add ssffTrackDefinition to "ae" emuDB
+# for SSFF files that will be added later (either
+# by adding files to the emuDB using 
+# the add_files() function or by calculating
+# them using the according function provided 
+# by the wrassp package)
+add_ssffTrackDefinition(dbName = "ae",
+                        name = "ZCRtrack",
+                        columnName = "fm",
+                        fileExtension = "fms")
+
+}
+
 }
 \seealso{
 wrasspOutputInfos
