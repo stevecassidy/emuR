@@ -18,7 +18,14 @@ add_levelDefinition(dbName, name, type, store = TRUE, dbUUID = NULL)
 \item{dbUUID}{optional UUID of loaded emuDB}
 }
 \description{
-Add level definition to emuDB
+Add new level definition to emuDB. A level is a more 
+general term for what is often referred to as a "tier". 
+It is more general in the sense that people usually 
+expect tiers to contain time information. Levels 
+can either contain time information if they are of the 
+type "EVENT" or of the type "SEGMENT" but are timeless 
+if they are of the type "ITEM". For more information 
+on the structural elements of an emuDB see \code{vignette{emuDB}}.
 }
 \author{
 Klaus Jaensch

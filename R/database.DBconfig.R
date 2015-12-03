@@ -472,6 +472,15 @@ get.levelDefinition <- function(DBconfig, name){
 
 ##' Add level definition to emuDB
 ##' 
+##' Add new level definition to emuDB. A level is a more 
+##' general term for what is often referred to as a "tier". 
+##' It is more general in the sense that people usually 
+##' expect tiers to contain time information. Levels 
+##' can either contain time information if they are of the 
+##' type "EVENT" or of the type "SEGMENT" but are timeless 
+##' if they are of the type "ITEM". For more information 
+##' on the structural elements of an emuDB see \code{vignette{emuDB}}.
+##' 
 ##' @param dbName name of loaded emuDB
 ##' @param name name of level definition
 ##' @param type type of level definition
@@ -480,7 +489,7 @@ get.levelDefinition <- function(DBconfig, name){
 ##' @author Klaus Jaensch
 ##' @export
 ##' @keywords emuDB database schema Emu 
-add_levelDefinition<-function(dbName,name,
+add_levelDefinition<-function(dbName, name,
                               type, store = TRUE,
                               dbUUID=NULL){
   
@@ -1001,7 +1010,7 @@ remove_attrDefLabelGroup <- function(dbName,
 ##' super-level and the sub-level. The entirety of all link 
 ##' definitions of a emuDB specifies the 
 ##' hierarchical structure of the database. For more information
-##' on the structural elements of an emuDB see \code{vignette{emuDb}}.
+##' on the structural elements of an emuDB see \code{vignette{emuDB}}.
 ##' 
 ##' @param dbName name of emuDB
 ##' @param type type of linkDefinition
