@@ -479,7 +479,7 @@ get.levelDefinition <- function(DBconfig, name){
 ##' can either contain time information if they are of the 
 ##' type "EVENT" or of the type "SEGMENT" but are timeless 
 ##' if they are of the type "ITEM". For more information 
-##' on the structural elements of an emuDB see \code{vignette{emuDB}}.
+##' on the structural elements of an emuDB see \code{vignette(emuDB)}.
 ##' 
 ##' @param dbName name of loaded emuDB
 ##' @param name name of level definition
@@ -1010,7 +1010,7 @@ remove_attrDefLabelGroup <- function(dbName,
 ##' super-level and the sub-level. The entirety of all link 
 ##' definitions of a emuDB specifies the 
 ##' hierarchical structure of the database. For more information
-##' on the structural elements of an emuDB see \code{vignette{emuDB}}.
+##' on the structural elements of an emuDB see \code{vignette(emuDB)}.
 ##' 
 ##' @param dbName name of emuDB
 ##' @param type type of linkDefinition

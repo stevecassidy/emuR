@@ -25,7 +25,7 @@ expect tiers to contain time information. Levels
 can either contain time information if they are of the 
 type "EVENT" or of the type "SEGMENT" but are timeless 
 if they are of the type "ITEM". For more information 
-on the structural elements of an emuDB see \code{vignette{emuDB}}.
+on the structural elements of an emuDB see \code{vignette(emuDB)}.
 }
 \author{
 Klaus Jaensch
