@@ -1001,7 +1001,7 @@ remove_attrDefLabelGroup <- function(dbName,
 ##' super-level and the sub-level. The entirety of all link 
 ##' definitions of a emuDB specifies the 
 ##' hierarchical structure of the database. For more information
-##' on the structural elements of an emuDB see \code{\vignette{emuDb}}.
+##' on the structural elements of an emuDB see \code{vignette{emuDb}}.
 ##' 
 ##' @param dbName name of emuDB
 ##' @param type type of linkDefinition
@@ -1010,7 +1010,7 @@ remove_attrDefLabelGroup <- function(dbName,
 ##' @param dbUUID optional UUID of emuDB
 ##' @export
 ##' @examples 
-##' ##' \dontrun{
+##' \dontrun{
 ##' 
 ##' ##################################
 ##' # prerequisite: loaded "ae" emuDB 

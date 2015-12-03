@@ -23,10 +23,10 @@ specifies the relationship between two levels, the
 super-level and the sub-level. The entirety of all link 
 definitions of a emuDB specifies the 
 hierarchical structure of the database. For more information
-on the structural elements of an emuDB see \code{\vignette{emuDb}}.
+on the structural elements of an emuDB see \code{vignette{emuDb}}.
 }
 \examples{
-##' \dontrun{
+\dontrun{
 
 ##################################
 # prerequisite: loaded "ae" emuDB 
