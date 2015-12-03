@@ -1281,6 +1281,16 @@ remove_ssffTrackDefinition <- function(dbName, name,
 
 ##' Add (global) labelGroup to emuDB
 ##' 
+##' Adds labelGroup that can be used as a short hand  
+##' to reference groups of labels that are globally defined
+##' for the entire database (compared to attributeDefinition
+##' specific label groups that 
+##' are added by \code{\link{add_attrDefLabelGroup}}) in a 
+##' \code{\link{query}}. A common example would be to
+##' add a label group for something like the phonetic
+##' category of nasals to be able to reference them 
+##' as "nasals" in a \code{\link{query}}.
+##' 
 ##' @param dbName name of loaded emuDB
 ##' @param name name of label group
 ##' @param values character vector of labels
@@ -1288,6 +1298,30 @@ remove_ssffTrackDefinition <- function(dbName, name,
 ##' @author Raphael Winkelmann
 ##' @export
 ##' @keywords emuDB database schema Emu
+##' @seealso list_labelGroups, add_attrDefLabelGroup
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' sampaNasals = c("m", "F", "n", "J", "N")
+##' 
+##' # add these values to the to the "ae" emuDB
+##' # as a globally available labelGroup
+##' add_labelGroup(dbName = "ae",
+##'                name = "sampaNasals",
+##'                values = sampaNasals)
+##' 
+##' # query the labelGroup in the "Phonetic" level
+##' query("ae", "Phonetic == sampaNasals")
+##' 
+##' # query the labelGroup in the "Phoneme" level
+##' query("ae", "Phoneme == sampaNasals")
+##' 
+##' }
+##' 
 add_labelGroup <- function(dbName,
                            name,
                            values,

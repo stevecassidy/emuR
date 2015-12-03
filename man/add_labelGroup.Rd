@@ -16,10 +16,45 @@ add_labelGroup(dbName, name, values, dbUUID = NULL)
 \item{dbUUID}{optional UUID of loaded emuDB}
 }
 \description{
-Add (global) labelGroup to emuDB
+Adds labelGroup that can be used as a short hand  
+to reference groups of labels that are globally defined
+for the entire database (compared to attributeDefinition
+specific label groups that 
+are added by \code{\link{add_attrDefLabelGroup}}) in a 
+\code{\link{query}}. A common example would be to
+add a label group for something like the phonetic
+category of nasals to be able to reference them 
+as "nasals" in a \code{\link{query}}.
+}
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "ae" emuDB 
+# (see ?load_emuDB for more information)
+
+sampaNasals = c("m", "F", "n", "J", "N")
+
+# add these values to the to the "ae" emuDB
+# as a globally available labelGroup
+add_labelGroup(dbName = "ae",
+               name = "sampaNasals",
+               values = sampaNasals)
+
+# query the labelGroup in the "Phonetic" level
+query("ae", "Phonetic == sampaNasals")
+
+# query the labelGroup in the "Phoneme" level
+query("ae", "Phoneme == sampaNasals")
+
+}
+
 }
 \author{
 Raphael Winkelmann
+}
+\seealso{
+list_labelGroups, add_attrDefLabelGroup
 }
 \keyword{Emu}
 \keyword{database}
