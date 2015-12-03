@@ -996,13 +996,33 @@ remove_attrDefLabelGroup <- function(dbName,
 
 ##' Add linkDefinition to emuDB
 ##' 
+##' Add new link definition to emuDB. A link definition
+##' specifies the relationship between two levels, the
+##' super-level and the sub-level. The entirety of all link 
+##' definitions of a emuDB specifies the 
+##' hierarchical structure of the database. For more information
+##' on the structural elements of an emuDB see \code{\vignette{emuDb}}.
+##' 
 ##' @param dbName name of emuDB
 ##' @param type type of linkDefinition
-##' @param superlevelName name of superlevel of linkDefinition
-##' @param sublevelName name of sublevel of linkDefinition
+##' @param superlevelName name of super-level of linkDefinition
+##' @param sublevelName name of sub-level of linkDefinition
 ##' @param dbUUID optional UUID of emuDB
 ##' @export
-##' @author Raphael Winkelmann
+##' @examples 
+##' ##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' # add link defintition
+##' add_linkDefinition(dbName = "ae",
+##'                    type = "ONE_TO_MANY",
+##'                    superlevelName = "")
+##' 
+##' 
+##' }
 add_linkDefinition <- function(dbName, 
                                type,
                                superlevelName,
