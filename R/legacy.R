@@ -662,17 +662,18 @@ remove.redundant.bundle.links<-function(linkDefsHashed,bundle){
 
 
 ##' @title Convert legacy EMU database to emuDB format
-##' @description Converts an existing legacy EMU database to emuDB format. Creates the target directory for the new structure, converts the database configuration, copies/rewrites signal files and converts annotations.
-##' @details The database will be converted if the legacy database template file could be found and succesfully be loaded and parsed. A new directory with the name of the database will be created in the \code{targetDirectory}. \code{targetDirectory} and its parent directories will be created if the do not exist. If the new database directory already exists the function stops with an error.
+##' @description Converts an existing legacy EMU database to emuDB format. Creates the converted emuDB in a new directory. Converts the database configuration, copies or rewrites signal files and converts hierachical annotation data.
+##' @details The database will be converted if the legacy database template file \code{emuTplPath} could be found and successfully loaded and parsed. The legacy template file has usually the extension 'tpl'. If \code{targetDir} does not exist the directory and its parents will be created. A new directory with the name of the database and the suffix '_emuDB' will be created in the \code{targetDir}. If the new database directory already exists the function stops with an error.
+##' The template file is converted to a file named [dbName]_DBconfig.json. 
+##' Some of the flags of the legacy EMU template files are ignored (lines of syntax: "set [flagName] [flagValue]", known ignored flag names are: 'LabelTracks','SpectrogramWhiteLevel','HierarchyViewLevels','SignalViewLevels'). 
+##' Legacy EMU utterances are reorganized to sessions and bundles. The structure of the sessions depends on the wildcard path pattern of the primary track. At least one default session with name '0000' will be created.
+##' Media files (usually WAV files) are copied, SSFF track files are rewritten using the ASSP library of package \code{wrassp} by default (see \link[wrassp]{read.AsspDataObj} \link[wrassp]{write.AsspDataObj}). Annotations in EMU hierarchy (.hlb) files and ESPS label files are converted to a [bundleName]_annot.json file per bundle (utterance).
+##' Please note that only those files get copied, which match the scheme of the template file. Additional files in the legacy database directories are ignored. The legacy EMU database will not be modified.
+##' For a detailed description of the emuDB database structure see \code{vignette(emuDB)}.
 ##' 
-##' Information of the legacy Emu template file is transferred to [dbname]_DBconfig.json file. Some of the flags of the legacy EMU template files are ignored (lines of syntax: "set [flagName] [flagValue]", known ignored flag names are: 'LabelTracks','SpectrogramWhiteLevel','HierarchyViewLevels','SignalViewLevels'). 
-##' Legacy Emu utterances are reorganized to sessions and bundles. Session structure depends on wilcard path pattern of primary track. At least one default session with name '0000' will be created.
-##' Media files (e.g. wav files) are copied, SSFF track files are rewritten (read/write with ASSP (wrassp) library) by default. Annotations in Emu hierarchy (.hlb) files and ESPS label files are converted to a [bundleName]_annot.json file per bundle (utterance).
-##' Please note that only those files get copied, which are referenced by the template file. Additional files in the legacy database directories are ignored. The legacy Emu database will not be modified.
+##' \code{options} is a list of key value pairs:
 ##' 
-##' options is a list of key value pairs:
-##' 
-##' \code{rewriteSSFFTracks} if \code{TRUE} rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: \code{TRUE}
+##' \code{rewriteSSFFTracks} if \code{TRUE} rewrite SSFF tracks instead of copying the file to get rid of big endian encoded SSFF files (SPARC), default: \code{TRUE}
 ##' 
 ##' \code{ignoreMissingSSFFTrackFiles} if \code{TRUE} missing SSFF track files are ignored, default: \code{TRUE}
 ##' 
@@ -705,6 +706,14 @@ remove.redundant.bundle.links<-function(linkDefsHashed,bundle){
 ##' "/homes/mylogin/EMUnew/",
 ##' options=list(rewriteSSFFTracks=FALSE)
 ##' )
+##' 
+##' ## Convert legacy database "ae" from emuR demo data and load converted emuDB
+##' 
+##' create_emuRdemoData()
+##' demoTplPath=file.path(tempdir(),"emuR_demoData/legacy_ae/ae.tpl")
+##' targetDir=file.path(tempdir(),"converted_to_emuR")
+##' convert_legacyEmuDB_to_emuDB(demoTplPath,targetDir)
+##' dbName=load_emuDB(file.path(tempdir(),file.path(targetDir,"ae_emuDB")))
 ##' 
 ##' }
 ##' 
@@ -922,7 +931,7 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=NULL,option
 
 ##' 
 ##' Convert a known legacy EMU database to emuDB format
-##' @description Converts an existing known legacy EMU database to emuDB format. The legacy database is addressed by its name. Creates the target directory for the new structure, converts the database configuration, copies/rewrites signal files and converts annotations.
+##' @description Converts an existing known legacy EMU database to emuDB format. The legacy database is addressed by its name. Creates the target directory for the new emuDB, converts the database configuration, copies/rewrites signal files and converts annotations.
 ##' In the second step the target directory for the new database structure is created, the configuration and annoation files are stored in the new format and the signal files are copied.
 ##' @details This function first tries to get the path of the legacy template file from the given database name using \code{\link{list_legacyEmuDBs}}.
 ##' If the database could be found the function \code{\link{convert_legacyEmuDB_to_emuDB}} is called.
