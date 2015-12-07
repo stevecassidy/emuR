@@ -48,7 +48,7 @@ autobuild_linkFromTimes <- function(dbName, superlevelName, sublevelName, writeT
   
   #########################
   # get dbObj
-  dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
+  dbUUID = get_UUID(dbName = dbName, dbUUID = dbUUID)
   dbObj = .load.emuDB.DBI(uuid = dbUUID)
   
   foundSuperLevelDev = NULL

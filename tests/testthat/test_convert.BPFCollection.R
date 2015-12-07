@@ -11,7 +11,7 @@ dbName = "bpf_converter_test"
 # Cleaning up (just in case)
 if(is.emuDB.loaded(dbName))
 {
-  UUID = get_emuDB_UUID(dbName = dbName)
+  UUID = get_UUID(dbName = dbName)
   purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
 }
 
@@ -108,7 +108,7 @@ test_that("Error when segmentToEventLevels is used with a non-segment level",
 # Cleaning up (just in case)
 if(is.emuDB.loaded(dbName))
 {
-  UUID = get_emuDB_UUID(dbName = dbName)
+  UUID = get_UUID(dbName = dbName)
   purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
 }
 
@@ -192,7 +192,7 @@ unlink(file.path(testDir, dbName), recursive = T)
 
 if(is.emuDB.loaded(dbName))
 {
-  UUID = get_emuDB_UUID(dbName = dbName)
+  UUID = get_UUID(dbName = dbName)
   purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
 }
 
@@ -241,7 +241,7 @@ unlink(file.path(testDir, dbName), recursive = T)
 
 if(is.emuDB.loaded(dbName))
 {
-  UUID = get_emuDB_UUID(dbName = dbName)
+  UUID = get_UUID(dbName = dbName)
   purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
 }
 
@@ -293,7 +293,7 @@ unlink(file.path(testDir, dbName), recursive = T)
 
 if(is.emuDB.loaded(dbName))
 {
-  UUID = get_emuDB_UUID(dbName = dbName)
+  UUID = get_UUID(dbName = dbName)
   purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
 }
 
@@ -331,7 +331,7 @@ unlink(file.path(testDir, dbName), recursive = T)
 
 if(is.emuDB.loaded(dbName))
 {
-  UUID = get_emuDB_UUID(dbName = dbName)
+  UUID = get_UUID(dbName = dbName)
   purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
 }
 
@@ -437,7 +437,7 @@ unlink(file.path(testDir, dbName), recursive = T)
 
 if(is.emuDB.loaded(dbName))
 {
-  UUID = get_emuDB_UUID(dbName = dbName)
+  UUID = get_UUID(dbName = dbName)
   purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
 }
 
@@ -486,7 +486,7 @@ unlink(file.path(testDir, dbName), recursive = T)
 
 if(is.emuDB.loaded(dbName))
 {
-  UUID = get_emuDB_UUID(dbName = dbName)
+  UUID = get_UUID(dbName = dbName)
   purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
 }
 # ---------------------------------------------------------------------------

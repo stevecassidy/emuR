@@ -66,7 +66,7 @@ serve=function(dbName,sessionPattern='.*',bundlePattern='.*',dbUUID=NULL,host='1
   modified=FALSE
   emuDBserverRunning=FALSE
   bundleCount=0
-  dbUUID=get_emuDB_UUID(dbName=dbName,dbUUID = dbUUID)
+  dbUUID=get_UUID(dbName=dbName,dbUUID = dbUUID)
   database=.load.emuDB.DBI(uuid = dbUUID)
   if(!is.null(dbUUID)){
     allBundlesDf=list_bundles(dbUUID = dbUUID)

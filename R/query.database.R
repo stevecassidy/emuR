@@ -953,7 +953,7 @@ query.database.with.eql<-function(dbConfig,query){
 
 query<-function(dbName,query,sessionPattern='.*',bundlePattern='.*',queryLang='EQL2',timeRefSegmentLevel=NULL,resultType=NULL,dbUUID){
   if(missing(dbUUID)){
-    dbUUID=get_emuDB_UUID(dbName)
+    dbUUID=get_UUID(dbName)
   }
   if(queryLang=='EQL2'){
     # .initialize.DBI.database(createTables=FALSE)

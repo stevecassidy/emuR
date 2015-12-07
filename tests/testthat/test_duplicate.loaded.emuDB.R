@@ -18,7 +18,7 @@
 #   
 #   # clean up
 #   if(is.emuDB.loaded("ae_copy")){
-#     UUID = get_emuDB_UUID(dbName = "ae_copy")
+#     UUID = get_UUID(dbName = "ae_copy")
 #     .purge.emuDB(UUID)
 #   }
 # })
@@ -36,7 +36,7 @@
 #   
 #   # clean up
 #   if(is.emuDB.loaded("ae_copy")){
-#     UUID = get_emuDB_UUID(dbName = "ae_copy")
+#     UUID = get_UUID(dbName = "ae_copy")
 #     .purge.emuDB(UUID)
 #   }
 #   

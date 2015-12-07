@@ -17,7 +17,7 @@ path2testhatFolder = file.path(tempdir(),"emuR_testthat")
 
 # purge ae if loaded to make tests work
 if(is.emuDB.loaded(dbUUID = .test_emu_ae_db_uuid)){
-  #UUID = get_emuDB_UUID(dbName = "ae")
+  #UUID = get_UUID(dbName = "ae")
   purge_emuDB(dbUUID = .test_emu_ae_db_uuid,interactive = F)
 }
 

@@ -61,7 +61,7 @@ test_that("file operations work", {
   
   # clean up
   if(is.emuDB.loaded(dbName)){
-    UUID = get_emuDB_UUID(dbName = dbName)
+    UUID = get_UUID(dbName = dbName)
     purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
   }
   

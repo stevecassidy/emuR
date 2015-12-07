@@ -22,7 +22,7 @@ test_that("update_cache works", {
   file.copy(path2orig, path2testData, recursive = T)
   load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
-  dbUUID = get_emuDB_UUID(dbName)
+  dbUUID = get_UUID(dbName)
   
   
   
