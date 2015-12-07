@@ -27,12 +27,13 @@ the fist track listed in the \code{wrasspOutputInfos} is chosen (\code{wrasspOut
 0 and 1, a value of 0.5 will extract data only at the segment midpoint.}
 
 \item{npoints}{An optional number of points to retrieve for each segment or event. 
-For segments this requires the \code{cut} parameter to be set and then data is extracted around the resulting cut time. 
+For segments this requires the \code{cut} parameter to be set, if this is the case then data is extracted around the resulting cut time. 
 For events data is extracted around the event time. If npoints is an odd number the 
 samples are centered around the cut-time-sample, if not they are sqewed to the
 right by one sample.}
 
-\item{onTheFlyFunctionName}{Name of wrassp function that will perform the on-the-fly calculation}
+\item{onTheFlyFunctionName}{Name of wrassp function that will perform the on-the-fly 
+calculation (see \code{names(wrasspOutputInfos)} for a list of all the signal processing functions wrassp provides)}
 
 \item{onTheFlyParams}{A list parameters that will be given to the function 
 passed in by the \code{onTheFlyFunctionName} parameter. This list can easily be 
@@ -47,14 +48,14 @@ a performance penalty one should consider increasing this number for large emuDB
 
 \item{dbUUID}{Optional UUID of emuDB}
 
-\item{resultType}{Specify class of returned object. Either 'emuRtrackdata' or 'trackdata'.}
+\item{resultType}{Specify class of returned object. Either \code{"emuRtrackdata"} or \code{"trackdata"}.}
 
 \item{verbose}{Show progress bars and further information}
 }
 \value{
-If \code{dcut} is not set (the default) an object of type trackdata 
-is returned. If \code{dcut} is set and \code{npoints} is not, or the seglist 
-is of type event and npoints is not set a data.frame is returned
+If the \code{cut} parameter is not set (the default) an object of type \code{\link{trackdata}} or \code{\link{emuRtrackdata}} 
+is returned. If \code{cut} is set and \code{npoints} is not, or the seglist 
+is of type event and npoints is not set a \code{\link{data.frame}} is returned.
 }
 \description{
 Extract trackdata information from a loaded emuDB that 
@@ -63,26 +64,35 @@ corresponds to the entries in a segment list.
 \details{
 This function utilizes the wrassp package for signal processing and 
 SSFF/audio file handling. It reads time relevant data from a given 
-segmentlist, extracts the specified trackdata and places it into a 
+segment list (\code{\link{emuRsegs}} or \code{\link{emusegs}}), extracts the 
+specified trackdata and places it into a 
 trackdata object (analogous to the depricated \code{emu.track}). This function
 replaces the depricated \code{emu.track} function.
 }
 \examples{
 \dontrun{
-## query loaded 'ae' emuDB for all 'i:' segments of the Phonetic level
-sl = query('ae', "Phonetic=i:")
 
-## get the corresponding formant trackdata
-td = get_trackdata(dbName = 'ae', seglist = sl, ssffTrackName = 'fm')
+##################################
+# prerequisite: loaded "ae" emuDB 
+# (see ?load_emuDB for more information)
 
-## get the corresponding F0 trackdata
-# as there is no F0 ssffTrack defined in the 'ae' emuDB we will 
+# query loaded "ae" emuDB for all "i:" segments of the "Phonetic" level
+sl = query(dbName = "ae", 
+           query = "Phonetic == i:")
+
+# get the corresponding formant trackdata
+td = get_trackdata(dbName = "ae", 
+                   seglist = sl, 
+                   ssffTrackName = "fm")
+
+# get the corresponding F0 trackdata
+# as there is no F0 ssffTrack defined in the "ae" emuDB we will 
 # calculate the necessary values on-the-fly
-td = get_trackdata(dbName = 'ae', seglist = sl, onTheFlyFunctionName = 'ksvF0')
+td = get_trackdata(dbName = "ae", 
+                   seglist = sl, 
+                   onTheFlyFunctionName = "ksvF0")
+                   
 }
-}
-\author{
-Raphael Winkelmann
 }
 \seealso{
 \code{\link{formals}}, \code{\link{wrasspOutputInfos}}, \code{\link{trackdata}}
