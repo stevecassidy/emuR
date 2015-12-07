@@ -14,10 +14,26 @@ get_levelCanvasesOrder(dbName, perspectiveName, dbUUID = NULL)
 \item{dbUUID}{optional UUID of loaded emuDB}
 }
 \description{
-Get levelCanvasesOrder of emuDB
+Get levelCanvasesOrder array that specifies what levels are 
+displayed in the according perspective by the EMU-webApp. 
+Note that only levels of type 
+\code{"SEGMENT"} or \code{"EVENT"} can be displayed as levelCanvases. 
+Levels of the type \code{"ITEM"} are always visible in the "show hierrachy"
+modal.
 }
-\author{
-Raphael Winkelmann
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "ae" emuDB 
+# (see ?load_emuDB for more information)
+
+# get level canvas order of the "default"
+# perspective of the "ae" emuDB
+get_levelCanvasesOrder(dbName = "ae", 
+                       perspectiveName = "default")
+
+}
 }
 \keyword{DBconfig}
 \keyword{Emu}

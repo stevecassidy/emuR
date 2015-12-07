@@ -246,12 +246,30 @@ set_levelCanvasesOrder <- function(dbName,
 
 ##' Get levelCanvasesOrder of emuDB
 ##' 
+##' Get levelCanvasesOrder array that specifies what levels are 
+##' displayed in the according perspective by the EMU-webApp. 
+##' Note that only levels of type 
+##' \code{"SEGMENT"} or \code{"EVENT"} can be displayed as levelCanvases. 
+##' Levels of the type \code{"ITEM"} are always visible in the "show hierrachy"
+##' modal.
 ##' @param dbName name of loaded emuDB
 ##' @param perspectiveName name of perspective
 ##' @param dbUUID optional UUID of loaded emuDB
-##' @author Raphael Winkelmann
 ##' @export
 ##' @keywords emuDB database DBconfig Emu 
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' # get level canvas order of the "default"
+##' # perspective of the "ae" emuDB
+##' get_levelCanvasesOrder(dbName = "ae", 
+##'                        perspectiveName = "default")
+##' 
+##' }
 get_levelCanvasesOrder <- function(dbName,
                                    perspectiveName,
                                    dbUUID = NULL){
