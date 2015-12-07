@@ -62,7 +62,7 @@ create_emuRdemoData()
 demoTplPath=file.path(tempdir(),"emuR_demoData/legacy_ae/ae.tpl")
 targetDir=file.path(tempdir(),"converted_to_emuR")
 convert_legacyEmuDB_to_emuDB(demoTplPath,targetDir)
-dbName=load_emuDB(file.path(tempdir(),file.path(targetDir,"ae_emuDB")))
+dbName=load_emuDB(file.path(targetDir,"ae_emuDB"))
 
 }
 
