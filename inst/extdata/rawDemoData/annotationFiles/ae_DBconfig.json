@@ -348,6 +348,9 @@
                 }
             }
         ],
+        "restrictions": {
+            "showPerspectivesSidebar": true
+        },
         "activeButtons": {
             "saveBundle": true,
             "showHierarchy": true
