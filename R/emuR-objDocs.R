@@ -25,26 +25,24 @@ NULL
 
 ##' emuR segment list
 ##' @description
-##' A segment list is a list of segment descriptors. A segment descriptor describes a sequence of annotation elements.
+##' An emuR segment list is a list of segment descriptors. Each segment descriptor describes a sequence of annotation elements. It is usually a result of a database query.
 ##' 
 ##' @details
-##' 
+##' Each row contains the ID's of start and end elements and the corresponding start and end position in time and as sample count.
+##' Though the segment descriptors have references to the annotations, the label and sample/time position information is not updated if any of them are updated. The values of the segment list may get invalid if the the database is modified.
+##' A segment may consist only of one single element, in this case start and end ID are equal.
 ##' An emuR segment list is the default result of \code{\link{query}} and can be used to get track data using \code{\link{get_trackdata}}.
-##' Inherits class \link{emusegs} and hence \code{\link{data.frame}}
+##' The emuRsegs class inherits \link{emusegs} and hence \code{\link{data.frame}}
 ##' 
 ##' @aliases segment list emuRsegs
 ##'
-##' @format Attributed data.frame, one row per segment.
+##' @format Attributed data.frame, one row per segment descriptor.
 ##' 
-##' Objects of this class contain the ID's of start and end elements.
-##' The segment may consist only of one single element, in this case start and end ID are equal.
-##' 
-##'  
 ##' Data frame columns are:
 ##' \itemize{ 
 ##'   \item labels: sequenced labels of segment concatenated by '->'
-##'   \item start: onset time
-##'   \item end: offset time 
+##'   \item start: onset time in milliseconds
+##'   \item end: offset time in milliseconds
 ##'   \item session: session name
 ##'   \item bundle: bundle name
 ##'   \item startItemID: item ID of first element of sequence
