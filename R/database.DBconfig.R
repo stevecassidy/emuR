@@ -800,13 +800,39 @@ set_legalLabels <- function(dbName,
 
 ##' Get legal labels of attributeDefinition of emuDB
 ##' 
+##' Get legal labels of a specific attributeDefinition of a emuDB. The legal labels are an array 
+##' of strings that specifies the labels that are legal (i.e. allowed / valid) for the given attribute. 
+##' As the EMU-webApp won't allow the annotator to enter any labels that are not 
+##' specified in this array, this is a simple way of assuring that a level 
+##' has a consistent label set. For more information 
+##' on the structural elements of an emuDB see \code{vignette(emuDB)}.
+##' 
 ##' @param dbName name of loaded emuDB
 ##' @param levelName name of level
 ##' @param attributeDefinitionName name of attributeDefinition
 ##' @param dbUUID optional UUID of loaded emuDB
-##' @author Raphael Winkelmann
 ##' @export
 ##' @keywords emuDB database schema Emu
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' # get legal labels of the 
+##' # default "Phonetic" attributeDefinition of
+##' # the "Phonetic" level of "ae" emuDB
+##' get_legalLabels(dbName = "ae", 
+##'                 levelName = "Phonetic", 
+##'                 attributeDefinitionName = "Phonetic")
+##'                 
+##' # NOTE: this will return NA as there are
+##' # no legalLabels defined for this or any other
+##' # attributeDefinition of the "ae" emuDB
+##' 
+##' }
+##' 
 get_legalLabels <- function(dbName,
                             levelName,
                             attributeDefinitionName, 
