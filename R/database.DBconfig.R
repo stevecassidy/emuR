@@ -87,6 +87,11 @@ get_ssffTracks_used_by_DBconfig <- function(DBconfig){
     for(sco in p$signalCanvases$order){
       allTracks = c(allTracks, sco)
     }
+    # tracks in twoDimCanvases$order
+    for(tdco in p$twoDimCanvases$order){
+      allTracks = c(allTracks, tdco)
+    }
+    
     # tracks in signalCanvases$assign
     for(sca in p$signalCanvases$assign){
       allTracks = c(allTracks, sca$ssffTrackName)
