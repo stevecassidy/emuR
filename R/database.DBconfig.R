@@ -560,7 +560,7 @@ modify_levelDefinition<-function(){
 ##' @keywords emuDB database schema Emu 
 remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
   dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
+  dbUUID = get_UUID(dbName = dbName, dbUUID = dbUUID)
   # check if level definition (name)exists 
   if(!any(sapply(dbObj[['DBconfig']][['levelDefinitions']],function(ld) ld[['name']]==name))){
     stop("Level definition:",name," does not exist in database ",dbObj[['name']])
@@ -721,7 +721,7 @@ remove_attributeDefinition <- function(dbName,
     stop("Can not remove primary attributeDefinition (attributeDefinition with same name as level)")
   }
   
-  uuid=get_emuDB_UUID(dbName, dbUUID)
+  uuid=get_UUID(dbName, dbUUID)
   dbObj = .load.emuDB.DBI(uuid = uuid)
   
   ld = get.levelDefinition(dbObj$DBconfig, levelName)
@@ -1116,7 +1116,7 @@ remove_linkDefinition <- function(dbName,
                                   dbUUID = NULL){
   
   dbObj = .load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
+  dbUUID = get_UUID(dbName = dbName, dbUUID = dbUUID)
   
   curLds = list_linkDefinitions(dbName = dbName, dbUUID = dbUUID)
   
@@ -1226,7 +1226,7 @@ add_ssffTrackDefinition <- function(dbName, name,
                                     onTheFlyOptLogFilePath = NULL, dbUUID = NULL,
                                     showProgress = TRUE, interactive = TRUE){
   # .initialize.DBI.database()
-  uuid=get_emuDB_UUID(dbName,dbUUID)
+  uuid=get_UUID(dbName,dbUUID)
   dbObj = .load.emuDB.DBI(uuid = uuid)
   
   #########################
@@ -1315,7 +1315,7 @@ add_ssffTrackDefinition <- function(dbName, name,
 ##' @author Raphael Winkelmann
 list_ssffTrackDefinitions <- function(dbName, dbUUID = NULL){
   # .initialize.DBI.database()
-  uuid=get_emuDB_UUID(dbName,dbUUID)
+  uuid=get_UUID(dbName,dbUUID)
   dbObj = .load.emuDB.DBI(uuid = uuid)
   
   df <- do.call(rbind, lapply(dbObj$DBconfig$ssffTrackDefinitions, data.frame, stringsAsFactors=FALSE))
@@ -1338,7 +1338,7 @@ modify_ssffTrackDefinition <- function(){
 remove_ssffTrackDefinition <- function(dbName, name, 
                                        deleteFiles = FALSE, dbUUID = NULL){
   # .initialize.DBI.database()
-  uuid=get_emuDB_UUID(dbName,dbUUID)
+  uuid=get_UUID(dbName,dbUUID)
   dbObj = .load.emuDB.DBI(uuid = uuid)
   
   # precheck if exists
@@ -1443,7 +1443,7 @@ add_labelGroup <- function(dbName,
 list_labelGroups <- function(dbName,
                              dbUUID = NULL){
   
-  uuid=get_emuDB_UUID(dbName,dbUUID)
+  uuid=get_UUID(dbName,dbUUID)
   dbObj = .load.emuDB.DBI(uuid = uuid)
   df = data.frame(name = character(),
                   values = character(),

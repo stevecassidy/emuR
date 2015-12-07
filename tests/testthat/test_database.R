@@ -92,7 +92,7 @@ test_that("Create emuDB from scratch works",{
   })
 
 test_that("Data types are correct",{
-  #dbUUID = get_emuDB_UUID("ae")
+  #dbUUID = get_UUID("ae")
   items=dbReadTable(get_emuDBcon(.test_emu_ae_db_uuid),'items')
   
   expect_that(class(items[['seqIdx']]),is_equivalent_to('integer'))
@@ -177,7 +177,7 @@ test_that("Test ae samples",{
 })
 
 test_that("Test ae modify",{
-  #dbUUID = get_emuDB_UUID("ae")
+  #dbUUID = get_UUID("ae")
   dbUUID=.test_emu_ae_db_uuid
   orgItems=dbGetQuery(get_emuDBcon(dbUUID),paste0("SELECT * FROM items WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))
   orgLabels=dbGetQuery(get_emuDBcon(dbUUID),paste0("SELECT * FROM labels WHERE db_uuid='",.test_emu_ae_db_uuid,"'"))

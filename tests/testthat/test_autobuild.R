@@ -41,7 +41,7 @@ test_that("correct links are present after autobuild_linkFromTimes with EVENTS",
   load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
   
-  dbUUID = get_emuDB_UUID(dbName)
+  dbUUID = get_UUID(dbName)
   # add linkDef.
   add_linkDefinition(dbName, "ONE_TO_MANY", superlevelName = "Phonetic", sublevelName = "Tone")
   
@@ -75,7 +75,7 @@ test_that("no duplicates are present after autobuild_linkFromTimes with EVENTs",
   file.copy(path2orig, path2testData, recursive = T)
   load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
-  dbUUID = get_emuDB_UUID(dbName)
+  dbUUID = get_UUID(dbName)
   # add linkDef.
   add_linkDefinition(dbName, "ONE_TO_MANY", superlevelName = "Phonetic", sublevelName = "Tone")
   
@@ -109,7 +109,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   file.copy(path2orig, path2testData, recursive = T)
   load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
-  dbUUID = get_emuDB_UUID(dbName)
+  dbUUID = get_UUID(dbName)
   # add levelDef.
   add_levelDefinition(dbName, "Phonetic2", "SEGMENT")
   # add linkDef.
@@ -170,7 +170,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   file.copy(path2orig, path2testData, recursive = T)
   load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
-  dbUUID = get_emuDB_UUID(dbName)
+  dbUUID = get_UUID(dbName)
   # add levelDef.
   add_levelDefinition(dbName, "Phonetic2", "SEGMENT")
   # add linkDef.
@@ -240,7 +240,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   file.copy(path2orig, path2testData, recursive = T)
   load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
-  dbUUID = get_emuDB_UUID(dbName)
+  dbUUID = get_UUID(dbName)
   # add levelDef.
   add_levelDefinition(dbName, "Phonetic2", "SEGMENT")
   # add linkDef.
@@ -305,7 +305,7 @@ test_that("backup works correctly", {
   file.copy(path2orig, path2testData, recursive = T)
   load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
-  dbUUID = get_emuDB_UUID(dbName)
+  dbUUID = get_UUID(dbName)
   # add levelDef.
   add_levelDefinition(dbName, "Phonetic2", "SEGMENT")
   # add linkDef.
@@ -358,7 +358,7 @@ test_that("rewrite works correctly", {
   file.copy(path2orig, path2testData, recursive = T)
   load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
-  dbUUID = get_emuDB_UUID(dbName)
+  dbUUID = get_UUID(dbName)
   # add levelDef.
   add_levelDefinition(dbName, "Phonetic2", "SEGMENT")
   # add linkDef.

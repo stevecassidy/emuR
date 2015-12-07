@@ -24,7 +24,7 @@ test_that("get.levelDefinition returns correct levelDef", {
   
   #########################
   # get dbObj
-  dbUUID = get_emuDB_UUID(dbName = "ae", dbUUID = NULL)
+  dbUUID = get_UUID(dbName = "ae", dbUUID = NULL)
   dbObj = .load.emuDB.DBI(uuid = dbUUID)
   
   
@@ -74,7 +74,7 @@ test_that("CRUD operations work for ssffTrackDefinitions", {
     expect_error(remove_ssffTrackDefinition(dbName=dbName, name="asdf"))
     remove_ssffTrackDefinition(dbName=dbName, name="newTrackName", deleteFiles = T)
     # check that _DBconfig entry is deleted
-    uuid=get_emuDB_UUID(dbName, NULL)
+    uuid=get_UUID(dbName, NULL)
     dbObj = .load.emuDB.DBI(uuid = uuid)
     expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[1]]$name, "dft")
     expect_equal(dbObj$DBconfig$ssffTrackDefinitions[[2]]$name, "fm")
@@ -123,7 +123,7 @@ test_that("CRUD operations work for levelDefinitions", {
     
     expect_error(remove_levelDefinition(dbName=dbName, name="asdf")) # bad name
     expect_error(remove_levelDefinition(dbName=dbName, name="Phonetic")) # linkDef present
-    dbUUID = get_emuDB_UUID(dbName = "ae", dbUUID = NULL)
+    dbUUID = get_UUID(dbName = "ae", dbUUID = NULL)
     
     dbGetQuery(get_emuDBcon(dbUUID), paste0("INSERT INTO items VALUES ('",dbUUID,
                                             "', '0001', 'fakeBundle', 1, 'Phonetic2', 'ITEM', 20000, 1, NULL, NULL, NULL)")) # add item

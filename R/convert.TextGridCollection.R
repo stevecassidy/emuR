@@ -107,7 +107,7 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
   .store.DBconfig(get_emuDBcon(sdbUUID), basePath,schema)
   
   # get dbObj
-  dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = NULL)
+  dbUUID = get_UUID(dbName = dbName, dbUUID = NULL)
   
   # allBundles object to hold bundles without levels and links
   allBundles = list()

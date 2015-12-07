@@ -283,7 +283,7 @@ get.database<-function(uuid=NULL,name=NULL){
 }
 .load.emuDB.DBI<-function(uuid=NULL,name=NULL){
   if(is.null(uuid)){
-    uuid=get_emuDB_UUID(name)
+    uuid=get_UUID(name)
   }
   handle=get_emuDBhandle(uuid)
   con=handle$connection
@@ -434,7 +434,7 @@ get.database<-function(uuid=NULL,name=NULL){
 ##' @seealso  \code{\link{is.emuDB.loaded}}
 ##' @import DBI
 ##' @export
-get_emuDB_UUID<-function(dbName,dbUUID=NULL){
+get_UUID<-function(dbName,dbUUID=NULL){
   if(is.null(dbUUID)){
     if(!is.character(dbName)){
       stop("Parameter dbName must be of type character vector!")
@@ -520,7 +520,7 @@ list_emuDBs<-function(){
 ##' @export
 purge_emuDB<-function(dbName,dbUUID=NULL,interactive=TRUE){
   # .initialize.DBI.database()  
-  dbUUID=get_emuDB_UUID(dbName,dbUUID)
+  dbUUID=get_UUID(dbName,dbUUID)
   purged=FALSE
   if(!is.null(dbUUID)){
     if(interactive){
@@ -586,7 +586,7 @@ purge_all_emuDBs<-function(interactive=TRUE){
 ##' @export
 list_sessions<-function(dbName,dbUUID=NULL){
   # .initialize.DBI.database()
-  uuid=get_emuDB_UUID(dbName,dbUUID)
+  uuid=get_UUID(dbName,dbUUID)
   dbs=dbGetQuery(get_emuDBcon(uuid),paste0("SELECT name FROM session WHERE db_uuid='",uuid,"'"))
   return(dbs)
 }
@@ -600,7 +600,7 @@ list_sessions<-function(dbName,dbUUID=NULL){
 ##' @export
 list_bundles<-function(dbName,session=NULL,dbUUID=NULL){
   # .initialize.DBI.database()
-  uuid=get_emuDB_UUID(dbName,dbUUID)
+  uuid=get_UUID(dbName,dbUUID)
   baseQ=paste0("SELECT session,name FROM bundle WHERE db_uuid='",uuid,"'")
   if(is.null(session)){
     # list all bundles
@@ -632,7 +632,7 @@ create.database <- function(name,basePath=NULL,DBconfig=create.schema.databaseDe
 ##' @param dbUUID optional UUID of emuDB
 ##' @export
 summary_emuDB<-function(dbName,dbUUID=NULL){
-  uuid=get_emuDB_UUID(dbName,dbUUID)
+  uuid=get_UUID(dbName,dbUUID)
   object=.load.emuDB.DBI(uuid)
   cat("Name:\t",object[['name']],"\n")
   cat("UUID:\t",object[['DBconfig']][['UUID']],"\n")
@@ -1110,7 +1110,7 @@ convert.bundle.links.to.data.frame <-function(links){
 ## 
 get.bundle <- function(dbName=NULL,sessionName,bundleName,dbUUID=NULL){
   
-  dbUUID=get_emuDB_UUID(dbName,dbUUID)
+  dbUUID=get_UUID(dbName,dbUUID)
   b=.load.bundle.DBI(dbUUID,sessionName,bundleName)
   if(is.null(b)){
     return(b)
@@ -2114,12 +2114,12 @@ is.emuDB.loaded<-function(dbName,dbUUID=NULL){
 ## SIC! Once the caching mechanics work this function should be deleted
 # duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
 #   # get UUID (also checks if DB exists)
-#   oldUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
+#   oldUUID = get_UUID(dbName = dbName, dbUUID = dbUUID)
 #   oldBasePath = dbGetQuery(get_emuDBcon(oldUUID), paste0("SELECT basePath FROM emuDB WHERE uuid='", oldUUID, "'"))
 #   newUUID = UUIDgenerate()
 #   
 #   # check if dbName already exists
-#   tcRes = tryCatch(get_emuDB_UUID(dbName = newName), error = function(e) e)
+#   tcRes = tryCatch(get_UUID(dbName = newName), error = function(e) e)
 #   
 #   if(!inherits(tcRes, 'error')){
 #     stop("emuDB with name: ", newName, " already exists!")
@@ -2131,7 +2131,7 @@ is.emuDB.loaded<-function(dbName,dbUUID=NULL){
 #                                             "', '", newBasePath, "', DBconfigJSON, MD5DBconfigJSON FROM emuDB WHERE uuid='", oldUUID, "'"))
 #   
 #   # update DBconfig accordingly
-#   dbUUID = get_emuDB_UUID(dbName = newDB, dbUUID = newUUID)
+#   dbUUID = get_UUID(dbName = newDB, dbUUID = newUUID)
 #   dbObj = .load.emuDB.DBI(uuid = dbUUID)
 #   dbObj$DBconfig$name = newName;
 #   dbObj$DBconfig$UUID = newUUID;
@@ -2186,7 +2186,7 @@ is.emuDB.loaded<-function(dbName,dbUUID=NULL){
 rewrite.allAnnots.emuDB <- function(dbName, dbUUID=NULL, showProgress=TRUE){
   
   # get UUID (also checks if DB exists)
-  dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
+  dbUUID = get_UUID(dbName = dbName, dbUUID = dbUUID)
   handle=get_emuDBhandle(dbUUID = dbUUID)
   basePath=handle$basePath
   bndls = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT * FROM bundle WHERE db_uuid='", dbUUID, "'"))
@@ -2234,7 +2234,7 @@ list_bundleFilePaths <- function(dbName, fileExtention,
                                  sessionPattern='.*', bundlePattern='*', 
                                  dbUUID=NULL){
   # .initialize.DBI.database()
-  uuid=get_emuDB_UUID(dbName,dbUUID)
+  uuid=get_UUID(dbName,dbUUID)
   
   bndls = list_bundles(dbName, dbUUID)
   postPatternBndls = bndls[grepl(sessionPattern, bndls$session) & grepl(bundlePattern, bndls$name),]

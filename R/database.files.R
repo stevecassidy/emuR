@@ -150,7 +150,7 @@ import_mediaFiles<-function(dbName,dir,targetSessionName='0000',dbUUID=NULL, ver
 ##' }
 add_files <- function(dbName, dir, fileExtension, targetSessionName='0000', dbUUID=NULL){
   
-  dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
+  dbUUID = get_UUID(dbName = dbName, dbUUID = dbUUID)
   dbObj = .load.emuDB.DBI(name = dbName, uuid = dbUUID)
   
   # get all basePath + bundles
@@ -190,7 +190,7 @@ list_files <- function(dbName,
                        sessionPattern = "*",
                        bundlePattern = "*",
                        dbUUID = NULL){
-  dbUUID = get_emuDB_UUID(dbName = dbName, dbUUID = dbUUID)
+  dbUUID = get_UUID(dbName = dbName, dbUUID = dbUUID)
   dbObj = .load.emuDB.DBI(name = dbName, uuid = dbUUID)
   
   # get all basePath + bundles

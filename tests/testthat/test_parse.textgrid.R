@@ -36,7 +36,7 @@ if(nrow(dbsDf)>0){
 
 
 parse.textgrid(path2tg, sR, dbName=newDbName, bundle="msajc003", session="0000")
-dbUUID = get_emuDB_UUID(dbName = newDbName)
+dbUUID = get_UUID(dbName = newDbName)
 
 ##############################
 test_that("correct SEGMENT values are parsed and calculated in SQLite items table", {  
