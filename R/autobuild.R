@@ -21,7 +21,7 @@
 ##' @export
 ##' @import RSQLite
 ##' @keywords emuR autobuild
-##' ##' @examples 
+##' @examples 
 ##' \dontrun{
 ##' 
 ##' ##################################

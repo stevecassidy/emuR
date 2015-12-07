@@ -35,52 +35,28 @@ is genarated or not (e.g. overlapping segments are linked in a MANY_TO_MANY rela
 but not in a ONE_TO_MANY relationship). For more information on the structural 
 elements of an emuDB see \code{vignette(emuDB)}.
 }
-\keyword{"ONE_TO_MANY",}
-\keyword{"Phoneme")}
-\keyword{"Phoneme",}
-\keyword{"Syllable",}
-\keyword{"myTGcolDB"}
-\keyword{"myTGcolDB",}
-\keyword{#}
-\keyword{##################################}
-\keyword{##'}
-\keyword{(see}
-\keyword{=}
-\keyword{?load_emuDB}
-\keyword{@examples}
-\keyword{TRUE)}
-\keyword{TextGridCollection}
-\keyword{\code{vignette(emuR_intro)}}
-\keyword{\dontrun{}
-\keyword{add}
-\keyword{add_linkDefinition(dbName}
-\keyword{and}
-\keyword{as}
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "myTGcolDB" emuDB 
+# (see ?load_emuDB and \\code{vignette(emuR_intro)} for more information)
+
+# add linkDefinition as one has to be present for
+# the autobuild function to work
+add_linkDefinition(dbName = "myTGcolDB", 
+                   type = "ONE_TO_MANY",
+                   superlevelName = "Syllable",
+                   sublevelName = "Phoneme")
+  
+# envoke autobuild function to build hierarchy for converted TextGridCollection
+autobuild_linkFromTimes(dbName = "myTGcolDB", 
+                        superlevelName = "Syllable",
+                        sublevelName = "Phoneme",
+                        convertSuperlevel = TRUE)
+
+}
+}
 \keyword{autobuild}
-\keyword{autobuild_linkFromTimes(dbName}
-\keyword{be}
-\keyword{build}
-\keyword{convertSuperlevel}
-\keyword{converted}
-\keyword{emuDB}
 \keyword{emuR}
-\keyword{envoke}
-\keyword{for}
-\keyword{function}
-\keyword{has}
-\keyword{hierarchy}
-\keyword{information)}
-\keyword{linkDefinition}
-\keyword{loaded}
-\keyword{more}
-\keyword{one}
-\keyword{prerequisite:}
-\keyword{present}
-\keyword{sublevelName}
-\keyword{superlevelName}
-\keyword{the}
-\keyword{to}
-\keyword{type}
-\keyword{work}
-\keyword{}}
 
