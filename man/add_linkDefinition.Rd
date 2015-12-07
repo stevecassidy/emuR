@@ -9,7 +9,7 @@ add_linkDefinition(dbName, type, superlevelName, sublevelName, dbUUID = NULL)
 \arguments{
 \item{dbName}{name of emuDB}
 
-\item{type}{type of linkDefinition}
+\item{type}{type of linkDefinition (either \code{"ONE_TO_MANY"}, \code{"MANY_TO_MANY"} or \code{"ONE_TO_ONE"})}
 
 \item{superlevelName}{name of super-level of linkDefinition}
 

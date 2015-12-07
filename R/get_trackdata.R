@@ -8,7 +8,9 @@
 ##' segment list (\code{\link{emuRsegs}} or \code{\link{emusegs}}), extracts the 
 ##' specified trackdata and places it into a 
 ##' trackdata object (analogous to the depricated \code{emu.track}). This function
-##' replaces the depricated \code{emu.track} function.
+##' replaces the depricated \code{emu.track} function. For 
+##' more information on the structural elements of an emuDB 
+##' see \code{vignette{emuDB}}.
 ##' 
 ##' @param dbName Name of loaded emuDB
 ##' @param seglist \code{\link{emuRsegs}} or \code{\link{emusegs}} object obtained by \code{\link{query}}ing a loaded emuDB 

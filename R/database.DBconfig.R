@@ -491,9 +491,22 @@ get.levelDefinition <- function(DBconfig, name){
 ##' @param type type of level definition
 ##' @param store changes to file system
 ##' @param dbUUID optional UUID of loaded emuDB
-##' @author Klaus Jaensch
 ##' @export
-##' @keywords emuDB database schema Emu 
+##' @keywords emuDB database schema Emu
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' # add level called "Phonetic2" to the "ae" emuDB
+##' # that will contain the transcriptions of a second annotator
+##' add_levelDefinition(dbName = "ae", 
+##'                     type = "SEGMENT")
+##' 
+##' }
+
 add_levelDefinition<-function(dbName, name,
                               type, store = TRUE,
                               dbUUID=NULL){
@@ -1046,7 +1059,7 @@ remove_attrDefLabelGroup <- function(dbName,
 ##' on the structural elements of an emuDB see \code{vignette(emuDB)}.
 ##' 
 ##' @param dbName name of emuDB
-##' @param type type of linkDefinition
+##' @param type type of linkDefinition (either \code{"ONE_TO_MANY"}, \code{"MANY_TO_MANY"} or \code{"ONE_TO_ONE"})
 ##' @param superlevelName name of super-level of linkDefinition
 ##' @param sublevelName name of sub-level of linkDefinition
 ##' @param dbUUID optional UUID of emuDB
@@ -1412,13 +1425,14 @@ remove_ssffTrackDefinition <- function(dbName, name,
 ##' \code{\link{query}}. A common example would be to
 ##' add a label group for something like the phonetic
 ##' category of nasals to be able to reference them 
-##' as "nasals" in a \code{\link{query}}.
+##' as "nasals" in a \code{\link{query}}. For 
+##' more information on the structural elements of an emuDB 
+##' see \code{vignette{emuDB}}.
 ##' 
 ##' @param dbName name of loaded emuDB
 ##' @param name name of label group
 ##' @param values character vector of labels
 ##' @param dbUUID optional UUID of loaded emuDB
-##' @author Raphael Winkelmann
 ##' @export
 ##' @keywords emuDB database schema Emu
 ##' @seealso list_labelGroups, add_attrDefLabelGroup

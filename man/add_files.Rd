@@ -21,8 +21,8 @@ bundles that the files will be added to}
 }
 \description{
 Add files to bundles of specified session of emuDB.
-The files that are found in "dir" that have the extension 
-"fileExtension" will be copied into the the according bundle
+The files that are found in \code{dir} that have the extension 
+\code{fileExtension} will be copied into the the according bundle
 folder that have the same basename as the according file. For 
 more information on the structural elements of an emuDB 
 see \code{vignette{emuDB}}.
@@ -40,7 +40,7 @@ see \code{vignette{emuDB}}.
 # msajc022.zcr, msajc023.zcr and msajc057.zcr 
 path2dir = "/path/to/dir/"
 
-# add the files to session "0000" of "ae" emuDB
+# add the files to session "0000" of the "ae" emuDB
 add_files(dbName = "ae",
           dir = path2dir,
           fileExtension = "zcr",

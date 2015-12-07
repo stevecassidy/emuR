@@ -14,10 +14,30 @@ add_perspective(dbName, name, dbUUID = NULL)
 \item{dbUUID}{optional UUID of loaded emuDB}
 }
 \description{
-Add EMUwebAppConfig$perspective to emuDB
+Add perspective to emuDB. The EMU-webApp subdivides different ways 
+to look at an emuDB into so called perspectives. These perspectives, 
+between which you can switch in the web application, contain 
+information on what levels are displayed, which ssffTracks are drawn, 
+and so on. For more information on the structural elements of an emuDB 
+see \code{vignette{emuDB}}.
 }
-\author{
-Raphael Winkelmann
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "ae" emuDB 
+# (see ?load_emuDB for more information)
+
+# add perspective called "justTones" to the "ae" emuDB
+add_perspective(dbName ="ae",
+                name = "justTones") 
+                
+# add levelCanvasOrder so only the "Tone" level is displayed
+set_levelCanvasesOrder(dbName = "ae", 
+                       perspectiveName = "justTones", 
+                       order = c("Tone"))
+
+}
 }
 \keyword{DBconfig}
 \keyword{Emu}

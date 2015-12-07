@@ -24,7 +24,9 @@ are added by \code{\link{add_attrDefLabelGroup}}) in a
 \code{\link{query}}. A common example would be to
 add a label group for something like the phonetic
 category of nasals to be able to reference them 
-as "nasals" in a \code{\link{query}}.
+as "nasals" in a \code{\link{query}}. For 
+more information on the structural elements of an emuDB 
+see \code{vignette{emuDB}}.
 }
 \examples{
 \dontrun{
@@ -49,9 +51,6 @@ query("ae", "Phoneme == sampaNasals")
 
 }
 
-}
-\author{
-Raphael Winkelmann
 }
 \seealso{
 list_labelGroups, add_attrDefLabelGroup

@@ -27,8 +27,19 @@ type "EVENT" or of the type "SEGMENT" but are timeless
 if they are of the type "ITEM". For more information 
 on the structural elements of an emuDB see \code{vignette(emuDB)}.
 }
-\author{
-Klaus Jaensch
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "ae" emuDB 
+# (see ?load_emuDB for more information)
+
+# add level called "Phonetic2" to the "ae" emuDB
+# that will contain the transcriptions of a second annotator
+add_levelDefinition(dbName = "ae", 
+                    type = "SEGMENT")
+
+}
 }
 \keyword{Emu}
 \keyword{database}
