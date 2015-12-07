@@ -21,7 +21,27 @@
 ##' @export
 ##' @import RSQLite
 ##' @keywords emuR autobuild
-##
+##' ##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "myTGcolDB" emuDB 
+##' # (see ?load_emuDB and \code{vignette(emuR_intro)} for more information)
+##' 
+##' # add linkDefinition as one has to be present for
+##' # the autobuild function to work
+##' add_linkDefinition(dbName = "myTGcolDB", 
+##'                    type = "ONE_TO_MANY",
+##'                    superlevelName = "Syllable",
+##'                    sublevelName = "Phoneme")
+##'   
+##' # envoke autobuild function to build hierarchy for converted TextGridCollection
+##' autobuild_linkFromTimes(dbName = "myTGcolDB", 
+##'                         superlevelName = "Syllable",
+##'                         sublevelName = "Phoneme",
+##'                         convertSuperlevel = TRUE)
+##' 
+##' }
 autobuild_linkFromTimes <- function(dbName, superlevelName, sublevelName, writeToFS = TRUE, 
                                     convertSuperlevel = FALSE, backupLevelAppendStr = '-autobuildBackup',
                                     dbUUID = NULL){
