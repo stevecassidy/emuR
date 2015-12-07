@@ -36,7 +36,7 @@ information on the structural elements of an emuDB see \code{vignette(emuDB)}.
 
 # add additional attribute definition to the "Phonetic" level
 # of the "ae" emuDB that will contain the UTF8 IPA
-# symbols of the phonetic transrictions
+# symbols of the phonetic transcriptions
 add_attributeDefinition(dbName = "ae",
                         levelName = "Phonetic",
                         name = "IPA-UTF8")
