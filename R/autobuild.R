@@ -2,21 +2,22 @@
 ##' 
 ##' Autobuild links between two time levels. The super-level has to be of the 
 ##' type SEGMENT and the sub-level either of type EVENT or of type SEGMENT. If
-##' this is the case and a according link definition is present in DBconfig$linkDefintions,
+##' this is the case and a according link definition is defined for the emuDB,
 ##' this function automatically links the events or segments of the sub-level which occur
 ##' within (startSample to (startSample + sampleDur)) the segments of the super-level to those segments.
-##' The linkDefinition$type (ONE_TO_MANY, MANY_TO_MANY, ONE_TO_ONE) is relevant whether a link
-##' is genarated or not.
+##' The type of linkDefinition (ONE_TO_MANY, MANY_TO_MANY, ONE_TO_ONE) is relevant whether a link
+##' is genarated or not (e.g. overlapping segments are linked in a MANY_TO_MANY relationship 
+##' but not in a ONE_TO_MANY relationship). For more information on the structural 
+##' elements of an emuDB see \code{vignette(emuDB)}.
 ##' 
-##' @param dbName name of EMU database
-##' @param superlevelName name of level to link from (link definition required in db)
-##' @param sublevelName name of level to link to (link definition required in db)
-##' @param writeToFS should changes be written to file system completing after autobuild
+##' @param dbName name of emuDB
+##' @param superlevelName name of level to link from (link definition required in emuDB)
+##' @param sublevelName name of level to link to (link definition required in emuDB)
+##' @param writeToFS should changes be written to file system (annotJSON files) after completing autobuild process.
 ##' @param convertSuperlevel if set to TRUE a backup of the superlevel will be created and the actural
 ##' superlevel will be converted to a level of type ITEM
 ##' @param backupLevelAppendStr string appended to level name for backup level
 ##' @param dbUUID optional UUID of emuDB
-##' @author Raphael Winkelmann
 ##' @export
 ##' @import RSQLite
 ##' @keywords emuR autobuild
