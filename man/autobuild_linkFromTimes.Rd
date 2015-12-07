@@ -30,6 +30,8 @@ type SEGMENT and the sub-level either of type EVENT or of type SEGMENT. If
 this is the case and a according link definition is defined for the emuDB,
 this function automatically links the events or segments of the sub-level which occur
 within (startSample to (startSample + sampleDur)) the segments of the super-level to those segments.
+}
+\details{
 The type of linkDefinition (ONE_TO_MANY, MANY_TO_MANY, ONE_TO_ONE) is relevant whether a link
 is genarated or not (e.g. overlapping segments are linked in a MANY_TO_MANY relationship 
 but not in a ONE_TO_MANY relationship). For more information on the structural 
