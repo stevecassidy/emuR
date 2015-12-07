@@ -17,7 +17,7 @@ convert_legacyEmuDB_by_name_to_emuDB(dbName, targetDir, options = NULL,
 \item{verbose}{be verbose}
 }
 \description{
-Converts an existing known legacy EMU database to emuDB format. The legacy database is addressed by its name. Creates the target directory for the new structure, converts the database configuration, copies/rewrites signal files and converts annotations.
+Converts an existing known legacy EMU database to emuDB format. The legacy database is addressed by its name. Creates the target directory for the new emuDB, converts the database configuration, copies/rewrites signal files and converts annotations.
 In the second step the target directory for the new database structure is created, the configuration and annoation files are stored in the new format and the signal files are copied.
 }
 \details{
