@@ -3,13 +3,37 @@ require(dplyr)
 
 ##' create emuRtrackdata object
 ##' 
-##' Joins emuRsegs object with a trackdata object 
-##' to create an emuRtrackdata object that basically
-##' is a \code{\link{data.table}} (and \code{\link{data.frame}}) object.
-##' @param sl seglist of class emuRsegs
-##' @param td trackdata object generated from sl
+##' Joins \code{\link{emuRsegs}} and \code{\link{trackdata}} objects
+##' to create an emuRtrackdata object that is a sub-class of
+##' a \code{\link{data.table}} (and \code{\link{data.frame}}) object. This object 
+##' can be viewed as a flat version of a \code{\link{trackdata}} object that also 
+##' contains all the information of a \code{\link{emuRsegs}} object. It is meant to
+##' ease integration with other packages as it is based on the well known 
+##' \code{\link{data.table}} and \code{\link{data.frame}} objects.
+##' @param sl seglist of class \code{\link{emuRsegs}}
+##' @param td \code{\link{trackdata}} object generated from sl
 ##' @return emuRtrackdata object
 ##' @import data.table
+##' @examples
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' # query emuDB (to get object of class emuRsegs)
+##' sl = query(dbName = "ae", 
+##'            query = "Phonetic == i:")
+##'            
+##' # get formats for SEGMENTs in sl (to get object of class trackdata)
+##' td = get_trackdata(dbName = "ae", 
+##'                    seglist = sl,
+##'                    onTheFlyFunctionName = "forest")
+##' 
+##' # create emuRtrackdata object
+##' create_emuRtrackdata(sl = sl, td = td)
+##' 
+##' }
 create_emuRtrackdata <- function(sl, td){
   
   ########################
