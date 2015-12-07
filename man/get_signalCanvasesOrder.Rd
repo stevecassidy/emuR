@@ -14,10 +14,25 @@ get_signalCanvasesOrder(dbName, perspectiveName, dbUUID = NULL)
 \item{dbUUID}{optional UUID of loaded emuDB}
 }
 \description{
-Get signalCanvasesOrder of emuDB
+Get signalCanvasesOrder array that specifies which signals are 
+displayed in the according perspective by the EMU-webApp. A entry in this array 
+refers to either the name of a ssffTrackDefinition or a predefined string: \code{"OSCI"} which 
+represents the oscillogram or \code{"SPEC"} which represents the 
+spectrogram.
 }
-\author{
-Raphael Winkelmann
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "ae" emuDB 
+# (see ?load_emuDB for more information)
+
+# get signal canvas order of the "default"
+# perspective of the "ae" emuDB
+get_signalCanvasesOrder(dbName = "ae", 
+                        perspectiveName = "default")
+                        
+}
 }
 \keyword{DBconfig}
 \keyword{Emu}
