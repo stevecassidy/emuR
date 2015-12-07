@@ -24,7 +24,8 @@ of a emuDB. Each level definition is required to have at least one
 default attribute definition that has the same name as the level definition
 (automatically created by \code{\link{add_levelDefinition}}). Attribute
 definitions can be viewed as definitions of
-parallel labels for the annotational units (ITEMs) of the emuDB.
+parallel labels for the annotational units (ITEMs) of the emuDB. For more 
+information on the structural elements of an emuDB see \code{vignette(emuDB)}.
 }
 \examples{
 \dontrun{

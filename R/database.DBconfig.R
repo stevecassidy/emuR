@@ -614,7 +614,8 @@ remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
 ##' default attribute definition that has the same name as the level definition
 ##' (automatically created by \code{\link{add_levelDefinition}}). Attribute
 ##' definitions can be viewed as definitions of
-##' parallel labels for the annotational units (ITEMs) of the emuDB.
+##' parallel labels for the annotational units (ITEMs) of the emuDB. For more 
+##' information on the structural elements of an emuDB see \code{vignette(emuDB)}.
 ##' 
 ##' @param dbName name of loaded emuDB
 ##' @param levelName name of level
@@ -892,7 +893,8 @@ remove_legalLabels <- function(dbName,
 ##' \code{\link{query}}. A common example would be to
 ##' add a label group for something like the phonetic
 ##' category of nasals to be able reference them 
-##' as "nasals" in a \code{\link{query}}.
+##' as "nasals" in a \code{\link{query}}. For more information 
+##' on the structural elements of an emuDB see \code{vignette(emuDB)}.
 ##' 
 ##' 
 ##' @param dbName name of loaded emuDB

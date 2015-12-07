@@ -28,7 +28,8 @@ are added by \code{\link{add_labelGroup}}) in a
 \code{\link{query}}. A common example would be to
 add a label group for something like the phonetic
 category of nasals to be able reference them 
-as "nasals" in a \code{\link{query}}.
+as "nasals" in a \code{\link{query}}. For more information 
+on the structural elements of an emuDB see \code{vignette(emuDB)}.
 }
 \examples{
 \dontrun{
