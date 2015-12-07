@@ -11,8 +11,22 @@ get_UUID(dbName, dbUUID = NULL)
 
 \item{dbUUID}{optional UUID of emuDB}
 }
+\value{
+UUID string
+}
 \description{
 Returns UUID if emuDB is loaded, throws error otherwise
+}
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "ae" emuDB 
+# (see ?load_emuDB for more information)
+
+get_UUID(dbName = "ae")
+
+}
 }
 \seealso{
 \code{\link{is.emuDB.loaded}}

@@ -431,9 +431,20 @@ get.database<-function(uuid=NULL,name=NULL){
 ##' @description Returns UUID if emuDB is loaded, throws error otherwise
 ##' @param dbName name of emuDB
 ##' @param dbUUID optional UUID of emuDB
+##' @return UUID string
 ##' @seealso  \code{\link{is.emuDB.loaded}}
 ##' @import DBI
 ##' @export
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' get_UUID(dbName = "ae")
+##' 
+##' }
 get_UUID<-function(dbName,dbUUID=NULL){
   if(is.null(dbUUID)){
     if(!is.character(dbName)){
