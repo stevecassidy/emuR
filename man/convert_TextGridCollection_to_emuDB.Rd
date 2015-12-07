@@ -2,7 +2,7 @@
 % Please edit documentation in R/convert.TextGridCollection.R
 \name{convert_TextGridCollection_to_emuDB}
 \alias{convert_TextGridCollection_to_emuDB}
-\title{Convert a TextGridCollection (.wav & .TextGrid files) to an emuDB}
+\title{Convert a TextGridCollection (.wav & .TextGrid files) to emuDB}
 \usage{
 convert_TextGridCollection_to_emuDB(dir, dbName, targetDir,
   tgExt = "TextGrid", audioExt = "wav", tierNames = NULL,
@@ -15,9 +15,9 @@ convert_TextGridCollection_to_emuDB(dir, dbName, targetDir,
 
 \item{targetDir}{directory where to save emuDB}
 
-\item{tgExt}{extension of TextGrid files (default=TextGrid meaning filesnames of the form baseName.TextGrid)}
+\item{tgExt}{extension of TextGrid files (default=TextGrid meaning file names of the form baseName.TextGrid)}
 
-\item{audioExt}{extension of audio files (default=wav meaning filesnames of the form baseName.wav).}
+\item{audioExt}{extension of audio files (default=wav meaning file names of the form baseName.wav)}
 
 \item{tierNames}{character vector containing names of tiers to extract and convert. If NULL (the default) all
 tiers are converted.}
@@ -25,13 +25,32 @@ tiers are converted.}
 \item{verbose}{display infos & show progress bar}
 }
 \description{
-Converts a TextGridCollection to an emuDB by first generating a file pair list 
-containing the paths to the .wav & .TextGrid (default extentions) files with the same base
-name. It then generates a emuDB DBconfig from the first TextGrid in this file list which specifies 
+Converts a TextGridCollection to a emuDB by first generating a file pair list 
+containing the paths to the .wav & .TextGrid files (default extentions) with the same base
+name. The function then generates a emuDB configurations based on the first TextGrid in this list which specifies 
 the allowed level names and types in the new emuDB. After this it converts all file pairs to the new format
-checking whether they comply to the newly generated DBconfig.
+checking whether they comply to the newly generated database configuration.
 }
-\author{
-Raphael Winkelmann
+\examples{
+\dontrun{
+
+##########################################################
+# prerequisite: directory containing .wav & .TextGrid files 
+
+# convert TextGridCollection and store 
+# new emuDB in folder provided by tempdir()
+convert_TextGridCollection_to_emuDB(dir = "/path/to/directory/", 
+                                    dbName = "myTGcolDB", 
+                                    targetDir = tempdir())
+
+
+# same as above but this time only convert 
+# the information stored in the "Syllable" and "Phonetic" tiers
+convert_TextGridCollection_to_emuDB(dir = "/path/to/directory/", 
+                                    dbName = "myTGcolDB", 
+                                    targetDir = tempdir(),
+                                    tierNames = c("Syllable", "Phonetic"))
+
+} 
 }
 

@@ -9,13 +9,13 @@ autobuild_linkFromTimes(dbName, superlevelName, sublevelName,
   backupLevelAppendStr = "-autobuildBackup", dbUUID = NULL)
 }
 \arguments{
-\item{dbName}{name of EMU database}
+\item{dbName}{name of emuDB}
 
-\item{superlevelName}{name of level to link from (link definition required in db)}
+\item{superlevelName}{name of level to link from (link definition required in emuDB)}
 
-\item{sublevelName}{name of level to link to (link definition required in db)}
+\item{sublevelName}{name of level to link to (link definition required in emuDB)}
 
-\item{writeToFS}{should changes be written to file system completing after autobuild}
+\item{writeToFS}{should changes be written to file system (annotJSON files) after completing autobuild process.}
 
 \item{convertSuperlevel}{if set to TRUE a backup of the superlevel will be created and the actural
 superlevel will be converted to a level of type ITEM}
@@ -27,14 +27,35 @@ superlevel will be converted to a level of type ITEM}
 \description{
 Autobuild links between two time levels. The super-level has to be of the 
 type SEGMENT and the sub-level either of type EVENT or of type SEGMENT. If
-this is the case and a according link definition is present in DBconfig$linkDefintions,
+this is the case and a according link definition is defined for the emuDB,
 this function automatically links the events or segments of the sub-level which occur
 within (startSample to (startSample + sampleDur)) the segments of the super-level to those segments.
-The linkDefinition$type (ONE_TO_MANY, MANY_TO_MANY, ONE_TO_ONE) is relevant whether a link
-is genarated or not.
+The type of linkDefinition (ONE_TO_MANY, MANY_TO_MANY, ONE_TO_ONE) is relevant whether a link
+is genarated or not (e.g. overlapping segments are linked in a MANY_TO_MANY relationship 
+but not in a ONE_TO_MANY relationship). For more information on the structural 
+elements of an emuDB see \code{vignette(emuDB)}.
 }
-\author{
-Raphael Winkelmann
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "myTGcolDB" emuDB 
+# (see ?load_emuDB and \\code{vignette(emuR_intro)} for more information)
+
+# add linkDefinition as one has to be present for
+# the autobuild function to work
+add_linkDefinition(dbName = "myTGcolDB", 
+                   type = "ONE_TO_MANY",
+                   superlevelName = "Syllable",
+                   sublevelName = "Phoneme")
+  
+# envoke autobuild function to build hierarchy for converted TextGridCollection
+autobuild_linkFromTimes(dbName = "myTGcolDB", 
+                        superlevelName = "Syllable",
+                        sublevelName = "Phoneme",
+                        convertSuperlevel = TRUE)
+
+}
 }
 \keyword{autobuild}
 \keyword{emuR}

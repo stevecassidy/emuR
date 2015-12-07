@@ -22,11 +22,13 @@ If the \code{onTheFlyFunctionName} parameter is set and this one isn't the
 If the \code{onTheFlyFunctionName} parameter is set and this one isn't the
 \code{fileExtension} will default to the first entry in \code{wrasspOutputInfos[[onTheFlyFunctionName]]$ext}.}
 
-\item{onTheFlyFunctionName}{name of wrassp function to do on-the-fly calculation}
+\item{onTheFlyFunctionName}{name of wrassp function to do on-the-fly calculation. See \code{names(wrasspOutputInfos)}
+for a list of all the signal processing functions provided by the wrassp package.}
 
-\item{onTheFlyParams}{a list parameters that will be given to the function 
+\item{onTheFlyParams}{a list of parameters that will be given to the function 
 passed in by the onTheFlyFunctionName parameter. This list can easily be 
-generated using the \code{formals} function and then setting the according 
+generated using the \code{formals} function on the according signal processing function 
+provided by the wrassp package and then setting the
 parameter one wishes to change.}
 
 \item{onTheFlyOptLogFilePath}{path to optional log file for on-the-fly function}
@@ -72,7 +74,7 @@ add_ssffTrackDefinition(dbName = "ae",
 # them using the according function provided 
 # by the wrassp package)
 add_ssffTrackDefinition(dbName = "ae",
-                        name = "ZCRtrack",
+                        name = "formants",
                         columnName = "fm",
                         fileExtension = "fms")
 

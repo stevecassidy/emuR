@@ -2,9 +2,9 @@
 % Please edit documentation in R/create_emuRdemoData.R
 \name{create_emuRdemoData}
 \alias{create_emuRdemoData}
-\title{Create demo data for emuR package}
+\title{Create demo data for the emuR package}
 \usage{
-create_emuRdemoData(dir = tempdir(), precache = F)
+create_emuRdemoData(dir = tempdir(), precache = FALSE)
 }
 \arguments{
 \item{dir}{directory to create demo data in (default= tempdir())}
@@ -12,16 +12,27 @@ create_emuRdemoData(dir = tempdir(), precache = F)
 \item{precache}{load and purge the create ae database to create an on-file-system cache}
 }
 \description{
-Create a folder in the folder specified
+Create a folder within the folder specified
 by the dir argument called emuR_demoData.
 This folder contains the folders:
 \itemize{
-\item{ae: }{Containing an emuDB that adheres to the new formant specification (as expected by the \code{\link{load_emuDB}} function)} 
-\item{TextGrid_collection: }{Containing a TextGrid collection (as expected from the \code{\link{convert_TextGridCollection_to_emuDB}} function)}
-\item{legacy_ae: }{Containing legacyEmuDB (as expected by the \code{\link{convert_legacyEmuDB_to_emuDB}} function)}
+\item{ae: }{Containing an emuDB that adheres to the new format specification 
+(as expected by the \code{\link{load_emuDB}} function). See \code{vignette(emuDB)} 
+for more information on this database format.}
+\item{BPF_collection: }{Containing a BAS Patitur Format (BPF) file collection (as 
+expected by the \code{\link{convert_BPFCollection_to_emuDB}} function)}
+\item{legacy_ae: }{Containing legacyEmuDB (as expected by the 
+\code{\link{convert_legacyEmuDB_to_emuDB}} function)}
+\item{TextGrid_collection: }{Containing a TextGrid file collection 
+(as expected from the \code{\link{convert_TextGridCollection_to_emuDB}} function)}
 }
 }
-\author{
-Raphael Winkelmann
+\examples{
+\dontrun{
+
+# create demo data directory in directory
+# provided by the tempdir function
+create_emuRdemoData(dir = tempdir())
+}
 }
 

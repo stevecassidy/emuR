@@ -1,16 +1,15 @@
 require(RSQLite)
 
-##' Create emuDB DBconfig object from a TextGrid file
-##' 
-##' @param tgPath path to TextGrid file
-##' @param dbName name of the database
-##' @param basePath project base path
-##' @param tierNames character vector containing names of tiers to extract and convert. If NULL (the default) all
-##' tiers are converted.
-##' @return object of class emuDB.schema.db
-##' @author Raphael Winkelmann
-##' @import stringr uuid wrassp RSQLite
-##' @keywords emuDB database schema Emu TextGrid
+## Create emuDB DBconfig object from a TextGrid file
+## 
+## @param tgPath path to TextGrid file
+## @param dbName name of the database
+## @param basePath project base path
+## @param tierNames character vector containing names of tiers to extract and convert. If NULL (the default) all
+## tiers are converted.
+## @return object of class emuDB.schema.db
+## @import stringr uuid wrassp RSQLite
+## @keywords internal
 ## 
 create.DBconfig.from.TextGrid = function(tgPath, dbName, basePath,tierNames=NULL){
   
