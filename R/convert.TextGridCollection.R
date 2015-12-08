@@ -6,7 +6,8 @@ require(RSQLite)
 ##' containing the paths to the .wav & .TextGrid files (default extentions) with the same base
 ##' name. The function then generates a emuDB configurations based on the first TextGrid in this list which specifies 
 ##' the allowed level names and types in the new emuDB. After this it converts all file pairs to the new format
-##' checking whether they comply to the newly generated database configuration.
+##' checking whether they comply to the newly generated database configuration. For 
+##' more information on the emuDB format see \code{vignette{emuDB}}.
 ##' 
 ##' @param dir path to directory containing TextGridCollection
 ##' @param dbName name given to emuDB
