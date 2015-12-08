@@ -428,7 +428,8 @@ get.database<-function(uuid=NULL,name=NULL){
 # }
 
 ##' Get UUID of emuDB
-##' @description Returns UUID if emuDB is loaded, throws error otherwise
+##' @description Returns UUID if emuDB is loaded, throws error otherwise. For 
+##' more information on the emuDB format see \code{vignette(emuDB)}.
 ##' @param dbName name of emuDB
 ##' @param dbUUID optional UUID of emuDB
 ##' @return UUID string

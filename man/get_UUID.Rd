@@ -15,7 +15,8 @@ get_UUID(dbName, dbUUID = NULL)
 UUID string
 }
 \description{
-Returns UUID if emuDB is loaded, throws error otherwise
+Returns UUID if emuDB is loaded, throws error otherwise. For 
+more information on the emuDB format see \code{vignette(emuDB)}.
 }
 \examples{
 \dontrun{
