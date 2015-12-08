@@ -2,7 +2,7 @@
 % Please edit documentation in R/database.R
 \name{list_bundleFilePaths}
 \alias{list_bundleFilePaths}
-\title{List file paths emuDBs bundles}
+\title{List file paths of emuDBs bundles}
 \usage{
 list_bundleFilePaths(dbName, fileExtention, sessionPattern = ".*",
   bundlePattern = "*", dbUUID = NULL)
@@ -19,9 +19,25 @@ list_bundleFilePaths(dbName, fileExtention, sessionPattern = ".*",
 \item{dbUUID}{optional UUID of emuDB}
 }
 \value{
-list of emuDBS as data.frame object
+file paths as character vector
 }
 \description{
-Lists file paths of files belonging to emuDB
+List file paths of files belonging to emuDB.  For 
+more information on the structural elements of an emuDB 
+see \code{vignette{emuDB}}.
+}
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "ae" emuDB 
+# (see ?load_emuDB for more information)
+
+# list all .fms file paths of "ae" emuDB
+list_bundleFilePaths(dbName = "ae", 
+                     fileExtention = "fms") 
+
+}
+
 }
 

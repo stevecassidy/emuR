@@ -2233,15 +2233,31 @@ rewrite.allAnnots.emuDB <- function(dbName, dbUUID=NULL, showProgress=TRUE){
 }
 
 
-##' List file paths emuDBs bundles
-##' @description Lists file paths of files belonging to emuDB
+##' List file paths of emuDBs bundles
+##' 
+##' List file paths of files belonging to emuDB.  For 
+##' more information on the structural elements of an emuDB 
+##' see \code{vignette{emuDB}}.
 ##' @param dbName name of emuDB
 ##' @param fileExtention file extention of files
 ##' @param sessionPattern A (regex) pattern matching sessions of emuDB
 ##' @param bundlePattern A (regex) pattern matching bundles of emuDB
 ##' @param dbUUID optional UUID of emuDB
-##' @return list of emuDBS as data.frame object
+##' @return file paths as character vector
 ##' @export
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' # list all .fms file paths of "ae" emuDB
+##' list_bundleFilePaths(dbName = "ae", 
+##'                      fileExtention = "fms") 
+##' 
+##' }
+##' 
 list_bundleFilePaths <- function(dbName, fileExtention, 
                                  sessionPattern='.*', bundlePattern='*', 
                                  dbUUID=NULL){

@@ -684,12 +684,33 @@ add_attributeDefinition <- function(dbName, levelName,
 
 ##' List attribute definitions of emuDB
 ##' 
+##' List attribute definitions of emuDB. Currently the only type of attribute
+##' definition that is supported is a label (`"type": "STRING"`). As it is possible to define
+##' multiple attribute definitions per level it is possible to
+##' have multiple parallel labels in a single level. This means that a single annotation 
+##' item instance can contain multiple labels while sharing other 
+##' properties such as the start and duration information. Note that there is always one
+##' default attribute definitions present that has the same name as the level it belongs 
+##' to. For more information on the structural elements of an emuDB see \code{vignette(emuDB)}.
 ##' @param dbName name of loaded emuDB
 ##' @param levelName name of level
 ##' @param dbUUID optional UUID of loaded emuDB
-##' @author Raphael Winkelmann
 ##' @export
-##' @keywords emuDB database schema Emu 
+##' @keywords emuDB database schema Emu
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' # list attribute definitions for level "Word"
+##' # of the "ae" emuDB
+##' list_attributeDefinitions(dbName = "ae", 
+##'                           levelName = "Word")
+##'                           
+##' }
+##' 
 list_attributeDefinitions <- function(dbName, levelName, dbUUID=NULL){
   dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
   ld = get.levelDefinition(dbObj$DBconfig, levelName)
@@ -972,13 +993,33 @@ add_attrDefLabelGroup <- function(dbName,
 
 ##' List labelGroups of attributeDefinition of emuDB
 ##' 
+##' List label groups of attribute definition of emuDB. A label group contains the specifications of a group of 
+##' labels that can be referenced by a name given to the group while querying the emuDB.
+##' For more information on the structural elements of an emuDB 
+##' see \code{vignette{emuDB}}.
+##' 
 ##' @param dbName name of loaded emuDB
 ##' @param levelName name of level
 ##' @param attributeDefinitionName name of attributeDefinition
 ##' @param dbUUID optional UUID of loaded emuDB
-##' @author Raphael Winkelmann
 ##' @export
 ##' @keywords emuDB database schema Emu
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' # list attribute definition label groups
+##' # of attributeDefinition "Phonetic" of the level "Phonetic"
+##' # of the "ae" emuDB
+##' list_attrDefLabelGroups(dbName = "ae", 
+##'                         levelName = "Phonetic" , 
+##'                         attributeDefinitionName = "Phonetic")
+##' 
+##' }
+##' 
 list_attrDefLabelGroups <- function(dbName,
                                     levelName,
                                     attributeDefinitionName, 

@@ -14,10 +14,29 @@ list_attributeDefinitions(dbName, levelName, dbUUID = NULL)
 \item{dbUUID}{optional UUID of loaded emuDB}
 }
 \description{
-List attribute definitions of emuDB
+List attribute definitions of emuDB. Currently the only type of attribute
+definition that is supported is a label (`"type": "STRING"`). As it is possible to define
+multiple attribute definitions per level it is possible to
+have multiple parallel labels in a single level. This means that a single annotation 
+item instance can contain multiple labels while sharing other 
+properties such as the start and duration information. Note that there is always one
+default attribute definitions present that has the same name as the level it belongs 
+to. For more information on the structural elements of an emuDB see \code{vignette(emuDB)}.
 }
-\author{
-Raphael Winkelmann
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "ae" emuDB 
+# (see ?load_emuDB for more information)
+
+# list attribute definitions for level "Word"
+# of the "ae" emuDB
+list_attributeDefinitions(dbName = "ae", 
+                          levelName = "Word")
+                          
+}
+
 }
 \keyword{Emu}
 \keyword{database}

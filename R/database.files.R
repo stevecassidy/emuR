@@ -179,13 +179,28 @@ add_files <- function(dbName, dir, fileExtension, targetSessionName='0000', dbUU
 
 ##' List files of emuDB
 ##' 
+##' List files belonging to emuDB. For 
+##' more information on the structural elements of an emuDB 
+##' see \code{vignette{emuDB}}.
 ##' @param dbName name of loaded emuDB
 ##' @param sessionPattern A (glob) pattern matching sessions to be searched from the database
 ##' @param bundlePattern A (glob) pattern matching bundles to be searched from the database
 ##' @param dbUUID optional UUID of loaded emuDB
-##' @author Raphael Winkelmann
+##' @return file paths as character vector
 ##' @export
-##' @keywords emuDB database Emu 
+##' @keywords emuDB database schema Emu 
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB
+##' # (see ?load_emuDB for more information)
+##' 
+##' # list all files of "ae" emuDB
+##' list_files(dbName = "ae") 
+##' 
+##' }
+##' 
 list_files <- function(dbName,
                        sessionPattern = "*",
                        bundlePattern = "*",

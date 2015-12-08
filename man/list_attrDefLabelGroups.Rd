@@ -17,10 +17,27 @@ list_attrDefLabelGroups(dbName, levelName, attributeDefinitionName,
 \item{dbUUID}{optional UUID of loaded emuDB}
 }
 \description{
-List labelGroups of attributeDefinition of emuDB
+List label groups of attribute definition of emuDB. A label group contains the specifications of a group of 
+labels that can be referenced by a name given to the group while querying the emuDB.
+For more information on the structural elements of an emuDB 
+see \code{vignette{emuDB}}.
 }
-\author{
-Raphael Winkelmann
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "ae" emuDB 
+# (see ?load_emuDB for more information)
+
+# list attribute definition label groups
+# of attributeDefinition "Phonetic" of the level "Phonetic"
+# of the "ae" emuDB
+list_attrDefLabelGroups(dbName = "ae", 
+                        levelName = "Phonetic" , 
+                        attributeDefinitionName = "Phonetic")
+
+}
+
 }
 \keyword{Emu}
 \keyword{database}

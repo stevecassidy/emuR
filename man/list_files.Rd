@@ -16,13 +16,29 @@ list_files(dbName, sessionPattern = "*", bundlePattern = "*",
 
 \item{dbUUID}{optional UUID of loaded emuDB}
 }
-\description{
-List files of emuDB
+\value{
+file paths as character vector
 }
-\author{
-Raphael Winkelmann
+\description{
+List files belonging to emuDB. For 
+more information on the structural elements of an emuDB 
+see \code{vignette{emuDB}}.
+}
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "ae" emuDB
+# (see ?load_emuDB for more information)
+
+# list all files of "ae" emuDB
+list_files(dbName = "ae") 
+
+}
+
 }
 \keyword{Emu}
 \keyword{database}
 \keyword{emuDB}
+\keyword{schema}
 
