@@ -203,7 +203,8 @@ set_signalCanvasesOrder <- function(dbName,
 ##' displayed in the according perspective by the EMU-webApp. A entry in this array 
 ##' refers to either the name of a ssffTrackDefinition or a predefined string: \code{"OSCI"} which 
 ##' represents the oscillogram or \code{"SPEC"} which represents the 
-##' spectrogram.
+##' spectrogram. For more information on the structural elements of an emuDB 
+##' see \code{vignette{emuDB}}.
 ##' 
 ##' @param dbName name of loaded emuDB
 ##' @param perspectiveName name of perspective
@@ -223,7 +224,6 @@ set_signalCanvasesOrder <- function(dbName,
 ##'                         perspectiveName = "default")
 ##'                         
 ##' }
-
 get_signalCanvasesOrder <- function(dbName,
                                     perspectiveName,
                                     dbUUID = NULL){

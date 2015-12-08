@@ -18,7 +18,8 @@ Get signalCanvasesOrder array that specifies which signals are
 displayed in the according perspective by the EMU-webApp. A entry in this array 
 refers to either the name of a ssffTrackDefinition or a predefined string: \code{"OSCI"} which 
 represents the oscillogram or \code{"SPEC"} which represents the 
-spectrogram.
+spectrogram. For more information on the structural elements of an emuDB 
+see \code{vignette{emuDB}}.
 }
 \examples{
 \dontrun{
