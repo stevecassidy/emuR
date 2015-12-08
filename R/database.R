@@ -604,13 +604,27 @@ list_sessions<-function(dbName,dbUUID=NULL){
 }
 
 ##' List bundles of emuDB
-##' @description List all bundles of emuDB or of particular session.
+##' 
+##' List all bundles of emuDB or of particular session.
 ##' @param dbName name of emuDB
 ##' @param session optional session
 ##' @param dbUUID optional UUID of emuDB
 ##' @return data.frame object with columns session and name of bundles
 ##' @export
-list_bundles<-function(dbName,session=NULL,dbUUID=NULL){
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB
+##' # (see ?load_emuDB for more information)
+##' 
+##' # list bundles of session "0000" of "ae" emuDB
+##' list_bundles(dbName = "ae",
+##'              session = "0000")
+##' 
+##' }
+##' 
+list_bundles<-function(dbName, session=NULL, dbUUID=NULL){
   # .initialize.DBI.database()
   uuid=get_UUID(dbName,dbUUID)
   baseQ=paste0("SELECT session,name FROM bundle WHERE db_uuid='",uuid,"'")

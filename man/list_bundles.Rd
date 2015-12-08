@@ -19,4 +19,18 @@ data.frame object with columns session and name of bundles
 \description{
 List all bundles of emuDB or of particular session.
 }
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "ae" emuDB
+# (see ?load_emuDB for more information)
+
+# list bundles of session "0000" of "ae" emuDB
+list_bundles(dbName = "ae",
+             session = "0000")
+
+}
+
+}
 
