@@ -7,7 +7,7 @@
 add_ssffTrackDefinition(dbName, name, columnName = NULL,
   fileExtension = NULL, onTheFlyFunctionName = NULL,
   onTheFlyParams = NULL, onTheFlyOptLogFilePath = NULL, dbUUID = NULL,
-  showProgress = TRUE, interactive = TRUE)
+  verbose = TRUE, interactive = TRUE)
 }
 \arguments{
 \item{dbName}{name of emuDB}
@@ -35,7 +35,7 @@ parameter one wishes to change.}
 
 \item{dbUUID}{optional UUID of emuDB}
 
-\item{showProgress}{show progress bar}
+\item{verbose}{Show progress bars and further information}
 
 \item{interactive}{ask user for confirmation}
 }

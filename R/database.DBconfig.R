@@ -1234,7 +1234,7 @@ remove_linkDefinition <- function(dbName,
 ##' provided by the wrassp package and then setting the
 ##' parameter one wishes to change.     
 ##' @param onTheFlyOptLogFilePath path to optional log file for on-the-fly function
-##' @param showProgress show progress bar
+##' @param verbose Show progress bars and further information
 ##' @param interactive ask user for confirmation
 ##' @param dbUUID optional UUID of emuDB
 ##' @seealso wrasspOutputInfos
@@ -1270,7 +1270,7 @@ add_ssffTrackDefinition <- function(dbName, name,
                                     columnName = NULL, fileExtension = NULL, 
                                     onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
                                     onTheFlyOptLogFilePath = NULL, dbUUID = NULL,
-                                    showProgress = TRUE, interactive = TRUE){
+                                    verbose = TRUE, interactive = TRUE){
   # .initialize.DBI.database()
   uuid=get_UUID(dbName,dbUUID)
   dbObj = .load.emuDB.DBI(uuid = uuid)
