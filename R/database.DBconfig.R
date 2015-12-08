@@ -541,11 +541,31 @@ add_levelDefinition<-function(dbName, name,
 
 ##' List level definitions of emuDB
 ##' 
+##' List level definitions of emuDB . A level is an essential structural element of any 
+##' emuDB. A level is a more general term for what is often referred to as a "tier". It 
+##' is more general in the sense that people usually expect tiers to contain time 
+##' information. Levels can either contain time information if they are of the 
+##' type "EVENT" or of the type "SEGMENT" but are timeless if they are of the type "ITEM". 
+##' For more information on the structural elements of an emuDB 
+##' see \code{vignette{emuDB}}.
+##' 
 ##' @param dbName name of loaded emuDB
 ##' @param dbUUID optional UUID of loaded emuDB
-##' @author Klaus Jaensch
+##' @return \code{\link{data.frame}} containing name, type and nrOfAttrDefs of each level definition
 ##' @export
 ##' @keywords emuDB database schema Emu 
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' # list level definition of "ae" emuDB
+##' list_levelDefinitions(dbName = "ae")
+##' 
+##' }
+##' 
 list_levelDefinitions <- function(dbName, dbUUID=NULL){
   dbObj = .load.emuDB.DBI(name = dbName, uuid = dbUUID)
   df <- data.frame(name=character(),

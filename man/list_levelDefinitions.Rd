@@ -11,11 +11,30 @@ list_levelDefinitions(dbName, dbUUID = NULL)
 
 \item{dbUUID}{optional UUID of loaded emuDB}
 }
-\description{
-List level definitions of emuDB
+\value{
+\code{\link{data.frame}} containing name, type and nrOfAttrDefs of each level definition
 }
-\author{
-Klaus Jaensch
+\description{
+List level definitions of emuDB . A level is an essential structural element of any 
+emuDB. A level is a more general term for what is often referred to as a "tier". It 
+is more general in the sense that people usually expect tiers to contain time 
+information. Levels can either contain time information if they are of the 
+type "EVENT" or of the type "SEGMENT" but are timeless if they are of the type "ITEM". 
+For more information on the structural elements of an emuDB 
+see \code{vignette{emuDB}}.
+}
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "ae" emuDB 
+# (see ?load_emuDB for more information)
+
+# list level definition of "ae" emuDB
+list_levelDefinitions(dbName = "ae")
+
+}
+
 }
 \keyword{Emu}
 \keyword{database}
