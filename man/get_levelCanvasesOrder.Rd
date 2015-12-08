@@ -19,7 +19,8 @@ displayed in the according perspective by the EMU-webApp.
 Note that only levels of type 
 \code{"SEGMENT"} or \code{"EVENT"} can be displayed as levelCanvases. 
 Levels of the type \code{"ITEM"} are always visible in the "show hierrachy"
-modal.
+modal.  For more information on the structural elements of an emuDB 
+see \code{vignette{emuDB}}.
 }
 \examples{
 \dontrun{
