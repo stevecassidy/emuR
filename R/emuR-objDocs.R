@@ -195,7 +195,7 @@ NULL
 ##' @section Methods: The following methods are implemented for emuRtrackdata objects: 
 ##' 
 ##' \describe{ 
-##'   \item{cut}{Function to extract a emuRtrackdata object from an emuRtrackdata at a single time point 
+##'   \item{cut}{Function to extract a \code{\link{emuRtrackdata}} object from an emuRtrackdata at a single time point 
 ##'             or between two times}
 ##' }
 ##' @seealso \code{\link{get_trackdata}}, \code{\link{create_emuRtrackdata}}
