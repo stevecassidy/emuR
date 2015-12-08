@@ -1521,13 +1521,33 @@ add_labelGroup <- function(dbName,
 }
 
 
-
 ##' List (global) labelGroups of emuDB
-##' @param dbName name of emuDB
-##' @param dbUUID optional UUID of emuDB
-##' @return data.frame object containing labelGroup infos
+##' 
+##' List global label groups of emuDB. A label group contains the specifications of a group of 
+##' labels that can be referenced by a name given to the group while querying the emuDB. Compared 
+##' to the attribute definition specific label groups these label groups are defined globally for 
+##' the entire database. For more information on the structural elements of an emuDB 
+##' see \code{vignette{emuDB}}.
+##' 
+##' @param dbName name of loaded emuDB
+##' @param dbUUID optional UUID of loaded emuDB
+##' @return \code{\link{data.frame}} containing names and values of label groups
 ##' @export
-##' @author Raphael Winkelmann
+##' @keywords emuDB database schema Emu
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' # list global label groups of "ae" emuDB
+##' list_labelGroups(dbName = "ae")
+##' 
+##' # NOTE: This will return NA as there are 
+##' # no global label groups defined for the "ae" emuDB
+##' }
+##' 
 list_labelGroups <- function(dbName,
                              dbUUID = NULL){
   

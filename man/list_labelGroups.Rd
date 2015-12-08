@@ -7,17 +7,37 @@
 list_labelGroups(dbName, dbUUID = NULL)
 }
 \arguments{
-\item{dbName}{name of emuDB}
+\item{dbName}{name of loaded emuDB}
 
-\item{dbUUID}{optional UUID of emuDB}
+\item{dbUUID}{optional UUID of loaded emuDB}
 }
 \value{
-data.frame object containing labelGroup infos
+\code{\link{data.frame}} containing names and values of label groups
 }
 \description{
-List (global) labelGroups of emuDB
+List global label groups of emuDB. A label group contains the specifications of a group of 
+labels that can be referenced by a name given to the group while querying the emuDB. Compared 
+to the attribute definition specific label groups these label groups are defined globally for 
+the entire database. For more information on the structural elements of an emuDB 
+see \code{vignette{emuDB}}.
 }
-\author{
-Raphael Winkelmann
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "ae" emuDB 
+# (see ?load_emuDB for more information)
+
+# list global label groups of "ae" emuDB
+list_labelGroups(dbName = "ae")
+
+# NOTE: This will return NA as there are 
+# no global label groups defined for the "ae" emuDB
 }
+
+}
+\keyword{Emu}
+\keyword{database}
+\keyword{emuDB}
+\keyword{schema}
 
