@@ -20,7 +20,7 @@ remove_attrDefLabelGroup(dbName, levelName, attributeDefinitionName,
 }
 \description{
 Remove label group that was previously added by 
-\code{\link{add__attrDefLabelGroup}}. For more information 
+\code{\link{add_attrDefLabelGroup}}. For more information 
 on the structural elements of an emuDB see \code{vignette(emuDB)}.
 }
 \examples{
