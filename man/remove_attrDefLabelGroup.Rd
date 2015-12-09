@@ -2,7 +2,7 @@
 % Please edit documentation in R/database.DBconfig.R
 \name{remove_attrDefLabelGroup}
 \alias{remove_attrDefLabelGroup}
-\title{Remove labelGroups of attributeDefinition from emuDB}
+\title{Remove labelGroup of attributeDefinition of emuDB}
 \usage{
 remove_attrDefLabelGroup(dbName, levelName, attributeDefinitionName,
   labelGroupName, dbUUID = NULL)
@@ -19,10 +19,34 @@ remove_attrDefLabelGroup(dbName, levelName, attributeDefinitionName,
 \item{dbUUID}{optional UUID of loaded emuDB}
 }
 \description{
-Remove labelGroups of attributeDefinition from emuDB
+Remove label group that was previously added by 
+\code{\link{add__attrDefLabelGroup}}. For more information 
+on the structural elements of an emuDB see \code{vignette(emuDB)}.
 }
-\author{
-Raphael Winkelmann
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "ae" emuDB 
+# (see ?load_emuDB for more information)
+
+sampaNasals = c("m", "F", "n", "J", "N")
+
+# add these values to the default Phonetic attribute
+# definition of the "Phonetic" level of the "ae" emuDB
+add_attrDefLabelGroup(dbName = "ae",
+                      levelName = "Phonetic",
+                      attributeDefinitionName = "Phonetic",
+                      labelGroupName = "sampaNasals",
+                      labelGroupValues = sampaNasals)
+                      
+# remove the newly added attrDefLabelGroup
+remove_attrDefLabelGroup(dbName = "ae",
+                         levelName = "Phonetic",
+                         attributeDefinitionName = "Phonetic",
+                         labelGroupName = "sampaNasals")
+
+}
 }
 \keyword{Emu}
 \keyword{database}
