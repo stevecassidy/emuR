@@ -630,8 +630,8 @@ remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
 ##' 
 ##' @param dbName name of loaded emuDB
 ##' @param levelName name of level
-##' @param name name af new attributeDefinition
-##' @param type type of new attributeDefinition
+##' @param name name of attributeDefinition
+##' @param type type of attributeDefinition (currently only "STRING")
 ##' @param dbUUID optional UUID of loaded emuDB
 ##' @keywords emuDB database DBconfig Emu 
 ##' @name AddListRemoveAttributeDefinitions
@@ -730,10 +730,10 @@ list_attributeDefinitions <- function(dbName, levelName, dbUUID=NULL){
 ##' @export
 remove_attributeDefinition <- function(dbName, 
                                        levelName, 
-                                       attributeDefinitionName, 
+                                       name, 
                                        dbUUID = NULL){
   
-  if(levelName == attributeDefinitionName){
+  if(levelName == name){
     stop("Can not remove primary attributeDefinition (attributeDefinition with same name as level)")
   }
   
@@ -749,7 +749,7 @@ remove_attributeDefinition <- function(dbName,
                                                "it.bundle = lb.bundle AND ",
                                                "it.itemID = lb.itemID AND ",
                                                "it.level = '", levelName, "' AND ",
-                                               "lb.name = '", attributeDefinitionName, "'"))
+                                               "lb.name = '", name, "'"))
   
   if(nrow(qRes) > 0){
     stop("Can not remove attributeDefinition if there are labels present")
@@ -763,7 +763,7 @@ remove_attributeDefinition <- function(dbName,
     }
     
     for(i in 1:length(dbObj$DBconfig$levelDefinitions[[levDefIdx]]$attributeDefinitions)){
-      if(dbObj$DBconfig$levelDefinitions[[levDefIdx]]$attributeDefinitions[[i]]$name == attributeDefinitionName){
+      if(dbObj$DBconfig$levelDefinitions[[levDefIdx]]$attributeDefinitions[[i]]$name == name){
         dbObj$DBconfig$levelDefinitions[[levDefIdx]]$attributeDefinitions[[i]] = NULL
         break
       }

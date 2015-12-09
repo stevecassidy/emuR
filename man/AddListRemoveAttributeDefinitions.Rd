@@ -12,17 +12,16 @@ add_attributeDefinition(dbName, levelName, name, type = "STRING",
 
 list_attributeDefinitions(dbName, levelName, dbUUID = NULL)
 
-remove_attributeDefinition(dbName, levelName, attributeDefinitionName,
-  dbUUID = NULL)
+remove_attributeDefinition(dbName, levelName, name, dbUUID = NULL)
 }
 \arguments{
 \item{dbName}{name of loaded emuDB}
 
 \item{levelName}{name of level}
 
-\item{name}{name af new attributeDefinition}
+\item{name}{name of attributeDefinition}
 
-\item{type}{type of new attributeDefinition}
+\item{type}{type of attributeDefinition (currently only "STRING")}
 
 \item{dbUUID}{optional UUID of loaded emuDB}
 }
