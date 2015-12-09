@@ -616,14 +616,16 @@ remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
 ###################################################
 # CRUD operations for attributeDefinitions
 
-##' Add attribute definition to emuDB
+##' Add / List / Remove attribute definition to / of / from emuDB
 ##' 
-##' Add additional attribute definition to an existing level definition
-##' of a emuDB. Each level definition is required to have at least one 
-##' default attribute definition that has the same name as the level definition
-##' (automatically created by \code{\link{add_levelDefinition}}). Attribute
+##' Add / List / Remove database operation functions for attribute definition 
+##' to / of / from an existing level definition
+##' of a emuDB. Attribute
 ##' definitions can be viewed as definitions of
-##' parallel labels for the annotational units (ITEMs) of the emuDB. For more 
+##' parallel labels for the annotational units (ITEMs) of the emuDB. 
+##' Each level definition is required to have at least one 
+##' default attribute definition that has the same name as the level definition
+##' (automatically created by \code{\link{add_levelDefinition}}). For more 
 ##' information on the structural elements of an emuDB see \code{vignette(emuDB)}.
 ##' 
 ##' @param dbName name of loaded emuDB
@@ -631,8 +633,8 @@ remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
 ##' @param name name af new attributeDefinition
 ##' @param type type of new attributeDefinition
 ##' @param dbUUID optional UUID of loaded emuDB
-##' @export
 ##' @keywords emuDB database DBconfig Emu 
+##' @name AddListRemoveAttributeDefinitions
 ##' @examples 
 ##' \dontrun{
 ##' 
@@ -646,8 +648,22 @@ remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
 ##' add_attributeDefinition(dbName = "ae",
 ##'                         levelName = "Phonetic",
 ##'                         name = "IPA-UTF8")
+##'                         
+##' # list attribute definitions for level "Word"
+##' # of the "ae" emuDB
+##' list_attributeDefinitions(dbName = "ae", 
+##'                           levelName = "Word")
 ##' 
+##' # remove newly added attributeDefinition
+##' remove_attributeDefinition(dbName = "ae",
+##'                            levelName = "Phonetic",
+##'                            name = "IPA-UTF8")
 ##' }
+##' 
+NULL
+
+##' @rdname AddListRemoveAttributeDefinitions
+##' @export
 add_attributeDefinition <- function(dbName, levelName, 
                                     name, type = "STRING",
                                     dbUUID=NULL){
@@ -678,35 +694,9 @@ add_attributeDefinition <- function(dbName, levelName,
   
 }
 
-##' List attribute definitions of emuDB
-##' 
-##' List attribute definitions of emuDB. Currently the only type of attribute
-##' definition that is supported is a label (`"type": "STRING"`). As it is possible to define
-##' multiple attribute definitions per level it is possible to
-##' have multiple parallel labels in a single level. This means that a single annotation 
-##' item instance can contain multiple labels while sharing other 
-##' properties such as the start and duration information. Note that there is always one
-##' default attribute definitions present that has the same name as the level it belongs 
-##' to. For more information on the structural elements of an emuDB see \code{vignette(emuDB)}.
-##' @param dbName name of loaded emuDB
-##' @param levelName name of level
-##' @param dbUUID optional UUID of loaded emuDB
+
+##' @rdname AddListRemoveAttributeDefinitions
 ##' @export
-##' @keywords emuDB database schema Emu
-##' @examples 
-##' \dontrun{
-##' 
-##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
-##' # (see ?load_emuDB for more information)
-##' 
-##' # list attribute definitions for level "Word"
-##' # of the "ae" emuDB
-##' list_attributeDefinitions(dbName = "ae", 
-##'                           levelName = "Word")
-##'                           
-##' }
-##' 
 list_attributeDefinitions <- function(dbName, levelName, dbUUID=NULL){
   dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
   ld = get.levelDefinition(dbObj$DBconfig, levelName)
@@ -735,43 +725,9 @@ list_attributeDefinitions <- function(dbName, levelName, dbUUID=NULL){
   return(df)
 }
 
-modify_attributeDefinition <- function(){
-  stop('Not implemnted yet')
-}
 
-##' Remove attribute definitions from emuDB
-##' 
-##' Remove additional attribute definition from an existing level definition
-##' of a emuDB that was added with the \code{\link{add_attributeDefinition}} 
-##' function. For more information on the structural elements of 
-##' an emuDB see \code{vignette(emuDB)}.
-##' 
-##' @param dbName name of loaded emuDB
-##' @param levelName name of level
-##' @param attributeDefinitionName name of attributeDefinition
-##' @param dbUUID optional UUID of loaded emuDB
+##' @rdname AddListRemoveAttributeDefinitions
 ##' @export
-##' @keywords emuDB database schema Emu
-##' @examples 
-##' \dontrun{
-##' 
-##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
-##' # (see ?load_emuDB for more information)
-##' 
-##' # add additional attribute definition to the "Phonetic" level
-##' # of the "ae" emuDB that will contain the UTF8 IPA
-##' # symbols of the phonetic transcriptions
-##' add_attributeDefinition(dbName = "ae",
-##'                         levelName = "Phonetic",
-##'                         name = "IPA-UTF8")
-##' 
-##' # remove newly added attributeDefinition
-##' remove_attributeDefinition(dbName = "ae",
-##'                            levelName = "Phonetic",
-##'                            name = "IPA-UTF8")
-##' }
-##' 
 remove_attributeDefinition <- function(dbName, 
                                        levelName, 
                                        attributeDefinitionName, 
@@ -822,16 +778,63 @@ remove_attributeDefinition <- function(dbName,
 ###################################################
 # CRUD operations for legalLabels
 
-##' Set legal labels of attributeDefinition of emuDB
+##' Set / Get / Remove legal labels of attributeDefinition of emuDB
+##' 
+##' Set / Get / Remove legal labels of a specific attributeDefinition of a emuDB. 
+##' The legal labels are a character vector of strings
+##' that specifies the labels that are legal (i.e. allowed / valid) for the given attribute. 
+##' As the EMU-webApp won't allow the annotator to enter any labels that are not 
+##' specified in this array, this is a simple way of assuring that a level 
+##' has a consistent label set. For more information 
+##' on the structural elements of an emuDB see \code{vignette(emuDB)}.
 ##' 
 ##' @param dbName name of loaded emuDB
 ##' @param levelName name of level
 ##' @param attributeDefinitionName name of attributeDefinition
-##' @param legalLabels character array containing legal labels
+##' @param legalLabels character vector of labels
 ##' @param dbUUID optional UUID of loaded emuDB
-##' @author Raphael Winkelmann
+##' @keywords emuDB database schema Emu
+##' @name SetGetRemoveLegalLabels
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' legalPhoneticLabels = c("V", "m", "N", "s", "t", "H", "@:", "f", "r", 
+##'                         "E", "n", "z", "S", "i:", "w", "@", "k", "I", "d", 
+##'                         "db", "j", "u:", "dH", "l", "ai", "O", "D", "o:", "v")
+##' 
+##' # set legal labels of the 
+##' # default "Phonetic" attributeDefinition of
+##' # the "Phonetic" level of "ae" emuDB
+##' set_legalLabels(dbName = "ae", 
+##'                 levelName = "Phonetic",
+##'                 attributeDefinitionName = "Phonetic",
+##'                 legalLabels = legalPhoneticLabels)
+##' 
+##' # get legal labels of the 
+##' # default "Phonetic" attributeDefinition of
+##' # the "Phonetic" level of "ae" emuDB
+##' get_legalLabels(dbName = "ae", 
+##'                 levelName = "Phonetic", 
+##'                 attributeDefinitionName = "Phonetic")
+##'                 
+##' 
+##' # remove legal labels of the 
+##' # default "Phonetic" attributeDefinition of
+##' # the "Phonetic" level of "ae" emuDB
+##' remove_legalLabels(dbName = "ae", 
+##'                    levelName = "Phonetic", 
+##'                    attributeDefinitionName = "Phonetic")
+##'                 
+##' }
+##' 
+NULL
+
+##' @rdname SetGetRemoveLegalLabels
 ##' @export
-##' @keywords emuDB database DBconfig Emu 
 set_legalLabels <- function(dbName,
                             levelName,
                             attributeDefinitionName,
@@ -853,41 +856,9 @@ set_legalLabels <- function(dbName,
   
 }
 
-##' Get legal labels of attributeDefinition of emuDB
-##' 
-##' Get legal labels of a specific attributeDefinition of a emuDB. The legal labels are an array 
-##' of strings that specifies the labels that are legal (i.e. allowed / valid) for the given attribute. 
-##' As the EMU-webApp won't allow the annotator to enter any labels that are not 
-##' specified in this array, this is a simple way of assuring that a level 
-##' has a consistent label set. For more information 
-##' on the structural elements of an emuDB see \code{vignette(emuDB)}.
-##' 
-##' @param dbName name of loaded emuDB
-##' @param levelName name of level
-##' @param attributeDefinitionName name of attributeDefinition
-##' @param dbUUID optional UUID of loaded emuDB
+
+##' @rdname SetGetRemoveLegalLabels
 ##' @export
-##' @keywords emuDB database schema Emu
-##' @examples 
-##' \dontrun{
-##' 
-##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
-##' # (see ?load_emuDB for more information)
-##' 
-##' # get legal labels of the 
-##' # default "Phonetic" attributeDefinition of
-##' # the "Phonetic" level of "ae" emuDB
-##' get_legalLabels(dbName = "ae", 
-##'                 levelName = "Phonetic", 
-##'                 attributeDefinitionName = "Phonetic")
-##'                 
-##' # NOTE: this will return NA as there are
-##' # no legalLabels defined for this or any other
-##' # attributeDefinition of the "ae" emuDB
-##' 
-##' }
-##' 
 get_legalLabels <- function(dbName,
                             levelName,
                             attributeDefinitionName, 
@@ -911,40 +882,8 @@ get_legalLabels <- function(dbName,
 }
 
 
-modify_legalLabels <- function(){
-  stop("not implemented yet")
-}
-
-##' Remove legal labels of attributeDefinition of emuDB
-##' 
-##' Remove legal labels of a specific attributeDefinition of a emuDB. For more information 
-##' on the structural elements of an emuDB see \code{vignette(emuDB)}.
-##' @param dbName name of loaded emuDB
-##' @param levelName name of level
-##' @param attributeDefinitionName name of attributeDefinition
-##' @param dbUUID optional UUID of loaded emuDB
+##' @rdname SetGetRemoveLegalLabels
 ##' @export
-##' @keywords emuDB database schema Emu
-##' @examples 
-##' \dontrun{
-##' 
-##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
-##' # (see ?load_emuDB for more information)
-##' 
-##' # remove legal labels of the 
-##' # default "Phonetic" attributeDefinition of
-##' # the "Phonetic" level of "ae" emuDB
-##' remove_legalLabels(dbName = "ae", 
-##'                    levelName = "Phonetic", 
-##'                    attributeDefinitionName = "Phonetic")
-##'                 
-##' # NOTE: this will have no effect as there are
-##' # no legalLabels defined for this or any other
-##' # attributeDefinition of the "ae" emuDB
-##' 
-##' }
-##' 
 remove_legalLabels <- function(dbName,
                                levelName,
                                attributeDefinitionName, 
