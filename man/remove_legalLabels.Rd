@@ -16,10 +16,29 @@ remove_legalLabels(dbName, levelName, attributeDefinitionName, dbUUID = NULL)
 \item{dbUUID}{optional UUID of loaded emuDB}
 }
 \description{
-Remove legal labels of attributeDefinition of emuDB
+Remove legal labels of a specific attributeDefinition of a emuDB. For more information 
+on the structural elements of an emuDB see \code{vignette(emuDB)}.
 }
-\author{
-Raphael Winkelmann
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "ae" emuDB 
+# (see ?load_emuDB for more information)
+
+# remove legal labels of the 
+# default "Phonetic" attributeDefinition of
+# the "Phonetic" level of "ae" emuDB
+remove_legalLabels(dbName = "ae", 
+                   levelName = "Phonetic", 
+                   attributeDefinitionName = "Phonetic")
+                
+# NOTE: this will have no effect as there are
+# no legalLabels defined for this or any other
+# attributeDefinition of the "ae" emuDB
+
+}
+
 }
 \keyword{Emu}
 \keyword{database}

@@ -941,13 +941,34 @@ modify_legalLabels <- function(){
 
 ##' Remove legal labels of attributeDefinition of emuDB
 ##' 
+##' Remove legal labels of a specific attributeDefinition of a emuDB. For more information 
+##' on the structural elements of an emuDB see \code{vignette(emuDB)}.
 ##' @param dbName name of loaded emuDB
 ##' @param levelName name of level
 ##' @param attributeDefinitionName name of attributeDefinition
 ##' @param dbUUID optional UUID of loaded emuDB
-##' @author Raphael Winkelmann
 ##' @export
 ##' @keywords emuDB database schema Emu
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' # remove legal labels of the 
+##' # default "Phonetic" attributeDefinition of
+##' # the "Phonetic" level of "ae" emuDB
+##' remove_legalLabels(dbName = "ae", 
+##'                    levelName = "Phonetic", 
+##'                    attributeDefinitionName = "Phonetic")
+##'                 
+##' # NOTE: this will have no effect as there are
+##' # no legalLabels defined for this or any other
+##' # attributeDefinition of the "ae" emuDB
+##' 
+##' }
+##' 
 remove_legalLabels <- function(dbName,
                                levelName,
                                attributeDefinitionName, 
