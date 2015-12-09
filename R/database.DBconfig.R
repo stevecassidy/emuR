@@ -1106,7 +1106,7 @@ modify_attrDefLabelGroup <- function(){
 ##'                          labelGroupName = "sampaNasals")
 ##' 
 ##' }
-
+##' 
 remove_attrDefLabelGroup <- function(dbName,
                                      levelName,
                                      attributeDefinitionName, 
