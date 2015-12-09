@@ -475,10 +475,10 @@ get.levelDefinition <- function(DBconfig, name){
 ###########################################
 # CRUD operation for levelDefinitions
 
-##' Add level definition to emuDB
+##' Add / List / Remove level definition to / of / from emuDB
 ##' 
-##' Add new level definition to emuDB. A level is a more 
-##' general term for what is often referred to as a "tier". 
+##' Add / List / Remove database operation functions for level definitions. 
+##' A level is a more general term for what is often referred to as a "tier". 
 ##' It is more general in the sense that people usually 
 ##' expect tiers to contain time information. Levels 
 ##' can either contain time information if they are of the 
@@ -491,8 +491,8 @@ get.levelDefinition <- function(DBconfig, name){
 ##' @param type type of level definition
 ##' @param store changes to file system
 ##' @param dbUUID optional UUID of loaded emuDB
-##' @export
 ##' @keywords emuDB database schema Emu
+##' @name AddListRemoveLevelDefinitions
 ##' @examples 
 ##' \dontrun{
 ##' 
@@ -501,12 +501,23 @@ get.levelDefinition <- function(DBconfig, name){
 ##' # (see ?load_emuDB for more information)
 ##' 
 ##' # add level called "Phonetic2" to the "ae" emuDB
-##' # that will contain the transcriptions of a second annotator
-##' add_levelDefinition(dbName = "ae", 
+##' # that could for example contain the transcriptions of a second annotator
+##' add_levelDefinition(dbName = "ae",
+##'                     name = "Phonetic2",
 ##'                     type = "SEGMENT")
+##'                     
+##' # list level definition of "ae" emuDB
+##' list_levelDefinitions(dbName = "ae")
 ##' 
+##' # remove newly added level definition
+##' remove_levelDefinitions(dbName = "ae",
+##'                         name = "Phonetic2")
 ##' }
+##' 
+NULL
 
+##' @rdname AddListRemoveLevelDefinitions
+##' @export
 add_levelDefinition<-function(dbName, name,
                               type, store = TRUE,
                               dbUUID=NULL){
@@ -539,33 +550,9 @@ add_levelDefinition<-function(dbName, name,
   invisible(NULL)
 }
 
-##' List level definitions of emuDB
-##' 
-##' List level definitions of emuDB . A level is an essential structural element of any 
-##' emuDB. A level is a more general term for what is often referred to as a "tier". It 
-##' is more general in the sense that people usually expect tiers to contain time 
-##' information. Levels can either contain time information if they are of the 
-##' type "EVENT" or of the type "SEGMENT" but are timeless if they are of the type "ITEM". 
-##' For more information on the structural elements of an emuDB 
-##' see \code{vignette{emuDB}}.
-##' 
-##' @param dbName name of loaded emuDB
-##' @param dbUUID optional UUID of loaded emuDB
-##' @return \code{\link{data.frame}} containing name, type and nrOfAttrDefs of each level definition
+
+##' @rdname AddListRemoveLevelDefinitions
 ##' @export
-##' @keywords emuDB database schema Emu 
-##' @examples 
-##' \dontrun{
-##' 
-##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
-##' # (see ?load_emuDB for more information)
-##' 
-##' # list level definition of "ae" emuDB
-##' list_levelDefinitions(dbName = "ae")
-##' 
-##' }
-##' 
 list_levelDefinitions <- function(dbName, dbUUID=NULL){
   dbObj = .load.emuDB.DBI(name = dbName, uuid = dbUUID)
   df <- data.frame(name=character(),
@@ -583,19 +570,8 @@ list_levelDefinitions <- function(dbName, dbUUID=NULL){
 }
 
 
-modify_levelDefinition<-function(){
-  stop('currently not implemented')
-}
-
-
-##' Remove level definition to emuDB
-##' 
-##' @param dbName name of loaded emuDB
-##' @param name name of level definition
-##' @param dbUUID optional UUID of loaded emuDB
-##' @author Klaus Jaensch
+##' @rdname AddListRemoveLevelDefinitions
 ##' @export
-##' @keywords emuDB database schema Emu 
 remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
   dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
   dbUUID = get_UUID(dbName = dbName, dbUUID = dbUUID)
