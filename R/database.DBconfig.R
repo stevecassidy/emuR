@@ -1096,7 +1096,7 @@ modify_attrDefLabelGroup <- function(){
 ##' Remove labelGroup of attributeDefinition of emuDB
 ##' 
 ##' Remove label group that was previously added by 
-##' \code{\link{add__attrDefLabelGroup}}. For more information 
+##' \code{\link{add_attrDefLabelGroup}}. For more information 
 ##' on the structural elements of an emuDB see \code{vignette(emuDB)}.
 ##' 
 ##' @param dbName name of loaded emuDB
@@ -1641,12 +1641,38 @@ list_labelGroups <- function(dbName,
 
 ##' Remove (global) labelGroup from emuDB
 ##' 
+##' Remove global label group that was previously added by the 
+##' \code{\link{add_labelGroup}} function or was present after invoking the 
+##' \code{\link{convert_legacyEmuDB_to_emuDB}} function. For more 
+##' information on the structural elements of an emuDB 
+##' see \code{vignette{emuDB}}.
+##' 
 ##' @param dbName name of loaded emuDB
 ##' @param name name of label group
 ##' @param dbUUID optional UUID of loaded emuDB
-##' @author Raphael Winkelmann
 ##' @export
 ##' @keywords emuDB database schema Emu
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' sampaNasals = c("m", "F", "n", "J", "N")
+##' 
+##' # add these values to the to the "ae" emuDB
+##' # as a globally available labelGroup
+##' add_labelGroup(dbName = "ae",
+##'                name = "sampaNasals",
+##'                values = sampaNasals)
+##' 
+##' # remove the newly added labelGroup
+##' remove_labelGroup(dbName = "ae",
+##'                   name = "sampaNasals")
+##' 
+##' }
+##' 
 remove_labelGroup <- function(dbName,
                               name,
                               dbUUID = NULL){

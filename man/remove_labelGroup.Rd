@@ -14,10 +14,33 @@ remove_labelGroup(dbName, name, dbUUID = NULL)
 \item{dbUUID}{optional UUID of loaded emuDB}
 }
 \description{
-Remove (global) labelGroup from emuDB
+Remove global label group that was previously added by the 
+\code{\link{add_labelGroup}} function or was present after invoking the 
+\code{\link{convert_legacyEmuDB_to_emuDB}} function. For more 
+information on the structural elements of an emuDB 
+see \code{vignette{emuDB}}.
 }
-\author{
-Raphael Winkelmann
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "ae" emuDB 
+# (see ?load_emuDB for more information)
+
+sampaNasals = c("m", "F", "n", "J", "N")
+
+# add these values to the to the "ae" emuDB
+# as a globally available labelGroup
+add_labelGroup(dbName = "ae",
+               name = "sampaNasals",
+               values = sampaNasals)
+
+# remove the newly added labelGroup
+remove_labelGroup(dbName = "ae",
+                  name = "sampaNasals")
+
+}
+
 }
 \keyword{Emu}
 \keyword{database}
