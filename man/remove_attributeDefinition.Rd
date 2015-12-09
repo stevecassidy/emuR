@@ -17,10 +17,31 @@ remove_attributeDefinition(dbName, levelName, attributeDefinitionName,
 \item{dbUUID}{optional UUID of loaded emuDB}
 }
 \description{
-Remove attribute definitions from emuDB
+Remove additional attribute definition from an existing level definition
+of a emuDB that was added with the \code{\link{add_attributeDefinition}} 
+function. For more information on the structural elements of 
+an emuDB see \code{vignette(emuDB)}.
 }
-\author{
-Raphael Winkelmann
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded "ae" emuDB 
+# (see ?load_emuDB for more information)
+
+# add additional attribute definition to the "Phonetic" level
+# of the "ae" emuDB that will contain the UTF8 IPA
+# symbols of the phonetic transcriptions
+add_attributeDefinition(dbName = "ae",
+                        levelName = "Phonetic",
+                        name = "IPA-UTF8")
+
+# remove newly added attributeDefinition
+remove_attributeDefinition(dbName = "ae",
+                           levelName = "Phonetic",
+                           name = "IPA-UTF8")
+}
+
 }
 \keyword{Emu}
 \keyword{database}

@@ -765,13 +765,37 @@ modify_attributeDefinition <- function(){
 
 ##' Remove attribute definitions from emuDB
 ##' 
+##' Remove additional attribute definition from an existing level definition
+##' of a emuDB that was added with the \code{\link{add_attributeDefinition}} 
+##' function. For more information on the structural elements of 
+##' an emuDB see \code{vignette(emuDB)}.
+##' 
 ##' @param dbName name of loaded emuDB
 ##' @param levelName name of level
 ##' @param attributeDefinitionName name of attributeDefinition
 ##' @param dbUUID optional UUID of loaded emuDB
-##' @author Raphael Winkelmann
 ##' @export
 ##' @keywords emuDB database schema Emu
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' # add additional attribute definition to the "Phonetic" level
+##' # of the "ae" emuDB that will contain the UTF8 IPA
+##' # symbols of the phonetic transcriptions
+##' add_attributeDefinition(dbName = "ae",
+##'                         levelName = "Phonetic",
+##'                         name = "IPA-UTF8")
+##' 
+##' # remove newly added attributeDefinition
+##' remove_attributeDefinition(dbName = "ae",
+##'                            levelName = "Phonetic",
+##'                            name = "IPA-UTF8")
+##' }
+##' 
 remove_attributeDefinition <- function(dbName, 
                                        levelName, 
                                        attributeDefinitionName, 
