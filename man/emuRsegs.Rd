@@ -14,25 +14,20 @@ Data frame columns are:
   \item end: offset time in milliseconds
   \item session: session name
   \item bundle: bundle name
-  \item startItemID: item ID of first element of sequence
-  \item endItemID: item ID of last element of sequence
+  \item level: level name
   \item type: type of "segment" row: 'ITEM': symbolic item, 'EVENT': event item, 'SEGMENT': segment
 
 }
 Additional hidden columns:
 \itemize{
- \item utts utterance name (for compatibility to \link{emusegs} class)
- \item db_uuid UUID of emuDB
- \item level name of level
- \item sampleStart start sample
- \item sampleEnd end sample
- \item sampleRate sample rate
+ \item utts: utterance name (for compatibility to \link{emusegs} class)
+ \item db_uuid: UUID of emuDB
+ \item startItemID: item ID of first element of sequence
+ \item endItemID: item ID of last element of sequence
+ \item sampleStart: start sample position
+ \item sampleEnd: end sample position
+ \item sampleRate: sample rate
 }
-The print method of emuRsegs hides the columns listed above.
-To print all columns of a segment list object use the print method of data.frame.
-For example to print all columns of a emuRsegs segmentlist object \code{sl} type:
-
-\code{print.data.frame(sl)}
 
 Attributes:
 \itemize{
@@ -41,11 +36,15 @@ Attributes:
   \item type: type ('segment' or 'event') (for compatibility to \link{emusegs} class)
 }}
 \description{
-An emuR segment list is a list of segment descriptors. Each segment descriptor describes a sequence of annotation elements. It is usually a result of a database query.
+An emuR segment list is a list of segment descriptors. Each segment descriptor describes a sequence of annotation elements. The list is usually a result of an emuDB query using function \code{\link{query}}.
 }
 \details{
-Each row contains the ID's of start and end elements and the corresponding start and end position in time and as sample count.
-Though the segment descriptors have references to the annotations, the label and sample/time position information is not updated if any of them are updated. The values of the segment list may get invalid if the the database is modified.
+Each row shows the annotation label sequence, the start and end position in time, session and bundle names, level name and type.
+Additionally the row contains the UUID of the emuDB, the ID's of start and end elements and the corresponding start and end position as sample count and the sample rate.
+These columns are not printed by default. The print method of emuRsegs hides them. To print all columns of a segment list object use the print method of \code{\link{data.frame}}.
+For example to print all columns of an emuRsegs segmentlist \code{sl} type:
+\code{print.data.frame(sl)}
+Though the segment descriptors have references to the annotations, the label and sample/time position information is not updated if any of them change. The values of the segment list may get invalid if the the database is modified.
 A segment may consist only of one single element, in this case start and end ID are equal.
 An emuR segment list is the default result of \code{\link{query}} and can be used to get track data using \code{\link{get_trackdata}}.
 The emuRsegs class inherits \link{emusegs} and hence \code{\link{data.frame}}
