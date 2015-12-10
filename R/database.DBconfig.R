@@ -1051,35 +1051,58 @@ remove_attrDefLabelGroup <- function(dbName,
 ###################################################
 # CRUD operations for linkDefinitions
 
-##' Add linkDefinition to emuDB
+##' Add / List / Remove linkDefinition to / of / from emuDB
 ##' 
-##' Add new link definition to emuDB. A link definition
+##' Add / List / Remove new link definition to / of / from emuDB. A link definition
 ##' specifies the relationship between two levels, the
 ##' super-level and the sub-level. The entirety of all link 
 ##' definitions of a emuDB specifies the 
 ##' hierarchical structure of the database. For more information
 ##' on the structural elements of an emuDB see \code{vignette(emuDB)}.
 ##' 
+##' Link type descriptions:
+##' \itemize{
+##' \item{\code{"ONE_TO_MANY"}}{A single ITEM of the super-level can be linked to multiple ITEMs of the sub-level}
+##' \item{\code{"MANY_TO_MANY"}}{Multiple ITEMs of the super-level can be linked to multiple ITEMs of the sub-level}
+##' \item{\code{"ONE_TO_ONE"}}{A single ITEM of the super-level can be linked to a single ITEM of the sub-level}
+##' }
+##' 
+##' For all link types the rule applies that no links are allowed to cross any other links.
+##' 
 ##' @param dbName name of emuDB
 ##' @param type type of linkDefinition (either \code{"ONE_TO_MANY"}, \code{"MANY_TO_MANY"} or \code{"ONE_TO_ONE"})
 ##' @param superlevelName name of super-level of linkDefinition
 ##' @param sublevelName name of sub-level of linkDefinition
 ##' @param dbUUID optional UUID of emuDB
-##' @export
+##' @name AddListRemoveLinkDefinition
 ##' @examples 
 ##' \dontrun{
 ##' 
 ##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
+##' # prerequisite: loaded emuDB that was converted
+##' # using the TextGridCollection function called "myTGcolDB"
 ##' # (see ?load_emuDB for more information)
 ##' 
 ##' # add link defintition
-##' add_linkDefinition(dbName = "ae",
+##' add_linkDefinition(dbName = "myTGcolDB",
 ##'                    type = "ONE_TO_MANY",
-##'                    superlevelName = "")
+##'                    superlevelName = "Phoneme",
+##'                    sublevelName = "Phonetic")
+##' 
+##' # list link definitions
+##' list_linkDefinitions(dbName = "myTGcolDB")
+##' 
+##' # remove newly added link definition
+##' remove_linkDefinition(dbName = "myTGcolDB",
+##'                       superlevelName = "Phoneme",
+##'                       sublevelName = "Phonetic")
 ##' 
 ##' 
 ##' }
+NULL
+
+##' @rdname AddListRemoveLinkDefinition
+##' @export
 add_linkDefinition <- function(dbName, 
                                type,
                                superlevelName,
@@ -1120,13 +1143,8 @@ add_linkDefinition <- function(dbName,
 }
 
 
-##' List linkDefinitions of emuDB
-##' 
-##' @param dbName name of emuDB
-##' @param dbUUID optional UUID of emuDB
-##' @return data.frame object containing linkDefinitions infos
+##' @rdname AddListRemoveLinkDefinition
 ##' @export
-##' @author Raphael Winkelmann
 list_linkDefinitions <- function(dbName, dbUUID = NULL){
   
   dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
@@ -1146,18 +1164,9 @@ list_linkDefinitions <- function(dbName, dbUUID = NULL){
   
 }
 
-modify_linkDefinition <- function(){
-  stop("currently not implemented")
-}
 
-##' Remove linkDefinition from emuDB
-##' 
-##' @param dbName name of emuDB
-##' @param superlevelName name of superlevel of linkDefinition
-##' @param sublevelName name of sublevel of linkDefinition
-##' @param dbUUID optional UUID of emuDB
+##' @rdname AddListRemoveLinkDefinition
 ##' @export
-##' @author Raphael Winkelmann
 remove_linkDefinition <- function(dbName, 
                                   superlevelName,
                                   sublevelName,
