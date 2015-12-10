@@ -35,9 +35,9 @@ create.EMUwebAppConfig <- function(perspectives){
 ###########################################
 # CRUD operation for perspectives
 
-##' Add perspective to emuDB
+##' Add / List / Remove perspective to / of / from emuDB
 ##' 
-##' Add perspective to emuDB. The EMU-webApp subdivides different ways 
+##' Add / List / Remove perspective to / of / from emuDB. The EMU-webApp subdivides different ways 
 ##' to look at an emuDB into so called perspectives. These perspectives, 
 ##' between which you can switch in the web application, contain 
 ##' information on what levels are displayed, which ssffTracks are drawn, 
@@ -46,7 +46,7 @@ create.EMUwebAppConfig <- function(perspectives){
 ##' @param dbName name of loaded emuDB
 ##' @param name name of perspective
 ##' @param dbUUID optional UUID of loaded emuDB
-##' @export
+##' @name AddListRemovePerspective
 ##' @keywords emuDB database DBconfig Emu 
 ##' @examples
 ##' \dontrun{
@@ -64,7 +64,19 @@ create.EMUwebAppConfig <- function(perspectives){
 ##'                        perspectiveName = "justTones", 
 ##'                        order = c("Tone"))
 ##' 
+##' # list perspectives of "ae" emuDB
+##' list_perspectives("ae")
+##' 
+##' # remove newly added perspective
+##' remove_perspective(dbName = "ae",
+##'                    name = "justTones")
+##'                    
 ##' }
+##' 
+NULL
+
+##' @rdname AddListRemovePerspective
+##' @export
 add_perspective <- function(dbName, 
                             name,
                             dbUUID = NULL){
@@ -93,14 +105,8 @@ add_perspective <- function(dbName,
 }
 
 
-##' List perspectives of emuDB
-##' 
-##' List EMUwebAppConfig$perspectives of emuDB
-##' @param dbName name of loaded emuDB
-##' @param dbUUID optional UUID of loaded emuDB
-##' @author Raphael Winkelmann
+##' @rdname AddListRemovePerspective
 ##' @export
-##' @keywords emuDB database DBconfig Emu 
 list_perspectives <- function(dbName, dbUUID = NULL){
   
   dbObj=.load.emuDB.DBI(name=dbName, uuid = dbUUID)
@@ -120,19 +126,9 @@ list_perspectives <- function(dbName, dbUUID = NULL){
   return(df)
 }
 
-modify_perspective <- function(){
-  stop("currently not implemented")
-}
 
-##' Remove perspective from emuDB
-##' 
-##' List EMUwebAppConfig$perspective from emuDB
-##' @param dbName name of loaded emuDB
-##' @param name name of perspective
-##' @param dbUUID optional UUID of loaded emuDB
-##' @author Raphael Winkelmann
+##' @rdname AddListRemovePerspective
 ##' @export
-##' @keywords emuDB database DBconfig Emu 
 remove_perspective <- function(dbName, 
                                name,
                                dbUUID = NULL){
