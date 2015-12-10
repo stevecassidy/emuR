@@ -1422,13 +1422,13 @@ remove_ssffTrackDefinition <- function(dbName, name,
 }
 
 ###################################################
-# CRUD operations for (global) labelGroups
+# CRUD operations for global labelGroups
 
-##' Add (global) labelGroup to emuDB
+##' Add / List / Remove global labelGroup to / of / from emuDB
 ##' 
-##' Adds labelGroup that can be used as a short hand  
+##' Add / List / Remove label group that can be used as a short hand  
 ##' to reference groups of labels that are globally defined
-##' for the entire database (compared to attributeDefinition
+##' for the entire database (compared to attribute definition
 ##' specific label groups that 
 ##' are added by \code{\link{add_attrDefLabelGroup}}) in a 
 ##' \code{\link{query}}. A common example would be to
@@ -1442,9 +1442,9 @@ remove_ssffTrackDefinition <- function(dbName, name,
 ##' @param name name of label group
 ##' @param values character vector of labels
 ##' @param dbUUID optional UUID of loaded emuDB
-##' @export
 ##' @keywords emuDB database schema Emu
-##' @seealso list_labelGroups, add_attrDefLabelGroup
+##' @seealso add_attrDefLabelGroup
+##' @name AddListRemoveLabelGroup
 ##' @examples 
 ##' \dontrun{
 ##' 
@@ -1454,20 +1454,32 @@ remove_ssffTrackDefinition <- function(dbName, name,
 ##' 
 ##' sampaNasals = c("m", "F", "n", "J", "N")
 ##' 
-##' # add these values to the to the "ae" emuDB
+##' # add these values to the "ae" emuDB
 ##' # as a globally available labelGroup
 ##' add_labelGroup(dbName = "ae",
 ##'                name = "sampaNasals",
 ##'                values = sampaNasals)
 ##' 
 ##' # query the labelGroup in the "Phonetic" level
-##' query("ae", "Phonetic == sampaNasals")
+##' query(dbName = "ae", 
+##'       query = "Phonetic == sampaNasals")
 ##' 
 ##' # query the labelGroup in the "Phoneme" level
-##' query("ae", "Phoneme == sampaNasals")
+##' query(dbName = "ae", 
+##'       query = "Phoneme == sampaNasals")
 ##' 
+##' # list global label groups of "ae" emuDB
+##' list_labelGroups(dbName = "ae")
+##' 
+##' # remove the newly added labelGroup
+##' remove_labelGroup(dbName = "ae",
+##'                   name = "sampaNasals")
 ##' }
 ##' 
+NULL
+
+##' @rdname AddListRemoveLabelGroup
+##' @export
 add_labelGroup <- function(dbName,
                            name,
                            values,
@@ -1489,33 +1501,8 @@ add_labelGroup <- function(dbName,
 }
 
 
-##' List (global) labelGroups of emuDB
-##' 
-##' List global label groups of emuDB. A label group contains the specifications of a group of 
-##' labels that can be referenced by a name given to the group while querying the emuDB. Compared 
-##' to the attribute definition specific label groups these label groups are defined globally for 
-##' the entire database. For more information on the structural elements of an emuDB 
-##' see \code{vignette{emuDB}}.
-##' 
-##' @param dbName name of loaded emuDB
-##' @param dbUUID optional UUID of loaded emuDB
-##' @return \code{\link{data.frame}} containing names and values of label groups
+##' @rdname AddListRemoveLabelGroup
 ##' @export
-##' @keywords emuDB database schema Emu
-##' @examples 
-##' \dontrun{
-##' 
-##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
-##' # (see ?load_emuDB for more information)
-##' 
-##' # list global label groups of "ae" emuDB
-##' list_labelGroups(dbName = "ae")
-##' 
-##' # NOTE: This will return NA as there are 
-##' # no global label groups defined for the "ae" emuDB
-##' }
-##' 
 list_labelGroups <- function(dbName,
                              dbUUID = NULL){
   
@@ -1535,40 +1522,8 @@ list_labelGroups <- function(dbName,
 }
 
 
-##' Remove (global) labelGroup from emuDB
-##' 
-##' Remove global label group that was previously added by the 
-##' \code{\link{add_labelGroup}} function or was present after invoking the 
-##' \code{\link{convert_legacyEmuDB_to_emuDB}} function. For more 
-##' information on the structural elements of an emuDB 
-##' see \code{vignette{emuDB}}.
-##' 
-##' @param dbName name of loaded emuDB
-##' @param name name of label group
-##' @param dbUUID optional UUID of loaded emuDB
+##' @rdname AddListRemoveLabelGroup
 ##' @export
-##' @keywords emuDB database schema Emu
-##' @examples 
-##' \dontrun{
-##' 
-##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
-##' # (see ?load_emuDB for more information)
-##' 
-##' sampaNasals = c("m", "F", "n", "J", "N")
-##' 
-##' # add these values to the to the "ae" emuDB
-##' # as a globally available labelGroup
-##' add_labelGroup(dbName = "ae",
-##'                name = "sampaNasals",
-##'                values = sampaNasals)
-##' 
-##' # remove the newly added labelGroup
-##' remove_labelGroup(dbName = "ae",
-##'                   name = "sampaNasals")
-##' 
-##' }
-##' 
 remove_labelGroup <- function(dbName,
                               name,
                               dbUUID = NULL){
