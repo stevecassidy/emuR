@@ -1217,9 +1217,9 @@ remove_linkDefinition <- function(dbName,
 ###################################################
 # CRUD operations for ssffTrackDefinitions
 
-##' Add ssffTrackDefinition to emuDB
+##' Add / List / Remove ssffTrackDefinition to / from / of emuDB
 ##' 
-##' Add new ssffTrackDefinitions to emuDB. 
+##' Add / List / Remove ssffTrackDefinitions to / from / of emuDB. 
 ##' An ssffTrack (often simply referred to as a track) references 
 ##' data that is stored in the Simple Signal File Format (SSFF) 
 ##' in the according bundle folders. The two most common types of data are:
@@ -1251,7 +1251,7 @@ remove_linkDefinition <- function(dbName,
 ##' @param interactive ask user for confirmation
 ##' @param dbUUID optional UUID of emuDB
 ##' @seealso wrasspOutputInfos
-##' @export
+##' @name AddListRemoveSsffTrackDefinition
 ##' @examples 
 ##' \dontrun{
 ##' 
@@ -1259,14 +1259,14 @@ remove_linkDefinition <- function(dbName,
 ##' # prerequisite: loaded "ae" emuDB 
 ##' # (see ?load_emuDB for more information)
 ##' 
-##' # add ssffTrackDefinition to "ae" emuDB
+##' # add ssff track definition to "ae" emuDB
 ##' # calculating the according SSFF files on-the-fly
 ##' # using the wrassp function "zcrana" (zero-crossing-rate analysis)
 ##' add_ssffTrackDefinition(dbName = "ae",
 ##'                         name = "ZCRtrack",
 ##'                         onTheFlyFunctionName = "zcrana")
 ##'                         
-##' # add ssffTrackDefinition to "ae" emuDB
+##' # add ssff track definition to "ae" emuDB
 ##' # for SSFF files that will be added later (either
 ##' # by adding files to the emuDB using 
 ##' # the add_files() function or by calculating
@@ -1277,8 +1277,19 @@ remove_linkDefinition <- function(dbName,
 ##'                         columnName = "fm",
 ##'                         fileExtension = "fms")
 ##' 
+##' # list ssff track definitions for "ae" emuDB
+##' list_ssffTrackDefinitions(dbName = "ae")
+##' 
+##' # remove newly added ssff track definition
+##' remove_ssffTrackDefinition <- function(dbName = "ae", 
+##'                                        name = "ZCRtrack")
+##' 
 ##' }
 ##' 
+NULL
+
+##' @rdname AddListRemoveSsffTrackDefinition
+##' @export
 add_ssffTrackDefinition <- function(dbName, name, 
                                     columnName = NULL, fileExtension = NULL, 
                                     onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
@@ -1365,13 +1376,8 @@ add_ssffTrackDefinition <- function(dbName, name,
   .store.schema(dbObj)
 }
 
-##' List ssffTrackDefinitions of emuDB
-##' @description List ssffTrackDefinitions of emuDB
-##' @param dbName name of emuDB
-##' @param dbUUID optional UUID of emuDB
-##' @return data.frame object containing ssffTrackDefinitions infos
+##' @rdname AddListRemoveSsffTrackDefinition
 ##' @export
-##' @author Raphael Winkelmann
 list_ssffTrackDefinitions <- function(dbName, dbUUID = NULL){
   # .initialize.DBI.database()
   uuid=get_UUID(dbName,dbUUID)
@@ -1382,17 +1388,7 @@ list_ssffTrackDefinitions <- function(dbName, dbUUID = NULL){
 }
 
 
-modify_ssffTrackDefinition <- function(){
-  stop("Currently not implementd")
-}
-
-
-##' Remove ssffTrackDefinition of emuDB
-##' @description Remove ssffTrackDefinitions of emuDB
-##' @param dbName name of emuDB
-##' @param name name of ssffTrackDefinitions to be deleted
-##' @param deleteFiles deletes all files with the fileExtension of the ssffTrackDefinition
-##' @param dbUUID optional UUID of emuDB
+##' @rdname AddListRemoveSsffTrackDefinition
 ##' @export
 remove_ssffTrackDefinition <- function(dbName, name, 
                                        deleteFiles = FALSE, dbUUID = NULL){
