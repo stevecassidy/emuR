@@ -1247,6 +1247,7 @@ remove_linkDefinition <- function(dbName,
 ##' provided by the wrassp package and then setting the
 ##' parameter one wishes to change.     
 ##' @param onTheFlyOptLogFilePath path to optional log file for on-the-fly function
+##' @param deleteFiles delete files that belong to ssffTrackDefinition on removal
 ##' @param verbose Show progress bars and further information
 ##' @param interactive ask user for confirmation
 ##' @param dbUUID optional UUID of emuDB

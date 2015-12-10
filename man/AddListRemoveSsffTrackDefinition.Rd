@@ -45,6 +45,8 @@ parameter one wishes to change.}
 \item{verbose}{Show progress bars and further information}
 
 \item{interactive}{ask user for confirmation}
+
+\item{deleteFiles}{delete files that belong to ssffTrackDefinition on removal}
 }
 \description{
 Add / List / Remove ssffTrackDefinitions to / from / of emuDB. 
