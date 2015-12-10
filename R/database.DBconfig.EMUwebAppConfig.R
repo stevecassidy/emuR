@@ -156,15 +156,38 @@ remove_perspective <- function(dbName,
 # CRUD operation for signalCanvasesOrder
 
 
-##' Set signalCanvasesOrder of emuDB
+##' Get signalCanvasesOrder of emuDB
+##' 
+##' Get signalCanvasesOrder array that specifies which signals are 
+##' displayed in the according perspective by the EMU-webApp. A entry in this array 
+##' refers to either the name of a ssffTrackDefinition or a predefined string: \code{"OSCI"} which 
+##' represents the oscillogram or \code{"SPEC"} which represents the 
+##' spectrogram. For more information on the structural elements of an emuDB 
+##' see \code{vignette{emuDB}}.
 ##' 
 ##' @param dbName name of loaded emuDB
 ##' @param perspectiveName name of perspective
 ##' @param dbUUID optional UUID of loaded emuDB
-##' @param order character vector containig names of ssffTrackDefinitions
-##' @author Raphael Winkelmann
+##' @name SetGetSignalCanvasesOrder
+##' @keywords emuDB database DBconfig Emu
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded "ae" emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' # get signal canvas order of the "default"
+##' # perspective of the "ae" emuDB
+##' get_signalCanvasesOrder(dbName = "ae", 
+##'                         perspectiveName = "default")
+##'                         
+##' }
+##' 
+NULL
+
+##' @rdname SetGetSignalCanvasesOrder
 ##' @export
-##' @keywords emuDB database DBconfig Emu 
 set_signalCanvasesOrder <- function(dbName,
                                     perspectiveName,
                                     order,
@@ -193,33 +216,8 @@ set_signalCanvasesOrder <- function(dbName,
 }
 
 
-##' Get signalCanvasesOrder of emuDB
-##' 
-##' Get signalCanvasesOrder array that specifies which signals are 
-##' displayed in the according perspective by the EMU-webApp. A entry in this array 
-##' refers to either the name of a ssffTrackDefinition or a predefined string: \code{"OSCI"} which 
-##' represents the oscillogram or \code{"SPEC"} which represents the 
-##' spectrogram. For more information on the structural elements of an emuDB 
-##' see \code{vignette{emuDB}}.
-##' 
-##' @param dbName name of loaded emuDB
-##' @param perspectiveName name of perspective
-##' @param dbUUID optional UUID of loaded emuDB
+##' @rdname SetGetSignalCanvasesOrder
 ##' @export
-##' @keywords emuDB database DBconfig Emu
-##' @examples 
-##' \dontrun{
-##' 
-##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
-##' # (see ?load_emuDB for more information)
-##' 
-##' # get signal canvas order of the "default"
-##' # perspective of the "ae" emuDB
-##' get_signalCanvasesOrder(dbName = "ae", 
-##'                         perspectiveName = "default")
-##'                         
-##' }
 get_signalCanvasesOrder <- function(dbName,
                                     perspectiveName,
                                     dbUUID = NULL){
@@ -244,7 +242,8 @@ get_signalCanvasesOrder <- function(dbName,
 ##' Set / Get level canvases order of emuDB. Level canvases refer to levels of 
 ##' the type "SEGMENT" or "EVENT" that are displayed by the EMU-webApp. Levels 
 ##' of type "ITEM" can always be displayed using the show hierarchy modal of the
-##' web application. For more information on the structural elements of an emuDB 
+##' web application but may not be displayed as level canvases. 
+##' For more information on the structural elements of an emuDB 
 ##' see \code{vignette{emuDB}}.
 ##' 
 ##' @param dbName name of loaded emuDB
