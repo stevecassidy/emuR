@@ -1083,7 +1083,7 @@ remove_attrDefLabelGroup <- function(dbName,
 ##' # using the TextGridCollection function called "myTGcolDB"
 ##' # (see ?load_emuDB for more information)
 ##' 
-##' # add link defintition from super-level "Phoneme"
+##' # add link definition from super-level "Phoneme"
 ##' # to sub-level "Phonetic" of type "ONE_TO_MANY"
 ##' # for "myTGcolDB" emuDB
 ##' add_linkDefinition(dbName = "myTGcolDB",
