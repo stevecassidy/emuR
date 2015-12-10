@@ -4,7 +4,7 @@
 \alias{SetGetSignalCanvasesOrder}
 \alias{get_signalCanvasesOrder}
 \alias{set_signalCanvasesOrder}
-\title{Get signalCanvasesOrder of emuDB}
+\title{Set / Get signalCanvasesOrder of / to / from emuDB}
 \usage{
 set_signalCanvasesOrder(dbName, perspectiveName, order, dbUUID = NULL)
 
@@ -15,11 +15,13 @@ get_signalCanvasesOrder(dbName, perspectiveName, dbUUID = NULL)
 
 \item{perspectiveName}{name of perspective}
 
+\item{order}{character vector containig names of ssffTrackDefinitions or "OSCI" / "SPEC"}
+
 \item{dbUUID}{optional UUID of loaded emuDB}
 }
 \description{
-Get signalCanvasesOrder array that specifies which signals are 
-displayed in the according perspective by the EMU-webApp. A entry in this array 
+Set / Get signalCanvasesOrder array that specifies which signals are 
+displayed in the according perspective by the EMU-webApp. A entry in this character vector 
 refers to either the name of a ssffTrackDefinition or a predefined string: \code{"OSCI"} which 
 represents the oscillogram or \code{"SPEC"} which represents the 
 spectrogram. For more information on the structural elements of an emuDB 

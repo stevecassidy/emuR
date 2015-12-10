@@ -156,10 +156,10 @@ remove_perspective <- function(dbName,
 # CRUD operation for signalCanvasesOrder
 
 
-##' Get signalCanvasesOrder of emuDB
+##' Set / Get signalCanvasesOrder of / to / from emuDB
 ##' 
-##' Get signalCanvasesOrder array that specifies which signals are 
-##' displayed in the according perspective by the EMU-webApp. A entry in this array 
+##' Set / Get signalCanvasesOrder array that specifies which signals are 
+##' displayed in the according perspective by the EMU-webApp. A entry in this character vector 
 ##' refers to either the name of a ssffTrackDefinition or a predefined string: \code{"OSCI"} which 
 ##' represents the oscillogram or \code{"SPEC"} which represents the 
 ##' spectrogram. For more information on the structural elements of an emuDB 
@@ -167,6 +167,7 @@ remove_perspective <- function(dbName,
 ##' 
 ##' @param dbName name of loaded emuDB
 ##' @param perspectiveName name of perspective
+##' @param order character vector containig names of ssffTrackDefinitions or "OSCI" / "SPEC"
 ##' @param dbUUID optional UUID of loaded emuDB
 ##' @name SetGetSignalCanvasesOrder
 ##' @keywords emuDB database DBconfig Emu
