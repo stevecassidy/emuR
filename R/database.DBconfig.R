@@ -898,9 +898,10 @@ remove_legalLabels <- function(dbName,
 ###################################################
 # CRUD operations for attributeDefinition$labelGroups
 
-##' Add labelGroup to attributeDefinition of emuDB
+##' Add / List / Remove labelGroup to / of / from attributeDefinition of emuDB
 ##' 
-##' Adds labelGroup that can be used as a short hand  
+##' Add / List / Remove label group to / of / from a specific attribute definition. 
+##' This label group can be used as a short hand  
 ##' to reference groups of labels specific
 ##' to an attribute definition (compared to global label groups that 
 ##' are added by \code{\link{add_labelGroup}}) in a 
@@ -917,9 +918,9 @@ remove_legalLabels <- function(dbName,
 ##' @param labelGroupName name of label group
 ##' @param labelGroupValues character vector of labels
 ##' @param dbUUID optional UUID of loaded emuDB
-##' @export
 ##' @keywords emuDB database schema Emu
-##' @seealso list_attrDefLabelGroups, add_labelGroup
+##' @seealso add_labelGroup
+##' @name AddListRemoveAttrDefLabelGroup
 ##' @examples
 ##' \dontrun{
 ##' 
@@ -940,7 +941,26 @@ remove_legalLabels <- function(dbName,
 ##' # query the labelGroup
 ##' query("ae", "Phonetic=sampaNasals")
 ##' 
+##' 
+##' # list attribute definition label groups
+##' # of attributeDefinition "Phonetic" of the level "Phonetic"
+##' # of the "ae" emuDB
+##' list_attrDefLabelGroups(dbName = "ae", 
+##'                         levelName = "Phonetic" , 
+##'                         attributeDefinitionName = "Phonetic")
+##' 
+##' # remove the newly added attrDefLabelGroup
+##' remove_attrDefLabelGroup(dbName = "ae",
+##'                          levelName = "Phonetic",
+##'                          attributeDefinitionName = "Phonetic",
+##'                          labelGroupName = "sampaNasals")
+##' 
 ##' }
+##' 
+NULL
+
+##' @rdname AddListRemoveAttrDefLabelGroup
+##' @export
 add_attrDefLabelGroup <- function(dbName,
                                   levelName,
                                   attributeDefinitionName, 
@@ -970,36 +990,8 @@ add_attrDefLabelGroup <- function(dbName,
   .store.schema(dbObj)
 }
 
-
-##' List labelGroups of attributeDefinition of emuDB
-##' 
-##' List label groups of attribute definition of emuDB. A label group contains the specifications of a group of 
-##' labels that can be referenced by a name given to the group while querying the emuDB.
-##' For more information on the structural elements of an emuDB 
-##' see \code{vignette{emuDB}}.
-##' 
-##' @param dbName name of loaded emuDB
-##' @param levelName name of level
-##' @param attributeDefinitionName name of attributeDefinition
-##' @param dbUUID optional UUID of loaded emuDB
+##' @rdname AddListRemoveAttrDefLabelGroup
 ##' @export
-##' @keywords emuDB database schema Emu
-##' @examples 
-##' \dontrun{
-##' 
-##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
-##' # (see ?load_emuDB for more information)
-##' 
-##' # list attribute definition label groups
-##' # of attributeDefinition "Phonetic" of the level "Phonetic"
-##' # of the "ae" emuDB
-##' list_attrDefLabelGroups(dbName = "ae", 
-##'                         levelName = "Phonetic" , 
-##'                         attributeDefinitionName = "Phonetic")
-##' 
-##' }
-##' 
 list_attrDefLabelGroups <- function(dbName,
                                     levelName,
                                     attributeDefinitionName, 
@@ -1025,48 +1017,9 @@ list_attrDefLabelGroups <- function(dbName,
   return(df)
 }
 
-modify_attrDefLabelGroup <- function(){
-  stop("not implemented yet!")
-}
 
-##' Remove labelGroup of attributeDefinition of emuDB
-##' 
-##' Remove label group that was previously added by 
-##' \code{\link{add_attrDefLabelGroup}}. For more information 
-##' on the structural elements of an emuDB see \code{vignette(emuDB)}.
-##' 
-##' @param dbName name of loaded emuDB
-##' @param levelName name of level
-##' @param attributeDefinitionName name of attributeDefinition
-##' @param labelGroupName name of label group
-##' @param dbUUID optional UUID of loaded emuDB
+##' @rdname AddListRemoveAttrDefLabelGroup
 ##' @export
-##' @keywords emuDB database schema Emu
-##' @examples
-##' \dontrun{
-##' 
-##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
-##' # (see ?load_emuDB for more information)
-##' 
-##' sampaNasals = c("m", "F", "n", "J", "N")
-##' 
-##' # add these values to the default Phonetic attribute
-##' # definition of the "Phonetic" level of the "ae" emuDB
-##' add_attrDefLabelGroup(dbName = "ae",
-##'                       levelName = "Phonetic",
-##'                       attributeDefinitionName = "Phonetic",
-##'                       labelGroupName = "sampaNasals",
-##'                       labelGroupValues = sampaNasals)
-##'                       
-##' # remove the newly added attrDefLabelGroup
-##' remove_attrDefLabelGroup(dbName = "ae",
-##'                          levelName = "Phonetic",
-##'                          attributeDefinitionName = "Phonetic",
-##'                          labelGroupName = "sampaNasals")
-##' 
-##' }
-##' 
 remove_attrDefLabelGroup <- function(dbName,
                                      levelName,
                                      attributeDefinitionName, 
