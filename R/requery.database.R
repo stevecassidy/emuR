@@ -144,7 +144,7 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBo
 ##' As the start item in the resulting segment the item with the lowest sample position is chosen; for the end item that with the highest sample position.
 ##' If result and input segment list have the same length (for each input segment one segment on the target level was found), the result segment list has the same length and order as the input list; 
 ##' in 'upwards' requeries this can cause a resulting segment list to contain two (or more) copies of the same segment, if the same item from the input list was linked twice or more to an item of the target level, e.g. a phoneme 'p' requeried to the word level might result in two identical segments 'Papa' in the result list. 
-##' If the length of input and output list differ (e.g. because a link is missing in the emuDB), a synchronous ordering is not possible and therefore a warning is generated.
+##' If the length of input and output list differ (e.g. because a link is missing in the emuDB), a synchronous ordering is not possible and therefore an error is generated.
 ##' 
 ##' @param seglist segment list to requery on (type: \link{emuRsegs})
 ##' @param level character string: name of target level 
@@ -352,7 +352,7 @@ requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
     # free temp tables
     setQueryTmpEmuDBs(NULL)
     if(inSlLen!=trSlLen){
-      warning("Length of requery segment list (",trSlLen,") differs from input list (",inSlLen,")!")
+      stop("Length of requery segment list (",trSlLen,") differs from input list (",inSlLen,")!")
     }
     return(trSl)
   }
