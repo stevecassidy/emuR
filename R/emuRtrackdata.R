@@ -75,17 +75,16 @@ create_emuRtrackdata <- function(sl, td){
 ##' @param single blup
 ##' @param average blap
 ##' @param prop woooord
-##' @import dplyr
 cut.emuRtrackdata = function(emuRtrackdata, leftTime, rightTime, 
                              single = TRUE, average = TRUE, prop = FALSE){
   
   if (missing(rightTime)) {
     if(length(leftTime == 1)){
-#       res = emuRtrackdata %>% 
-#         group_by(sl_rowIdx) %>% 
-#         mutate(times_propDiff = 1 + (times_orig - min(times_orig)) / (max(times_orig) - min(times_orig)) - leftTime) %>%
-#         filter(times_propDiff == min(times_propDiff)) %>%
-#         dplyr::select(-times_propDiff)
+      res = emuRtrackdata %>% 
+        dplyr::group_by("sl_rowIdx") %>% 
+        dplyr::mutate(times_propDiff = 1 + ("times_orig" - min("times_orig")) / (max("times_orig") - min("times_orig")) - leftTime) %>%
+        dplyr::filter(times_propDiff == min("times_propDiff")) %>%
+        dplyr::select(-times_propDiff)
     }else{
       
     }
