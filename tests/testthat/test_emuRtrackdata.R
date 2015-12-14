@@ -24,7 +24,7 @@ test_that("correct classes are returned", {
 })
 
 ##############################
-# test_that("cut_td works correctly", {
+# test_that("cut works correctly", {
 #   
 #   sl = query(dbName, "Phonetic=@|i:")
 #   td = get_trackdata(dbName, 
