@@ -144,7 +144,7 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBo
 ##' As the start item in the resulting segment the item with the lowest sample position is chosen; for the end item that with the highest sample position.
 ##' If result and input segment list have the same length (for each input segment one segment on the target level was found), the result segment list has the same length and order as the input list; 
 ##' in 'upwards' requeries this can cause a resulting segment list to contain two (or more) copies of the same segment, if the same item from the input list was linked twice or more to an item of the target level, e.g. a phoneme 'p' requeried to the word level might result in two identical segments 'Papa' in the result list. 
-##' If the length of input and output list differ (e.g. because a link is missing in the emuDB), a synchronous ordering is not possible and therefore an error is generated.
+##' If the length of input and output list differ (e.g. because a link is missing in the emuDB), a synchronous ordering is not possible and therefore a warning is generated.
 ##' 
 ##' @param seglist segment list to requery on (type: \link{emuRsegs})
 ##' @param level character string: name of target level 
@@ -235,7 +235,7 @@ requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
     if(is.null(level)){
       heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndId,ir.seqIdx-il.seqIdx+1 AS seqLen,il.level \
                           FROM \
-                          ( SELECT ils.*,min(ils.seqIdx) FROM items ils,items slil,seglist sl WHERE \
+                          ( SELECT ils.*,min(ils.seqIdx),sl.ROWID AS lrId FROM items ils,items slil,seglist sl WHERE \
                           ils.db_uuid=sl.db_uuid AND ils.session=sl.session AND ils.bundle=sl.bundle AND \
                           slil.db_uuid=sl.db_uuid AND slil.session=sl.session AND slil.bundle=sl.bundle AND \
                           slil.itemID=sl.startItemID AND ils.level=slil.level AND (\
@@ -244,9 +244,9 @@ requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
                           WHERE lr.db_uuid=sl.db_uuid AND lr.session=sl.session AND lr.bundle=sl.bundle \
                           AND ((lr.fromID=sl.startItemID AND lr.toID=ils.itemID) OR (lr.fromID=ils.itemID AND lr.toID= sl.startItemID))\
                           )) \
-                          ) GROUP BY sl.ROWID ) \
+                          ) GROUP BY lrId ) \
                           AS il JOIN \
-                          ( SELECT irs.*,max(irs.seqIdx) FROM items irs,items slir,seglist sl WHERE \
+                          ( SELECT irs.*,max(irs.seqIdx),sl.ROWID AS rrId FROM items irs,items slir,seglist sl WHERE \
                           irs.db_uuid=sl.db_uuid AND irs.session=sl.session AND irs.bundle=sl.bundle AND \
                           slir.db_uuid=sl.db_uuid AND slir.session=sl.session AND slir.bundle=sl.bundle AND \
                           slir.itemID=sl.endItemID AND irs.level=slir.level AND (\
@@ -255,8 +255,8 @@ requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
                           WHERE lr.db_uuid=sl.db_uuid AND lr.session=sl.session AND lr.bundle=sl.bundle \
                           AND ((lr.fromID=sl.endItemID AND lr.toID=irs.itemID) OR (lr.fromID=irs.itemID AND lr.toID= sl.endItemID))\
                           )) \
-                          ) GROUP BY sl.ROWID ) \
-                          AS ir ON il.ROWID=ir.ROWID
+                          ) GROUP BY rrId ) \
+                          AS ir ON lrId=rrId
                           ")
       #levelSeglist=contextRequery(seglist = seglist,targetLevel = level)
       
@@ -265,26 +265,26 @@ requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
       check_level_attribute_name(dbConfig,level)
       targetRootLevelName=get.level.name.for.attribute(dbConfig = dbConfig,attributeName = level)
       
-      leftQuery=paste0("SELECT ils.*,min(ils.seqIdx) FROM seglist sll,items ils WHERE \
-                         ils.db_uuid=sll.db_uuid AND ils.session=sll.session AND ils.bundle=sll.bundle AND \
-                         ils.level='",targetRootLevelName,"' AND (\
-                         (ils.itemID=sll.startItemID) OR 
-                         (EXISTS (SELECT * FROM linksExt ll \
-                         WHERE ll.db_uuid=sll.db_uuid AND ll.session=sll.session AND ll.bundle=sll.bundle \
-                         AND ((ll.fromID=sll.startItemID AND ll.toID=ils.itemID) OR (ll.fromID=ils.itemID AND ll.toID= sll.startItemID))\
-                         )) \
-                         ) GROUP BY sll.ROWID ORDER BY sll.ROWID")
-      
-      rightQuery=paste0("SELECT irs.itemID AS seqEndId,irs.seqIdx AS rSeqIdx,max(irs.seqIdx) FROM seglist slr,items irs WHERE \
-                          irs.db_uuid=slr.db_uuid AND irs.session=slr.session AND irs.bundle=slr.bundle AND \
-                          irs.level='",targetRootLevelName,"' AND (\
-                          (irs.itemID=slr.endItemID) OR
-                          (EXISTS (SELECT * FROM linksExt lr \
-                          WHERE lr.db_uuid=slr.db_uuid AND lr.session=slr.session AND lr.bundle=slr.bundle \
-                          AND ((lr.fromID=slr.endItemID AND lr.toID=irs.itemID) OR (lr.fromID=irs.itemID AND lr.toID= slr.endItemID))\
-                          )) \
-                          ) GROUP BY slr.ROWID ORDER BY slr.ROWID")
-      
+#       leftQuery=paste0("SELECT ils.*,min(ils.seqIdx) FROM seglist sll,items ils WHERE \
+#                          ils.db_uuid=sll.db_uuid AND ils.session=sll.session AND ils.bundle=sll.bundle AND \
+#                          ils.level='",targetRootLevelName,"' AND (\
+#                          (ils.itemID=sll.startItemID) OR 
+#                          (EXISTS (SELECT * FROM linksExt ll \
+#                          WHERE ll.db_uuid=sll.db_uuid AND ll.session=sll.session AND ll.bundle=sll.bundle \
+#                          AND ((ll.fromID=sll.startItemID AND ll.toID=ils.itemID) OR (ll.fromID=ils.itemID AND ll.toID= sll.startItemID))\
+#                          )) \
+#                          ) GROUP BY sll.ROWID ORDER BY sll.ROWID")
+#       
+#       rightQuery=paste0("SELECT irs.itemID AS seqEndId,irs.seqIdx AS rSeqIdx,max(irs.seqIdx) FROM seglist slr,items irs WHERE \
+#                           irs.db_uuid=slr.db_uuid AND irs.session=slr.session AND irs.bundle=slr.bundle AND \
+#                           irs.level='",targetRootLevelName,"' AND (\
+#                           (irs.itemID=slr.endItemID) OR
+#                           (EXISTS (SELECT * FROM linksExt lr \
+#                           WHERE lr.db_uuid=slr.db_uuid AND lr.session=slr.session AND lr.bundle=slr.bundle \
+#                           AND ((lr.fromID=slr.endItemID AND lr.toID=irs.itemID) OR (lr.fromID=irs.itemID AND lr.toID= slr.endItemID))\
+#                           )) \
+#                           ) GROUP BY slr.ROWID ORDER BY slr.ROWID")
+#       
       # The following code produces strange error on this data:
       # 
       #        > fsl=query('ae',"Text=~a.* & Num(Text,Phoneme)=2")
@@ -307,38 +307,41 @@ requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
       #        
       #        > packageVersion('RSQLite')
       #        [1] '1.0.0'
+      # 
+      #       Found the problem:
+      #       I needed to put the left/right row Ids in separate columns (lrId,rrId) !! 
       
+            heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndId,(ir.seqIdx-il.seqIdx+1) AS seqLen,'",level,"' AS level \
+                              FROM 
+                              ( SELECT ils.*,min(ils.seqIdx),sll.ROWID AS lrId FROM seglist sll,items ils WHERE \
+                              ils.db_uuid=sll.db_uuid AND ils.session=sll.session AND ils.bundle=sll.bundle AND \
+                              ils.level='",targetRootLevelName,"' AND (\
+                              (ils.itemID=sll.startItemID) OR 
+                              (EXISTS (SELECT * FROM linksExt ll \
+                              WHERE ll.db_uuid=sll.db_uuid AND ll.session=sll.session AND ll.bundle=sll.bundle \
+                                  AND ((ll.fromID=sll.startItemID AND ll.toID=ils.itemID) OR (ll.fromID=ils.itemID AND ll.toID= sll.startItemID))\
+                                  )) \
+                              ) GROUP BY lrId ORDER BY lrId,ils.seqIdx) \
+                              AS il JOIN \
+                              ( SELECT irs.*,max(irs.seqIdx),slr.ROWID AS rrId FROM seglist slr,items irs WHERE \
+                              irs.db_uuid=slr.db_uuid AND irs.session=slr.session AND irs.bundle=slr.bundle AND \
+                              irs.level='",targetRootLevelName,"' AND (\
+                              (irs.itemID=slr.endItemID) OR
+                              (EXISTS (SELECT * FROM linksExt lr \
+                              WHERE lr.db_uuid=slr.db_uuid AND lr.session=slr.session AND lr.bundle=slr.bundle \
+                                  AND ((lr.fromID=slr.endItemID AND lr.toID=irs.itemID) OR (lr.fromID=irs.itemID AND lr.toID= slr.endItemID))\
+                                )) \
+                              ) GROUP BY rrId ORDER BY rrId,irs.seqIdx DESC) \
+                              AS ir ON lrId=rrId ")
       
-      #       heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.seqEndId,(ir.rSeqIdx-il.seqIdx+1) AS seqLen,'",targetLevel,"' AS level \
-      #                         FROM 
-      #                         ( SELECT ils.*,min(ils.seqIdx) FROM seglist sll,items ils WHERE \
-      #                         ils.db_uuid=sll.db_uuid AND ils.session=sll.session AND ils.bundle=sll.bundle AND \
-      #                         ils.level='",targetRootLevelName,"' AND (\
-      #                         (ils.itemID=sll.startItemID) OR 
-      #                         (EXISTS (SELECT * FROM linksExt ll \
-      #                         WHERE ll.db_uuid=sll.db_uuid AND ll.session=sll.session AND ll.bundle=sll.bundle \
-      #                             AND ((ll.fromID=sll.startItemID AND ll.toID=ils.itemID) OR (ll.fromID=ils.itemID AND ll.toID= sll.startItemID))\
-      #                             )) \
-      #                         ) GROUP BY sll.ROWID ORDER BY sll.ROWID) \
-      #                         AS il JOIN \
-      #                         ( SELECT irs.itemID AS seqEndId,irs.seqIdx AS rSeqIdx,max(irs.seqIdx) FROM seglist slr,items irs WHERE \
-      #                         irs.db_uuid=slr.db_uuid AND irs.session=slr.session AND irs.bundle=slr.bundle AND \
-      #                         irs.level='",targetRootLevelName,"' AND (\
-      #                         (irs.itemID=slr.endItemID) OR
-      #                         (EXISTS (SELECT * FROM linksExt lr \
-      #                         WHERE lr.db_uuid=slr.db_uuid AND lr.session=slr.session AND lr.bundle=slr.bundle \
-      #                             AND ((lr.fromID=slr.endItemID AND lr.toID=irs.itemID) OR (lr.fromID=irs.itemID AND lr.toID= slr.endItemID))\
-      #                           )) \
-      #                         ) GROUP BY slr.ROWID ORDER BY slr.ROWID) \
-      #                         AS ir ON il.ROWID=ir.ROWID ")
-      
-      lIts=sqldf(c(itemsIdxSql,linksIdxSql,leftQuery))
-      rIts=sqldf(c(itemsIdxSql,linksIdxSql,rightQuery))
-      heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.seqEndId,(ir.rSeqIdx-il.seqIdx+1) AS seqLen,'",level,"' AS level \
-                         FROM lIts il JOIN rIts ir ON il.ROWID=ir.ROWID ORDER BY il.ROWID")
+      #lIts=sqldf(c(itemsIdxSql,linksIdxSql,leftQuery))
+      #rIts=sqldf(c(itemsIdxSql,linksIdxSql,rightQuery))
+      #heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.seqEndId,(ir.rSeqIdx-il.seqIdx+1) AS seqLen,'",level,"' AS level \
+      #                   FROM lIts il JOIN rIts ir ON il.ROWID=ir.ROWID ORDER BY il.ROWID")
     }
     
     he=sqldf(c(itemsIdxSql,linksIdxSql,heQueryStr))
+    #return(he)
     result=list(items=he)
     
     emuDBs.query.tmp<-list()
@@ -352,7 +355,7 @@ requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
     # free temp tables
     setQueryTmpEmuDBs(NULL)
     if(inSlLen!=trSlLen){
-      stop("Length of requery segment list (",trSlLen,") differs from input list (",inSlLen,")!")
+      warning("Length of requery segment list (",trSlLen,") differs from input list (",inSlLen,")!")
     }
     return(trSl)
   }
