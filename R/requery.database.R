@@ -191,12 +191,11 @@ requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType will be used)")
   }
   
-  
-#   # level requeries
-#   if(is.null(level) & is.null(targetLevel)){
-#     # no operation, return input seglist
-#     return(seglist) 
-#   }
+  #   # level requeries
+  #   if(is.null(level) & is.null(targetLevel)){
+  #     # no operation, return input seglist
+  #     return(seglist) 
+  #   }
   #   
   distinctEmuDbs=sqldf("SELECT DISTINCT db_uuid FROM seglist")
   distinctEmuDbsCnt=nrow(distinctEmuDbs)
@@ -223,13 +222,9 @@ requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
     #labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,name)'
     labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,db_uuid,session,bundle,name)'
     
-    
-    
-    
     linksExt=dbReadTable(get_emuDBcon(dbUUID),'linksExt')
     itemsIdxSql='CREATE INDEX items_idx ON items(itemID,db_uuid,session,bundle,itemID,level,seqIdx)'
     linksIdxSql='CREATE INDEX linksExt_idx ON linksExt(db_uuid,session,bundle,fromID,toID)'
-    
     
     targetRootLevelName=NULL
     if(is.null(level)){
@@ -258,60 +253,13 @@ requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
                           ) GROUP BY rrId ) \
                           AS ir ON lrId=rrId
                           ")
-      #levelSeglist=contextRequery(seglist = seglist,targetLevel = level)
       
     }else{
-     
+      
       check_level_attribute_name(dbConfig,level)
       targetRootLevelName=get.level.name.for.attribute(dbConfig = dbConfig,attributeName = level)
       
-#       leftQuery=paste0("SELECT ils.*,min(ils.seqIdx) FROM seglist sll,items ils WHERE \
-#                          ils.db_uuid=sll.db_uuid AND ils.session=sll.session AND ils.bundle=sll.bundle AND \
-#                          ils.level='",targetRootLevelName,"' AND (\
-#                          (ils.itemID=sll.startItemID) OR 
-#                          (EXISTS (SELECT * FROM linksExt ll \
-#                          WHERE ll.db_uuid=sll.db_uuid AND ll.session=sll.session AND ll.bundle=sll.bundle \
-#                          AND ((ll.fromID=sll.startItemID AND ll.toID=ils.itemID) OR (ll.fromID=ils.itemID AND ll.toID= sll.startItemID))\
-#                          )) \
-#                          ) GROUP BY sll.ROWID ORDER BY sll.ROWID")
-#       
-#       rightQuery=paste0("SELECT irs.itemID AS seqEndId,irs.seqIdx AS rSeqIdx,max(irs.seqIdx) FROM seglist slr,items irs WHERE \
-#                           irs.db_uuid=slr.db_uuid AND irs.session=slr.session AND irs.bundle=slr.bundle AND \
-#                           irs.level='",targetRootLevelName,"' AND (\
-#                           (irs.itemID=slr.endItemID) OR
-#                           (EXISTS (SELECT * FROM linksExt lr \
-#                           WHERE lr.db_uuid=slr.db_uuid AND lr.session=slr.session AND lr.bundle=slr.bundle \
-#                           AND ((lr.fromID=slr.endItemID AND lr.toID=irs.itemID) OR (lr.fromID=irs.itemID AND lr.toID= slr.endItemID))\
-#                           )) \
-#                           ) GROUP BY slr.ROWID ORDER BY slr.ROWID")
-#       
-      # The following code produces strange error on this data:
-      # 
-      #        > fsl=query('ae',"Text=~a.* & Num(Text,Phoneme)=2")
-      #        > fsl
-      #        segment  list from database:  ae 
-      #        query was:  Text=~a.* & Num(Text,Phoneme)=2 
-      #        labels    start      end session   bundle startItemID endItemID type
-      #        1    are  662.475  775.525    0000 msajc022          19        19 ITEM
-      #        2    and 1421.975 1495.325    0000 msajc023          43        43 ITEM   
-      #        
-      #        > contextRequery(fsl,targetLevel='Phoneme')
-      #        segment  list from database:  ae 
-      #        query was:  
-      #          labels    start      end session   bundle startItemID endItemID type
-      #        1   @->r  662.475  775.525    0000 msajc022         110       103 ITEM
-      #        2   @->n 1421.975 1495.325    0000 msajc023         102       103 ITEM
-      #         
-      #         endItemID of first row is wrong !! 103 should be 111
-      #        works perfectly for some other queries and works if splitted into three spearete sqldf calls. SQLite bug ?? 
-      #        
-      #        > packageVersion('RSQLite')
-      #        [1] '1.0.0'
-      # 
-      #       Found the problem:
-      #       I needed to put the left/right row Ids in separate columns (lrId,rrId) !! 
-      
-            heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndId,(ir.seqIdx-il.seqIdx+1) AS seqLen,'",level,"' AS level \
+      heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndId,(ir.seqIdx-il.seqIdx+1) AS seqLen,'",level,"' AS level \
                               FROM 
                               ( SELECT ils.*,min(ils.seqIdx),sll.ROWID AS lrId FROM seglist sll,items ils WHERE \
                               ils.db_uuid=sll.db_uuid AND ils.session=sll.session AND ils.bundle=sll.bundle AND \
@@ -334,14 +282,9 @@ requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
                               ) GROUP BY rrId ORDER BY rrId,irs.seqIdx DESC) \
                               AS ir ON lrId=rrId ")
       
-      #lIts=sqldf(c(itemsIdxSql,linksIdxSql,leftQuery))
-      #rIts=sqldf(c(itemsIdxSql,linksIdxSql,rightQuery))
-      #heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.seqEndId,(ir.rSeqIdx-il.seqIdx+1) AS seqLen,'",level,"' AS level \
-      #                   FROM lIts il JOIN rIts ir ON il.ROWID=ir.ROWID ORDER BY il.ROWID")
     }
     
     he=sqldf(c(itemsIdxSql,linksIdxSql,heQueryStr))
-    #return(he)
     result=list(items=he)
     
     emuDBs.query.tmp<-list()
