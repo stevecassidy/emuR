@@ -24,12 +24,6 @@ convert_legacyEmuDB_by_name_to_emuDB(dbName, targetDir, options = NULL,
 \item{verbose}{be verbose, default: \code{TRUE}}
 
 \item{dbName}{legacy EMU database name}
-
-\item{targetDir}{target directory}
-
-\item{options}{list of options (see details of \code{\link{convert_legacyEmuDB_to_emuDB}})}
-
-\item{verbose}{be verbose}
 }
 \description{
 Converts an existing legacy EMU database to emuDB database structure. Copies or rewrites signal files and converts the database configuration and annotation data.
@@ -100,7 +94,7 @@ Klaus Jaensch
 \seealso{
 \code{\link{load_emuDB}}
 
-\code{\link{load_emuDB}}
+\code{\link{list_legacyEmuDBs}}
 }
 \keyword{Emu}
 \keyword{database}

@@ -935,11 +935,8 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerat
 ##' If the database could be found the function \code{\link{convert_legacyEmuDB_to_emuDB}} is called.
 ##' 
 ##' @param dbName legacy EMU database name
-##' @param targetDir target directory
-##' @param options list of options (see details of \code{\link{convert_legacyEmuDB_to_emuDB}})
-##' @param verbose be verbose
 ##' @author Klaus Jaensch
-##' @seealso \code{\link{load_emuDB}} 
+##' @seealso \code{\link{list_legacyEmuDBs}} 
 ##' @export
 ##' @keywords emuDB database schema Emu
 ##' @examples
