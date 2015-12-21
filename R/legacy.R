@@ -935,10 +935,8 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerat
 ##' If the database could be found the function \code{\link{convert_legacyEmuDB_to_emuDB}} is called.
 ##' 
 ##' @param dbName legacy EMU database name
-##' @author Klaus Jaensch
 ##' @seealso \code{\link{list_legacyEmuDBs}} 
 ##' @export
-##' @keywords emuDB database schema Emu
 ##' @examples
 ##' \dontrun{
 ##' ## Load database "ae", convert and save in new format to directory /homes/mylogin/EMUnew/

@@ -88,8 +88,6 @@ convert_legacyEmuDB_by_name_to_emuDB("ae","/homes/mylogin/EMUnew/")
 }
 \author{
 Klaus Jaensch
-
-Klaus Jaensch
 }
 \seealso{
 \code{\link{load_emuDB}}
