@@ -10,7 +10,8 @@ require(RSQLite)
 ##' after parsing.
 ##' 
 ##' @param sourceDir path to the directory containing the Bas Partitur File collection
-##' @param targetDir directory where the new emuDB should be saved
+##' @param targetDir directory where the new emuDB should be saved; if it does not exist, 
+##' the function tries to create one
 ##' @param dbName name given to the new emuDB
 ##' 
 ##' @param bpfExt extension of BPF files (default = "par")
@@ -26,10 +27,27 @@ require(RSQLite)
 ##' @param segmentToEventLevels optional vector containing names of segment levels with overlapping segments. The parser treats segments on these levels as events (SEGMENT xyz becomes EVENT xyz_start and EVENT xyz_end). If a level contains segmental overlap but is not in this vector, the parser will throw an error. If overlap resolution leads to event overlap (e.g. if one segment's end coincides with the next segment's start), an error is thrown either way. If in doubt whether a level contains segmental overlap, try running the converter with segmentToEventLevels = NULL and see whether an error occurs.
 ##'
 ##' @param verbose display infos, warnings and show progress bar
-##' 
+##' @return NULL
 ##' @import RSQLite
 ##' @export
+##' @seealso convert_TextGridCollection_to_emuDB, convert_legacyEmuDB_to_emuDB
 ##' @author Nina Poerner
+##' @examples
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: a dir with equally named file pairs *.wav and *.par
+##' # (see ?create_emuRdemoData on how to create a demo)
+##' 
+##' # convert file pairs *.wav and *.par in /tmp/BPF_collection into emuRDB 'NewEmuR' in 
+##' # dir /tmp/DirNewEmuR; the tier 'ORT' acts as the (word) reference tier; the 
+##' # tier 'KAN' is one-to-one bound to 'ORT' as a label
+##' convert_BPFCollection_to_emuDB("/tmp/BPF_collection","/tmp/DirNewEmuR",'NewEmuR',
+##'         bpfExt='par',audioExt='wav',refLevel='ORT',unifyLevels=c('KAN'))
+##' 
+##' }
+##' 
+
 
 convert_BPFCollection_to_emuDB <- function(sourceDir,
                                            targetDir,
