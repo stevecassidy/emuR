@@ -1,17 +1,19 @@
 require(RSQLite)
 
-##' Convert a TextGridCollection (.wav & .TextGrid files) to emuDB
+##' Convert a TextGridCollection (e.g. .wav & .TextGrid files) to emuDB
 ##' 
 ##' Converts a TextGridCollection to a emuDB by first generating a file pair list 
 ##' containing the paths to the .wav & .TextGrid files (default extentions) with the same base
-##' name. The function then generates a emuDB configurations based on the first TextGrid in this list which specifies 
+##' name. The function then generates a emuDB configuration based on the first TextGrid in this list which specifies 
 ##' the allowed level names and types in the new emuDB. After this it converts all file pairs to the new format
 ##' checking whether they comply to the newly generated database configuration. For 
 ##' more information on the emuDB format see \code{vignette{emuDB}}.
+##' Note that since praat TextGrid does not use hierarchical structures, the created emuDB does not contain
+##' any links nor link definitions; you might use \code{autobuild_linkfromTimes} to create a simple hierarchy.
 ##' 
-##' @param dir path to directory containing TextGridCollection
-##' @param dbName name given to emuDB
-##' @param targetDir directory where to save emuDB
+##' @param dir path to directory containing the TextGridCollection (in an arbitrary structure)
+##' @param dbName name given to the new emuDB
+##' @param targetDir directory where to save the new emuDB
 ##' @param tgExt extension of TextGrid files (default=TextGrid meaning file names of the form baseName.TextGrid)
 ##' @param audioExt extension of audio files (default=wav meaning file names of the form baseName.wav)
 ##' @param tierNames character vector containing names of tiers to extract and convert. If NULL (the default) all
@@ -19,11 +21,13 @@ require(RSQLite)
 ##' @param verbose display infos & show progress bar
 ##' @import tools
 ##' @export
+##' @return NULL
 ##' @examples 
 ##' \dontrun{
 ##' 
 ##' ##########################################################
-##' # prerequisite: directory containing .wav & .TextGrid files 
+##' # prerequisite: directory containing .wav & .TextGrid files
+##' # (see \code{?create_emuRdemoData} how to create a demo)
 ##' 
 ##' # convert TextGridCollection and store 
 ##' # new emuDB in folder provided by tempdir()
