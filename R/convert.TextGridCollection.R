@@ -28,7 +28,7 @@ require(RSQLite)
 ##' 
 ##' ##########################################################
 ##' # prerequisite: directory containing .wav & .TextGrid files
-##' # (see \code{?create_emuRdemoData} how to create a demo)
+##' # (see \code{?create_emuRdemoData} how to create demo data)
 ##' 
 ##' # convert TextGridCollection and store 
 ##' # new emuDB in folder provided by tempdir()
