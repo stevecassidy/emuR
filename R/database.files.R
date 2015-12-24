@@ -1,9 +1,18 @@
 ##' Import media files to emuDB
-##' @description Import media files to emuDB
+##' 
+##' Import new recordings (media files) to emuDB and create bundles.
+##' Looks for files with the defined mediafile extension of the emuDB 
+##' (see \code{mediaFileExtension} in vignette \code{emuDB}) in \code{dir}
+##' or in sub-directories thereoff (interpreted as sessions), for each mediafile
+##' create a bundle directory
+##' named as the basename of the mediafile in the specified session, and copies 
+##' the mediafile into the bundle. If not already present, adds 'OSCI' and 
+##' 'SPEC' perspectives to the emuDB config file.
+##'
 ##' @param dbName name of emuDB
 ##' @param dir directory containing mediafiles or session directories
 ##' @param targetSessionName name of session in which to create the new bundles 
-##' @param dbUUID optional UUID of emuDB
+##' @param dbUUID optional UUID of emuDB, in case dbName is ambiguous
 ##' @param verbose display infos & show progress bar
 ##' @author Klaus Jaensch
 ##' @import stringr
@@ -113,19 +122,25 @@ import_mediaFiles<-function(dbName,dir,targetSessionName='0000',dbUUID=NULL, ver
 
 ##' Add files to emuDB
 ##' 
-##' Add files to bundles of specified session of emuDB.
+##' Add files to existing bundles of specified session of emuDB.
+##' Do not use this function to import new recordings (media files) and create bundles; 
+##' see \code{?import_mediaFiles} to import new recordings.
 ##' The files that are found in \code{dir} that have the extension 
-##' \code{fileExtension} will be copied into the the according bundle
-##' folder that have the same basename as the according file. For 
+##' \code{fileExtension} will be copied into the according bundle
+##' folder that have the same basename as the file. Note that the 
+##' same bundle name may appear in different sessions, therefore you must 
+##' specify the session in \code{targetSessionName}. For 
 ##' more information on the structural elements of an emuDB 
 ##' see \code{vignette{emuDB}}.
+##' Note that adding files does not mean the emuDB is automatically using these, unless
+##' you have defined the usage of these files (e.g. by ssffTrackDefinitions).
 ##' 
 ##' @param dbName name of loaded emuDB
 ##' @param dir directory containing files to be added
 ##' @param fileExtension file extension of file to be added
 ##' @param targetSessionName name of sessions containing 
 ##' bundles that the files will be added to
-##' @param dbUUID optional UUID of loaded emuDB
+##' @param dbUUID optional UUID of loaded emuDB, in case the dbName is ambiguous
 ##' @export
 ##' @keywords emuDB database Emu 
 ##' @examples 
@@ -185,7 +200,7 @@ add_files <- function(dbName, dir, fileExtension, targetSessionName='0000', dbUU
 ##' @param dbName name of loaded emuDB
 ##' @param sessionPattern A (glob) pattern matching sessions to be searched from the database
 ##' @param bundlePattern A (glob) pattern matching bundles to be searched from the database
-##' @param dbUUID optional UUID of loaded emuDB
+##' @param dbUUID optional UUID of loaded emuDB, in case dbName is ambiguous
 ##' @return file paths as character vector
 ##' @export
 ##' @keywords emuDB database schema Emu 
@@ -198,6 +213,9 @@ add_files <- function(dbName, dir, fileExtension, targetSessionName='0000', dbUU
 ##' 
 ##' # list all files of "ae" emuDB
 ##' list_files(dbName = "ae") 
+##'
+##' # list all files of "ae" emuDB in bundles ending with '3'
+##' list_files(dbName = "ae",bundlePattern="*3") 
 ##' 
 ##' }
 ##' 
