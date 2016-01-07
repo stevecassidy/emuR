@@ -159,8 +159,8 @@ remove_perspective <- function(dbName,
 ##' Set / Get signalCanvasesOrder of / to / from emuDB
 ##' 
 ##' Set / Get signalCanvasesOrder array that specifies which signals are 
-##' displayed in the according perspective by the EMU-webApp. A entry in this character vector 
-##' refers to either the name of a ssffTrackDefinition or a predefined string: \code{"OSCI"} which 
+##' displayed in the according perspective by the EMU-webApp. An entry in this character vector 
+##' refers to either the name of an ssffTrackDefinition or a predefined string: \code{"OSCI"} which 
 ##' represents the oscillogram or \code{"SPEC"} which represents the 
 ##' spectrogram. For more information on the structural elements of an emuDB 
 ##' see \code{vignette{emuDB}}.
@@ -240,10 +240,12 @@ get_signalCanvasesOrder <- function(dbName,
 
 ##' Set / Get level canvases order of emuDB
 ##' 
-##' Set / Get level canvases order of emuDB. Level canvases refer to levels of 
+##' Set / Get which levels of an emuDB to display as level canvases (in a 
+##' given perspective of the EMU-webApp),
+##' and in what order. Level canvases refer to levels of 
 ##' the type "SEGMENT" or "EVENT" that are displayed by the EMU-webApp. Levels 
-##' of type "ITEM" can always be displayed using the show hierarchy modal of the
-##' web application but may not be displayed as level canvases. 
+##' of type "ITEM" can always be displayed using the hierarchy view of the
+##' web application but can not be displayed as level canvases.
 ##' For more information on the structural elements of an emuDB 
 ##' see \code{vignette{emuDB}}.
 ##' 
