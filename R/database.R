@@ -1460,11 +1460,11 @@ bundle.iterator<-function(db,apply){
 }
 
 
-##' Create empty emuDB
-##' 
-##' creates an empty emuDB in the target directory specified
+##' @title Create empty emuDB
+##' @description Creates an empty emuDB in the target directory specified
+##' @details Creates a new directory [name]_emuDB in targetDir. By default the emuDB is created in the R session, written to the filesystem and then purged from the R session.
 ##' @param name of new emuDB
-##' @param targetDir target directory in which to store the emuDB
+##' @param targetDir target directory to store the emuDB to
 ##' @param mediaFileExtension defines mediaFileExtention (NOTE: currently only 
 ##' 'wav' (the default) is supported by all components of EMU)
 ##' @param purge purge newly created emuDB from R session
