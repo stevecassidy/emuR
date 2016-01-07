@@ -15,25 +15,28 @@ autobuild_linkFromTimes(dbName, superlevelName, sublevelName,
 
 \item{sublevelName}{name of level to link to (link definition required in emuDB)}
 
-\item{writeToFS}{should changes be written to file system (annotJSON files) after completing autobuild process.}
+\item{writeToFS}{should changes be written to file system (_annot.json files) after completing autobuild process.}
 
-\item{convertSuperlevel}{if set to TRUE a backup of the superlevel will be created and the actural
+\item{convertSuperlevel}{if set to TRUE a backup of the superlevel will be created and the actual
 superlevel will be converted to a level of type ITEM}
 
 \item{backupLevelAppendStr}{string appended to level name for backup level}
 
-\item{dbUUID}{optional UUID of emuDB}
+\item{dbUUID}{optional UUID of emuDB, in case dbName is ambiguous}
 }
 \description{
-Autobuild links between two time levels. The super-level has to be of the 
+Autobuild links between two time levels. This is typically done when we convert from 
+a database format that does allow parallel time tiers but no way to relate different 
+tiers to each other, except by matching time information (such as praat TextGrid). 
+The super-level has to be of the 
 type SEGMENT and the sub-level either of type EVENT or of type SEGMENT. If
 this is the case and a according link definition is defined for the emuDB,
 this function automatically links the events or segments of the sub-level which occur
 within (startSample to (startSample + sampleDur)) the segments of the super-level to those segments.
 }
 \details{
-The type of linkDefinition (ONE_TO_MANY, MANY_TO_MANY, ONE_TO_ONE) is relevant whether a link
-is genarated or not (e.g. overlapping segments are linked in a MANY_TO_MANY relationship 
+The type of link definition (ONE_TO_MANY, MANY_TO_MANY, ONE_TO_ONE) is relevant whether a link
+is generated or not (e.g. overlapping segments are linked in a MANY_TO_MANY relationship 
 but not in a ONE_TO_MANY relationship). For more information on the structural 
 elements of an emuDB see \code{vignette(emuDB)}.
 }
@@ -42,7 +45,8 @@ elements of an emuDB see \code{vignette(emuDB)}.
 
 ##################################
 # prerequisite: loaded "myTGcolDB" emuDB 
-# (see ?load_emuDB and \\code{vignette(emuR_intro)} for more information)
+# (see \\code{?create_emuRdemoData}, \\code{?convert_TextGridCollection_to_emuDB}, 
+#  and \\code{vignette(emuR_intro)} for more information)
 
 # add linkDefinition as one has to be present for
 # the autobuild function to work
@@ -58,6 +62,9 @@ autobuild_linkFromTimes(dbName = "myTGcolDB",
                         convertSuperlevel = TRUE)
 
 }
+}
+\seealso{
+add_linkDefinition
 }
 \keyword{autobuild}
 \keyword{emuR}

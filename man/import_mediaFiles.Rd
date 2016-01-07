@@ -14,12 +14,19 @@ import_mediaFiles(dbName, dir, targetSessionName = "0000", dbUUID = NULL,
 
 \item{targetSessionName}{name of session in which to create the new bundles}
 
-\item{dbUUID}{optional UUID of emuDB}
+\item{dbUUID}{optional UUID of emuDB, in case dbName is ambiguous}
 
 \item{verbose}{display infos & show progress bar}
 }
 \description{
-Import media files to emuDB
+Import new recordings (media files) to emuDB and create bundles.
+Looks for files with the defined mediafile extension of the emuDB 
+(see \code{mediaFileExtension} in vignette \code{emuDB}) in \code{dir}
+or in sub-directories thereoff (interpreted as sessions), for each mediafile
+create a bundle directory
+named as the basename of the mediafile in the specified session, and copies 
+the mediafile into the bundle. If not already present, adds 'OSCI' and 
+'SPEC' perspectives to the emuDB config file.
 }
 \examples{
 \dontrun{

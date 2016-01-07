@@ -14,7 +14,7 @@ list_files(dbName, sessionPattern = "*", bundlePattern = "*",
 
 \item{bundlePattern}{A (glob) pattern matching bundles to be searched from the database}
 
-\item{dbUUID}{optional UUID of loaded emuDB}
+\item{dbUUID}{optional UUID of loaded emuDB, in case dbName is ambiguous}
 }
 \value{
 file paths as character vector
@@ -33,6 +33,9 @@ see \code{vignette{emuDB}}.
 
 # list all files of "ae" emuDB
 list_files(dbName = "ae") 
+
+# list all files of "ae" emuDB in bundles ending with '3'
+list_files(dbName = "ae",bundlePattern="*3") 
 
 }
 

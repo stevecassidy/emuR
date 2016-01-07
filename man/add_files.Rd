@@ -17,15 +17,21 @@ add_files(dbName, dir, fileExtension, targetSessionName = "0000",
 \item{targetSessionName}{name of sessions containing 
 bundles that the files will be added to}
 
-\item{dbUUID}{optional UUID of loaded emuDB}
+\item{dbUUID}{optional UUID of loaded emuDB, in case the dbName is ambiguous}
 }
 \description{
-Add files to bundles of specified session of emuDB.
+Add files to existing bundles of specified session of emuDB.
+Do not use this function to import new recordings (media files) and create bundles; 
+see \code{?import_mediaFiles} to import new recordings.
 The files that are found in \code{dir} that have the extension 
-\code{fileExtension} will be copied into the the according bundle
-folder that have the same basename as the according file. For 
+\code{fileExtension} will be copied into the according bundle
+folder that have the same basename as the file. Note that the 
+same bundle name may appear in different sessions, therefore you must 
+specify the session in \code{targetSessionName}. For 
 more information on the structural elements of an emuDB 
 see \code{vignette{emuDB}}.
+Note that adding files does not mean the emuDB is automatically using these, unless
+you have defined the usage of these files (e.g. by ssffTrackDefinitions).
 }
 \examples{
 \dontrun{

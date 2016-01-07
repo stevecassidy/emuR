@@ -9,7 +9,8 @@ create_emuRdemoData(dir = tempdir(), precache = FALSE)
 \arguments{
 \item{dir}{directory to create demo data in (default= tempdir())}
 
-\item{precache}{load and purge the create ae database to create an on-file-system cache}
+\item{precache}{creates an on-file-system cache for the ae emuDB to allow fast loading
+(see \code{load_emuDB} for details about the emuDB file cache)}
 }
 \description{
 Create a folder within the folder specified

@@ -15,7 +15,7 @@
 ##' (as expected from the \code{\link{convert_TextGridCollection_to_emuDB}} function)}
 ##' }
 ##' @param dir directory to create demo data in (default= tempdir())
-##' @param also creates an on-file-system cache for the ae emuDB to allow fast loading
+##' @param precache creates an on-file-system cache for the ae emuDB to allow fast loading
 ##' (see \code{load_emuDB} for details about the emuDB file cache)
 ##' @export
 ##' @examples 

@@ -12,7 +12,8 @@ convert_BPFCollection_to_emuDB(sourceDir, targetDir, dbName, bpfExt = "par",
 \arguments{
 \item{sourceDir}{path to the directory containing the Bas Partitur File collection}
 
-\item{targetDir}{directory where the new emuDB should be saved}
+\item{targetDir}{directory where the new emuDB should be saved; if it does not exist, 
+the function tries to create one}
 
 \item{dbName}{name given to the new emuDB}
 
@@ -42,7 +43,26 @@ Apart from extensions, the names of corresponding audio and BPF files must be id
 file is converted into an emuDB annot file. An emuDB config file matching the data base is created 
 after parsing.
 }
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: a dir with equally named file pairs *.wav and *.par
+# (see ?create_emuRdemoData on how to create a demo)
+
+# convert file pairs *.wav and *.par in /tmp/BPF_collection into emuRDB 'NewEmuR' in 
+# dir /tmp/DirNewEmuR; the tier 'ORT' acts as the (word) reference tier; the 
+# tier 'KAN' is one-to-one bound to 'ORT' as a label
+convert_BPFCollection_to_emuDB("/tmp/BPF_collection","/tmp/DirNewEmuR",'NewEmuR',
+        bpfExt='par',audioExt='wav',refLevel='ORT',unifyLevels=c('KAN'))
+
+}
+
+}
 \author{
 Nina Poerner
+}
+\seealso{
+convert_TextGridCollection_to_emuDB, convert_legacyEmuDB_to_emuDB
 }
 

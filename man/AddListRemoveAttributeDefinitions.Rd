@@ -23,7 +23,7 @@ remove_attributeDefinition(dbName, levelName, name, dbUUID = NULL)
 
 \item{type}{type of attributeDefinition (currently only "STRING")}
 
-\item{dbUUID}{optional UUID of loaded emuDB}
+\item{dbUUID}{optional UUID of loaded emuDB, in case dbName is ambique}
 }
 \description{
 Add / List / Remove database operation functions for attribute definition 
@@ -35,6 +35,8 @@ Each level definition is required to have at least one
 default attribute definition that has the same name as the level definition
 (automatically created by \code{\link{add_levelDefinition}}). For more 
 information on the structural elements of an emuDB see \code{vignette(emuDB)}.
+Note that as with level definitions, an attribute definition to a level cannot be removed,
+if it contains labels in the emuDB.
 }
 \examples{
 \dontrun{

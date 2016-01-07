@@ -18,11 +18,11 @@ remove_levelDefinition(dbName, name, dbUUID = NULL)
 
 \item{name}{name of level definition}
 
-\item{type}{type of level definition}
+\item{type}{type of level definition ("SEGMENT","EVENT","ITEM")}
 
-\item{store}{changes to file system}
+\item{store}{changes to file system (TRUE), changes only in memory (FALSE)}
 
-\item{dbUUID}{optional UUID of loaded emuDB}
+\item{dbUUID}{optional UUID of loaded emuDB, in case dbName is ambique}
 }
 \description{
 Add / List / Remove database operation functions for level definitions. 
@@ -33,6 +33,8 @@ can either contain time information if they are of the
 type "EVENT" or of the type "SEGMENT" but are timeless 
 if they are of the type "ITEM". For more information 
 on the structural elements of an emuDB see \code{vignette(emuDB)}.
+Note that a level cannot be removed, if it contains instances of annotation items
+or if it is linked to another level.
 }
 \examples{
 \dontrun{
