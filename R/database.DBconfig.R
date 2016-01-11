@@ -472,6 +472,12 @@ get.levelDefinition <- function(DBconfig, name){
   return(res)
 }
 
+################################################################
+################# CRUD DBconfig functions ######################
+################################################################
+
+
+
 ###########################################
 # CRUD operation for levelDefinitions
 
@@ -1551,7 +1557,7 @@ remove_labelGroup <- function(dbName,
 }
 
 
-
+###############################
 # FOR DEVELOPMENT 
 # library('testthat') 
 # test_file('tests/testthat/test_database.DBconfig.R')

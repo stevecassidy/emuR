@@ -26,7 +26,8 @@ Imports:
     httpuv (>= 1.3.2),
     base64enc,
     data.table (>= 1.9.4),
-    dplyr (>= 0.4.3)
+    dplyr (>= 0.4.3),
+    tidyjson (>= 0.2.1)
 Suggests:
     testthat(>= 0.7.1.99),
     knitr(>= 1.7),

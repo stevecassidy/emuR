@@ -14,100 +14,102 @@ emuDB.apiLevel=3L
 ##########################################################
 # CRUD like operations for internalVars$sqlConnections
 
-get_emuDBhandle <- function(dbUUID) {
-  # add in memory connection just to make sure it exists
-  
-  foundHandle = NULL
-  for(c in internalVars$sqlConnections){
-      #res = dbGetQuery(c$con, "SELECT uuid FROM emuDB")
-      #if(dbUUID %in% res$uuid){
-      if(c$dbUUID==dbUUID){
-        foundHandle = c
-        break
-      }
-  }
-  ## make sure :memory: connection is always there
-  #if(is.null(dbUUID) & is.null(foundHandle)){
-  #  con = dbConnect(RSQLite::SQLite(), ":memory:")
-  #  add_emuDBcon(con)
-  #  foundCon = con
-  #}
-  
-  return(foundHandle)
-}
+# get_emuDBhandle <- function(dbUUID) {
+#   # add in memory connection just to make sure it exists
+#   
+#   foundHandle = NULL
+#   for(c in internalVars$sqlConnections){
+#       #res = dbGetQuery(c$con, "SELECT uuid FROM emuDB")
+#       #if(dbUUID %in% res$uuid){
+#       if(c$dbUUID==dbUUID){
+#         foundHandle = c
+#         break
+#       }
+#   }
+#   ## make sure :memory: connection is always there
+#   #if(is.null(dbUUID) & is.null(foundHandle)){
+#   #  con = dbConnect(RSQLite::SQLite(), ":memory:")
+#   #  add_emuDBcon(con)
+#   #  foundCon = con
+#   #}
+#   
+#   return(foundHandle)
+# }
 
 
-get_emuDBcon <- function(dbUUID) {
-  for(c in internalVars$sqlConnections){
-    if(c$dbUUID==dbUUID){
-      return(c$connection)
-    }
-  }
-  return(NULL)
-}
+# get_emuDBcon <- function(dbUUID) {
+#   for(c in internalVars$sqlConnections){
+#     if(c$dbUUID==dbUUID){
+#       return(c$connection)
+#     }
+#   }
+#   return(NULL)
+# }
 
 ## @param name name of emuDB
 ## @param basePath base path of emuDB
 ## @param dbUUID UUID of database
 ## @param path to SQLiteDB
 ## @return new or already existing emuDB handle
-add_emuDBhandle <- function(name,basePath, dbUUID,path = NULL){
-  foundHandle = NULL
-  for(h in internalVars$sqlConnections){
-    if(h$dbUUID == dbUUID){
-      foundHandle=h
-      #stop("EmuDB already loaded")
-      return(h)
-    }
-  }
-  
-  # only add if not found to avoid duplicates
-  if(is.null(foundHandle)){
-    
-    if(is.null(path)){
-      # create empty db in memory and initialize tables
-      path=":memory:"
-      initialize=T
-      con = dbConnect(RSQLite::SQLite(), path)
-    }else{
-      initialize=(!file.exists(path))
-      con= dbConnect(RSQLite::SQLite(),path)
-      # by default RSQLite sets file permissions 0022 and ignores the umask
-      # We overwrite the permissions with the umask here
-      # Not yet enabled
-      #Sys.chmod(path,mode='0666',use_umask = TRUE)
-    }
-    if(initialize){
-      .initialize.DBI.database(con)
-    }
-  
-    newHandle=list(name=name,path = path,dbUUID=dbUUID,basePath=basePath,connection = con)
-    internalVars$sqlConnections[[length(internalVars$sqlConnections) + 1]] = newHandle
-    foundHandle = newHandle
-  }
-  return(foundHandle)
-}
+# add_emuDBhandle <- function(name,basePath, dbUUID,path = NULL){
+#   foundHandle = NULL
+#   for(h in internalVars$sqlConnections){
+#     if(h$dbUUID == dbUUID){
+#       foundHandle=h
+#       #stop("EmuDB already loaded")
+#       return(h)
+#     }
+#   }
+#   
+#   # only add if not found to avoid duplicates
+#   if(is.null(foundHandle)){
+#     
+#     if(is.null(path)){
+#       # create empty db in memory and initialize tables
+#       path=":memory:"
+#       initialize=T
+#       con = dbConnect(RSQLite::SQLite(), path)
+#     }else{
+#       initialize=(!file.exists(path))
+#       con= dbConnect(RSQLite::SQLite(),path)
+#       # by default RSQLite sets file permissions 0022 and ignores the umask
+#       # We overwrite the permissions with the umask here
+#       # Not yet enabled
+#       #Sys.chmod(path,mode='0666',use_umask = TRUE)
+#     }
+#     if(initialize){
+#       .initialize.DBI.database(con)
+#     }
+#   
+#     newHandle=list(name=name,path = path,dbUUID=dbUUID,basePath=basePath,connection = con)
+#     internalVars$sqlConnections[[length(internalVars$sqlConnections) + 1]] = newHandle
+#     foundHandle = newHandle
+#   }
+#   return(foundHandle)
+# }
+# 
+# remove_emuDBhandle <- function(dbUUID){
+#   for(i in 1:length(internalVars$sqlConnections)){
+#     if(internalVars$sqlConnections[[i]]$dbUUID == dbUUID){
+#       dbDisconnect(internalVars$sqlConnections[[i]]$connection)
+#       internalVars$sqlConnections[[i]] = NULL
+#       break
+#     }
+#   }
+# }
 
-remove_emuDBhandle <- function(dbUUID){
-  for(i in 1:length(internalVars$sqlConnections)){
-    if(internalVars$sqlConnections[[i]]$dbUUID == dbUUID){
-      dbDisconnect(internalVars$sqlConnections[[i]]$connection)
-      internalVars$sqlConnections[[i]] = NULL
-      break
-    }
-  }
-}
+#############################################
+# file/folder suffixes of emuDB format
 
-emuDB.suffix='_emuDB'
-session.suffix='_ses'
-bundle.dir.suffix='_bndl'
-bundle.annotation.suffix='_annot'
-database.schema.suffix='_DBconfig.json'
+emuDB.suffix = '_emuDB'
+session.suffix = '_ses'
+bundle.dir.suffix = '_bndl'
+bundle.annotation.suffix = '_annot'
+database.schema.suffix = '_DBconfig.json'
+database.cache.suffix = '_emuDBcache.sqlite'
 
-database.cache.suffix='_emuDBcache.sqlite'
-
-# global database connection
-#emuDBs.con=NULL
+#############################################
+# create table / index definitions for DBI
 
 database.DDL.emuDB='CREATE TABLE emuDB (
   uuid VARCHAR(36) NOT NULL,
@@ -252,56 +254,67 @@ database.DDL.emuDB_linksExtTmp2='CREATE TABLE linksExtTmp2 (
 
 database.DDL.emuDB_linksExtTmpIdx2='CREATE INDEX linksExtTmp2_idx ON linksExtTmp2(db_uuid,session,bundle,fromID,toID,toLevel,type)'
 
+####################################
+#
 
-.store.emuDB.DBI<-function(con, database, MD5DBconfigJSON = NULL){
-  dbCfg=database[['DBconfig']]
-  dbCfgJSON=jsonlite::toJSON(dbCfg,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+store_emuDbDBI <- function(emuDBhandle, MD5DBconfigJSON = NULL){
   if(is.null(MD5DBconfigJSON)){
-    dbSqlInsert=paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('",dbCfg[['UUID']],"','",dbCfg[['name']],"',NULL,'",dbCfgJSON,"', NULL", ")")
+    dbSqlInsert = paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('", emuDBhandle$UUID, "','", emuDBhandle$dbName, "',NULL,'", "DEPRICATED COLUMN", "', NULL", ")")
   }else{
-    dbSqlInsert=paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('",dbCfg[['UUID']],"','",dbCfg[['name']],"',NULL,'",dbCfgJSON,"', '",MD5DBconfigJSON,"')")
+    dbSqlInsert = paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('", emuDBhandle$UUID, "','", emuDBhandle$dbName, "',NULL,'", "DEPRICATED COLUMN", "', '", MD5DBconfigJSON,"')")
   }
-  res <- dbSendQuery(con,dbSqlInsert)
+  res <- dbSendQuery(emuDBhandle$connection, dbSqlInsert)
   dbClearResult(res)
   
 }
 
-.store.DBconfig.DBI<-function(con, DBconfig, MD5DBconfigJSON = NULL){
-  dbCfgJSON=jsonlite::toJSON(DBconfig,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-  if(is.null(MD5DBconfigJSON)){
-    updDbCfgQ=paste0("UPDATE emuDB SET DBconfigJSON='",dbCfgJSON,"', MD5DBconfigJSON=NULL WHERE uuid='", DBconfig$UUID, "'")
-  }else{
-    updDbCfgQ=paste0("UPDATE emuDB SET DBconfigJSON='",dbCfgJSON,"', MD5DBconfigJSON='", MD5DBconfigJSON,"' WHERE uuid='", DBconfig$UUID, "'")
-  }
-  res <- dbSendQuery(con,updDbCfgQ)
-  dbClearResult(res)
+# .store.DBconfig.DBI<-function(con, DBconfig, MD5DBconfigJSON = NULL){
+#   dbCfgJSON=jsonlite::toJSON(DBconfig,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+#   if(is.null(MD5DBconfigJSON)){
+#     updDbCfgQ=paste0("UPDATE emuDB SET DBconfigJSON='",dbCfgJSON,"', MD5DBconfigJSON=NULL WHERE uuid='", DBconfig$UUID, "'")
+#   }else{
+#     updDbCfgQ=paste0("UPDATE emuDB SET DBconfigJSON='",dbCfgJSON,"', MD5DBconfigJSON='", MD5DBconfigJSON,"' WHERE uuid='", DBconfig$UUID, "'")
+#   }
+#   res <- dbSendQuery(con,updDbCfgQ)
+#   dbClearResult(res)
+# }
+
+
+# get.database<-function(uuid=NULL,name=NULL){
+#   return(.load.emuDB.DBI(uuid,name))
+# }
+
+
+## getter for 
+get_DBconfig <- function(emuDBhandle){
+  dbCfgPath = file.path(emuDBhandle$basePath, paste0(emuDBhandle$dbName, database.schema.suffix))
+  DBconfig = jsonlite::fromJSON(dbCfgPath, simplifyVector=FALSE)
+  return(DBconfig)
 }
 
 
-get.database<-function(uuid=NULL,name=NULL){
-  return(.load.emuDB.DBI(uuid,name))
-}
-.load.emuDB.DBI<-function(uuid=NULL,name=NULL){
-  if(is.null(uuid)){
-    uuid=get_UUID(name)
-  }
-  handle=get_emuDBhandle(uuid)
-  con=handle$connection
-  dbQ=paste0("SELECT * FROM emuDB WHERE uuid='",uuid,"'")
-  dbDf=dbGetQuery(con,dbQ)
-  dbCount=nrow(dbDf)
-  if(dbCount==0){
-    stop("Database not found !\n")
-  }else if (dbCount==1){
-    dbCfgObj=jsonlite::fromJSON(dbDf[['DBconfigJSON']],simplifyVector=FALSE)
-    dbCfg=unmarshal.from.persistence(x=dbCfgObj,classMap = emuR.persist.class.DBconfig)
-    db=create.database(name = dbDf[['name']],basePath = handle$basePath,DBconfig = dbCfg)
-  }else{
-    stop("Found ",dbCount," databases with same name: ",name,". Please specify database UUID!\n")
-  }
-  return(db)
-  
-}
+# ex .load.emuDB.DBI function
+# get_DBconfigDBI <- function(emuDBhandle){
+#   if(is.null(uuid)){
+#     uuid=get_UUID(name)
+#   }
+#   handle=get_emuDBhandle(uuid)
+#   con=handle$connection
+#   dbQ=paste0("SELECT * FROM emuDB WHERE uuid='",uuid,"'")
+#   dbDf=dbGetQuery(con,dbQ)
+#   dbCount=nrow(dbDf)
+#   if(dbCount==0){
+#     stop("Database not found !\n")
+#   }else if (dbCount==1){
+#     dbCfgObj=jsonlite::fromJSON(dbDf[['DBconfigJSON']],simplifyVector=FALSE)
+#     dbCfg=unmarshal.from.persistence(x=dbCfgObj,classMap = emuR.persist.class.DBconfig)
+#     db=create.database(name = dbDf[['name']],basePath = handle$basePath,DBconfig = dbCfg)
+#   }else{
+#     stop("Found ",dbCount," databases with same name: ",name,". Please specify database UUID!\n")
+#   }
+#   return(db)
+#   
+# }
 
 .store.session.DBI<-function(dbUUID,sessionName){
   insertSessionSql=paste0("INSERT INTO session(db_uuid,name) VALUES('",dbUUID,"','",sessionName,"')")
@@ -455,8 +468,8 @@ get_UUID<-function(dbName,dbUUID=NULL){
     dbCount=0
     for(h in internalVars$sqlConnections){
       if(h$name==dbName){
-          dbUUID=h$dbUUID
-          dbCount=dbCount+1;
+        dbUUID=h$dbUUID
+        dbCount=dbCount+1;
       }
     }
     if(dbCount==0){
@@ -592,21 +605,18 @@ purge_all_emuDBs<-function(interactive=TRUE){
 
 ##' List sessions of emuDB
 ##' @description List session names of emuDB
-##' @param dbName name of emuDB
-##' @param dbUUID optional UUID of emuDB
+##' @param emuDBhandle emuDB handle
 ##' @return data.frame object with session names
 ##' @export
-list_sessions<-function(dbName,dbUUID=NULL){
-  # .initialize.DBI.database()
-  uuid=get_UUID(dbName,dbUUID)
-  dbs=dbGetQuery(get_emuDBcon(uuid),paste0("SELECT name FROM session WHERE db_uuid='",uuid,"'"))
+list_sessions<-function(emuDBhandle){
+  dbs=dbGetQuery(emuDBhandle$connection, paste0("SELECT name FROM session WHERE db_uuid='", emuDBhandle$UUID, "'"))
   return(dbs)
 }
 
 ##' List bundles of emuDB
 ##' 
 ##' List all bundles of emuDB or of particular session.
-##' @param dbName name of emuDB
+##' @param emuDBhandle emuDB handle
 ##' @param session optional session
 ##' @param dbUUID optional UUID of emuDB
 ##' @return data.frame object with columns session and name of bundles
@@ -615,38 +625,36 @@ list_sessions<-function(dbName,dbUUID=NULL){
 ##' \dontrun{
 ##' 
 ##' ##################################
-##' # prerequisite: loaded "ae" emuDB
+##' # prerequisite: loaded ae emuDB
 ##' # (see ?load_emuDB for more information)
 ##' 
-##' # list bundles of session "0000" of "ae" emuDB
-##' list_bundles(dbName = "ae",
+##' # list bundles of session "0000" of ae emuDB
+##' list_bundles(emuDBhandle = ae,
 ##'              session = "0000")
 ##' 
 ##' }
 ##' 
-list_bundles<-function(dbName, session=NULL, dbUUID=NULL){
-  # .initialize.DBI.database()
-  uuid=get_UUID(dbName,dbUUID)
-  baseQ=paste0("SELECT session,name FROM bundle WHERE db_uuid='",uuid,"'")
+list_bundles <- function(emuDBhandle, session=NULL){
+  baseQ=paste0("SELECT session,name FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "'")
   if(is.null(session)){
     # list all bundles
-    dbs=dbGetQuery(get_emuDBcon(uuid),baseQ)
+    dbs=dbGetQuery(emuDBhandle$connection, baseQ)
   }else{
-    sQ=dbGetQuery(get_emuDBcon(uuid),paste0("SELECT * FROM session WHERE db_uuid='",uuid,"' AND name='",session,"'"))
+    sQ=dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM session WHERE db_uuid='", emuDBhandle$UUID, "' AND name='", session, "'"))
     if(nrow(sQ)<1){
-      stop("Session ",session," not found!")
+      stop("Session ", session, " not found!")
     }
-    dbs=dbGetQuery(get_emuDBcon(uuid),paste0(baseQ," AND session='",session,"'"))
+    dbs=dbGetQuery(emuDBhandle$connection, paste0(baseQ, " AND session='", session, "'"))
   }
   return(dbs)
 }
 
 
-create.database <- function(name,basePath=NULL,DBconfig=create.schema.databaseDefinition(name = name),sessions=NULL,primaryExtension=NULL){
-  o <- list(name=name,basePath=basePath,DBconfig=DBconfig,sessions=sessions,primaryExtension=primaryExtension,apiLevel=emuDB.apiLevel)
-  class(o) <- c('emuDB','list')
-  invisible(o)
-}
+# create.database <- function(name,basePath=NULL,DBconfig=create.schema.databaseDefinition(name = name),sessions=NULL,primaryExtension=NULL){
+#   o <- list(name=name,basePath=basePath,DBconfig=DBconfig,sessions=sessions,primaryExtension=primaryExtension,apiLevel=emuDB.apiLevel)
+#   class(o) <- c('emuDB','list')
+#   invisible(o)
+# }
 
 
 
@@ -715,11 +723,11 @@ create.bundle <- function(name,sessionName=NULL,legacyBundleID=NULL,annotates=NU
   return(as.bundle(o))
 }
 
-as.bundle <- function(bundleData){
-  class(bundleData) <- 'emuDB.bundle'
-  attr(bundleData,'ips.persist')<-list(typesJSON=list(levels='array'))
-  invisible(bundleData)
-}
+# as.bundle <- function(bundleData){
+#   class(bundleData) <- 'emuDB.bundle'
+#   attr(bundleData,'ips.persist')<-list(typesJSON=list(levels='array'))
+#   invisible(bundleData)
+# }
 
 # Get media file full path
 # @param database database object
@@ -1125,26 +1133,26 @@ convert.bundle.links.to.data.frame <-function(links){
 
 
 
-## Returns bundle as S3 object
-## 
-## @param db database
-## @param sessionName sessionName
-## @param bundleName name of bundle
-## @return bundle in S3 format
-## @author Klaus Jaensch
-## @keywords emuDB database schema Emu bundle
-## 
-get.bundle <- function(dbName=NULL,sessionName,bundleName,dbUUID=NULL){
-  
-  dbUUID=get_UUID(dbName,dbUUID)
-  b=.load.bundle.DBI(dbUUID,sessionName,bundleName)
-  if(is.null(b)){
-    return(b)
-  }
-  b[['levels']]=.load.bundle.levels.s3(dbUUID,sessionName,bundleName)
-  b[['links']]=.load.bundle.links.s3(dbUUID,sessionName,bundleName)
-  return(as.bundle(b))
-}
+# ## Returns bundle as S3 object
+# ## 
+# ## @param db database
+# ## @param sessionName sessionName
+# ## @param bundleName name of bundle
+# ## @return bundle in S3 format
+# ## @author Klaus Jaensch
+# ## @keywords emuDB database schema Emu bundle
+# ## 
+# get.bundle <- function(dbName=NULL,sessionName,bundleName,dbUUID=NULL){
+#   
+#   dbUUID=get_UUID(dbName,dbUUID)
+#   b=.load.bundle.DBI(dbUUID,sessionName,bundleName)
+#   if(is.null(b)){
+#     return(b)
+#   }
+#   b[['levels']]=.load.bundle.levels.s3(dbUUID,sessionName,bundleName)
+#   b[['links']]=.load.bundle.links.s3(dbUUID,sessionName,bundleName)
+#   return(as.bundle(b))
+# }
 
 # get.bundle.stub<-function(db,bundleName){
 #   sessCount=length(db[['sessions']])
@@ -1321,16 +1329,16 @@ is.relative.file.path<-function(nativeFilePathStr,forRunningPlatform=FALSE){
 
 
 
-set.list.names <-function(list,nameProperty){
-  elemNames=c()
-  for(le in list){
-    name=le[[nameProperty]]
-    elemNames=c(elemNames,name)
-  }
-  names(list)<-elemNames
-  return(list)
-  
-}
+# set.list.names <-function(list,nameProperty){
+#   elemNames=c()
+#   for(le in list){
+#     name=le[[nameProperty]]
+#     elemNames=c(elemNames,name)
+#   }
+#   names(list)<-elemNames
+#   return(list)
+#   
+# }
 
 apply.class<-function(val,path,class){
   if(is.null(val)){
@@ -1820,6 +1828,98 @@ calculate.postions.of.links<-function(dbUUID){
   
 }
 
+
+# 
+annotJSONtoListOfDataFrames <- function(path){
+  
+  json = read_json(path) %>% as.tbl_json
+  
+  # get top level data
+  tlData = json %>%
+    spread_values(name = jstring("name"), annotates = jstring("annotates"), sampleRate = jstring("sampleRate"))
+  
+  # gen. links data.frame
+  links = json %>%
+    enter_object("links") %>%
+    gather_array  %>%
+    spread_values(fromID = jstring("fromID"), toID = jstring("toID")) %>%
+    select(fromID, toID)
+  
+  # gen. items list of data.frame
+  items = json %>%
+    spread_values(sampleRate = jstring("sampleRate")) %>%
+    enter_object("levels") %>%
+    gather_array  %>%
+    spread_values(level = jstring("name"), type = jstring("type")) %>%
+    enter_object("items") %>%
+    gather_array(column.name = "seqIdx") %>%
+    spread_values(itemID = jstring("id"), samplePoint = jstring("samplePoint"), sampleStart = jstring("sampleStart"), sampleDur = jstring("sampleDur")) %>%
+    select(itemID, level, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur)
+  
+  # gen. label list of data.frame
+  labels = json %>%
+    enter_object("levels") %>%
+    gather_array  %>%
+    spread_values(level = jstring("name")) %>%
+    enter_object("items") %>%
+    gather_array %>%
+    spread_values(itemID = jstring("id")) %>%
+    enter_object("labels") %>%
+    gather_array(column.name = "labelIdx") %>%
+    spread_values(name = jstring("name"), label = jstring("value")) %>%
+    select(itemID, labelIdx, name, label)
+  
+  return(list(name = tlData$name, annotates = tlData$annotates, sampleRate = tlData$sampleRate, items = items, links = links, labels = labels))
+  
+}
+
+
+# insert of bundle into SQL tables
+insert_bundle <- function(emuDBhandle, annotFilePath, sessionName, 
+                          bundleName) {
+  
+  listOfDfs = annotJSONtoListOfDataFrames(normalizePath(annotFilePath))
+  
+  # calculate MD5 sum of bundle annotJSON
+  MD5annotJSON = md5sum(normalizePath(annotFilePath))
+  names(MD5annotJSON) = NULL
+  
+  # insert bundle table entry
+  dbWriteTable(emuDBhandle$connection, "bundle", data.frame(db_uuid = emuDBhandle$UUID, 
+                                         session = sessionName,
+                                         name = bundleName,
+                                         annotates = listOfDfs$annotates,
+                                         sampleRate = listOfDfs$sampleRate,
+                                         MD5annotJSON = MD5annotJSON), append = T)
+  # insert items table entries
+  listOfDfs$items = data.frame(db_uuid = rep(emuDBhandle$UUID, nrow(listOfDfs$items)), 
+                               session = rep(sessionName, nrow(listOfDfs$items)),
+                               bundle = rep(bundleName, nrow(listOfDfs$items)),
+                               listOfDfs$items)
+  
+  dbWriteTable(emuDBhandle$connection, "items", listOfDfs$items, append = T)
+  
+  # insert labels table entries
+  listOfDfs$labels =  data.frame(db_uuid = rep(emuDBhandle$UUID, nrow(listOfDfs$labels)), 
+                                 session = rep(sessionName, nrow(listOfDfs$labels)),
+                                 bundle = rep(bundleName, nrow(listOfDfs$labels)),
+                                 listOfDfs$labels)
+  
+  dbWriteTable(emuDBhandle$connection, "labels", listOfDfs$labels, append = T)
+  
+  # insert links table entries
+  listOfDfs$links =  data.frame(db_uuid = rep(emuDBhandle$UUID, nrow(listOfDfs$links)), 
+                                session = rep(sessionName, nrow(listOfDfs$links)),
+                                bundle = rep(bundleName, nrow(listOfDfs$links)),
+                                listOfDfs$links,
+                                label = rep(NA, nrow(listOfDfs$links)))
+  
+  dbWriteTable(emuDBhandle$connection, "links", listOfDfs$links, append = T)
+  
+}
+
+
+
 ##' Load emuDB
 ##' 
 ##' @description Function loads emuDB from filesystem to R session
@@ -1857,7 +1957,7 @@ calculate.postions.of.links<-function(dbUUID){
 ##' 
 ##' }
 load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
-  progress=0
+  progress = 0
   
   # check database dir
   if(!file.exists(databaseDir)){
@@ -1884,55 +1984,37 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
   if(!file.exists(dbCfgPath)){
     stop("Could not find database info file: ",dbCfgPath,"\n")
   }
+  
   # calc. md5 sum
   MD5DBconfigJSON = md5sum(normalizePath(dbCfgPath))
   # load DBconfig
-  schema=load.emuDB.DBconfig(dbCfgPath)
-  # set transient values
-  schema=.update.transient.schema.values(schema)
+  DBconfig = jsonlite::fromJSON(dbCfgPath, simplifyVector=FALSE)
   # normalize base path
   basePath = normalizePath(databaseDir)
-  # create db object
-  dbName=schema[['name']]
-  db=create.database(name = dbName,basePath=basePath ,DBconfig = schema)
   
-  dbUUID = schema$UUID
+  # shorthand vars
+  dbName = DBconfig$name
+  dbUUID = DBconfig$UUID
   
-  # Tested performance if indices are created after storing the bundles: No performance benefit
-  #.initialize.DBI.database(createIndices = F)
-  # .initialize.DBI.database()
-  
-  # add new connection
+  # create dbHandle
   if(inMemoryCache){
-    handle = add_emuDBhandle(dbName,basePath,dbUUID)
-    con=handle$connection
+    dbHandle = emuDBhandle(dbName, basePath, dbUUID, connectionPath = ":memory:")
   }else{
-    dbPath = file.path(normalizePath(databaseDir), paste0(schema$name, database.cache.suffix))
-    handle = add_emuDBhandle(dbName,basePath, dbUUID,dbPath)
-    con=handle$connection
+    dbPath = file.path(normalizePath(databaseDir), paste0(dbName, database.cache.suffix))
+    dbHandle = emuDBhandle(dbName, basePath, dbUUID, dbPath)
   }
   
-  #   beginRes=dbBegin(con)
-  #   if(!beginRes){
-  #     stop("Could not start DBI (SQL) transaction!")
-  #   }
-  dbsDf=dbGetQuery(con,paste0("SELECT * FROM emuDB WHERE uuid='",schema[['UUID']],"'"))
+  # check if cache exist -> update cache if true
+  dbsDf=dbGetQuery(dbHandle$connection, paste0("SELECT * FROM emuDB WHERE uuid='", dbHandle$UUID, "'"))
   if(nrow(dbsDf)>0){
-    # stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
-    update_cache(schema[['name']], dbUUID = dbUUID, verbose = verbose)
-    return(schema$name)
+    update_cache(dbHandle, verbose = verbose)
+    return(dbHandle)
   }
   
-  .store.emuDB.DBI(con, db, MD5DBconfigJSON)
-  if(verbose){
-    cat("INFO: Loading EMU database from ",databaseDir,"...\n")
-  }
+  # write to DBI emuDB table
+  store_emuDbDBI(dbHandle, MD5DBconfigJSON)
   
-  
-  sessions=list()
-  # sessions
-  #sessPattern=paste0('^[0-9]{4}',session.suffix,'$')
-  # if legacy EMU uses globpattern in path directive session name can be an arbitrary string
+  # list sessions
   sessPattern=paste0('^.*',session.suffix,'$')
   sessDirs=dir(databaseDir,pattern=sessPattern)
   
@@ -1944,269 +2026,84 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
     bundleCount=bundleCount+length(bundleDirs)
   }
   
-  # progress distribution  
-  
-  # progress part to build a data frame 1%
-  ppBuildDataFrame=as.integer(bundleCount/1L)
-  # thress data frames items, labels and links
-  ppBuildDataFrames=ppBuildDataFrame*3L
-  # progress part to build redundant links 10%
-  ppBuildRedLinks=as.integer(bundleCount/10L)
-  # progress part to calaculate ext links 10%
-  ppBuildExtLinks=as.integer(bundleCount/10L)
-  pMax=bundleCount+ppBuildDataFrames+ppBuildRedLinks+ppBuildExtLinks
+  # create progress bar
+  pMax=bundleCount
   if(pMax==0){
     pMax=1
   }
   if(verbose){ 
+    cat(paste0("INFO: Loading EMU database from ",databaseDir,"... (",bundleCount ," bundles found)\n"))
     pb=txtProgressBar(min=0L,max=pMax,style=3)
     setTxtProgressBar(pb,progress)
   }
-  bundleNames=character(bundleCount)
-  db[['bundleNamesUnique']]=TRUE
-  bundleIdx=0L
+  
+  
   for(sd in sessDirs){
     sessionName=gsub(pattern = paste0(session.suffix,'$'),replacement = '',x = sd)
     bundles=list()
     absSd=file.path(databaseDir,sd)
     bundleDirs=dir(absSd,pattern=paste0('.*',bundle.dir.suffix,'$'))
+    # insert session table entry
+    dbWriteTable(dbHandle$connection, "session", data.frame(db_uuid = dbHandle$UUID, 
+                                                            name = sessionName), append = T)
+    
     # bundles
     for(bd in bundleDirs){
-      #cat("Loading bundle ",bd,"\n")
       absBd=file.path(absSd,bd)
-      #b=create.bundle(name=bd)
-      # bundle files
       bName=gsub(paste0(bundle.dir.suffix,'$'),'',bd)
-      # bundle files must start with bundle name
-      bundleFilePattern=paste0('^',bName,'.*$')
-      bfs=list.files(absBd,pattern=bundleFilePattern)
+      annotFilePath = file.path(absBd, paste0(bName, bundle.annotation.suffix, '.json'))
       
-      bundle=NULL
-      for(bf in bfs){
-        annotFile=paste0(bName,bundle.annotation.suffix,'.json')
-        absBf=file.path(absBd,bf)
-        
-        if(bf==annotFile){
-          
-          # and metadata (annotations)
-          annoJSONLns=readLines(absBf,encoding="UTF-8")
-          annoJSON=paste(annoJSONLns,collapse='')
-          bundle=jsonlite::fromJSON(annoJSON,simplifyVector=FALSE)
-          #class(bundle) <- 'emuDB.bundle'
-          bundle=as.bundle(bundle)
-          namedLevels=set.list.names(bundle[['levels']],'name')
-          bundle[['levels']]=namedLevels
-          #bundle[['mediaFilePath']]=file.path(absBd,bundle[['annotates']])
-        }else{
-          
-          for(ssffTr in schema[['ssffTrackDefinitions']]){
-            ssffExt=ssffTr[['fileExtension']]
-            ssffFn=paste0(bName,'.',ssffExt)
-            # TODO is this loop still necessary
-          }
-          
-        }
-      }
-      bundle[['db_UUID']]=schema[['UUID']]
-      # set session name
-      bundle[['session']]=sessionName
+      insert_bundle(dbHandle, annotFilePath, sessionName, bName)
       
-      schema=db[['DBconfig']]
-      #maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
-      #calc md5
-      MD5annotJSON = md5sum(normalizePath(file.path(absBd,annotFile)))
-      .store.bundle.DBI(db,bundle, MD5annotJSON)
-      .store.bundle.annot.DBI(schema[['UUID']],bundle)
-      
-      bundle[['levels']]=NULL
-      bundle[['links']]=NULL
-      bundles[[bName]]=bundle
-      
-      bundleIdx=bundleIdx+1
-      if(db[['bundleNamesUnique']]){
-        if(bName %in% bundleNames){
-          db[['bundleNamesUnique']]=FALSE
-        }else{
-          bundleNames[bundleIdx]=bName
-        }
-      }
-      
+      # increase progress bar  
       progress=progress+1L
       if(verbose){
         setTxtProgressBar(pb,progress)
       }
-    }
-    sessSuffixPattern=paste0(session.suffix,'$')
-    sNm=gsub(sessSuffixPattern,'',sd)
-    s=emuDB.session(name=sNm,path=absSd,bundles=bundles)
-    .store.session.DBI(schema[['UUID']],sessionName)
-    sessions[[sNm]]=s
-    
-  }
-  
-  # Tested performance if indices are created after storing the bundles: No performance benefit
-  #.create.DBI.database.indices()
-  
-  db[['sessions']]=sessions 
-  
-  #itemsIdx=db[['itemsIdx']]
-  #tmpDf=data.frame(db[['items']],stringsAsFactors = FALSE)
-  #db[['items']]=tmpDf[0:itemsIdx,]
-  
-  db[['items']]=dbReadTable(get_emuDBcon(dbUUID),'items')
-  progress=progress+ppBuildDataFrame
-  if(verbose){
-    setTxtProgressBar(pb,progress)
-  }
-  
-  #labelsIdx=db[['labelsIdx']]
-  #tmpLblsDf=data.frame(db[['labels']],stringsAsFactors = FALSE)
-  #db[['labels']]=tmpLblsDf[0:labelsIdx,]
-  
-  #db[['labels']]=dbReadTable(get_emuDBcon(),'labels')
-  progress=progress+ppBuildDataFrame
-  if(verbose){
-    setTxtProgressBar(pb,progress)
-  }
-  
-  #linksIdx=db[['linksIdx']]
-  #tmpLksdf=data.frame(db[['links']],stringsAsFactors = FALSE)
-  
-  #db[['links']]=tmpLksdf[0:linksIdx,]
-  
-  db[['links']]=dbReadTable(get_emuDBcon(dbUUID),'links')
-  
-  progress=progress+ppBuildDataFrame
-  if(verbose){
-    setTxtProgressBar(pb,progress)
-  }
-  
-  # assume no redunant links in new format 
-  build.redundant.links.all(db)
-  progress=progress+ppBuildRedLinks
-  if(verbose){
-    setTxtProgressBar(pb,progress)
-  }
-  calculate.postions.of.links(dbUUID)
-  #db[['linksExt']]=dbReadTable(get_emuDBcon(),'linksExt')
-  
-  #   commitRes=dbCommit(get_emuDBcon(dbUUID))
-  #   if(!commitRes){
-  #     stop("Could not commit database transaction!")
-  #   }
-  progress=progress+ppBuildExtLinks
-  if(verbose){
-    setTxtProgressBar(pb,progress)
-    
-    cat("\n")
-  }
-  #.destroy.DBI.database()
-  return(schema$name)
-  
-}
-##' Test if EMU database is loaded
-##' @param dbName name of emuDB
-##' @param dbUUID optional UUID of EmuDB
-##' @return TRUE if loaded, FALSE otherwise
-##' @author Klaus Jaensch
-##' @seealso \code{\link{load_emuDB}}
-##' @keywords emuDB database Emu
-##' @examples
-##' \dontrun{
-##' ## Test if database 'ae' is loaded
-##' 
-##'   is.emuDB.loaded('ae')
-##' }
-
-is.emuDB.loaded<-function(dbName,dbUUID=NULL){
-  # .initialize.DBI.database()
-  if(is.null(dbUUID)){
-    q=paste0("SELECT * FROM emuDB WHERE name='",dbName,"'")
-  }else{
-    q=paste0("SELECT * FROM emuDB WHERE uuid='",dbUUID,"'")
-  }
-  dbsDf = data.frame()
-  for(c in internalVars$sqlConnections){
-    dbsDf=dbGetQuery(c$connection,q)
-    if(nrow(dbsDf)>0){
-      break
+      
     }
   }
   
-  return((nrow(dbsDf)>0))
+  # build redundat links and calc positions
+  cat("\nbuilding redundant links and position of links... (this may take a while)\n")
+#  build.redundant.links.all(db)
+#  calculate.postions.of.links(dbUUID)
+  
+  return(dbHandle)
+  
 }
 
-
-## SIC! Once the caching mechanics work this function should be deleted
-# duplicate.loaded.emuDB <- function(dbName, newName, newBasePath, dbUUID=NULL){
-#   # get UUID (also checks if DB exists)
-#   oldUUID = get_UUID(dbName = dbName, dbUUID = dbUUID)
-#   oldBasePath = dbGetQuery(get_emuDBcon(oldUUID), paste0("SELECT basePath FROM emuDB WHERE uuid='", oldUUID, "'"))
-#   newUUID = UUIDgenerate()
-#   
-#   # check if dbName already exists
-#   tcRes = tryCatch(get_UUID(dbName = newName), error = function(e) e)
-#   
-#   if(!inherits(tcRes, 'error')){
-#     stop("emuDB with name: ", newName, " already exists!")
+# ##' Test if EMU database is loaded
+# ##' @param dbName name of emuDB
+# ##' @param dbUUID optional UUID of EmuDB
+# ##' @return TRUE if loaded, FALSE otherwise
+# ##' @author Klaus Jaensch
+# ##' @seealso \code{\link{load_emuDB}}
+# ##' @keywords emuDB database Emu
+# ##' @examples
+# ##' \dontrun{
+# ##' ## Test if database 'ae' is loaded
+# ##' 
+# ##'   is.emuDB.loaded('ae')
+# ##' }
+# is.emuDB.loaded<-function(dbName,dbUUID=NULL){
+#   # .initialize.DBI.database()
+#   if(is.null(dbUUID)){
+#     q=paste0("SELECT * FROM emuDB WHERE name='",dbName,"'")
+#   }else{
+#     q=paste0("SELECT * FROM emuDB WHERE uuid='",dbUUID,"'")
+#   }
+#   dbsDf = data.frame()
+#   for(c in internalVars$sqlConnections){
+#     dbsDf=dbGetQuery(c$connection,q)
+#     if(nrow(dbsDf)>0){
+#       break
+#     }
 #   }
 #   
-#   # duplicate emuDBs entry
-#   dbSendQuery(get_emuDBcon(oldUUID), paste0("INSERT INTO emuDB",
-#                                             " SELECT '", newUUID,"' AS uuid, '", newName, 
-#                                             "', '", newBasePath, "', DBconfigJSON, MD5DBconfigJSON FROM emuDB WHERE uuid='", oldUUID, "'"))
-#   
-#   # update DBconfig accordingly
-#   dbUUID = get_UUID(dbName = newDB, dbUUID = newUUID)
-#   dbObj = .load.emuDB.DBI(uuid = dbUUID)
-#   dbObj$DBconfig$name = newName;
-#   dbObj$DBconfig$UUID = newUUID;
-#   .store.DBconfig.DBI(con = get_emuDBcon(oldUUID), dbObj$DBconfig)
-#   
-#   # duplicate session entries
-#   dbSendQuery(get_emuDBcon(oldUUID), paste0("INSERT INTO session",
-#                                             " SELECT '", newUUID, "' AS db_uuid, name  FROM session",
-#                                             " WHERE db_uuid='", oldUUID, "'"))
-#   
-#   # duplicate track entries
-#   resTr = dbGetQuery(get_emuDBcon(oldUUID), paste0(" SELECT '", newUUID, "' AS db_uuid, session, bundle, path FROM track",
-#                                                    " WHERE db_uuid='", oldUUID, "'"))
-#   
-#   
-#   resTr$path = gsub(oldBasePath, newBasePath, resTr$path)
-#   
-#   dbWriteTable(get_emuDBcon(oldUUID), 'track', resTr, append=T)
-#   
-#   # duplicate bundle entries
-#   resBndls = dbGetQuery(get_emuDBcon(oldUUID), paste0(" SELECT '", newUUID, "' AS db_uuid, session, name, annotates, sampleRate, mediaFilePath, MD5annotJSON FROM bundle",
-#                                                       " WHERE db_uuid='", oldUUID, "'"))
-#   
-#   resBndls$mediaFilePath = gsub(oldBasePath, newBasePath, resBndls$mediaFilePath)
-#   
-#   dbWriteTable(get_emuDBcon(oldUUID), 'bundle', resBndls, append=T)
-#   
-#   # duplicate items entries
-#   dbSendQuery(get_emuDBcon(oldUUID), paste0("INSERT INTO items",
-#                                             " SELECT '", newUUID, "' AS db_uuid, session, bundle, itemID, level, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur FROM items",
-#                                             " WHERE db_uuid='", oldUUID, "'"))
-#   
-#   # duplicate labels entries
-#   dbSendQuery(get_emuDBcon(oldUUID), paste0("INSERT INTO labels",
-#                                             " SELECT '", newUUID, "' AS db_uuid, session, bundle, itemID, labelIdx, name, label FROM labels",
-#                                             " WHERE db_uuid='", oldUUID, "'"))
-#   
-#   # duplicate links entries
-#   dbSendQuery(get_emuDBcon(oldUUID), paste0("INSERT INTO links",
-#                                             " SELECT '", newUUID, "' AS db_uuid, session, bundle, fromID, toID, label FROM links",
-#                                             " WHERE db_uuid='", oldUUID, "'"))
-#   
-#   # duplicate linksExt entries
-#   dbSendQuery(get_emuDBcon(oldUUID), paste0("INSERT INTO linksExt",
-#                                             " SELECT '", newUUID, "' AS db_uuid, session, bundle, fromID, toID, seqIdx, toLevel, type, toSeqIdx, toSeqLen, label FROM linksExt",
-#                                             " WHERE db_uuid='", oldUUID, "'"))
-#   
-#   
+#   return((nrow(dbsDf)>0))
 # }
+
 
 ##
 rewrite.allAnnots.emuDB <- function(dbName, dbUUID=NULL, showProgress=TRUE){
