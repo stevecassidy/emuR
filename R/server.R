@@ -448,4 +448,50 @@ serve=function(dbName,sessionPattern='.*',bundlePattern='.*',dbUUID=NULL,host='1
   return(modified)
 }
 
-
+## searches for all tracks needed by the EMUwebApp and
+## returns their ssffTrackDefinitions
+get_ssffTracks_used_by_DBconfig <- function(DBconfig){
+  allTracks = NULL
+  
+  # anagestConfig ssffTracks
+  for(ld in DBconfig$levelDefinitions){
+    allTracks = c(allTracks, ld$anagestConfig$verticalPosSsffTrackName, ld$anagestConfig$velocitySsffTrackName)
+  }
+  
+  for(p in DBconfig$EMUwebAppConfig$perspectives){
+    # tracks in signalCanvases$order
+    for(sco in p$signalCanvases$order){
+      allTracks = c(allTracks, sco)
+    }
+    # tracks in twoDimCanvases$order
+    for(tdco in p$twoDimCanvases$order){
+      allTracks = c(allTracks, tdco)
+    }
+    
+    # tracks in signalCanvases$assign
+    for(sca in p$signalCanvases$assign){
+      allTracks = c(allTracks, sca$ssffTrackName)
+    }
+    # tracks in p$twoDimCanvases$twoDimDrawingDefinitions
+    for(tddd in p$twoDimCanvases$twoDimDrawingDefinitions){
+      # dots
+      for(dot in tddd$dots){
+        allTracks = c(allTracks, dot$xSsffTrack, dot$ySsffTrack)
+      }
+    }
+  }
+  # uniq tracks
+  allTracks = unique(allTracks)
+  # remove OSCI and SPEC tracks
+  allTracks = allTracks[allTracks != 'OSCI' & allTracks != 'SPEC']
+  
+  # get corresponding ssffTrackDefinitions
+  allTrackDefs = list()
+  for(std in DBconfig$ssffTrackDefinitions){
+    if(std$name %in% allTracks){
+      allTrackDefs[[length(allTrackDefs) + 1]] = std
+    }
+  }
+  
+  return(allTrackDefs)
+}
