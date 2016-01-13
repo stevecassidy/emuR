@@ -47,7 +47,7 @@ summary.emuDBhandle = function(object, ...){
   cat("Annotation item count: ", itemCnt, ", links count: ", linkCnt, "\n")
   cat("\nDatabase configuration:\n\n")
   
-  dbConfig = get_DBconfig(object)
+  dbConfig = load_DBconfig(object)
   cat("SSFF track definitions:\n")
   ssffTrackDefs = list_ssffTrackDefinitions(object)
   print(ssffTrackDefs)
