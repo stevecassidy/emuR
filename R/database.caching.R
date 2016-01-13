@@ -9,7 +9,7 @@
 ## @param verbose display infos
 ## @keywords emuDB database Emu 
 update_cache <- function(emuDBhandle, verbose = TRUE){
-
+  
   ######################################
   # check if DBconfig needs reload
   
@@ -109,20 +109,13 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
           print(paste0("Reloading _annot.json for bundle in session : '", sn,"' with name: '", bn, "'"))
         }
         bundle=jsonlite::fromJSON(annotPath, simplifyVector=FALSE)
-        bundle=as.bundle(bundle)
-        # set missing fields
-        namedLevels=set.list.names(bundle[['levels']],'name')
-        bundle[['levels']]=namedLevels
         mediaFilePath=file.path(file.path(emuDBhandle$basePath, s, b),bundle[['annotates']])
-        bundle[['db_UUID']]=emuDBhandle$UUID
-        # set session name
-        bundle[['session']]=sn
-        
-        # check if bundle entry exists
+
+        # check if bundle entry doesn't exists
         if(!any(curBndls$session == sn & curBndls$name == bn)){
           sR = attr(read.AsspDataObj(mediaFilePath), "sampleRate")
-          dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO bundle (db_uuid,session,name,annotates,sampleRate,MD5annotJSON) VALUES 
-                                                  ('",emuDBhandle$UUID,"', '", 
+          dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO bundle (db_uuid,session,name,annotates,sampleRate,MD5annotJSON) VALUES ('",
+                                                    emuDBhandle$UUID,"', '", 
                                                     sn,"', '", 
                                                     bn,"', '", 
                                                     bundle$annotates,"', '", 
@@ -137,9 +130,9 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
         }
         
         # delete old items/label/links entries
-        .remove.bundle.annot.DBI(dbUUID=emuDBhandle$UUID,bundle=bundle)
+        remove_bundleAnnotDBI(emuDBhandle, bundleName = bn , sessionName = sn)
         # and store them
-        .store.bundle.annot.DBI(dbUUID=emuDBhandle$UUID,bundle=bundle)
+        store_bundleDBI(emuDBhandle, sessionName = sn, bundleName = bn)
         
         # only build redunant links if non-empty bundle
         qRes = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM items WHERE ",
