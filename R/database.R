@@ -10,6 +10,8 @@ require(tidyjson)
 # increment this value if the internal database object format changes  
 emuDB.apiLevel = 3L
 
+# vars used by testthat tests
+testingVars = list(inMemoryCache = F)
 
 
 #############################################
@@ -543,6 +545,41 @@ list_bundleFilePaths <- function(emuDBhandle, fileExtention,
   
   return(fpExist)
 }
+
+
+rewrite_allAnnots <- function(emuDBhandle, showProgress=TRUE){
+  
+  # get UUID (also checks if DB exists)
+  bndls = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "'"))
+  
+  progress = 0
+  if(showProgress){
+    bundleCount=nrow(bndls)
+    cat("INFO: Rewriting", bundleCount, "_annot.json files to file system...\n")
+    pb=txtProgressBar(min=0,max=bundleCount,style=3)
+    setTxtProgressBar(pb,progress)
+  }
+  
+  for(i in 1:nrow(bndls)){
+    b=get.bundle(sessionName=bndls[i,]$session, bundleName=bndls[i,]$name, dbUUID=dbUUID)
+    bDir=paste0(b[['name']], bundle.dir.suffix)
+    bfp=file.path(basePath, paste0(bndls[i,]$session, session.suffix), bDir)
+    
+    pFilter=emuR.persist.filters.bundle
+    bp=marshal.for.persistence(b,pFilter)
+    ban=paste0(b[['name']], bundle.annotation.suffix, '.json')
+    baJSONPath=file.path(bfp,ban)
+    pbpJSON=jsonlite::toJSON(bp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+    writeLines(pbpJSON,baJSONPath)
+    
+    progress=progress+1L
+    if(showProgress){
+      setTxtProgressBar(pb,progress)
+    }
+  } 
+}
+
+
 
 #########################################################
 # store / create / load functions

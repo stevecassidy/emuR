@@ -869,42 +869,6 @@
 # }
 
 
-##
-# rewrite.allAnnots.emuDB <- function(dbName, dbUUID=NULL, showProgress=TRUE){
-#   
-#   # get UUID (also checks if DB exists)
-#   dbUUID = get_UUID(dbName = dbName, dbUUID = dbUUID)
-#   handle=get_emuDBhandle(dbUUID = dbUUID)
-#   basePath=handle$basePath
-#   bndls = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT * FROM bundle WHERE db_uuid='", dbUUID, "'"))
-#   
-#   progress = 0
-#   if(showProgress){
-#     bundleCount=nrow(bndls)
-#     cat("INFO: Rewriting", bundleCount, "_annot.json files to file system...\n")
-#     pb=txtProgressBar(min=0,max=bundleCount,style=3)
-#     setTxtProgressBar(pb,progress)
-#   }
-#   
-#   for(i in 1:nrow(bndls)){
-#     b=get.bundle(sessionName=bndls[i,]$session, bundleName=bndls[i,]$name, dbUUID=dbUUID)
-#     bDir=paste0(b[['name']], bundle.dir.suffix)
-#     bfp=file.path(basePath, paste0(bndls[i,]$session, session.suffix), bDir)
-#     
-#     pFilter=emuR.persist.filters.bundle
-#     bp=marshal.for.persistence(b,pFilter)
-#     ban=paste0(b[['name']], bundle.annotation.suffix, '.json')
-#     baJSONPath=file.path(bfp,ban)
-#     pbpJSON=jsonlite::toJSON(bp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-#     writeLines(pbpJSON,baJSONPath)
-#     
-#     progress=progress+1L
-#     if(showProgress){
-#       setTxtProgressBar(pb,progress)
-#     }
-#   } 
-# }
-
 
 # # Create emuDB bundle object
 # # @description A bundle typically contains media files and annotations of an utterance
