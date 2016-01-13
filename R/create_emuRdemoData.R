@@ -69,8 +69,7 @@ create_emuRdemoData <- function(dir = tempdir(), precache = FALSE){
   
   # generate cache of ae emuDB
   if(precache){
-    dbName=load_emuDB(aePath, inMemoryCache = F, verbose = F)
-    purge_emuDB(dbName, interactive = F)
+    dbHandle = load_emuDB(aePath, inMemoryCache = F, verbose = F)
   }
   
   ####################################
