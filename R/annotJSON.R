@@ -13,7 +13,7 @@ annotJSONtoListOfDataFrames <- function(json){
     enter_object("links") %>%
     gather_array  %>%
     spread_values(fromID = jstring("fromID"), toID = jstring("toID")) %>%
-    select(fromID, toID)
+    select_(~fromID, ~toID)
   
   # gen. items list of data.frame
   items = json %>%
@@ -24,7 +24,7 @@ annotJSONtoListOfDataFrames <- function(json){
     enter_object("items") %>%
     gather_array(column.name = "seqIdx") %>%
     spread_values(itemID = jstring("id"), samplePoint = jstring("samplePoint"), sampleStart = jstring("sampleStart"), sampleDur = jstring("sampleDur")) %>%
-    select(itemID, level, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur)
+    select_(~itemID, ~level, ~type, ~seqIdx, ~sampleRate, ~samplePoint, ~sampleStart, ~sampleDur)
   
   # gen. label list of data.frame
   labels = json %>%
@@ -37,7 +37,7 @@ annotJSONtoListOfDataFrames <- function(json){
     enter_object("labels") %>%
     gather_array(column.name = "labelIdx") %>%
     spread_values(name = jstring("name"), label = jstring("value")) %>%
-    select(itemID, labelIdx, name, label)
+    select_(~itemID, ~labelIdx, ~name, ~label)
   
   return(list(name = tlData$name, annotates = tlData$annotates, sampleRate = tlData$sampleRate, items = items, links = links, labels = labels))
   
