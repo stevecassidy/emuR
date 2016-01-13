@@ -1,469 +1,262 @@
-create.schema.track <- function(basePath=NULL,name,columnName=name,unitSuffix=NULL,extension=NULL,hasDeepStructure=FALSE){
-  o <- list(basePath=basePath,name=name,columnName=columnName,unitSuffix=unitSuffix,fileExtension=extension)
-  class(o) <- 'emuDB.schema.track'
-  invisible(o)
-}
 
-create.schema.annotationDescriptor <- function(name=NULL,basePath=NULL,extension=NULL,type=NULL,timeFactor=NULL,levelDefinitions=NULL){
-  o <- list(name=name,basePath=basePath,extension=extension,type=type,timeFactor=timeFactor,levelDefinitions=levelDefinitions)
-  class(o) <- 'emuDB.schema.annotationDescriptor'
-  invisible(o)
-}
+#####################################################
+# functions used to build various path combinations
+# plus helper functions
 
-## Create emuDB attribute definition object
-## 
-## @param name name of the level
-## @param type level type (ITEM,EVENT,SEGMENT)
-## @return object of class emuDB.schema.attributeDefinition
-## @author Klaus Jaensch
-## @keywords emuDB attribute level Emu
-## 
-create.schema.attributeDefinition <- function(name, type='STRING',labelGroups=NULL){
-  if(is.null(labelGroups)){
-    o <- list(name=name,type=type)
-  }else{
-    o <- list(name=name,type=type,labelGroups=labelGroups)
-  }
-  class(o) <- c('emuDB.schema.attributeDefinition','list')
-  invisible(o)
-}
+# get_linkLevelChildren <- function(schema, superlevelName){
+#   subLds=list()
+#   for(ld in schema[['linkDefinitions']]){
+#     if(ld[['superlevelName']] == superlevelName){
+#       subLds[[length(subLds) + 1L]] = ld
+#     }
+#   }
+#   return(subLds)
+# }
+# 
+# get_rootLevelNames <- function(schema){
+#   rlNames = character(0)
+#   for(lvlD in schema[['levelDefinitions']]){
+#     hasSuperLevel = FALSE
+#     for(ld in schema[['linkDefinitions']]){
+#       if(ld[['sublevelName']] == lvlD[['name']]){
+#         hasSuperLevel = TRUE
+#         break
+#       }
+#     }
+#     if(!hasSuperLevel){
+#       rlNames = c(rlNames, lvlD[['name']])
+#     }
+#   }
+#   return(rlNames)
+# }
 
-## Create emuDB level definition object
-## 
-## @param name name of the level
-## @param type level type (ITEM,EVENT,SEGMENT)
-## @param attributeDefinitions list of attribute definitions
-## @return object of class emuDB.levelDefinition
-## @author Klaus Jaensch
-## @keywords emuDB level Emu
-## 
-create.schema.levelDefinition <- function(name,type=NULL,attributeDefinitions=NULL){
-  if(is.null(attributeDefinitions)){
-    defAttrDef=create.schema.attributeDefinition(name=name)
-    attributeDefinitions=list(defAttrDef)
-  }
-  o <- list(name=name,type=type,attributeDefinitions=attributeDefinitions)
-  class(o) <- 'emuDB.schema.levelDefinition'
-  invisible(o)
-}
+# get_levelNames <- function(schema){
+#   lNames = character(0)
+#   for(lvlD in schema[['levelDefinitions']]){
+#     lNames = c(lNames, lvlD[['name']])
+#   }
+#   return(lNames)
+# }
 
-## Create emuDB link definition object
-## Represents the hierarchical information of EMU hlb files
-## 
-## @param name name of the link (optional)
-## @param type link type ("ONE_TO_ONE", "ONE_TO_MANY", "MANY_TO_MANY")
-## @param superlevelName name of the super level (link from)
-## @param sublevelName name of the sublevel (link to)
-## @return object of class emuDB.schema.linkDefinition
-## @author Klaus Jaensch
-## @keywords emuDB database schema link Emu
-## 
-create.schema.linkDefinition <- function(name=NULL,type,superlevelName,sublevelName){
-  o <- list(name=name,type=type,superlevelName=superlevelName,sublevelName=sublevelName)
-  class(o) <- 'emuDB.schema.linkDefinition'
-  invisible(o)
-}
+# get_levelNameByAttributeName <- function(schema, attributeName){
+#   for(lvlD in schema[['levelDefinitions']]){
+#     aNames = character(0)
+#     for(ad in lvlD[['attributeDefinitions']]){
+#       aNames = c(aNames, ad[['name']])
+#       if(attributeName %in% aNames){
+#         return(lvlD[['name']])
+#       }
+#     }
+#   }
+#   return(NULL)
+# }
 
-create.schema.databaseDefinition <- function(name,UUID=uuid::UUIDgenerate(),mediafileBasePathPattern=NULL,mediafileExtension=NULL,ssffTrackDefinitions=list(),levelDefinitions=list(),linkDefinitions=list(),EMUwebAppConfig=NULL,annotationDescriptors=NULL,tracks=NULL,flags=NULL){
-  o <- list(name=name,UUID=UUID,mediafileBasePathPattern=mediafileBasePathPattern,mediafileExtension=mediafileExtension,ssffTrackDefinitions=ssffTrackDefinitions,levelDefinitions=levelDefinitions,linkDefinitions=linkDefinitions,EMUwebAppConfig=EMUwebAppConfig,annotationDescriptors=annotationDescriptors,tracks=tracks,flags=flags)
-  class(o) <- c('list','emuDB.schema.databaseDefinition')
-  #rTypes=list(levelDefinitions=c('list','emuDB.schema.levelDefinition',linkDefinitions=c('list','emuDB.schema.linkDefinition')
-  invisible(o)
-}
+# get_attributeNamesByName<-function(schema, levelName){
+#   aNames=character(0)
+#   for(lvlD in schema[['levelDefinitions']]){
+#     if(lvlD[['name']] == levelName){
+#       for(ad in lvlD[['attributeDefinitions']]){
+#         aNames=c(aNames, ad[['name']])
+#       }
+#       break
+#     }
+#   }
+#   return(aNames)
+# }
 
-
-## searches for all tracks needed by the EMUwebApp and
-## returns their ssffTrackDefinitions
-get_ssffTracks_used_by_DBconfig <- function(DBconfig){
-  allTracks = NULL
-  
-  # anagestConfig ssffTracks
-  for(ld in DBconfig$levelDefinitions){
-    allTracks = c(allTracks, ld$anagestConfig$verticalPosSsffTrackName, ld$anagestConfig$velocitySsffTrackName)
-  }
-  
-  for(p in DBconfig$EMUwebAppConfig$perspectives){
-    # tracks in signalCanvases$order
-    for(sco in p$signalCanvases$order){
-      allTracks = c(allTracks, sco)
-    }
-    # tracks in twoDimCanvases$order
-    for(tdco in p$twoDimCanvases$order){
-      allTracks = c(allTracks, tdco)
-    }
-    
-    # tracks in signalCanvases$assign
-    for(sca in p$signalCanvases$assign){
-      allTracks = c(allTracks, sca$ssffTrackName)
-    }
-    # tracks in p$twoDimCanvases$twoDimDrawingDefinitions
-    for(tddd in p$twoDimCanvases$twoDimDrawingDefinitions){
-      # dots
-      for(dot in tddd$dots){
-        allTracks = c(allTracks, dot$xSsffTrack, dot$ySsffTrack)
-      }
-    }
-  }
-  # uniq tracks
-  allTracks = unique(allTracks)
-  # remove OSCI and SPEC tracks
-  allTracks = allTracks[allTracks != 'OSCI' & allTracks != 'SPEC']
-  
-  # get corresponding ssffTrackDefinitions
-  allTrackDefs = list()
-  for(std in DBconfig$ssffTrackDefinitions){
-    if(std$name %in% allTracks){
-      allTrackDefs[[length(allTrackDefs) + 1]] = std
-    }
-  }
-  
-  return(allTrackDefs)
-}
+# get_allAttributeNames<-function(schema){
+#   aNames=character(0)
+#   for(lvlD in schema[['levelDefinitions']]){
+#     for(ad in lvlD[['attributeDefinitions']]){
+#       aNames=c(aNames,ad[['name']])
+#     }
+#     
+#   }
+#   return(aNames)
+# }
 
 
-
-summary.emuDB.schema.databaseDefinition<-function(schema,header=TRUE){
-  cat("SSFF track definitions:\n")
-  for(td in schema[['ssffTrackDefinitions']]){
-    cat("\tName: ",td[['name']],"\tColumn: ",td[['columnName']],"\tExt.: ",td[['fileExtension']],"\n")
-  }
-  cat("\n")
-  cat("Level definitions:\n")
-  for(ld in schema[['levelDefinitions']]){
-    print(ld)
-    cat("\tAttribute definitions:\n")
-    for(ad in ld[['attributeDefinitions']]){
-      cat("\t")
-      print(ad)
-    }
-    cat("\n")
-  }
-  cat("\n")
-  lblGrps=schema[['labelGroups']]
-  if(length(lblGrps)>0){
-    cat("Database label group definitions:\n")
-    for(lblGrp in lblGrps){
-      print.emuDB.schema.labelGroup(lblGrp)
-    }
-  }
-  cat("\n")
-  cat("Link definitions:\n")
+get_linkLevelChildrenNames<-function(schema, superlevelName){
+  chNames = character(0)
   for(ld in schema[['linkDefinitions']]){
-    print(ld)
-  }
-  
-}
-
-print.emuDB.schema.labelGroup<-function(labelGroup){
-  labelVals=c()
-  for(lblGrpVal in labelGroup[['values']]){
-    labelVals=c(labelVals,lblGrpVal)
-  }
-  cat("\tLabel group: ",labelGroup[['name']],": ",labelVals,"\n")
-}
-
-print.emuDB.schema.levelDefinition<-function(levelDefinition){
-  cat(levelDefinition[['name']],"\ttype:\t",levelDefinition[['type']],"\n")
-}
-
-print.emuDB.schema.attributeDefinition<-function(attributeDefinition){
-  cat(attributeDefinition[['name']],"\ttype:\t",attributeDefinition[['type']],"\n")
-  lblGrps=attributeDefinition[['labelGroups']]
-  if(length(lblGrps)>0){
-    cat("\n\tLabel group definitions:\n")
-    for(lblGrp in lblGrps){
-      print.emuDB.schema.labelGroup(lblGrp)
-    }
-  }
-}
-
-print.emuDB.schema.linkDefinition<-function(linkDefinition){
-  cat(toString(linkDefinition),"\n")
-}
-toString.emuDB.schema.linkDefinition<-function(linkDefinition){
-  paste(linkDefinition[['superlevelName']],'->',linkDefinition[['sublevelName']],linkDefinition[['type']],sep="\t")
-}
-
-get.link.level.children<-function(schema,superlevelName){
-  subLds=list()
-  for(ld in schema[['linkDefinitions']]){
-    if(ld[['superlevelName']]==superlevelName){
-      subLds[[length(subLds)+1L]]=ld
-    }
-  }
-  return(subLds)
-}
-
-get.root.level.names<-function(schema){
-  rlNames=character(0)
-  for(lvlD in schema[['levelDefinitions']]){
-    hasSuperLevel=FALSE
-    for(ld in schema[['linkDefinitions']]){
-      if(ld[['sublevelName']]==lvlD[['name']]){
-        hasSuperLevel=TRUE
-        break
-      }
-    }
-    if(!hasSuperLevel){
-      rlNames=c(rlNames,lvlD[['name']])
-    }
-  }
-  return(rlNames)
-}
-
-get.level.names<-function(schema){
-  lNames=character(0)
-  for(lvlD in schema[['levelDefinitions']]){
-    lNames=c(lNames,lvlD[['name']])
-  }
-  return(lNames)
-}
-
-get.level.name.by.attribute.name<-function(schema,attributeName){
-  for(lvlD in schema[['levelDefinitions']]){
-    aNames=character(0)
-    for(ad in lvlD[['attributeDefinitions']]){
-      aNames=c(aNames,ad[['name']])
-      if(attributeName %in% aNames){
-        return(lvlD[['name']])
-      }
-    }
-  }
-  return(NULL)
-}
-
-get.attribute.names.by.name<-function(schema,levelName){
-  aNames=character(0)
-  for(lvlD in schema[['levelDefinitions']]){
-    if(lvlD[['name']]==levelName){
-      for(ad in lvlD[['attributeDefinitions']]){
-        aNames=c(aNames,ad[['name']])
-      }
-      break
-    }
-  }
-  return(aNames)
-}
-
-get.all.attribute.names<-function(schema){
-  aNames=character(0)
-  for(lvlD in schema[['levelDefinitions']]){
-    for(ad in lvlD[['attributeDefinitions']]){
-      aNames=c(aNames,ad[['name']])
-    }
-    
-  }
-  return(aNames)
-}
-
-
-get.link.level.children.names<-function(schema,superlevelName){
-  chNames=character(0)
-  for(ld in schema[['linkDefinitions']]){
-    if(ld[['superlevelName']]==superlevelName){
-      chNames=c(chNames,ld[['sublevelName']])
+    if(ld[['superlevelName']] == superlevelName){
+      chNames=c(chNames, ld[['sublevelName']])
     }
   }
   return(chNames)
 }
 
 
-build.level.partial.pathes<-function(schema,fromLevelName,toLevelName){
-  pathes=list()
-  chNames=get.link.level.children.names(schema,fromLevelName)
-  if(length(chNames)==0){
-    #pathes[[length(pathes)+1]]=c(levelName)
-    
-  }else{
-    for(chName in chNames){
-      if(chName==toLevelName){
-        # terminated
-        pathes[[length(pathes)+1L]]=c(fromLevelName,chName)
-      }else{
-        chPathes=build.level.partial.pathes(schema,chName,toLevelName)
-        for(chPath in chPathes){
-          pathes[[length(pathes)+1L]]=c(fromLevelName,chPath)
-        }
-      }
-    }
-  }
-  return(pathes)
-}
+# build_levelPartialPathes <- function(schema, fromLevelName, toLevelName){
+#   pathes = list()
+#   chNames = get_linkLevelChildrenNames(schema, fromLevelName)
+#   if(length(chNames) == 0){
+#     #pathes[[length(pathes)+1]]=c(levelName)
+#     
+#   }else{
+#     for(chName in chNames){
+#       if(chName == toLevelName){
+#         # terminated
+#         pathes[[length(pathes)+1L]] = c(fromLevelName, chName)
+#       }else{
+#         chPathes = build_levelPartialPathes(schema, chName, toLevelName)
+#         for(chPath in chPathes){
+#           pathes[[length(pathes)+1L]] = c(fromLevelName,chPath)
+#         }
+#       }
+#     }
+#   }
+#   return(pathes)
+# }
+# 
+# 
+# extract_linkTargetsFromPathes <- function(pathes){
+#   mergedTargets = character(0)
+#   for(p in pathes){
+#     pLen = length(p)
+#     trgs = p[2:pLen]
+#     mergedTargets = c(mergedTargets, trgs)
+#   }
+#   uniqueTargets = unique(mergedTargets)
+#   return(uniqueTargets)
+# }
 
-build.sublevel.pathes<-function(schema,levelName){
-  pathes=list()
-  chNames=get.link.level.children.names(schema,levelName)
-  if(length(chNames)==0){
-    pathes[[length(pathes)+1L]]=c(levelName)
-  }else{
-    for(chName in chNames){
-      
-      chPathes=build.sublevel.pathes(schema,chName)
-      for(chPath in chPathes){
-        pathes[[length(pathes)+1L]]=c(levelName,chPath)
-      }
-    }
-  }
-  return(pathes)
-}
-
-extract.link.targets.from.pathes<-function(pathes){
-  mergedTargets=character(0)
-  for(p in pathes){
-    pLen=length(p)
-    trgs=p[2:pLen]
-    mergedTargets=c(mergedTargets,trgs)
-  }
-  uniqueTargets=unique(mergedTargets)
-  return(uniqueTargets)
-}
-
-expand.link.path<-function(p){
-  expPath=list()
-  pLen=length(p)
-  if(pLen==1){
+expand_linkPath <- function(p){
+  expPath = list()
+  pLen = length(p)
+  if(pLen == 1){
     return(list())
   }
-  expPath[[length(expPath)+1L]]=p
-  expPath=c(expPath,expand.link.path(p[1:(pLen-1)]))
+  expPath[[length(expPath)+1L]] = p
+  expPath = c(expPath, expand_linkPath(p[1:(pLen-1)]))
   return(expPath)
 }
 
-build.link.defs<-function(schema){
-  extLds=list()
+## build all hierarchy paths including partial paths
+## @return list containing paths and subpaths
+build_allHierarchyPaths <- function(schema){
+  extLds = list()
   for(ld in schema[['levelDefinitions']]){
-    lName=ld[['name']]
-    pathes=build.sublevel.pathes(schema,lName)
+    lName = ld[['name']]
+    pathes = build_sublevelPathes(schema, lName)
     for(p in pathes){
-      extLds=c(extLds,expand.link.path(p))
+      extLds = c(extLds, expand_linkPath(p))
     }
   }
   return(unique(extLds))
 }
 
-build.level.pathes<-function(schema){
-  pathes=list()
-  chNames=character(0)
-  for(l in schema[['levelDefinitions']]){
-    lPathes=build.sublevel.pathes(schema,l[['name']])
-    pathes=c(pathes,lPathes)
+
+build_sublevelPathes <- function(schema, levelName){
+  pathes = list()
+  chNames = get_linkLevelChildrenNames(schema, levelName)
+  if(length(chNames) == 0){
+    pathes[[length(pathes) + 1L]] = c(levelName)
+  }else{
+    for(chName in chNames){
+      chPathes = build_sublevelPathes(schema, chName)
+      for(chPath in chPathes){
+        pathes[[length(pathes)+1L]] = c(levelName,chPath)
+      }
+    }
   }
   return(pathes)
 }
 
-#
+
+# build_levelPathes <- function(schema){
+#   pathes = list()
+#   chNames = character(0)
+#   for(l in schema[['levelDefinitions']]){
+#     lPathes = build_sublevelPathes(schema, l[['name']])
+#     pathes = c(pathes, lPathes)
+#   }
+#   return(pathes)
+# }
+
+
 # builds "extended" link definitions
 # lists link definitionsfor every possible directed connection between levels
 # returns list of character vectors 
 # the first element of each character vector contains the super level name of the levelDefinition,
 # the follwing elements contain all exetnded linked sub level names  
-build.ext.link.definitions<-function(schema){
-  lds=list()
-  pathes=build.level.pathes(schema)
+build_extLinkDefinitions <- function(schema){
+  lds = list()
+  pathes = build_levelPathes(schema)
   for(p in pathes){
-    pLen=length(p)
+    pLen = length(p)
     for(i in 1:pLen){
-      ld=character(0)
+      ld = character(0)
       for(j in i:pLen){
-        ld=c(ld,p[j])
+        ld = c(ld,p[j])
       }
-      lds[[length(lds)+1L]]=ld
+      lds[[length(lds)+1L]] = ld
     }
   }
   return(lds)
 }
 
-find.segment.levels<-function(DBconfig,attrName){
-  #cat("Search SEGMENT level for ",attrName,"\n")
-  lvlNm=get.level.name.by.attribute.name(DBconfig,attrName)
-  extLnkDefs=build.ext.link.definitions(DBconfig)
-  segLvlList=character(0)
-  for(extLnkDef in extLnkDefs){
-    if(extLnkDef[1]==lvlNm){
-      for(trgLvlNm in extLnkDef[2:length(extLnkDef)]){
-        
-        trgLd=get.levelDefinition(DBconfig,trgLvlNm)
-        if(trgLd['type']=='SEGMENT'){
-          segLvlList=unique(c(segLvlList,trgLvlNm))
-        }
-      }
-    }
-  }
-  #cat("SEGMENT levels for ",attrName,": ",segLvlList,"\n")
-  return(segLvlList)
-}
 
-# persistence filters
-# the properties listed are not persisted to JSON files
-emuR.persist.filters.DBconfig=list()
-emuR.persist.filters.DBconfig[[1]]=c('annotationDescriptors')
-emuR.persist.filters.DBconfig[[2]]=c('tracks')
-emuR.persist.filters.DBconfig[[3]]=c('flags')
-emuR.persist.filters.DBconfig[[4]]=c('ssffTrackDefinitions','basePath')
-emuR.persist.filters.DBconfig[[5]]=c('mediafileBasePathPattern')
-emuR.persist.filters.DBconfig[[6]]=c('maxNumberOfLabels')
-emuR.persist.filters.DBconfig[[7]]=c('itemColNames')
-emuR.persist.filters.DBconfig[[8]]=c('basePath')
-emuR.persist.filters.DBconfig[[9]]=c('DBconfigPath')
+# find.segment.levels<-function(DBconfig,attrName){
+#   #cat("Search SEGMENT level for ",attrName,"\n")
+#   lvlNm=get.level.name.by.attribute.name(DBconfig,attrName)
+#   extLnkDefs=build.ext.link.definitions(DBconfig)
+#   segLvlList=character(0)
+#   for(extLnkDef in extLnkDefs){
+#     if(extLnkDef[1]==lvlNm){
+#       for(trgLvlNm in extLnkDef[2:length(extLnkDef)]){
+#         
+#         trgLd=get.levelDefinition(DBconfig,trgLvlNm)
+#         if(trgLd['type']=='SEGMENT'){
+#           segLvlList=unique(c(segLvlList,trgLvlNm))
+#         }
+#       }
+#     }
+#   }
+#   #cat("SEGMENT levels for ",attrName,": ",segLvlList,"\n")
+#   return(segLvlList)
+# }
 
-# persistent class hierarchy
-# the calss names are applied to the object hierarchy loaded from JSON file
-emuR.persist.class.DBconfig=list()
-emuR.persist.class.DBconfig[['emuDB.schema.databaseDefinition']]=character(0)
-emuR.persist.class.DBconfig[['emuDB.schema.levelDefinition']]=list(c('levelDefinitions','*'))
-emuR.persist.class.DBconfig[['emuDB.schema.linkDefinition']]=list(c('linkDefinitions','*'))
-emuR.persist.class.DBconfig[['emuDB.schema.attributeDefinition']]=list(c('levelDefinitions','*','attributeDefinitions','*'))
-
-load.emuDB.DBconfig<-function(DBconfigFilePath){
-  # with warn=TRUE and some files
-  # R complains about incomplete (last) line
-  # See https://stat.ethz.ch/pipermail/r-help/2006-July/108654.html
-  # TODO does problem with jsonlite still exist ?
-  dbCfgJSONLns=readLines(DBconfigFilePath,warn=FALSE)
-  dbCfgJSON=paste(dbCfgJSONLns,collapse='')
-  dbCfgPersisted=jsonlite::fromJSON(dbCfgJSON,simplifyVector=FALSE)
-  
-  # unmarshal schema object (set class names)
-  schema=unmarshal.from.persistence(dbCfgPersisted,emuR.persist.class.DBconfig)
-  return(schema)
-}
 
 # TODO
-.store.schema<-function(db,projectDir=NULL){
-  
-  if(is.null(projectDir)){
-    projectDir=db[['basePath']]
-  }
-  # store db schema file
-  dbCfgNm=paste0(db[['name']],database.schema.suffix)
-  dbCfgPath=file.path(projectDir,dbCfgNm)
-  
-  persistFilter=emuR.persist.filters.DBconfig
-  sp=marshal.for.persistence(db[['DBconfig']],persistFilter)
-  psJSON=jsonlite::toJSON(sp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-  writeLines(psJSON,dbCfgPath)
-  MD5DBconfigJSON = md5sum(dbCfgPath)
-  .store.DBconfig.DBI(con = get_emuDBcon(db$DBconfig$UUID),DBconfig = db[['DBconfig']], MD5DBconfigJSON)
-}
+# .store.schema<-function(db,projectDir=NULL){
+#   
+#   if(is.null(projectDir)){
+#     projectDir=db[['basePath']]
+#   }
+#   # store db schema file
+#   dbCfgNm=paste0(db[['name']],database.schema.suffix)
+#   dbCfgPath=file.path(projectDir,dbCfgNm)
+#   
+#   persistFilter=emuR.persist.filters.DBconfig
+#   sp=marshal.for.persistence(db[['DBconfig']],persistFilter)
+#   psJSON=jsonlite::toJSON(sp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+#   writeLines(psJSON,dbCfgPath)
+#   MD5DBconfigJSON = md5sum(dbCfgPath)
+#   .store.DBconfig.DBI(con = get_emuDBcon(db$DBconfig$UUID),DBconfig = db[['DBconfig']], MD5DBconfigJSON)
+# }
 
 # TODO 
-.store.DBconfig<-function(con,basePath,DBconfig){
-  
-  # store db schema file
-  dbCfgNm=paste0(DBconfig[['name']],database.schema.suffix)
-  dbCfgPath=file.path(basePath,dbCfgNm)
-  
-  persistFilter=emuR.persist.filters.DBconfig
-  sp=marshal.for.persistence(DBconfig,persistFilter)
-  psJSON=jsonlite::toJSON(sp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-  writeLines(psJSON,dbCfgPath)
-  .store.DBconfig.DBI(con, DBconfig = DBconfig)
-}
+# .store.DBconfig<-function(con,basePath,DBconfig){
+#   
+#   # store db schema file
+#   dbCfgNm=paste0(DBconfig[['name']],database.schema.suffix)
+#   dbCfgPath=file.path(basePath,dbCfgNm)
+#   
+#   persistFilter=emuR.persist.filters.DBconfig
+#   sp=marshal.for.persistence(DBconfig,persistFilter)
+#   psJSON=jsonlite::toJSON(sp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+#   writeLines(psJSON,dbCfgPath)
+#   .store.DBconfig.DBI(con, DBconfig = DBconfig)
+# }
+
+##########################################
+# helper functions
 
 
-get.levelDefinition <- function(DBconfig, name){
+get_levelDefinition <- function(dBconfig, name){
   res = NULL
-  for(ld in DBconfig$levelDefinitions){
+  for(ld in dBconfig$levelDefinitions){
     if(ld$name == name){
       res = ld
       break
@@ -471,6 +264,24 @@ get.levelDefinition <- function(DBconfig, name){
   }
   return(res)
 }
+
+###########################################
+# DBconfig file handeling functions
+
+## load function for _DBconfig.json file of emuDB
+load_DBconfig <- function(emuDBhandle){
+  dbCfgPath = file.path(emuDBhandle$basePath, paste0(emuDBhandle$dbName, database.schema.suffix))
+  DBconfig = jsonlite::fromJSON(dbCfgPath, simplifyVector=FALSE)
+  return(DBconfig)
+}
+
+# store function for dbConfig
+store_DBconfig <- function(emuDBhandle, dbConfig){
+  dbCfgPath = file.path(emuDBhandle$basePath, paste0(emuDBhandle$dbName, database.schema.suffix))
+  json = jsonlite::toJSON(dbConfig, auto_unbox = TRUE, force = TRUE, pretty = TRUE)
+  writeLines(json, dbCfgPath)
+}
+
 
 ################################################################
 ################# CRUD DBconfig functions ######################
@@ -494,31 +305,29 @@ get.levelDefinition <- function(DBconfig, name){
 ##' Note that a level cannot be removed, if it contains instances of annotation items
 ##' or if it is linked to another level.
 ##' 
-##' @param dbName name of loaded emuDB
+##' @param emuDBhandle emuDB handle object returned by \code{\link{load_emuDB}}
 ##' @param name name of level definition
 ##' @param type type of level definition ("SEGMENT","EVENT","ITEM")
-##' @param store changes to file system (TRUE), changes only in memory (FALSE)
-##' @param dbUUID optional UUID of loaded emuDB, in case dbName is ambique
 ##' @keywords emuDB database schema Emu
 ##' @name AddListRemoveLevelDefinitions
 ##' @examples 
 ##' \dontrun{
 ##' 
 ##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
+##' # prerequisite: loaded ae emuDB 
 ##' # (see ?load_emuDB for more information)
 ##' 
-##' # add level called "Phonetic2" to the "ae" emuDB
+##' # add level called "Phonetic2" to the ae emuDB
 ##' # that could for example contain the transcriptions of a second annotator
-##' add_levelDefinition(dbName = "ae",
+##' add_levelDefinition(emuDBhandle = ae,
 ##'                     name = "Phonetic2",
 ##'                     type = "SEGMENT")
 ##'                     
-##' # list level definition of "ae" emuDB
-##' list_levelDefinitions(dbName = "ae")
+##' # list level definition of ae emuDB
+##' list_levelDefinitions(emuDBhandle = ae)
 ##' 
 ##' # remove newly added level definition
-##' remove_levelDefinitions(dbName = "ae",
+##' remove_levelDefinitions(emuDBhandle = ae,
 ##'                         name = "Phonetic2")
 ##' }
 ##' 
@@ -526,53 +335,45 @@ NULL
 
 ##' @rdname AddListRemoveLevelDefinitions
 ##' @export
-add_levelDefinition<-function(dbName, name,
-                              type, store = TRUE,
-                              dbUUID=NULL){
-  
+add_levelDefinition<-function(emuDBhandle, name,
+                              type){
   allowedTypes = c('ITEM', 'SEGMENT', 'EVENT')
   # precheck type 
   if(!(type %in% allowedTypes)){
     stop('Bad type given! Type has to be either ', paste(allowedTypes, collapse = ' | ') )
   }
-  levelDefinition=create.schema.levelDefinition(name = name,type = type)
-  db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  levelDefinition=list(name = name, type = type, 
+                       attributeDefinitions = list(list(name = name, type = type)))
+  dbConfig = load_DBconfig(emuDBhandle)
   # check if level definition (name) already exists 
-  for(ld in db[['DBconfig']][['levelDefinitions']]){
-    if(ld[['name']]==levelDefinition[['name']]){
-      stop("Level definition:",levelDefinition[['name']]," already exists in database ",db[['name']])
+  for(ld in dbConfig$levelDefinitions){
+    if(ld$name == levelDefinition$name){
+      stop("Level definition:", levelDefinition$name," already exists in database ", emuDBhandle$dbName)
     }
   }
   # add
-  db[['DBconfig']][['levelDefinitions']][[length(db[['DBconfig']][['levelDefinitions']])+1]]=levelDefinition
+  dbConfig$levelDefinitions[[length(dbConfig$levelDefinitions) + 1]] = levelDefinition
   
-  # update transient values
-  db[['DBconfig']]=.update.transient.schema.values(db[['DBconfig']])
+  store_DBconfig(emuDBhandle, dbConfig)
   
-  # store to disk
-  if(store){
-    .store.schema(db)
-  }else{
-    .store.DBconfig.DBI(db$DBconfig)
-  }
   invisible(NULL)
 }
 
 
 ##' @rdname AddListRemoveLevelDefinitions
 ##' @export
-list_levelDefinitions <- function(dbName, dbUUID=NULL){
-  dbObj = .load.emuDB.DBI(name = dbName, uuid = dbUUID)
-  df <- data.frame(name=character(),
-                   type=character(), 
-                   nrOfAttrDefs=numeric(), 
-                   stringsAsFactors=FALSE) 
+list_levelDefinitions <- function(emuDBhandle){
+  dbConfig = load_DBconfig(emuDBhandle)
+  df <- data.frame(name = character(),
+                   type = character(), 
+                   nrOfAttrDefs = numeric(), 
+                   stringsAsFactors = FALSE) 
   
-  for(ld in dbObj$DBconfig$levelDefinitions){
+  for(ld in dbConfig$levelDefinitions){
     df <- rbind(df, data.frame(name = ld$name, 
                                type = ld$type, 
                                nrOfAttrDefs = length(ld$attributeDefinitions),
-                               stringsAsFactors = FALSE)) # perfomance problem? 
+                               stringsAsFactors = FALSE))
   }
   return(df)
 }
@@ -580,43 +381,39 @@ list_levelDefinitions <- function(dbName, dbUUID=NULL){
 
 ##' @rdname AddListRemoveLevelDefinitions
 ##' @export
-remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
-  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  dbUUID = get_UUID(dbName = dbName, dbUUID = dbUUID)
+remove_levelDefinition<-function(emuDBhandle, name, dbUUID=NULL){
+  
+  dbConfig = load_DBconfig(emuDBhandle)
   # check if level definition (name)exists 
-  if(!any(sapply(dbObj[['DBconfig']][['levelDefinitions']],function(ld) ld[['name']]==name))){
-    stop("Level definition:",name," does not exist in database ",dbObj[['name']])
+  if(!any(sapply(dbConfig$levelDefinitions, function(ld) ld[['name']] == name))){
+    stop("Level definition:", name, " does not exist in database ", dbConfig$name)
   }
   # check if level is referenced by link defintion
-  for(lkd in dbObj[['DBconfig']][['linkDefinitions']]){
-    if(lkd[['superlevelName']]==name |  lkd[['sublevelName']]==name){
-      lkdStr=toString(lkd)
-      stop("Cannot remove level definition ",name,". It is referenced by link definition: ",lkdStr)
+  for(lkd in dbConfig$linkDefinitions){
+    if(lkd[['superlevelName']] == name | lkd[['sublevelName']] == name){
+      lkdStr = toString(lkd)
+      stop("Cannot remove level definition ", name, ". It is referenced by link definition: ", lkdStr)
     }
   }
   
   # check if level is empty
-  itemsDf=dbGetQuery(get_emuDBcon(dbUUID),paste0("SELECT * FROM items i WHERE \
-                        i.db_uuid='",dbObj$DBconfig$UUID,"' AND i.level='",name,"'"))
-  itemsCnt=nrow(itemsDf)
-  if(itemsCnt>0){
-    stop("Level is not empty. Remove items first to delete level ",name)
+  itemsDf = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM items i WHERE \
+                        i.db_uuid='", emuDBhandle$UUID, "' AND i.level='", name, "'"))
+  itemsCnt = nrow(itemsDf)
+  if(itemsCnt > 0){
+    stop("Level is not empty. Remove items first to delete level ", name)
   }
   
   # do removal
-  newLvlDefs=list()
-  for(lvlDef in dbObj[['DBconfig']][['levelDefinitions']]){
-    if(lvlDef[['name']]!=name){
-      newLvlDefs[[length(newLvlDefs)+1]]=lvlDef
+  newLvlDefs = list()
+  for(lvlDef in dbConfig$levelDefinitions){
+    if(lvlDef[['name']] != name){
+      newLvlDefs[[length(newLvlDefs) + 1]] = lvlDef
     }
   }
-  dbObj[['DBconfig']][['levelDefinitions']]=newLvlDefs
+  dbConfig$levelDefinitions = newLvlDefs
   
-  # update transient values
-  dbObj[['DBconfig']]=.update.transient.schema.values(dbObj[['DBconfig']])
-  
-  # store to disk
-  .store.schema(dbObj)
+  store_DBconfig(emuDBhandle, dbConfig)
   
   return(invisible(NULL))
 }
@@ -638,34 +435,33 @@ remove_levelDefinition<-function(dbName,name,dbUUID=NULL){
 ##' Note that as with level definitions, an attribute definition to a level cannot be removed,
 ##' if it contains labels in the emuDB.
 ##' 
-##' @param dbName name of loaded emuDB
+##' @param emuDBhandle emuDB handle object returned by \code{\link{load_emuDB}}
 ##' @param levelName name of level
 ##' @param name name of attributeDefinition
 ##' @param type type of attributeDefinition (currently only "STRING")
-##' @param dbUUID optional UUID of loaded emuDB, in case dbName is ambique
 ##' @keywords emuDB database DBconfig Emu 
 ##' @name AddListRemoveAttributeDefinitions
 ##' @examples 
 ##' \dontrun{
 ##' 
 ##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
+##' # prerequisite: loaded ae emuDB 
 ##' # (see ?load_emuDB for more information)
 ##' 
 ##' # add additional attribute definition to the "Phonetic" level
-##' # of the "ae" emuDB that will contain the UTF8 IPA
+##' # of the ae emuDB that will contain the UTF8 IPA
 ##' # symbols of the phonetic transcriptions
-##' add_attributeDefinition(dbName = "ae",
+##' add_attributeDefinition(emuDBhandle = ae,
 ##'                         levelName = "Phonetic",
 ##'                         name = "IPA-UTF8")
 ##'                         
 ##' # list attribute definitions for level "Word"
-##' # of the "ae" emuDB
-##' list_attributeDefinitions(dbName = "ae", 
+##' # of the ae emuDB
+##' list_attributeDefinitions(emuDBhandle = ae, 
 ##'                           levelName = "Word")
 ##' 
 ##' # remove newly added attributeDefinition
-##' remove_attributeDefinition(dbName = "ae",
+##' remove_attributeDefinition(emuDBhandle = ae,
 ##'                            levelName = "Phonetic",
 ##'                            name = "IPA-UTF8")
 ##' }
@@ -674,24 +470,21 @@ NULL
 
 ##' @rdname AddListRemoveAttributeDefinitions
 ##' @export
-add_attributeDefinition <- function(dbName, levelName, 
-                                    name, type = "STRING",
-                                    dbUUID=NULL){
+add_attributeDefinition <- function(emuDBhandle, levelName, 
+                                    name, type = "STRING"){
   if(type != "STRING"){
     stop("Currently only attributeDefinition of type 'STRING' allowed")
   }
   
-  dbObj=.load.emuDB.DBI(name=dbName, uuid = dbUUID)
+  dbConfig = load_DBconfig(emuDBhandle)
   
-  df = list_attributeDefinitions(dbName, levelName, dbUUID)
+  df = list_attributeDefinitions(emuDBhandle, levelName)
   
   
   if(!(name %in% df$name)){
-    for(i in 1:length(dbObj$DBconfig$levelDefinitions)){
-      if(dbObj$DBconfig$levelDefinitions[[i]]$name == levelName){
-        dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[length(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions) + 1]] = create.schema.attributeDefinition(name = name, 
-                                                                                                                                                                               type = type,
-                                                                                                                                                                               labelGroups = NULL)
+    for(i in 1:length(dbConfig$levelDefinitions)){
+      if(dbConfig$levelDefinitions[[i]]$name == levelName){
+        dbConfig$levelDefinitions[[i]]$attributeDefinitions[[length(dbConfig$levelDefinitions[[i]]$attributeDefinitions) + 1]] = list(name = name, type = type)
         break
       }
     }
@@ -700,16 +493,16 @@ add_attributeDefinition <- function(dbName, levelName,
   }
   
   # store changes
-  .store.schema(dbObj)
+  store_DBconfig(emuDBhandle, dbConfig)
   
 }
 
 
 ##' @rdname AddListRemoveAttributeDefinitions
 ##' @export
-list_attributeDefinitions <- function(dbName, levelName, dbUUID=NULL){
-  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  ld = get.levelDefinition(dbObj$DBconfig, levelName)
+list_attributeDefinitions <- function(emuDBhandle, levelName){
+  dbConfig = load_DBconfig(emuDBhandle)
+  ld = get_levelDefinition(dbConfig, levelName)
   
   if(length(ld$attributeDefinitions) > 1){
     df = data.frame(name = character(), 
@@ -738,50 +531,48 @@ list_attributeDefinitions <- function(dbName, levelName, dbUUID=NULL){
 
 ##' @rdname AddListRemoveAttributeDefinitions
 ##' @export
-remove_attributeDefinition <- function(dbName, 
+remove_attributeDefinition <- function(emuDBhandle, 
                                        levelName, 
-                                       name, 
-                                       dbUUID = NULL){
+                                       name){
   
   if(levelName == name){
     stop("Can not remove primary attributeDefinition (attributeDefinition with same name as level)")
   }
   
-  uuid=get_UUID(dbName, dbUUID)
-  dbObj = .load.emuDB.DBI(uuid = uuid)
+  dbConfig = load_DBconfig(emuDBhandle)
   
-  ld = get.levelDefinition(dbObj$DBconfig, levelName)
+  ld = get_levelDefinition(dbConfig, levelName)
   
   # check if instances are present
-  qRes = dbGetQuery(get_emuDBcon(uuid), paste0("SELECT * FROM items AS it, labels AS lb WHERE ",
-                                               "it.db_uuid = lb.db_uuid AND ", 
-                                               "it.session = lb.session AND ", 
-                                               "it.bundle = lb.bundle AND ",
-                                               "it.itemID = lb.itemID AND ",
-                                               "it.level = '", levelName, "' AND ",
-                                               "lb.name = '", name, "'"))
+  qRes = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM items AS it, labels AS lb WHERE ",
+                                                   "it.db_uuid = lb.db_uuid AND ", 
+                                                   "it.session = lb.session AND ", 
+                                                   "it.bundle = lb.bundle AND ",
+                                                   "it.itemID = lb.itemID AND ",
+                                                   "it.level = '", levelName, "' AND ",
+                                                   "lb.name = '", name, "'"))
   
   if(nrow(qRes) > 0){
     stop("Can not remove attributeDefinition if there are labels present")
   }else{
     levDefIdx = NULL
-    for(i in 1:length(dbObj$DBconfig$levelDefinitions)){
-      if(dbObj$DBconfig$levelDefinitions[[i]]$name == levelName){
+    for(i in 1:length(dbConfig$levelDefinitions)){
+      if(dbConfig$levelDefinitions[[i]]$name == levelName){
         levDefIdx = i
         break
       }
     }
     
-    for(i in 1:length(dbObj$DBconfig$levelDefinitions[[levDefIdx]]$attributeDefinitions)){
-      if(dbObj$DBconfig$levelDefinitions[[levDefIdx]]$attributeDefinitions[[i]]$name == name){
-        dbObj$DBconfig$levelDefinitions[[levDefIdx]]$attributeDefinitions[[i]] = NULL
+    for(i in 1:length(dbConfig$levelDefinitions[[levDefIdx]]$attributeDefinitions)){
+      if(dbConfig$levelDefinitions[[levDefIdx]]$attributeDefinitions[[i]]$name == name){
+        dbConfig$levelDefinitions[[levDefIdx]]$attributeDefinitions[[i]] = NULL
         break
       }
     }  
   }
   
   # store changes
-  .store.schema(dbObj)
+  store_DBconfig(emuDBhandle, dbConfig)
   
 }
 
@@ -798,18 +589,17 @@ remove_attributeDefinition <- function(dbName,
 ##' has a consistent label set. For more information 
 ##' on the structural elements of an emuDB see \code{vignette(emuDB)}.
 ##' 
-##' @param dbName name of loaded emuDB
+##' @param emuDBhandle
 ##' @param levelName name of level
 ##' @param attributeDefinitionName name of attributeDefinition
 ##' @param legalLabels character vector of labels
-##' @param dbUUID optional UUID of loaded emuDB
 ##' @keywords emuDB database schema Emu
 ##' @name SetGetRemoveLegalLabels
 ##' @examples 
 ##' \dontrun{
 ##' 
 ##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
+##' # prerequisite: loaded ae emuDB 
 ##' # (see ?load_emuDB for more information)
 ##' 
 ##' legalPhoneticLabels = c("V", "m", "N", "s", "t", "H", "@:", "f", "r", 
@@ -818,24 +608,24 @@ remove_attributeDefinition <- function(dbName,
 ##' 
 ##' # set legal labels of the 
 ##' # default "Phonetic" attributeDefinition of
-##' # the "Phonetic" level of "ae" emuDB
-##' set_legalLabels(dbName = "ae", 
+##' # the "Phonetic" level of ae emuDB
+##' set_legalLabels(emuDBhandle = ae, 
 ##'                 levelName = "Phonetic",
 ##'                 attributeDefinitionName = "Phonetic",
 ##'                 legalLabels = legalPhoneticLabels)
 ##' 
 ##' # get legal labels of the 
 ##' # default "Phonetic" attributeDefinition of
-##' # the "Phonetic" level of "ae" emuDB
-##' get_legalLabels(dbName = "ae", 
+##' # the "Phonetic" level of ae emuDB
+##' get_legalLabels(emuDBhandle = ae, 
 ##'                 levelName = "Phonetic", 
 ##'                 attributeDefinitionName = "Phonetic")
 ##'                 
 ##' 
 ##' # remove legal labels of the 
 ##' # default "Phonetic" attributeDefinition of
-##' # the "Phonetic" level of "ae" emuDB
-##' remove_legalLabels(dbName = "ae", 
+##' # the "Phonetic" level of ae emuDB
+##' remove_legalLabels(emuDBhandle = ae, 
 ##'                    levelName = "Phonetic", 
 ##'                    attributeDefinitionName = "Phonetic")
 ##'                 
@@ -845,37 +635,36 @@ NULL
 
 ##' @rdname SetGetRemoveLegalLabels
 ##' @export
-set_legalLabels <- function(dbName,
+set_legalLabels <- function(emuDBhandle,
                             levelName,
                             attributeDefinitionName,
-                            legalLabels,
-                            dbUUID = NULL){
+                            legalLabels){
   
-  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  dbConfig = load_DBconfig(emuDBhandle)
   
-  for(i in 1:length(dbObj$DBconfig$levelDefinitions)){
-    for(j in 1:length(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions)){
-      if(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$name == attributeDefinitionName){
-        dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$legalLabels = legalLabels
+  for(i in 1:length(dbConfig$levelDefinitions)){
+    for(j in 1:length(dbConfig$levelDefinitions[[i]]$attributeDefinitions)){
+      if(dbConfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$name == attributeDefinitionName){
+        dbConfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$legalLabels = legalLabels
       }
     }
   }
   
   # store changes
-  .store.schema(dbObj)
+  store_DBconfig(emuDBhandle, dbConfig)
   
 }
 
 
 ##' @rdname SetGetRemoveLegalLabels
 ##' @export
-get_legalLabels <- function(dbName,
+get_legalLabels <- function(emuDBhandle,
                             levelName,
-                            attributeDefinitionName, 
-                            dbUUID = NULL){
+                            attributeDefinitionName){
   
-  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  ld = get.levelDefinition(dbObj$DBconfig, levelName)
+  dbConfig = load_DBconfig(emuDBhandle)
+  
+  ld = get_levelDefinition(dbConfig, levelName)
   
   ll = NULL
   for(ad in ld$attributeDefinitions){
@@ -894,12 +683,12 @@ get_legalLabels <- function(dbName,
 
 ##' @rdname SetGetRemoveLegalLabels
 ##' @export
-remove_legalLabels <- function(dbName,
+remove_legalLabels <- function(emuDBhandle,
                                levelName,
-                               attributeDefinitionName, 
-                               dbUUID = NULL){
+                               attributeDefinitionName){
+  
   # remove by setting to NULL
-  set_legalLabels(dbName, 
+  set_legalLabels(emuDBhandle,
                   levelName,
                   attributeDefinitionName,
                   legalLabels = NULL)
@@ -922,12 +711,11 @@ remove_legalLabels <- function(dbName,
 ##' on the structural elements of an emuDB see \code{vignette(emuDB)}.
 ##' 
 ##' 
-##' @param dbName name of loaded emuDB
+##' @param emuDBhandle
 ##' @param levelName name of level
 ##' @param attributeDefinitionName name of attributeDefinition
 ##' @param labelGroupName name of label group
 ##' @param labelGroupValues character vector of labels
-##' @param dbUUID optional UUID of loaded emuDB
 ##' @keywords emuDB database schema Emu
 ##' @seealso add_labelGroup
 ##' @name AddListRemoveAttrDefLabelGroup
@@ -935,32 +723,32 @@ remove_legalLabels <- function(dbName,
 ##' \dontrun{
 ##' 
 ##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
+##' # prerequisite: loaded ae emuDB 
 ##' # (see ?load_emuDB for more information)
 ##' 
 ##' sampaNasals = c("m", "F", "n", "J", "N")
 ##' 
 ##' # add these values to the default Phonetic attribute
-##' # definition of the Phonetic level of the "ae" emuDB
-##' add_attrDefLabelGroup(dbName = "ae",
+##' # definition of the Phonetic level of the ae emuDB
+##' add_attrDefLabelGroup(emuDBhandle = ae,
 ##'                       levelName = "Phonetic",
 ##'                       attributeDefinitionName = "Phonetic",
 ##'                       labelGroupName = "sampaNasals",
 ##'                       labelGroupValues = sampaNasals)
 ##' 
 ##' # query the labelGroup
-##' query("ae", "Phonetic=sampaNasals")
+##' query(ae, "Phonetic=sampaNasals")
 ##' 
 ##' 
 ##' # list attribute definition label groups
 ##' # of attributeDefinition "Phonetic" of the level "Phonetic"
-##' # of the "ae" emuDB
-##' list_attrDefLabelGroups(dbName = "ae", 
+##' # of the ae emuDB
+##' list_attrDefLabelGroups(emuDBhandle = ae, 
 ##'                         levelName = "Phonetic" , 
 ##'                         attributeDefinitionName = "Phonetic")
 ##' 
 ##' # remove the newly added attrDefLabelGroup
-##' remove_attrDefLabelGroup(dbName = "ae",
+##' remove_attrDefLabelGroup(emuDBhandle = ae,
 ##'                          levelName = "Phonetic",
 ##'                          attributeDefinitionName = "Phonetic",
 ##'                          labelGroupName = "sampaNasals")
@@ -971,44 +759,42 @@ NULL
 
 ##' @rdname AddListRemoveAttrDefLabelGroup
 ##' @export
-add_attrDefLabelGroup <- function(dbName,
+add_attrDefLabelGroup <- function(emuDBhandle,
                                   levelName,
                                   attributeDefinitionName, 
                                   labelGroupName,
-                                  labelGroupValues,
-                                  dbUUID = NULL){
+                                  labelGroupValues){
   
-  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  curLgs = list_attrDefLabelGroups(dbName, 
+  dbConfig = load_DBconfig(emuDBhandle)
+  curLgs = list_attrDefLabelGroups(emuDBhandle, 
                                    levelName, 
                                    attributeDefinitionName)
   
   if(labelGroupName %in% curLgs$name){
     stop("labelGroupName '", labelGroupName ,"' already exists!")
   }
-  for(i in 1:length(dbObj$DBconfig$levelDefinitions)){
-    for(j in 1:length(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions)){
-      if(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$name == attributeDefinitionName){
-        l = length(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$labelGroups)
-        dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$labelGroups[[l + 1]] = list(name = labelGroupName, 
-                                                                                                   values = labelGroupValues)
+  for(i in 1:length(dbConfig$levelDefinitions)){
+    for(j in 1:length(dbConfig$levelDefinitions[[i]]$attributeDefinitions)){
+      if(dbConfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$name == attributeDefinitionName){
+        l = length(dbConfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$labelGroups)
+        dbConfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$labelGroups[[l + 1]] = list(name = labelGroupName, 
+                                                                                             values = labelGroupValues)
       }
     }
   }
   
   # store changes
-  .store.schema(dbObj)
+  store_DBconfig(emuDBhandle, dbConfig)
 }
 
 ##' @rdname AddListRemoveAttrDefLabelGroup
 ##' @export
-list_attrDefLabelGroups <- function(dbName,
+list_attrDefLabelGroups <- function(emuDBhandle,
                                     levelName,
-                                    attributeDefinitionName, 
-                                    dbUUID = NULL){
+                                    attributeDefinitionName){
   
-  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  ld = get.levelDefinition(dbObj$DBconfig, levelName)
+  dbConfig = load_DBconfig(emuDBhandle)
+  ld = get_levelDefinition(dbConfig, levelName)
   
   df = data.frame(name = character(), 
                   values = character(),
@@ -1030,13 +816,13 @@ list_attrDefLabelGroups <- function(dbName,
 
 ##' @rdname AddListRemoveAttrDefLabelGroup
 ##' @export
-remove_attrDefLabelGroup <- function(dbName,
+remove_attrDefLabelGroup <- function(emuDBhandle,
                                      levelName,
                                      attributeDefinitionName, 
-                                     labelGroupName,
-                                     dbUUID = NULL){
-  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  curLgs = list_attrDefLabelGroups(dbName, 
+                                     labelGroupName){
+  
+  dbConfig = load_DBconfig(emuDBhandle)
+  curLgs = list_attrDefLabelGroups(emuDBhandle, 
                                    levelName, 
                                    attributeDefinitionName)
   
@@ -1044,17 +830,17 @@ remove_attrDefLabelGroup <- function(dbName,
     stop("labelGroupName '", labelGroupName ,"' does not exists!")
   }
   
-  for(i in 1:length(dbObj$DBconfig$levelDefinitions)){
-    for(j in 1:length(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions)){
-      if(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$name == attributeDefinitionName){
-        l = length(dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$labelGroups)
-        dbObj$DBconfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$labelGroups[[l]] = NULL
+  for(i in 1:length(dbConfig$levelDefinitions)){
+    for(j in 1:length(dbConfig$levelDefinitions[[i]]$attributeDefinitions)){
+      if(dbConfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$name == attributeDefinitionName){
+        l = length(dbConfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$labelGroups)
+        dbConfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$labelGroups[[l]] = NULL
       }
     }
   }
   
   # store changes
-  .store.schema(dbObj)
+  store_DBconfig(emuDBhandle, dbConfig)
   
 }
 
@@ -1079,33 +865,32 @@ remove_attrDefLabelGroup <- function(dbName,
 ##' 
 ##' For all link types the rule applies that no links are allowed to cross any other links.
 ##' 
-##' @param dbName name of emuDB
+##' @param emuDBhandle emuDB handle object returned by \code{\link{load_emuDB}}
 ##' @param type type of linkDefinition (either \code{"ONE_TO_MANY"}, \code{"MANY_TO_MANY"} or \code{"ONE_TO_ONE"})
 ##' @param superlevelName name of super-level of linkDefinition
 ##' @param sublevelName name of sub-level of linkDefinition
-##' @param dbUUID optional UUID of emuDB
 ##' @name AddListRemoveLinkDefinition
 ##' @examples 
 ##' \dontrun{
 ##' 
 ##' ##################################
 ##' # prerequisite: loaded emuDB that was converted
-##' # using the TextGridCollection function called "myTGcolDB"
+##' # using the TextGridCollection function called myTGcolDB
 ##' # (see ?load_emuDB for more information)
 ##' 
 ##' # add link definition from super-level "Phoneme"
 ##' # to sub-level "Phonetic" of type "ONE_TO_MANY"
-##' # for "myTGcolDB" emuDB
-##' add_linkDefinition(dbName = "myTGcolDB",
+##' # for myTGcolDB emuDB
+##' add_linkDefinition(emuDBhandle = myTGcolDB,
 ##'                    type = "ONE_TO_MANY",
 ##'                    superlevelName = "Phoneme",
 ##'                    sublevelName = "Phonetic")
 ##' 
-##' # list link definitions for "myTGcolDB" emuDB
-##' list_linkDefinitions(dbName = "myTGcolDB")
+##' # list link definitions for myTGcolDB emuDB
+##' list_linkDefinitions(emuDBhandle = myTGcolDB)
 ##' 
 ##' # remove newly added link definition
-##' remove_linkDefinition(dbName = "myTGcolDB",
+##' remove_linkDefinition(emuDBhandle = myTGcolDB,
 ##'                       superlevelName = "Phoneme",
 ##'                       sublevelName = "Phonetic")
 ##' 
@@ -1115,13 +900,12 @@ NULL
 
 ##' @rdname AddListRemoveLinkDefinition
 ##' @export
-add_linkDefinition <- function(dbName, 
+add_linkDefinition <- function(emuDBhandle, 
                                type,
                                superlevelName,
-                               sublevelName,
-                               dbUUID = NULL){
+                               sublevelName){
   
-  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  dbConfig = load_DBconfig(emuDBhandle)
   
   allowedTypes = c("ONE_TO_MANY", "MANY_TO_MANY", "ONE_TO_ONE")
   
@@ -1129,10 +913,10 @@ add_linkDefinition <- function(dbName,
     stop("Only the following types permitted: ", paste(allowedTypes, collapse = '; '))
   }
   
-  curLds = list_linkDefinitions(dbName = dbName, dbUUID = dbUUID)
+  curLds = list_linkDefinitions(emuDBhandle)
   
   # check if level is defined
-  curLevs = list_levelDefinitions(dbName = dbName, dbUUID = dbUUID)
+  curLevs = list_levelDefinitions(emuDBhandle)
   if(!any(curLevs$name == superlevelName) | !any(curLevs$name == sublevelName)){
     stop("Either superlevelName or sublevelName are not defined")
   }
@@ -1144,29 +928,29 @@ add_linkDefinition <- function(dbName,
          superlevelName, "' and sublevelName: '", sublevelName, "'")
   }
   
-  l = length(dbObj$DBconfig$linkDefinitions)
-  dbObj$DBconfig$linkDefinitions[[l + 1]] = list(type = type, 
-                                                 superlevelName = superlevelName,
-                                                 sublevelName = sublevelName)
+  l = length(dbConfig$linkDefinitions)
+  dbConfig$linkDefinitions[[l + 1]] = list(type = type, 
+                                           superlevelName = superlevelName,
+                                           sublevelName = sublevelName)
   
   # store changes
-  .store.schema(dbObj)
+  store_DBconfig(emuDBhandle, dbConfig)
   
 }
 
 
 ##' @rdname AddListRemoveLinkDefinition
 ##' @export
-list_linkDefinitions <- function(dbName, dbUUID = NULL){
+list_linkDefinitions <- function(emuDBhandle){
   
-  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
+  dbConfig = load_DBconfig(emuDBhandle)
   
   df = data.frame(type = character(),
                   superlevelName = character(),
                   sublevelName = character(),
                   stringsAsFactors = F)
   
-  for(ld in dbObj$DBconfig$linkDefinitions){
+  for(ld in dbConfig$linkDefinitions){
     df = rbind(df, data.frame(type = ld$type,
                               superlevelName = ld$superlevelName,
                               sublevelName = ld$sublevelName))
@@ -1179,15 +963,12 @@ list_linkDefinitions <- function(dbName, dbUUID = NULL){
 
 ##' @rdname AddListRemoveLinkDefinition
 ##' @export
-remove_linkDefinition <- function(dbName, 
+remove_linkDefinition <- function(emuDBhandle, 
                                   superlevelName,
-                                  sublevelName,
-                                  dbUUID = NULL){
+                                  sublevelName){
   
-  dbObj = .load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  dbUUID = get_UUID(dbName = dbName, dbUUID = dbUUID)
-  
-  curLds = list_linkDefinitions(dbName = dbName, dbUUID = dbUUID)
+  dbConfig = load_DBconfig(emuDBhandle)
+  curLds = list_linkDefinitions(emuDBhandle)
   
   # check if linkDef exists
   if(!any(curLds$superlevelName == superlevelName & curLds$sublevelName == sublevelName)){
@@ -1195,32 +976,32 @@ remove_linkDefinition <- function(dbName,
          "' and sublevelName '", sublevelName, "'")
   }
   # check if links are present
-  res = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT * FROM ",
-                                                "links ",
-                                                "INNER JOIN (SELECT * FROM items WHERE level = '", superlevelName, "' AND db_uuid = '", dbObj$DBconfig$UUID, "') as superItems", 
-                                                "    ON links.fromID = superItems.itemID ",
-                                                "       AND links.db_uuid = superItems.db_uuid ",
-                                                "       AND links.session = superItems.session ",
-                                                "       AND links.bundle = superItems.bundle ",
-                                                "INNER JOIN (SELECT * FROM items WHERE level = '", sublevelName, "' AND db_uuid = '", dbObj$DBconfig$UUID, "') as subItems", 
-                                                "    ON links.toID = subItems.itemID ",
-                                                "       AND links.db_uuid = subItems.db_uuid ",
-                                                "       AND links.session = subItems.session ",
-                                                "       AND links.bundle = subItems.bundle ",
-                                                "WHERE links.db_uuid = '", dbObj$DBconfig$UUID, "'"))
+  res = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM ",
+                                                  "links ",
+                                                  "INNER JOIN (SELECT * FROM items WHERE level = '", superlevelName, "' AND db_uuid = '", dbConfig$UUID, "') as superItems", 
+                                                  "    ON links.fromID = superItems.itemID ",
+                                                  "       AND links.db_uuid = superItems.db_uuid ",
+                                                  "       AND links.session = superItems.session ",
+                                                  "       AND links.bundle = superItems.bundle ",
+                                                  "INNER JOIN (SELECT * FROM items WHERE level = '", sublevelName, "' AND db_uuid = '", dbConfig$UUID, "') as subItems", 
+                                                  "    ON links.toID = subItems.itemID ",
+                                                  "       AND links.db_uuid = subItems.db_uuid ",
+                                                  "       AND links.session = subItems.session ",
+                                                  "       AND links.bundle = subItems.bundle ",
+                                                  "WHERE links.db_uuid = '", emuDBhandle$UUID, "'"))
   
   if(nrow(res) != 0){
     stop("linkDefinition can not be remove as there are links present")
   }
   
-  for(i in 1:length(dbObj$DBconfig$linkDefinitions)){
-    if(dbObj$DBconfig$linkDefinitions[[i]]$superlevelName == superlevelName && dbObj$DBconfig$linkDefinitions[[i]]$sublevelName == sublevelName){
-      dbObj$DBconfig$linkDefinitions[[i]] = NULL
+  for(i in 1:length(dbConfig$linkDefinitions)){
+    if(dbConfig$linkDefinitions[[i]]$superlevelName == superlevelName && dbConfig$linkDefinitions[[i]]$sublevelName == sublevelName){
+      dbConfig$linkDefinitions[[i]] = NULL
     }
   }
   
   # store changes
-  .store.schema(dbObj)
+  store_DBconfig(emuDBhandle, dbConfig)
   
 }
 
@@ -1241,7 +1022,7 @@ remove_linkDefinition <- function(dbName,
 ##' such as formant values and their bandwidths or the short-term Root Mean Square amplitude of the signal.}
 ##' }
 ##' For more information on the structural elements of an emuDB see \code{vignette(emuDB)}.
-##' @param dbName name of emuDB
+##' @param emuDBhandle emuDB handle object returned by \code{\link{load_emuDB}}
 ##' @param name name of ssffTrackDefinitions
 ##' @param columnName columnName of ssffTrackDefinitions.
 ##' If the \code{onTheFlyFunctionName} parameter is set and this one isn't the
@@ -1260,39 +1041,38 @@ remove_linkDefinition <- function(dbName,
 ##' @param deleteFiles delete files that belong to ssffTrackDefinition on removal
 ##' @param verbose Show progress bars and further information
 ##' @param interactive ask user for confirmation
-##' @param dbUUID optional UUID of emuDB
 ##' @seealso wrasspOutputInfos
 ##' @name AddListRemoveSsffTrackDefinition
 ##' @examples 
 ##' \dontrun{
 ##' 
 ##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
+##' # prerequisite: loaded ae emuDB 
 ##' # (see ?load_emuDB for more information)
 ##' 
-##' # add ssff track definition to "ae" emuDB
+##' # add ssff track definition to ae emuDB
 ##' # calculating the according SSFF files on-the-fly
 ##' # using the wrassp function "zcrana" (zero-crossing-rate analysis)
-##' add_ssffTrackDefinition(dbName = "ae",
+##' add_ssffTrackDefinition(emuDBhandle = ae,
 ##'                         name = "ZCRtrack",
 ##'                         onTheFlyFunctionName = "zcrana")
 ##'                         
-##' # add ssff track definition to "ae" emuDB
+##' # add ssff track definition to ae emuDB
 ##' # for SSFF files that will be added later (either
 ##' # by adding files to the emuDB using 
 ##' # the add_files() function or by calculating
 ##' # them using the according function provided 
 ##' # by the wrassp package)
-##' add_ssffTrackDefinition(dbName = "ae",
+##' add_ssffTrackDefinition(emuDBhandle = ae,
 ##'                         name = "formants",
 ##'                         columnName = "fm",
 ##'                         fileExtension = "fms")
 ##' 
-##' # list ssff track definitions for "ae" emuDB
-##' list_ssffTrackDefinitions(dbName = "ae")
+##' # list ssff track definitions for ae emuDB
+##' list_ssffTrackDefinitions(emuDBhandle = ae)
 ##' 
 ##' # remove newly added ssff track definition
-##' remove_ssffTrackDefinition <- function(dbName = "ae", 
+##' remove_ssffTrackDefinition <- function(emuDBhandle = ae, 
 ##'                                        name = "ZCRtrack")
 ##' 
 ##' }
@@ -1301,14 +1081,13 @@ NULL
 
 ##' @rdname AddListRemoveSsffTrackDefinition
 ##' @export
-add_ssffTrackDefinition <- function(dbName, name, 
+add_ssffTrackDefinition <- function(emuDBhandle, name, 
                                     columnName = NULL, fileExtension = NULL, 
                                     onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
-                                    onTheFlyOptLogFilePath = NULL, dbUUID = NULL,
+                                    onTheFlyOptLogFilePath = NULL,
                                     verbose = TRUE, interactive = TRUE){
-  # .initialize.DBI.database()
-  uuid=get_UUID(dbName,dbUUID)
-  dbObj = .load.emuDB.DBI(uuid = uuid)
+  
+  dbConfig = load_DBconfig(emuDBhandle)
   
   #########################
   # parameter checks
@@ -1317,7 +1096,7 @@ add_ssffTrackDefinition <- function(dbName, name,
   if(!is.null(onTheFlyFunctionName) && is.null(columnName)){
     columnName = wrasspOutputInfos[[onTheFlyFunctionName]]$tracks[1]
   }
-
+  
   # set fileExtension to fist ext entry in wrasspOutputInfos if fileExtension is not set
   if(!is.null(onTheFlyFunctionName) && is.null(fileExtension)){
     fileExtension = wrasspOutputInfos[[onTheFlyFunctionName]]$ext[1]
@@ -1339,18 +1118,16 @@ add_ssffTrackDefinition <- function(dbName, name,
     stop('Both onTheFlyFunctionName and onTheFlyParams have to be set for you to be able to use the onTheFlyOptLogFilePath parameter!')
   }
   
-  
-  curDefs = list_ssffTrackDefinitions(dbName, dbUUID)
+  curDefs = list_ssffTrackDefinitions(emuDBhandle)
   
   if(sum(curDefs$name == name) != 0){
-    stop("ssffTrackDefinitions with name ", name ," already exists for emuDB: ", dbName, "!")
+    stop("ssffTrackDefinitions with name ", name ," already exists for emuDB: ", emuDBhandle$dbName, "!")
   }
-  
   
   # calculate new files
   if(!is.null(onTheFlyFunctionName)){
     # check if files exist
-    fp = list_bundleFilePaths(dbName=dbName, fileExtension, dbUUID=dbUUID)
+    fp = list_bundleFilePaths(emuDBhandle, fileExtension)
     ans = 'y'
     if(length(fp) != 0){
       if(interactive){
@@ -1365,7 +1142,8 @@ add_ssffTrackDefinition <- function(dbName, name,
         funcFormals = formals(onTheFlyFunctionName)
         funcFormals[names(onTheFlyParams)] = onTheFlyParams
         funcFormals$optLogFilePath = onTheFlyOptLogFilePath
-        funcFormals$listOfFiles = list_bundleFilePaths(dbName=dbName, dbObj$DBconfig$mediafileExtension, dbUUID=dbUUID)
+        funcFormals$listOfFiles = list_bundleFilePaths(emuDBhandle, dbConfig$mediafileExtension)
+        funcFormals$explicitExt = fileExtension
         
         # check if columnName is valid track
         if(!(columnName %in% wrasspOutputInfos[[onTheFlyFunctionName]]$tracks)){
@@ -1380,56 +1158,52 @@ add_ssffTrackDefinition <- function(dbName, name,
   }
   
   # add new ssffTrackDefinition
-  dbObj$DBconfig$ssffTrackDefinitions[[length(dbObj$DBconfig$ssffTrackDefinitions) + 1]] = list(name = name, 
-                                                                                                columnName = columnName,
-                                                                                                fileExtension = fileExtension)
+  dbConfig$ssffTrackDefinitions[[length(dbConfig$ssffTrackDefinitions) + 1]] = list(name = name, 
+                                                                                    columnName = columnName,
+                                                                                    fileExtension = fileExtension)
   # store changes
-  .store.schema(dbObj)
+  store_DBconfig(emuDBhandle, dbConfig)
 }
 
 ##' @rdname AddListRemoveSsffTrackDefinition
 ##' @export
-list_ssffTrackDefinitions <- function(dbName, dbUUID = NULL){
-  # .initialize.DBI.database()
-  uuid=get_UUID(dbName,dbUUID)
-  dbObj = .load.emuDB.DBI(uuid = uuid)
-  
-  df <- do.call(rbind, lapply(dbObj$DBconfig$ssffTrackDefinitions, data.frame, stringsAsFactors=FALSE))
+list_ssffTrackDefinitions <- function(emuDBhandle){
+  dbConfig = load_DBconfig(emuDBhandle)
+  df <- do.call(rbind, lapply(dbConfig$ssffTrackDefinitions, data.frame, stringsAsFactors=FALSE))
   return(df)
 }
 
 
 ##' @rdname AddListRemoveSsffTrackDefinition
 ##' @export
-remove_ssffTrackDefinition <- function(dbName, name, 
-                                       deleteFiles = FALSE, dbUUID = NULL){
-  # .initialize.DBI.database()
-  uuid=get_UUID(dbName,dbUUID)
-  dbObj = .load.emuDB.DBI(uuid = uuid)
+remove_ssffTrackDefinition <- function(emuDBhandle, name, 
+                                       deleteFiles = FALSE){
+  
+  dbConfig = load_DBconfig(emuDBhandle)
   
   # precheck if exists
-  sDefs = list_ssffTrackDefinitions(dbName, dbUUID)  
+  sDefs = list_ssffTrackDefinitions(emuDBhandle)  
   
   if(!(name %in% sDefs$name)){
     stop("No ssffTrackDefinitions found with name: '", name, "'")
   }
   # find end delete entry
   deletedDef = NULL
-  for(i in 1:length(dbObj$DBconfig$ssffTrackDefinitions)){
-    if(dbObj$DBconfig$ssffTrackDefinitions[[i]]$name == name){
-      deletedDef = dbObj$DBconfig$ssffTrackDefinitions[[i]]
-      dbObj$DBconfig$ssffTrackDefinitions[[i]] = NULL
+  for(i in 1:length(dbConfig$ssffTrackDefinitions)){
+    if(dbConfig$ssffTrackDefinitions[[i]]$name == name){
+      deletedDef = dbConfig$ssffTrackDefinitions[[i]]
+      dbConfig$ssffTrackDefinitions[[i]] = NULL
       break
     }
   }
   
   # find and delete files
   if(deleteFiles){
-    filePaths = list_bundleFilePaths(dbName=dbName, deletedDef$fileExtension, dbUUID = dbUUID)
+    filePaths = list_bundleFilePaths(emuDBhandle, deletedDef$fileExtension)
     file.remove(filePaths)
   }
   # store changes
-  .store.schema(dbObj)
+  store_DBconfig(emuDBhandle, dbConfig)
 }
 
 ###################################################
@@ -1449,10 +1223,9 @@ remove_ssffTrackDefinition <- function(dbName, name,
 ##' more information on the structural elements of an emuDB 
 ##' see \code{vignette{emuDB}}.
 ##' 
-##' @param dbName name of loaded emuDB
+##' @param emuDBhandle
 ##' @param name name of label group
 ##' @param values character vector of labels
-##' @param dbUUID optional UUID of loaded emuDB
 ##' @keywords emuDB database schema Emu
 ##' @seealso add_attrDefLabelGroup
 ##' @name AddListRemoveLabelGroup
@@ -1460,30 +1233,30 @@ remove_ssffTrackDefinition <- function(dbName, name,
 ##' \dontrun{
 ##' 
 ##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
+##' # prerequisite: loaded ae emuDB 
 ##' # (see ?load_emuDB for more information)
 ##' 
 ##' sampaNasals = c("m", "F", "n", "J", "N")
 ##' 
-##' # add these values to the "ae" emuDB
+##' # add these values to the ae emuDB
 ##' # as a globally available labelGroup
-##' add_labelGroup(dbName = "ae",
+##' add_labelGroup(emuDBhandle = ae,
 ##'                name = "sampaNasals",
 ##'                values = sampaNasals)
 ##' 
 ##' # query the labelGroup in the "Phonetic" level
-##' query(dbName = "ae", 
+##' query(emuDBhandle = ae, 
 ##'       query = "Phonetic == sampaNasals")
 ##' 
 ##' # query the labelGroup in the "Phoneme" level
-##' query(dbName = "ae", 
+##' query(emuDBhandle = ae, 
 ##'       query = "Phoneme == sampaNasals")
 ##' 
-##' # list global label groups of "ae" emuDB
-##' list_labelGroups(dbName = "ae")
+##' # list global label groups of ae emuDB
+##' list_labelGroups(emuDBhandle = ae)
 ##' 
 ##' # remove the newly added labelGroup
-##' remove_labelGroup(dbName = "ae",
+##' remove_labelGroup(emuDBhandle = ae,
 ##'                   name = "sampaNasals")
 ##' }
 ##' 
@@ -1491,39 +1264,36 @@ NULL
 
 ##' @rdname AddListRemoveLabelGroup
 ##' @export
-add_labelGroup <- function(dbName,
+add_labelGroup <- function(emuDBhandle,
                            name,
-                           values,
-                           dbUUID = NULL){
+                           values){
   
-  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  curLgs = list_labelGroups(dbName,dbUUID)
+  dbConfig = load_DBconfig(emuDBhandle)
+  curLgs = list_labelGroups(emuDBhandle)
   
   if(name %in% curLgs$name){
     stop("labelGroup with name '", name ,"' already exists!")
   }
   
   # add labelGroup
-  dbObj$DBconfig$labelGroups[[length(dbObj$DBconfig$labelGroups) + 1]] = list(name = name, 
-                                                                              values = values)
+  dbConfig$labelGroups[[length(dbConfig$labelGroups) + 1]] = list(name = name, 
+                                                                  values = values)
   
   # store changes
-  .store.schema(dbObj)
+  store_DBconfig(emuDBhandle, dbConfig)
 }
 
 
 ##' @rdname AddListRemoveLabelGroup
 ##' @export
-list_labelGroups <- function(dbName,
-                             dbUUID = NULL){
+list_labelGroups <- function(emuDBhandle){
   
-  uuid=get_UUID(dbName,dbUUID)
-  dbObj = .load.emuDB.DBI(uuid = uuid)
+  dbConfig = load_DBconfig(emuDBhandle)
   df = data.frame(name = character(),
                   values = character(),
                   stringsAsFactors = F)
   
-  for(lg in dbObj$DBconfig$labelGroups){
+  for(lg in dbConfig$labelGroups){
     df = rbind(df, data.frame(name = lg$name,
                               values = paste0(lg$values, collapse = "; ")))
   }
@@ -1535,29 +1305,29 @@ list_labelGroups <- function(dbName,
 
 ##' @rdname AddListRemoveLabelGroup
 ##' @export
-remove_labelGroup <- function(dbName,
-                              name,
-                              dbUUID = NULL){
+remove_labelGroup <- function(emuDBhandle,
+                              name){
   
-  dbObj=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  curLgs = list_labelGroups(dbName)
+  dbConfig = load_DBconfig(emuDBhandle)
+  curLgs = list_labelGroups(emuDBhandle)
   
   if(!name %in% curLgs$name){
     stop("No labelGroup with name '", name ,"' found!")
   }
   
-  for(i in 1:length(dbObj$DBconfig$labelGroups)){
-    if(dbObj$DBconfig$labelGroups[[i]]$name == name){
-      dbObj$DBconfig$labelGroups[[i]] = NULL
+  for(i in 1:length(dbConfig$labelGroups)){
+    if(dbConfig$labelGroups[[i]]$name == name){
+      dbConfig$labelGroups[[i]] = NULL
     }
   }
   
   # store changes
-  .store.schema(dbObj)
+  store_DBconfig(emuDBhandle, dbConfig)
 }
 
 
 ###############################
 # FOR DEVELOPMENT 
-# library('testthat') 
-# test_file('tests/testthat/test_database.DBconfig.R')
+library('testthat') 
+test_file('tests/testthat/test_aaa_initData.R')
+test_file('tests/testthat/test_database.DBconfig.R')
