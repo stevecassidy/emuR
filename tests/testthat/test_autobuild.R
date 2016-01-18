@@ -296,7 +296,7 @@ test_that("backup works correctly", {
   
   # add item to Phonetic2 = exact match
   dbSendQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 980, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3749, 1389)"))
-  autobuild_linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE, TRUE)
+  autobuild_linkFromTimes(ae, 'Phonetic', 'Phonetic2', TRUE, TRUE)
   
   
   
@@ -325,7 +325,7 @@ test_that("backup works correctly", {
   
   
   # new levelDefinition is present
-  dbConfig = load_DBconfig(emuDBhandle)
+  dbConfig = load_DBconfig(ae)
   expect_equal(dbConfig$levelDefinitions[[length(dbConfig$levelDefinitions)]]$name, 'Phonetic-autobuildBackup')
   expect_equal(dbConfig$levelDefinitions[[length(dbConfig$levelDefinitions)]]$type, 'SEGMENT')
   
@@ -346,32 +346,25 @@ test_that("rewrite works correctly", {
   
   
   # add item to Phonetic2
-  dbSendQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 980, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3750, 200)"))
+  dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 980, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3750, 200)"))
   
   # add label to Phonetic2
-  dbSendQuery(ae$connection, paste0("INSERT INTO labels VALUES ('", ae$UUID, "', '0000', 'msajc003', 980, 0, 'Phonetic2', 'testLabel12')"))
+  dbGetQuery(ae$connection, paste0("INSERT INTO labels VALUES ('", ae$UUID, "', '0000', 'msajc003', 980, 0, 'Phonetic2', 'testLabel12')"))
   
   autobuild_linkFromTimes(ae, 'Phonetic', 'Phonetic2', TRUE, TRUE)
   
   
   # _DBconfig.json has new definitions
-  dbJson = fromJSON(readLines(file.path(path2db, "ae_DBconfig.json")), simplifyVector=T)
-  expect_equal(dbJson$levelDefinitions$name[11], "Phonetic-autobuildBackup")
-  expect_equal(dbJson$linkDefinitions[10,]$type, "ONE_TO_ONE")
-  expect_equal(dbJson$linkDefinitions[10,]$superlevelName, "Phonetic")
-  expect_equal(dbJson$linkDefinitions[10,]$sublevelName, "Phonetic2")
+  dbConfig = load_DBconfig(ae)
+  expect_equal(dbConfig$levelDefinitions[[11]]$name, "Phonetic-autobuildBackup")
+  expect_equal(dbConfig$linkDefinitions[[10]]$type, "ONE_TO_ONE")
+  expect_equal(dbConfig$linkDefinitions[[10]]$superlevelName, "Phonetic")
+  expect_equal(dbConfig$linkDefinitions[[10]]$sublevelName, "Phonetic2")
   
   # annot.jsons has new fields
   testAnnoFilePath=file.path(path2db, "0000_ses", "msajc003_bndl", "msajc003_annot.json")
-  annotJson = fromJSON(readLines(testAnnoFilePath), simplifyVector=T)
-  lastLvlName=annotJson$levels$name[11]
+  annotJson = fromJSON(testAnnoFilePath, simplifyVector=F)
+  lastLvlName=annotJson$levels[[11]]$name
   expect_equal(lastLvlName, "Phonetic-autobuildBackup")
   
 })
-
-# 
-test_that("purge, delete", {
-  purge_emuDB(ae, interactive = F)
-  unlink(path2db, recursive = T)
-})
-

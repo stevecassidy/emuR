@@ -217,84 +217,122 @@ create_emuDBindicesDBI<-function(emuDBhandle){
 ####################################
 # emuDB table DBI functions
 
-store_emuDbDBI <- function(emuDBhandle, MD5DBconfigJSON = NULL){
-  if(is.null(MD5DBconfigJSON)){
-    dbSqlInsert = paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('", emuDBhandle$UUID, "','", emuDBhandle$dbName, "',NULL,'", "DEPRICATED COLUMN", "', NULL", ")")
-  }else{
-    dbSqlInsert = paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('", emuDBhandle$UUID, "','", emuDBhandle$dbName, "',NULL,'", "DEPRICATED COLUMN", "', '", MD5DBconfigJSON,"')")
-  }
+add_emuDbDBI <- function(emuDBhandle){
+  dbSqlInsert = paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('", emuDBhandle$UUID, "','", emuDBhandle$dbName, "',NULL,'", "DEPRICATED COLUMN", "', 'DEPRICATED COLUMN'", ")")
   res <- dbSendQuery(emuDBhandle$connection, dbSqlInsert)
   dbClearResult(res)
-  
 }
+
+get_emuDbDBI <- function(emuDBhandle){
+  query = paste0("SELECT * FROM emuDB WHERE uuid='", emuDBhandle$UUID, "'")
+  res <- dbGetQuery(emuDBhandle$connection, query)
+  return(res)
+}
+
 
 ####################################
 # session table DBI functions
 
-store_sessionDBI <- function(emuDBhandle, sessionName){
+add_sessionDBI <- function(emuDBhandle, sessionName){
   insertSessionSql = paste0("INSERT INTO session(db_uuid, name) VALUES('", emuDBhandle$UUID,"','", sessionName, "')")
   res<-dbSendQuery(emuDBhandle$connection, insertSessionSql)
   dbClearResult(res)
 }
 
-
-##' List sessions of emuDB
-##' @description List session names of emuDB
-##' @param emuDBhandle emuDB handle
-##' @return data.frame object with session names
-##' @export
-list_sessions <- function(emuDBhandle){
+list_sessionsDBI <- function(emuDBhandle){
   dbs=dbGetQuery(emuDBhandle$connection, paste0("SELECT name FROM session WHERE db_uuid='", emuDBhandle$UUID, "'"))
   return(dbs)
 }
 
 
+remove_sessionDBI <- function(emuDBhandle, sessionName){
+  dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM session WHERE ", "db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "'"))
+}
+
 ####################################
 # bundle table DBI functions
 
-store_bundleDBI <- function(emuDBhandle, annotFilePath, sessionName, 
-                            bundleName) {
+add_bundleDBI <- function(emuDBhandle, sessionName, name, annotates, sampleRate, MD5annotJSON){
+  insertBundleSql = paste0("INSERT INTO bundle(db_uuid, session, name, annotates, sampleRate, MD5annotJSON) VALUES('", 
+                           emuDBhandle$UUID, "', '", sessionName, "', '", name, "', '", annotates, "', ", sampleRate, ", '", MD5annotJSON, "')")
+  dbGetQuery(emuDBhandle$connection, insertBundleSql)
+}
+
+list_bundlesDBI <- function(emuDBhandle){
+  bundle = dbGetQuery(emuDBhandle$connection, paste0("SELECT session, name FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "'"))
+  return(bundle)
+}
+
+remove_bundleDBI <- function(emuDBhandle, sessionName, name){
+  dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM bundle WHERE ", "db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND name='", name, "'"))
+}
+
+# MD5annotJSON
+get_MD5annotJsonDBI <- function(emuDBhandle, sessionName, name){
+  MD5annotJSON = dbGetQuery(emuDBhandle$connection, paste0("SELECT MD5annotJSON FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND name='", name, "'"))$MD5annotJSON
+  return(MD5annotJSON)
+}
+
+####################################
+# items, links, labels DBI functions
+
+store_bundleAnnotDFsDBI <- function(emuDBhandle, bundleAnnotDFs, sessionName, 
+                                    bundleName) {
   
+  # insert items table entries (fist exanding it with db_uuid, session and bundle columns)
+  bundleAnnotDFs$items = data.frame(db_uuid = emuDBhandle$UUID, 
+                              session = sessionName,
+                              bundle = bundleName,
+                              bundleAnnotDFs$items)
   
-  listOfDfs = annotJSONtoListOfDataFrames(read_json(normalizePath(annotFilePath)))
+  dbWriteTable(emuDBhandle$connection, "items", bundleAnnotDFs$items, append = T)
   
-  # calculate MD5 sum of bundle annotJSON
-  MD5annotJSON = md5sum(normalizePath(annotFilePath))
-  names(MD5annotJSON) = NULL
+  # insert labels table entries (fist exanding it with db_uuid, session and bundle columns)
+  bundleAnnotDFs$labels =  data.frame(db_uuid = emuDBhandle$UUID, 
+                                session = sessionName,
+                                bundle = bundleName,
+                                bundleAnnotDFs$labels)
   
-  # insert bundle table entry
-  dbWriteTable(emuDBhandle$connection, "bundle", data.frame(db_uuid = emuDBhandle$UUID, 
-                                                            session = sessionName,
-                                                            name = bundleName,
-                                                            annotates = listOfDfs$annotates,
-                                                            sampleRate = listOfDfs$sampleRate,
-                                                            MD5annotJSON = MD5annotJSON), append = T)
-  # insert items table entries
-  listOfDfs$items = data.frame(db_uuid = rep(emuDBhandle$UUID, nrow(listOfDfs$items)), 
-                               session = rep(sessionName, nrow(listOfDfs$items)),
-                               bundle = rep(bundleName, nrow(listOfDfs$items)),
-                               listOfDfs$items)
+  dbWriteTable(emuDBhandle$connection, "labels", bundleAnnotDFs$labels, append = T)
   
-  dbWriteTable(emuDBhandle$connection, "items", listOfDfs$items, append = T)
+  # insert links table entries (fist exanding it with db_uuid, session and bundle columns)
+  bundleAnnotDFs$links =  data.frame(db_uuid = emuDBhandle$UUID,
+                               session = sessionName,
+                               bundle = bundleName,
+                               bundleAnnotDFs$links,
+                               label = NA)
   
-  # insert labels table entries
-  listOfDfs$labels =  data.frame(db_uuid = rep(emuDBhandle$UUID, nrow(listOfDfs$labels)), 
-                                 session = rep(sessionName, nrow(listOfDfs$labels)),
-                                 bundle = rep(bundleName, nrow(listOfDfs$labels)),
-                                 listOfDfs$labels)
-  
-  dbWriteTable(emuDBhandle$connection, "labels", listOfDfs$labels, append = T)
-  
-  # insert links table entries
-  listOfDfs$links =  data.frame(db_uuid = rep(emuDBhandle$UUID, nrow(listOfDfs$links)), 
-                                session = rep(sessionName, nrow(listOfDfs$links)),
-                                bundle = rep(bundleName, nrow(listOfDfs$links)),
-                                listOfDfs$links,
-                                label = rep(NA, nrow(listOfDfs$links)))
-  
-  dbWriteTable(emuDBhandle$connection, "links", listOfDfs$links, append = T)
+  dbWriteTable(emuDBhandle$connection, "links", bundleAnnotDFs$links, append = T)
   
 }
+
+load_bundleAnnotDFsDBI <- function(emuDBhandle, sessionName, bundleName){
+  
+  DBconfig = load_DBconfig(emuDBhandle)
+  
+  # meta infos
+  annotates = paste0(bundleName, ".", DBconfig$mediafileExtension)
+  sampleRateQuery = paste0("SELECT sampleRate FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND name='", bundleName,"'")
+  sampleRate = dbGetQuery(emuDBhandle$connection, sampleRateQuery)$sampleRate
+  
+  # items
+  itemsQuery = paste0("SELECT itemID, level, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur  FROM items WHERE db_uuid='", 
+                      emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
+  items = dbGetQuery(emuDBhandle$connection, itemsQuery)
+  
+  # labels 
+  labelsQuery = paste0("SELECT itemID, labelIdx, name, label FROM labels WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
+  labels = dbGetQuery(emuDBhandle$connection, labelsQuery)
+  
+  # links 
+  
+  linksQuery = paste0("SELECT fromID, toID, label FROM links WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
+  links = dbGetQuery(emuDBhandle$connection, linksQuery)
+  
+  
+  return(list(name = bundleName, annotates = annotates, sampleRate = sampleRate, items = items, links = links, labels = labels))
+}
+
 
 remove_bundleAnnotDBI<-function(emuDBhandle, bundleName, sessionName){
   cntSqlQuery=paste0("SELECT * FROM items WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
@@ -316,41 +354,6 @@ remove_bundleAnnotDBI<-function(emuDBhandle, bundleName, sessionName){
 }
 
 
-##' List bundles of emuDB
-##' 
-##' List all bundles of emuDB or of particular session.
-##' @param emuDBhandle emuDB handle
-##' @param session optional session
-##' @param dbUUID optional UUID of emuDB
-##' @return data.frame object with columns session and name of bundles
-##' @export
-##' @examples 
-##' \dontrun{
-##' 
-##' ##################################
-##' # prerequisite: loaded ae emuDB
-##' # (see ?load_emuDB for more information)
-##' 
-##' # list bundles of session "0000" of ae emuDB
-##' list_bundles(emuDBhandle = ae,
-##'              session = "0000")
-##' 
-##' }
-##' 
-list_bundles <- function(emuDBhandle, session=NULL){
-  baseQ=paste0("SELECT session,name FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "'")
-  if(is.null(session)){
-    # list all bundles
-    dbs=dbGetQuery(emuDBhandle$connection, baseQ)
-  }else{
-    sQ=dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM session WHERE db_uuid='", emuDBhandle$UUID, "' AND name='", session, "'"))
-    if(nrow(sQ)<1){
-      stop("Session ", session, " not found!")
-    }
-    dbs=dbGetQuery(emuDBhandle$connection, paste0(baseQ, " AND session='", session, "'"))
-  }
-  return(dbs)
-}
 
 ###################################################
 # create redundant links functions
@@ -361,8 +364,8 @@ list_bundles <- function(emuDBhandle, session=NULL){
 build_allRedundantLinks <- function(emuDBhandle, sessionName=NULL, bundleName=NULL){
   
   hierarchyPaths = build_allHierarchyPaths(load_DBconfig(emuDBhandle))
-
-  return(build_redundantLinksForPathes(emuDBhandle, hierarchyPaths, sessionName, bundleName) )
+  
+  return(build_redundantLinksForPaths(emuDBhandle, hierarchyPaths, sessionName, bundleName) )
 }
 
 ## Legacy EMU and query functions link collections contain links for each possible connection between levels
@@ -372,12 +375,12 @@ build_allRedundantLinks <- function(emuDBhandle, sessionName=NULL, bundleName=NU
 #   
 #   hierarchyPaths = build_levelPartialPathes(get_DBconfig(emuDBhandle), fromLevel, toLevel)
 #   
-#   return(build_redundantLinksForPathes(database, hierarchyPaths))
+#   return(build_redundantLinksForPaths(database, hierarchyPaths))
 # }
 
 
-build_redundantLinksForPathes <- function(emuDBhandle, hierarchyPaths, sessionName='0000', bundleName=NULL){
-
+build_redundantLinksForPaths <- function(emuDBhandle, hierarchyPaths, sessionName='0000', bundleName=NULL){
+  
   # delete any previous redundant links
   res <- dbSendQuery(emuDBhandle$connection, 'DELETE FROM linksTmp')
   dbClearResult(res)
@@ -393,7 +396,7 @@ build_redundantLinksForPathes <- function(emuDBhandle, hierarchyPaths, sessionNa
       # only for one bundle
       sqlQuery = paste0(sqlQuery,"f.session='",sessionName,"' AND f.bundle='",bundleName,"' AND ")
     }
-
+    
     sqlQuery=paste0(sqlQuery,' (')
     # build query for each partial path
     
@@ -499,7 +502,58 @@ calculate_postionsOfLinks<-function(emuDBhandle){
 }
 
 ##########################################
-# file operations
+################# emuDB ##################
+##########################################
+
+#############################################
+# function that use emuDB files (vs. DBI)
+
+##' List sessions of emuDB
+##' @description List session names of emuDB
+##' @param emuDBhandle emuDB handle
+##' @return data.frame object with session names
+##' @export
+list_sessions <- function(emuDBhandle){
+  sesPattern = paste0("^.*", session.suffix ,"$")
+  sesDirs = dir(emuDBhandle$basePath, pattern = sesPattern)
+  sesDirs = gsub(paste0(session.suffix, "$"), "", sesDirs)
+  return(data.frame(name = sesDirs, stringsAsFactors = F))
+}
+
+##' List bundles of emuDB
+##' 
+##' List all bundles of emuDB or of particular session.
+##' @param emuDBhandle emuDB handle
+##' @param session optional session
+##' @param dbUUID optional UUID of emuDB
+##' @return data.frame object with columns session and name of bundles
+##' @export
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded ae emuDB
+##' # (see ?load_emuDB for more information)
+##' 
+##' # list bundles of session "0000" of ae emuDB
+##' list_bundles(emuDBhandle = ae,
+##'              session = "0000")
+##' 
+##' }
+##' 
+list_bundles <- function(emuDBhandle, session=NULL){
+  sesDf = list_sessions(emuDBhandle)
+  bndlPattern = paste0("^.*", bundle.dir.suffix ,"$")
+  res = data.frame(session = character(), name = character(), stringsAsFactors = F)
+  
+  for(ses in sesDf$name){
+    bndlDirs = dir(file.path(emuDBhandle$basePath, paste0(ses, session.suffix)), pattern = bndlPattern)
+    bndlNames = gsub(paste0(bundle.dir.suffix, "$"), "", bndlDirs)
+    res = rbind(res, data.frame(session = ses, name = bndlNames, stringsAsFactors = F))
+  }
+  return(res)
+}
+
 
 
 ##' List file paths of emuDBs bundles
@@ -547,10 +601,11 @@ list_bundleFilePaths <- function(emuDBhandle, fileExtention,
 }
 
 
+
+
 rewrite_allAnnots <- function(emuDBhandle, showProgress=TRUE){
-  
-  # get UUID (also checks if DB exists)
-  bndls = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "'"))
+
+  bndls = list_bundles(emuDBhandle)
   
   progress = 0
   if(showProgress){
@@ -561,16 +616,16 @@ rewrite_allAnnots <- function(emuDBhandle, showProgress=TRUE){
   }
   
   for(i in 1:nrow(bndls)){
-    b=get.bundle(sessionName=bndls[i,]$session, bundleName=bndls[i,]$name, dbUUID=dbUUID)
-    bDir=paste0(b[['name']], bundle.dir.suffix)
-    bfp=file.path(basePath, paste0(bndls[i,]$session, session.suffix), bDir)
+    bndl = bndls[i,]
+    bundleAnnotDFs = load_bundleAnnotDFsDBI(emuDBhandle, bndl$session, bndl$name)
+    annotJSONchar = bundleAnnotDFsToAnnotJSONchar(emuDBhandle, bundleAnnotDFs)
     
-    pFilter=emuR.persist.filters.bundle
-    bp=marshal.for.persistence(b,pFilter)
-    ban=paste0(b[['name']], bundle.annotation.suffix, '.json')
-    baJSONPath=file.path(bfp,ban)
-    pbpJSON=jsonlite::toJSON(bp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-    writeLines(pbpJSON,baJSONPath)
+    # construct path to annotJSON
+    annotFilePath = normalizePath(file.path(emuDBhandle$basePath, paste0(bndl$session, session.suffix), 
+                                            paste0(bndl$name, bundle.dir.suffix), 
+                                            paste0(bndl$name, bundle.annotation.suffix, '.json')))
+    
+    writeLines(annotJSONchar, annotFilePath)
     
     progress=progress+1L
     if(showProgress){
@@ -789,7 +844,7 @@ create_emuDB<-function(name, targetDir, mediaFileExtension='wav',
   if(store){
     store(targetDir=targetDir,dbUUID=dbUUID, showProgress = verbose)
   }
-
+  
   return(invisible())
 }
 
@@ -857,8 +912,6 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
     stop("Could not find database info file: ",dbCfgPath,"\n")
   }
   
-  # calc. md5 sum
-  MD5DBconfigJSON = md5sum(normalizePath(dbCfgPath))
   # load DBconfig
   DBconfig = jsonlite::fromJSON(dbCfgPath, simplifyVector=FALSE)
   # normalize base path
@@ -872,32 +925,27 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
   if(inMemoryCache){
     dbHandle = emuDBhandle(dbName, basePath, dbUUID, connectionPath = ":memory:")
   }else{
-    dbPath = file.path(normalizePath(databaseDir), paste0(dbName, database.cache.suffix))
-    dbHandle = emuDBhandle(dbName, basePath, dbUUID, dbPath)
+    cachePath = file.path(normalizePath(databaseDir), paste0(dbName, database.cache.suffix))
+    dbHandle = emuDBhandle(dbName, basePath, dbUUID, cachePath)
   }
   
   # check if cache exist -> update cache if true
-  dbsDf=dbGetQuery(dbHandle$connection, paste0("SELECT * FROM emuDB WHERE uuid='", dbHandle$UUID, "'"))
+  dbsDf = get_emuDbDBI(dbHandle)
   if(nrow(dbsDf)>0){
     update_cache(dbHandle, verbose = verbose)
     return(dbHandle)
   }
   
   # write to DBI emuDB table
-  store_emuDbDBI(dbHandle, MD5DBconfigJSON)
+  add_emuDbDBI(dbHandle)
   
-  # list sessions
-  sessPattern = paste0('^.*',session.suffix,'$')
-  sessDirs = dir(databaseDir, pattern = sessPattern)
-  
+  # list sessions & bundles
+  sessions = list_sessions(dbHandle)
+  bundles = list_bundles(dbHandle)
+  # add column to sessions to track if already stored
+  sessions$stored = F
   # calculate bundle count
-  bundleCount = 0
-  for(sd in sessDirs){
-    absSd = file.path(databaseDir, sd)
-    bundleDirs = dir(absSd, pattern = paste0('.*', bundle.dir.suffix, '$'))
-    bundleCount = bundleCount + length(bundleDirs)
-  }
-  
+  bundleCount = nrow(bundles)
   # create progress bar
   pMax = bundleCount
   if(pMax == 0){
@@ -908,31 +956,42 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
     pb=txtProgressBar(min = 0L, max = pMax, style = 3)
     setTxtProgressBar(pb, progress)
   }
-  
-  
-  for(sd in sessDirs){
-    sessionName = gsub(pattern = paste0(session.suffix, '$'), replacement = '', x = sd)
-    bundles = list()
-    absSd = file.path(databaseDir, sd)
-    bundleDirs = dir(absSd, pattern = paste0('.*', bundle.dir.suffix, '$'))
-    
-    store_sessionDBI(dbHandle, sessionName)
 
-    # bundles
-    for(bd in bundleDirs){
-      absBd=file.path(absSd,bd)
-      bName=gsub(paste0(bundle.dir.suffix,'$'),'',bd)
-      annotFilePath = file.path(absBd, paste0(bName, bundle.annotation.suffix, '.json'))
-      
-      store_bundleDBI(dbHandle, annotFilePath, sessionName, bName)
-      
-      # increase progress bar  
-      progress=progress+1L
-      if(verbose){
-        setTxtProgressBar(pb,progress)
-      }
-      
+  # bundles
+  for(bndlIdx in 1:nrow(bundles)){
+    bndl = bundles[bndlIdx,]
+    # check if session has to be added to DBI
+    if(!(sessions$stored[sessions$name == bndl$session])){
+      add_sessionDBI(dbHandle, bndl$session)
+      sessions$stored[sessions$name == bndl$session] = TRUE
     }
+    
+    # construct path to annotJSON
+    annotFilePath = normalizePath(file.path(dbHandle$basePath, paste0(bndl$session, session.suffix), 
+                                            paste0(bndl$name, bundle.dir.suffix), 
+                                            paste0(bndl$name, bundle.annotation.suffix, '.json')))
+    
+    # calculate MD5 sum of bundle annotJSON
+    newMD5annotJSON = md5sum(annotFilePath)
+    names(newMD5annotJSON) = NULL
+
+    # read annotJSON as charac 
+    annotJSONchar = readChar(annotFilePath, file.info(annotFilePath)$size)
+    
+    # convert to bundleAnnotDFs
+    bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(annotJSONchar)
+    
+    # add to bundle table
+    add_bundleDBI(dbHandle, bndl$session, bndl$name, bundleAnnotDFs$annotates, bundleAnnotDFs$sampleRate, newMD5annotJSON)
+    # add to items, links, labels tables
+    store_bundleAnnotDFsDBI(dbHandle, bundleAnnotDFs, bndl$session, bndl$name)
+    
+    # increase progress bar  
+    progress=progress+1L
+    if(verbose){
+      setTxtProgressBar(pb,progress)
+    }
+    
   }
   
   # build redundat links and calc positions

@@ -1328,6 +1328,6 @@ remove_labelGroup <- function(emuDBhandle,
 
 ###############################
 # FOR DEVELOPMENT 
-library('testthat') 
-test_file('tests/testthat/test_aaa_initData.R')
-test_file('tests/testthat/test_database.DBconfig.R')
+# library('testthat') 
+# test_file('tests/testthat/test_aaa_initData.R')
+# test_file('tests/testthat/test_database.DBconfig.R')

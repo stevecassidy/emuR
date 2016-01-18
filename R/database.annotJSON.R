@@ -52,18 +52,17 @@ annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
 bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
   
   # load DBconfig to generate levelNames vector (although levels are not ordered per say)
-  DBconfig = load_DBconfig(emuDBhandle)
-  levelNames = sapply(DBconfig$levelDefinitions, function(l)l$name)
+  levelDefs = list_levelDefinitions(emuDBhandle)
   
   levels = list()
   
-  for(l in levelNames){
-    levelItems = filter(annotDFs$items, level == l)
+  for(l in levelDefs$name){
+    levelItems = filter_(annotDFs$items, ~(level == l))
     
     levels[[length(levels) + 1]] = apply(levelItems, 1, function(r) {
       
       labels = apply(filter(annotDFs$labels, itemID == as.numeric(r[1])), 1, function(r2) list(name = r2[3], toID = r2[4]))
-      
+      res = NULL
       if(r[3] == "ITEM"){
         res = list(id = as.numeric(r[1]),
                    labels = labels)
@@ -79,6 +78,8 @@ bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
       }
       return(res)
     })
+    levels[[length(levels)]]$name = l
+    levels[[length(levels)]]$type = levelDefs$type[levelDefs$name == l]
   }
   
   links = apply(annotDFs$links, 1, function(r) list(fromID = as.numeric(r[1]), toID = as.numeric(r[2])))
