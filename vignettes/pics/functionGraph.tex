@@ -40,7 +40,7 @@
 	% bundle annotation data.frames
 	\node (load_bundleAnnotDFsDBI) at (10, -4) [privateFunc] {\texttt{load\_bundleAnnotDFsDBI}};
 	\node (store_bundleAnnotDFsDBI) at (10, -4.5) [privateFunc] {\texttt{store\_bundleAnnotDFsDBI}};
-	\node (remove_bundleAnnotDBI) at (10, -5) [privateFunc] {\texttt{remove\_bundleAnnotDFsDBI}};
+	\node (remove_bundleAnnotDBI) at (10, -5) [privateFunc] {\texttt{remove\_bundleAnnotDBI}};
 
 	%%%%%%%%%%%%%%%%%%%%%%%%
 	% connections
@@ -54,7 +54,7 @@
 	\draw [dotted] (SQLiteDB) to (links_table);
 
 	%% emuDB actions
-	\draw [<-] (load_DBconfig.emuDBhandle.east) -- (emuDB);
+	\draw [<-] (load_DBconfig.east) -- (emuDB);
 	\draw [->] (store_DBconfig.east) -- (emuDB);
 	\draw [<-] (list_sessions.east) -- (emuDB);
 	\draw [<-] (list_bundles.east) -- (emuDB);
