@@ -1,8 +1,13 @@
 require(tidyjson)
 
+#######################################################
+# annotJSON representation to annotDFs conversion functions
+
 # convert annotJSON to list of data.frames including 
 # meta information (name, annotates, samplerate)
-annotJSONtoListOfDataFrames <- function(json){
+annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
+  
+  json = annotJSONchar %>% as.tbl_json
   
   # get top level data
   tlData = json %>%
@@ -42,3 +47,47 @@ annotJSONtoListOfDataFrames <- function(json){
   return(list(name = tlData$name, annotates = tlData$annotates, sampleRate = tlData$sampleRate, items = items, links = links, labels = labels))
   
 }
+
+# convert annotDFs (annotation list of data.frame representation) to annotJSON
+bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
+  
+  # load DBconfig to generate levelNames vector (although levels are not ordered per say)
+  DBconfig = load_DBconfig(emuDBhandle)
+  levelNames = sapply(DBconfig$levelDefinitions, function(l)l$name)
+  
+  levels = list()
+  
+  for(l in levelNames){
+    levelItems = filter(annotDFs$items, level == l)
+    
+    levels[[length(levels) + 1]] = apply(levelItems, 1, function(r) {
+      
+      labels = apply(filter(annotDFs$labels, itemID == as.numeric(r[1])), 1, function(r2) list(name = r2[3], toID = r2[4]))
+      
+      if(r[3] == "ITEM"){
+        res = list(id = as.numeric(r[1]),
+                   labels = labels)
+      }else if(r[3] == "SEGMENT"){
+        res = list(id = as.numeric(r[1]),
+                   sampleStart = as.numeric(r[7]),
+                   sampleDur = as.numeric(r[8]),
+                   labels = labels)
+      }else if(r[3] == "EVENT"){
+        res = list(id = as.numeric(r[1]),
+                   samplePoint = as.numeric(r[9]),
+                   labels = labels)
+      }
+      return(res)
+    })
+  }
+  
+  links = apply(annotDFs$links, 1, function(r) list(fromID = as.numeric(r[1]), toID = as.numeric(r[2])))
+
+  annotJSON = list(name = annotDFs$name,
+                   annotates = annotDFs$annotates,
+                   sampleRate = annotDFs$sampleRate,
+                   levels = levels, links = links)
+  
+  return(jsonlite::toJSON(annotJSON, auto_unbox = T, force = T, pretty = T))
+}
+
