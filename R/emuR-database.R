@@ -281,26 +281,26 @@ store_bundleAnnotDFsDBI <- function(emuDBhandle, bundleAnnotDFs, sessionName,
   
   # insert items table entries (fist exanding it with db_uuid, session and bundle columns)
   bundleAnnotDFs$items = data.frame(db_uuid = emuDBhandle$UUID, 
-                              session = sessionName,
-                              bundle = bundleName,
-                              bundleAnnotDFs$items)
+                                    session = sessionName,
+                                    bundle = bundleName,
+                                    bundleAnnotDFs$items)
   
   dbWriteTable(emuDBhandle$connection, "items", bundleAnnotDFs$items, append = T)
   
   # insert labels table entries (fist exanding it with db_uuid, session and bundle columns)
   bundleAnnotDFs$labels =  data.frame(db_uuid = emuDBhandle$UUID, 
-                                session = sessionName,
-                                bundle = bundleName,
-                                bundleAnnotDFs$labels)
+                                      session = sessionName,
+                                      bundle = bundleName,
+                                      bundleAnnotDFs$labels)
   
   dbWriteTable(emuDBhandle$connection, "labels", bundleAnnotDFs$labels, append = T)
   
   # insert links table entries (fist exanding it with db_uuid, session and bundle columns)
   bundleAnnotDFs$links =  data.frame(db_uuid = emuDBhandle$UUID,
-                               session = sessionName,
-                               bundle = bundleName,
-                               bundleAnnotDFs$links,
-                               label = NA)
+                                     session = sessionName,
+                                     bundle = bundleName,
+                                     bundleAnnotDFs$links,
+                                     label = NA)
   
   dbWriteTable(emuDBhandle$connection, "links", bundleAnnotDFs$links, append = T)
   
@@ -603,12 +603,12 @@ list_bundleFilePaths <- function(emuDBhandle, fileExtention,
 
 
 
-rewrite_allAnnots <- function(emuDBhandle, showProgress=TRUE){
-
+rewrite_allAnnots <- function(emuDBhandle, verbose=TRUE){
+  
   bndls = list_bundles(emuDBhandle)
   
   progress = 0
-  if(showProgress){
+  if(verbose){
     bundleCount=nrow(bndls)
     cat("INFO: Rewriting", bundleCount, "_annot.json files to file system...\n")
     pb=txtProgressBar(min=0,max=bundleCount,style=3)
@@ -621,14 +621,14 @@ rewrite_allAnnots <- function(emuDBhandle, showProgress=TRUE){
     annotJSONchar = bundleAnnotDFsToAnnotJSONchar(emuDBhandle, bundleAnnotDFs)
     
     # construct path to annotJSON
-    annotFilePath = normalizePath(file.path(emuDBhandle$basePath, paste0(bndl$session, session.suffix), 
-                                            paste0(bndl$name, bundle.dir.suffix), 
-                                            paste0(bndl$name, bundle.annotation.suffix, '.json')))
+    annotFilePath = file.path(emuDBhandle$basePath, paste0(bndl$session, session.suffix), 
+                              paste0(bndl$name, bundle.dir.suffix), 
+                              paste0(bndl$name, bundle.annotation.suffix, '.json'))
     
     writeLines(annotJSONchar, annotFilePath)
     
     progress=progress+1L
-    if(showProgress){
+    if(verbose){
       setTxtProgressBar(pb,progress)
     }
   } 
@@ -956,7 +956,7 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
     pb=txtProgressBar(min = 0L, max = pMax, style = 3)
     setTxtProgressBar(pb, progress)
   }
-
+  
   # bundles
   for(bndlIdx in 1:nrow(bundles)){
     bndl = bundles[bndlIdx,]
@@ -974,7 +974,7 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
     # calculate MD5 sum of bundle annotJSON
     newMD5annotJSON = md5sum(annotFilePath)
     names(newMD5annotJSON) = NULL
-
+    
     # read annotJSON as charac 
     annotJSONchar = readChar(annotFilePath, file.info(annotFilePath)$size)
     
