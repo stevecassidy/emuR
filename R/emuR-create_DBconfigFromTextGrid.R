@@ -26,7 +26,7 @@ create_DBconfigFromTextGrid = function(tgPath, dbName, basePath, tierNames = NUL
   
   #
   ####################
-
+  
   # create tmp dbHandle
   dbHandle = emuDBhandle(dbName, basePath, UUIDgenerate(), connectionPath = ":memory:")
   
@@ -42,7 +42,7 @@ create_DBconfigFromTextGrid = function(tgPath, dbName, basePath, tierNames = NUL
     
     # delete labels
     dbGetQuery(dbHandle$connection, paste0("DELETE FROM labels ", 
-                                            "WHERE db_uuid='", dbHandle$UUID, "' AND itemID NOT IN (SELECT itemID FROM items)"))
+                                           "WHERE db_uuid='", dbHandle$UUID, "' AND itemID NOT IN (SELECT itemID FROM items)"))
   }
   
   levels <- dbGetQuery(dbHandle$connection, paste0("SELECT DISTINCT level, type FROM items WHERE db_uuid='", dbHandle$UUID, "'"))
@@ -79,22 +79,20 @@ create_DBconfigFromTextGrid = function(tgPath, dbName, basePath, tierNames = NUL
                   levelCanvases = list(order = defaultLvlOrder), 
                   twoDimCanvases = list(order = list()))
   # create EMUwebAppConfig 
-  waCfg = list(perspectives = list(defPersp))
+  waCfg = list(perspectives = list(defPersp),
+               activeButtons = list(saveBundle = TRUE,
+                                    showHierarchy = TRUE))
   
   
   
   # generate full schema list
   dbSchema = list(name = dbName,
                   UUID = UUIDgenerate(),
-                  mediafileBasePathPattern = '',
                   mediafileExtension = 'wav',
                   ssffTrackDefinitions = list(),
                   levelDefinitions = levelDefinitions,
                   linkDefinitions = list(),
-                  EMUwebAppConfig = waCfg,
-                  annotationDescriptors = list(),
-                  tracks = list(),
-                  flags=list())
+                  EMUwebAppConfig = waCfg)
   
   
   return(dbSchema)

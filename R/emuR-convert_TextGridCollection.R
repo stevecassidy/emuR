@@ -45,10 +45,10 @@ require(RSQLite)
 ##'                                     tierNames = c("Syllable", "Phonetic"))
 ##'
 ##'} 
-convert_TextGridCollection_to_emuDB <- function(dir, dbName, 
-                                                targetDir, tgExt = 'TextGrid', 
-                                                audioExt = 'wav', tierNames = NULL, 
-                                                verbose = TRUE){
+convert_TextGridCollection <- function(dir, dbName, 
+                                       targetDir, tgExt = 'TextGrid', 
+                                       audioExt = 'wav', tierNames = NULL, 
+                                       verbose = TRUE){
   # normalize paths
   dir = suppressWarnings(normalizePath(dir))
   targetDir = suppressWarnings(normalizePath(targetDir))
@@ -88,38 +88,23 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
     setTxtProgressBar(pb, progress)
   }
   
-  # gereate schema from first TextGrid in fpl
-  schema = create.DBconfig.from.TextGrid(fpl[1,2], dbName, basePath,tierNames)
-  # set transient values
-  schema=.update.transient.schema.values(schema)
+  # gereate DBconfig from first TextGrid in fpl
+  DBconfig = create_DBconfigFromTextGrid(fpl[1,2], dbName, basePath,tierNames)
   
-  # create db object
-  db=create.database(name = schema[['name']],basePath = normalizePath(basePath),DBconfig = schema)
-  
-  # set editable + showHierarchy
-  schema$EMUwebAppConfig$activeButtons=list(saveBundle=TRUE,
-                                           showHierarchy=TRUE)
-  sdbUUID=schema[['UUID']]
-  add_emuDBhandle(dbName,basePath,sdbUUID)
-  dbsDf=dbGetQuery(get_emuDBcon(sdbUUID),paste0("SELECT * FROM emuDB WHERE uuid='",sdbUUID,"'"))
-  if(nrow(dbsDf)>0){
-    stop("EmuDB '",dbsDf[1,'name'],"', UUID: '",dbsDf[1,'uuid'],"' already loaded!")
-  }
+  # create tmp dbHandle
+  dbHandle = emuDBhandle(dbName, basePath, DBconfig$UUID, connectionPath = ":memory:")
   
   # store to tmp DBI
-  .store.emuDB.DBI(get_emuDBcon(sdbUUID), db)
+  add_emuDbDBI(dbHandle)
   
-  # store db schema file
-  .store.DBconfig(get_emuDBcon(sdbUUID), basePath,schema)
-  
-  # get dbObj
-  dbUUID = get_UUID(dbName = dbName, dbUUID = NULL)
+  # store db DBconfig file
+  store_DBconfig(dbHandle, DBconfig)
   
   # allBundles object to hold bundles without levels and links
   allBundles = list()
   
   # create session entry
-  dbGetQuery(get_emuDBcon(dbUUID), paste0("INSERT INTO session VALUES('", dbUUID, "', '0000')"))
+  dbGetQuery(dbHandle$connection, paste0("INSERT INTO session VALUES('", dbHandle$UUID, "', '0000')"))
   
   
   # loop through fpl
@@ -130,31 +115,29 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
     
     # session file path
     if(sesName == ""){
-      sfp=file.path(basePath,paste0("0000",session.suffix))
+      sfp = file.path(basePath, paste0("0000", session.suffix))
     }else{
-      sfp=file.path(basePath,paste0(sesName,session.suffix))
+      sfp = file.path(basePath, paste0(sesName, session.suffix))
     }
     if(!dir.exists(sfp)){
-      res=dir.create(sfp)
+      res = dir.create(sfp)
       if(!res){
-        # purge tmp emuDB
-        purge_emuDB(dbUUID=dbUUID,interactive=F)
-        stop("Could not create session directory: ",sfp," !\n")
+        stop("Could not create session directory: ", sfp, " !\n")
       }
     }
     
     # media file
-    mfPath=fpl[i,1]
-    mfBn=basename(mfPath)
+    mfPath = fpl[i,1]
+    mfBn = basename(mfPath)
     
     # get sampleRate of audio file
     asspObj = read.AsspDataObj(mfPath)
-    sampleRate=attributes(asspObj)$sampleRate
+    sampleRate = attributes(asspObj)$sampleRate
     # create bundle name
     bndlName = file_path_sans_ext(basename(fpl[i,1]))
     
     # create bundle entry
-    dbGetQuery(get_emuDBcon(dbUUID), paste0("INSERT INTO bundle VALUES('", dbUUID, "', '0000', '", bndlName, "', '", mfBn, "', ", sampleRate, ", 'NULL')"))
+    dbGetQuery(dbHandle$connection, paste0("INSERT INTO bundle VALUES('", dbHandle$UUID, "', '0000', '", bndlName, "', '", mfBn, "', ", sampleRate, ", 'NULL')"))
     #b=create.bundle(bndlName,sessionName = '0000',annotates=basename(fpl[i,1]),sampleRate = sampleRate)
     
     
@@ -162,7 +145,7 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
     #dbGetQuery(get_emuDBcon(), paste0("INSERT INTO track VALUES('", dbUUID, "', '0000', '", bndlName, "', '", fpl[i,1], "')"))
     
     # parse TextGrid
-    parse.textgrid(fpl[i,2], sampleRate, dbName=dbName, bundle=bndlName, session="0000")
+    parse_TextGridDBI(dbHandle, fpl[i,2], sampleRate, bundle=bndlName, session="0000")
     
     # remove unwanted levels
     if(!is.null(tierNames)){
@@ -170,44 +153,36 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
       condStr = paste0("level!='", paste0(tierNames, collapse = paste0("' AND ", " level!='")), "'")
       
       # delete items
-      dbSendQuery(get_emuDBcon(dbUUID), paste0("DELETE FROM items WHERE ", "db_uuid='", dbUUID, "' AND ", condStr))
+      dbGetQuery(dbHandle$connection, paste0("DELETE FROM items WHERE ", "db_uuid='", dbHandle$UUID, "' AND ", condStr))
       
       # delete labels
-      dbSendQuery(get_emuDBcon(dbUUID), paste0("DELETE FROM labels", 
-                                         " WHERE ", "db_uuid='", dbUUID, "' AND itemID NOT IN (SELECT itemID FROM items)"))
+      dbGetQuery(dbHandle$connection, paste0("DELETE FROM labels", 
+                                              " WHERE ", "db_uuid='", dbHandle$UUID, "' AND itemID NOT IN (SELECT itemID FROM items)"))
     }
     
     # validate bundle
-    valRes = validateBundle.emuDB.DBI(dbName, session='0000', bundle=bndlName)
+    valRes = validate_bundleDBI(dbHandle, session='0000', bundle=bndlName)
     
     if(valRes$type != 'SUCCESS'){
       stop('Parsed TextGrid did not pass validator! The validator message is: ', valRes$message)
     }
-    b=get.bundle(sessionName='0000',bundleName=bndlName,dbUUID=dbUUID)
-    bDir=paste0(b[['name']],bundle.dir.suffix)
-    bfp=file.path(sfp,bDir)
-    res=dir.create(bfp)
+    
+    # create bndl folder
+    bDir = paste0(bndlName, bundle.dir.suffix)
+    bfp = file.path(sfp,bDir)
+    res = dir.create(bfp)
     if(!res){
-      # purge tmp emuDB
-      purge_emuDB(dbUUID=dbUUID,interactive = F)
       stop("Could not create bundle directory ",bfp," !\n")
     }
-    pFilter=emuR.persist.filters.bundle
-    bp=marshal.for.persistence(b,pFilter)
     
     # store media file
-    newMfPath=file.path(bfp,mfBn)
+    newMfPath = file.path(bfp, mfBn)
     if(file.exists(mfPath)){
-      file.copy(from=mfPath,to=newMfPath)
+      file.copy(from = mfPath, to = newMfPath)
     }else{
-      stop("Media file :'",mfPath,"' does not exist!")
+      stop("Media file :'", mfPath, "' does not exist!")
     }
     
-    # and metadata (annotations)
-    ban=str_c(b[['name']],bundle.annotation.suffix,'.json')
-    baJSONPath=file.path(bfp,ban)
-    pbpJSON=jsonlite::toJSON(bp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-    writeLines(pbpJSON,baJSONPath)
     
     # update pb
     if(verbose){
@@ -216,16 +191,17 @@ convert_TextGridCollection_to_emuDB <- function(dir, dbName,
     
   }
   
-  # store newly generated emuDB
+  # store all annotations
+  rewrite_allAnnots(dbHandle, verbose = verbose)
+  
   if(verbose){
     cat('\n') # hack to have newline after pb
   }
   
-  # purge tmp emuDB
-  purge_emuDB(dbUUID=dbUUID,interactive=F)
   
 }
 
 # FOR DEVELOPMENT
 # library('testthat')
-# test_file('tests/testthat/test_convert.TextGridCollection.R')
+# test_file('tests/testthat/test_aaa_initData.R')
+# test_file('tests/testthat/test_emuR-convert_TextGridCollection.R')

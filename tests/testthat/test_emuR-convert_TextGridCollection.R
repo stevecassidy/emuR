@@ -1,10 +1,10 @@
-##' testthat tests for convert_TextGridCollection_to_emuDB
+##' testthat tests for convert_TextGridCollection
 ##'
 ##' @author Raphael Winkelmann
 
 require(RSQLite)
 
-context("testing convert_TextGridCollection_to_emuDB function")
+context("testing convert_TextGridCollection function")
 
 path2demoData = file.path(tempdir(), "emuR_demoData")
 path2testData = file.path(tempdir(), "emuR_testthat")
@@ -16,11 +16,6 @@ path2newDb = file.path(path2testData, emuDBname)
 
 
 # clean up
-if(is.emuDB.loaded(emuDBname)){
-  UUID = get_UUID(dbName = emuDBname)
-  purge_emuDB(dbName = emuDBname, dbUUID = UUID)
-}
-
 unlink(path2newDb, recursive = T)
 
 ##############################
@@ -30,10 +25,10 @@ test_that("bad calls cause errors", {
   dir.create(path2newDb)
   
   # existing targetDir causes errors
-  expect_error(convert_TextGridCollection_to_emuDB(dir = path2tgCol, 
-                                                   dbName = emuDBname,
-                                                   targetDir = path2testData, 
-                                                   verbose=F))
+  expect_error(convert_TextGridCollection(dir = path2tgCol, 
+                                          dbName = emuDBname,
+                                          targetDir = path2testData, 
+                                          verbose=F))
   # clean up
   unlink(path2newDb, recursive = T)
   
@@ -41,10 +36,10 @@ test_that("bad calls cause errors", {
 
 ##############################
 test_that("correct emuDB is created", {
-
-  convert_TextGridCollection_to_emuDB(dir = path2tgCol, 
-                                      dbName = emuDBname,
-                                      path2testData, verbose=F)
+  
+  convert_TextGridCollection(dir = path2tgCol, 
+                             dbName = emuDBname,
+                             path2testData, verbose=F)
   
   test_that("emuDB has correct file format on disc", {
     # 2 files in top level
@@ -58,9 +53,9 @@ test_that("correct emuDB is created", {
   
   test_that("emuDB _DBconfig.json is correct", {
     # read config
-    dbCfgJSONLns=readLines(file.path(path2newDb, paste0(emuDBname, '_DBconfig.json')),warn=FALSE)
-    dbCfgJSON=paste(dbCfgJSONLns,collapse='')
-    dbCfgPersisted=jsonlite::fromJSON(dbCfgJSON,simplifyVector=FALSE)
+    dbCfgJSONLns = readLines(file.path(path2newDb, paste0(emuDBname, '_DBconfig.json')), warn = FALSE)
+    dbCfgJSON = paste(dbCfgJSONLns,collapse='')
+    dbCfgPersisted = jsonlite::fromJSON(dbCfgJSON, simplifyVector=FALSE)
     
     # correct name
     expect_equal(dbCfgPersisted$name, emuDBname)
@@ -81,9 +76,9 @@ test_that("correct emuDB is created", {
   
   test_that("emuDB _annot.json is correct", {
     # read annot
-    annotJSONLns=readLines(file.path(path2newDb, '0000_ses/msajc003_bndl/msajc003_annot.json'),warn=FALSE)
-    annotJSON=paste(annotJSONLns,collapse='')
-    annotPersisted=jsonlite::fromJSON(annotJSON,simplifyVector=FALSE)
+    annotJSONLns = readLines(file.path(path2newDb, '0000_ses/msajc003_bndl/msajc003_annot.json'), warn = FALSE)
+    annotJSON = paste(annotJSONLns,collapse='')
+    annotPersisted = jsonlite::fromJSON(annotJSON,simplifyVector=FALSE)
     # general stuff
     expect_equal(annotPersisted$name, 'msajc003')
     expect_equal(annotPersisted$annotates, 'msajc003.wav')
@@ -113,9 +108,6 @@ test_that("correct emuDB is created", {
   })
   
   # clean up
-  if(is.emuDB.loaded(emuDBname)){
-    purge_emuDB(dbName = emuDBname,interactive = F)
-  }
   unlink(path2newDb, recursive = T)
   
 })
@@ -123,9 +115,9 @@ test_that("correct emuDB is created", {
 ##############################
 test_that("only specified tiers are converted when tierNames is set", {
   
-  convert_TextGridCollection_to_emuDB(dir = path2tgCol, 
-                                      dbName = emuDBname,
-                                      path2testData, tierNames=c("Phonetic", "Tone"), verbose=F)
+  convert_TextGridCollection(dir = path2tgCol, 
+                             dbName = emuDBname,
+                             path2testData, tierNames=c("Phonetic", "Tone"), verbose=F)
   
   test_that("emuDB has correct file format on disc", {
     # 2 files in top level
@@ -199,9 +191,6 @@ test_that("only specified tiers are converted when tierNames is set", {
   
   
   # clean up
-  if(is.emuDB.loaded(emuDBname)){
-    purge_emuDB(dbName = emuDBname,interactive = F)
-  }
   unlink(path2newDb, recursive = T)
   
 })
