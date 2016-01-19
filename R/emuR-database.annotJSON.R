@@ -59,9 +59,10 @@ bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
   for(l in levelDefs$name){
     levelItems = filter_(annotDFs$items, ~(level == l))
     
-    levels[[length(levels) + 1]] = apply(levelItems, 1, function(r) {
+    levels[[length(levels) + 1]] = list(
+      items = apply(levelItems, 1, function(r) {
       
-      labels = apply(filter(annotDFs$labels, itemID == as.numeric(r[1])), 1, function(r2) list(name = r2[3], toID = r2[4]))
+      labels = apply(filter(annotDFs$labels, itemID == as.numeric(r[1])), 1, function(r2) list(name = r2[3], value = r2[4]))
       res = NULL
       if(r[3] == "ITEM"){
         res = list(id = as.numeric(r[1]),
@@ -77,9 +78,10 @@ bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
                    labels = labels)
       }
       return(res)
-    })
-    levels[[length(levels)]]$name = l
-    levels[[length(levels)]]$type = levelDefs$type[levelDefs$name == l]
+    }),
+    name = l,
+    type = levelDefs$type[levelDefs$name == l]
+    )
   }
   
   links = apply(annotDFs$links, 1, function(r) list(fromID = as.numeric(r[1]), toID = as.numeric(r[2])))
