@@ -23,8 +23,8 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
   progress = 0
   
   if(verbose){
-    cat("INFO: Checking if cache needs update for ", nrow(curBndls), " bundles...\n")
-    pb = txtProgressBar(min = 0, max = nrow(curBndls), initial = progress, style=3)
+    cat("INFO: Checking if cache needs update for ", nrow(bundles), " bundles...\n")
+    pb = txtProgressBar(min = 0, max = nrow(bundles), initial = progress, style=3)
     setTxtProgressBar(pb, progress)
   }
   
