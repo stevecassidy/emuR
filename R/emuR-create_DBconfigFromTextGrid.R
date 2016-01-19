@@ -11,7 +11,7 @@ require(RSQLite)
 ## @import stringr uuid wrassp RSQLite
 ## @keywords internal
 ## 
-create.DBconfig.from.TextGrid = function(tgPath, dbName, basePath,tierNames=NULL){
+create_DBconfigFromTextGrid = function(tgPath, dbName, basePath, tierNames = NULL){
   
   ####################
   # check parameters
@@ -26,30 +26,26 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName, basePath,tierNames=NULL
   
   #
   ####################
-  
-  # create tmp db 
-  dbConfig=create.schema.databaseDefinition(name=dbName,mediafileExtension = 'wav')
-  db=create.database(name=dbName,basePath=basePath,DBconfig = dbConfig)
-  add_emuDBhandle(name=dbName,basePath=basePath,dbUUID=dbConfig$UUID)
-  .store.emuDB.DBI(get_emuDBcon(dbConfig$UUID), database = db)
+
+  # create tmp dbHandle
+  dbHandle = emuDBhandle(dbName, basePath, UUIDgenerate(), connectionPath = ":memory:")
   
   # parse TextGrid  
-  
-  parse.textgrid(tgPath, 20000, dbName=dbName, bundle="tmpBundleName", session="0000") # sampleRate doesn't matter!! -> hardcoded
+  parse_TextGridDBI(dbHandle, tgPath, 20000, bundle = "tmpBundleName", session = "0000") # sampleRate doesn't matter!! -> hardcoded
   
   # remove unwanted levels
   if(!is.null(tierNames)){
     
     condStr = paste0("level!='", paste0(tierNames, collapse = paste0("' AND ", " level!='")), "'")
     # delete items
-    dbSendQuery(get_emuDBcon(dbConfig$UUID), paste0("DELETE FROM items WHERE db_uuid='", dbConfig$UUID, "' AND ", condStr))
+    dbGetQuery(dbHandle$connection, paste0("DELETE FROM items WHERE db_uuid='", dbHandle$UUID, "' AND ", condStr))
     
     # delete labels
-    dbSendQuery(get_emuDBcon(dbConfig$UUID), paste0("DELETE FROM labels ", 
-                                   "WHERE db_uuid='", dbConfig$UUID, "' AND itemID NOT IN (SELECT itemID FROM items)"))
+    dbGetQuery(dbHandle$connection, paste0("DELETE FROM labels ", 
+                                            "WHERE db_uuid='", dbHandle$UUID, "' AND itemID NOT IN (SELECT itemID FROM items)"))
   }
   
-  levels <- dbGetQuery(get_emuDBcon(dbConfig$UUID), paste0("SELECT DISTINCT level, type FROM items WHERE db_uuid='", dbConfig$UUID, "'"))
+  levels <- dbGetQuery(dbHandle$connection, paste0("SELECT DISTINCT level, type FROM items WHERE db_uuid='", dbHandle$UUID, "'"))
   
   # create level definitions
   levelDefinitions = list()
@@ -67,44 +63,38 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName, basePath,tierNames=NULL
     # add new leveDef.
     levelDefinitions[[levIdx]] = list(name = lev$level, 
                                       type = lev$type, 
-                                      attributeDefinitions = list(create.schema.attributeDefinition(lev$level)))
+                                      attributeDefinitions = list(list(name = lev$level, type = "STRING")))
     levIdx = levIdx + 1
   }
   
   
   # create signalCanvas config
-  sc = create.EMUwebAppConfig.signalCanvas(order = c("OSCI","SPEC"), 
-                                           assign = list(), 
-                                           contourLims = list())
+  sc = list(order = c("OSCI","SPEC"), 
+            assign = list(), 
+            contourLims = list())
   
   # create perspective
-  defPersp = create.EMUwebAppConfig.perspective(name = 'default', 
-                                                signalCanvases = sc, 
-                                                levelCanvases = list(order = defaultLvlOrder), 
-                                                twoDimCanvases = list(order = list()))
+  defPersp = list(name = 'default', 
+                  signalCanvases = sc, 
+                  levelCanvases = list(order = defaultLvlOrder), 
+                  twoDimCanvases = list(order = list()))
   # create EMUwebAppConfig 
-  waCfg = create.EMUwebAppConfig(perspectives=list(defPersp))
+  waCfg = list(perspectives = list(defPersp))
   
   
   
   # generate full schema list
-  dbSchema = create.schema.databaseDefinition(name = dbName,
-                                              UUID = UUIDgenerate(),
-                                              mediafileBasePathPattern = '',
-                                              mediafileExtension = 'wav',
-                                              ssffTrackDefinitions = list(),
-                                              levelDefinitions = levelDefinitions,
-                                              linkDefinitions = list(),
-                                              EMUwebAppConfig = waCfg,
-                                              annotationDescriptors = list(),
-                                              tracks = list(),
-                                              flags=list());
-  
-  # hardcoded maxNumberOfLabels (always 1 in TextGrids)
-  dbSchema$maxNumberOfLabels = 1
-  
-  # purge tmp DB 
-  purge_emuDB(dbName=dbName,interactive = F)
+  dbSchema = list(name = dbName,
+                  UUID = UUIDgenerate(),
+                  mediafileBasePathPattern = '',
+                  mediafileExtension = 'wav',
+                  ssffTrackDefinitions = list(),
+                  levelDefinitions = levelDefinitions,
+                  linkDefinitions = list(),
+                  EMUwebAppConfig = waCfg,
+                  annotationDescriptors = list(),
+                  tracks = list(),
+                  flags=list())
   
   
   return(dbSchema)
@@ -112,4 +102,5 @@ create.DBconfig.from.TextGrid = function(tgPath, dbName, basePath,tierNames=NULL
 
 # FOR DEVELOPMENT
 # library('testthat')
-# test_file('tests/testthat/test_create.DBconfig.from.TextGrid.R')
+# test_file('tests/testthat/test_aaa_initData.R')
+# test_file('tests/testthat/test_emuR-create_DBconfigFromTextGrid.R')
