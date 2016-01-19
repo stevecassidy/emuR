@@ -101,7 +101,7 @@ convert_BPFCollection <- function(sourceDir,
   
   sourceDir = suppressWarnings(normalizePath(sourceDir))
   targetDir = suppressWarnings(normalizePath(targetDir))
-  basePath = file.path(targetDir, dbName)
+  basePath = file.path(targetDir, paste0(dbName, emuDB.suffix))
   
   res = try(suppressWarnings(dir.create(targetDir)))
   if(class(res) == "try-error")

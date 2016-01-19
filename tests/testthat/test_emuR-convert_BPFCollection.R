@@ -16,7 +16,9 @@ unlink(file.path(testDir, dbName), recursive = T)
 # ---------------------------------------------------------------------------
 
 sourceDir = file.path(sourceDirMain, "BPF_collection")
-configPath = file.path(testDir, dbName, paste0(dbName, '_DBconfig.json')) 
+newDbFolderName = paste0(dbName, emuDB.suffix)
+newDbPath = file.path(testDir, newDbFolderName) 
+configPath = file.path(newDbPath, paste0(dbName, '_DBconfig.json')) 
             
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -40,10 +42,10 @@ test_that("Code throws error when new levels are declared incorrectly",
 test_that("Code throws error for failed directory checks",
           {
             # there is already a database of with the same name in the target dir
-            dir.create(file.path(testDir, "something_silly"))
+            dir.create(file.path(testDir, "something_silly_emuDB"))
             expect_error(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = "something_silly", verbose = F),
                          regexp = "directory.*already exists", ignore.case = T)
-            unlink(file.path(testDir, "something_silly"), recursive = T)
+            unlink(file.path(testDir, "something_silly_emuDB"), recursive = T)
             }
           )
 # ---------------------------------------------------------------------------
@@ -100,7 +102,7 @@ test_that("Error when segmentToEventLevels is used with a non-segment level",
           )
 
 # Cleaning up (just in case)
-unlink(file.path(testDir, dbName), recursive = T)
+unlink(newDbPath, recursive = T)
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -109,10 +111,10 @@ test_that("Conversion without reference level.",
             convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F)
             
             # Format of data base.
-            expect_true(dbName %in% list.dirs(testDir, full.names = F, recursive = F))
-            expect_equal(length(list.files(file.path(testDir, dbName), recursive = F)), 2)
-            expect_equal(length(list.files(file.path(testDir, dbName, "0000_ses"), recursive = F)), 7)
-            expect_equal(length(list.files(file.path(testDir, dbName, "0000_ses", "msajc003_bndl"), recursive = F)), 2)
+            expect_true(newDbFolderName %in% list.dirs(testDir, full.names = F, recursive = F))
+            expect_equal(length(list.files(newDbPath, recursive = F)), 2)
+            expect_equal(length(list.files(file.path(newDbPath, "0000_ses"), recursive = F)), 7)
+            expect_equal(length(list.files(file.path(newDbPath, "0000_ses", "msajc003_bndl"), recursive = F)), 2)
             
             # Correctness of config file.
             dbConfigLines = readLines(configPath, warn=F)
@@ -146,7 +148,7 @@ test_that("Conversion without reference level.",
             expect_equal(length(dbConfig$linkDefinitions), 0)
             
             # Correctness of one annot file (msajc003_annot)
-            annotPath = file.path(testDir, dbName, "0000_ses", "msajc003_bndl", "msajc003_annot.json")
+            annotPath = file.path(newDbPath, "0000_ses", "msajc003_bndl", "msajc003_annot.json")
             dbAnnotLines = readLines(annotPath, warn=F)
             dbAnnot = jsonlite::fromJSON(paste(dbAnnotLines, collapse=''), simplifyVector=F)
                                     
@@ -177,7 +179,7 @@ test_that("Conversion without reference level.",
           )
 
 # Cleaning up.
-unlink(file.path(testDir, dbName), recursive = T)
+unlink(newDbPath, recursive = T)
 
 
 # ---------------------------------------------------------------------------
@@ -197,7 +199,7 @@ test_that("Conversion with reference level.",
             expect_equal(sapply(dbConfig$linkDefinitions, function(x) x$type), c("ONE_TO_ONE", "ONE_TO_MANY", "ONE_TO_MANY", "ONE_TO_MANY", "ONE_TO_ONE"))
             
             # Correctness of one annot file (msajc003_bndl)
-            annotPath = file.path(testDir, dbName, "0000_ses", "msajc003_bndl", "msajc003_annot.json")
+            annotPath = file.path(newDbPath, "0000_ses", "msajc003_bndl", "msajc003_annot.json")
             dbAnnotLines = readLines(annotPath, warn=F)
             dbAnnot = jsonlite::fromJSON(paste(dbAnnotLines, collapse=''), simplifyVector=F)
                                     
@@ -220,7 +222,7 @@ test_that("Conversion with reference level.",
           )
 
 # Cleaning up
-unlink(file.path(testDir, dbName), recursive = T)
+unlink(newDbPath, recursive = T)
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -244,7 +246,7 @@ test_that("Conversion with unifyLevels",
             expect_equal(sapply(dbConfig$linkDefinitions, function(x) x$type), c("ONE_TO_MANY", "ONE_TO_MANY", "ONE_TO_MANY", "ONE_TO_ONE"))
             
             # Correctness of one annot file (msajc003_bndl)
-            annotPath = file.path(testDir, dbName, "0000_ses", "msajc003_bndl", "msajc003_annot.json")
+            annotPath = file.path(newDbPath, "0000_ses", "msajc003_bndl", "msajc003_annot.json")
             dbAnnotLines = readLines(annotPath, warn=F)
             dbAnnot = jsonlite::fromJSON(paste(dbAnnotLines, collapse=''), simplifyVector=F)
                                     
@@ -266,7 +268,7 @@ test_that("Conversion with unifyLevels",
             }
           )
 # Cleaning up
-unlink(file.path(testDir, dbName), recursive = T)
+unlink(newDbPath, recursive = T)
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -286,7 +288,7 @@ test_that("Conversion with extractLevels.",
             expect_equal(length(dbConfig$linkDefinitions), 0)
            
             # Correctness of one annot file (msajc003_bndl)
-            annotPath = file.path(testDir, dbName, "0000_ses", "msajc003_bndl", "msajc003_annot.json")
+            annotPath = file.path(newDbPath, "0000_ses", "msajc003_bndl", "msajc003_annot.json")
             dbAnnotLines = readLines(annotPath, warn=F)
             dbAnnot = jsonlite::fromJSON(paste(dbAnnotLines, collapse=''), simplifyVector=F)
                                     
@@ -298,7 +300,7 @@ test_that("Conversion with extractLevels.",
             }
           )
 # Cleaning up
-unlink(file.path(testDir, dbName), recursive = T)
+unlink(newDbPath, recursive = T)
 
 
 # ---------------------------------------------------------------------------
@@ -306,7 +308,6 @@ unlink(file.path(testDir, dbName), recursive = T)
 # ---------------------------------------------------------------------------
 
 sourceDir = file.path(sourceDirMain, "BPF_collection_manipulated")
-configPath = file.path(testDir, dbName, paste0(dbName, '_DBconfig.json')) 
             
 # Manipulated BPFs contain:
 # msajc003.parmanipulated:
@@ -352,7 +353,7 @@ test_that("Correct call with necessary arguments",
             expect_equal(dbConfig$linkDefinitions[[3]]$type, "MANY_TO_MANY")
 
             # Correctness of annot file msajc003_bndl
-            annotPath = file.path(testDir, dbName, "0000_ses", "msajc003_bndl", "msajc003_annot.json")
+            annotPath = file.path(newDbPath, "0000_ses", "msajc003_bndl", "msajc003_annot.json")
             dbAnnotLines = readLines(annotPath, warn=F)
             dbAnnot = jsonlite::fromJSON(paste(dbAnnotLines, collapse=''), simplifyVector=F)
                               
@@ -371,7 +372,7 @@ test_that("Correct call with necessary arguments",
             expect_true(all(unlist(sapply(dbAnnot$links, function(x) if(x$toID == 5) FALSE))))
 
             # Correctness of annot file msajc010_bndl
-            annotPath = file.path(testDir, dbName, "0000_ses", "msajc010_bndl", "msajc010_annot.json")
+            annotPath = file.path(newDbPath, "0000_ses", "msajc010_bndl", "msajc010_annot.json")
             dbAnnotLines = readLines(annotPath, warn=F)
             dbAnnot = jsonlite::fromJSON(paste(dbAnnotLines, collapse=''), simplifyVector=F)
             
@@ -387,7 +388,7 @@ test_that("Correct call with necessary arguments",
             expect_equal(length(dbAnnot$links), 0)
             
             # Correctness of annot file msajc012_bndl
-            annotPath = file.path(testDir, dbName, "0000_ses", "msajc012_bndl", "msajc012_annot.json")
+            annotPath = file.path(newDbPath, "0000_ses", "msajc012_bndl", "msajc012_annot.json")
             dbAnnotLines = readLines(annotPath, warn=F)
             dbAnnot = jsonlite::fromJSON(paste(dbAnnotLines, collapse=''), simplifyVector=F)
                                     
@@ -399,7 +400,7 @@ test_that("Correct call with necessary arguments",
             }
           )
 # Cleaning up
-unlink(file.path(testDir, dbName), recursive = T)
+unlink(newDbPath, recursive = T)
 
 
 # ---------------------------------------------------------------------------
@@ -412,7 +413,7 @@ test_that("Warnings (semicolon) are displayed if verbose.",
             }
           )
 # Cleaning up
-unlink(file.path(testDir, dbName), recursive = T)
+unlink(newDbPath, recursive = T)
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -443,7 +444,7 @@ test_that("Conversion with a mismatch between level class and BPF line causes er
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 # Final clean-up (just in case)
-unlink(file.path(testDir, dbName), recursive = T)
+unlink(newDbPath, recursive = T)
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
