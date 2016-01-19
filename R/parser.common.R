@@ -9,7 +9,7 @@ require(stringr)
 ## @param literalQuote optional quote character to quote literal strings
 ## @return position in string or -1 if not found or pos outside string constraints
 ## @import stringr
-get.char.position <- function(string,char,pos=1,literalQuote=NULL){
+get_charPosition <- function(string,char,pos=1,literalQuote=NULL){
   
   strLen=nchar(string)
  
@@ -106,7 +106,7 @@ get.last.char.position <- function(string,char,pos=nchar(string),literalQuote=NU
 ## @param bracket two-dim vector char concatenating open and close bracket (e.g. c('[',']'))
 ## @return position in string or -1 if not found or pos outside string constraints
 ## @import stringr
-get.string.position.outside.brackets <- function(string,search,pos=1,literalQuote=NULL,bracket=NULL){
+get_stringPositionOutsideBrackets <- function(string,search,pos=1,literalQuote=NULL,bracket=NULL){
   
   strLen=nchar(string)
   sLen=nchar(search)
@@ -151,14 +151,14 @@ get.string.position.outside.brackets <- function(string,search,pos=1,literalQuot
 ## @param initialTrim remove leading+trailing whitespaces before procceeding (default=TRUE)
 ## @return character vector conating key and value
 ## @import stringr
-parse.line.to.key.value=function(line,separator='=',doubleQuoted=FALSE, initialTrim=TRUE){ 
+parse_lineToKeyValue = function(line, separator = '=', doubleQuoted = FALSE, initialTrim = TRUE){ 
   if(initialTrim){
     line=str_trim(line)
   }
   #cat("Trimmed line: ",line,"\n",sep='');
   #eqSignI=str_locate(line,'=')[1]
   # cat("Pos: ",eqSignI,"\n")
-  eqSignI=get.char.position(line,separator)
+  eqSignI=get_charPosition(line,separator)
   if(eqSignI==-1){
     return(NULL)
   }
