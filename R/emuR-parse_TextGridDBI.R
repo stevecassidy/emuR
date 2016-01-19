@@ -3,26 +3,22 @@ require(RSQLite)
 
 ## Parser for Praat TextGrid files
 ## 
-## @param textGridCon TextGrid file connection
+## parses directly to DBI tables (items, labels)
+## @param emuDBhandle 
+## @param textGridPath TextGrid file connection
 ## @param sampleRate sample rate of correponding signal file
 ## @param encoding text encoding (currently the only excepted is the default UTF-8)
-## @param dbName name of emuDB that the item/label entries will be written to
 ## @param bundle name of bundle 
 ## @param session name of session
-## @param dbUUID optional UUID of emuDB
-## @return an annoation object
-## @author Klaus Jaensch, Raphael Winkelmann
-## @import stringr RSQLite
-## @keywords emuR TextGrid Praat Emu
 ## 
-parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8", 
-                           dbName=NULL, bundle=NULL, session="0000", dbUUID = NULL) {
+parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encoding="UTF-8", 
+                           bundle=NULL, session="0000") {
   
   #####################
   # check arguments (TODO better checks for classes and the like...)
   
-  if(is.null(textGridCon)) {
-    stop("Argument textGridCon must not be NULL\n")
+  if(is.null(TextGridPath)) {
+    stop("Argument TextGridPath must not be NULL\n")
   }
   if(sampleRate <=0 ){
     stop("Samplerate must be greater than zero\n")
@@ -30,20 +26,12 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
   if(encoding != "UTF-8"){
     stop("The only encoding that is currently supported is UTF-8\n")
   }
-  if(is.null(dbName)){
-    stop("Argument dbName must not be NULL!\n")
-  }
   if(is.null(bundle)){
     stop("Argument bundle must not be NULL!\n")
   }
   if(is.null(session)){
     stop("Argument session must not be NULL!\n")
   }
-  
-  # get dbObj
-  dbUUID = get_UUID(dbName = dbName, dbUUID = dbUUID)
-  dbObj = .load.emuDB.DBI(uuid = dbUUID)
-  
   
   #
   #####################
@@ -85,11 +73,10 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
   #                                labelIdx=-1, name='', label='', stringsAsFactors=FALSE)
   
   
-  
   # read TextGrid
-  tg = try(readLines(textGridCon))
+  tg = try(readLines(TextGridPath))
   if(class(tg) == "try-error") {
-    stop("read.TextGrid: cannot read from file ", textGridCon)
+    stop("read.TextGrid: cannot read from file ", TextGridPath)
   }
   
   # remove all trailing/leading white spaces (for speed improvment)
@@ -98,7 +85,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
   for(line in tg){
     # check for fileType
     if(is.null(fileType)){
-      p=parse.line.to.key.value(line,doubleQuoted=TRUE, initialTrim=FALSE)
+      p=parse_lineToKeyValue(line,doubleQuoted=TRUE, initialTrim=FALSE)
       if(! is.null(p)){
         if(p[1]==FILE_TYPE_KEY){
           #cat("Found file type: ",p[2],"\n")
@@ -114,7 +101,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
     }else{
       # check for objectClass
       if(is.null(objectClass)){
-        p=parse.line.to.key.value(line,doubleQuoted=TRUE, initialTrim=FALSE)
+        p=parse_lineToKeyValue(line,doubleQuoted=TRUE, initialTrim=FALSE)
         if(! is.null(p)){
           if(p[1]==OBJECT_CLASS_KEY){
             #cat("Found object class: ",p[2],"\n")
@@ -131,7 +118,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
           #}else{
           if(is.null(tiersCount)){
             
-            p=parse.line.to.key.value(line, initialTrim=FALSE)
+            p=parse_lineToKeyValue(line, initialTrim=FALSE)
             if((!is.null(p)) && (p[1]=='size')){
               #cat("Found number of tiers (size=X): ",p[2],"\n")
               tiersCount=p[2]
@@ -180,7 +167,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
             }else {
               # check for currentTierClass
               if(is.null(currentTierClass)){
-                p=parse.line.to.key.value(line,doubleQuoted=TRUE, initialTrim=FALSE)
+                p=parse_lineToKeyValue(line,doubleQuoted=TRUE, initialTrim=FALSE)
                 if((! is.null(p)) && ('class' == p[1])){
                   currentTierClass=p[2];
                   if(currentTierClass==TIER_CLASS_VAL_INTERVAL){
@@ -198,7 +185,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
               }
               # check for currentTierName
               if(is.null(currentTierName)){
-                p=parse.line.to.key.value(line,doubleQuoted=TRUE, initialTrim=FALSE)
+                p=parse_lineToKeyValue(line,doubleQuoted=TRUE, initialTrim=FALSE)
                 if((! is.null(p)) && ('name' == p[1])){
                   currentTierName=p[2];
                   #currentTier$name=currentTierName;
@@ -216,7 +203,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
                     
                     intervalsPropertyStr=str_trim(sub('^intervals[[:space:]]*:','',line))
                     #cat("Intervals prop str: ",intervalsPropertyStr,"\n")
-                    intervalsProperty=parse.line.to.key.value(intervalsPropertyStr,initialTrim=FALSE);
+                    intervalsProperty=parse_lineToKeyValue(intervalsPropertyStr,initialTrim=FALSE);
                     if((!is.null(intervalsProperty)) && (intervalsProperty[1]=='size')){
                       currentTierSize=intervalsProperty[2]
                       #cat("intervals: size=",currentTierSize,"\n");
@@ -245,7 +232,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
                     #if(DEBUG)System.out.println("Interval: "+currentElementIndex);
                     
                   }else{
-                    p=parse.line.to.key.value(line, doubleQuoted=TRUE, initialTrim=FALSE)
+                    p=parse_lineToKeyValue(line, doubleQuoted=TRUE, initialTrim=FALSE)
                     if((!is.null(p)) && (!is.null(currentSegmentIndex))){
                       if(p[1] == "xmin"){
                         minTimeStr=p[2]
@@ -282,7 +269,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
                         
                         
                         # item entry:
-                        dbSendQuery(get_emuDBcon(dbUUID), paste0("INSERT INTO items VALUES"," ('", dbUUID, "', '", session, "', '", bundle, "', '", itemCounterGlobal, 
+                        dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', '", itemCounterGlobal, 
                                                        "', '", currentTierName, "', '", "SEGMENT", 
                                                        "', ", itemCounterLevel, ", ", sampleRate, ", ", "NULL", ", ", currentSegmentStart, 
                                                        ", ", sampleDur, ")"))
@@ -290,8 +277,8 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
                         
                         
                         # label entry:
-                        dbSendQuery(get_emuDBcon(dbUUID), paste0("INSERT INTO labels VALUES","('", 
-                                                       dbUUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
+                        dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO labels VALUES","('", 
+                                                       emuDBhandle$UUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
                                                        ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentSegmentLabel), "')"))
                         
                         # links entry:
@@ -319,7 +306,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
                     
                     intervalsPropertyStr=str_trim(sub('^points[[:space:]]*[:]','',line))
                     #cat("Ivp:",intervalsPropertyStr,"\n")
-                    intervalsProperty=parse.line.to.key.value(intervalsPropertyStr, initialTrim=FALSE);
+                    intervalsProperty=parse_lineToKeyValue(intervalsPropertyStr, initialTrim=FALSE);
                     if((!is.null(intervalsProperty)) && (intervalsProperty[1]=='size')){
                       currentTierSize=intervalsProperty[2]
                       #cat("points: size=",currentTierSize,"\n");
@@ -335,7 +322,7 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
                     currentPointSample=NULL;
                   }else{
                     #cat("inside point: \n")
-                    p=parse.line.to.key.value(line,doubleQuoted=TRUE, initialTrim=FALSE)
+                    p=parse_lineToKeyValue(line,doubleQuoted=TRUE, initialTrim=FALSE)
                     if((!is.null(p)) && (!is.null(currentPointIndex))){
                       if(p[1]=="time" || p[1]=="number"){
                         timePointStr=p[2];
@@ -359,18 +346,18 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
                       labels=list(list(name=currentTierName,value=currentPointLabel))
                       
                       # item entry
-                      itemId = paste0(dbName, '_', session, '_', bundle, '_', itemCounterGlobal)
+                      itemId = paste0(emuDBhandle$dbName, '_', session, '_', bundle, '_', itemCounterGlobal)
                       
                       
-                      dbSendQuery(get_emuDBcon(dbUUID), paste0("INSERT INTO items VALUES"," ('", dbUUID, "', '", session, "', '", bundle, "', ",
+                      dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
                                                      itemCounterGlobal, ", '", currentTierName,"', '", "EVENT", 
                                                      "', ", itemCounterLevel, ", ", sampleRate, ", ", currentPointSample, ", ", "NULL", 
                                                      ", ", "NULL", ")"))
                       
                       
                       # label entry:
-                      dbSendQuery(get_emuDBcon(dbUUID), paste0("INSERT INTO labels VALUES","('", 
-                                                     dbUUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
+                      dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO labels VALUES","('", 
+                                                     emuDBhandle$UUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
                                                      ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentPointLabel), "')"))              
                       
                       
@@ -395,12 +382,10 @@ parse.textgrid <- function(textGridCon=NULL, sampleRate, encoding="UTF-8",
       }
     }
   }
-  if(inherits(textGridCon,"connection")){
-    close(textGridCon)
-  }
 }
 
 # FOR DEVELOPMENT
 # library('testthat')
-# test_file('tests/testthat/test_parse.textgrid.R')
+# test_file('tests/testthat/test_aaa_initData.R')
+# test_file('tests/testthat/test_emuR-parse_TextGrid.R')
 
