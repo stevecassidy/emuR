@@ -12,7 +12,7 @@ path2tgCol = file.path(path2demoData, "TextGrid_collection")
 
 emuDBname = 'convert-TextGridCollection-testDB'
 
-path2newDb = file.path(path2testData, emuDBname)
+path2newDb = file.path(path2testData, paste0(emuDBname, emuDB.suffix))
 
 
 # clean up
@@ -28,7 +28,7 @@ test_that("bad calls cause errors", {
   expect_error(convert_TextGridCollection(dir = path2tgCol, 
                                           dbName = emuDBname,
                                           targetDir = path2testData, 
-                                          verbose=F))
+                                          verbose=F), regexp = "already exists!", ignore.case = T)
   # clean up
   unlink(path2newDb, recursive = T)
   

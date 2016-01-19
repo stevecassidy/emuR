@@ -66,7 +66,7 @@ convert_TextGridCollection <- function(dir, dbName,
     }
   }
   
-  basePath=file.path(targetDir, dbName)
+  basePath=file.path(targetDir, paste0(dbName, emuDB.suffix))
   # check if base path dir already exists
   if(file.exists(basePath)){
     stop('The directory ', basePath, ' already exists. Can not generate new emuDB if directory called ', dbName, ' already exists!')
