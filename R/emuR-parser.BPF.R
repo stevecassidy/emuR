@@ -17,12 +17,11 @@ require(stringr)
 ## @import stringr RSQLite
 ## @keywords emuR BPF Emu
 
-parse_BPF <- function(bpfPath,
+parse_BPF <- function(emuDBhandle,
+                      bpfPath,
                       encoding = "UTF-8",
-                      dbName,
                       bundle,
                       session,
-                      dbUUID,
                       refLevel,
                       extractLevels,
                       samplerate,
@@ -57,11 +56,11 @@ parse_BPF <- function(bpfPath,
   # -------------------------- Parse header -----------------------------------
   # ---------------------------------------------------------------------------
   
-  returnContainer = bpf_parse_header(
+  returnContainer = parse_bpfHeader(
     bpfLines = bpfLines, 
     bpfPath = bpfPath,
     samplerate = samplerate
-    )
+  )
   
   header = returnContainer$header
   bsKeyPosition = returnContainer$bsKeyPosition
@@ -70,12 +69,11 @@ parse_BPF <- function(bpfPath,
   # ---------------------------------------------------------------------------
   # ---------- Write 'Utterance' item to items and lables tables --------------
   # ---------------------------------------------------------------------------
-  
-  levelInfo = bpf_write_utterance_to_db(header = header,
-                                        dbUUID = dbUUID,
-                                        session = session,
-                                        bundle = bundle,
-                                        samplerate = samplerate)
+  levelInfo = write_bpfUtteranceToDb(emuDBhandle,
+                                     header = header,
+                                     session = session,
+                                     bundle = bundle,
+                                     samplerate = samplerate)
   
   # Utterance item will be written even if the BPF body is empty!
   
@@ -85,15 +83,15 @@ parse_BPF <- function(bpfPath,
   
   if(bsKeyPosition < length(bpfLines))
   {
-    returnContainer = bpf_parse_body(bpfLines = bpfLines,
-                                     bpfPath = bpfPath,
-                                     bsKeyPosition = bsKeyPosition,
-                                     extractLevels = extractLevels,
-                                     levelClasses = levelClasses,
-                                     unifyLevels = unifyLevels,
-                                     refLevel = refLevel,
-                                     segmentToEventLevels = segmentToEventLevels)
-  
+    returnContainer = parse_bpfBody(bpfLines = bpfLines,
+                                    bpfPath = bpfPath,
+                                    bsKeyPosition = bsKeyPosition,
+                                    extractLevels = extractLevels,
+                                    levelClasses = levelClasses,
+                                    unifyLevels = unifyLevels,
+                                    refLevel = refLevel,
+                                    segmentToEventLevels = segmentToEventLevels)
+    
     levels = returnContainer$levels
     currentItemID = returnContainer$currentItemID
     semicolonFound = returnContainer$semicolonFound
@@ -108,85 +106,85 @@ parse_BPF <- function(bpfPath,
     {
       levelClasses[[key]] = levelClasses[[key]] + 1
     }
-  
+    
     # -------------------------------------------------------------------------
     # ------ Check for temporal overlap within levels with time information ---
     # -------------------------------------------------------------------------
     
-    bpf_check_overlap(levels = levels,
-                      bpfPath = bpfPath,
-                      segmentToEventLevels = segmentToEventLevels,
-                      levelClasses = levelClasses)
-  
+    check_bpfOverlap(levels = levels,
+                     bpfPath = bpfPath,
+                     segmentToEventLevels = segmentToEventLevels,
+                     levelClasses = levelClasses)
+    
     # -------------------------------------------------------------------------
     # ---------- Pad segment tiers between segments with empty items ----------
     # -------------------------------------------------------------------------
     
-    levels = bpf_pad_segments(levels = levels,
-                              currentItemID = currentItemID,
-                              levelClasses = levelClasses)
+    levels = pad_bpfSegments(levels = levels,
+                             currentItemID = currentItemID,
+                             levelClasses = levelClasses)
     
     # -------------------------------------------------------------------------
     # ------------------------------ Assign seqIdx ----------------------------
     # -------------------------------------------------------------------------
-  
-    levels = bpf_assign_seq_idx(levels = levels,
-                                levelClasses = levelClasses)
-  
+    
+    levels = assign_bpfSeqIdx(levels = levels,
+                              levelClasses = levelClasses)
+    
     # -------------------------------------------------------------------------
     # ----------- Write item and label information to database ----------------
     # -------------------------------------------------------------------------
-  
-    levelInfo = bpf_write_items_labels_to_db(levels = levels,
-                                             dbUUID = dbUUID,
-                                             session = session,
-                                             bundle = bundle,
-                                             samplerate = samplerate,
-                                             unifyLevels = unifyLevels,
-                                             levelInfo = levelInfo)
+    
+    levelInfo = write_bpfItemsLabelsToDb(emuDBhandle,
+                                         levels = levels,
+                                         session = session,
+                                         bundle = bundle,
+                                         samplerate = samplerate,
+                                         unifyLevels = unifyLevels,
+                                         levelInfo = levelInfo)
     
     # -------------------------------------------------------------------------
     # --------------- Write link information to database ----------------------
     # -------------------------------------------------------------------------
-  
+    
     if(!is.null(refLevel))
     {
-      linkIdxMap = bpf_get_link_idx_map(levels = levels,
-                                        refLevel = refLevel)
-    
+      linkIdxMap = get_bpfLinkIdxMap(levels = levels,
+                                     refLevel = refLevel)
+      
       # -----------------------------------------------------------------------
       # --------------- Write link information to database --------------------
       # -----------------------------------------------------------------------
       
-      linkInfo = bpf_write_links_to_db(levels = levels,
-                                       levelClasses = levelClasses,
-                                       linkIdxMap = linkIdxMap,
-                                       refLevel = refLevel,
-                                       dbUUID = dbUUID,
-                                       session = session,
-                                       bundle = bundle,
-                                       unifyLevels = unifyLevels,
-                                       bpfPath = bpfPath)
-    
+      linkInfo = write_bpfLinksToDb(emuDBhandle,
+                                    levels = levels,
+                                    levelClasses = levelClasses,
+                                    linkIdxMap = linkIdxMap,
+                                    refLevel = refLevel,
+                                    session = session,
+                                    bundle = bundle,
+                                    unifyLevels = unifyLevels,
+                                    bpfPath = bpfPath)
+      
       # -----------------------------------------------------------------------
       # -------- Unify levels in unifyLevels with the reference level ---------
       # -----------------------------------------------------------------------
       
       if(!is.null(unifyLevels))
       {
-        levelInfo = bpf_unify_levels(levels = levels,
-                                     linkIdxMap = linkIdxMap,
-                                     refLevel = refLevel,
-                                     bpfPath = bpfPath,
-                                     levelInfo = levelInfo,
-                                     unifyLevels = unifyLevels,
-                                     dbUUID = dbUUID,
-                                     session = session,
-                                     bundle = bundle)
+        levelInfo = unify_bpfLevels(emuDBhandle,
+                                    levels = levels,
+                                    linkIdxMap = linkIdxMap,
+                                    refLevel = refLevel,
+                                    bpfPath = bpfPath,
+                                    levelInfo = levelInfo,
+                                    unifyLevels = unifyLevels,
+                                    session = session,
+                                    bundle = bundle)
       }
     }
   }
-
+  
   # ---------------------------------------------------------------------------
   # --------- Return info containers to caller (converter) function -----------
   # ---------------------------------------------------------------------------
@@ -213,9 +211,9 @@ parse_BPF <- function(bpfPath,
 ## @keywords emuR BPF Emu
 ## @return list(header, bsKeyPosition, missingHeaderKeys, samplerate)
 
-bpf_parse_header <- function(bpfLines,
-                             bpfPath,
-                             samplerate)
+parse_bpfHeader <- function(bpfLines,
+                            bpfPath,
+                            samplerate)
 {
   # ---------------------------------------------------------------------------
   # --------------------------- Necessary constants ---------------------------
@@ -244,7 +242,7 @@ bpf_parse_header <- function(bpfLines,
   # Container for found keys (to check for duplicates).
   foundKeys = c()
   
-  # Line index of the body start key (needed for bpf_parse_body to know where to start).
+  # Line index of the body start key (needed for parse_bpfBody to know where to start).
   bsKeyPosition = NULL
   
   # ---------------------------------------------------------------------------
@@ -303,9 +301,9 @@ bpf_parse_header <- function(bpfLines,
   # ----- Compare samplerate of audio with the one declared in BPF header -----
   # ---------------------------------------------------------------------------
   
-  samplerate = bpf_compare_samplerate(samplerate = samplerate,
-                                      header = header,
-                                      bpfPath = bpfPath)
+  samplerate = compare_bpfSamplerate(samplerate = samplerate,
+                                     header = header,
+                                     bpfPath = bpfPath)
   
   # ---------------------------------------------------------------------------
   # ---------------------------------- Return  --------------------------------
@@ -329,9 +327,9 @@ bpf_parse_header <- function(bpfLines,
 ## @keywords emuR BPF Emu
 ## @return samplerate
 
-bpf_compare_samplerate <- function(header,
-                                   samplerate,
-                                   bpfPath)
+compare_bpfSamplerate <- function(header,
+                                  samplerate,
+                                  bpfPath)
 {
   # Throw an exception if we can't get a sample rate from the BPF or the audio file.
   if(is.null(header$SAM) && is.null(samplerate))
@@ -353,7 +351,7 @@ bpf_compare_samplerate <- function(header,
       stop("Declared sample rate in the following BPF does not match the sample rate of the audio: ", bpfPath)
     }
   }
-
+  
   return(samplerate)
 }
 
@@ -365,7 +363,7 @@ bpf_compare_samplerate <- function(header,
 
 ## Write item and label information for Utterance Item
 ## 
-## @param dbUUID
+## @param emuDBhandle
 ## @param session
 ## @param bundle
 ## @param samplerate
@@ -373,11 +371,11 @@ bpf_compare_samplerate <- function(header,
 ## @keywords emuR BPF Emu
 ## @return levelInfo
 
-bpf_write_utterance_to_db <- function(dbUUID,
-                                      session,
-                                      bundle,
-                                      samplerate,
-                                      header)
+write_bpfUtteranceToDb <- function(emuDBhandle,
+                                   session,
+                                   bundle,
+                                   samplerate,
+                                   header)
 {
   # Utterance gets itemID 1 (other items will start at ID 2)
   utteranceItemID = 1
@@ -385,18 +383,18 @@ bpf_write_utterance_to_db <- function(dbUUID,
   # Collect label keys ("Utterance" + all header keys found).
   labelTracker = list("Utterance")
   
-  queryTxt = paste0("INSERT INTO items VALUES"," ('", dbUUID, "', '", session, "', '", bundle, "', ",
-                     utteranceItemID, ", 'Utterance', 'ITEM', 1, ", samplerate, ", NULL, NULL, NULL)")
+  queryTxt = paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
+                    utteranceItemID, ", 'Utterance', 'ITEM', 1, ", samplerate, ", NULL, NULL, NULL)")
   
-  dbSendQuery(get_emuDBcon(dbUUID), queryTxt)
+  dbGetQuery(emuDBhandle$connection, queryTxt)
   
   labelIdxCounter = 1
   
   # First label: 'Utterance' -> name of bundle.
-  queryTxt = paste0("INSERT INTO labels VALUES","('", dbUUID, "', '", session, "', '", bundle, "', ",
-                     utteranceItemID, ", ", labelIdxCounter, ", 'Utterance', '", bundle, "')")
+  queryTxt = paste0("INSERT INTO labels VALUES","('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
+                    utteranceItemID, ", ", labelIdxCounter, ", 'Utterance', '", bundle, "')")
   
-  dbSendQuery(get_emuDBcon(dbUUID), queryTxt)
+  dbGetQuery(emuDBhandle$connection, queryTxt)
   
   labelIdxCounter = labelIdxCounter + 1
   
@@ -404,10 +402,10 @@ bpf_write_utterance_to_db <- function(dbUUID,
   # Subsequent labels: Key -> value pairs found in BPF header.
   for(key in names(header))
   {
-    queryTxt = paste0("INSERT INTO labels VALUES","('", dbUUID, "', '", session, "', '", bundle, "', ",
-                       utteranceItemID, ", ", labelIdxCounter, ", '", key,"', '", header[[key]], "')")
+    queryTxt = paste0("INSERT INTO labels VALUES","('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
+                      utteranceItemID, ", ", labelIdxCounter, ", '", key,"', '", header[[key]], "')")
     
-    dbSendQuery(get_emuDBcon(dbUUID), queryTxt)
+    dbGetQuery(emuDBhandle$connection, queryTxt)
     
     labelTracker[[length(labelTracker) + 1L]] = key
     labelIdxCounter = labelIdxCounter + 1
@@ -438,14 +436,14 @@ bpf_write_utterance_to_db <- function(dbUUID,
 ## @keywords emuR BPF Emu
 ## @return list(levels, currentItemID, semicolonFound)
 
-bpf_parse_body <- function(bpfLines,
-                           bpfPath,
-                           bsKeyPosition,
-                           extractLevels, 
-                           levelClasses,
-                           unifyLevels,
-                           refLevel,
-                           segmentToEventLevels)
+parse_bpfBody <- function(bpfLines,
+                          bpfPath,
+                          bsKeyPosition,
+                          extractLevels, 
+                          levelClasses,
+                          unifyLevels,
+                          refLevel,
+                          segmentToEventLevels)
 {
   # ---------------------------------------------------------------------------
   # -------------------------- NECESSARY CONSTANTS ----------------------------
@@ -482,7 +480,7 @@ bpf_parse_body <- function(bpfLines,
   
   # Container for levels.
   levels = list()
-
+  
   # ---------------------------------------------------------------------------
   # --------------------------- Parsing ---------------------------------------
   # ---------------------------------------------------------------------------
@@ -561,8 +559,8 @@ bpf_parse_body <- function(bpfLines,
     # --------------- Parse BPF line accrding to level class ------------------
     # -------------------------------------------------------------------------
     
-    returnContainer = bpf_parse_line(levelClass = levelClasses[[key]],
-                                     splitline = splitline)
+    returnContainer = parse_bpfLine(levelClass = levelClasses[[key]],
+                                    splitline = splitline)
     
     start = returnContainer$start
     duration = returnContainer$duration
@@ -574,17 +572,17 @@ bpf_parse_body <- function(bpfLines,
     # ---------------- Evaluate information in labelString --------------------
     # -------------------------------------------------------------------------
     
-    labels = bpf_evaluate_label_string(labelString = labelString,
-                                       key = key)
+    labels = evaluate_bpfLabelString(labelString = labelString,
+                                     key = key)
     
     # ---------------------------------------------------------------------------
     # -------------------- Evaluate information in linksString ------------------
     # ---------------------------------------------------------------------------
     
-    returnContainer = bpf_evaluate_links_string(linksString = linksString,
-                                               bpfPath = bpfPath,
-                                               refLevel = refLevel,
-                                               key = key)
+    returnContainer = evaluate_bpfLinksString(linksString = linksString,
+                                              bpfPath = bpfPath,
+                                              refLevel = refLevel,
+                                              key = key)
     
     links = returnContainer$links
     
@@ -634,7 +632,7 @@ bpf_parse_body <- function(bpfLines,
                                                          labels = labels, links = links, seqIdx = seqIdx, type = type)
     }
   }
-
+  
   # ---------------------------------------------------------------------------
   # -------------------------------- Return -----------------------------------
   # ---------------------------------------------------------------------------
@@ -657,8 +655,8 @@ bpf_parse_body <- function(bpfLines,
 ## @keywords emuR BPF Emu
 ## @return list(start, duration, point, labelString, linksString)
 
-bpf_parse_line <- function(levelClass,
-                           splitline)
+parse_bpfLine <- function(levelClass,
+                          splitline)
 {
   if(levelClass == 1)
   {
@@ -725,8 +723,8 @@ bpf_parse_line <- function(levelClass,
 ## @keywords emuR BPF Emu
 ## @return labels
 
-bpf_evaluate_label_string <- function(labelString,
-                                      key)
+evaluate_bpfLabelString <- function(labelString,
+                                    key)
 {
   # ---------------------------------------------------------------------------
   # -------------------------- NECESSARY CONSTANTS ----------------------------
@@ -778,10 +776,10 @@ bpf_evaluate_label_string <- function(labelString,
 ## @keywords emuR BPF Emu
 ## @return list(links, semicolon)
 
-bpf_evaluate_links_string <- function(linksString,
-                                     bpfPath,
-                                     refLevel,
-                                     key)
+evaluate_bpfLinksString <- function(linksString,
+                                    bpfPath,
+                                    refLevel,
+                                    key)
 {
   # Variable to be returned (TRUE if a semicolon has been found in this BPF -> warningTracker).
   semicolon = FALSE
@@ -849,10 +847,10 @@ bpf_evaluate_links_string <- function(linksString,
 ## @keywords emuR BPF Emu
 ## @return
 
-bpf_check_overlap <- function(levels, 
-                              bpfPath, 
-                              levelClasses,
-                              segmentToEventLevels)
+check_bpfOverlap <- function(levels, 
+                             bpfPath, 
+                             levelClasses,
+                             segmentToEventLevels)
 {
   for(key in names(levels))
   {
@@ -916,9 +914,9 @@ bpf_check_overlap <- function(levels,
 ## @keywords emuR BPF Emu
 ## @return levels
 
-bpf_pad_segments <- function(levels,
-                             currentItemID,
-                             levelClasses)
+pad_bpfSegments <- function(levels,
+                            currentItemID,
+                            levelClasses)
 {
   # Pad segment tiers with empty segments.
   # No padding before the first segment and after the last segment.
@@ -934,7 +932,7 @@ bpf_pad_segments <- function(levels,
     
     start_order = sapply(levels[[key]], "[[", "start")
     levels[[key]] = levels[[key]][order(start_order)]
-      
+    
     for(idx in 1:(length(levels[[key]])-1))
     {
       if((levels[[key]][[idx]][["start"]] + levels[[key]][[idx]][["duration"]] + 1) < levels[[key]][[idx+1]][["start"]])
@@ -970,8 +968,8 @@ bpf_pad_segments <- function(levels,
 ## @keywords emuR BPF Emu
 ## @return levels
 
-bpf_assign_seq_idx <- function(levels,
-                               levelClasses)
+assign_bpfSeqIdx <- function(levels,
+                             levelClasses)
 {
   for(key in names(levels))
   {
@@ -1018,9 +1016,9 @@ bpf_assign_seq_idx <- function(levels,
 ###############################################################################
 
 ## Write item and label info to EmuDB
-## 
+##
+## @param emuDBhandle
 ## @param levels
-## @param dbUUID
 ## @param session
 ## @param bundle
 ## @param samplerate 
@@ -1028,13 +1026,13 @@ bpf_assign_seq_idx <- function(levels,
 ## @keywords emuR BPF Emu
 ## @return levelInfo
 
-bpf_write_items_labels_to_db <- function(levels,
-                                         dbUUID,
-                                         session,
-                                         bundle,
-                                         samplerate,
-                                         unifyLevels,
-                                         levelInfo)
+write_bpfItemsLabelsToDb <- function(emuDBhandle,
+                                     levels,
+                                     session,
+                                     bundle,
+                                     samplerate,
+                                     unifyLevels,
+                                     levelInfo)
 {  
   for(key in names(levels))
   {
@@ -1043,29 +1041,29 @@ bpf_write_items_labels_to_db <- function(levels,
     {
       next
     }
-
+    
     labelTracker = list()
     
     for(idx in 1:length(levels[[key]]))
     {
       
       # Write item information.
-      queryTxt = paste0("INSERT INTO items VALUES"," ('", dbUUID, "', '", session, "', '", bundle, "', ",
-                         levels[[key]][[idx]][["itemID"]], ", '", key, "', '", levels[[key]][[idx]][["type"]], "', ",
-                         levels[[key]][[idx]][["seqIdx"]], ", ", samplerate, ", ", levels[[key]][[idx]][["point"]], ", ",
-                         levels[[key]][[idx]][["start"]], ", ", levels[[key]][[idx]][["duration"]], ")")
+      queryTxt = paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
+                        levels[[key]][[idx]][["itemID"]], ", '", key, "', '", levels[[key]][[idx]][["type"]], "', ",
+                        levels[[key]][[idx]][["seqIdx"]], ", ", samplerate, ", ", levels[[key]][[idx]][["point"]], ", ",
+                        levels[[key]][[idx]][["start"]], ", ", levels[[key]][[idx]][["duration"]], ")")
       
-      dbSendQuery(get_emuDBcon(dbUUID), queryTxt)
+      dbGetQuery(emuDBhandle$connection, queryTxt)
       
       labelIdxCounter = 1
       
       for(labelKey in names(levels[[key]][[idx]][["labels"]]))
       {
-        queryTxt = paste0("INSERT INTO labels VALUES","('", dbUUID, "', '", session, "', '", bundle, 
+        queryTxt = paste0("INSERT INTO labels VALUES","('", emuDBhandle$UUID, "', '", session, "', '", bundle, 
                           "', ", levels[[key]][[idx]][["itemID"]], ", ", labelIdxCounter,", '", 
                           labelKey, "', '", levels[[key]][[idx]][["labels"]][[labelKey]], "')")
         
-        dbSendQuery(get_emuDBcon(dbUUID), queryTxt)
+        dbGetQuery(emuDBhandle$connection, queryTxt)
         
         if(!labelKey %in% labelTracker)
         {
@@ -1093,10 +1091,10 @@ bpf_write_items_labels_to_db <- function(levels,
 ## @keywords emuR BPF Emu
 ## @return linkIdxMap
 
-bpf_get_link_idx_map <- function(
+get_bpfLinkIdxMap <- function(
   levels,
   refLevel
-  )
+)
 {
   # Map from link name to indices on reference level.
   linkIdxMap = list()
@@ -1116,10 +1114,10 @@ bpf_get_link_idx_map <- function(
 
 ## Locally determine link directions and write link info to EmuDB
 ## 
+## @param emuDBhandle
 ## @param levels
 ## @param levelClasses
 ## @param refLevel
-## @param dbUUID
 ## @param session
 ## @param bundle
 ## @param unifyLevels
@@ -1128,15 +1126,15 @@ bpf_get_link_idx_map <- function(
 ## @keywords emuR BPF Emu
 ## @return linkInfo
 
-bpf_write_links_to_db <- function(levels,
-                                  levelClasses,
-                                  refLevel,
-                                  dbUUID,
-                                  session,
-                                  bundle,
-                                  unifyLevels,
-                                  bpfPath,
-                                  linkIdxMap)
+write_bpfLinksToDb <- function(emuDBhandle,
+                               levels,
+                               levelClasses,
+                               refLevel,
+                               session,
+                               bundle,
+                               unifyLevels,
+                               bpfPath,
+                               linkIdxMap)
 {
   # Container for information on levels found in this BPF. Will be returned to conversion function.
   linkInfo = list()
@@ -1152,8 +1150,8 @@ bpf_write_links_to_db <- function(levels,
     # - Get direction and type of links between refLevel and current level ----
     # -------------------------------------------------------------------------
     
-    returnContainer = bpf_get_link_counts(levels,
-                                          key)
+    returnContainer = get_bpfLinkCounts(levels,
+                                        key)
     
     # If we haven't seen any links, skip and don't make entries to linkInfo or the temp DB
     if(is.null(returnContainer$seenLinks))
@@ -1194,20 +1192,20 @@ bpf_write_links_to_db <- function(levels,
         
         if(upper == refLevel)
         {
-          queryTxt = paste0("INSERT INTO links VALUES","('", dbUUID, "', '", session, "', '", 
+          queryTxt = paste0("INSERT INTO links VALUES","('", emuDBhandle$UUID, "', '", session, "', '", 
                             bundle, "', ", linkIdxMap[[toString(link)]], ", ", 
                             levels[[key]][[idx]][["itemID"]],", NULL)")
           
-          dbSendQuery(get_emuDBcon(dbUUID), queryTxt)
+          dbGetQuery(emuDBhandle$connection, queryTxt)
         }
         else if(lower == refLevel)
         {
-          queryTxt =  paste0("INSERT INTO links VALUES","('", dbUUID, "', '", session, "', '", 
+          queryTxt =  paste0("INSERT INTO links VALUES","('", emuDBhandle$UUID, "', '", session, "', '", 
                              bundle, "', ", levels[[key]][[idx]][["itemID"]], ", ", 
                              linkIdxMap[[toString(link)]],", NULL)")
           
           
-          dbSendQuery(get_emuDBcon(dbUUID), queryTxt)
+          dbGetQuery(emuDBhandle$connection, queryTxt)
         }
       }
     }
@@ -1229,8 +1227,8 @@ bpf_write_links_to_db <- function(levels,
 ## @keywords emuR BPF Emu
 ## @return list(oneToMany, manyToOne, seenLinks)
 
-bpf_get_link_counts <- function(levels,
-                               key)
+get_bpfLinkCounts <- function(levels,
+                              key)
 {
   seenLinks = NULL
   oneToMany = 0   
@@ -1249,7 +1247,7 @@ bpf_get_link_counts <- function(levels,
     }
     
     oneToMany = oneToMany + (length(levels[[key]][[idx]][["links"]]) - 1)
-      
+    
     for(link in levels[[key]][[idx]][["links"]])
     {
       if(link %in% seenLinks)
@@ -1262,7 +1260,7 @@ bpf_get_link_counts <- function(levels,
       }
     }
   }
-
+  
   return(list(oneToMany = oneToMany, manyToOne = manyToOne, seenLinks = seenLinks))
 }
 
@@ -1289,7 +1287,7 @@ bpf_get_link_info_entry <- function(key,
   # ---------------------------------------------------------------------------
   # ------------------------ Determine link type ------------------------------
   # ---------------------------------------------------------------------------
-
+  
   if(oneToMany == 0 && manyToOne == 0)
   {
     linkType = "ONE_TO_ONE"
@@ -1324,7 +1322,7 @@ bpf_get_link_info_entry <- function(key,
     countRight = oneToMany
     countWrong = manyToOne
   }
-
+  
   # ---------------------------------------------------------------------------
   # ------------------------------------ Return -------------------------------
   # ---------------------------------------------------------------------------
@@ -1343,28 +1341,28 @@ bpf_get_link_info_entry <- function(key,
 
 ## Unify levels from unifyLevels with the reference level
 ## 
+## @param emuDBhandle
 ## @param levels
 ## @param unifyLevels
 ## @param linkIdxMap
 ## @param levelInfo
 ## @param refLevel
 ## @param bpfPath
-## @param dbUUID
 ## @param session
 ## @param bundle
 ## @keywords emuR BPF Emu
 ## @return levelInfo
 
 
-bpf_unify_levels <- function(levels,
-                             unifyLevels,
-                             linkIdxMap,
-                             levelInfo,
-                             refLevel,
-                             bpfPath,
-                             dbUUID,
-                             session,
-                             bundle)
+unify_bpfLevels <- function(emuDBhandle,
+                            levels,
+                            unifyLevels,
+                            linkIdxMap,
+                            levelInfo,
+                            refLevel,
+                            bpfPath,
+                            session,
+                            bundle)
 {
   # Start currentLabelIdx at 2, since refLevel already has one label (namely the refLevel's name).
   currentLabelIdx = 2
@@ -1401,12 +1399,12 @@ bpf_unify_levels <- function(levels,
       
       for(labelKey in names(levels[[key]][[idx]][["labels"]]))
       {
-        queryTxt = paste0("INSERT INTO labels VALUES('", dbUUID, "', '", session, "', '", 
+        queryTxt = paste0("INSERT INTO labels VALUES('", emuDBhandle$UUID, "', '", session, "', '", 
                           bundle, "', ", linkIdxMap[[toString(levels[[key]][[idx]][["links"]][1])]], 
                           ", ", currentLabelIdx, ", '", labelKey, "', '", 
                           levels[[key]][[idx]][["labels"]][[labelKey]], "')")
         
-        dbSendQuery(get_emuDBcon(dbUUID), queryTxt)
+        dbGetQuery(emuDBhandle$connection, queryTxt)
         
         currentLabelIdx = currentLabelIdx + 1
         
@@ -1435,7 +1433,3 @@ bpf_unify_levels <- function(levels,
 # TODO: unify levels with levels other than the reference level
 # TODO: unify levels that are not class 1
 # TODO: OOP-Implementation to avoid passing/returning so many variables
-
-# FOR DEVELOPMENT
-#library('testthat')
-#test_file('../tests/testthat/test_parser.BPF.R')

@@ -1,7 +1,7 @@
 require(testthat)
 
 # ---------------------------------------------------------------------------
-context("testing convert_BPFCollection_to_emuDB")
+context("testing convert_BPFCollection")
 # ---------------------------------------------------------------------------
 
 sourceDirMain = file.path(tempdir(), "emuR_demoData")
@@ -9,12 +9,6 @@ testDir = file.path(tempdir(), "emuR_testthat")
 dbName = "bpf_converter_test"
 
 # Cleaning up (just in case)
-if(is.emuDB.loaded(dbName))
-{
-  UUID = get_UUID(dbName = dbName)
-  purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
-}
-
 unlink(file.path(testDir, dbName), recursive = T)
 
 # ---------------------------------------------------------------------------
@@ -29,15 +23,15 @@ configPath = file.path(testDir, dbName, paste0(dbName, '_DBconfig.json'))
 test_that("Code throws error when new levels are declared incorrectly",
           {
             # length(newLevels) != length(newLevelClasses)
-            expect_error(convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, newLevels = c("ABC"), newLevelClasses = c(1,2)),
+            expect_error(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, newLevels = c("ABC"), newLevelClasses = c(1,2)),
                          regexp = "newLevels", ignore.case = T)
             
             # new level classes outside of range 1-5
-            expect_error(convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir,  dbName = dbName, verbose = F, newLevels = c("ABC"), newLevelClasses = c(6)),
+            expect_error(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir,  dbName = dbName, verbose = F, newLevels = c("ABC"), newLevelClasses = c(6)),
                          regexp = "1.*5", ignore.case = T)
             
             # trying to change the class of an already existing BPF standard level
-            expect_error(convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, newLevels = c("ORT"), newLevelClasses = c(2)),
+            expect_error(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, newLevels = c("ORT"), newLevelClasses = c(2)),
                          regexp = "standard", ignore.case = T)
             }
           )
@@ -47,7 +41,7 @@ test_that("Code throws error for failed directory checks",
           {
             # there is already a database of with the same name in the target dir
             dir.create(file.path(testDir, "something_silly"))
-            expect_error(convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = "something_silly", verbose = F),
+            expect_error(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = "something_silly", verbose = F),
                          regexp = "directory.*already exists", ignore.case = T)
             unlink(file.path(testDir, "something_silly"), recursive = T)
             }
@@ -57,15 +51,15 @@ test_that("Code throws error for failed directory checks",
 test_that("Error when using unifyLevels incorrectly.",
           {
             # unifyLevels without refLevel
-            expect_error(convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, unifyLevels = c("KAN")),
+            expect_error(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, unifyLevels = c("KAN")),
                          regexp = "unify.*reference", ignore.case = T)
             
             # refLevel in unifyLevels
-            expect_error(convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F,  refLevel = "ORT", unifyLevels = c("ORT", "KAN")),
+            expect_error(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F,  refLevel = "ORT", unifyLevels = c("ORT", "KAN")),
                          regexp = "reference level", ignore.case = T)
             
             # class 2-5 level in unifyLevels
-            expect_error(convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, refLevel = "ORT", unifyLevels = c("GES")),
+            expect_error(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, refLevel = "ORT", unifyLevels = c("GES")),
                          regexp = "unif", ignore.case = T)
             }
           )
@@ -74,11 +68,11 @@ test_that("Error when using unifyLevels incorrectly.",
 test_that("Error when using refLevel incorrectly.",
           {
             # link-less refLevel
-            expect_error(convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, refLevel = "GES"),
+            expect_error(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, refLevel = "GES"),
                          regexp = "link-less.*reference level", ignore.case = T)
             
             # extractLevels on, but refLevel not in extractLevels
-            expect_error(convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, extractLevels = c("MAU", "TRN"),  refLevel = "ORT"),
+            expect_error(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, extractLevels = c("MAU", "TRN"),  refLevel = "ORT"),
                          regexp = "reference level", ignore.case = T)
             }
           )
@@ -86,13 +80,13 @@ test_that("Error when using refLevel incorrectly.",
 # ---------------------------------------------------------------------------
 test_that("Error when trying declare an unknown level in refLevel, extractLevels or unifyLevels.",
           {
-            expect_error(convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, extractLevels = c("ABC")),
+            expect_error(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, extractLevels = c("ABC")),
                          regexp = "unknown level.*ABC", ignore.case = T)
             
-            expect_error(convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, refLevel = "ABC"),
+            expect_error(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, refLevel = "ABC"),
                          regexp = "unknown level.*ABC", ignore.case = T)
             
-            expect_error(convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, refLevel = "ORT", unifyLevels = c("ABC")),
+            expect_error(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, refLevel = "ORT", unifyLevels = c("ABC")),
                          regexp = "unknown level.*ABC", ignore.case = T)
             }
           )
@@ -100,24 +94,19 @@ test_that("Error when trying declare an unknown level in refLevel, extractLevels
 # ---------------------------------------------------------------------------
 test_that("Error when segmentToEventLevels is used with a non-segment level",
           {
-            expect_error(convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, segmentToEventLevels = c("PRB")),
+            expect_error(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, segmentToEventLevels = c("PRB")),
                          regexp = "segment", ignore.case = T)
             }
           )
 
 # Cleaning up (just in case)
-if(is.emuDB.loaded(dbName))
-{
-  UUID = get_UUID(dbName = dbName)
-  purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
-}
-
 unlink(file.path(testDir, dbName), recursive = T)
+
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 test_that("Conversion without reference level.",
           {
-            convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F)
+            convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F)
             
             # Format of data base.
             expect_true(dbName %in% list.dirs(testDir, full.names = F, recursive = F))
@@ -190,18 +179,12 @@ test_that("Conversion without reference level.",
 # Cleaning up.
 unlink(file.path(testDir, dbName), recursive = T)
 
-if(is.emuDB.loaded(dbName))
-{
-  UUID = get_UUID(dbName = dbName)
-  purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
-}
-
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 test_that("Conversion with reference level.",
           {
-            convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, refLevel = "ORT")
+            convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, refLevel = "ORT")
                  
             # Correctness of config file  
             dbConfigLines = readLines(configPath, warn=F)
@@ -239,17 +222,11 @@ test_that("Conversion with reference level.",
 # Cleaning up
 unlink(file.path(testDir, dbName), recursive = T)
 
-if(is.emuDB.loaded(dbName))
-{
-  UUID = get_UUID(dbName = dbName)
-  purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
-}
-
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 test_that("Conversion with unifyLevels",
           {
-            convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, refLevel = "ORT", unifyLevels = c("KAN"))
+            convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, refLevel = "ORT", unifyLevels = c("KAN"))
             
             # Correctness of config file
             dbConfigLines = readLines(configPath, warn=F)
@@ -291,17 +268,11 @@ test_that("Conversion with unifyLevels",
 # Cleaning up
 unlink(file.path(testDir, dbName), recursive = T)
 
-if(is.emuDB.loaded(dbName))
-{
-  UUID = get_UUID(dbName = dbName)
-  purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
-}
-
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 test_that("Conversion with extractLevels.",
           {
-            convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, extractLevels = c("MAU"))
+            convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, extractLevels = c("MAU"))
             
             # Correctness of config file    
             dbConfigLines = readLines(configPath, warn=F)
@@ -329,11 +300,6 @@ test_that("Conversion with extractLevels.",
 # Cleaning up
 unlink(file.path(testDir, dbName), recursive = T)
 
-if(is.emuDB.loaded(dbName))
-{
-  UUID = get_UUID(dbName = dbName)
-  purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
-}
 
 # ---------------------------------------------------------------------------
 # Testing with manipulated BPFs
@@ -359,7 +325,7 @@ configPath = file.path(testDir, dbName, paste0(dbName, '_DBconfig.json'))
 # ---------------------------------------------------------------------------
 test_that("Correct call with necessary arguments",
           {
-            convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, newLevels = c("XYZ"), 
+            convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, newLevels = c("XYZ"), 
                                            newLevelClasses = c(1), refLevel = "ORT", segmentToEventLevels = c("MAU"), bpfExt = "parmanipulated")
             
             # Correctness of config file
@@ -435,17 +401,12 @@ test_that("Correct call with necessary arguments",
 # Cleaning up
 unlink(file.path(testDir, dbName), recursive = T)
 
-if(is.emuDB.loaded(dbName))
-{
-  UUID = get_UUID(dbName = dbName)
-  purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
-}
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 test_that("Warnings (semicolon) are displayed if verbose.",
           {
-            expect_warning(convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = T, refLevel = "ORT", 
+            expect_warning(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = T, refLevel = "ORT", 
                                                          newLevels = c("XYZ"), newLevelClasses = c(1), segmentToEventLevels = c("MAU"), bpfExt = "parmanipulated"),
                            regexp = "between.*';'", ignore.case = T)
             }
@@ -457,7 +418,7 @@ unlink(file.path(testDir, dbName), recursive = T)
 # ---------------------------------------------------------------------------
 test_that("Conversion without overlap resolution on BPF with overlap causes error.",
           {
-            expect_error(convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F,  
+            expect_error(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F,  
                                                         newLevels = c("XYZ"), newLevelClasses = c(1), bpfExt = "parmanipulated"),
                          regexp = "overlap", ignore.case = T)
             }
@@ -466,7 +427,7 @@ test_that("Conversion without overlap resolution on BPF with overlap causes erro
 # ---------------------------------------------------------------------------
 test_that("Conversion with unknown level name in a BPF causes error.",
           {
-            expect_error(convert_BPFCollection_to_emuDB(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, bpfExt = "parmanipulated"),
+            expect_error(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, bpfExt = "parmanipulated"),
                          regexp = "unknown level", ignore.case = T)
             }
           )
@@ -474,7 +435,7 @@ test_that("Conversion with unknown level name in a BPF causes error.",
 # ---------------------------------------------------------------------------
 test_that("Conversion with a mismatch between level class and BPF line causes error.",
           {
-            expect_error(convert_BPFCollection_to_emuDB(sourceDir = sourceDir,  targetDir = testDir, dbName = dbName, verbose = F, refLevel = "ORT", 
+            expect_error(convert_BPFCollection(sourceDir = sourceDir,  targetDir = testDir, dbName = dbName, verbose = F, refLevel = "ORT", 
                                                         newLevels = c("XYZ"), newLevelClasses = c(5), segmentToEventLevels = c("MAU"), bpfExt = "parmanipulated"),
                          regexp = "class", ignore.case = T)
             }
@@ -484,19 +445,6 @@ test_that("Conversion with a mismatch between level class and BPF line causes er
 # Final clean-up (just in case)
 unlink(file.path(testDir, dbName), recursive = T)
 
-if(is.emuDB.loaded(dbName))
-{
-  UUID = get_UUID(dbName = dbName)
-  purge_emuDB(dbName = dbName, dbUUID = UUID, interactive = F)
-}
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
  
-            
-            
-            
-
-
-
-
-

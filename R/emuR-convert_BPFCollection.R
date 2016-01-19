@@ -13,25 +13,28 @@ require(RSQLite)
 ##' @param targetDir directory where the new emuDB should be saved; if it does not exist, 
 ##' the function tries to create one
 ##' @param dbName name given to the new emuDB
-##' 
 ##' @param bpfExt extension of BPF files (default = "par")
 ##' @param audioExt extension of audio files (default = "wav")
-##' 
-##' @param extractLevels optional vector containing the names of levels that should be extracted. If NULL (the default) all levels found in the BPF collection are extracted.
+##' @param extractLevels optional vector containing the names of levels that should be extracted. 
+##' If NULL (the default) all levels found in the BPF collection are extracted.
 ##' @param refLevel optional name of level used as reference for symbolic links. If NULL (the default), a link-less data base is created.
-##' @param unifyLevels optional vector containing names of levels to be unified with the reference level. This means that they are treated as labels of the reference level rather than independent items. At the moment, only purely symbolic (class 1) levels can be unified. Links between the reference level and levels in unifyLevels must be one-to-one.
-##' 
-##' @param newLevels optional vector containing names of levels in the BPF collection that are not part of the standard BPF levels. See http://www.bas.uni-muenchen.de/forschung/Bas/BasFormatseng.html#Partitur_tiersdef for details on standard BPF levels.
-##' @param newLevelClasses optional vector containing the classes of levels in the newLevels vector as integers. Must have the same length and order as newLevels.
-##' 
-##' @param segmentToEventLevels optional vector containing names of segment levels with overlapping segments. The parser treats segments on these levels as events (SEGMENT xyz becomes EVENT xyz_start and EVENT xyz_end). If a level contains segmental overlap but is not in this vector, the parser will throw an error. If overlap resolution leads to event overlap (e.g. if one segment's end coincides with the next segment's start), an error is thrown either way. If in doubt whether a level contains segmental overlap, try running the converter with segmentToEventLevels = NULL and see whether an error occurs.
-##'
+##' @param unifyLevels optional vector containing names of levels to be unified with the reference level. This means that 
+##' they are treated as labels of the reference level rather than independent items. At the moment, only purely symbolic 
+##' (class 1) levels can be unified. Links between the reference level and levels in unifyLevels must be one-to-one.
+##' @param newLevels optional vector containing names of levels in the BPF collection that are not part of the standard 
+##' BPF levels. See http://www.bas.uni-muenchen.de/forschung/Bas/BasFormatseng.html#Partitur_tiersdef for details on 
+##' standard BPF levels.
+##' @param newLevelClasses optional vector containing the classes of levels in the newLevels vector as integers. 
+##' Must have the same length and order as newLevels.
+##' @param segmentToEventLevels optional vector containing names of segment levels with overlapping segments. 
+##' The parser treats segments on these levels as events (SEGMENT xyz becomes EVENT xyz_start and EVENT xyz_end). 
+##' If a level contains segmental overlap but is not in this vector, the parser will throw an error. If overlap 
+##' resolution leads to event overlap (e.g. if one segment's end coincides with the next segment's start), an error is thrown either way. If in doubt whether a level contains segmental overlap, try running the converter with segmentToEventLevels = NULL and see whether an error occurs.
 ##' @param verbose display infos, warnings and show progress bar
 ##' @return NULL
 ##' @import RSQLite
 ##' @export
 ##' @seealso convert_TextGridCollection_to_emuDB, convert_legacyEmuDB_to_emuDB
-##' @author Nina Poerner
 ##' @examples
 ##' \dontrun{
 ##' 
@@ -42,25 +45,25 @@ require(RSQLite)
 ##' # convert file pairs *.wav and *.par in /tmp/BPF_collection into emuRDB 'NewEmuR' in 
 ##' # dir /tmp/DirNewEmuR; the tier 'ORT' acts as the (word) reference tier; the 
 ##' # tier 'KAN' is one-to-one bound to 'ORT' as a label
-##' convert_BPFCollection_to_emuDB("/tmp/BPF_collection","/tmp/DirNewEmuR",'NewEmuR',
+##' convert_BPFCollection("/tmp/BPF_collection","/tmp/DirNewEmuR",'NewEmuR',
 ##'         bpfExt='par',audioExt='wav',refLevel='ORT',unifyLevels=c('KAN'))
 ##' 
 ##' }
 ##' 
 
 
-convert_BPFCollection_to_emuDB <- function(sourceDir,
-                                           targetDir,
-                                           dbName,
-                                           bpfExt = 'par',
-                                           audioExt = 'wav',
-                                           extractLevels = NULL,
-                                           refLevel = NULL,
-                                           newLevels = NULL,
-                                           newLevelClasses = NULL,
-                                           segmentToEventLevels = NULL,
-                                           unifyLevels = NULL,
-                                           verbose = TRUE)
+convert_BPFCollection <- function(sourceDir,
+                                  targetDir,
+                                  dbName,
+                                  bpfExt = 'par',
+                                  audioExt = 'wav',
+                                  extractLevels = NULL,
+                                  refLevel = NULL,
+                                  newLevels = NULL,
+                                  newLevelClasses = NULL,
+                                  segmentToEventLevels = NULL,
+                                  unifyLevels = NULL,
+                                  verbose = TRUE)
 {
   # ---------------------------------------------------------------------------
   # ------------------------ Standard BPF levels ------------------------------
@@ -110,15 +113,15 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
   # --------------- First round of argument checks ----------------------------
   # ---------------------------------------------------------------------------
   
-  bpf_argument_checks_without_level_classes(sourceDir = sourceDir,
-                                            basePath = basePath,
-                                            newLevels = newLevels,
-                                            newLevelClasses = newLevelClasses,
-                                            standardLevels = STANDARD_LEVELS,
-                                            verbose = verbose,
-                                            refLevel = refLevel,
-                                            audioExt = audioExt,
-                                            extractLevels = extractLevels)
+  check_bpfArgumentWithoutLevelClasses(sourceDir = sourceDir,
+                                       basePath = basePath,
+                                       newLevels = newLevels,
+                                       newLevelClasses = newLevelClasses,
+                                       standardLevels = STANDARD_LEVELS,
+                                       verbose = verbose,
+                                       refLevel = refLevel,
+                                       audioExt = audioExt,
+                                       extractLevels = extractLevels)
   
   # ---------------------------------------------------------------------------
   # ---------------- Combine standard and new level classes -------------------
@@ -132,36 +135,26 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
   # ---------------------- Second round of argument checks --------------------
   # ---------------------------------------------------------------------------
   
-  bpf_argument_checks_with_level_classes(unifyLevels = unifyLevels,
-                                         refLevel = refLevel,
-                                         extractLevels = extractLevels,
-                                         levelClasses = levelClasses,
-                                         segmentToEventLevels)
+  check_bpfArgumentWithLevelClasses(unifyLevels = unifyLevels,
+                                    refLevel = refLevel,
+                                    extractLevels = extractLevels,
+                                    levelClasses = levelClasses,
+                                    segmentToEventLevels)
   
   # ---------------------------------------------------------------------------
   # -------------------------- Get file pair list ----------------------------
   # ---------------------------------------------------------------------------
-
+  
   filePairList = create_filePairList(sourceDir, 
                                      sourceDir, 
                                      bpfExt, 
                                      audioExt)
   
   # ---------------------------------------------------------------------------
-  # ------------------------ Initialize temporary data base -------------------
+  # ------------------------ Initialize temporary dbHandle --------------------
   # ---------------------------------------------------------------------------
   
-  dbUUID = uuid::UUIDgenerate()
-  dbSchema = create.schema.databaseDefinition(name = dbName,
-                                              UUID = dbUUID)
-  
-  dbSchema=.update.transient.schema.values(dbSchema)
-  
-  db = create.database(name = dbName, 
-                       basePath = basePath, 
-                       DBconfig = dbSchema)
-  
-  add_emuDBhandle(name=dbName,basePath = basePath,dbUUID=dbUUID)
+  dbHandle = emuDBhandle(dbName, basePath = basePath, UUIDgenerate(), ":memory:")
   
   # ---------------------------------------------------------------------------
   # ------------------------ Initialize progress bar --------------------------
@@ -194,7 +187,7 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
   # ---------------------------------------------------------------------------
   # --------------------------- Loop over bundles -----------------------------
   # ---------------------------------------------------------------------------
-    
+  
   for(idx in 1:nrow(filePairList)[1])
   {
     
@@ -202,8 +195,8 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
     # ------------------ Get session and bundle names ---------------------------
     # ---------------------------------------------------------------------------
     
-    session = bpf_get_session(filePath = filePairList[idx, 1],
-                              sourceDir = sourceDir)
+    session = get_bpfSession(filePath = filePairList[idx, 1],
+                             sourceDir = sourceDir)
     
     bpfPath = normalizePath(filePairList[idx, 1], winslash = .Platform$file.sep)
     bundle = file_path_sans_ext(basename(bpfPath))
@@ -217,36 +210,34 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
     # -----------------------------------------------------------------------
     # -------- Get sample rate for comparison with info in BPF header -------
     # -----------------------------------------------------------------------
-      
+    
     asspObj = read.AsspDataObj(filePairList[idx, 2])
     samplerate = attributes(asspObj)$sampleRate
-      
+    
     # -----------------------------------------------------------------------
     # --------------- Write session and bundle to temp DB -------------------
     # -----------------------------------------------------------------------
-    
     queryTxt = paste0("SELECT name from session WHERE name='", session, "'")
-    all_sessions = dbGetQuery(get_emuDBcon(dbUUID), queryTxt)
+    all_sessions = dbGetQuery(dbHandle$connection, queryTxt)
     
     if(!session %in% all_sessions)
     {
-      queryTxt = paste0("INSERT INTO session VALUES('", dbUUID, "', '", session, "')")
-      dbSendQuery(get_emuDBcon(dbUUID), queryTxt)
+      queryTxt = paste0("INSERT INTO session VALUES('", dbHandle$UUID, "', '", session, "')")
+      dbGetQuery(dbHandle$connection, queryTxt)
     }
     
-    queryTxt = paste0("INSERT INTO bundle VALUES('", dbUUID, "', '", session, "', '", bundle, "', '",
+    queryTxt = paste0("INSERT INTO bundle VALUES('", dbHandle$UUID, "', '", session, "', '", bundle, "', '",
                       annotates, "', ", samplerate, ", 'NULL')")
     
-    dbSendQuery(get_emuDBcon(dbUUID), queryTxt)
-      
+    dbGetQuery(dbHandle$connection, queryTxt)
+    
     # -----------------------------------------------------------------------
     # ------------------------------ Parse BPF ------------------------------
     # -----------------------------------------------------------------------
-      
-    returnContainer = parse_BPF(bpfPath = bpfPath,
-                                dbName = dbName, 
+    
+    returnContainer = parse_BPF(dbHandle,
+                                bpfPath = bpfPath,
                                 bundle = bundle, 
-                                dbUUID = dbUUID,
                                 session = session,
                                 refLevel = refLevel, 
                                 extractLevels = extractLevels,
@@ -254,36 +245,35 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
                                 segmentToEventLevels = segmentToEventLevels, 
                                 levelClasses = levelClasses,
                                 unifyLevels = unifyLevels)
-    
     levelInfo = returnContainer$levelInfo
     linkInfo = returnContainer$linkInfo
     semicolonFound = returnContainer$semicolonFound
-      
+    
     # -----------------------------------------------------------------------
     # --------------------- Update tracker variables ------------------------
     # -----------------------------------------------------------------------
-      
+    
     if(semicolonFound)
     {
       warningsTracker$semicolonFound[[length(warningsTracker$semicolonFound) + 1L]] = bpfPath
     }
-
+    
     if(length(levelInfo) > 0)
     {
-      levelTracker = bpf_update_level_tracker(levelInfo = levelInfo,
-                                              levelTracker = levelTracker)
+      levelTracker = update_bpfLevelTracker(levelInfo = levelInfo,
+                                            levelTracker = levelTracker)
     }
-      
+    
     if(length(linkInfo) > 0)
     {
-      linkTracker = bpf_update_link_tracker(linkInfo = linkInfo,
-                                            linkTracker = linkTracker)
+      linkTracker = update_bpfLinkTracker(linkInfo = linkInfo,
+                                          linkTracker = linkTracker)
     }
-      
+    
     # -----------------------------------------------------------------------
     # -------------------------- Update progress bar ------------------------
     # -----------------------------------------------------------------------
-      
+    
     if(verbose)
     {
       setTxtProgressBar(pb, idx)
@@ -303,22 +293,22 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
   # ---------------------------------------------------------------------------
   # ---------------- Resolve link type and direction ambiguities --------------
   # ---------------------------------------------------------------------------
-
-
+  
+  
   if(length(linkTracker) > 0)
   {
-    linkTracker = bpf_link_disambiguation(dbUUID=dbUUID,linkTracker = linkTracker,
-                                          refLevel = refLevel)
+    linkTracker = link_bpfDisambiguation(dbHandle, linkTracker = linkTracker,
+                                         refLevel = refLevel)
   }
-
+  
   # ---------------------------------------------------------------------------
   # ----- Link from Utterance level to refLevel and levels above refLevel -----
   # ---------------------------------------------------------------------------
   
   if(length(linkTracker) > 0)
   {
-    linkTracker = bpf_link_utterance_level(dbUUID=dbUUID,linkTracker = linkTracker,
-                                           refLevel = refLevel)
+    linkTracker = link_bpfUtteranceLevel(dbHandle, linkTracker = linkTracker,
+                                         refLevel = refLevel)
   }
   
   # ---------------------------------------------------------------------------
@@ -330,14 +320,12 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
     cat("INFO: Creating EMU database config schema...\n")
   }
   
-  dbSchema = bpf_create_schema(levelTracker = levelTracker,
-                               linkTracker = linkTracker,
-                               dbName = dbName,
-                               dbUUID = dbUUID,
-                               audioExt = audioExt)
-  
-  db[['DBconfig']] = dbSchema
-  
+  DBconfig = create_bpfSchema(levelTracker = levelTracker,
+                              linkTracker = linkTracker,
+                              dbName = dbName,
+                              dbUUID = dbHandle$connection,
+                              audioExt = audioExt)
+
   # ---------------------------------------------------------------------------
   # ------------------------- Create and store database -----------------------
   # ---------------------------------------------------------------------------
@@ -348,22 +336,16 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
     stop("Could not create directory ", basePath)
   }
   
-  .store.emuDB.DBI(get_emuDBcon(dbUUID), db)
-  .store.DBconfig(get_emuDBcon(dbUUID), basePath, dbSchema)
+  store_DBconfig(dbHandle, DBconfig)
+
+  make_bpfDbSkeleton(dbHandle)
+
+  copy_bpfMediaFiles(basePath = basePath,
+                     sourceDir = sourceDir,
+                     mediaFiles = filePairList[,2],
+                     verbose = verbose)
   
-  bpf_make_db_skeleton(basePath = basePath,
-                       dbUUID = dbUUID)
-  
-  bpf_copy_media_files(basePath = basePath,
-                       sourceDir = sourceDir,
-                       mediaFiles = filePairList[,2],
-                       verbose = verbose)
-  
-  bpf_write_annot_files(basePath = basePath,
-                        dbUUID = dbUUID,
-                        verbose = verbose)
-  
-  purge_emuDB(dbUUID=dbUUID,interactive=F)
+  rewrite_allAnnots(dbHandle, verbose = verbose)  
   
   # ---------------------------------------------------------------------------
   # -------------- Display any warnings collected during parsing --------------
@@ -371,7 +353,7 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
   
   if(verbose)
   {
-    bpf_display_semicolon_warnings(warningsTracker)
+    display_bpfSemicolonWarnings(warningsTracker)
   }
 }
 
@@ -395,83 +377,83 @@ convert_BPFCollection_to_emuDB <- function(sourceDir,
 ## @keywords emuR BPF Emu
 ## @return session
 
-bpf_write_annot_files <- function(basePath,
-                                  dbUUID,
-                                  verbose)
-{
-  # ---------------------------------------------------------------------------
-  # -------------------------- Initialize progress bar ------------------------
-  # ---------------------------------------------------------------------------
-  
-  if(verbose)
-  {
-    progress = 0
-    counter = 0
-    
-    queryTxt = paste0("SELECT count(name) FROM bundle WHERE db_uuid = '", dbUUID, "'")
-    nbBundles = dbGetQuery(get_emuDBcon(dbUUID), queryTxt)[1,]
-    
-    cat("INFO: Writing", nbBundles, "annotation files to EMU database...\n")
-    pb = txtProgressBar(min = 0, max = nbBundles, initial = progress, style=3)
-    setTxtProgressBar(pb, progress)
-  }
-  
-  # ---------------------------------------------------------------------------
-  # ------- Get session/bundle from temp db to construct target path ----------
-  # ---------------------------------------------------------------------------
-  
-  queryTxt = paste0("SELECT name FROM session WHERE db_uuid = '", dbUUID, "'")
-  sessions = dbGetQuery(get_emuDBcon(dbUUID), queryTxt)
-  for(idx in 1:nrow(sessions)) 
-  {
-    queryTxt = paste0("SELECT name FROM bundle WHERE db_uuid = '", dbUUID, "' AND session = '", sessions[idx,], "'")
-    bundles = dbGetQuery(get_emuDBcon(dbUUID), queryTxt)
-    for(jdx in 1:nrow(bundles)) 
-    {
-      JSONPath = file.path(basePath, 
-                           paste0(sessions[idx,], session.suffix), 
-                           paste0(bundles[jdx,], bundle.dir.suffix), 
-                           paste0(bundles[jdx,], bundle.annotation.suffix, '.json')
-      )
-      
-      # -----------------------------------------------------------------------
-      # -------------------------- Construct annot JSON -----------------------
-      # -----------------------------------------------------------------------
-      
-      b=get.bundle(sessionName = sessions[idx,], 
-                   bundleName = bundles[jdx,], 
-                   dbUUID = dbUUID)
-      pFilter = emuR.persist.filters.bundle
-      bp = marshal.for.persistence(b, pFilter)
-      pbpJSON = jsonlite::toJSON(bp, auto_unbox=TRUE, force=TRUE, pretty=TRUE)
-      
-      # -----------------------------------------------------------------------
-      # ---------------------------- Write JSON file --------------------------
-      # -----------------------------------------------------------------------
-      
-      res = try(writeLines(pbpJSON, JSONPath))
-      if(class(res) == "try-error") 
-      {
-        stop("Could not write to file ", JSONPath)
-      }
-      
-      # -----------------------------------------------------------------------
-      # ------------------------- Update progress bar -------------------------
-      # -----------------------------------------------------------------------
-      
-      if(verbose)
-      {
-        counter = counter + 1
-        setTxtProgressBar(pb, counter)
-      }
-    }
-  }
-  # Newline after progress bar
-  if(verbose)
-  {
-    cat("\n")
-  }
-}
+# write_bpfAnnotFiles <- function(basePath,
+#                                 dbUUID,
+#                                 verbose)
+# {
+#   # ---------------------------------------------------------------------------
+#   # -------------------------- Initialize progress bar ------------------------
+#   # ---------------------------------------------------------------------------
+#   
+#   if(verbose)
+#   {
+#     progress = 0
+#     counter = 0
+#     
+#     queryTxt = paste0("SELECT count(name) FROM bundle WHERE db_uuid = '", dbUUID, "'")
+#     nbBundles = dbGetQuery(dbHandle$connection, queryTxt)[1,]
+#     
+#     cat("INFO: Writing", nbBundles, "annotation files to EMU database...\n")
+#     pb = txtProgressBar(min = 0, max = nbBundles, initial = progress, style=3)
+#     setTxtProgressBar(pb, progress)
+#   }
+#   
+#   # ---------------------------------------------------------------------------
+#   # ------- Get session/bundle from temp db to construct target path ----------
+#   # ---------------------------------------------------------------------------
+#   
+#   queryTxt = paste0("SELECT name FROM session WHERE db_uuid = '", dbUUID, "'")
+#   sessions = dbGetQuery(dbHandle$connection, queryTxt)
+#   for(idx in 1:nrow(sessions)) 
+#   {
+#     queryTxt = paste0("SELECT name FROM bundle WHERE db_uuid = '", dbUUID, "' AND session = '", sessions[idx,], "'")
+#     bundles = dbGetQuery(dbHandle$connection, queryTxt)
+#     for(jdx in 1:nrow(bundles)) 
+#     {
+#       JSONPath = file.path(basePath, 
+#                            paste0(sessions[idx,], session.suffix), 
+#                            paste0(bundles[jdx,], bundle.dir.suffix), 
+#                            paste0(bundles[jdx,], bundle.annotation.suffix, '.json')
+#       )
+#       
+#       # -----------------------------------------------------------------------
+#       # -------------------------- Construct annot JSON -----------------------
+#       # -----------------------------------------------------------------------
+#       
+#       b=get.bundle(sessionName = sessions[idx,], 
+#                    bundleName = bundles[jdx,], 
+#                    dbUUID = dbUUID)
+#       pFilter = emuR.persist.filters.bundle
+#       bp = marshal.for.persistence(b, pFilter)
+#       pbpJSON = jsonlite::toJSON(bp, auto_unbox=TRUE, force=TRUE, pretty=TRUE)
+#       
+#       # -----------------------------------------------------------------------
+#       # ---------------------------- Write JSON file --------------------------
+#       # -----------------------------------------------------------------------
+#       
+#       res = try(writeLines(pbpJSON, JSONPath))
+#       if(class(res) == "try-error") 
+#       {
+#         stop("Could not write to file ", JSONPath)
+#       }
+#       
+#       # -----------------------------------------------------------------------
+#       # ------------------------- Update progress bar -------------------------
+#       # -----------------------------------------------------------------------
+#       
+#       if(verbose)
+#       {
+#         counter = counter + 1
+#         setTxtProgressBar(pb, counter)
+#       }
+#     }
+#   }
+#   # Newline after progress bar
+#   if(verbose)
+#   {
+#     cat("\n")
+#   }
+# }
 
 ###############################################################################
 ###############################################################################
@@ -489,10 +471,10 @@ bpf_write_annot_files <- function(basePath,
 ## @keywords emuR BPF Emu
 ## @return session
 
-bpf_copy_media_files <- function(basePath,
-                                 mediaFiles,
-                                 sourceDir,
-                                 verbose)
+copy_bpfMediaFiles <- function(basePath,
+                               mediaFiles,
+                               sourceDir,
+                               verbose)
 {
   # ---------------------------------------------------------------------------
   # -------------------------- Initialize progress bar ------------------------
@@ -517,8 +499,8 @@ bpf_copy_media_files <- function(basePath,
     # -------------------------------------------------------------------------
     
     targetDir = file.path(basePath,
-                          paste0(bpf_get_session(filePath = mediaFiles[[idx]],
-                                                 sourceDir = sourceDir),
+                          paste0(get_bpfSession(filePath = mediaFiles[[idx]],
+                                                sourceDir = sourceDir),
                                  session.suffix),
                           paste0(file_path_sans_ext(basename(mediaFiles[[idx]])), 
                                  bundle.dir.suffix)
@@ -543,7 +525,7 @@ bpf_copy_media_files <- function(basePath,
       setTxtProgressBar(pb, idx)
     }
     
-  # Newline after progress bar:
+    # Newline after progress bar:
   }
   if(verbose)
   {
@@ -551,8 +533,8 @@ bpf_copy_media_files <- function(basePath,
   }
 }
 
- 
-  
+
+
 
 
 
@@ -569,8 +551,8 @@ bpf_copy_media_files <- function(basePath,
 ## @keywords emuR BPF Emu
 ## @return session
 
-bpf_get_session <- function(filePath,
-                            sourceDir)
+get_bpfSession <- function(filePath,
+                           sourceDir)
 {
   DEFAULT_SESSION_NAME = "0000"
   
@@ -606,15 +588,15 @@ bpf_get_session <- function(filePath,
 ## @keywords emuR BPF Emu
 ## @return
 
-bpf_argument_checks_without_level_classes <- function(sourceDir,
-                                                      basePath,
-                                                      newLevels,
-                                                      newLevelClasses,
-                                                      standardLevels,
-                                                      verbose,
-                                                      refLevel,
-                                                      audioExt,
-                                                      extractLevels)
+check_bpfArgumentWithoutLevelClasses <- function(sourceDir,
+                                                 basePath,
+                                                 newLevels,
+                                                 newLevelClasses,
+                                                 standardLevels,
+                                                 verbose,
+                                                 refLevel,
+                                                 audioExt,
+                                                 extractLevels)
 {
   if(!file.exists(sourceDir))
   {
@@ -679,11 +661,11 @@ bpf_argument_checks_without_level_classes <- function(sourceDir,
 ## @keywords emuR BPF Emu
 ## @return 
 
-bpf_argument_checks_with_level_classes <- function(unifyLevels,
-                                                   refLevel,
-                                                   extractLevels,
-                                                   levelClasses,
-                                                   segmentToEventLevels)
+check_bpfArgumentWithLevelClasses <- function(unifyLevels,
+                                              refLevel,
+                                              extractLevels,
+                                              levelClasses,
+                                              segmentToEventLevels)
 {
   for(level in c(unifyLevels, refLevel, extractLevels))
   {
@@ -738,8 +720,8 @@ bpf_argument_checks_with_level_classes <- function(unifyLevels,
 ## @keywords emuR BPF Emu
 ## @return levelTracker
 
-bpf_update_level_tracker <- function(levelInfo,
-                                     levelTracker)
+update_bpfLevelTracker <- function(levelInfo,
+                                   levelTracker)
 {
   for(idx in 1:length(levelInfo))
   {
@@ -749,7 +731,7 @@ bpf_update_level_tracker <- function(levelInfo,
       for(jdx in 1:length(levelTracker))
       {
         if(levelTracker[[jdx]][["key"]] == levelInfo[[idx]][["key"]] &&
-            levelTracker[[jdx]][["type"]] == levelInfo[[idx]][["type"]])
+           levelTracker[[jdx]][["type"]] == levelInfo[[idx]][["type"]])
         {
           for(label in levelInfo[[idx]][["labels"]])
           {
@@ -786,8 +768,8 @@ bpf_update_level_tracker <- function(levelInfo,
 ## @keywords emuR BPF Emu
 ## @return linkTracker
 
-bpf_update_link_tracker <- function(linkTracker,
-                                    linkInfo)
+update_bpfLinkTracker <- function(linkTracker,
+                                  linkInfo)
 {
   for(jdx in 1:length(linkInfo))
   {
@@ -825,14 +807,14 @@ bpf_update_link_tracker <- function(linkTracker,
 
 ## Disambiguate link directions and types in case individual BPFs did not agree on them
 ## 
-## @param dbUUID
+## @param emuDBhandle
 ## @param linkTracker
 ## @param refLevel
 ## @keywords emuR BPF Emu
 ## @return list(linkTracker)
 
-bpf_link_disambiguation <- function(dbUUID,linkTracker, 
-                                    refLevel)
+link_bpfDisambiguation <- function(emuDBhandle, linkTracker, 
+                                   refLevel)
 {
   # ------------------------------- THE PROBLEM -------------------------------
   #
@@ -855,12 +837,12 @@ bpf_link_disambiguation <- function(dbUUID,linkTracker,
   #
   # fromkey = "ORT", tokey = "MAS", type = "ONE_TO_ONE"
   # fromkey = "ORT", tokey = "MAS", type = "ONE_TO_MANY"
-
+  
   # ---------------------------------------------------------------------------
   # --- Collect pairs of levels between which links have to be turned around --
   # ---------------------------------------------------------------------------
   
-  turnAround = bpf_get_turn_around(linkTracker = linkTracker)
+  turnAround = get_bpfTurnAround(linkTracker = linkTracker)
   
   # ---------------------------------------------------------------------------
   # --------------------- Set countRight & countWrong to NA -------------------
@@ -880,17 +862,17 @@ bpf_link_disambiguation <- function(dbUUID,linkTracker,
   
   if(length(turnAround) > 0)
   {
-    bpf_turn_links(dbUUID=dbUUID,turnAround = turnAround)
-    linkTracker = bpf_turn_link_tracker_entries(turnAround = turnAround,
-                                                linkTracker = linkTracker)
+    turn_bpfLinks(emuDBhandle, turnAround = turnAround)
+    linkTracker = turn_bpfLinkTrackerEntries(turnAround = turnAround,
+                                             linkTracker = linkTracker)
   }
   
   # ---------------------------------------------------------------------------
   # ------------------------------ Merge link types ---------------------------
   # ---------------------------------------------------------------------------
   
-  linkTracker = bpf_merge_link_types(linkTracker = linkTracker)
-
+  linkTracker = merge_bpfLinkTypes(linkTracker = linkTracker)
+  
   # ---------------------------------------------------------------------------
   # -------------- Return link tracker to caller function ---------------------
   # ---------------------------------------------------------------------------
@@ -910,7 +892,7 @@ bpf_link_disambiguation <- function(dbUUID,linkTracker,
 ## @keywords emuR BPF Emu
 ## @return turnAround
 
-bpf_get_turn_around <- function(linkTracker)
+get_bpfTurnAround <- function(linkTracker)
 {
   turnAround = list()
   
@@ -1000,12 +982,12 @@ bpf_get_turn_around <- function(linkTracker)
 
 ## Turn around eligible links in the temp DB
 ## 
-## @param dbUUID
+## @param emuDBhandle
 ## @param turnAround
 ## @keywords emuR BPF Emu
 ## @return
 
-bpf_turn_links <- function(dbUUID,turnAround)
+turn_bpfLinks <- function(emuDBhandle, turnAround)
 {
   for(link in turnAround)
   {
@@ -1014,7 +996,7 @@ bpf_turn_links <- function(dbUUID,turnAround)
                       "' AND db_uuid = links.db_uuid AND session = links.session AND bundle = links.bundle) ",
                       "AND toID IN(SELECT itemID FROM items WHERE level = '", link[["tokey"]], "' ",
                       "AND db_uuid = links.db_uuid AND session = links.session AND bundle = links.bundle);")
-    dbSendQuery(get_emuDBcon(dbUUID), queryTxt)
+    dbGetQuery(emuDBhandle$connection, queryTxt)
   }
 }
 
@@ -1030,9 +1012,9 @@ bpf_turn_links <- function(dbUUID,turnAround)
 ## @param linkTracker
 ## @keywords emuR BPF Emu
 ## @return linkTracker
-  
-bpf_turn_link_tracker_entries <- function(turnAround = turnAround,
-                                          linkTracker = linkTracker)
+
+turn_bpfLinkTrackerEntries <- function(turnAround = turnAround,
+                                       linkTracker = linkTracker)
 {
   for(idx in 1:length(turnAround))
   {
@@ -1067,7 +1049,7 @@ bpf_turn_link_tracker_entries <- function(turnAround = turnAround,
 ## @keywords emuR BPF Emu
 ## @return linkTracker
 
-bpf_merge_link_types <- function(linkTracker)
+merge_bpfLinkTypes <- function(linkTracker)
 {
   for(idx in 1:length(linkTracker))
   {
@@ -1099,14 +1081,14 @@ bpf_merge_link_types <- function(linkTracker)
 
 ## Create links from the utterance level to the next highest level(s)
 ## 
-## @param dbUUID
+## @param emuDBhandle
 ## @param linkTracker
 ## @param refLevel
 ## @keywords emuR BPF Emu
 ## @return list(linkTracker)
 
-bpf_link_utterance_level <- function(dbUUID,linkTracker,
-                                     refLevel)
+link_bpfUtteranceLevel <- function(emuDBhandle, linkTracker,
+                                   refLevel)
 {
   # ---------------------------------------------------------------------------
   # --- Get list of levels that should be linked to from the Utterance level --
@@ -1114,8 +1096,8 @@ bpf_link_utterance_level <- function(dbUUID,linkTracker,
   
   # (contains refLevel and any levels that are hierarchically higher than refLevel)
   
-  underUtterance = bpf_get_levels_under_utterance(linkTracker = linkTracker,
-                                                  refLevel = refLevel)
+  underUtterance = get_bpfLevelsUnderUtterance(linkTracker = linkTracker,
+                                               refLevel = refLevel)
   
   for(level in underUtterance)
   {
@@ -1123,7 +1105,7 @@ bpf_link_utterance_level <- function(dbUUID,linkTracker,
     # --------- Create links from Utterance to current level in temp DB -------
     # -------------------------------------------------------------------------
     
-    nbItems = bpf_link_utterance_level_to_current_level(dbUUID=dbUUID,currentLevel = level)
+    nbItems = link_bpfUtteranceLevelToCurrentLevel(emuDBhandle, currentLevel = level)
     
     # -------------------------------------------------------------------------
     # ----------------- Determine link type (cardinality) ---------------------
@@ -1133,7 +1115,7 @@ bpf_link_utterance_level <- function(dbUUID,linkTracker,
     # This determines whether the links from 'Utterance' are ONE_TO_ONE or ONE_TO_MANY.
     
     queryTxt = paste0("SELECT DISTINCT db_uuid, session, bundle FROM items WHERE level = '", level, "'")
-    distinctUuidSessionBundle = dbGetQuery(get_emuDBcon(dbUUID), queryTxt)
+    distinctUuidSessionBundle = dbGetQuery(emuDBhandle$connection, queryTxt)
     nbBundles = nrow(distinctUuidSessionBundle)
     
     if(nbBundles < nbItems)
@@ -1151,8 +1133,8 @@ bpf_link_utterance_level <- function(dbUUID,linkTracker,
     # -------------------------------------------------------------------------
     
     linkTracker[[length(linkTracker) + 1L]] = list(fromkey = "Utterance", 
-                                                     tokey = level, 
-                                                     type = linkType)
+                                                   tokey = level, 
+                                                   type = linkType)
   }
   
   # ---------------------------------------------------------------------------
@@ -1161,7 +1143,7 @@ bpf_link_utterance_level <- function(dbUUID,linkTracker,
   
   return(linkTracker)
 }
- 
+
 ###############################################################################
 ###############################################################################
 ###############################################################################
@@ -1175,8 +1157,8 @@ bpf_link_utterance_level <- function(dbUUID,linkTracker,
 ## @keywords emuR BPF Emu
 ## @return dbSchema
 
-bpf_get_levels_under_utterance <- function(linkTracker,
-                                           refLevel)
+get_bpfLevelsUnderUtterance <- function(linkTracker,
+                                        refLevel)
 {
   underUtterance = list(refLevel)
   
@@ -1199,16 +1181,16 @@ bpf_get_levels_under_utterance <- function(linkTracker,
 
 ## Link utterance level with current level
 ## 
-## @param dbUUID
+## @param emudBhandle
 ## @param currentLevel
 ## @keywords emuR BPF Emu
 ## @return nbItems 
 
-bpf_link_utterance_level_to_current_level <- function(dbUUID,currentLevel)
+link_bpfUtteranceLevelToCurrentLevel <- function(emuDBhandle, currentLevel)
 {
   # Get UUID, session, bundle and itemID of all items of the relevant level
   queryTxt = paste0("SELECT db_uuid, session, bundle, itemID FROM items WHERE level = '", currentLevel, "'")
-  uuidSessionBundleItemID = dbGetQuery(get_emuDBcon(dbUUID), queryTxt)
+  uuidSessionBundleItemID = dbGetQuery(emuDBhandle$connection, queryTxt)
   
   # Loop over all items on this level
   for(idx in 1:nrow(uuidSessionBundleItemID))
@@ -1221,7 +1203,7 @@ bpf_link_utterance_level_to_current_level <- function(dbUUID,currentLevel)
     # Link all items to their corresponding Utterance item 
     # (same UUID, session & bundle, Utterance itemID is always 1).
     queryTxt = paste0("INSERT INTO links VALUES('", db_uuid, "', '", session, "', '", bundle, "', 1, ", itemID, ", NULL)")
-    dbSendQuery(get_emuDBcon(db_uuid), queryTxt)
+    dbGetQuery(emuDBhandle$connection, queryTxt)
   }
   
   nbItems = nrow(uuidSessionBundleItemID)
@@ -1244,57 +1226,50 @@ bpf_link_utterance_level_to_current_level <- function(dbUUID,currentLevel)
 ## @keywords emuR BPF Emu
 ## @return dbSchema
 
-bpf_create_schema <- function(levelTracker, 
-                              linkTracker,
-                              dbName, 
-                              dbUUID, 
-                              audioExt)
+create_bpfSchema <- function(levelTracker, 
+                             linkTracker,
+                             dbName, 
+                             dbUUID, 
+                             audioExt)
 {
   
   # ---------------------------------------------------------------------------
   # --- Get default level order and level definitions from level tracker ------
   # ---------------------------------------------------------------------------
-  
-  defaultLevelOrder = bpf_get_default_level_order(levelTracker = levelTracker)
-  levelDefinitions = bpf_get_level_definitions(levelTracker = levelTracker)
+
+  defaultLevelOrder = get_bpfDefaultLevelOrder(levelTracker = levelTracker)
+  levelDefinitions = get_bpfLevelDefinitions(levelTracker = levelTracker)
   
   # ---------------------------------------------------------------------------
   # ------------------- Get link definitions from link tracker ----------------
   # ---------------------------------------------------------------------------
   
-  linkDefinitions = bpf_get_link_definitions(linkTracker = linkTracker)
+  linkDefinitions = get_bpfLinkDefinitions(linkTracker = linkTracker)
   
   # ---------------------------------------------------------------------------
   # ------------------------------ Create DB schema ---------------------------
   # ---------------------------------------------------------------------------
   
   # Create signalCanvas config.
-  sc = create.EMUwebAppConfig.signalCanvas(order = c("OSCI","SPEC"), 
-                                           assign = list(), 
-                                           contourLims = list())
+  sc = list(order = c("OSCI","SPEC"), 
+            assign = list(), 
+            contourLims = list())
   
   # Create perspective.
-  defPersp = create.EMUwebAppConfig.perspective(name = 'default', 
-                                                signalCanvases = sc, 
-                                                levelCanvases = list(order = defaultLevelOrder), 
-                                                twoDimCanvases = list(order = list()))
-
-  dbSchema = create.schema.databaseDefinition(name = dbName,
-                                              UUID = dbUUID,
-                                              mediafileBasePathPattern = '',
-                                              mediafileExtension = audioExt,
-                                              ssffTrackDefinitions = list(),
-                                              levelDefinitions = levelDefinitions,
-                                              linkDefinitions = linkDefinitions,
-                                              EMUwebAppConfig = create.EMUwebAppConfig(perspectives=list(defPersp)),
-                                              annotationDescriptors = list(),
-                                              tracks = list(),
-                                              flags=list())
+  defPersp = list(name = 'default', 
+                  signalCanvases = sc, 
+                  levelCanvases = list(order = defaultLevelOrder), 
+                  twoDimCanvases = list(order = list()))
   
-  dbSchema[['EMUwebAppConfig']][['activeButtons']] = list(saveBundle=TRUE,
-                                                          showHierarchy=TRUE)
-  
-  dbSchema = .update.transient.schema.values(dbSchema)
+  dbSchema = list(name = dbName,
+                  UUID = dbUUID,
+                  mediafileExtension = audioExt,
+                  ssffTrackDefinitions = list(),
+                  levelDefinitions = levelDefinitions,
+                  linkDefinitions = linkDefinitions,
+                  EMUwebAppConfig = list(perspectives=list(defPersp), 
+                                         activeButtons = list(saveBundle = TRUE,
+                                                              showHierarchy = TRUE)))
   
   return(dbSchema)
 }
@@ -1311,10 +1286,10 @@ bpf_create_schema <- function(levelTracker,
 ## @keywords emuR BPF Emu
 ## @return defaultLevelOrder
 
-bpf_get_default_level_order <- function(levelTracker)
+get_bpfDefaultLevelOrder <- function(levelTracker)
 {
   defaultLevelOrder = list()
- 
+  
   if(length(levelTracker) > 0)
   {
     for(levelIdx in 1:length(levelTracker))
@@ -1340,7 +1315,7 @@ bpf_get_default_level_order <- function(levelTracker)
 ## @keywords emuR BPF Emu
 ## @return levelDefinitions
 
-bpf_get_level_definitions <- function(levelTracker)
+get_bpfLevelDefinitions <- function(levelTracker)
 {
   levelDefinitions = list()
   
@@ -1352,7 +1327,8 @@ bpf_get_level_definitions <- function(levelTracker)
       
       for(label in levelTracker[[levelIdx]][["labels"]])
       {
-        attrDefList[[length(attrDefList) + 1L]] = create.schema.attributeDefinition(label)
+        attrDefList[[length(attrDefList) + 1L]] = list(name = label, 
+                                                       type = "STRING")
       }
       
       levelDefinitions[[length(levelDefinitions) + 1L]] = list(name = levelTracker[[levelIdx]][["key"]],
@@ -1376,7 +1352,7 @@ bpf_get_level_definitions <- function(levelTracker)
 ## @keywords emuR BPF Emu
 ## @return linkDefinitions
 
-bpf_get_link_definitions <- function(linkTracker = linkTracker)
+get_bpfLinkDefinitions <- function(linkTracker = linkTracker)
 {
   linkDefinitions = list()
   if(length(linkTracker) > 0)
@@ -1399,44 +1375,42 @@ bpf_get_link_definitions <- function(linkTracker = linkTracker)
 
 ## Construct a skeleton (empty folders) for the EMU database
 ## 
-## @param basePath
-## @param dbUUID
+## @param emuDBhandle
 ## @keywords emuR BPF Emu
 ## @return
 
-bpf_make_db_skeleton <- function(basePath,
-                                 dbUUID)
+make_bpfDbSkeleton <- function(emuDBhandle)
 {
   # ---------------------------------------------------------------------------
   # ------------------------- Create session directories ----------------------
   # ---------------------------------------------------------------------------
   
-  queryTxt = paste0("SELECT name FROM session WHERE db_uuid = '", dbUUID, "'")
-  sessions = dbGetQuery(get_emuDBcon(dbUUID), queryTxt)
+  queryTxt = paste0("SELECT name FROM session WHERE db_uuid = '", emuDBhandle$UUID, "'")
+  sessions = dbGetQuery(emuDBhandle$connection, queryTxt)
   
   for(idx in 1:nrow(sessions))
   {
     session = paste0(sessions[idx,], session.suffix)
-    res = try(dir.create(file.path(basePath, session)))
+    res = try(dir.create(file.path(emuDBhandle$basePath, session)))
     if(class(res) == "try-error")
     {
-      stop("Could not create session directory ", file.path(basePath, session))
+      stop("Could not create session directory ", file.path(emuDBhandle$basePath, session))
     }
   }
   # ---------------------------------------------------------------------------
   # ------------------------- Create bundle directories -----------------------
   # ---------------------------------------------------------------------------
   
-  queryTxt = paste0("SELECT name, session FROM bundle WHERE db_uuid = '", dbUUID, "'")
-  bundles = dbGetQuery(get_emuDBcon(dbUUID), queryTxt)
+  queryTxt = paste0("SELECT name, session FROM bundle WHERE db_uuid = '", emuDBhandle$UUID, "'")
+  bundles = dbGetQuery(emuDBhandle$connection, queryTxt)
   for(jdx in 1:nrow(bundles))
   {
     bundle = paste0(bundles[jdx,1], bundle.dir.suffix)
     session = paste0(bundles[jdx,2], session.suffix)
-    res = try(dir.create(file.path(basePath, session, bundle)))
+    res = try(dir.create(file.path(emuDBhandle$basePath, session, bundle)))
     if(class(res) == "try-error")
     {
-      stop("Could not create bundle directory ", file.path(basePath, session, bundle))
+      stop("Could not create bundle directory ", file.path(emuDBhandle$basePath, session, bundle))
     }
   }
 }
@@ -1453,18 +1427,23 @@ bpf_make_db_skeleton <- function(basePath,
 ## @keywords emuR BPF Emu
 ## @return
 
-bpf_display_semicolon_warnings <- function(warningsTracker)   
+display_bpfSemicolonWarnings <- function(warningsTracker)   
 {
   msg = paste0("WARNING: The following BPF files contain links pointing to the space between items (using ';'). ",
-                "This feature has not been implemented yet, so the affected items were treated as link-less:\n")
-    
+               "This feature has not been implemented yet, so the affected items were treated as link-less:\n")
+  
   for(path in warningsTracker$semicolonFound)
   {
     msg = paste0(msg, path, "\n")
   }
-    
+  
   if(length(warningsTracker$semicolonFound) > 0)
   {
     warning(msg)
   }
 }
+
+# FOR DEVELOPMENT
+# library(testthat)
+# test_file("tests/testthat/test_aaa_initData.R")
+# test_file("tests/testthat/test_emuR-convert_BPFCollection.R")
