@@ -4,7 +4,7 @@
 ##' by the dir argument called emuR_demoData.
 ##' This folder contains the folders:
 ##' \itemize{
-##' \item{ae: }{Containing an emuDB that adheres to the new format specification 
+##' \item{ae_emuDB: }{Containing an emuDB that adheres to the new format specification 
 ##' (as expected by the \code{\link{load_emuDB}} function). See \code{vignette(emuDB)} 
 ##' for more information on this database format.}
 ##' \item{BPF_collection: }{Containing a BAS Patitur Format (BPF) file collection (as 
@@ -41,7 +41,7 @@ create_emuRdemoData <- function(dir = tempdir(), precache = FALSE){
   configPath = list.files(path2data, pattern = "DBconfig.json$", recursive = T, full.names = T)
   wavPaths = list.files(path2data, pattern = ".wav$", recursive = T, full.names = T)
   annotPaths = list.files(path2data, pattern = "_annot.json$", recursive = T, full.names = T)
-  aePath = file.path(ddPath, "ae")
+  aePath = file.path(ddPath, paste0("ae", emuDB.suffix))
   
   dir.create(aePath)
   
