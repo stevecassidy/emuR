@@ -23,7 +23,7 @@ test_that("get_levelDefinition returns correct levelDef", {
   # get dbObj
   dbConfig = load_DBconfig(ae)
   
-  ld = get_levelDefinition(dbConfig, 'Phonetic')
+  ld = get_levelDefinition(ae, 'Phonetic')
   expect_equal(ld$name, 'Phonetic')
   expect_equal(ld$type, 'SEGMENT')
   expect_equal(ld$attributeDefinitions[[1]]$name, 'Phonetic')
