@@ -60,8 +60,8 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
   found = FALSE
   for(ld in dbConfig$linkDefinitions){
     if (ld$superlevelName == superlevelName && ld$sublevelName == sublevelName){
-      levDefSuper = get_levelDefinition(dbConfig, ld$superlevelName)
-      levDefSub = get_levelDefinition(dbConfig, ld$sublevelName)
+      levDefSuper = get_levelDefinition(emuDBhandle, ld$superlevelName)
+      levDefSub = get_levelDefinition(emuDBhandle, ld$sublevelName)
       
       if(levDefSuper$type == 'SEGMENT' && (levDefSub$type == 'SEGMENT' || levDefSub$type == 'EVENT')){
         found = TRUE

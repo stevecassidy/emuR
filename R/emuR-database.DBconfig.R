@@ -38,18 +38,19 @@
 #   return(lNames)
 # }
 
-# get_levelNameByAttributeName <- function(schema, attributeName){
-#   for(lvlD in schema[['levelDefinitions']]){
-#     aNames = character(0)
-#     for(ad in lvlD[['attributeDefinitions']]){
-#       aNames = c(aNames, ad[['name']])
-#       if(attributeName %in% aNames){
-#         return(lvlD[['name']])
-#       }
-#     }
-#   }
-#   return(NULL)
-# }
+get_levelNameByAttributeName <- function(emuDBhandle, attributeName){
+  DBconfig = load_DBconfig(emuDBhandle)
+  for(lvlD in DBconfig$levelDefinitions){
+    aNames = character(0)
+    for(ad in lvlD$attributeDefinitions){
+      aNames = c(aNames, ad[['name']])
+      if(attributeName %in% aNames){
+        return(lvlD[['name']])
+      }
+    }
+  }
+  return(NULL)
+}
 
 # get_attributeNamesByName<-function(schema, levelName){
 #   aNames=character(0)
@@ -64,16 +65,17 @@
 #   return(aNames)
 # }
 
-# get_allAttributeNames<-function(schema){
-#   aNames=character(0)
-#   for(lvlD in schema[['levelDefinitions']]){
-#     for(ad in lvlD[['attributeDefinitions']]){
-#       aNames=c(aNames,ad[['name']])
-#     }
-#     
-#   }
-#   return(aNames)
-# }
+get_allAttributeNames<-function(emuDBhandle){
+  DBconfig = load_DBconfig(emuDBhandle)
+  aNames=character(0)
+  for(lvlD in DBconfig$levelDefinitions){
+    for(ad in lvlD$attributeDefinitions){
+      aNames=c(aNames,ad$name)
+    }
+    
+  }
+  return(aNames)
+}
 
 
 get_linkLevelChildrenNames<-function(schema, superlevelName){
@@ -254,9 +256,10 @@ build_extLinkDefinitions <- function(schema){
 # helper functions
 
 
-get_levelDefinition <- function(dBconfig, name){
+get_levelDefinition <- function(emuDBhandle, name){
+  DBconfig = load_DBconfig(emuDBhandle)
   res = NULL
-  for(ld in dBconfig$levelDefinitions){
+  for(ld in DBconfig$levelDefinitions){
     if(ld$name == name){
       res = ld
       break
@@ -501,8 +504,8 @@ add_attributeDefinition <- function(emuDBhandle, levelName,
 ##' @rdname AddListRemoveAttributeDefinitions
 ##' @export
 list_attributeDefinitions <- function(emuDBhandle, levelName){
-  dbConfig = load_DBconfig(emuDBhandle)
-  ld = get_levelDefinition(dbConfig, levelName)
+
+  ld = get_levelDefinition(emuDBhandle, levelName)
   
   if(length(ld$attributeDefinitions) > 1){
     df = data.frame(name = character(), 
@@ -541,7 +544,7 @@ remove_attributeDefinition <- function(emuDBhandle,
   
   dbConfig = load_DBconfig(emuDBhandle)
   
-  ld = get_levelDefinition(dbConfig, levelName)
+  ld = get_levelDefinition(emuDBhandle, levelName)
   
   # check if instances are present
   qRes = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM items AS it, labels AS lb WHERE ",
@@ -662,9 +665,7 @@ get_legalLabels <- function(emuDBhandle,
                             levelName,
                             attributeDefinitionName){
   
-  dbConfig = load_DBconfig(emuDBhandle)
-  
-  ld = get_levelDefinition(dbConfig, levelName)
+  ld = get_levelDefinition(emuDbhandle, levelName)
   
   ll = NULL
   for(ad in ld$attributeDefinitions){
@@ -792,9 +793,8 @@ add_attrDefLabelGroup <- function(emuDBhandle,
 list_attrDefLabelGroups <- function(emuDBhandle,
                                     levelName,
                                     attributeDefinitionName){
-  
-  dbConfig = load_DBconfig(emuDBhandle)
-  ld = get_levelDefinition(dbConfig, levelName)
+
+  ld = get_levelDefinition(emuDBhandle, levelName)
   
   df = data.frame(name = character(), 
                   values = character(),
