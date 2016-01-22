@@ -41,7 +41,7 @@ get_charPosition <- function(string,char,pos=1,literalQuote=NULL){
 ## @param literalQuote optional quote character to quote literal strings
 ## @return position in string or -1 if not found or pos outside string constraints
 ## @import stringr
-get.string.position <- function(string,searchStr,pos=1,literalQuote=NULL){
+get_stringPosition <- function(string,searchStr,pos=1,literalQuote=NULL){
   
   strLen=nchar(string)
   searchStrLen=nchar(searchStr)
@@ -76,7 +76,7 @@ get.string.position <- function(string,searchStr,pos=1,literalQuote=NULL){
 ## @param literalQuote optional quote character to quote literal strings
 ## @return position in string or -1 if not found or pos outside string constraints
 ## @import stringr
-get.last.char.position <- function(string,char,pos=nchar(string),literalQuote=NULL){
+get_lastCharPosition <- function(string,char,pos=nchar(string),literalQuote=NULL){
   strLen=nchar(string)
   
   us=pos:1

@@ -13,7 +13,6 @@ emuDB.apiLevel = 3L
 # vars used by testthat tests
 testingVars = list(inMemoryCache = F)
 
-
 #############################################
 # file/folder suffixes of emuDB format
 

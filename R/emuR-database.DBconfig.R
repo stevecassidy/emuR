@@ -38,7 +38,7 @@
 #   return(lNames)
 # }
 
-get_levelNameByAttributeName <- function(emuDBhandle, attributeName){
+get_levelNameForAttributeName <- function(emuDBhandle, attributeName){
   DBconfig = load_DBconfig(emuDBhandle)
   for(lvlD in DBconfig$levelDefinitions){
     aNames = character(0)
@@ -149,14 +149,14 @@ build_allHierarchyPaths <- function(schema){
 }
 
 
-build_sublevelPathes <- function(schema, levelName){
+build_sublevelPathes <- function(DBconfig, levelName){
   pathes = list()
-  chNames = get_linkLevelChildrenNames(schema, levelName)
+  chNames = get_linkLevelChildrenNames(DBconfig, levelName)
   if(length(chNames) == 0){
     pathes[[length(pathes) + 1L]] = c(levelName)
   }else{
     for(chName in chNames){
-      chPathes = build_sublevelPathes(schema, chName)
+      chPathes = build_sublevelPathes(DBconfig, chName)
       for(chPath in chPathes){
         pathes[[length(pathes)+1L]] = c(levelName,chPath)
       }
@@ -166,15 +166,16 @@ build_sublevelPathes <- function(schema, levelName){
 }
 
 
-# build_levelPathes <- function(schema){
-#   pathes = list()
-#   chNames = character(0)
-#   for(l in schema[['levelDefinitions']]){
-#     lPathes = build_sublevelPathes(schema, l[['name']])
-#     pathes = c(pathes, lPathes)
-#   }
-#   return(pathes)
-# }
+build_levelPathes <- function(emuDBhandle){
+  DBconfig = load_DBconfig(emuDBhandle)
+  pathes = list()
+  chNames = character(0)
+  for(l in DBconfig$levelDefinitions){
+    lPathes = build_sublevelPathes(DBconfig, l[['name']])
+    pathes = c(pathes, lPathes)
+  }
+  return(pathes)
+}
 
 
 # builds "extended" link definitions
@@ -182,9 +183,9 @@ build_sublevelPathes <- function(schema, levelName){
 # returns list of character vectors 
 # the first element of each character vector contains the super level name of the levelDefinition,
 # the follwing elements contain all exetnded linked sub level names  
-build_extLinkDefinitions <- function(schema){
+build_extLinkDefinitions <- function(emuDBhandle){
   lds = list()
-  pathes = build_levelPathes(schema)
+  pathes = build_levelPathes(emuDBhandle)
   for(p in pathes){
     pLen = length(p)
     for(i in 1:pLen){
@@ -199,25 +200,26 @@ build_extLinkDefinitions <- function(schema){
 }
 
 
-# find.segment.levels<-function(DBconfig,attrName){
-#   #cat("Search SEGMENT level for ",attrName,"\n")
-#   lvlNm=get.level.name.by.attribute.name(DBconfig,attrName)
-#   extLnkDefs=build.ext.link.definitions(DBconfig)
-#   segLvlList=character(0)
-#   for(extLnkDef in extLnkDefs){
-#     if(extLnkDef[1]==lvlNm){
-#       for(trgLvlNm in extLnkDef[2:length(extLnkDef)]){
-#         
-#         trgLd=get.levelDefinition(DBconfig,trgLvlNm)
-#         if(trgLd['type']=='SEGMENT'){
-#           segLvlList=unique(c(segLvlList,trgLvlNm))
-#         }
-#       }
-#     }
-#   }
-#   #cat("SEGMENT levels for ",attrName,": ",segLvlList,"\n")
-#   return(segLvlList)
-# }
+find_segmentLevels<-function(emuDBhandle, attrName){
+  # DBconfig = load_DBconfig(emuDBhandle)
+  #cat("Search SEGMENT level for ",attrName,"\n")
+  lvlNm = get_levelNameForAttributeName(emuDBhandle, attrName)
+  extLnkDefs = build_extLinkDefinitions(emuDBhandle)
+  segLvlList=character(0)
+  for(extLnkDef in extLnkDefs){
+    if(extLnkDef[1]==lvlNm){
+      for(trgLvlNm in extLnkDef[2:length(extLnkDef)]){
+        
+        trgLd=get_levelDefinition(emuDBhandle, trgLvlNm)
+        if(trgLd['type']=='SEGMENT'){
+          segLvlList=unique(c(segLvlList,trgLvlNm))
+        }
+      }
+    }
+  }
+  #cat("SEGMENT levels for ",attrName,": ",segLvlList,"\n")
+  return(segLvlList)
+}
 
 
 # TODO

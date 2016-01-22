@@ -130,7 +130,7 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBo
     emuDBs.query.tmp[['queryLabels']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
     emuDBs.query.tmp[['queryLinksExt']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
     setQueryTmpEmuDBs(emuDBs.query.tmp)
-    trSl=convert.query.result.to.segmentlist.var(dbConfig = dbConfig,result=result)
+    trSl=convert_queryResultToVariableEmuRsegs(dbConfig = dbConfig,result=result)
     # free temp tables
     setQueryTmpEmuDBs(NULL)
     return(trSl)
@@ -292,7 +292,7 @@ requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
     emuDBs.query.tmp[['queryLabels']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
     emuDBs.query.tmp[['queryLinksExt']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
     setQueryTmpEmuDBs(emuDBs.query.tmp)
-    trSl=convert.query.result.to.segmentlist.var(dbConfig = dbConfig,result=result)
+    trSl=convert_queryResultToVariableEmuRsegs(dbConfig = dbConfig,result=result)
     inSlLen=nrow(seglist)
     trSlLen=nrow(trSl)
     # free temp tables

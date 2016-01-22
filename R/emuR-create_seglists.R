@@ -1,7 +1,7 @@
 
 
 
-convert.query.result.to.seglist<-function(dbConfig,result){
+convert_queryResultToEmusegs<-function(emuDBhandle,result){
   its=NULL
   
   items=getQueryTmpEmuDBs()[['queryItems']]
@@ -197,7 +197,7 @@ convert.query.result.to.seglist<-function(dbConfig,result){
         
       }
     }
-    }
+  }
   segList=make.seglist(labels=labels, start=start, end=end, utts=bundles, query=result[['queryStr']], type=slType, database=dbConfig[['name']])
   # segList is now ordered by temporary seglist ID's, but we need order uuid,session,bundle,sampleStart,samplePoint
   segListOrdered=segList[order(segList[['utts']],segList[['start']]),]
@@ -205,35 +205,41 @@ convert.query.result.to.seglist<-function(dbConfig,result){
 }
 
 
-convert.query.result.to.segmentlist<-function(dbConfig,result,timeRefSegmentLevel=NULL){
-  its=NULL
+convert_queryResultToEmuRsegs <- function(emuDBhandle, result, timeRefSegmentLevel=NULL){
+  # its=NULL
   
-  items=getQueryTmpEmuDBs()[['queryItems']]
+  # items=getQueryTmpEmuDBs()[['queryItems']]
+  itemsTableName = "itemsFilteredTmp"
+  labelsTableName = "labelsFilteredTmp"
+  linksExtTableName = "linksExtFilteredTmp"
   
   bundles=c()
   labels=c()
   start=c()
   end=c()
   slType=NULL
-  
-  projectionItems=result[['projectionItems']]
-  if(!is.null(projectionItems)){ 
+  # projectionItems=result[['projectionItems']]
+  projectionItemsN = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM leftIntermResultProjectionItemsTmp"))$n
+  if(projectionItemsN > 0){ 
     # projection result (hashtag marker)
-    its=data.frame(db_uuid=projectionItems[,'db_uuid'],session=projectionItems[,'session'],bundle=projectionItems[,'bundle'],seqStartId=projectionItems[,'pSeqStartId'],seqEndId=projectionItems[,'pSeqEndId'],seqLen=projectionItems[,'pSeqLen'],level=projectionItems[,'pLevel'],stringsAsFactors = FALSE)
+    # its=data.frame(db_uuid=projectionItems[,'db_uuid'],session=projectionItems[,'session'],bundle=projectionItems[,'bundle'],seqStartId=projectionItems[,'pSeqStartId'],seqEndId=projectionItems[,'pSeqEndId'],seqLen=projectionItems[,'pSeqLen'],level=projectionItems[,'pLevel'],stringsAsFactors = FALSE)
+    itsTableName = "leftIntermResultProjectionItemsTmp"
   }else{
     # use "normal" result
-    its=result[['items']]
+    # its=result[['items']]
+    itsTableName = "leftIntermResultItemsTmp"
   }
   
   # get distinct result levels ...
-  distinctLevels=sqldf("SELECT DISTINCT level FROM its")
+  # distinctLevels=sqldf("SELECT DISTINCT level FROM its")
+  distinctLevels = dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT level FROM ", itsTableName))
   for(attrNm in distinctLevels[,'level']){
     
-    lvlNm=get.level.name.for.attribute(dbConfig = dbConfig,attributeName = attrNm)
-    ld=get.levelDefinition(DBconfig = dbConfig,name = lvlNm)
+    lvlNm = get_levelNameForAttributeName(emuDBhandle, attributeName = attrNm)
+    ld = get_levelDefinition(emuDBhandle, name = lvlNm)
     #cat("Level ",ld['name']," type ",ld['type'],"\n")
     if(ld['type']=='ITEM'){
-      segLvlNms=find.segment.levels(dbConfig,attrNm)
+      segLvlNms = find_segmentLevels(emuDBhandle, attrNm)
       if(!is.null(timeRefSegmentLevel)){
         if(!(timeRefSegmentLevel %in% segLvlNms)){
           stop("Cannot resolve time information for result level '",attrNm,"' using segment time reference level '",timeRefSegmentLevel,"'\nPlease set one of these levels for timeRefSegmentLevel parameter: ",paste(segLvlNms,collapse=', '),".")
@@ -250,24 +256,26 @@ convert.query.result.to.segmentlist<-function(dbConfig,result,timeRefSegmentLeve
   }
   
   
-  itCount=nrow(its)
-  if(itCount==0){
-    its=data.frame(db_uuid=character(0),session=character(0),bundle=character(0),seqStartId=integer(0),seqEndId=integer(0),seqLen=integer(0),level=character(0),stringsAsFactors = FALSE)
-  }
-  links=getQueryTmpEmuDBs()[['queryLinksExt']]
+#   itCount=nrow(its)
+  itCount = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM ", itsTableName))$n
+#   if(itCount==0){
+#     its=data.frame(db_uuid=character(0),session=character(0),bundle=character(0),seqStartId=integer(0),seqEndId=integer(0),seqLen=integer(0),level=character(0),stringsAsFactors = FALSE)
+#   }
   
-  lblsDf=getQueryTmpEmuDBs()[['queryLabels']]
-  itemsIdxSql='CREATE INDEX items_idx ON items(itemID,db_uuid,session,bundle,level,itemID,seqIdx,type,sampleRate,sampleStart,sampleDur,samplePoint)'
-  resIdxSql='CREATE INDEX its_idx ON its(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)'
+  # links=getQueryTmpEmuDBs()[['queryLinksExt']]
+  
+  # lblsDf=getQueryTmpEmuDBs()[['queryLabels']]
+  # itemsIdxSql='CREATE INDEX items_idx ON items(itemID,db_uuid,session,bundle,level,itemID,seqIdx,type,sampleRate,sampleStart,sampleDur,samplePoint)'
+  # resIdxSql='CREATE INDEX its_idx ON its(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)'
   
   #labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,name)'
-  labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,db_uuid,session,bundle,name)'
+  # labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,db_uuid,session,bundle,name)'
   # get max length
   #itemsIdxSql='CREATE INDEX items_idx ON items(seqLen)'
-  if(itCount>0){
-    maxSeqLenDf=sqldf(c(resIdxSql,"SELECT max(seqLen) AS maxSeqLen FROM its"))
-    maxSeqLen=maxSeqLenDf[1,'maxSeqLen']
-    
+  if(itCount > 0){
+    # maxSeqLenDf = sqldf(c(resIdxSql,"SELECT max(seqLen) AS maxSeqLen FROM its"))
+    # maxSeqLen=maxSeqLenDf[1,'maxSeqLen']
+    maxSeqLen = dbGetQuery(emuDBhandle$connection, paste0("SELECT max(seqLen) AS maxSeqLen FROM ", itsTableName))$maxSeqLen
   }else{
     maxSeqLen=1L
   }
@@ -276,9 +284,10 @@ convert.query.result.to.segmentlist<-function(dbConfig,result,timeRefSegmentLeve
   # query seglist data except labels
   # for this data the information in start end item of the sequence is sufficient
   # it takes only the start  and end items of the query result in account
-  # the CASE WHEN THEN ELSE END terms are necessary to get the start and end samples of sequences which are not segment levels and therefore have no time information  
-  hasLinks=(nrow(links)>0)
-  
+  # the CASE WHEN THEN ELSE END terms are necessary to get the start and end samples of sequences which are not segment levels and therefore have no time information
+  # hasLinks=(nrow(links)>0)
+  linksExtFilteredCount = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM linksExtFilteredTmp"))$n
+  hasLinks = (linksExtFilteredCount > 0)
   
   # check for ambigious time information (multiple SEGMENT levels)
   # TODO   
@@ -305,11 +314,11 @@ convert.query.result.to.segmentlist<-function(dbConfig,result,timeRefSegmentLeve
   if(hasLinks){
     # items of type ITEM have no (sample) time information
     # therefore we search for linked SEGMENT items and take their start sample position
-    selectStr=paste0(selectStr," ELSE (SELECT i.sampleStart FROM items i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND ")
+    selectStr=paste0(selectStr," ELSE (SELECT i.sampleStart FROM ", itemsTableName, " i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND ")
     if(!is.null(timeRefSegmentLevel)){
       selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
     }
-    selectStr=paste0(selectStr," EXISTS (SELECT * FROM links l WHERE s.db_uuid=s.db_uuid AND s.session=l.session AND s.bundle=l.bundle AND s.itemID=l.fromID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.itemID=l.toID AND l.toSeqIdx=0)) ")
+    selectStr=paste0(selectStr," EXISTS (SELECT * FROM ", linksExtTableName, " l WHERE s.db_uuid=s.db_uuid AND s.session=l.session AND s.bundle=l.bundle AND s.itemID=l.fromID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.itemID=l.toID AND l.toSeqIdx=0)) ")
   }else{
     # TODO
     # No sample start information. (throw error ?)
@@ -326,11 +335,11 @@ convert.query.result.to.segmentlist<-function(dbConfig,result,timeRefSegmentLeve
     # items of type ITEM have no (sample) time information
     # therefore we search for linked SEGMENT items and take their end sample position
     
-    selectStr=paste0(selectStr," ELSE (SELECT i.sampleStart+i.sampleDur FROM items i WHERE i.db_uuid=e.db_uuid AND i.session=e.session AND i.bundle=e.bundle AND i.type='SEGMENT' AND ")
+    selectStr=paste0(selectStr," ELSE (SELECT i.sampleStart+i.sampleDur FROM ", itemsTableName, " i WHERE i.db_uuid=e.db_uuid AND i.session=e.session AND i.bundle=e.bundle AND i.type='SEGMENT' AND ")
     if(!is.null(timeRefSegmentLevel)){
       selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
     }
-    selectStr=paste0(selectStr," EXISTS (SELECT * FROM links l WHERE e.db_uuid=l.db_uuid AND e.session=l.session AND e.bundle=l.bundle AND e.itemID=l.fromID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.itemID=l.toID AND l.toSeqIdx+1=l.toSeqLen)) ")
+    selectStr=paste0(selectStr," EXISTS (SELECT * FROM ", linksExtTableName, " l WHERE e.db_uuid=l.db_uuid AND e.session=l.session AND e.bundle=l.bundle AND e.itemID=l.fromID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.itemID=l.toID AND l.toSeqIdx+1=l.toSeqLen)) ")
     
   }
   selectStr=paste0(selectStr,"END AS sampleEnd, ")
@@ -344,11 +353,11 @@ convert.query.result.to.segmentlist<-function(dbConfig,result,timeRefSegmentLeve
     # items of type ITEM have no sample rate information
     # therefore we search for linked SEGMENT items and take their start sample position
     # TODO Can we use EVENT items as well ?
-    selectStr=paste0(selectStr," ELSE (SELECT i.sampleRate FROM items i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND ")
+    selectStr=paste0(selectStr," ELSE (SELECT i.sampleRate FROM ", itemsTableName, " i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND ")
     if(!is.null(timeRefSegmentLevel)){
       selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
     }
-    selectStr=paste0(selectStr," EXISTS (SELECT * FROM links l WHERE s.itemID=l.fromID AND i.itemID=l.toID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND l.toSeqIdx=0)) ")
+    selectStr=paste0(selectStr," EXISTS (SELECT * FROM ", linksExtTableName, " l WHERE s.itemID=l.fromID AND i.itemID=l.toID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND l.toSeqIdx=0)) ")
     
   }else{
     # TODO no samplerate , error ??
@@ -357,7 +366,7 @@ convert.query.result.to.segmentlist<-function(dbConfig,result,timeRefSegmentLeve
   selectStr=paste0(selectStr," END AS sampleRate, ")
   
   # from clause
-  fromStr="FROM items s,items e,its r, "
+  fromStr=paste0("FROM ", itemsTableName, " s,", itemsTableName, " e,", itsTableName, " r, ")
   
   # where clause: make sure start and end are in same emuDB, session and bundle, select start and end id
   whereStr="WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND e.level=s.level AND "
@@ -373,12 +382,12 @@ convert.query.result.to.segmentlist<-function(dbConfig,result,timeRefSegmentLeve
   # which are not allowed by BNF and in emuR but in fact they are working with Emu 2.3 and emuR requery may produce such results
   # result would be a mix with t->S and I items (sequence lengths 2 and 1)
   for(seqIdx in 1:maxSeqLen){
-    selectStr=paste0(selectStr,'(SELECT l.label FROM lblsDf l WHERE l.db_uuid=i',seqIdx,'.db_uuid AND l.session=i',seqIdx,'.session AND l.bundle=i',seqIdx,'.bundle AND   l.itemID=i',seqIdx,".itemID AND l.name=r.level)")
+    selectStr=paste0(selectStr, "(SELECT l.label FROM ", labelsTableName, " l WHERE l.db_uuid=i", seqIdx, ".db_uuid AND l.session=i", seqIdx, ".session AND l.bundle=i", seqIdx, ".bundle AND l.itemID=i", seqIdx, ".itemID AND l.name=r.level)")
     
     #selectLblStr=paste0(selectLblStr,)
-    fromStr=paste0(fromStr,'items i',seqIdx)
+    fromStr=paste0(fromStr, itemsTableName, " i",seqIdx)
     offset=seqIdx-1
-    whereStr=paste0(whereStr,'i',seqIdx,'.db_uuid=s.db_uuid AND i',seqIdx,'.session=s.session AND i',seqIdx,'.bundle=s.bundle AND i',seqIdx,'.level=s.level AND i',seqIdx,'.seqIdx=s.seqIdx+',offset)
+    whereStr=paste0(whereStr, "i", seqIdx, ".db_uuid=s.db_uuid AND i", seqIdx, ".session=s.session AND i", seqIdx, ".bundle=s.bundle AND i", seqIdx ,".level=s.level AND i", seqIdx, ".seqIdx=s.seqIdx+", offset)
     if(seqIdx<maxSeqLen){
       #selectStrL=paste0(selectStrL,',')
       selectStr=paste0(selectStr," || '->' || ")
@@ -393,24 +402,21 @@ convert.query.result.to.segmentlist<-function(dbConfig,result,timeRefSegmentLeve
   
   # build indices
   #itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx,type)' # very slow !!
-  itemsIdxSql='CREATE INDEX items_idx ON items(type,db_uuid,session,bundle,level,itemID,seqIdx)'
-  linksIdxSql='CREATE INDEX links_idx ON links(db_uuid,session,bundle,fromID,toID,toSeqIdx,toSeqLen)'
-  if(hasLinks){
+  # itemsIdxSql='CREATE INDEX items_idx ON items(type,db_uuid,session,bundle,level,itemID,seqIdx)'
+  # linksIdxSql='CREATE INDEX links_idx ON links(db_uuid,session,bundle,fromID,toID,toSeqIdx,toSeqLen)'
+  # if(hasLinks){
     #st=system.time((segListData=sqldf(c(itemsIdxSql,linksIdxSql,resIdxSql,q))))
     #cat(st," (with links)\n")
-    segListData=sqldf(c(itemsIdxSql,linksIdxSql,resIdxSql,labelsIdxSql,queryStr))
-  }else{
-    #st=system.time((segListData=sqldf(c(itemsIdxSql,resIdxSql,q))))
+    # segListData=sqldf(c(itemsIdxSql,linksIdxSql,resIdxSql,labelsIdxSql,queryStr))
+  # }else{
+    # st=system.time((segListData=sqldf(c(itemsIdxSql,resIdxSql,q))))
     #cat(st," (without links)\n")
-    segListData=sqldf(c(itemsIdxSql,resIdxSql,labelsIdxSql,queryStr))
-  }
+    # segListData=sqldf(c(itemsIdxSql,resIdxSql,labelsIdxSql,queryStr))
+  # }
   # Note: CASE s.type WHEN 'SEGMENT' OR 'EVENT' did not work.
   
-  #print(segListData)
-  
-  # convert samples to milliseconds using SQL:
-  seglist=sqldf("SELECT \
-                       labels,
+  # convert samples to milliseconds SQL string:
+  queryStrInclConvert = paste0("SELECT labels,
                        CASE type WHEN 'EVENT' THEN \
                         CAST (sampleStart AS REAL)/ CAST( sampleRate AS REAL) * 1000.0 \
                        ELSE \
@@ -423,25 +429,28 @@ convert.query.result.to.segmentlist<-function(dbConfig,result,timeRefSegmentLeve
                        END AS end, \
                        session || ':' || bundle AS utts, \
                        db_uuid,session,bundle,startItemID,endItemID,level,type,sampleStart,sampleEnd,sampleRate \
-                      FROM segListData ORDER BY db_uuid,session,bundle,sampleStart")
+                      FROM (", queryStr, ") ORDER BY db_uuid,session,bundle,sampleStart")
+  
+  seglist = dbGetQuery(emuDBhandle$connection, queryStrInclConvert)
+  
   # set emusegs type attribute, default 'segment'
   slType='segment'
   if(nrow(seglist)>0){
     # set to event only if all rows are of type EVENT
-    dTypes=sqldf("SELECT DISTINCT type FROM seglist")
-    if(nrow(dTypes)==1){
+    if(all(seglist$type == "EVENT")){
       if(dTypes[1,1]=='EVENT'){
         slType='event'
       }
     }
   }
-  segmentList=make.emuRsegs(dbName = dbConfig[['name']],seglist = seglist,query = result[['queryStr']],type = slType)
+  queryStr = dbGetQuery(emuDBhandle$connection, "SELECT queryStr FROM leftIntermResultMetaInfosTmp")$queryStr
+  segmentList=make.emuRsegs(dbName = emuDBhandle$dbName, seglist = seglist, query = queryStr, type = slType)
   return(segmentList)
 }
 
 
 # convert to emuRsegs segemnt list, variable sequenec length of input allowed
-convert.query.result.to.segmentlist.var<-function(dbConfig,result,timeRefSegmentLevel=NULL){
+convert_queryResultToVariableEmuRsegs <- function(dbConfig,result,timeRefSegmentLevel=NULL){
   its=NULL
   
   items=getQueryTmpEmuDBs()[['queryItems']]
@@ -601,28 +610,28 @@ convert.query.result.to.segmentlist.var<-function(dbConfig,result,timeRefSegment
   orderStr=''
   
   if(itCount>0){
-  selectStr=paste0(selectStr," CASE r.seqLen ")
-  distinctSeqLensLength=nrow(distinctSeqLens)
-  # for each seq len, which occurs in the input segment list
-  for(si in 1:distinctSeqLensLength){
-    seqLen=distinctSeqLens[si,1]
-  # append terms depending on maximum sequence length
-  # build query for label sequence string
-  # emuR hierachical requery produces results with differnet seq lengths per row
-    selectStr=paste0(selectStr,"WHEN ",seqLen," THEN ")
-  for(seqIdx in 1:seqLen){
-     selectStr=paste0(selectStr,'(SELECT l.label FROM lblsDf l,items i WHERE l.db_uuid=i.db_uuid AND l.session=i.session AND l.bundle=i.bundle AND l.itemID=i.itemID AND l.name=r.level AND ')
-
-     offset=seqIdx-1
-     selectStr=paste0(selectStr,'i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.level=s.level AND i.seqIdx=s.seqIdx+',offset,")")
-     if(seqIdx<seqLen){
-       selectStr=paste0(selectStr," || '->' || ")
-     }
-     
-  }
-    
-  }
-  selectStr=paste0(selectStr," END AS labels ")
+    selectStr=paste0(selectStr," CASE r.seqLen ")
+    distinctSeqLensLength=nrow(distinctSeqLens)
+    # for each seq len, which occurs in the input segment list
+    for(si in 1:distinctSeqLensLength){
+      seqLen=distinctSeqLens[si,1]
+      # append terms depending on maximum sequence length
+      # build query for label sequence string
+      # emuR hierachical requery produces results with differnet seq lengths per row
+      selectStr=paste0(selectStr,"WHEN ",seqLen," THEN ")
+      for(seqIdx in 1:seqLen){
+        selectStr=paste0(selectStr,'(SELECT l.label FROM lblsDf l,items i WHERE l.db_uuid=i.db_uuid AND l.session=i.session AND l.bundle=i.bundle AND l.itemID=i.itemID AND l.name=r.level AND ')
+        
+        offset=seqIdx-1
+        selectStr=paste0(selectStr,'i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.level=s.level AND i.seqIdx=s.seqIdx+',offset,")")
+        if(seqIdx<seqLen){
+          selectStr=paste0(selectStr," || '->' || ")
+        }
+        
+      }
+      
+    }
+    selectStr=paste0(selectStr," END AS labels ")
   }else{
     selectStr=paste0(selectStr," '' AS labels ")
   }
