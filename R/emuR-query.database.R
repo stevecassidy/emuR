@@ -715,7 +715,8 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
       left=str_trim(substr(qTrim,1,seqPos-1))
       right=str_trim(substring(qTrim,seqPos+2))
     }
-    browser()
+    
+    
     # check that left side is not a SQ -> ensure depth first traversal of parse tree of query
     brOpenPos = get_charPosition(left, '[', literalQuote="'")
     if(brOpenPos != -1){
@@ -763,7 +764,8 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
     # lResItsNrows=nrow(lResIts)
     nLeftResIts = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM leftIntermResultItemsTmp"))$n
     if(nLeftResIts == 0){
-      clear_intermResTabels(emuDBhandle, intermResTablePrefix)
+      clear_intermResTabels(emuDBhandle, "left")
+      clear_intermResTabels(emuDBhandle, "right")
       return()
     }
     #else{
@@ -781,7 +783,8 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
     # rResItsNrows=nrow(rResIts)
     nRightResIts = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM rightIntermResultItemsTmp"))$n
     if(nRightResIts == 0){
-      clear_intermResTabels(emuDBhandle, intermResTablePrefix)
+      clear_intermResTabels(emuDBhandle, "left")
+      clear_intermResTabels(emuDBhandle, "right")
       return()
     }
     
@@ -887,8 +890,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
       
     }
     if(seqPos!=-1){
-      
-      # parse SEQA
+
       # query the result level of left term (removed lid.seqEndId AS leId,rid.seqStartId AS rsId,)
       lrSeqQueryStr = paste0("SELECT lid.db_uuid,lid.session,lid.bundle,lid.seqStartId, rid.seqEndId,lid.seqLen+rid.seqLen AS seqLen,lid.level FROM leftIntermResultItemsTmp lid, rightIntermResultItemsTmp rid, itemsFilteredTmp il, itemsFilteredTmp ir WHERE \
                           il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle AND \
@@ -899,6 +901,15 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
       lrExpRes = dbGetQuery(emuDBhandle$connection, lrSeqQueryStr)
       
       dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultItemsTmp"), lrExpRes, overwrite = T)
+      # check if no sequences where found -> clear & return
+      nSeq = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM ", intermResTablePrefix, "IntermResultItemsTmp"))$n
+      if(nSeq == 0){
+        clear_intermResTabels(emuDBhandle, "left")
+        clear_intermResTabels(emuDBhandle, "right")
+        return()
+      }
+      
+      
       # dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO ", intermResTablePrefix, "IntermResultMetaInfosTmp (resultLevel)", "VALUES ('", lResAttrName, "')"))
       
       # select final result columns
@@ -906,9 +917,6 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
       
       # lPrjIts=NULL
       if(nLeftProjItems != 0){
-        if(nRightProjItems){
-          stop("Only a single result modifier (hash tag #) is allowed per query!")
-        }
         # TODO
         #lPrjIts=reduce.projection.items(lExpRes,lResPIts)
         # qStr = paste0("SELECT i.db_uuid,i.session,i.bundle,i.seqStartId,i.seqEndId,pi.pSeqStartId,pi.pSeqEndId,pi.pSeqLen,pi.pLevel FROM ", paste0(intermResTablePrefix, "IntermResultItemsTmp"), " i, leftIntermResultProjectionItemsTmp pi WHERE \
@@ -924,10 +932,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
       }
       # rPrjIts=NULL
       if(nRightProjItems != 0){
-        if(nLeftProjItems){
-          stop("Only a single result modifier (hash tag #) is allowed per query!")
-        }
-        
+
         # qStr = paste0("SELECT i.db_uuid,i.session,i.bundle,i.seqStartId,i.seqEndId,pi.seqStartId,pi.seqEndId,pi.seqLen,pi.level FROM ", paste0(intermResTablePrefix, "IntermResultItemsTmp"), " i, rightIntermResultProjectionItemsTmp pi WHERE \
         # i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.seqStartId=pi.seqStartId AND i.seqEndId=pi.seqEndId")
         # rPrjIts=sqldf(qStr)

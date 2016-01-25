@@ -14,21 +14,6 @@ path2demoData = file.path(tempdir(),"emuR_demoData")
 path2testhatFolder = file.path(tempdir(),"emuR_testthat")
 
 
-# purge ae if loaded to make tests work
-if(is.emuDB.loaded(dbUUID=.test_emu_ae_db_uuid)){
-  #UUID = get_UUID(dbName = "ae")
-  purge_emuDB(dbUUID = .test_emu_ae_db_uuid,interactive = F)
-}
-
-
-test_that("Purge example database ae",{
-  if(is.emuDB.loaded(dbUUID=.test_emu_ae_db_uuid)){
-    purge_emuDB(dbUUID=.test_emu_ae_db_uuid,interactive=FALSE)
-  }
-  if(is.emuDB.loaded('ae')){
-    purge_emuDB('ae',interactive=FALSE)
-  }
-})
 test_that("Convert example database ae",{
   legacyDbEmuAeTpl <- file.path(path2demoData, "legacy_ae", "ae.tpl")
   .test_emu_ae_db_dir<<-file.path(path2testhatFolder, 'test_emu_ae')
@@ -311,3 +296,36 @@ test_that("Check Phonetic tier seglist",{
  
 })
 
+
+# 
+test_that("bad calls cause errors",{
+  query(ae, "[#Text=more -> #Text=customers]")
+})
+
+test_that("All queries from EQL vignette (slightly adapted)",{
+  sl = query(ae, "[Phonetic == m]")
+  expect_equal(nrow(sl), 7)
+  sl = query(ae, "[Phonetic == m | n]")
+  expect_equal(nrow(sl), 19)
+  sl = query(ae, "[Phonetic != m | n]")
+  expect_equal(nrow(sl), 234)
+  sl = query(ae, "[Syllable =~ .*]") # really really slow!!! Why ???
+  expect_equal(nrow(sl), 83)
+  sl = query(ae, "[Text =~ am.*]")
+  expect_equal(nrow(sl), 1)
+  sl = query(ae, "[Text !~ am.*]")
+  expect_equal(nrow(sl), 53)
+  sl = query(ae, "[Phonetic == m -> Phonetic == I]") 
+  expect_equal(nrow(sl), 0)
+  sl = query(ae, "[#Phonetic == m -> Phonetic == I]")
+  expect_equal(nrow(sl), 0)
+  sl = query(ae, "[Phonetic == m -> #Phonetic == I]")
+  expect_equal(nrow(sl), 0)
+  sl = query(ae, "[Phonetic == m -> #Phonetic == o]")
+  expect_equal(nrow(sl), 0)
+  "[[Phonetic == m -> Phonetic == I ] -> Phonetic == n]"
+  "[[Text == john -> Text == could] -> Text == lend]"
+  "[[[Text == the -> Text =~ .*] -> Text =~ .* ] -> Text == managed]"
+
+  
+})
