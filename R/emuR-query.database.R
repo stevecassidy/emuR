@@ -10,13 +10,16 @@ database.DDL.emuDB_itemsFilteredTmp = gsub("CREATE TABLE items", "CREATE TEMP TA
 
 database.DDL.emuDB_labelsFilteredTmp = gsub("CREATE TABLE labels", "CREATE TEMP TABLE labelsFilteredTmp", database.DDL.emuDB_labels)
 database.DDL.emuDB_labelsFilteredTmp_idx = "CREATE INDEX labelsFilteredTmp_idx ON labelsFilteredTmp(itemID,db_uuid,session,bundle,name)"
+
 database.DDL.emuDB_linksExtFilteredTmp = gsub("CREATE TABLE linksExt", "CREATE TEMP TABLE linksExtFilteredTmp", database.DDL.emuDB_linksExt)
-database.DDL.emuDB_linksExtFilteredTmp_idx = 'CREATE INDEX links_idx ON links(db_uuid,session,bundle,fromID,toID)'
+database.DDL.emuDB_linksExtFilteredTmp_idx = 'CREATE INDEX linksExtFilteredTmp_idx ON linksExtFilteredTmp(db_uuid,session,bundle,fromID,toID)'
 
 # tabels that store subsets of filtered tables
 database.DDL.emuDB_itemsFilteredSubsetTmp = gsub("CREATE TABLE items", "CREATE TEMP TABLE itemsFilteredSubsetTmp", database.DDL.emuDB_items) 
 database.DDL.emuDB_labelsFilteredSubsetTmp = gsub("CREATE TABLE labels", "CREATE TEMP TABLE labelsFilteredSubsetTmp", database.DDL.emuDB_labels)
+database.DDL.emuDB_labelsFilteredSubsetTmp_idx = "CREATE INDEX labelsFilteredSubsetTmp_idx ON labelsFilteredSubsetTmp(itemID,db_uuid,session,bundle,name)"
 database.DDL.emuDB_linksExtFilteredSubsetTmp = gsub("CREATE TABLE linksExt", "CREATE TEMP TABLE linksExtFilteredSubsetTmp", database.DDL.emuDB_linksExt)
+database.DDL.emuDB_linksExtFilteredSubsetTmp_idx = 'CREATE INDEX linksExtFilteredSubsetTmp_idx ON linksExtFilteredSubsetTmp(db_uuid,session,bundle,fromID,toID)'
 
 # leftIntermResult
 database.DDL.emuDB_leftIntermResultItemsTmp = 'CREATE TEMP TABLE leftIntermResultItemsTmp (
@@ -27,6 +30,7 @@ database.DDL.emuDB_leftIntermResultItemsTmp = 'CREATE TEMP TABLE leftIntermResul
   seqEndId INTEGER,
   seqLen INTEGER,
   level TEXT,
+  PRIMARY KEY (db_uuid, session, bundle, seqStartId, seqEndId),
   FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session_name, name)
 );'
 
@@ -40,6 +44,7 @@ database.DDL.emuDB_leftIntermResultLinksTmp = 'CREATE TEMP TABLE leftIntermResul
   fromID INTEGER,
   toID INTEGER,
   label TEXT,
+  PRIMARY KEY (db_uuid, session, bundle, fromID, toID),
   FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session_name, name)
 );'
 
@@ -592,8 +597,7 @@ query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTablePr
         # res[['projectionItems']]=data.frame(db_uuid=rIts[,'db_uuid'],session=rIts[,'session'],bundle=rIts[,'bundle'],seqStartId=rIts[,'seqStartId'],seqEndId=rIts[,'seqEndId'],seqLen=rIts[,'seqLen'],pSeqStartId=rIts[,'seqStartId'],pSeqEndId=rIts[,'seqEndId'],pSeqLen=rIts[,'seqLen'],pLevel=lvlNms,stringsAsFactors = FALSE)
         # res[['projectionAttrLevel']]=lvlName
         dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO ", intermResTablePrefix, "IntermResultProjectionItemsTmp ", "SELECT * FROM ", intermResTablePrefix, "IntermResultItemsTmp"))
-        dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO ", intermResTablePrefix, "IntermResultMetaInfosTmp (projectionAttrLevel) ",
-                                                  "VALUES ('", lvlName, "')"))
+        dbGetQuery(emuDBhandle$connection, paste0("UPDATE ", intermResTablePrefix, "IntermResultMetaInfosTmp SET projectionAttrLevel = '", lvlName, "'"))
       }
       return()
     }
@@ -670,7 +674,6 @@ query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTablePrefix){
         # if one of the boolean terms is marked with the hashtag the whole term is marked 
         projection=TRUE
         # projectionAttrLevel=res[['projectionAttrLevel']]
-        stop("here!!!!!!!!!")
         projectionAttrLevel = dbGetQuery(emuDBhandle$connection, paste0("SELECT projectionAttrLevel FROM ", intermResTablePrefix, "IntermResultMetaInfosTmp"))$projectionAttrLevel
       }
     }
@@ -679,9 +682,10 @@ query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTablePrefix){
   dbGetQuery(emuDBhandle$connection, paste0("UPDATE ", intermResTablePrefix, "IntermResultItemsTmp ", "SET level ='", resultLevel, "'"))
   # items=res[['items']]
   # SIC... why is the items df set again?
-  if(projection){      
-    qStr=paste0('SELECT i.db_uuid,i.session,i.bundle,i.seqStartId,i.seqEndId,i.seqStartId AS pSeqStartId ,i.seqEndId AS pSeqEndId,i.seqLen AS pSeqLen,"',projectionAttrLevel,'" AS pLevel FROM items i')
-    res[['projectionItems']]=sqldf(qStr)
+  if(projection){
+    # SIC no idea why this has to be set again? Commenting out for now because it is set by
+    # qStr=paste0('SELECT i.db_uuid,i.session,i.bundle,i.seqStartId,i.seqEndId,i.seqStartId AS pSeqStartId ,i.seqEndId AS pSeqEndId,i.seqLen AS pSeqLen,"',projectionAttrLevel,'" AS pLevel FROM items i')
+    # res[['projectionItems']]=sqldf(qStr)
   }
   # res[['resultLevel']]=resultLevel
   dbGetQuery(emuDBhandle$connection, paste0("UPDATE ", intermResTablePrefix, "IntermResultMetaInfosTmp ", "SET resultLevel = '", resultLevel, "'"))
@@ -1108,11 +1112,15 @@ create_tmpQueryTablesDBI <- function(emuDBhandle){
   
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredTmp)
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labelsFilteredTmp)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labelsFilteredTmp_idx)
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtFilteredTmp)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtFilteredTmp_idx)
   
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredSubsetTmp)
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labelsFilteredSubsetTmp)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labelsFilteredSubsetTmp_idx)
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtFilteredSubsetTmp)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtFilteredSubsetTmp_idx)
   
   dbGetQuery(ae$connection, database.DDL.emuDB_leftIntermResultItemsTmp)
   dbGetQuery(ae$connection, database.DDL.emuDB_leftIntermResultLinksTmp)
@@ -1127,23 +1135,24 @@ create_tmpQueryTablesDBI <- function(emuDBhandle){
 }
 
 drop_tmpQueryTablesDBI <- function(emuDBhandle){
-  dbGetQuery(emuDBhandle$connection, "DROP TABLE itemsFilteredTmp")
-  dbGetQuery(emuDBhandle$connection, "DROP TABLE labelsFilteredTmp")
-  dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtFilteredTmp")
+  tableNames = dbListTables(emuDBhandle$connection)
+  if("itemsFilteredTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE itemsFilteredTmp")
+  if("labelsFilteredTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE labelsFilteredTmp")
+  if("linksExtFilteredTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtFilteredTmp")
   
-  dbGetQuery(emuDBhandle$connection, "DROP TABLE itemsFilteredSubsetTmp")
-  dbGetQuery(emuDBhandle$connection, "DROP TABLE labelsFilteredSubsetTmp")
-  dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtFilteredSubsetTmp")
+  if("itemsFilteredSubsetTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE itemsFilteredSubsetTmp")
+  if("itemsFilteredSubsetTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE labelsFilteredSubsetTmp")
+  if("itemsFilteredSubsetTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtFilteredSubsetTmp")
   
-  dbGetQuery(emuDBhandle$connection, "DROP TABLE leftIntermResultItemsTmp")
-  dbGetQuery(emuDBhandle$connection, "DROP TABLE leftIntermResultLinksTmp")
-  dbGetQuery(emuDBhandle$connection, "DROP TABLE leftIntermResultMetaInfosTmp")
-  dbGetQuery(emuDBhandle$connection, "DROP TABLE leftIntermResultProjectionItemsTmp")
+  if("leftIntermResultItemsTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE leftIntermResultItemsTmp")
+  if("leftIntermResultLinksTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE leftIntermResultLinksTmp")
+  if("leftIntermResultMetaInfosTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE leftIntermResultMetaInfosTmp")
+  if("leftIntermResultProjectionItemsTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE leftIntermResultProjectionItemsTmp")
   
-  dbGetQuery(emuDBhandle$connection, "DROP TABLE rightIntermResultItemsTmp")
-  dbGetQuery(emuDBhandle$connection, "DROP TABLE rightIntermResultLinksTmp")
-  dbGetQuery(emuDBhandle$connection, "DROP TABLE rightIntermResultMetaInfosTmp")
-  dbGetQuery(emuDBhandle$connection, "DROP TABLE rightIntermResultProjectionItemsTmp")
+  if("rightIntermResultItemsTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE rightIntermResultItemsTmp")
+  if("rightIntermResultLinksTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE rightIntermResultLinksTmp")
+  if("rightIntermResultMetaInfosTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE rightIntermResultMetaInfosTmp")
+  if("rightIntermResultProjectionItemsTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE rightIntermResultProjectionItemsTmp")
   
 }
 

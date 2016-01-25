@@ -28,7 +28,7 @@ convert_queryResultToEmusegs<-function(emuDBhandle,result){
     #labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,name)'
     labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,name)'
     # get max length
-    #itemsIdxSql='CREATE INDEX items_idx ON items(seqLen)'
+    # itemsIdxSql='CREATE INDEX items_idx ON items(seqLen)'
     maxSeqLenDf=sqldf(c(resIdxSql,"SELECT max(seqLen) AS maxSeqLen FROM its"))
     maxSeqLen=maxSeqLenDf[1,'maxSeqLen']
     #cat("Max seq len: ",maxSeqLen,"\n")
