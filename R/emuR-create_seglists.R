@@ -205,7 +205,7 @@ convert_queryResultToEmusegs<-function(emuDBhandle,result){
 }
 
 
-convert_queryResultToEmuRsegs <- function(emuDBhandle, result, timeRefSegmentLevel=NULL){
+convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL){
   # its=NULL
   
   # items=getQueryTmpEmuDBs()[['queryItems']]
