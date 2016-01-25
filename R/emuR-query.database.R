@@ -128,9 +128,8 @@ check_level_attribute_name<-function(dbConfig,name){
 }
 
 ## @param emuDBhandle
-## @param levelName
 ## @param intermResTablePrefix "left" or "right"
-clear_intermResTabels <- function(emuDBhandle, levelName, intermResTablePrefix = "left"){
+clear_intermResTabels <- function(emuDBhandle, intermResTablePrefix = "left"){
   
   dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", paste0(intermResTablePrefix, "IntermResultItemsTmp")))
   dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", paste0(intermResTablePrefix, "IntermResultLinksTmp")))
@@ -149,7 +148,7 @@ query_labels <- function(emuDBhandle, levelName, intermResTablePrefix = "left", 
     labelTableName = "labelsFilteredTmp"
   }
   
-  clear_intermResTabels(emuDBhandle, levelName, intermResTablePrefix)
+  clear_intermResTabels(emuDBhandle, intermResTablePrefix)
   opr=conditionText[['opr']]
   values=conditionText[['values']]
   res=NULL
@@ -161,12 +160,15 @@ query_labels <- function(emuDBhandle, levelName, intermResTablePrefix = "left", 
                                                 "WHERE name = '", levelName, "' AND label = '", value, "'"))
     }
   }else if(opr=='!='){   
+    sqlStr = paste0("INSERT INTO ", intermResTablePrefix, "IntermResultItemsTmp ",
+                    "SELECT db_uuid, session, bundle, itemID AS seqStartId, itemID AS seqEndId, 1 AS seqLen,'", 
+                    levelName, "' AS level FROM ", labelTableName, " ",
+                    "WHERE name = '", levelName, "'")
     for(value in values){
-      dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO ", intermResTablePrefix, "IntermResultItemsTmp ",
-                                                "SELECT db_uuid, session, bundle, itemID AS seqStartId, itemID AS seqEndId, 1 AS seqLen,'", 
-                                                levelName, "' AS level FROM ", labelTableName, " ",
-                                                "WHERE name = '", levelName, "' AND label <> '", value, "'"))
+      sqlStr = paste0(sqlStr, " AND label <> '", value, "'")
     }
+    dbGetQuery(emuDBhandle$connection, sqlStr)
+    
   }else if(opr=='=~'){
     for(value in values){
       ldf = dbGetQuery(emuDBhandle$connection, paste0("SELECT db_uuid, session, bundle, itemID AS seqStartId, itemID AS seqEndId, 1 AS seqLen,'", 
@@ -713,7 +715,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
       left=str_trim(substr(qTrim,1,seqPos-1))
       right=str_trim(substring(qTrim,seqPos+2))
     }
-    
+    browser()
     # check that left side is not a SQ -> ensure depth first traversal of parse tree of query
     brOpenPos = get_charPosition(left, '[', literalQuote="'")
     if(brOpenPos != -1){
@@ -761,7 +763,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
     # lResItsNrows=nrow(lResIts)
     nLeftResIts = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM leftIntermResultItemsTmp"))$n
     if(nLeftResIts == 0){
-      # res=create.subtree(items=lResIts,links=NULL,resultLevel=lResAttrName,projectionItems=lResPIts)
+      clear_intermResTabels(emuDBhandle, intermResTablePrefix)
       return()
     }
     #else{
@@ -779,7 +781,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
     # rResItsNrows=nrow(rResIts)
     nRightResIts = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM rightIntermResultItemsTmp"))$n
     if(nRightResIts == 0){
-      # res=create.subtree(items=rResIts,links=NULL,resultLevel=lResAttrName,projectionItems=rResPIts)
+      clear_intermResTabels(emuDBhandle, intermResTablePrefix)
       return()
     }
     
@@ -940,20 +942,20 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
         
       }
       # no idea what this if for?      
-#       prjIts=NULL
-#       if(!is.null(lPrjIts)){
-#         if(is.null(prjIts)){
-#           prjIts=lPrjIts
-#         }
-#       }
-#       if(!is.null(rPrjIts)){
-#         if(is.null(prjIts)){
-#           prjIts=rPrjIts
-#         }else{
-#           # union
-#           prjIts=rbind(prjIts,rPrjIts)
-#         }
-#       }
+      #       prjIts=NULL
+      #       if(!is.null(lPrjIts)){
+      #         if(is.null(prjIts)){
+      #           prjIts=lPrjIts
+      #         }
+      #       }
+      #       if(!is.null(rPrjIts)){
+      #         if(is.null(prjIts)){
+      #           prjIts=rPrjIts
+      #         }else{
+      #           # union
+      #           prjIts=rbind(prjIts,rPrjIts)
+      #         }
+      #       }
       
     }
     
@@ -962,7 +964,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
     # res=create.subtree(items=lExpRes,links=NULL,resultLevel=lResAttrName,projectionItems=prjIts)
     return()
   }else{
-    query_databaseWithEql(dbConfig,qTrim)
+    query_databaseWithEql(emuDBhandle, qTrim, intermResTablePrefix)
   }
   #stop("Syntax error: Expected sequence '->' or domination '^' operator.")
 }
