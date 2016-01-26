@@ -469,6 +469,9 @@ summary.emusegs <- function(object, ...)
 ##' @export write.emusegs
 "write.emusegs" <- function(seglist, file)
 {
+  if(inherits(seglist,"emuRsegs")){
+    warning("You are using the write function of the legacy class emusegs for an emuRsegs object. The persisted object cannot be read back as emuRsegs object. It is recommended to use standard R function save() instead to persist an emuRsegs object.")
+  }
   cat(paste("database:", attributes(seglist)$database, "\n", sep=""), file=file)
   cat(paste("query:", attributes(seglist)$query, "\n", sep=""), file=file, append=TRUE)
   cat(paste("type:", attributes(seglist)$type, "\n", sep=""), file=file, append=TRUE)
