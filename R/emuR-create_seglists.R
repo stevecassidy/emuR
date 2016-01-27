@@ -224,16 +224,23 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
     # projection result (hashtag marker)
     # its=data.frame(db_uuid=projectionItems[,'db_uuid'],session=projectionItems[,'session'],bundle=projectionItems[,'bundle'],seqStartId=projectionItems[,'pSeqStartId'],seqEndId=projectionItems[,'pSeqEndId'],seqLen=projectionItems[,'pSeqLen'],level=projectionItems[,'pLevel'],stringsAsFactors = FALSE)
     itsTableName = "leftIntermResultProjectionItemsTmp"
+    stop("HERE")
+    seqStartIdColName = 
+    seqEndIdColName = 
+    seqLenColName = "pSeqLen"
+    levelColName = "pLevel"
   }else{
     # use "normal" result
     # its=result[['items']]
     itsTableName = "leftIntermResultItemsTmp"
+    levelColName = "level"
+    seqLenColName = "seqLen"
   }
   
   # get distinct result levels ...
   # distinctLevels=sqldf("SELECT DISTINCT level FROM its")
-  distinctLevels = dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT level FROM ", itsTableName))
-  for(attrNm in distinctLevels[,'level']){
+  distinctLevels = dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT ", levelColName, " FROM ", itsTableName))
+  for(attrNm in distinctLevels[,levelColName]){
     
     lvlNm = get_levelNameForAttributeName(emuDBhandle, attributeName = attrNm)
     ld = get_levelDefinition(emuDBhandle, name = lvlNm)
@@ -275,7 +282,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   if(itCount > 0){
     # maxSeqLenDf = sqldf(c(resIdxSql,"SELECT max(seqLen) AS maxSeqLen FROM its"))
     # maxSeqLen=maxSeqLenDf[1,'maxSeqLen']
-    maxSeqLen = dbGetQuery(emuDBhandle$connection, paste0("SELECT max(seqLen) AS maxSeqLen FROM ", itsTableName))$maxSeqLen
+    maxSeqLen = dbGetQuery(emuDBhandle$connection, paste0("SELECT max(", seqLenColName, ") AS maxSeqLen FROM ", itsTableName))$maxSeqLen
   }else{
     maxSeqLen=1L
   }
@@ -303,7 +310,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   
   
   # select columns: id,session,bundle,startItemId,endItemID ,type ...
-  selectStr="SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS startItemID ,e.itemID AS endItemID,r.level,s.type, "
+  selectStr=paste0("SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS startItemID ,e.itemID AS endItemID,r.", levelColName, ",s.type, ")
   
   # find sequence start position
   # use sample start of sequence start item for type SEGMENT and samplePoint for type EVENT 
@@ -382,7 +389,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   # which are not allowed by BNF and in emuR but in fact they are working with Emu 2.3 and emuR requery may produce such results
   # result would be a mix with t->S and I items (sequence lengths 2 and 1)
   for(seqIdx in 1:maxSeqLen){
-    selectStr=paste0(selectStr, "(SELECT l.label FROM ", labelsTableName, " l WHERE l.db_uuid=i", seqIdx, ".db_uuid AND l.session=i", seqIdx, ".session AND l.bundle=i", seqIdx, ".bundle AND l.itemID=i", seqIdx, ".itemID AND l.name=r.level)")
+    selectStr=paste0(selectStr, "(SELECT l.label FROM ", labelsTableName, " l WHERE l.db_uuid=i", seqIdx, ".db_uuid AND l.session=i", seqIdx, ".session AND l.bundle=i", seqIdx, ".bundle AND l.itemID=i", seqIdx, ".itemID AND l.name=r.", levelColName, ")")
     
     #selectLblStr=paste0(selectLblStr,)
     fromStr=paste0(fromStr, itemsTableName, " i",seqIdx)
@@ -428,7 +435,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
                         (CAST (sampleEnd AS REAL) + 1.5 ) / CAST( sampleRate AS REAL) * 1000.0 \
                        END AS end, \
                        session || ':' || bundle AS utts, \
-                       db_uuid,session,bundle,startItemID,endItemID,level,type,sampleStart,sampleEnd,sampleRate \
+                       db_uuid,session,bundle,startItemID,endItemID,", levelColName, " AS level,type,sampleStart,sampleEnd,sampleRate \
                       FROM (", queryStr, ") ORDER BY db_uuid,session,bundle,sampleStart")
   
   seglist = dbGetQuery(emuDBhandle$connection, queryStrInclConvert)
@@ -538,7 +545,7 @@ convert_queryResultToVariableEmuRsegs <- function(dbConfig,result,timeRefSegment
   #}
   
   # select columns: id,session,bundle,startItemId,endItemID ,type ...
-  selectStr="SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS startItemID ,e.itemID AS endItemID,r.level,s.type, "
+  selectStr=paste0("SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS startItemID ,e.itemID AS endItemID,r.", levelColName, ",s.type, ")
   
   # find sequence start position
   # use sample start of sequence start item for type SEGMENT and samplePoint for type EVENT 
@@ -620,7 +627,7 @@ convert_queryResultToVariableEmuRsegs <- function(dbConfig,result,timeRefSegment
       # emuR hierachical requery produces results with differnet seq lengths per row
       selectStr=paste0(selectStr,"WHEN ",seqLen," THEN ")
       for(seqIdx in 1:seqLen){
-        selectStr=paste0(selectStr,'(SELECT l.label FROM lblsDf l,items i WHERE l.db_uuid=i.db_uuid AND l.session=i.session AND l.bundle=i.bundle AND l.itemID=i.itemID AND l.name=r.level AND ')
+        selectStr=paste0(selectStr,'(SELECT l.label FROM lblsDf l,items i WHERE l.db_uuid=i.db_uuid AND l.session=i.session AND l.bundle=i.bundle AND l.itemID=i.itemID AND l.name=r.", levelColName, " AND ')
         
         offset=seqIdx-1
         selectStr=paste0(selectStr,'i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.level=s.level AND i.seqIdx=s.seqIdx+',offset,")")

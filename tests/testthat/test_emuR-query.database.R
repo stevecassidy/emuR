@@ -303,6 +303,7 @@ test_that("bad calls cause errors",{
 })
 
 test_that("All queries from EQL vignette (slightly adapted)",{
+  # SQ
   sl = query(ae, "[Phonetic == m]")
   expect_equal(nrow(sl), 7)
   sl = query(ae, "[Phonetic == m | n]")
@@ -315,6 +316,12 @@ test_that("All queries from EQL vignette (slightly adapted)",{
   expect_equal(nrow(sl), 1)
   sl = query(ae, "[Text !~ am.*]")
   expect_equal(nrow(sl), 53)
+  
+  # SEQQ
+  sl = query(ae, "[#Text=to -> Text=~.*]")
+  expect_equal(nrow(sl), 3)
+  sl = query(ae, "[Text=to -> #Text=~.*]")
+  expect_equal(nrow(sl), 3)
   sl = query(ae, "[Phonetic == m -> Phonetic == I]") 
   expect_equal(nrow(sl), 0)
   sl = query(ae, "[#Phonetic == m -> Phonetic == I]")
@@ -323,9 +330,31 @@ test_that("All queries from EQL vignette (slightly adapted)",{
   expect_equal(nrow(sl), 0)
   sl = query(ae, "[Phonetic == m -> #Phonetic == o]")
   expect_equal(nrow(sl), 0)
-  "[[Phonetic == m -> Phonetic == I ] -> Phonetic == n]"
-  "[[Text == john -> Text == could] -> Text == lend]"
-  "[[[Text == the -> Text =~ .*] -> Text =~ .* ] -> Text == managed]"
-
+  sl = query(ae, "[[Phonetic == m -> Phonetic == I ] -> Phonetic == n]")
+  expect_equal(nrow(sl), 0)
+  sl = query(ae, "[Text=more -> [Text=customers -> Text=than]]")
+  expect_equal(sl$labels, "more->customers->than")
+  sl = query(ae, "[#Text=more -> [Text=customers -> Text=than]]")
+  expect_equal(sl$labels, "more")
+  sl = query(ae, "[Text=more -> [#Text=customers -> Text=than]]")
+  expect_equal(sl$labels, "customers")
+  sl = query(ae, "[Text=more -> [Text=customers -> #Text=than]]")
+  expect_equal(sl$labels, "than")
+  expect_error(query(ae, "[Syllable == S & Pitch_Accent == L+H*]"), regexp = "Unknown level attribute name")
   
+  sl = query(ae, "[Text =~ .* & Word == F]")
+  expect_equal(nrow(sl), 20)
+  sl = query(ae, "[Text =~ .* & #Word == F]")
+  expect_equal(nrow(sl), 20)
+  sl = query(ae, "[Text =~ .* & Word == C & Accent == S]")
+  expect_equal(nrow(sl), 25)
+  
+  sl = query(ae, "[Phoneme == p ^ Syllable == S]")
+  expect_equal(nrow(sl), 3)
+  sl = query(ae, "[Syllable =~ .* ^ Phoneme == p]")
+  expect_equal(nrow(sl), 3)
+  sl = query(ae, "[Phoneme == p ^ #Syllable =~ .*]")
+  expect_equal(nrow(sl), 3)
+  sl = query(ae, "[#Phoneme == p ^ Syllable =~ .*]")
+  expect_equal(nrow(sl), 3)
 })
