@@ -76,7 +76,6 @@ database.DDL.emuDB_leftIntermResultProjectionItemsTmp = 'CREATE TEMP TABLE leftI
 
 # rightIntermResult
 database.DDL.emuDB_rightIntermResultItemsTmp = gsub("CREATE TEMP TABLE leftIntermResultItemsTmp", "CREATE TEMP TABLE rightIntermResultItemsTmp", database.DDL.emuDB_leftIntermResultItemsTmp)
-database.DDL.emuDB_rightIntermResultLinksTmp = gsub("CREATE TEMP TABLE leftIntermResultLinksTmp", "CREATE TEMP TABLE rightIntermResultLinksTmp", database.DDL.emuDB_leftIntermResultLinksTmp)
 database.DDL.emuDB_rightIntermResultMetaInfosTmp = gsub("CREATE TEMP TABLE leftIntermResultMetaInfosTmp", "CREATE TEMP TABLE rightIntermResultMetaInfosTmp", database.DDL.emuDB_leftIntermResultMetaInfosTmp)
 database.DDL.emuDB_rightIntermResultProjectionItemsTmp = gsub("CREATE TEMP TABLE leftIntermResultProjectionItemsTmp", "CREATE TEMP TABLE rightIntermResultProjectionItemsTmp", database.DDL.emuDB_leftIntermResultProjectionItemsTmp)
 
@@ -945,8 +944,9 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
           #lPrjIts=sqldf(c(lrExpResIdxSql,qStr))
           # lPrjIts=sqldf(qStr)
           
+          browser()
           # reduce projection items to DOMQ result items and store in correct table
-          qStr = paste0("SELECT pi.db_uuid,pi.session,pi.bundle,pi.seqStartId,pi.seqEndId,pi.seqLen,pi.Level FROM lrExpResTmp i, leftIntermResultProjectionItemsTmp pi WHERE i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.rsId=pi.seqStartId AND i.reId=pi.seqEndId")
+          qStr = paste0("SELECT i.db_uuid, i.session, i.bundle, i.seqStartId, i.seqEndId, pi.pSeqStartId, pi.pSeqEndId, pi.pSeqLen, pi.pLevel FROM lrExpResTmp i, leftIntermResultProjectionItemsTmp pi WHERE i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.rsId=pi.seqStartId AND i.reId=pi.seqEndId")
           reducedPI = dbGetQuery(emuDBhandle$connection, qStr)
           dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultProjectionItemsTmp"), reducedPI, overwrite = T)
           # move meta infos to correct table
@@ -964,7 +964,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
           # rPrjIts=sqldf(qStr)
           
           # reduce projection items to DOMQ result items and store in correct table
-          qStr = paste0("SELECT pi.db_uuid,pi.session,pi.bundle,pi.seqStartId,pi.seqEndId,pi.seqLen,pi.Level FROM lrExpResTmp i, rightIntermResultProjectionItemsTmp pi WHERE i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.rsId=pi.seqStartId AND i.reId=pi.seqEndId")
+          qStr = paste0("SELECT i.db_uuid, i.session, i.bundle, i.seqStartId, i.seqEndId, pi.pSeqStartId, pi.pSeqEndId, pi.pSeqLen, pi.pLevel FROM lrExpResTmp i, rightIntermResultProjectionItemsTmp pi WHERE i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.rsId=pi.seqStartId AND i.reId=pi.seqEndId")
           reducedPI = dbGetQuery(emuDBhandle$connection, qStr)
           dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultProjectionItemsTmp"), reducedPI, overwrite = T)
           # move meta infos to correct table
@@ -1023,7 +1023,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
       # lExpRes=data.frame(db_uuid=lrExpRes[['db_uuid']],session=lrExpRes[['session']],bundle=lrExpRes[['bundle']],seqStartId=lrExpRes[,'seqStartId'],seqEndId=lrExpRes[,'seqEndId'],seqLen=lrExpRes[,'seqLen'],level=lrExpRes[,'level'],stringsAsFactors = FALSE)
       
       if(nLeftProjItems != 0){
-        browser()
+        # browser()
         # check if SEQQ result items and store in correct table
         qStr=paste0("SELECT i.db_uuid, i.session, i.bundle, i.seqStartId, i.seqEndId, ",
                     "pi.pSeqStartId, pi.pSeqEndId, pi.pSeqLen, pi.pLevel ",
@@ -1039,7 +1039,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
       }
       
       if(nRightProjItems != 0){
-        browser()
+        # browser()
         qStr="SELECT i.db_uuid, i.session, i.bundle, i.seqStartId, i.seqEndId, pi.pSeqStartId, pi.pSeqEndId, pi.pSeqLen, pi.pLevel FROM lrExpResTmp i,rightIntermResultProjectionItemsTmp pi WHERE \
         i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.rsId=pi.seqStartId AND i.seqEndId=pi.seqEndId"
         

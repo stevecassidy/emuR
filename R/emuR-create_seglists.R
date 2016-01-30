@@ -123,7 +123,7 @@ convert_queryResultToEmusegs<-function(emuDBhandle,result){
     q=paste0(q," FROM items s,items e,its r ")
     
     # where clause: make sure start and end are in same emuDB, session and bundle, select start and end id
-    q=paste0(q," WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND e.level=s.level ")
+    q=paste0(q, " WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=", seqStartIdColName, " AND e.itemID=", seqEndIdColName, " AND e.level=s.level ")
     
     # order by id
     q=paste0(q," ORDER BY id")
@@ -224,17 +224,18 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
     # projection result (hashtag marker)
     # its=data.frame(db_uuid=projectionItems[,'db_uuid'],session=projectionItems[,'session'],bundle=projectionItems[,'bundle'],seqStartId=projectionItems[,'pSeqStartId'],seqEndId=projectionItems[,'pSeqEndId'],seqLen=projectionItems[,'pSeqLen'],level=projectionItems[,'pLevel'],stringsAsFactors = FALSE)
     itsTableName = "leftIntermResultProjectionItemsTmp"
-    stop("HERE")
-    seqStartIdColName = 
-    seqEndIdColName = 
+    seqStartIdColName = "pSeqStartId"
+    seqEndIdColName = "pSeqEndId"
     seqLenColName = "pSeqLen"
     levelColName = "pLevel"
   }else{
     # use "normal" result
     # its=result[['items']]
     itsTableName = "leftIntermResultItemsTmp"
-    levelColName = "level"
+    seqStartIdColName = "seqStartId"
+    seqEndIdColName = "seqEndId"
     seqLenColName = "seqLen"
+    levelColName = "level"
   }
   
   # get distinct result levels ...
@@ -376,7 +377,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   fromStr=paste0("FROM ", itemsTableName, " s,", itemsTableName, " e,", itsTableName, " r, ")
   
   # where clause: make sure start and end are in same emuDB, session and bundle, select start and end id
-  whereStr="WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND e.level=s.level AND "
+  whereStr=paste0("WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=", seqStartIdColName, " AND e.itemID=", seqEndIdColName ," AND e.level=s.level AND ")
   
   # order
   #orderStr="ORDER BY s.db_uuid,s.session,s.bundle,startItemID,endItemID"
@@ -611,7 +612,7 @@ convert_queryResultToVariableEmuRsegs <- function(dbConfig,result,timeRefSegment
   fromStr="FROM items s,items e,its r "
   
   # where clause: make sure start and end are in same emuDB, session and bundle, select start and end id
-  whereStr="WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND e.level=s.level "
+  whereStr=paste0("WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=", seqStartIdColName, " AND e.itemID=", seqEndIdColName, " AND e.level=s.level ")
   
   # order
   orderStr=''
