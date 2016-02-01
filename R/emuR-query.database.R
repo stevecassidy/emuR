@@ -943,10 +943,9 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
           #qStr=paste0(lQStr," UNION ",rQStr)
           #lPrjIts=sqldf(c(lrExpResIdxSql,qStr))
           # lPrjIts=sqldf(qStr)
-          
-          browser()
+
           # reduce projection items to DOMQ result items and store in correct table
-          qStr = paste0("SELECT i.db_uuid, i.session, i.bundle, i.seqStartId, i.seqEndId, pi.pSeqStartId, pi.pSeqEndId, pi.pSeqLen, pi.pLevel FROM lrExpResTmp i, leftIntermResultProjectionItemsTmp pi WHERE i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.rsId=pi.seqStartId AND i.reId=pi.seqEndId")
+          qStr = paste0("SELECT i.db_uuid, i.session, i.bundle, i.seqStartId, i.seqEndId, pi.pSeqStartId, pi.pSeqEndId, pi.pSeqLen, pi.pLevel FROM lrExpResTmp i, leftIntermResultProjectionItemsTmp pi WHERE i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.seqStartId=pi.seqStartId AND i.seqEndId=pi.seqEndId")
           reducedPI = dbGetQuery(emuDBhandle$connection, qStr)
           dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultProjectionItemsTmp"), reducedPI, overwrite = T)
           # move meta infos to correct table
@@ -990,7 +989,9 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
       #       }
       
       
-      
+      # place result in correct table
+      resItems = dbGetQuery(emuDBhandle$connection, "SELECT db_uuid, session, bundle, seqStartId, seqEndId, seqLen, level FROM lrExpResTmp")
+      dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultItemsTmp"), resItems, overwrite = T)
       
       
     }
@@ -1051,8 +1052,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
         
       }
       
-      # calculate new sequence values and place result in correct table
-      # resItems = dbGetQuery(emuDBhandle$connection, "SELECT db_uuid, session, bundle, seqStartId, seqEndId, seqLen, level FROM lrExpResTmp")
+      # place result in correct table
       resItems = dbGetQuery(emuDBhandle$connection, "SELECT db_uuid, session, bundle, seqStartId, seqEndId, seqLen, level FROM lrExpResTmp")
       dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultItemsTmp"), resItems, overwrite = T)
       
