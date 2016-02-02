@@ -446,9 +446,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   if(nrow(seglist)>0){
     # set to event only if all rows are of type EVENT
     if(all(seglist$type == "EVENT")){
-      if(dTypes[1,1]=='EVENT'){
         slType='event'
-      }
     }
   }
   queryStr = dbGetQuery(emuDBhandle$connection, "SELECT queryStr FROM leftIntermResultMetaInfosTmp")$queryStr

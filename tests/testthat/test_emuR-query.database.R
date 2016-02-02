@@ -304,13 +304,15 @@ test_that("bad calls cause errors",{
 
 test_that("All queries from EQL vignette (slightly adapted)",{
   # SQ
-  sl = query(ae, "[Phonetic == m]")
+  qs = "[Phonetic == m]"
+  sl = query(ae, qs)
   expect_equal(nrow(sl), 7)
+  expect_equal(attr(sl, "query"), qs)
   sl = query(ae, "[Phonetic == m | n]")
   expect_equal(nrow(sl), 19)
   sl = query(ae, "[Phonetic != m | n]")
   expect_equal(nrow(sl), 234)
-  sl = query(ae, "[Syllable =~ .*]") # really really slow!!! Why ???
+  sl = query(ae, "[Syllable =~ .*]")
   expect_equal(nrow(sl), 83)
   sl = query(ae, "[Text =~ am.*]")
   expect_equal(nrow(sl), 1)
@@ -334,6 +336,8 @@ test_that("All queries from EQL vignette (slightly adapted)",{
   expect_equal(nrow(sl), 0)
   sl = query(ae, "[Text=more -> [Text=customers -> Text=than]]")
   expect_equal(sl$labels, "more->customers->than")
+  sl = query(ae, "[Text=~.* -> [Text=customers -> Text=~.*]]")
+  expect_equal(sl$labels, "more->customers->than")
   sl = query(ae, "[#Text=more -> [Text=customers -> Text=than]]")
   expect_equal(sl$labels, "more")
   sl = query(ae, "[Text=more -> [#Text=customers -> Text=than]]")
@@ -342,6 +346,7 @@ test_that("All queries from EQL vignette (slightly adapted)",{
   expect_equal(sl$labels, "than")
   expect_error(query(ae, "[Syllable == S & Pitch_Accent == L+H*]"), regexp = "Unknown level attribute name")
   
+  #CONJQ
   sl = query(ae, "[Text =~ .* & Word == F]")
   expect_equal(nrow(sl), 20)
   sl = query(ae, "[Text =~ .* & #Word == F]")
@@ -349,6 +354,7 @@ test_that("All queries from EQL vignette (slightly adapted)",{
   sl = query(ae, "[Text =~ .* & Word == C & Accent == S]")
   expect_equal(nrow(sl), 25)
   
+  # DOMQ
   sl = query(ae, "[Phoneme == p ^ Syllable == S]")
   expect_equal(nrow(sl), 3)
   sl = query(ae, "[Syllable =~ .* ^ Phoneme == p]")
@@ -357,4 +363,116 @@ test_that("All queries from EQL vignette (slightly adapted)",{
   expect_equal(nrow(sl), 3)
   sl = query(ae, "[#Phoneme == p ^ Syllable =~ .*]")
   expect_equal(nrow(sl), 3)
+  sl = query(ae, "[Syllable =~ .* ^ Phoneme != p | t | k]")
+  expect_equal(nrow(sl), 83)
+  sl = query(ae, "[#Syllable =~ .* ^ Phoneme != p | t | k]")
+  expect_equal(nrow(sl), 195)
+  sl = query(ae, "[Syllable =~ .* ^ #Phoneme != p | t | k]")
+  expect_equal(nrow(sl), 195)
+  
+  # multiple DOMQs
+  sl = query(ae, "[[Phoneme == p ^ Syllable =~ .*] ^ Word =~.*]")
+  expect_equal(sl$labels, c("p", "p", "p"))
+  sl = query(ae, "[[#Phoneme == p ^ Syllable =~ .*] ^ Word =~.*]")
+  expect_equal(sl$labels, c("p", "p", "p"))
+  sl = query(ae, "[[Phoneme == p ^ #Syllable =~ .*] ^ Word =~.*]")
+  expect_equal(sl$labels, c("S", "S", "S"))
+  sl = query(ae, "[[Phoneme == p ^ Syllable =~ .*] ^ #Word =~.*]")
+  expect_equal(sl$labels, c("C", "C", "C"))
+  sl = query(ae, "[[Phoneme == p ^ Syllable =~.*] ^ Text =~ emphasized | tempting]")
+  expect_equal(sl$labels, c("p", "p"))
+  sl = query(ae, "[[Phoneme == p ^ Syllable =~.*] ^ #Text =~ emphasized | tempting]")
+  expect_equal(sl$labels, c("emphasized", "tempting"))
+  
+  # Position
+  # Simple usage of Start(), End() and Medial()
+  nWord = nrow(query(ae, "Word =~.*"))
+  sl = query(ae, "[Start(Word, Syllable) == 1]")
+  expect_equal(nrow(sl), nWord)
+  sl = query(ae, "[Start(Word, Phoneme) == 1]")
+  expect_equal(nrow(sl), nWord)
+  sl = query(ae, "[Start(Word, Syllable) == 0]")  
+  expect_equal(nrow(sl), 28)
+  sl = query(ae, "[End(Word, Syllable) == 1]")
+  expect_equal(nrow(sl), nWord)
+  sl = query(ae, "[Medial(Word, Syllable) == 1]")
+  expect_equal(nrow(sl), 9)
+  # Position and Boolean &
+  sl = query(ae, "[Phoneme == m & Start(Word, Phoneme) == 1]") # word initial m's
+  expect_equal(nrow(sl), 2)
+  sl = query(ae, "[Phoneme == m & End(Word, Phoneme) == 1]") # word final m's
+  expect_equal(nrow(sl), 1)
+  sl = query(ae, "[Syllable == S & End(Word, Syllable) == 0]") # non word final strong syllables
+  expect_equal(nrow(sl), 16)
+  # Position and Boolean ^
+  sl = query(ae, "[Phoneme =~ .* ^ End(Word, Syllable) == 0]") # non word final Phonemes
+  expect_equal(nrow(sl), 61)
+  
+  # Count
+  sl = query(ae, "[Num(Word, Syllable) == 4]")
+  expect_equal(nrow(sl), 1)
+  sl = query(ae, "[Num(Syllable, Phoneme) > 6]")
+  expect_equal(nrow(sl), 1)
+  
+  # Count and Boolean &
+  sl = query(ae, "[Text =~ .* & Num(Word, Phoneme) > 4 ]")
+  expect_equal(nrow(sl), 18)
+  sl = query(ae, "[Syllable == S & Num(Syllable, Phoneme) == 5]")
+  expect_equal(nrow(sl), 4)
+  
+  # Count and ^
+  sl = query(ae, "[Phoneme == m ^ Num(Word, Syllable) == 3]")
+  expect_equal(nrow(sl), 2)
+  sl = query(ae, "[Syllable = W ^ Num(Word, Syllable) < 3]")
+  expect_equal(nrow(sl), 46)
+  sl = query(ae, "[Text =~ .* ^ Num(Syllable, Phoneme) == 4]")
+  expect_equal(nrow(sl), 7)
+  
+  # Combinations
+  # ^ and -> (Domination and Sequence)
+  sl = query(ae, "[[Phoneme == m -> Phoneme =~ .*] ^ Syllable == S]")
+  expect_equal(nrow(sl), 4)
+  sl = query(ae, "[Phoneme == s -> [Phoneme =~ .* ^ Syllable == W]]")
+  expect_equal(nrow(sl), 5)
+  sl = query(ae, "[[Syllable == S ^ Phoneme == p] -> Syllable == W]")
+  expect_equal(nrow(sl), 3)
+  expect_true(all(grepl("->", sl$labels)))
+  sl = query(ae, "[[Syllable == S ^ #Phoneme == p] -> Syllable == W]")
+  expect_equal(nrow(sl), 3)
+  
+  # ^ and -> and & (Domination and Sequence and Boolean &)
+  sl = query(ae, "[Text =~ .* ^ Phoneme == @ & Start(Text, Phoneme) == 1]")
+  expect_equal(nrow(sl), 3)
+  sl = query(ae, "[[Phoneme == m & Start(Word, Phoneme) == 1 -> Phoneme == o:] ^ Syllable == S]")
+  expect_equal(nrow(sl), 1)
+  sl = query(ae, "[[Phoneme == m & Start(Word, Phoneme) == 1 -> Phoneme == o:] ^ Syllable == S]")
+  expect_equal(nrow(sl), 1)
+  sl = query(ae, "[[[Phoneme == m & Start(Word, Phoneme) == 1 -> Phoneme == o:] ^ Syllable == S] ^ #Text != x]")
+  expect_equal(sl$labels, "more")
+  sl = query(ae, "[[Text =~ .* & Num(Text, Syllable) == 3 ^ [Phoneme == @ ^ Start(Word, Syllable) == 1]] -> Text == his]")
+  
+  # A few more Q & A’s (because practice makes perfect)
+  sl = query(ae, "[Phoneme == m | n & Medial(Word, Phoneme) == 1]")
+  expect_equal(nrow(sl), 12)
+  sl = query(ae, "[[Phonetic == H -> Phonetic =~ .*] -> Phonetic == I | U ]")
+  expect_equal(sl$labels, "H->h->I")
+  sl = query(ae, "[Syllable =~ .* & Medial(Word, Syllable) == 0]")
+  expect_equal(nrow(sl), 73)
+  sl = query(ae, "[Text =~ .* & Num(Text, Syllable) == 2]")
+  expect_equal(nrow(sl), 11)
+  sl = query(ae, "[Text == the -> #Text =~ .* & Accent == S]")
+  expect_equal(sl$labels, "chill")
+  sl = query(ae, "[Syllable = S ^ Num(Word, Phoneme) == 5]")
+  expect_equal(nrow(sl), 4)
+  sl = query(ae, "[Syllable == W ^ Phoneme == @]")
+  expect_equal(nrow(sl), 29)
+  qs = "[Text =~ .* ^ #Tone == L* | L+H*]"
+  sl = query(ae, qs)
+  expect_equal(nrow(sl), 2)
+  expect_equal(attr(sl, "query"), qs)
+  sl = query(ae, "[Tone =~.* ^ [End(Word, Syllable) == 1 ^ Num(Word, Syllable) == 2]]")
+  expect_equal(nrow(sl), 1)
+  sl = query(ae, "[[[Phoneme =~ .* ^ Phonetic == H] ^ Start(Word, Syllable) == 1] ^ Accent == S]")
+  expect_equal(nrow(sl), 10)
+  
 })
