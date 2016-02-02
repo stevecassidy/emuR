@@ -32,17 +32,17 @@ require(RSQLite)
 ##' 
 ##' # convert TextGridCollection and store 
 ##' # new emuDB in folder provided by tempdir()
-##' convert_TextGridCollection_to_emuDB(dir = "/path/to/directory/", 
-##'                                     dbName = "myTGcolDB", 
-##'                                     targetDir = tempdir())
+##' convert_TextGridCollection(dir = "/path/to/directory/", 
+##'                            dbName = "myTGcolDB", 
+##'                            targetDir = tempdir())
 ##' 
 ##' 
 ##' # same as above but this time only convert 
 ##' # the information stored in the "Syllable" and "Phonetic" tiers
-##' convert_TextGridCollection_to_emuDB(dir = "/path/to/directory/", 
-##'                                     dbName = "myTGcolDB", 
-##'                                     targetDir = tempdir(),
-##'                                     tierNames = c("Syllable", "Phonetic"))
+##' convert_TextGridCollection(dir = "/path/to/directory/", 
+##'                            dbName = "myTGcolDB", 
+##'                            targetDir = tempdir(),
+##'                            tierNames = c("Syllable", "Phonetic"))
 ##'
 ##'} 
 convert_TextGridCollection <- function(dir, dbName, 
