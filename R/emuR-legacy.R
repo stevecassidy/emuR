@@ -1,4 +1,4 @@
-build.legacy.bundle.list<-function(parsedEmuPath,currentPath=NULL,fileSuffixPattern,bundleList=list()){
+build_legacyBundleList<-function(parsedEmuPath,currentPath=NULL,fileSuffixPattern,bundleList=list()){
   if(length(parsedEmuPath)==0){
     #fileGlobPatt=paste0("*",fileSuffix)
     #fileRegexPatt=glob2rx(fileGlobPatt)
@@ -30,7 +30,7 @@ build.legacy.bundle.list<-function(parsedEmuPath,currentPath=NULL,fileSuffixPatt
         dirPatt=gsub('*','.*',p1[['dir']],fixed=TRUE)
         if(grepl(dirPatt,dir)){
           newPath=file.path(currentPath,dir)
-          bl=build.legacy.bundle.list(restPath,newPath,fileSuffixPattern,bundleList=bundleList)
+          bl=build_legacyBundleList(restPath,newPath,fileSuffixPattern,bundleList=bundleList)
           # prepend dir to list
           bl=lapply(bl,function(x,s) return(c(s,x)),dir)
           bll=c(bll,bl)
@@ -45,7 +45,7 @@ build.legacy.bundle.list<-function(parsedEmuPath,currentPath=NULL,fileSuffixPatt
         newPath=file.path(currentPath,p1[['dir']])
       }
       
-      bll=build.legacy.bundle.list(restPath,newPath,fileSuffixPattern,bundleList=bundleList)
+      bll=build_legacyBundleList(restPath,newPath,fileSuffixPattern,bundleList=bundleList)
       return(bll)
     }
   }
@@ -75,25 +75,25 @@ convert_legacyBundleId<-function(legacybundleID){
   return(c(s,legacybundleID[legacybundleIDLen]))
 }
 
-convert.legacy.bundle.list.to.sessions<-function(bl){
-  sessions=list()
-  
-  if(!is.null(bl) & length(bl)>0){
-    globPatternCount=length(bl[[1]])-1
-    
-    if(globPatternCount>0){
-      createSessName=function(x,toCol){
-        return(paste(x[1:toCol],collapse='_'))
-      }
-      sesssNonUnique=lapply(bl,createSessName,toCol=globPatternCount)
-      sessions=unique(sesssNonUnique)
-    }else{
-      # no glob patterns, put all bundles to dummy session
-      sessions[['0000']]=list(bundles=bl)
-    }
-  }
-  return(sessions)
-}
+# convert.legacy.bundle.list.to.sessions<-function(bl){
+#   sessions=list()
+#   
+#   if(!is.null(bl) & length(bl)>0){
+#     globPatternCount=length(bl[[1]])-1
+#     
+#     if(globPatternCount>0){
+#       createSessName=function(x,toCol){
+#         return(paste(x[1:toCol],collapse='_'))
+#       }
+#       sesssNonUnique=lapply(bl,createSessName,toCol=globPatternCount)
+#       sessions=unique(sesssNonUnique)
+#     }else{
+#       # no glob patterns, put all bundles to dummy session
+#       sessions[['0000']]=list(bundles=bl)
+#     }
+#   }
+#   return(sessions)
+# }
 
 get_legacyEmuBundles=function(basePath,pathPattern,primaryFileSuffixPattern=NULL){
   if(is_relativeFilePath(pathPattern)){
@@ -102,7 +102,7 @@ get_legacyEmuBundles=function(basePath,pathPattern,primaryFileSuffixPattern=NULL
     absPathPattern=pathPattern
   }
   emuParsedPathPattern=parse.emuTrackPath(absPathPattern)
-  bl=build.legacy.bundle.list(emuParsedPathPattern[['dirs']],fileSuffixPattern=primaryFileSuffixPattern)
+  bl=build_legacyBundleList(emuParsedPathPattern[['dirs']],fileSuffixPattern=primaryFileSuffixPattern)
   return(bl)
 }
 
@@ -368,21 +368,21 @@ list.file.matching.emu.path.pattern=function(basePath,pathPattern,filePattern=NU
   return(fileList)
 }
 
-find.file.in.emu.path.pattern=function(emuPathPattern,fileName,basePath=NULL){
-  if(is_relativeFilePath(emuPathPattern)){
-    absPathPattern=file.path(basePath,emuPathPattern)
-  }else{
-    absPathPattern=emuPathPattern
-  }
-  dirList=list.trackdirs(absPathPattern)
-  for(dir in dirList){
-    tfp=paste0(dir,'/',fileName)
-    if(file.exists(tfp)){
-      return(tfp)
-    }
-  }
-  return(NULL)
-}
+# find.file.in.emu.path.pattern=function(emuPathPattern,fileName,basePath=NULL){
+#   if(is_relativeFilePath(emuPathPattern)){
+#     absPathPattern=file.path(basePath,emuPathPattern)
+#   }else{
+#     absPathPattern=emuPathPattern
+#   }
+#   dirList=list.trackdirs(absPathPattern)
+#   for(dir in dirList){
+#     tfp=paste0(dir,'/',fileName)
+#     if(file.exists(tfp)){
+#       return(tfp)
+#     }
+#   }
+#   return(NULL)
+# }
 
 get_legacyFilePath=function(basePath,emuPath,legacybundleID,fileExtension){
   if(is_relativeFilePath(emuPath)){
