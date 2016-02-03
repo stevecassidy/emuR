@@ -4,11 +4,10 @@
 ## @param dbUUID optional database UUID
 ## @param encoding  encoding of the template file
 ## @return object of class emuDB.schema.db
-## @author Klaus Jaensch
 ## @import stringr uuid wrassp
 ## @keywords emuDB database schema Emu 
 ## 
-load.database.schema.from.emu.template=function(tplPath,dbUUID=NULL,encoding=NULL){
+load_dbConfigFromEmuTemplate=function(tplPath,dbUUID=NULL,encoding=NULL){
   LEVEL_CMD='level'
   LABFILE_CMD='labfile'
   LABEL_CMD='label'
@@ -16,7 +15,6 @@ load.database.schema.from.emu.template=function(tplPath,dbUUID=NULL,encoding=NUL
   TRACK_CMD='track'
   PATH_CMD='path'
   LEGAL_CMD='legal'
-  
   if(is.null(tplPath)) {
     stop("Argument tplPath (path to Emu template file) must not be NULL\n")
   }
@@ -95,7 +93,7 @@ load.database.schema.from.emu.template=function(tplPath,dbUUID=NULL,encoding=NUL
                 key=NULL 
               }
             }
-            ad=create.schema.annotationDescriptor(name=tierName,extension=extension,type=type,timeFactor=timeFactor)
+            ad=list(name=tierName,extension=extension,type=type,timeFactor=timeFactor)
             annotationDescriptors[[length(annotationDescriptors)+1L]] <- ad
             
             # lab file can reference hlb level
@@ -105,22 +103,21 @@ load.database.schema.from.emu.template=function(tplPath,dbUUID=NULL,encoding=NUL
               td=levelDefinitions[[i]]
               if(td[['name']]==tierName){
                 # replace 
-                
-                levelDefinitions[[i]]=create.schema.levelDefinition(name=td[['name']],type=type,attributeDefinitions=td[['attributeDefinitions']]);
+                levelDefinitions[[i]]=list(name=td[['name']],type=type,attributeDefinitions=td[['attributeDefinitions']]);
                 replaced=TRUE
                 break;
               }
             }
             if(!replaced){
               # append
-              levelDefinitions[[length(levelDefinitions)+1L]]=create.schema.levelDefinition(name=tierName);
+              levelDefinitions[[length(levelDefinitions)+1L]]=list(name=tierName);
             }
           }else if(command==TRACK_CMD){
             
             name=lineTokens[2]
             extension=lineTokens[3]
             #cat("Command: ",command,name,'\n')
-            track=create.schema.track(name=name,extension=extension)
+            track=list(name=name, columnName=name, fileExtension=extension)
             tracks[[length(tracks)+1L]] <- track
           }else if(command==SET_CMD){
             key=lineTokens[2]
@@ -135,11 +132,10 @@ load.database.schema.from.emu.template=function(tplPath,dbUUID=NULL,encoding=NUL
               # special meaning
               # hlb files are neither declared by tracks nor by labfile directive
               # add as annotationDescriptor
-              ad=create.schema.annotationDescriptor(name=NULL,extension=annoKey,type='HLB')
+              ad=list(name=NULL,extension=annoKey,type='HLB')
               annotationDescriptors[[length(annotationDescriptors)+1L]] <- ad
             }
           }else if(command==LEVEL_CMD){
-            
             levelTierName=lineTokens[2]
             
             if(lineTokenCount>=3){
@@ -150,10 +146,10 @@ load.database.schema.from.emu.template=function(tplPath,dbUUID=NULL,encoding=NUL
                   linkType="MANY_TO_MANY"
                 }
               }
-              linkDefinition=create.schema.linkDefinition(type=linkType,superlevelName=lineTokens[3],sublevelName=levelTierName)
+              linkDefinition=list(type=linkType,superlevelName=lineTokens[3],sublevelName=levelTierName)
               linkDefinitions[[length(linkDefinitions)+1L]]=linkDefinition
             }
-            tierDescr=create.schema.levelDefinition(name=levelTierName,type='ITEM');
+            tierDescr=list(name=levelTierName,type='ITEM', attributeDefinitions=list(list(name = levelTierName, type = "STRING")))
             exists=FALSE
             for(lDef in levelDefinitions){
               if(lDef[['name']]==levelTierName){
@@ -179,8 +175,8 @@ load.database.schema.from.emu.template=function(tplPath,dbUUID=NULL,encoding=NUL
               if(td[['name']]==levelTierName){
                 # replace
                 attrDefs=levelDefinitions[[i]][['attributeDefinitions']]
-                attrDefs[[length(attrDefs)+1L]]=create.schema.attributeDefinition(name=lineTokens[3])
-                levelDefinitions[[i]]=create.schema.levelDefinition(name=levelTierName,type=td[['type']],attributeDefinitions=attrDefs);
+                attrDefs[[length(attrDefs)+1L]]=list(name=lineTokens[3])
+                levelDefinitions[[i]]=list(name=levelTierName,type=td[['type']],attributeDefinitions=attrDefs);
                 break
               }
             }
@@ -195,7 +191,6 @@ load.database.schema.from.emu.template=function(tplPath,dbUUID=NULL,encoding=NUL
             for(i in 4:lineTokenCount){
               groupLabels[[length(groupLabels)+1]]=lineTokens[i]
             }
-            
             set=FALSE
             for(i in 1:length(levelDefinitions)){
               td=levelDefinitions[[i]]
@@ -222,7 +217,6 @@ load.database.schema.from.emu.template=function(tplPath,dbUUID=NULL,encoding=NUL
   #pef=flags$PrimaryExtension
   tl=length(tracks)
   al=length(annotationDescriptors)
-  
   # apply pathes to tracks  
   tss2=1:tl
   for(ti2 in tss2){
@@ -279,7 +273,6 @@ load.database.schema.from.emu.template=function(tplPath,dbUUID=NULL,encoding=NUL
   # default perspective
   # assign all SSFF tracks to sonagram
   assign=list()
-  contourLims=list()
   for(ssffTrack in ssffTrackDefinitions){
     #cat(ssffTrack$name,"\n")
     # TODO dirty workaround
@@ -291,7 +284,8 @@ load.database.schema.from.emu.template=function(tplPath,dbUUID=NULL,encoding=NUL
     }
   }
   
-  sc=create.EMUwebAppConfig.signalCanvas(order=c("OSCI","SPEC"),assign=assign,contourLims=contourLims)
+  contourLims=list()
+  sc=list(order=c("OSCI","SPEC"), assign=assign, contourLims=contourLims)
   
   defaultLvlOrder=list()
   for(ld in levelDefinitions){
@@ -302,10 +296,10 @@ load.database.schema.from.emu.template=function(tplPath,dbUUID=NULL,encoding=NUL
     }
   }
   
-  defPersp=create.EMUwebAppConfig.perspective(name='default',signalCanvases=sc,levelCanvases=list(order=defaultLvlOrder),twoDimCanvases=list(order=list()))
-  waCfg=create.EMUwebAppConfig(perspectives=list(defPersp))
+  defPersp=list(name='default',signalCanvases=sc,levelCanvases=list(order=defaultLvlOrder),twoDimCanvases=list(order=list()))
+  waCfg=list(perspectives=list(defPersp))
   #waCfg$activeButtons=list(saveBundle=TRUE)
-  dbSchema=create.schema.databaseDefinition(name=dbName,UUID=dbUUID,mediafileBasePathPattern=mediafileBasePathPattern,mediafileExtension=mediafileExtension,ssffTrackDefinitions=ssffTrackDefinitions,levelDefinitions=levelDefinitions,linkDefinitions=linkDefinitions,EMUwebAppConfig=waCfg,annotationDescriptors=annotationDescriptors,tracks=tracks,flags=flags);
+  dbSchema=list(name=dbName,UUID=dbUUID,mediafileBasePathPattern=mediafileBasePathPattern,mediafileExtension=mediafileExtension,ssffTrackDefinitions=ssffTrackDefinitions,levelDefinitions=levelDefinitions,linkDefinitions=linkDefinitions,EMUwebAppConfig=waCfg,annotationDescriptors=annotationDescriptors,tracks=tracks,flags=flags);
   
   # get max label array size
   maxLbls=0

@@ -11,7 +11,7 @@ require(stringr)
 ## @author Klaus Jaensch
 ## @keywords emuR ESPS lab Emu
 ## 
-parse.esps.label.file <- function(labFilePath=NULL,tierName,tierType=NULL,sampleRate,encoding=NULL,idCnt=0) {
+parse_espsLabelFile <- function(labFilePath=NULL,tierName,tierType=NULL,sampleRate,encoding=NULL,idCnt=0) {
   SIGNAL_KEY="signal"
   NUMBER_OF_FIELDS_KEY="nfields"
   SEPARATOR_KEY="separator"
@@ -58,7 +58,7 @@ parse.esps.label.file <- function(labFilePath=NULL,tierName,tierType=NULL,sample
       if(trimmedLine == DATA_SECTION_START_KEY){
         inHeaderSection=FALSE
       }else{
-        kv=parse.line.to.key.value(trimmedLine,'[[:space:]]')
+        kv=parse_lineToKeyValue(trimmedLine,'[[:space:]]')
         if(!is.null(kv) && kv[1]==NUMBER_OF_FIELDS_KEY){
           if(kv[2] != 1){
             stop("only files with one field supported")
@@ -109,14 +109,14 @@ parse.esps.label.file <- function(labFilePath=NULL,tierName,tierType=NULL,sample
             # duration calculation according to partitur format
             # the sum of all durations is not equal to the complete sample count
             duration=samplePoint-intervalStartPoint-1
-            currItem=create.interval.item(id=idCnt,sampleStart=intervalStartPoint,sampleDur=duration,labels=labelAttrs)
+            currItem=list(id=idCnt,sampleStart=intervalStartPoint,sampleDur=duration,labels=labelAttrs)
             idCnt=idCnt+1
             itemList[[length(itemList)+1]] <- currItem
             intervalStartPoint=samplePoint
             
           }else{
             samplePoint=round(timeStampInSamples)
-            currItem=create.event.item(id=idCnt,samplePoint=samplePoint,labels=labelAttrs)
+            currItem=list(id=idCnt,samplePoint=samplePoint,labels=labelAttrs)
             idCnt=idCnt+1
             itemList[[length(itemList)+1]] <- currItem
           }
@@ -132,6 +132,6 @@ parse.esps.label.file <- function(labFilePath=NULL,tierName,tierType=NULL,sample
   #if(intervalMode){
   #  tierType='SEGMENT'
   #}
-  labTier=create.bundle.level(name=tierName,type=tierType,sampleRate=sampleRate,items=itemList);
+  labTier=list(name=tierName,type=tierType,sampleRate=sampleRate,items=itemList);
   return(labTier)
 }

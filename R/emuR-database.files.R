@@ -1,3 +1,40 @@
+is_relativeFilePath<-function(nativeFilePathStr, forRunningPlatform=FALSE){
+  if(forRunningPlatform){
+    if(.Platform[['OS.type']]=='unix'){
+      if(.Platform[['file.sep']]==substr(nativeFilePathStr,1,1)){
+        # UNIX: "/dir/file"
+        # absolute path
+        return(FALSE)
+      }
+    }else if(.Platform[['OS.type']]=='windows'){
+      #See http://msdn.microsoft.com/en-us/library/windows/desktop/aa365247%28v=vs.85%29.aspx
+      if(substr(nativeFilePathStr,1,2)=='\\'){
+        # fully qualified MS UNC path (is this supported with R?): \\samba\bla
+        return(FALSE)
+      }else if(grepl('^[A-Z,a-z][:]',nativeFilePathStr)){
+        # fully qualified drive path: C:\Users\bla
+        return(FALSE)
+      }else if(.Platform[['file.sep']]==substr(nativeFilePathStr,1,1)){
+        # Windows: "\dir\file"
+        # absolute path
+        return(FALSE)
+      }
+    }
+  }else{
+    if(grepl('^[A-Z,a-z][:]',nativeFilePathStr)){
+      return(FALSE)
+    }
+    if(grepl('^[\\]',nativeFilePathStr)){
+      return(FALSE)
+    }
+    if(grepl('^/',nativeFilePathStr)){
+      return(FALSE)
+    }
+    
+  }
+  return(TRUE)
+}
+
 ##' Import media files to emuDB
 ##' 
 ##' Import new recordings (media files) to emuDB and create bundles.

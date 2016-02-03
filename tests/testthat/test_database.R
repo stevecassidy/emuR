@@ -14,11 +14,11 @@ context("testing database functions")
 path2demoData = file.path(tempdir(),"emuR_demoData")
 path2testhatFolder = file.path(tempdir(),"emuR_testthat")
 
-test_that("function get.legacy.file.path()",{
-  primaryTrackFilePath=get.legacy.file.path("/path/to/db",'BLOCK*/SES*',c('BLOCK30','SES3042','0001abc'),'wav')
+test_that("function get_legacyFilePath()",{
+  primaryTrackFilePath=get_legacyFilePath("/path/to/db",'BLOCK*/SES*',c('BLOCK30','SES3042','0001abc'),'wav')
   expect_equal(primaryTrackFilePath,"/path/to/db/BLOCK30/SES3042/0001abc.wav")
   
-  signalTrackFilePath=get.legacy.file.path("/path/to/db",'F0',c('BLOCK30','SES3042','0001abc'),'f0')
+  signalTrackFilePath=get_legacyFilePath("/path/to/db",'F0',c('BLOCK30','SES3042','0001abc'),'f0')
   expect_equal(signalTrackFilePath,"/path/to/db/F0/0001abc.f0")
 })
 

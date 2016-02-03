@@ -52,7 +52,7 @@ build.legacy.bundle.list<-function(parsedEmuPath,currentPath=NULL,fileSuffixPatt
   
 }
 
-convert.legacy.bundle.id<-function(legacybundleID){
+convert_legacyBundleId<-function(legacybundleID){
   # takes character vector of legacy globpattern dirs and bundle name
   # and converts to session and bundle
   # examples: 
@@ -95,8 +95,8 @@ convert.legacy.bundle.list.to.sessions<-function(bl){
   return(sessions)
 }
 
-get.legacy.emu.bundles=function(basePath,pathPattern,primaryFileSuffixPattern=NULL){
-  if(is.relative.file.path(pathPattern)){
+get_legacyEmuBundles=function(basePath,pathPattern,primaryFileSuffixPattern=NULL){
+  if(is_relativeFilePath(pathPattern)){
     absPathPattern=file.path(basePath,pathPattern)
   }else{
     absPathPattern=pathPattern
@@ -354,7 +354,7 @@ list_legacyEmuDBs<-function(){
 }
 
 list.file.matching.emu.path.pattern=function(basePath,pathPattern,filePattern=NULL){
-  if(is.relative.file.path(pathPattern)){
+  if(is_relativeFilePath(pathPattern)){
     absPathPattern=file.path(basePath,pathPattern)
   }else{
     absPathPattern=pathPattern
@@ -369,7 +369,7 @@ list.file.matching.emu.path.pattern=function(basePath,pathPattern,filePattern=NU
 }
 
 find.file.in.emu.path.pattern=function(emuPathPattern,fileName,basePath=NULL){
-  if(is.relative.file.path(emuPathPattern)){
+  if(is_relativeFilePath(emuPathPattern)){
     absPathPattern=file.path(basePath,emuPathPattern)
   }else{
     absPathPattern=emuPathPattern
@@ -384,8 +384,8 @@ find.file.in.emu.path.pattern=function(emuPathPattern,fileName,basePath=NULL){
   return(NULL)
 }
 
-get.legacy.file.path=function(basePath,emuPath,legacybundleID,fileExtension){
-  if(is.relative.file.path(emuPath)){
+get_legacyFilePath=function(basePath,emuPath,legacybundleID,fileExtension){
+  if(is_relativeFilePath(emuPath)){
     absPathPattern=file.path(basePath,emuPath)
   }else{
     absPathPattern=emuPath
@@ -413,9 +413,9 @@ get.legacy.file.path=function(basePath,emuPath,legacybundleID,fileExtension){
 }
 
 ## @import stringr wrassp
-load.annotation.for.legacy.bundle=function(schema,legacyBundleID,basePath=NULL,encoding=NULL){
+load_annotationForLegacyBundle=function(schema,legacyBundleID,basePath=NULL,encoding=NULL){
   
-  newBundleId=convert.legacy.bundle.id(legacyBundleID)
+  newBundleId=convert_legacyBundleId(legacyBundleID)
   bundleName=newBundleId[2]
   sessionName=newBundleId[1]
   # determine samplerate
@@ -427,7 +427,7 @@ load.annotation.for.legacy.bundle=function(schema,legacyBundleID,basePath=NULL,e
     
     ## resolve wildcards
     #sampleRateReferenceFile=find.file.in.emu.path.pattern(emuPathPattern=schema[['mediafileBasePathPattern']],fileName=sampleTrackFile,basePath)
-    sampleRateReferenceFile=get.legacy.file.path(basePath,emuPath=schema[['mediafileBasePathPattern']],legacyBundleID,fileExtension=schema[['mediafileExtension']])
+    sampleRateReferenceFile=get_legacyFilePath(basePath,emuPath=schema[['mediafileBasePathPattern']],legacyBundleID,fileExtension=schema[['mediafileExtension']])
   }
   if(is.null(sampleRateReferenceFile)){
     stop("Could not determine media sample rate of bundle ID ",paste(legacyBundleID,collapse='_'),"\n")
@@ -446,7 +446,7 @@ load.annotation.for.legacy.bundle=function(schema,legacyBundleID,basePath=NULL,e
     #cat("Track: ",tr$name," ",tr$fileExtension,"\n")
     #sigFilename=str_c(uttCode,'.',tr[['fileExtension']])
     #sFile=find.file.in.emu.path.pattern(tr[['basePath']],sigFilename,basePath)
-    sFile=get.legacy.file.path(basePath=basePath,emuPath=tr[['basePath']],legacyBundleID,fileExtension=tr[['fileExtension']])
+    sFile=get_legacyFilePath(basePath=basePath,emuPath=tr[['basePath']],legacyBundleID,fileExtension=tr[['fileExtension']])
     if(!is.null(sFile)){
       signalpaths[[length(signalpaths)+1L]]=sFile
     }
@@ -454,7 +454,6 @@ load.annotation.for.legacy.bundle=function(schema,legacyBundleID,basePath=NULL,e
   idCnt=0
   levels=list()
   links=list()
-  
   #  ESPS label files first
   for(ad in schema[['annotationDescriptors']]){
     extension=ad[['extension']]
@@ -469,13 +468,13 @@ load.annotation.for.legacy.bundle=function(schema,legacyBundleID,basePath=NULL,e
       
       #annoFilename=str_c(uttCode,'.',extension)
       #annoPath=find.file.in.emu.path.pattern(annoBasePath,annoFilename,basePath)
-      annoPath=get.legacy.file.path(basePath=basePath,emuPath=ad[['basePath']],legacyBundleID,fileExtension=extension)
+      annoPath=get_legacyFilePath(basePath=basePath,emuPath=ad[['basePath']],legacyBundleID,fileExtension=extension)
       if(!is.null(annoPath)){
         #cat("Anno: ",annoPath,"\n")
         if(extension!='hlb'){
           # parse lab file
           if(file.exists(annoPath)){
-            labTier=parse.esps.label.file(labFilePath=annoPath,tierName=ad[['name']],tierType=ad[['type']],encoding=encoding,sampleRate=sampleRate,idCnt=idCnt)
+            labTier=parse_espsLabelFile(labFilePath=annoPath,tierName=ad[['name']],tierType=ad[['type']],encoding=encoding,sampleRate=sampleRate,idCnt=idCnt)
             if(!is.null(labTier)){
               levels[[labTier[['name']]]] <- labTier
               labTierItemCnt=length(labTier[['items']])
@@ -506,9 +505,9 @@ load.annotation.for.legacy.bundle=function(schema,legacyBundleID,basePath=NULL,e
       #cat("Anno: ",annoPath,"\n")
       if(extension=='hlb'){
         #cat("Parse hlb file:",annoPath,"\n")
-        hlbFilePath=get.legacy.file.path(basePath=basePath,emuPath=annoBasePathEmu,legacyBundleID,fileExtension=extension)
+        hlbFilePath=get_legacyFilePath(basePath=basePath,emuPath=annoBasePathEmu,legacyBundleID,fileExtension=extension)
         if(file.exists(hlbFilePath)){
-          hlbParseResult=parse.hlb.file(hlbFilePath=annoPath,levelDefinitions=schema[['levelDefinitions']],levels=levels,encoding=encoding);
+          hlbParseResult=parse_hlbFile(hlbFilePath=annoPath,levelDefinitions=schema[['levelDefinitions']],levels=levels,encoding=encoding);
           hlbTiers=hlbParseResult[['hlbTiers']]
           links=hlbParseResult[['links']]
           # sort levels
@@ -560,7 +559,7 @@ load.annotation.for.legacy.bundle=function(schema,legacyBundleID,basePath=NULL,e
   #annotates=paste0(sessionName,session.suffix,'/',newBundleId[2],bundle.dir.suffix,'/',sampleTrackFile)
   # bug #19
   annotates=paste0(sampleTrackFile)
-  bundle=create.bundle(name=bundleName,sessionName=sessionName,legacyBundleID=legacyBundleID,annotates=annotates,sampleRate=bundleSampleRate,levels=levels,signalpaths=signalpaths,mediaFilePath=sampleRateReferenceFile,links=links)
+  bundle=list(name=bundleName,sessionName=sessionName,legacyBundleID=legacyBundleID,annotates=annotates,sampleRate=bundleSampleRate,levels=levels,signalpaths=signalpaths,mediaFilePath=sampleRateReferenceFile,links=links)
   return(bundle)
 }
 
@@ -612,7 +611,7 @@ remove.redundant.links<-function(database,links){
 
 
 
-build.hashed.link.defs<-function(linkDefinitions){
+build_hashedLinkDefs<-function(linkDefinitions){
   
   # build link definitions hashed by super level name
   linkDefsHashed=list()
@@ -630,7 +629,7 @@ build.hashed.link.defs<-function(linkDefinitions){
   return(linkDefsHashed)
 }
 
-remove.redundant.bundle.links<-function(linkDefsHashed,bundle){
+remove_redundantBundleLinks<-function(linkDefsHashed,bundle){
   lvls=bundle[['levels']]
   itemsHashed=list()
   for(lvl in lvls){
@@ -642,7 +641,6 @@ remove.redundant.bundle.links<-function(linkDefsHashed,bundle){
   
   # new link list without redundant links
   links=list()
-  
   for(legLk in legacyLinks){
     fromLvl=itemsHashed[[legLk[['fromID']]+1]]
     toLvl=itemsHashed[[legLk[['toID']]+1]]
@@ -688,7 +686,6 @@ remove.redundant.bundle.links<-function(linkDefsHashed,bundle){
 ##' @param dbUUID optional UUID of emuDB, will be generated by default
 ##' @param options optional list of options (see details)
 ##' @param verbose be verbose, default: \code{TRUE}
-##' @author Klaus Jaensch
 ##' @seealso \code{\link{load_emuDB}}
 ##' @export
 ##' @name convert_legacyEmuDB
@@ -699,12 +696,12 @@ remove.redundant.bundle.links<-function(linkDefsHashed,bundle){
 ##' ## template file /mydata/EMU_legacy/ae/ae.tpl to directory /mydata/EMU/
 ##' ## and load it afterwards
 ##'
-##' convert_legacyEmuDB_to_emuDB("/mydata/EMU_legacy/ae/ae.tpl","/mydata/EMU/")
+##' convert_legacyEmuDB("/mydata/EMU_legacy/ae/ae.tpl","/mydata/EMU/")
 ##' ae=load_emuDB("/mydata/EMU/ae_emuDB")
 ##'
 ##' ## Convert database "ae" and do not rewrite SSFF tracks 
 ##' 
-##' convert_legacyEmuDB_to_emuDB("/mydata/EMU_legacy/ae/ae.tpl",
+##' convert_legacyEmuDB("/mydata/EMU_legacy/ae/ae.tpl",
 ##' "/mydata/EMU/",
 ##' options=list(rewriteSSFFTracks=FALSE))
 ##' 
@@ -713,12 +710,12 @@ remove.redundant.bundle.links<-function(linkDefsHashed,bundle){
 ##' create_emuRdemoData()
 ##' demoTplPath=file.path(tempdir(),"emuR_demoData/legacy_ae/ae.tpl")
 ##' targetDir=file.path(tempdir(),"converted_to_emuR")
-##' convert_legacyEmuDB_to_emuDB(demoTplPath,targetDir)
+##' convert_legacyEmuDB(demoTplPath,targetDir)
 ##' dbName=load_emuDB(file.path(targetDir,"ae_emuDB"))
 ##' 
 ##' }
 ##' 
-convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerate(),options=NULL,verbose=TRUE){
+convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerate(),options=NULL,verbose=TRUE){
   progress=0
   # default options
   # ignore missing SSFF track files
@@ -740,7 +737,7 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerat
   }
   legacyBasePath=dirname(emuTplPath)
   # load database schema and metadata to get db name
-  dbConfig=load.database.schema.from.emu.template(emuTplPath,dbUUID=dbUUID,encoding=mergedOptions[['sourceFileTextEncoding']])
+  dbConfig=load_dbConfigFromEmuTemplate(emuTplPath,dbUUID=dbUUID,encoding=mergedOptions[['sourceFileTextEncoding']])
   # database dir
   pp=file.path(targetDir,paste0(dbConfig[['name']],emuDB.suffix))
   
@@ -774,10 +771,10 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerat
   # .initialize.DBI.database()
   
   # add handle for in memory DB
-  dbHandle=add_emuDBhandle(name=dbName,basePath=pp,dbUUID=dbUUID)
+  dbHandle = emuDBhandle(dbName, pp, dbUUID, connectionPath = ":memory:")
   
   # store db schema file
-  .store.DBconfig(get_emuDBcon(dbUUID), pp,dbConfig)
+  store_DBconfig(dbHandle, dbConfig)
   progress=progress+1L
   
   # load primary track file list first
@@ -815,7 +812,7 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerat
   #pattern=str_c(pattern,'[.]',primaryFileExtension)
   primaryFileSuffixPattern=paste0('[.]',primaryFileExtension,'$')
   #primaryFileList=list.file.matching.emu.path.pattern(db[['basePath']],primaryBasePath,filePattern=pattern)
-  legacyBundleIDsList=get.legacy.emu.bundles(legacyBasePath,primaryBasePath,primaryFileSuffixPattern)
+  legacyBundleIDsList=get_legacyEmuBundles(legacyBasePath,primaryBasePath,primaryFileSuffixPattern)
   
   
   bundlesCount=length(legacyBundleIDsList)
@@ -827,10 +824,10 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerat
     
     setTxtProgressBar(pb,progress)
   }
-  linkDefsHashed=build.hashed.link.defs(dbConfig[['linkDefinitions']])
+  linkDefsHashed=build_hashedLinkDefs(dbConfig[['linkDefinitions']])
   for(ui in us){
     legacyBundleID=legacyBundleIDsList[[ui]]
-    newBundleId=convert.legacy.bundle.id(legacyBundleID)
+    newBundleId=convert_legacyBundleId(legacyBundleID)
     sessionName=newBundleId[1]
     bundleName=newBundleId[2]
     sDir=paste0(sessionName,session.suffix)
@@ -844,7 +841,7 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerat
       #cat(targetDir,s$name,sfp,"\n")
       dir.create(sfp)
     }
-    ptrFilePath=get.legacy.file.path(legacyBasePath,primaryBasePath,legacyBundleID,primaryFileExtension)
+    ptrFilePath=get_legacyFilePath(legacyBasePath,primaryBasePath,legacyBundleID,primaryFileExtension)
     #ptrFilePath=primaryFileList[ui]
     #cat("Primary track file path: ",ptrFilePath,"\n")
     
@@ -854,8 +851,8 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerat
     cutPos=str_length(ptrFileBasename)-cutLen
     #cat("Cut: ",ptrFileBasename,cutLen,cutPos,"\n")
     #uttCode=substr(ptrFileBasename,1,cutPos)
-    bundle=load.annotation.for.legacy.bundle(dbConfig,legacyBundleID,legacyBasePath,encoding=mergedOptions[['sourceFileTextEncoding']])
-    bundle=remove.redundant.bundle.links(linkDefsHashed,bundle)
+    bundle=load_annotationForLegacyBundle(dbConfig,legacyBundleID,legacyBasePath,encoding=mergedOptions[['sourceFileTextEncoding']])
+    bundle=remove_redundantBundleLinks(linkDefsHashed,bundle)
     #maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
     #bundle[['db_UUID']]=dbConfig[['UUID']]
     #.store.bundle.DBI(db,bundle)
@@ -864,9 +861,13 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerat
     bDir=paste0(bundle[['name']],bundle.dir.suffix)
     bfp=file.path(sfp,bDir)
     dir.create(bfp)
-    pFilter=emuR.persist.filters.bundle
-    bp=marshal.for.persistence(bundle,pFilter)
-    
+    # create new list that only contains relevant infos
+    bp = list(name = bundle$name, annotates = bundle$annotates, 
+              sampleRate = bundle$sampleRate, levels = bundle$levels, links = bundle$links)
+    # remove sample rate entries
+    for(i in 1:length(bp$levels)){
+      bp$levels[[i]]$sampleRate = NULL
+    }
     # metadata (annotations)
     ban=str_c(bundle[['name']],bundle.annotation.suffix,'.json')
     baJSONPath=file.path(bfp,ban)
@@ -922,7 +923,7 @@ convert_legacyEmuDB_to_emuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerat
     }
   }
   #purge_emuDB(dbUUID = dbUUID,interactive = FALSE)
-  remove_emuDBhandle(dbUUID)
+  # remove_emuDBhandle(dbUUID)
   if(verbose){
     setTxtProgressBar(pb,progress)
     cat("\n")
