@@ -156,8 +156,8 @@ which are produced as concrete phones. An schematic excerpt of such an annotatio
 
 ## Database annotation / visual inspection
 
-The EMU\_SDMS has a fairly unique approach to annotating and the visually inspecting databases, as it 
-utilizes a web application called the EMU-webApp to act as it's graphical user interface. To be
+The EMU\_SDMS has a fairly unique approach to annotating and visually inspecting databases, as it 
+utilizes a web application called the EMU-webApp to act as its graphical user interface. To be
 able to transfer the necessary data to the web application let's now serve the `emuDB` to it by using the `serve()` function:
 
 ```{r eval=FALSE}
@@ -239,7 +239,7 @@ In this example the `get_trackdata` function uses a formant estimation function 
 on-the-fly. This signal processing function is part of the `wrassp` package that is used by the `emuR` package to perform signal
 processing duties as is the case with the above `get_trackdata` command.
 
-**INFO: For more information about the wrassp package and it's available signal processing functions see the `wrassp_intro` vignette 
+**INFO: For more information about the wrassp package and its available signal processing functions see the `wrassp_intro` vignette 
 that is part of the `wrassp` package.**
 
 If the `resultType` parameter is set to `"emuRtrackdata"` the `get_trackdata` function returns an object with the following classes 
