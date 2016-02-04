@@ -994,7 +994,9 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
   }
   
   # build redundat links and calc positions
-  cat("\nbuilding redundant links and position of links... (this may take a while)\n")
+  if(verbose){ 
+    cat("\nbuilding redundant links and position of links... (this may take a while)\n")
+  }
   build_allRedundantLinks(dbHandle)
   calculate_postionsOfLinks(dbHandle)
   
