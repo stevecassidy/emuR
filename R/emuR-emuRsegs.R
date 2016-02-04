@@ -65,4 +65,12 @@ make.emuRsegs <- function(dbName,seglist,query,type)
   print.data.frame(printX, ...)
 }
 
+# S3 method definition
+as.emusegs <- function(x, ...){
+  UseMethod("as.emusegs", x)
+}
 
+as.emusegs.emuRsegs <- function(x, ...){
+  emusegs = make.seglist(x$labels, x$start, x$end, x$utts, attr(x, "query"), type = attr(x, "type"), database = attr(x, "database"))
+  return(emusegs)
+} 
