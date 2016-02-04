@@ -1060,11 +1060,12 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
 ## @export
 ## @keywords emuDB database query Emu EQL 
 ## 
-query_databaseWithEqlEmusegs<-function(dbConfig,query){
+query_databaseWithEqlEmusegs<-function(emuDBhandle, query){
   
-  rs=query_databaseWithEql(dbConfig,query)
-  segList=convert_queryResultToEmusegs(dbConfig,rs)
-  return(segList)
+  query_databaseWithEql(emuDBhandle,query)
+  dbGetQuery(emuDBhandle$connection, paste0("UPDATE leftIntermResultMetaInfosTmp SET queryStr = '", query, "'"))
+  emusegs=convert_queryResultToEmusegs(emuDBhandle)
+  return(emusegs)
   
 }
 
@@ -1072,8 +1073,8 @@ query_databaseWithEqlEmuRsegs<-function(emuDBhandle, query, timeRefSegmentLevel)
   
   query_databaseWithEql(emuDBhandle, query)
   dbGetQuery(emuDBhandle$connection, paste0("UPDATE leftIntermResultMetaInfosTmp SET queryStr = '", query, "'"))
-  segList = convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel)
-  return(segList)
+  emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel)
+  return(emuRsegs)
   
 }
 
@@ -1226,7 +1227,7 @@ query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*
           # TODO 
           stop("Parameter timeRefSegmentLevel not yet supported for resultType 'emusegs'. Please use resultType 'emuRsegs' (default).")
         }
-        return(query.database.with.eql.seglist(emuDBhandle,query))
+        return(query_databaseWithEqlEmusegs(emuDBhandle,query))
       }else{
         stop("Unknown result type: '",resultType,"'. Supported result types: 'emuRsegs', emusegs'")
       }
