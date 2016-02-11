@@ -107,21 +107,21 @@ create_tmpQueryTablesDBI <- function(emuDBhandle){
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_lrExpResTmp)
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_lrExpResTmp_idx)
   
-  dbGetQuery(ae$connection, database.DDL.emuDB_leftIntermResultItemsTmp)
-  dbGetQuery(ae$connection, database.DDL.emuDB_leftIntermResultItemsTmp_idx)
-  dbGetQuery(ae$connection, database.DDL.emuDB_leftIntermResultMetaInfosTmp)
-  dbGetQuery(ae$connection, database.DDL.emuDB_leftIntermResultMetaInfosTmp_idx)
-  dbGetQuery(ae$connection, database.DDL.emuDB_leftIntermResultProjectionItemsTmp)
-  dbGetQuery(ae$connection, database.DDL.emuDB_leftIntermResultProjectionItemsTmp_idx)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_leftIntermResultItemsTmp)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_leftIntermResultItemsTmp_idx)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_leftIntermResultMetaInfosTmp)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_leftIntermResultMetaInfosTmp_idx)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_leftIntermResultProjectionItemsTmp)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_leftIntermResultProjectionItemsTmp_idx)
   
-  dbGetQuery(ae$connection, database.DDL.emuDB_rightIntermResultItemsTmp)
-  dbGetQuery(ae$connection, database.DDL.emuDB_rightIntermResultItemsTmp_idx)
-  dbGetQuery(ae$connection, database.DDL.emuDB_rightIntermResultMetaInfosTmp)
-  dbGetQuery(ae$connection, database.DDL.emuDB_rightIntermResultMetaInfosTmp_idx)
-  dbGetQuery(ae$connection, database.DDL.emuDB_rightIntermResultProjectionItemsTmp)
-  dbGetQuery(ae$connection, database.DDL.emuDB_rightIntermResultProjectionItemsTmp_idx)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_rightIntermResultItemsTmp)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_rightIntermResultItemsTmp_idx)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_rightIntermResultMetaInfosTmp)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_rightIntermResultMetaInfosTmp_idx)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_rightIntermResultProjectionItemsTmp)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_rightIntermResultProjectionItemsTmp_idx)
   
-  # dbGetQuery(ae$connection, database.DDL.emuDB_bracketsIntermResultItemsTmp)
+  # dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_bracketsIntermResultItemsTmp)
   
 }
 
@@ -1039,10 +1039,6 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
       dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultItemsTmp"), resItems, append = T)
       
     }
-    
-    # links of result tree ? No.
-    
-    # res=create.subtree(items=lExpRes,links=NULL,resultLevel=lResAttrName,projectionItems=prjIts)
     return()
   }else{
     query_databaseWithEql(emuDBhandle, qTrim, intermResTablePrefix)
@@ -1063,6 +1059,8 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
 query_databaseWithEqlEmusegs<-function(emuDBhandle, query){
   
   query_databaseWithEql(emuDBhandle,query)
+  # escape singel quotes
+  query = gsub("'", "''", query)
   dbGetQuery(emuDBhandle$connection, paste0("UPDATE leftIntermResultMetaInfosTmp SET queryStr = '", query, "'"))
   emusegs=convert_queryResultToEmusegs(emuDBhandle)
   return(emusegs)
@@ -1072,6 +1070,8 @@ query_databaseWithEqlEmusegs<-function(emuDBhandle, query){
 query_databaseWithEqlEmuRsegs<-function(emuDBhandle, query, timeRefSegmentLevel){
   
   query_databaseWithEql(emuDBhandle, query)
+  # escape singel quotes
+  query = gsub("'", "''", query)
   dbGetQuery(emuDBhandle$connection, paste0("UPDATE leftIntermResultMetaInfosTmp SET queryStr = '", query, "'"))
   emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel)
   return(emuRsegs)
