@@ -41,7 +41,7 @@
 ##'                    sublevelName = "Phoneme")
 ##'   
 ##' # envoke autobuild function to build hierarchy for converted TextGridCollection
-##' autobuild_linkFromTimes(dbName = myTGcolDB, 
+##' autobuild_linkFromTimes(emuDBhandle = myTGcolDB, 
 ##'                         superlevelName = "Syllable",
 ##'                         sublevelName = "Phoneme",
 ##'                         convertSuperlevel = TRUE)
@@ -214,12 +214,12 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
   if(writeToFS){
     # write DBconfig to disc
     store_DBconfig(emuDBhandle, dbConfig)
-    rewrite_allAnnots(emuDBhandle, showProgress=F)
+    rewrite_allAnnots(emuDBhandle, verbose=F)
   }
   
 }
 
 # FOR DEVELOPMENT 
-# library('testthat') 
+# library('testthat')
 # test_file('tests/testthat/test_aaa_initData.R')
-# test_file('tests/testthat/test_autobuild.R')
+# test_file('tests/testthat/test_emuR-autobuild.R')
