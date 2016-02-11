@@ -62,18 +62,18 @@ test_that("Load example database ae",{
   test_that("Query level label groups",{
     
     
-    sl1=query('ae',"Phoneme=nasal",resultType='emusegs')
+    sl1=query(ae,"Phoneme=nasal",resultType='emusegs')
     # TODO check some items
     expect_that(nrow(sl1),equals(23))
-    sl2=query('ae',"Phonetic=nasal",resultType='emusegs')
+    sl2=query(ae,"Phonetic=nasal",resultType='emusegs')
     # TODO check some items
     expect_that(nrow(sl2),equals(19))
   })
   
   test_that("Query database label groups",{
     
-    add_labelGroup('ae','testGroup1',c('p','r'))
-    sl1=query('ae',"Phoneme=testGroup1")
+    add_labelGroup(ae,'testGroup1',c('p','r'))
+    sl1=query(ae,"Phoneme=testGroup1")
     expect_that(nrow(sl1),equals(11))
     
   })
@@ -86,7 +86,7 @@ test_that("Load example database ae",{
     # #   expect_that(r1Its[1,'seqStartId'],is_identical_to('andosl_msajc020_97'))  
     # #   expect_that(r1Its[1,'seqEndId'],is_identical_to('andosl_msajc020_106'))
     
-    r1=query('ae',"[[[Phoneme='tS' ^ Phonetic='t'] -> Phoneme=I] -> Phoneme=l]",resultType=NULL)
+    r1=query(ae,"[[[Phoneme='tS' ^ Phonetic='t'] -> Phoneme=I] -> Phoneme=l]",resultType=NULL)
     expect_that(nrow(r1),equals(1))
     expect_that(r1[1,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
     expect_that(r1[1,'session'],is_identical_to('0000'))
@@ -94,7 +94,7 @@ test_that("Load example database ae",{
     expect_that(r1[1,'startItemID'], equals(121))  
     expect_that(r1[1,'endItemID'], equals(123))
     
-    sl1=query('ae',"[[[Phoneme='tS' ^ Phonetic='t'] -> Phoneme=I] -> Phoneme=l]",resultType='emusegs')
+    sl1=query(ae,"[[[Phoneme='tS' ^ Phonetic='t'] -> Phoneme=I] -> Phoneme=l]",resultType='emusegs')
     expect_that(nrow(sl1),equals(1))
     expect_that('[.data.frame'(sl1,1,'labels'),is_identical_to(I('tS->I->l')))
     expect_that('[.data.frame'(sl1,1,'utts'),is_identical_to(I('0000:msajc012')))
@@ -117,7 +117,7 @@ test_that("Load example database ae",{
     # # expect_that(r1Its[6,'seqStartId'],is_identical_to('andosl_msajc063_61'))
     # # expect_that(r1Its[6,'seqEndId'],is_identical_to('andosl_msajc063_73'))
     
-    r1=query('ae',"[[Syllable=W->Syllable=W] ^ [Phoneme=@->Phoneme=s]]",resultType=NULL)
+    r1=query(ae,"[[Syllable=W->Syllable=W] ^ [Phoneme=@->Phoneme=s]]",resultType=NULL)
     expect_that(nrow(r1),equals(2))
     expect_that(r1[1,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
     expect_that(r1[1,'session'],is_identical_to('0000'))
@@ -136,20 +136,20 @@ test_that("Load example database ae",{
   
   test_that("Query dominance over more than one level",{
     
-    r1=query('ae',"[ Syllable=S ^ Phonetic=p ]",resultType=NULL)
+    r1=query(ae,"[ Syllable=S ^ Phonetic=p ]",resultType=NULL)
     expect_that(nrow(r1),equals(2))
     
   })
   
   test_that("Distinct result set for dominance query",{
     
-    r1=query('ae',"[ Syllable=S ^ Phonetic=s]")
+    r1=query(ae,"[ Syllable=S ^ Phonetic=s]")
     expect_that(nrow(r1),equals(9))
     
   })
   
   test_that("Query using Start function",{
-    r1=query('ae',"Phoneme = w & Start(Word, Phoneme)=1",resultType=NULL)
+    r1=query(ae,"Phoneme = w & Start(Word, Phoneme)=1",resultType=NULL)
     
     expect_that(nrow(r1),equals(4))
     expect_that(r1[1,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
@@ -169,7 +169,7 @@ test_that("Load example database ae",{
     expect_that(r1[4,'bundle'],is_identical_to('msajc015'))  
     expect_that(r1[4,'startItemID'],equals(177))
     
-    r2=query('ae',"Phoneme = p & Start(Word, Phoneme)=0",resultType=NULL)
+    r2=query(ae,"Phoneme = p & Start(Word, Phoneme)=0",resultType=NULL)
     
     expect_that(nrow(r2),equals(3))
     expect_that(r2[1,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
@@ -186,7 +186,7 @@ test_that("Load example database ae",{
     expect_that(r2[3,'startItemID'],equals(136))
     
     # and some bundle pattern tests
-    r3=query('ae',"Phoneme = p & Start(Word, Phoneme)=0",bundlePattern='msajc0..',resultType=NULL)
+    r3=query(ae,"Phoneme = p & Start(Word, Phoneme)=0",bundlePattern='msajc0..',resultType=NULL)
     
     expect_that(nrow(r3),equals(3))
     expect_that(r3[1,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
@@ -202,12 +202,12 @@ test_that("Load example database ae",{
     expect_that(r3[3,'bundle'],is_identical_to('msajc057'))  
     expect_that(r3[3,'startItemID'],equals(136))
     
-    r4=query('ae',"Phoneme = p & Start(Word, Phoneme)=0",bundlePattern='msajc02.',resultType=NULL)
+    r4=query(ae,"Phoneme = p & Start(Word, Phoneme)=0",bundlePattern='msajc02.',resultType=NULL)
     
     expect_that(nrow(r4),equals(1))
     expect_that(r4[1,'startItemID'],equals(122))
     
-    r5=query('ae',"Phoneme = p & Start(Word, Phoneme)=0",bundlePattern='.*7',resultType=NULL)
+    r5=query(ae,"Phoneme = p & Start(Word, Phoneme)=0",bundlePattern='.*7',resultType=NULL)
     
     expect_that(nrow(r5),equals(1))
     expect_that(r5[1,'startItemID'],equals(136))
@@ -216,7 +216,7 @@ test_that("Load example database ae",{
   })
   
   test_that("Query using End function",{
-    r1=query('ae',"Phoneme = n & End(Word, Phoneme)=1",resultType=NULL)
+    r1=query(ae,"Phoneme = n & End(Word, Phoneme)=1",resultType=NULL)
     
     expect_that(nrow(r1),equals(2))
     expect_that(r1[1,'startItemID'],equals(103))
@@ -227,16 +227,16 @@ test_that("Load example database ae",{
   test_that("Query using Num function",{
     
     # query words with exactly four phonemes
-    r=query('ae',"Num(Word, Phoneme)=4",resultType=NULL) 
+    r=query(ae,"Num(Word, Phoneme)=4",resultType=NULL) 
     expect_that(nrow(r),equals(6))
     
     # Test for GitHub Issue #41
     # Num() function returns no values if level of first parameter is sublevel of second parameter.
-    r=query('ae',"Num(Phonetic,Phoneme)=1")
+    r=query(ae,"Num(Phonetic,Phoneme)=1")
     expect_that(nrow(r),equals(247))
-    r=query('ae',"Num(Phonetic,Phoneme)>1")
+    r=query(ae,"Num(Phonetic,Phoneme)>1")
     expect_that(nrow(r),equals(6))
-    r=query('ae',"Num(Phonetic,Phoneme)>=1")
+    r=query(ae,"Num(Phonetic,Phoneme)>=1")
     # 247 + 6 = 253
     expect_that(nrow(r),equals(253))
     
@@ -244,7 +244,7 @@ test_that("Load example database ae",{
   })
   
   test_that("Query using and operator",{
-    sl1=query('ae','Text=them & Accent=W',resultType='emusegs')
+    sl1=query(ae,'Text=them & Accent=W',resultType='emusegs')
     
     expect_that(nrow(sl1),equals(1))
     expect_that('[.data.frame'(sl1,1,'labels'),is_identical_to(I('them')))
@@ -254,7 +254,7 @@ test_that("Load example database ae",{
   
   test_that("Projection operator #",{
     
-    r1=query('ae',"[ Syllable=S ^ #Phonetic=s]")
+    r1=query(ae,"[ Syllable=S ^ #Phonetic=s]")
     #r1=r1[['items']]
     expect_that(nrow(r1),equals(10))
     #r1Its=r1[['projectionItems']]
@@ -264,7 +264,7 @@ test_that("Load example database ae",{
   
   test_that("Projection operator # for emusegs result type ",{
     
-    r1=query('ae',"[ Syllable=S ^ #Phonetic=s]",resultType='emusegs')
+    r1=query(ae,"[ Syllable=S ^ #Phonetic=s]",resultType='emusegs')
     
     expect_that(nrow(r1),equals(10))
     
@@ -280,7 +280,7 @@ test_that("Load example database ae",{
     #tslQuery=emusegs.query(tsl)
     tslQuery=attr(tsl,'query')
     # reprduce the original query
-    sl=query('ae',tslQuery,resultType='emusegs')
+    sl=query(ae,tslQuery,resultType='emusegs')
     #sr=ae[['sessions']][[1]][['bundles']][[1]][['sampleRate']]
     sr=.aeSampleRate
     halfSampleTime=1/sr/2
@@ -297,7 +297,7 @@ test_that("Load example database ae",{
   
   # 
   test_that("bad calls cause errors",{
-    query(ae, "[#Text=more -> #Text=customers]")
+    expect_error(query(ae, "[#Text=more -> #Text=customers]"), regexp = "Multiple hash tags")
   })
   
   test_that("All queries from EQL vignette (slightly adapted)",{
