@@ -667,7 +667,7 @@ get_legalLabels <- function(emuDBhandle,
                             levelName,
                             attributeDefinitionName){
   
-  ld = get_levelDefinition(emuDbhandle, levelName)
+  ld = get_levelDefinition(emuDBhandle, levelName)
   
   ll = NULL
   for(ad in ld$attributeDefinitions){
@@ -1332,4 +1332,4 @@ remove_labelGroup <- function(emuDBhandle,
 # FOR DEVELOPMENT 
 # library('testthat') 
 # test_file('tests/testthat/test_aaa_initData.R')
-# test_file('tests/testthat/test_database.DBconfig.R')
+# test_file('tests/testthat/test_emuR-database.DBconfig.R')
