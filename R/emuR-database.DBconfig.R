@@ -281,8 +281,11 @@ load_DBconfig <- function(emuDBhandle){
 }
 
 # store function for dbConfig
-store_DBconfig <- function(emuDBhandle, dbConfig){
-  dbCfgPath = file.path(emuDBhandle$basePath, paste0(emuDBhandle$dbName, database.schema.suffix))
+store_DBconfig <- function(emuDBhandle, dbConfig, basePath = NULL){
+  if(is.null(basePath)){
+    basePath = emuDBhandle$basePath
+  }
+  dbCfgPath = file.path(basePath, paste0(emuDBhandle$dbName, database.schema.suffix))
   json = jsonlite::toJSON(dbConfig, auto_unbox = TRUE, force = TRUE, pretty = TRUE)
   writeLines(json, dbCfgPath)
 }

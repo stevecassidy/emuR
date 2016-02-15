@@ -8,7 +8,7 @@
 ## @param emuDBhandle 
 ## @param verbose display infos
 update_cache <- function(emuDBhandle, verbose = TRUE){
-  
+
   DBconfig = load_DBconfig(emuDBhandle)
   
   # list sessions & bundles
@@ -18,6 +18,9 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
   notUpdatedBundlesDBI = list_bundlesDBI(emuDBhandle)
   
   # add column to sessions to track if already stored
+  if(nrow(sessions) ==0){
+    return()
+  }
   sessions$stored = F
   
   progress = 0

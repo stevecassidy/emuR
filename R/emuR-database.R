@@ -257,8 +257,12 @@ add_bundleDBI <- function(emuDBhandle, sessionName, name, annotates, sampleRate,
   dbGetQuery(emuDBhandle$connection, insertBundleSql)
 }
 
-list_bundlesDBI <- function(emuDBhandle){
-  bundle = dbGetQuery(emuDBhandle$connection, paste0("SELECT session, name FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "'"))
+list_bundlesDBI <- function(emuDBhandle, sessionName = NULL){
+  if(is.null(sessionName)){
+    bundle = dbGetQuery(emuDBhandle$connection, paste0("SELECT session, name FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "'"))
+  }else{
+    bundle = dbGetQuery(emuDBhandle$connection, paste0("SELECT session, name FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "'"))
+  }
   return(bundle)
 }
 
@@ -606,6 +610,11 @@ rewrite_allAnnots <- function(emuDBhandle, verbose=TRUE){
   
   bndls = list_bundles(emuDBhandle)
   
+  # check if any bundles exist
+  if(nrow(bndls) == 0){
+    return()
+  }
+  
   progress = 0
   if(verbose){
     bundleCount=nrow(bndls)
@@ -650,7 +659,7 @@ rewrite_allAnnots <- function(emuDBhandle, verbose=TRUE){
 ##' @param targetDir target directory
 ##' @param dbUUID optional: UUID of database
 ##' @param options list of options
-##' @param showProgress show progress bar
+##' @param verbose show infos and progress bar
 ##' @author Klaus Jaensch
 ##' @import stringr uuid jsonlite
 ##' @export
@@ -664,7 +673,7 @@ rewrite_allAnnots <- function(emuDBhandle, verbose=TRUE){
 ##' 
 ##' }
 ##' 
-store<-function(dbName=NULL,targetDir,dbUUID=NULL,options=NULL,showProgress=TRUE){
+store<-function(emuDBhandle, targetDir, options=NULL, verbose=TRUE){
   # TODO how to handle API level in DBI version?
   #   dbApiLevel=db[['apiLevel']]
   #   if(is.null(dbApiLevel)){
@@ -694,17 +703,9 @@ store<-function(dbName=NULL,targetDir,dbUUID=NULL,options=NULL,showProgress=TRUE
     # create target dir
     dir.create(targetDir)
   }
-  # load emuDB metadata
-  if(is.null(dbUUID)){
-    db=.load.emuDB.DBI(name=dbName )
-  }else{
-    db=.load.emuDB.DBI(uuid = dbUUID)
-  }
-  # get UUID of DB
-  dbUUID=db[['DBconfig']][['UUID']]
   
   # build db dir name
-  dbDirName=paste0(db[['name']],emuDB.suffix)
+  dbDirName=paste0(emuDBhandle$dbName,emuDB.suffix)
   # create database dir in targetdir
   pp=file.path(targetDir,dbDirName)
   # check existence
@@ -714,106 +715,60 @@ store<-function(dbName=NULL,targetDir,dbUUID=NULL,options=NULL,showProgress=TRUE
   
   dir.create(pp)
   
+  # check if handle has basePath if not -> emuDB doesn't extist yet -> create new DBconfig
+  if(is.null(emuDBhandle$basePath)){
+    DBconfig = list(name = emuDBhandle$dbName, UUID=emuDBhandle$UUID, mediafileExtension = "wav", ssffTrackDefinitions=list(),levelDefinitions=list(),linkDefinitions=list())
+  }else{
+    DBconfig = load_DBconfig(emuDBhandle)
+  }
   
   # set editable + showHierarchy
-  db[['DBconfig']][['EMUwebAppConfig']][['activeButtons']]=list(saveBundle=TRUE,
-                                                                showHierarchy=TRUE)
+  DBconfig[['EMUwebAppConfig']][['activeButtons']]=list(saveBundle=TRUE,
+                                                        showHierarchy=TRUE)
   
   
   # store db schema file
-  .store.schema(db,projectDir=pp)
-  progress=progress+1L
+  store_DBconfig(emuDBhandle,DBconfig, basePath=pp)
   
-  bundleCount=0
-  if(showProgress){
-    # calculate bundle count
-    #for(s in db[['sessions']]){
-    #    sessBundleCount=length(s[['bundles']])
-    #    bundleCount=bundleCount+sessBundleCount
-    #}
-    bundleCount=as.integer(dbGetQuery(get_emuDBcon(dbUUID),paste0("SELECT count(*) FROM bundle WHERE db_uuid='",dbUUID,"'")))
-    cat("INFO: Storing EMU database containing",bundleCount,"bundles...\n")
-    pb=txtProgressBar(min=0,max=bundleCount+1L,style=3)
-    setTxtProgressBar(pb,progress)
+  
+  # create session dirs
+  sessions = list_sessionsDBI(emuDBhandle)
+  if(nrow(sessions) == 0){
+    return()
+  }
+  sesDirPaths = file.path(pp, paste0(sessions$name, session.suffix))
+  for(path in sesDirPaths){
+    dir.create(path)
   }
   
-  # convert sessions
-  ss=.load.sessions.DBI(dbUUID = dbUUID)
-  ssNms=ss[['name']]
-  for(sn in ssNms){
-    #cat(targetDir,s$name,"\n")
-    sDir=paste0(sn,session.suffix)
-    sfp=file.path(pp,sDir)
-    #cat(targetDir,s$name,sfp,"\n")
-    dir.create(sfp)
-    # bundles
-    
-    bnms=.load.bundle.names.DBI(dbUUID,sn)
-    for(bn in bnms){
-      
-      b=get.bundle(sessionName=sn,bundleName=bn,dbUUID=dbUUID)
-      bDir=paste0(b[['name']],bundle.dir.suffix)
-      bfp=file.path(sfp,bDir)
-      dir.create(bfp)
-      pFilter=emuR.persist.filters.bundle
-      bp=marshal.for.persistence(b,pFilter)
-      
-      # store or link media file
-      mfPath=get_media_file_path(db,b)
-      mfBn=basename(mfPath)
-      newMfPath=file.path(bfp,mfBn)
-      if(file.exists(mfPath)){
-        if(mergedOptions[['symbolicLinkSignalFiles']]){
-          file.symlink(from=mfPath,to=newMfPath)
-        }else{
-          file.copy(from=mfPath,to=newMfPath)
-        }
-      }else{
-        stop("Media file :'",mfPath,"' does not exist!")
-      }
-      
-      # store or link SSFF tracks
-      for(ssffTrDef in db[['DBconfig']][['ssffTrackDefinitions']]){
-        ssffTrFileExt=ssffTrDef[['fileExtension']]
-        trPath=get_ssfftrack_file_path(db,b,ssffTrackExt = ssffTrFileExt)
-        trBn=basename(trPath)
-        # build path for copy
-        newTrPath=file.path(bfp,trBn)
-        if(file.exists(trPath)){
-          if(mergedOptions[['symbolicLinkSignalFiles']]){
-            # link to original file
-            file.symlink(from=trPath,to=newTrPath)
-          }else if(mergedOptions[['rewriteSSFFTracks']]){
-            # read/write instead of copy to get rid of big endian encoded SSFF files (SPARC)
-            pfAssp=read.AsspDataObj(trPath)
-            write.AsspDataObj(pfAssp,newTrPath)
-          }else{
-            # copy
-            file.copy(from=trPath,to=newTrPath)
-          }
-        }else{
-          if(!mergedOptions[['ignoreMissingSSFFTrackFiles']]){
-            stop("SSFF track file :'",trPath,"' does not exist!")
-          }
-        }
-      }
-      
-      # and metadata (annotations)
-      ban=str_c(b[['name']],bundle.annotation.suffix,'.json')
-      baJSONPath=file.path(bfp,ban)
-      pbpJSON=jsonlite::toJSON(bp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-      writeLines(pbpJSON,baJSONPath)
-      
-      progress=progress+1L
-      if(showProgress){
-        setTxtProgressBar(pb,progress)
-      }
+  # create bundle dirs
+  bndls = list_bundlesDBI(emuDBhandle)
+  if(nrow(bndls) == 0){
+    return()
+  }
+  bndlDirPaths = file.path(pp, paste0(sessions$name, session.suffix), paste0(bndls$name, bundle.dir.suffix))
+  for(path in bndlDirPaths){
+    dir.create(path)
+  }
+  
+  # copy media files
+  mediaFilePathsOld = file.path(emuDBhandle$basePath, paste0(sessions$name, session.suffix), paste0(bndls$name, bundle.dir.suffix), paste0(bndls$name, ".", DBconfig$mediafileExtension))
+  mediaFilePathsNew = file.path(pp, paste0(sessions$name, session.suffix), paste0(bndls$name, bundle.dir.suffix), paste0(bndls$name, ".", DBconfig$mediafileExtension))
+  file.copy(mediaFilePathsOld, mediaFilePathsNew)
+  
+  # rewrite annotations (or should these just be a copied as well?)
+  emuDBhandle$basePath = pp
+  rewrite_allAnnots(emuDBhandle, verbose = verbose)
+  
+  # copy SSFF files
+  ssffDefs = list_ssffTrackDefinitions(emuDBhandle)
+  if(!is.null(ssffDefs)){
+    for(i in 1:nrow(ssffDefs)){
+      ssffDef = ssffDefs[1,]
+      ssffFilePathsOld = file.path(emuDBhandle$basePath, paste0(sessions$name, session.suffix), paste0(bndls$name, bundle.dir.suffix), paste0(bndls$name, ".", ssffDef$fileExtension))
+      ssffFilePathsNew = file.path(pp, paste0(sessions$name, session.suffix), paste0(bndls$name, bundle.dir.suffix), paste0(bndls$name, ".", ssffDef$fileExtension))
+      file.copy(ssffFilePathsOld, ssffFilePathsNew)
     }
-    
-  }
-  if(showProgress){
-    setTxtProgressBar(pb,progress)
-    cat("\n")
   }
   
 }
@@ -832,16 +787,13 @@ store<-function(dbName=NULL,targetDir,dbUUID=NULL,options=NULL,showProgress=TRUE
 ##' @export
 create_emuDB<-function(name, targetDir, mediaFileExtension='wav', 
                        store=TRUE, verbose=TRUE){
+  
   dbDirName=paste0(name,emuDB.suffix)
-  basePath=file.path(targetDir,dbDirName)
-  dbConfig=create.schema.databaseDefinition(name=name,mediafileExtension = mediaFileExtension)
-  db=create.database(name=name,basePath=basePath,DBconfig = dbConfig)
-  # .initialize.DBI.database()
-  dbUUID=dbConfig[['UUID']]
-  add_emuDBhandle(name=name,basePath = basePath,dbUUID=dbUUID)
-  .store.emuDB.DBI(get_emuDBcon(dbUUID), database = db)
+  # basePath=file.path(targetDir,dbDirName)
+  # dbConfig = list(name = name, UUID=uuid::UUIDgenerate(), mediafileExtension = mediaFileExtension, ssffTrackDefinitions=list(),levelDefinitions=list(),linkDefinitions=list())
+  dbHandle = emuDBhandle(dbName = name , basePath=NULL, uuid::UUIDgenerate(), ":memory:")
   if(store){
-    store(targetDir=targetDir,dbUUID=dbUUID, showProgress = verbose)
+    store(dbHandle, targetDir=targetDir, verbose = verbose)
   }
   
   return(invisible())
@@ -884,7 +836,6 @@ create_emuDB<-function(name, targetDir, mediaFileExtension='wav',
 ##' }
 load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
   progress = 0
-  
   # check database dir
   if(!file.exists(databaseDir)){
     stop("Database dir ",databaseDir," does not exist!")
@@ -893,7 +844,6 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
   if(!dbDirInfo[['isdir']]){
     stop(databaseDir," exists, but is not a directory.")
   }
-  
   
   # load db schema file
   dbCfgPattern=paste0('.*',database.schema.suffix,'$')
@@ -942,63 +892,66 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
   sessions = list_sessions(dbHandle)
   bundles = list_bundles(dbHandle)
   # add column to sessions to track if already stored
-  sessions$stored = F
-  # calculate bundle count
-  bundleCount = nrow(bundles)
-  # create progress bar
-  pMax = bundleCount
-  if(pMax == 0){
-    pMax = 1
-  }
-  if(verbose){ 
-    cat(paste0("INFO: Loading EMU database from ", databaseDir, "... (", bundleCount , " bundles found)\n"))
-    pb=txtProgressBar(min = 0L, max = pMax, style = 3)
-    setTxtProgressBar(pb, progress)
-  }
-  
-  # bundles
-  for(bndlIdx in 1:nrow(bundles)){
-    bndl = bundles[bndlIdx,]
-    # check if session has to be added to DBI
-    if(!(sessions$stored[sessions$name == bndl$session])){
-      add_sessionDBI(dbHandle, bndl$session)
-      sessions$stored[sessions$name == bndl$session] = TRUE
+  if(nrow(sessions) != 0){
+    sessions$stored = F
+    
+    # calculate bundle count
+    bundleCount = nrow(bundles)
+    # create progress bar
+    pMax = bundleCount
+    if(pMax == 0){
+      pMax = 1
+    }
+    if(verbose){ 
+      cat(paste0("INFO: Loading EMU database from ", databaseDir, "... (", bundleCount , " bundles found)\n"))
+      pb=txtProgressBar(min = 0L, max = pMax, style = 3)
+      setTxtProgressBar(pb, progress)
     }
     
-    # construct path to annotJSON
-    annotFilePath = normalizePath(file.path(dbHandle$basePath, paste0(bndl$session, session.suffix), 
-                                            paste0(bndl$name, bundle.dir.suffix), 
-                                            paste0(bndl$name, bundle.annotation.suffix, '.json')))
-    
-    # calculate MD5 sum of bundle annotJSON
-    newMD5annotJSON = md5sum(annotFilePath)
-    names(newMD5annotJSON) = NULL
-    
-    # read annotJSON as charac 
-    annotJSONchar = readChar(annotFilePath, file.info(annotFilePath)$size)
-    
-    # convert to bundleAnnotDFs
-    bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(annotJSONchar)
-    
-    # add to bundle table
-    add_bundleDBI(dbHandle, bndl$session, bndl$name, bundleAnnotDFs$annotates, bundleAnnotDFs$sampleRate, newMD5annotJSON)
-    # add to items, links, labels tables
-    store_bundleAnnotDFsDBI(dbHandle, bundleAnnotDFs, bndl$session, bndl$name)
-    
-    # increase progress bar  
-    progress=progress+1L
-    if(verbose){
-      setTxtProgressBar(pb,progress)
+    # bundles
+    for(bndlIdx in 1:nrow(bundles)){
+      bndl = bundles[bndlIdx,]
+      # check if session has to be added to DBI
+      if(!(sessions$stored[sessions$name == bndl$session])){
+        add_sessionDBI(dbHandle, bndl$session)
+        sessions$stored[sessions$name == bndl$session] = TRUE
+      }
+      
+      # construct path to annotJSON
+      annotFilePath = normalizePath(file.path(dbHandle$basePath, paste0(bndl$session, session.suffix), 
+                                              paste0(bndl$name, bundle.dir.suffix), 
+                                              paste0(bndl$name, bundle.annotation.suffix, '.json')))
+      
+      # calculate MD5 sum of bundle annotJSON
+      newMD5annotJSON = md5sum(annotFilePath)
+      names(newMD5annotJSON) = NULL
+      
+      # read annotJSON as charac 
+      annotJSONchar = readChar(annotFilePath, file.info(annotFilePath)$size)
+      
+      # convert to bundleAnnotDFs
+      bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(annotJSONchar)
+      
+      # add to bundle table
+      add_bundleDBI(dbHandle, bndl$session, bndl$name, bundleAnnotDFs$annotates, bundleAnnotDFs$sampleRate, newMD5annotJSON)
+      # add to items, links, labels tables
+      store_bundleAnnotDFsDBI(dbHandle, bundleAnnotDFs, bndl$session, bndl$name)
+      
+      # increase progress bar  
+      progress=progress+1L
+      if(verbose){
+        setTxtProgressBar(pb,progress)
+      }
+      
     }
     
+    # build redundat links and calc positions
+    if(verbose){ 
+      cat("\nbuilding redundant links and position of links... (this may take a while)\n")
+    }
+    build_allRedundantLinks(dbHandle)
+    calculate_postionsOfLinks(dbHandle)
   }
-  
-  # build redundat links and calc positions
-  if(verbose){ 
-    cat("\nbuilding redundant links and position of links... (this may take a while)\n")
-  }
-  build_allRedundantLinks(dbHandle)
-  calculate_postionsOfLinks(dbHandle)
   
   return(dbHandle)
   
@@ -1007,5 +960,7 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
 #######################
 # FOR DEVELOPMENT
 # library('testthat')
+# test_file('tests/testthat/test_aaa_initData.R')
+# test_file('tests/testthat/test_emuR-database.R')
 # test_file('tests/testthat/test_duplicate.loaded.emuDB.R')
 # test_file('tests/testthat/test_database.caching.R')
