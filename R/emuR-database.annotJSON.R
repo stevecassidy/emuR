@@ -50,7 +50,6 @@ annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
 
 # convert annotDFs (annotation list of data.frame representation) to annotJSON
 bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
-  
   # load DBconfig to generate levelNames vector (although levels are not ordered per say)
   levelDefs = list_levelDefinitions(emuDBhandle)
   
@@ -62,7 +61,7 @@ bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
     levels[[length(levels) + 1]] = list(
       items = apply(levelItems, 1, function(r) {
       
-      labels = apply(filter_(annotDFs$labels, ~(itemID == as.numeric(r[1]))), 1, function(r2) list(name = r2[3], value = r2[4]))
+      labels = apply(filter_(annotDFs$labels, ~(itemID == as.numeric(r[1]))), 1, function(r2) list(name = as.character(r2[3]), value = as.character(r2[4])))
       res = NULL
       if(r[3] == "ITEM"){
         res = list(id = as.numeric(r[1]),
@@ -74,7 +73,7 @@ bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
                    labels = labels)
       }else if(r[3] == "EVENT"){
         res = list(id = as.numeric(r[1]),
-                   samplePoint = as.numeric(r[9]),
+                   samplePoint = as.numeric(r[6]),
                    labels = labels)
       }
       return(res)
