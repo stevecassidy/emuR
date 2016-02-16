@@ -310,9 +310,9 @@ store_bundleAnnotDFsDBI <- function(emuDBhandle, bundleAnnotDFs, sessionName,
 }
 
 load_bundleAnnotDFsDBI <- function(emuDBhandle, sessionName, bundleName){
-  
+
   DBconfig = load_DBconfig(emuDBhandle)
-  
+  levelDefs = list_levelDefinitions(emuDBhandle)
   # meta infos
   annotates = paste0(bundleName, ".", DBconfig$mediafileExtension)
   sampleRateQuery = paste0("SELECT sampleRate FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND name='", bundleName,"'")
@@ -320,8 +320,10 @@ load_bundleAnnotDFsDBI <- function(emuDBhandle, sessionName, bundleName){
   
   # items
   itemsQuery = paste0("SELECT itemID, level, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur  FROM items WHERE db_uuid='", 
-                      emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
+                      emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"' ORDER BY level, seqIdx")
   items = dbGetQuery(emuDBhandle$connection, itemsQuery)
+  # reorder items to match DBconfig
+  items = items[order(match(items$level,levelDefs$name)),]
   
   # labels 
   labelsQuery = paste0("SELECT itemID, labelIdx, name, label FROM labels WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
