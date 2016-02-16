@@ -46,12 +46,10 @@ is_relativeFilePath<-function(nativeFilePathStr, forRunningPlatform=FALSE){
 ##' the mediafile into the bundle. If not already present, adds 'OSCI' and 
 ##' 'SPEC' perspectives to the emuDB config file.
 ##'
-##' @param dbName name of emuDB
+##' @param emuDBhandle
 ##' @param dir directory containing mediafiles or session directories
 ##' @param targetSessionName name of session in which to create the new bundles 
-##' @param dbUUID optional UUID of emuDB, in case dbName is ambiguous
 ##' @param verbose display infos & show progress bar
-##' @author Klaus Jaensch
 ##' @import stringr
 ##' @keywords emuDB database Emu
 ##' @export
@@ -59,13 +57,11 @@ is_relativeFilePath<-function(nativeFilePathStr, forRunningPlatform=FALSE){
 ##' \dontrun{
 ##' ## Add mediafiles from directory
 ##' 
-##'  import_mediaFiles('myEmuDB',dir="/data/mymedia/")
+##'  import_mediaFiles(myEmuDB,dir="/data/mymedia/")
 ##' 
 ##' }
-import_mediaFiles<-function(dbName,dir,targetSessionName='0000',dbUUID=NULL, verbose=TRUE){
-  db=.load.emuDB.DBI(uuid = dbUUID,name=dbName)
-  dbCfg=db[['DBconfig']]
-  dbUUID=dbCfg['UUID']
+import_mediaFiles<-function(emuDBhandle,dir,targetSessionName='0000', verbose=TRUE){
+  dbCfg=load_DBconfig(emuDBhandle)
   if(is.null(dbCfg[['mediafileExtension']])){
     pattern=NULL
     #stop("The DB has no media file extension defined.")
@@ -75,15 +71,15 @@ import_mediaFiles<-function(dbName,dir,targetSessionName='0000',dbUUID=NULL, ver
   mfList=list.files(dir,pattern=pattern)
   if(length(mfList)>0){
     # create session dir and session list object if required
-    sessDir=file.path(db[['basePath']],paste0(targetSessionName,session.suffix))
+    sessDir=file.path(emuDBhandle$basePath, paste0(targetSessionName,session.suffix))
     if(!file.exists(sessDir)){
       dir.create(sessDir)
     }
     
-    qSessSql=paste0("SELECT * FROM session WHERE db_uuid='",dbUUID,"' AND name='",targetSessionName,"'")
-    sessDf<-dbGetQuery(get_emuDBcon(dbUUID),qSessSql)
+    qSessSql=paste0("SELECT * FROM session WHERE db_uuid='",emuDBhandle$UUID,"' AND name='",targetSessionName,"'")
+    sessDf<-dbGetQuery(emuDBhandle$connection,qSessSql)
     if(nrow(sessDf)==0){
-      .store.session.DBI(dbUUID = dbUUID,sessionName = targetSessionName)
+      add_sessionDBI(emuDBhandle, sessionName = targetSessionName)
     }
     
   }
@@ -107,45 +103,38 @@ import_mediaFiles<-function(dbName,dir,targetSessionName='0000',dbUUID=NULL, ver
     
     pfAssp=read.AsspDataObj(newMediaFileFullPath,0,4000)
     sampleRate=attr(pfAssp,'sampleRate')
-    b=create.bundle(name = bundleName,sessionName = targetSessionName,annotates=mf,sampleRate=sampleRate)
-    b[['session']]=targetSessionName
-    .store.bundle.DBI(database = db,bundle=b)
-    #db[['sessions']][[targetSessionName]][['bundles']][[bundleName]]=b
-    # TODO generate empty annotation and SSFFtracks if required
-    annoAdded=FALSE
-    b[['levels']]=list()
+    b = list(name = bundleName, annotates=mf, sampleRate=sampleRate, levels=list(),links=list())
     
+    # add empty levels
     for(ld in dbCfg[['levelDefinitions']]){
-      
-      b[['levels']][[ld[['name']]]]=create.bundle.level(name=ld[['name']],type = ld[['type']],items = list())
-      
-      ## TODO TEST only
-      #labelAttrs=list(list(name=ld[['name']],value='Test Huhu!'))
-      #b[['levels']][[ld[['name']]]][['items']][[1]]=create.interval.item(id = 1,sampleStart = 0,sampleDur = 50000,labels = labelAttrs )
-      #db=move.bundle.levels.to.data.frame(db,b)
-      annoAdded=TRUE
+      b[['levels']][[ld[['name']]]] = list(name=ld[['name']],type = ld[['type']],items = list())
     }
-    if(annoAdded){
-      store.bundle.annotation(bundle = b,dbUUID = dbUUID)
-    }
-    mediaAdded=TRUE
+    
+    # write to file
+    annotJSONchar = jsonlite::toJSON(b, auto_unbox = T, pretty = T)
+    newAnnotFileFullPath=file.path(bundleDir, paste0(bundleName, bundle.annotation.suffix, ".json"))
+    writeLines(annotJSONchar, newAnnotFileFullPath)
+    
+    # calculate MD5 sum of bundle annotJSON
+    MD5annotJSON = md5sum(newAnnotFileFullPath)
+    
+    add_bundleDBI(emuDBhandle, sessionName = targetSessionName, name = bundleName, annotates = mf, sampleRate = sampleRate, MD5annotJSON = MD5annotJSON)
     
     # update pb
     progress = progress + 1
     if(verbose){
       setTxtProgressBar(pb, progress)
     }
-    
+    mediaAdded = TRUE
   }
   
-  perspectives=dbCfg[['EMUwebAppConfig']][['perspectives']]
   # create an EMUwebapp default perspective if media has been added 
+  perspectives=dbCfg[['EMUwebAppConfig']][['perspectives']]
   if(mediaAdded & (is.null(perspectives) | length(perspectives)==0)){
-    sc=create.EMUwebAppConfig.signalCanvas(order=c("OSCI","SPEC"),assign=list(),contourLims=list())
-    defPersp=create.EMUwebAppConfig.perspective(name='default',signalCanvases=sc,levelCanvases=list(order=list()),twoDimCanvases=list(order=list()))
-    db[['DBconfig']][['EMUwebAppConfig']][['perspectives']]=list(defPersp)
-    #.store.DBconfig.DBI(DBconfig = db[['DBconfig']])
-    .store.schema(db = db)
+    sc=list(order=c("OSCI","SPEC"),assign=list(),contourLims=list())
+    defPersp=list(name='default',signalCanvases=sc,levelCanvases=list(order=list()),twoDimCanvases=list(order=list()))
+    dbCfg[['EMUwebAppConfig']][['perspectives']]=list(defPersp)
+    store_DBconfig(emuDBhandle, dbConfig = dbCfg)
   }
   return(invisible(NULL))
 }
@@ -172,12 +161,11 @@ import_mediaFiles<-function(dbName,dir,targetSessionName='0000',dbUUID=NULL, ver
 ##' Note that adding files does not mean the emuDB is automatically using these, unless
 ##' you have defined the usage of these files (e.g. by ssffTrackDefinitions).
 ##' 
-##' @param dbName name of loaded emuDB
+##' @param emuDBhandle
 ##' @param dir directory containing files to be added
 ##' @param fileExtension file extension of file to be added
 ##' @param targetSessionName name of sessions containing 
 ##' bundles that the files will be added to
-##' @param dbUUID optional UUID of loaded emuDB, in case the dbName is ambiguous
 ##' @export
 ##' @keywords emuDB database Emu 
 ##' @examples 
@@ -194,26 +182,19 @@ import_mediaFiles<-function(dbName,dir,targetSessionName='0000',dbUUID=NULL, ver
 ##' path2dir = "/path/to/dir/"
 ##' 
 ##' # add the files to session "0000" of the "ae" emuDB
-##' add_files(dbName = "ae",
+##' add_files(ae,
 ##'           dir = path2dir,
 ##'           fileExtension = "zcr",
 ##'           targetSessionName = "0000")
 ##' 
 ##' }
-add_files <- function(dbName, dir, fileExtension, targetSessionName='0000', dbUUID=NULL){
+add_files <- function(emuDBhandle, dir, fileExtension, targetSessionName='0000'){
   
-  dbUUID = get_UUID(dbName = dbName, dbUUID = dbUUID)
-  dbObj = .load.emuDB.DBI(name = dbName, uuid = dbUUID)
-  
-  # get all basePath + bundles
-  dbHandle=get_emuDBhandle(dbUUID)
-  bp=dbHandle$basePath
-  
-  bndls = list_bundles(dbName, session = targetSessionName, dbUUID=dbUUID)
+  bndls = list_bundles(emuDBhandle, session = targetSessionName)
   
   sourcePaths = list.files(dir, pattern = paste0(fileExtension, '$'), full.names = T)
   
-  destDirs = file.path(bp, paste0(bndls$session, '_ses'), paste0(bndls$name, '_bndl'))
+  destDirs = file.path(emuDBhandle$basePath, paste0(bndls$session, '_ses'), paste0(bndls$name, '_bndl'))
   
   # copy files
   for (i in 1:length(sourcePaths)){
@@ -224,7 +205,7 @@ add_files <- function(dbName, dir, fileExtension, targetSessionName='0000', dbUU
       stop(paste0("more or less then one bundle found that matches the base name of the file '", sourcePaths[i], "'"))
     }
     
-    destDir = file.path(bp, paste0(cbndl$session, '_ses'), paste0(cbndl$name, '_bndl'))
+    destDir = file.path(emuDBhandle$basePath, paste0(cbndl$session, '_ses'), paste0(cbndl$name, '_bndl'))
     file.copy(sourcePaths[i], destDirs[i])
   }
 }
@@ -249,25 +230,18 @@ add_files <- function(dbName, dir, fileExtension, targetSessionName='0000', dbUU
 ##' # (see ?load_emuDB for more information)
 ##' 
 ##' # list all files of "ae" emuDB
-##' list_files(dbName = "ae") 
+##' list_files(ae) 
 ##'
-##' # list all files of "ae" emuDB in bundles ending with '3'
-##' list_files(dbName = "ae",bundlePattern="*3") 
+##' # list all files of ae emuDB in bundles ending with '3'
+##' list_files(ae, bundlePattern="*3") 
 ##' 
 ##' }
 ##' 
-list_files <- function(dbName,
+list_files <- function(emuDBhandle,
                        sessionPattern = "*",
-                       bundlePattern = "*",
-                       dbUUID = NULL){
-  dbUUID = get_UUID(dbName = dbName, dbUUID = dbUUID)
-  dbObj = .load.emuDB.DBI(name = dbName, uuid = dbUUID)
-  
-  # get all basePath + bundles
-  dbHandle=get_emuDBhandle(dbUUID)
-  bp=dbHandle$basePath
-  
-  bndls = list_bundles(dbName, dbUUID = dbUUID)
+                       bundlePattern = "*"){
+
+  bndls = list_bundles(emuDBhandle)
   
   df = data.frame(session = character(), 
                   bundle = character(),
@@ -276,7 +250,7 @@ list_files <- function(dbName,
   # get files for each bundle
   for(i in 1:nrow(bndls)){
     
-    fps = list.files(file.path(bp, paste0(bndls[i,]$session, "_ses"), paste0(bndls[i,]$name, "_bndl")))
+    fps = list.files(file.path(emuDBhandle$basePath, paste0(bndls[i,]$session, "_ses"), paste0(bndls[i,]$name, "_bndl")))
     df = rbind(df, data.frame(session = rep(bndls[i,]$session, length(fps)), 
                               bundle = rep(bndls[i,]$name, length(fps)), 
                               file = fps,
@@ -301,6 +275,6 @@ remove_files <- function(){
 
 #########################
 # FOR DEVELOPMENT
-# library('testthat')
-# test_file('tests/testthat/test_database.files.R')
+library('testthat')
+test_file('tests/testthat/test_emuR-database.files.R')
 
