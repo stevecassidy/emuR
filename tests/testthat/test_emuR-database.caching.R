@@ -14,17 +14,10 @@ path2db = file.path(path2testData, paste0(dbName, emuDB.suffix))
 ###########################
 test_that("update_cache works", {
   
-  # purge, delete, copy and load
-  if(is.emuDB.loaded(dbName)){
-    purge_emuDB(dbName, interactive = F)
-  }
+  # delete, copy and load
   unlink(path2db, recursive = T)
   file.copy(path2orig, path2testData, recursive = T)
-  load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
-  
-  dbUUID = get_UUID(dbName)
-  
-  
+  ae = load_emuDB(path2db, inMemoryCache = testingVars$inMemoryCache, verbose = F)
   
   ################################
   # 
@@ -37,11 +30,11 @@ test_that("update_cache works", {
     pbpJSON=jsonlite::toJSON(dbJson,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
     writeLines(pbpJSON,file.path(path2db, "ae_DBconfig.json"))
     
-    update_cache(dbName, verbose=F)
+    update_cache(ae, verbose=F)
     
-    dbObj = .load.emuDB.DBI(uuid = dbUUID)
+    DBconfig = load_DBconfig(ae)
     
-    expect_equal(dbObj$DBconfig$name, "ae_copy")
+    expect_equal(DBconfig$name, "ae_copy")
   })
   
   ################################
@@ -52,14 +45,14 @@ test_that("update_cache works", {
               to = file.path(path2db, 'new_ses'),
               recursive = T)
     
-    update_cache(dbName, verbose=F)
+    update_cache(ae, verbose=F)
     
-    l = list_sessions(dbName)
+    l = list_sessions(ae)
     expect_true("new" %in% l$name)
-    b = list_bundles(dbName)
+    b = list_bundles(ae)
     expect_true(any(b$session == "new" & b$name == 'msajc010'))
     
-    sl = query(dbName, "Phonetic=n")
+    sl = query(ae, "Phonetic=n")
     expect_true(any(sl$session == "new"))
   })
   
@@ -74,9 +67,9 @@ test_that("update_cache works", {
     pbpJSON=jsonlite::toJSON(annotJson,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
     writeLines(pbpJSON,file.path(path2db, "new_ses", "msajc010_bndl", "msajc010_annot.json"))
     
-    update_cache(dbName, verbose = F)
+    update_cache(ae, verbose = F)
     
-    res = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT * FROM items WHERE db_uuid='", dbUUID, "' AND session='new' AND bundle='msajc010' AND level='Utterance'"))$itemID
+    res = dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='", ae$UUID, "' AND session='new' AND bundle='msajc010' AND level='Utterance'"))$itemID
 
     expect_true(res == 666666)
     
@@ -88,13 +81,13 @@ test_that("update_cache works", {
   test_that("deleted bundle is re-cached", {
     unlink(file.path(path2db, 'new_ses', 'msajc010_bndl'), recursive = TRUE)
     
-    update_cache(dbName, verbose = F)
+    update_cache(ae, verbose = F)
     
-    res = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT * FROM items WHERE db_uuid='", dbUUID, "' AND session='new' AND bundle='msajc010'"))
+    res = dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='", ae$UUID, "' AND session='new' AND bundle='msajc010'"))
     
     expect_true(nrow(res) == 0)
     
-    bndls = list_bundles(dbName)
+    bndls = list_bundles(ae)
     expect_false(any(bndls$session == "new"))
     
     
@@ -104,67 +97,18 @@ test_that("update_cache works", {
   # 
   test_that("deleted session is re-cached", {
     unlink(file.path(path2db, 'new_ses'), recursive = TRUE)
-    ses = list_sessions(dbName)
+    ses = list_sessionsDBI(ae)
     expect_true(any(ses$name == "new"))
     
-    update_cache(dbName, verbose = F)
-    ses = list_sessions(dbName)
+    update_cache(ae, verbose = F)
+    ses = list_sessionsDBI(ae)
 
     expect_false(any(ses$name == "new"))
     
   })
   
-  # purge, delete, copy and load
-  if(is.emuDB.loaded(dbName)){
-    purge_emuDB(dbName, interactive = F)
-  }
+  # clean up
   unlink(path2db, recursive = T)
-  
-  
-  
+
 })
-
-############################
-test_that("sqlConnections CRUD operations work", {
-  
-  path2testDB = file.path(path2testData, paste0("testthat", database.cache.suffix))
-  
-  fileCon = NULL
-  
-  #########################
-  test_that("add works", {
-    # only single instance is added 
-    # klausj: not the case anymore we need a handel for each database
-    
-    #add_emuDBhandle(path2testData, path2testDB)
-    #origLength = length(internalVars$sqlConnections)
-    #dbHandle = add_emuDBhandle(path2testData, path2testDB)
-    #fileCon=dbHandle$connection
-    #expect_equal(length(internalVars$sqlConnections), origLength)
-    
-  })
-
-  #########################  
-  test_that("add handle works", {
-    # check that :memory: connection is returned by default
-    purge_all_emuDBs(interactive = F)
-    expect_true(length(internalVars$sqlConnections) == 0)
-    
-    inMemHandle = add_emuDBhandle(name=dbName,basePath="arbitrary path",dbUUID="aec09a3e-130f-4c6e-b6e2-88b3667c1b6c")
-    expect_true(length(internalVars$sqlConnections) == 1)
-  
-  })
-
-  #########################
-  test_that("remove works", {
-    remove_emuDBhandle(dbUUID="aec09a3e-130f-4c6e-b6e2-88b3667c1b6c")    
-    expect_true(length(internalVars$sqlConnections) == 0)
-  })
-  
-  # cleanup 
-  unlink(path2testDB)
-  
-})
-
-
 

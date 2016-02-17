@@ -30,7 +30,6 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
     pb = txtProgressBar(min = 0, max = nrow(bundles), initial = progress, style=3)
     setTxtProgressBar(pb, progress)
   }
-  
   for(bndlIdx in 1:nrow(bundles)){
     sessionsDBI = list_sessionsDBI(emuDBhandle)
     
@@ -52,7 +51,6 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
     
     # get old MD5 sum (NOTE: this returns an empty string if the bundle isn't present)
     oldMD5annotJSON = get_MD5annotJsonDBI(emuDBhandle, bndl$session, bndl$name)
-    
     if(newMD5annotJSON != oldMD5annotJSON){
       # read annotJSON as charac 
       annotJSONchar = readChar(annotFilePath, file.info(annotFilePath)$size)
@@ -76,8 +74,8 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
       store_bundleAnnotDFsDBI(emuDBhandle, bundleAnnotDFs, bndl$session, bndl$name)
       
       # build redundat links and calc positions
-      build_allRedundantLinks(dbHandle, bndl$session, bndl$name)
-      calculate_postionsOfLinks(dbHandle)
+      build_allRedundantLinks(emuDBhandle, bndl$session, bndl$name)
+      calculate_postionsOfLinks(emuDBhandle)
     }
     
     # increase progress bar  
@@ -86,12 +84,12 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
       setTxtProgressBar(pb,progress)
     }
   }
-  
+
   # remove superfluous sessions from session table
   superfluousSessions = anti_join(notUpdatedSessionDBI, sessions, by = "name")
   if(nrow(superfluousSessions) > 0){
     for(sesIdx in 1:nrow(superfluousSessions)){
-      remove_sessionDBI(emuDBhandle, superfluousSessions[sesIdx,]$name)
+      remove_sessionDBI(emuDBhandle, superfluousSessions[sesIdx,])
     }
   }
   # remove superfluous bundles from bundle table and bundleAnnotDBI values from items, labels and links tables
@@ -99,7 +97,7 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
   if(nrow(superfluousBundles) > 0){
     for(bndlIdx in 1:nrow(superfluousBundles)){
       remove_bundleDBI(emuDBhandle, superfluousBundles[bndlIdx,]$session, superfluousBundles[bndlIdx,]$name)
-      remove_bundleAnnotDBI(emuDBhandle, superfluousBundles[bndlIdx,]$session, superfluousBundles[bndlIdx,]$name)
+      remove_bundleAnnotDBI(emuDBhandle, sessionName = superfluousBundles[bndlIdx,]$session, bundleName = superfluousBundles[bndlIdx,]$name)
     }
   }
   
@@ -108,4 +106,4 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
 # FOR DEVELOPMENT 
 # library('testthat') 
 # test_file('tests/testthat/test_aaa_initData.R')
-# test_file('tests/testthat/test_database.caching.R')
+# test_file('tests/testthat/test_emuR-database.caching.R')

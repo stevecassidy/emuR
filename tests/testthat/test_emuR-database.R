@@ -200,7 +200,7 @@ test_that("database functions work", {
     # convert to bundleAnnotDFs
     b015mChar = jsonlite::toJSON(b015m, auto_unbox = T, pretty = T)
     bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(b015mChar[1])
-    remove_bundleAnnotDBI(ae, bundleName = "msajc015", "0000")
+    remove_bundleAnnotDBI(ae, "0000", bundleName = "msajc015")
     store_bundleAnnotDFsDBI(ae, bundleAnnotDFs, "0000", "msajc015")
     # build redundat links and calc positions
     build_allRedundantLinks(ae, "0000", "msajc015")
@@ -232,7 +232,7 @@ test_that("database functions work", {
     # convert to bundleAnnotDFs
     b015mChar = jsonlite::toJSON(b015m, auto_unbox = T, pretty = T)
     bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(b015mChar[1])
-    remove_bundleAnnotDBI(ae, bundleName = "msajc015", "0000")
+    remove_bundleAnnotDBI(ae, "0000", bundleName = "msajc015")
     store_bundleAnnotDFsDBI(ae, bundleAnnotDFs, "0000", "msajc015")
     # build redundat links and calc positions
     build_allRedundantLinks(ae, "0000", "msajc015")
@@ -271,7 +271,7 @@ test_that("database functions work", {
     # convert to bundleAnnotDFs and store
     b015m2Char = jsonlite::toJSON(b015m2, auto_unbox = T, pretty = T)
     bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(b015m2Char[1])
-    remove_bundleAnnotDBI(ae, bundleName = "msajc015", "0000")
+    remove_bundleAnnotDBI(ae, "0000", bundleName = "msajc015")
     store_bundleAnnotDFsDBI(ae, bundleAnnotDFs, "0000", "msajc015")
     # build redundat links and calc positions
     build_allRedundantLinks(ae, "0000", "msajc015")
@@ -310,7 +310,7 @@ test_that("database functions work", {
     # convert to bundleAnnotDFs and store
     b015m3Char = jsonlite::toJSON(b015m3, auto_unbox = T, pretty = T)
     bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(b015m3Char[1])
-    remove_bundleAnnotDBI(ae, bundleName = "msajc015", "0000")
+    remove_bundleAnnotDBI(ae, "0000", bundleName = "msajc015")
     store_bundleAnnotDFsDBI(ae, bundleAnnotDFs, "0000", "msajc015")
     # build redundat links and calc positions
     build_allRedundantLinks(ae, "0000", "msajc015")
@@ -332,7 +332,7 @@ test_that("database functions work", {
     # convert to bundleAnnotDFs and store
     b015Char = jsonlite::toJSON(b015, auto_unbox = T, pretty = T)
     bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(b015Char[1])
-    remove_bundleAnnotDBI(ae, bundleName = "msajc015", "0000")
+    remove_bundleAnnotDBI(ae, "0000", bundleName = "msajc015")
     store_bundleAnnotDFsDBI(ae, bundleAnnotDFs, "0000", "msajc015")
     # build redundat links and calc positions
     build_allRedundantLinks(ae, "0000", "msajc015")
@@ -402,7 +402,7 @@ test_that("database functions work", {
     # convert to bundleAnnotDFs and store
     b015ModInsrtChar = jsonlite::toJSON(b015ModInsrt, auto_unbox = T, pretty = T)
     bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(b015ModInsrtChar[1])
-    remove_bundleAnnotDBI(ae, bundleName = "msajc015", "0000")
+    remove_bundleAnnotDBI(ae, "0000", bundleName = "msajc015")
     store_bundleAnnotDFsDBI(ae, bundleAnnotDFs, "0000", "msajc015")
     # build redundat links and calc positions
     build_allRedundantLinks(ae, "0000", "msajc015")

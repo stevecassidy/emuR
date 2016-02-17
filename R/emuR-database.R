@@ -245,7 +245,7 @@ list_sessionsDBI <- function(emuDBhandle){
 
 
 remove_sessionDBI <- function(emuDBhandle, sessionName){
-  dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM session WHERE ", "db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "'"))
+  dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM session WHERE ", "db_uuid='", emuDBhandle$UUID, "' AND name='", sessionName, "'"))
 }
 
 ####################################
@@ -273,6 +273,9 @@ remove_bundleDBI <- function(emuDBhandle, sessionName, name){
 # MD5annotJSON
 get_MD5annotJsonDBI <- function(emuDBhandle, sessionName, name){
   MD5annotJSON = dbGetQuery(emuDBhandle$connection, paste0("SELECT MD5annotJSON FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND name='", name, "'"))$MD5annotJSON
+  if(length(MD5annotJSON) == 0){
+    MD5annotJSON = ""
+  }
   return(MD5annotJSON)
 }
 
@@ -339,7 +342,7 @@ load_bundleAnnotDFsDBI <- function(emuDBhandle, sessionName, bundleName){
 }
 
 
-remove_bundleAnnotDBI<-function(emuDBhandle, bundleName, sessionName){
+remove_bundleAnnotDBI<-function(emuDBhandle, sessionName, bundleName){
   cntSqlQuery=paste0("SELECT * FROM items WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
   res<-dbGetQuery(emuDBhandle$connection, cntSqlQuery)
   delSqlQuery=paste0("DELETE FROM items WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName, "'")
@@ -554,7 +557,9 @@ list_bundles <- function(emuDBhandle, session=NULL){
   for(ses in sesDf$name){
     bndlDirs = dir(file.path(emuDBhandle$basePath, paste0(ses, session.suffix)), pattern = bndlPattern)
     bndlNames = gsub(paste0(bundle.dir.suffix, "$"), "", bndlDirs)
-    res = rbind(res, data.frame(session = ses, name = bndlNames, stringsAsFactors = F))
+    if(length(bndlNames) > 0){
+      res = rbind(res, data.frame(session = ses, name = bndlNames, stringsAsFactors = F))
+    }
   }
   return(res)
 }
@@ -813,6 +818,8 @@ create_emuDB<-function(name, targetDir, mediaFileExtension='wav',
 ##' If the requested emuDB is already loaded to the R session, data of changed annotation or configuration files get updated. The reloaded representation of the database is then in sync with the filesystem. 
 ##' @param databaseDir directory of the emuDB
 ##' @param inMemoryCache cache the loaded DB in memory
+##' @param connection pass in DBI connection to SQL database if you want to override the default which is to 
+##' use an SQLite database either in memory (\code{inMemoryCache = TRUE}) or in the emuDB folder.
 ##' @param verbose be verbose
 ##' @return name of emuDB
 ##' @import jsonlite DBI
@@ -836,7 +843,7 @@ create_emuDB<-function(name, targetDir, mediaFileExtension='wav',
 ##' ae = load_emuDB(demoDatabaseDir)
 ##' 
 ##' }
-load_emuDB <- function(databaseDir, inMemoryCache = FALSE, verbose=TRUE){
+load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, verbose=TRUE){
   progress = 0
   # check database dir
   if(!file.exists(databaseDir)){
