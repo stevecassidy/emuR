@@ -14,8 +14,6 @@ unlink(path2db, recursive = T)
 file.copy(path2orig, path2testData, recursive = T)
 ae = load_emuDB(path2db, inMemoryCache = testingVars$inMemoryCache, verbose = F)
 
-print(list_sessions(ae))
-
 ##############################
 test_that("correct classes are returned", {
   
