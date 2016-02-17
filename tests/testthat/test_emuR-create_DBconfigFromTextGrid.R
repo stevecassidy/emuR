@@ -1,6 +1,5 @@
 ##' testthat tests for convert_TextGridCollection_to_emuDB
 ##'
-##' @author Raphael Winkelmann
 require(RSQLite)
 
 context("testing create_DBconfigFromTextGrid function")
@@ -10,12 +9,9 @@ path2testData = file.path(tempdir(), "emuR_testthat")
 path2tg = file.path(path2demoData, "TextGrid_collection/msajc003.TextGrid")
 
 dbName = 'test12'
-# clean up
-unlink(basePath, recursive = T)
 
 # tmp project base path
 basePath=file.path(tempdir(), dbName)
-dir.create(basePath)
 
 ##############################
 test_that("test that correct values are set for msajc003", {

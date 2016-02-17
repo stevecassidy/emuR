@@ -12,7 +12,7 @@
 ##' more information on the structural elements of an emuDB 
 ##' see \code{vignette{emuDB}}.
 ##' 
-##' @param dbName Name of loaded emuDB
+##' @param emuDBhandle
 ##' @param seglist \code{\link{emuRsegs}} or \code{\link{emusegs}} object obtained by \code{\link{query}}ing a loaded emuDB 
 ##' @param ssffTrackName The name of track that one wishes to extract (see 
 ##' \code{\link{list_ssffTrackDefinitions}} for the defined ssffTracks of the 
@@ -38,7 +38,6 @@
 ##' @param nrOfAllocationRows If this size limit of the data matrix is reached 
 ##' a further \code{nrOfAllocationRows} more rows will be allocated. As this allocation leads to
 ##' a performance penalty one should consider increasing this number for large emuDBs. 
-##' @param dbUUID Optional UUID of emuDB, in case dbName is ambiguous
 ##' @param resultType Specify class of returned object. Either \code{"emuRtrackdata"} or \code{"trackdata"}.
 ##' @param verbose Show progress bars and further information
 ##' @return If the \code{cut} parameter is not set (the default) an object of type \code{\link{trackdata}} or \code{\link{emuRtrackdata}} 
@@ -57,31 +56,30 @@
 ##' # (see ?load_emuDB for more information)
 ##' 
 ##' # query loaded "ae" emuDB for all "i:" segments of the "Phonetic" level
-##' sl = query(dbName = "ae", 
+##' sl = query(ae, 
 ##'            query = "Phonetic == i:")
 ##' 
 ##' # get the corresponding formant trackdata
-##' td = get_trackdata(dbName = "ae", 
+##' td = get_trackdata(ae, 
 ##'                    seglist = sl, 
 ##'                    ssffTrackName = "fm")
 ##' 
 ##' # get the corresponding F0 trackdata
 ##' # as there is no F0 ssffTrack defined in the "ae" emuDB we will 
 ##' # calculate the necessary values on-the-fly
-##' td = get_trackdata(dbName = "ae", 
+##' td = get_trackdata(ae, 
 ##'                    seglist = sl, 
 ##'                    onTheFlyFunctionName = "ksvF0")
 ##'                    
 ##' }
 
-"get_trackdata" <- function(dbName, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
+"get_trackdata" <- function(emuDBhandle, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
                             npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
-                            onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, dbUUID = NULL, 
+                            onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, 
                             resultType = "trackdata", verbose = TRUE){
   #########################
-  # get dbObj
-  dbUUID = get_UUID(dbName = dbName, dbUUID = dbUUID)
-  dbObj = .load.emuDB.DBI(uuid = dbUUID)
+  # get DBconfig
+  DBconfig = load_DBconfig(emuDBhandle)
   
   #########################
   # parameter checks  
@@ -136,15 +134,15 @@
   #########################
   # get track definition
   if(is.null(onTheFlyFunctionName)){
-    trackDefFound = sapply(dbObj$DBconfig$ssffTrackDefinitions, function(x){ x$name == ssffTrackName})
-    trackDef = dbObj$DBconfig$ssffTrackDefinitions[trackDefFound]
+    trackDefFound = sapply(DBconfig$ssffTrackDefinitions, function(x){ x$name == ssffTrackName})
+    trackDef = DBconfig$ssffTrackDefinitions[trackDefFound]
     
     # check if correct nr of trackDefs where found
     if(length(trackDef) != 1){
       if(length(trackDef) < 1 ){
-        stop('The emuDB object ', dbObj$DBconfig$name, ' does not have any ssffTrackDefinitions called ', ssffTrackName)
+        stop('The emuDB object ', DBconfig$name, ' does not have any ssffTrackDefinitions called ', ssffTrackName)
       }else{
-        stop('The emuDB object ', dbObj$DBconfig$name, ' has multiple ssffTrackDefinitions called ', ssffTrackName, '! This means the DB has an invalid _DBconfig.json')
+        stop('The emuDB object ', DBconfig$name, ' has multiple ssffTrackDefinitions called ', ssffTrackName, '! This means the DB has an invalid _DBconfig.json')
       }
     }
   }else{
@@ -174,7 +172,7 @@
   #   curBndl <- dbObj$sessions[[splUtt[1]]]$bundles[[splUtt[2]]]
   
   # check if utts entry exists
-  bndls = list_bundles(dbName, dbUUID = dbUUID)
+  bndls = list_bundles(emuDBhandle)
   if(!any(bndls$session == splUtt[1] & bndls$name == splUtt[2])){
     stop("Following utts entry not found: ", seglist$utts[1])
   }
@@ -182,16 +180,16 @@
   
   if(!is.null(onTheFlyFunctionName)){
     funcFormals = NULL
-    qr = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT * FROM bundle WHERE db_uuid='", dbUUID, "' AND session='",
+    qr = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='",
                                                  splUtt[1], "' AND name='", splUtt[2], "'"))
-    funcFormals$listOfFiles = file.path(dbObj$basePath, paste0(qr$session, session.suffix), paste0(qr$name, bundle.dir.suffix), qr$annotates)
+    funcFormals$listOfFiles = file.path(emuDBhandle$basePath, paste0(qr$session, session.suffix), paste0(qr$name, bundle.dir.suffix), qr$annotates)
     funcFormals$toFile = FALSE
     curDObj = do.call(onTheFlyFunctionName,funcFormals)
   }else{
 #     allBndlTrackPaths <- dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT path FROM track WHERE db_uuid='", dbUUID, "' AND session='",
 #                                                                  splUtt[1], "' AND bundle='", splUtt[2], "'"))$path
     # fpath <- allBndlTrackPaths[grepl(paste(trackDef[[1]]$fileExtension, '$', sep = ''), allBndlTrackPaths)]
-    fpath <- file.path(dbObj$basePath, paste0(splUtt[1], session.suffix), paste0(splUtt[2], bundle.dir.suffix), paste0(splUtt[2], ".", trackDef[[1]]$fileExtension))
+    fpath <- file.path(emuDBhandle$basePath, paste0(splUtt[1], session.suffix), paste0(splUtt[2], bundle.dir.suffix), paste0(splUtt[2], ".", trackDef[[1]]$fileExtension))
     curDObj <- read.AsspDataObj(fpath)
   }
   tmpData <- eval(parse(text = paste("curDObj$", trackDef[[1]]$columnName, sep = "")))
@@ -231,7 +229,7 @@
     splUtt = str_split(seglist$utts[i], ':')[[1]]
     
     # check if utts entry exists
-    bndls = list_bundles(dbName, dbUUID = dbUUID)
+    bndls = list_bundles(emuDBhandle)
     if(!any(bndls$session == splUtt[1] & bndls$name == splUtt[2])){
       stop("Following utts entry not found: ", seglist$utts[i])
     }
@@ -241,15 +239,15 @@
                                                                  # splUtt[1], "' AND bundle='", splUtt[2], "'"))$path
     
     # fpath <- allBndlTrackPaths[grepl(paste0(trackDef[[1]]$fileExtension, '$'), allBndlTrackPaths)]
-    fpath <- file.path(dbObj$basePath, paste0(splUtt[1], session.suffix), paste0(splUtt[2], bundle.dir.suffix), paste0(splUtt[2], ".", trackDef[[1]]$fileExtension))
+    fpath <- file.path(emuDBhandle$basePath, paste0(splUtt[1], session.suffix), paste0(splUtt[2], bundle.dir.suffix), paste0(splUtt[2], ".", trackDef[[1]]$fileExtension))
     
     ################
     #get data object
     
     if(!is.null(onTheFlyFunctionName)){
-      qr = dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT * FROM bundle WHERE db_uuid='", dbUUID, "' AND session='",
+      qr = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='",
                                                    splUtt[1], "' AND name='", splUtt[2], "'"))
-      funcFormals$listOfFiles = file.path(dbObj$basePath, paste0(qr$session, session.suffix), paste0(qr$name, bundle.dir.suffix), qr$annotates)
+      funcFormals$listOfFiles = file.path(emuDBhandle$basePath, paste0(qr$session, session.suffix), paste0(qr$name, bundle.dir.suffix), qr$annotates)
       
       curDObj = do.call(onTheFlyFunctionName, funcFormals)
       if(verbose){
@@ -430,5 +428,5 @@
 
 #######################
 # FOR DEVELOPMENT
-# library('testthat')
-# test_file('tests/testthat/test_get_trackdata.R')
+library('testthat')
+test_file('tests/testthat/test_emuR-get_trackdata.R')
