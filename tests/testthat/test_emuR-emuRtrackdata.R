@@ -22,7 +22,7 @@ test_that("correct classes are returned", {
   sl = query(ae, "Phonetic=@|i:")
   td = get_trackdata(ae, 
                      seglist = sl, 
-                     ssffTrackName = 'fm')
+                     ssffTrackName = 'fm', verbose = F)
   
   newTd = create_emuRtrackdata(sl, td)
   

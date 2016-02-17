@@ -1,7 +1,7 @@
-require(testthat)
-require(compare)
-require(wrassp)
-require(emuR)
+suppressMessages(require(testthat))
+suppressMessages(require(compare))
+suppressMessages(require(wrassp))
+suppressMessages(require(emuR))
 
 context("testing database functions")
 
