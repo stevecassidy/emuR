@@ -275,6 +275,6 @@ remove_files <- function(){
 
 #########################
 # FOR DEVELOPMENT
-library('testthat')
-test_file('tests/testthat/test_emuR-database.files.R')
+# library('testthat')
+# test_file('tests/testthat/test_emuR-database.files.R')
 

@@ -428,5 +428,5 @@
 
 #######################
 # FOR DEVELOPMENT
-library('testthat')
-test_file('tests/testthat/test_emuR-get_trackdata.R')
+# library('testthat')
+# test_file('tests/testthat/test_emuR-get_trackdata.R')
