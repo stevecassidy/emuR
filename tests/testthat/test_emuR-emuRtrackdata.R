@@ -5,15 +5,15 @@ context("testing emuRtrackdata functions")
 
 dbName = "ae"
 
-path2orig = file.path(tempdir(), "emuR_demoData", dbName)
-dbName = load_emuDB(path2orig, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
+path2orig = file.path(tempdir(), "emuR_demoData", paste0(dbName, emuDB.suffix))
+ae = load_emuDB(path2orig, inMemoryCache = testingVars$inMemoryCache, verbose = F)
 
 
 ##############################
 test_that("correct classes are returned", {
   
   sl = query(dbName, "Phonetic=@|i:")
-  td = get_trackdata(dbName, 
+  td = get_trackdata(ae, 
                      seglist = sl, 
                      ssffTrackName = 'fm')
   
