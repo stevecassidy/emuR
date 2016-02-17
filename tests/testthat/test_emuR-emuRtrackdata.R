@@ -6,13 +6,20 @@ context("testing emuRtrackdata functions")
 dbName = "ae"
 
 path2orig = file.path(tempdir(), "emuR_demoData", paste0(dbName, emuDB.suffix))
-ae = load_emuDB(path2orig, inMemoryCache = testingVars$inMemoryCache, verbose = F)
+path2testData = file.path(tempdir(), "emuR_testthat")
+path2db = file.path(path2testData, paste0(dbName, emuDB.suffix))
 
+# delete, copy and load
+unlink(path2db, recursive = T)
+file.copy(path2orig, path2testData, recursive = T)
+ae = load_emuDB(path2db, inMemoryCache = testingVars$inMemoryCache, verbose = F)
+
+print(list_sessions(ae))
 
 ##############################
 test_that("correct classes are returned", {
   
-  sl = query(dbName, "Phonetic=@|i:")
+  sl = query(ae, "Phonetic=@|i:")
   td = get_trackdata(ae, 
                      seglist = sl, 
                      ssffTrackName = 'fm')

@@ -90,8 +90,8 @@
   }
   
   # check if all values for minimal call are set
-  if( is.null(dbName) || is.null(seglist) || is.null(ssffTrackName)) {
-    stop("dbName, seglist and ssffTrackName have to all be set!\n")
+  if( is.null(emuDBhandle) || is.null(seglist) || is.null(ssffTrackName)) {
+    stop("emuDBhandle, seglist and ssffTrackName have to all be set!\n")
   }
   
   # check if cut value is correct
