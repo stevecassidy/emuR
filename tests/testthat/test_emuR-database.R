@@ -7,13 +7,6 @@ context("testing database functions")
 
 aeSampleRate=20000
 
-# .test_emu_ae_db=NULL
-# .test_emu_ae_db_uuid='3f627b7b-4fb5-4b4a-8c79-b5f49df4df25'
-# .test_emu_ae_db_dir=NULL
-
-# path2demoData = file.path(tempdir(),"emuR_demoData")
-# path2testhatFolder = file.path(tempdir(),"emuR_testthat")
-
 dbName = "ae"
 path2demoData = file.path(tempdir(),"emuR_demoData")
 path2orig = file.path(tempdir(), "emuR_demoData", paste0(dbName, emuDB.suffix))
@@ -350,7 +343,7 @@ test_that("database functions work", {
     #   # should all be equal to original 
     cm2=compare(orgItems,modOrgItems,allowAll=TRUE)
     expect_true(cm2$result)
-    cmLbls2=compare(arrange(origLabels, bundle, itemID), arrange(modOrgLabels, bundle, itemID),allowAll=TRUE)
+    cmLbls2=compare(arrange(orgLabels, bundle, itemID), arrange(modOrgLabels, bundle, itemID),allowAll=TRUE)
     expect_true(cmLbls2$result)
     cml2=compare(orgLinks,modOrgLinks,allowAll=TRUE)
     expect_true(cml2$result)
