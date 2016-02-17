@@ -1,6 +1,5 @@
-##' testthat tests for convert.TextGridCollection.to.emuDB
+##' testthat tests for database.files
 ##'
-##' @author Raphael Winkelmann
 context("testing database.files functions")
 
 
