@@ -1,6 +1,32 @@
 require(sqldf)
 require(stringr)
 
+database.DDL.emuRsegsTmp = 'CREATE TEMP TABLE emuRsegsTmp (
+  labels TEXT,
+  start FLOAT,
+  end FLOAT,
+  utts TEXT,
+  db_uuid VARCHAR(36) NOT NULL,
+  session TEXT, 
+  bundle TEXT,
+  startItemID INTEGER,
+  endItemID INTEGER,
+  level TEXT,
+  type TEXT,
+  sampleStart INTEGER,
+  sampleEnd  INTEGER,
+  sampleRate FLOAT
+);'
+
+create_requeryTmpTables <- function(emuDBhandle){
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuRsegsTmp)
+}
+
+drop_requeryTmpTables <- function(emuDBhandle){
+  dbGetQuery(emuDBhandle$connection, "DROP TABLE emuRsegsTmp")
+}
+
+
 ##' Requery sequential context of segment list in an emuDB
 ##' @description Function to requery sequential context of a segment list queried from an emuDB
 ##' @details Builds a new segment list on the same hierarchical level and the same length as the segment list given in \code{seglist}. The resulting segments usually have different start position and length (in terms of items of the respective level) controlled by the \code{offset},\code{offsetRef} and \code{length} parameters.
@@ -14,9 +40,7 @@ require(stringr)
 ##' @param offsetRef reference item for offset: 'START' for first and 'END' for last item of segment
 ##' @param length item length of segments in the returned segment list
 ##' @param ignoreOutOfBounds ignore result segments that are out of bundle bounds
-##' @param dbUUID optional UUID of emuDB, if the emuDB name in the input segment list is not unique
 ##' @return result set object of class 'emuRsegs' containing the requeried segments
-##' @author Klaus Jaensch
 ##' @import sqldf
 ##' @export
 ##' @seealso \code{\link{query}} \code{\link{requery_hier}} \code{\link{emuRsegs}}
@@ -60,7 +84,7 @@ require(stringr)
 ##' requery_seq(sl3,length=3,ignoreOutOfBounds=TRUE)
 ##' 
 ##' }
-requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBounds=FALSE,dbUUID=NULL){
+requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBounds=FALSE){
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter in the query() command; then the default resultType=emuRsegs will be used)")
   }
@@ -68,36 +92,25 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBo
     stop("Parameter length must be greater than 0")
   }
   #   
-  distinctEmuDbs=sqldf("SELECT DISTINCT db_uuid FROM seglist")
-  distinctEmuDbsCnt=nrow(distinctEmuDbs)
+  # distinctEmuDbs=sqldf("SELECT DISTINCT db_uuid FROM seglist")
+  # distinctEmuDbsCnt=nrow(distinctEmuDbs)
   
   
-  if(distinctEmuDbsCnt==0){
+  if(nrow(seglist)==0){
     # empty seglist, return the empty list
     return(seglist)
-  }else if (distinctEmuDbsCnt>1){
-    stop("Context query over multiple emuDbs (in this case: ",distinctEmuDbsCnt,") not (yet) supported.")
   }else{
-    # all rows of seglist are in same emuDB
-    dbUUID=distinctEmuDbs[1,'db_uuid']
+    # drop create tmp tables and recreate (will ensure they are empty)
+    drop_requeryTmpTables(emuDBhandle)
+    create_requeryTmpTables(emuDBhandle)
+    # place in emuRsegsTmp table
+    dbWriteTable(emuDBhandle$connection, "emuRsegsTmp", as.data.frame(seglist), overwrite=T)
     
-    # load emuDB object
-    db=.load.emuDB.DBI(uuid = dbUUID)
     # load config
-    dbConfig=db[['DBconfig']]
-    
-    items=dbReadTable(get_emuDBcon(dbUUID),'items')
-    itemsIdxSql='CREATE INDEX items_idx ON items(itemID,db_uuid,session,bundle,level,itemID,seqIdx,type,sampleRate,sampleStart,sampleDur,samplePoint)'
-    resIdxSql='CREATE INDEX its_idx ON its(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)'
-    #   
-    #labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,name)'
-    labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,db_uuid,session,bundle,name)'
-    
-    # check if out of boundaries
-    
+    dbConfig=load_DBconfig(emuDBhandle)
     
     # query for sequential requeries
-    heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndID,",length," AS seqLen,sl.level FROM seglist sl,items sll,items slr,items il, items ir \
+    heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndID,",length," AS seqLen,sl.level FROM emuRsegsTmp sl,items sll,items slr,items il, items ir \
                         WHERE \
                          il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle AND \
                          il.db_uuid=sl.db_uuid AND il.session=sl.session AND il.bundle=sl.bundle AND \
@@ -113,7 +126,9 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBo
       stop("Parameter offsetRef must be one of 'START' or 'END'\n")
     }
     heQueryStr=paste0(heQueryStr," ORDER BY il.ROWID");
-    he=sqldf(heQueryStr)
+    browser()
+    he = dbGetQuery(emuDBhandle$connection, heQueryStr)
+    # he=sqldf(heQueryStr)
     slLen=nrow(seglist)
     resLen=nrow(he)
     outOfBndCnt=slLen-resLen
@@ -133,6 +148,9 @@ requery_seq<-function(seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBo
     trSl=convert_queryResultToVariableEmuRsegs(dbConfig = dbConfig,result=result)
     # free temp tables
     setQueryTmpEmuDBs(NULL)
+    
+    drop_requeryTmpTables(emuDBhandle)
+    
     return(trSl)
   }
 }
