@@ -286,34 +286,38 @@ store_bundleAnnotDFsDBI <- function(emuDBhandle, bundleAnnotDFs, sessionName,
                                     bundleName) {
   
   # insert items table entries (fist exanding it with db_uuid, session and bundle columns)
-  bundleAnnotDFs$items = data.frame(db_uuid = emuDBhandle$UUID, 
-                                    session = sessionName,
-                                    bundle = bundleName,
-                                    bundleAnnotDFs$items)
-  
-  dbWriteTable(emuDBhandle$connection, "items", bundleAnnotDFs$items, append = T)
-  
-  # insert labels table entries (fist exanding it with db_uuid, session and bundle columns)
-  bundleAnnotDFs$labels =  data.frame(db_uuid = emuDBhandle$UUID, 
+  if(nrow(bundleAnnotDFs$items) > 0){
+    bundleAnnotDFs$items = data.frame(db_uuid = emuDBhandle$UUID, 
                                       session = sessionName,
                                       bundle = bundleName,
-                                      bundleAnnotDFs$labels)
+                                      bundleAnnotDFs$items)
+    dbWriteTable(emuDBhandle$connection, "items", bundleAnnotDFs$items, append = T)
+  }
   
-  dbWriteTable(emuDBhandle$connection, "labels", bundleAnnotDFs$labels, append = T)
+  # insert labels table entries (fist exanding it with db_uuid, session and bundle columns)
+  if(nrow(bundleAnnotDFs$labels) > 0){
+    bundleAnnotDFs$labels =  data.frame(db_uuid = emuDBhandle$UUID, 
+                                        session = sessionName,
+                                        bundle = bundleName,
+                                        bundleAnnotDFs$labels)
+    
+    dbWriteTable(emuDBhandle$connection, "labels", bundleAnnotDFs$labels, append = T)
+  }
   
   # insert links table entries (fist exanding it with db_uuid, session and bundle columns)
-  bundleAnnotDFs$links =  data.frame(db_uuid = emuDBhandle$UUID,
-                                     session = sessionName,
-                                     bundle = bundleName,
-                                     bundleAnnotDFs$links,
-                                     label = NA)
-  
-  dbWriteTable(emuDBhandle$connection, "links", bundleAnnotDFs$links, append = T)
-  
+  if(nrow(bundleAnnotDFs$links) > 0){
+    bundleAnnotDFs$links =  data.frame(db_uuid = emuDBhandle$UUID,
+                                       session = sessionName,
+                                       bundle = bundleName,
+                                       bundleAnnotDFs$links,
+                                       label = NA)
+    
+    dbWriteTable(emuDBhandle$connection, "links", bundleAnnotDFs$links, append = T)
+  }
 }
 
 load_bundleAnnotDFsDBI <- function(emuDBhandle, sessionName, bundleName){
-
+  
   DBconfig = load_DBconfig(emuDBhandle)
   levelDefs = list_levelDefinitions(emuDBhandle)
   # meta infos
