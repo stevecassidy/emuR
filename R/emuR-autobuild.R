@@ -14,7 +14,7 @@
 ##' but not in a ONE_TO_MANY relationship). For more information on the structural 
 ##' elements of an emuDB see \code{vignette(emuDB)}.
 ##' 
-##' @param emuDBhandle
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param superlevelName name of level to link from (link definition required in emuDB)
 ##' @param sublevelName name of level to link to (link definition required in emuDB)
 ##' @param writeToFS should changes be written to file system (_annot.json files) after completing autobuild process.

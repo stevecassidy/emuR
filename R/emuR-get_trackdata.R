@@ -12,7 +12,7 @@
 ##' more information on the structural elements of an emuDB 
 ##' see \code{vignette{emuDB}}.
 ##' 
-##' @param emuDBhandle
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param seglist \code{\link{emuRsegs}} or \code{\link{emusegs}} object obtained by \code{\link{query}}ing a loaded emuDB 
 ##' @param ssffTrackName The name of track that one wishes to extract (see 
 ##' \code{\link{list_ssffTrackDefinitions}} for the defined ssffTracks of the 

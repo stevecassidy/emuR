@@ -313,7 +313,7 @@ store_DBconfig <- function(emuDBhandle, dbConfig, basePath = NULL){
 ##' Note that a level cannot be removed, if it contains instances of annotation items
 ##' or if it is linked to another level.
 ##' 
-##' @param emuDBhandle emuDB handle object returned by \code{\link{load_emuDB}}
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param name name of level definition
 ##' @param type type of level definition ("SEGMENT","EVENT","ITEM")
 ##' @keywords emuDB database schema Emu
@@ -443,7 +443,7 @@ remove_levelDefinition<-function(emuDBhandle, name, dbUUID=NULL){
 ##' Note that as with level definitions, an attribute definition to a level cannot be removed,
 ##' if it contains labels in the emuDB.
 ##' 
-##' @param emuDBhandle emuDB handle object returned by \code{\link{load_emuDB}}
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param levelName name of level
 ##' @param name name of attributeDefinition
 ##' @param type type of attributeDefinition (currently only "STRING")
@@ -597,7 +597,7 @@ remove_attributeDefinition <- function(emuDBhandle,
 ##' has a consistent label set. For more information 
 ##' on the structural elements of an emuDB see \code{vignette(emuDB)}.
 ##' 
-##' @param emuDBhandle
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param levelName name of level
 ##' @param attributeDefinitionName name of attributeDefinition
 ##' @param legalLabels character vector of labels
@@ -717,7 +717,7 @@ remove_legalLabels <- function(emuDBhandle,
 ##' on the structural elements of an emuDB see \code{vignette(emuDB)}.
 ##' 
 ##' 
-##' @param emuDBhandle
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param levelName name of level
 ##' @param attributeDefinitionName name of attributeDefinition
 ##' @param labelGroupName name of label group
@@ -870,7 +870,7 @@ remove_attrDefLabelGroup <- function(emuDBhandle,
 ##' 
 ##' For all link types the rule applies that no links are allowed to cross any other links.
 ##' 
-##' @param emuDBhandle emuDB handle object returned by \code{\link{load_emuDB}}
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param type type of linkDefinition (either \code{"ONE_TO_MANY"}, \code{"MANY_TO_MANY"} or \code{"ONE_TO_ONE"})
 ##' @param superlevelName name of super-level of linkDefinition
 ##' @param sublevelName name of sub-level of linkDefinition
@@ -1027,7 +1027,7 @@ remove_linkDefinition <- function(emuDBhandle,
 ##' such as formant values and their bandwidths or the short-term Root Mean Square amplitude of the signal.}
 ##' }
 ##' For more information on the structural elements of an emuDB see \code{vignette(emuDB)}.
-##' @param emuDBhandle emuDB handle object returned by \code{\link{load_emuDB}}
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param name name of ssffTrackDefinitions
 ##' @param columnName columnName of ssffTrackDefinitions.
 ##' If the \code{onTheFlyFunctionName} parameter is set and this one isn't the
@@ -1228,7 +1228,7 @@ remove_ssffTrackDefinition <- function(emuDBhandle, name,
 ##' more information on the structural elements of an emuDB 
 ##' see \code{vignette{emuDB}}.
 ##' 
-##' @param emuDBhandle
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param name name of label group
 ##' @param values character vector of labels
 ##' @keywords emuDB database schema Emu

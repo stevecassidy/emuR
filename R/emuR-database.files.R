@@ -46,7 +46,7 @@ is_relativeFilePath<-function(nativeFilePathStr, forRunningPlatform=FALSE){
 ##' the mediafile into the bundle. If not already present, adds 'OSCI' and 
 ##' 'SPEC' perspectives to the emuDB config file.
 ##'
-##' @param emuDBhandle
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param dir directory containing mediafiles or session directories
 ##' @param targetSessionName name of session in which to create the new bundles 
 ##' @param verbose display infos & show progress bar
@@ -161,7 +161,7 @@ import_mediaFiles<-function(emuDBhandle,dir,targetSessionName='0000', verbose=TR
 ##' Note that adding files does not mean the emuDB is automatically using these, unless
 ##' you have defined the usage of these files (e.g. by ssffTrackDefinitions).
 ##' 
-##' @param emuDBhandle
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param dir directory containing files to be added
 ##' @param fileExtension file extension of file to be added
 ##' @param targetSessionName name of sessions containing 
@@ -215,10 +215,9 @@ add_files <- function(emuDBhandle, dir, fileExtension, targetSessionName='0000')
 ##' List files belonging to emuDB. For 
 ##' more information on the structural elements of an emuDB 
 ##' see \code{vignette{emuDB}}.
-##' @param dbName name of loaded emuDB
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param sessionPattern A (glob) pattern matching sessions to be searched from the database
 ##' @param bundlePattern A (glob) pattern matching bundles to be searched from the database
-##' @param dbUUID optional UUID of loaded emuDB, in case dbName is ambiguous
 ##' @return file paths as character vector
 ##' @export
 ##' @keywords emuDB database schema Emu 

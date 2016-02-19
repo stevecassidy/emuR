@@ -43,7 +43,7 @@ create.EMUwebAppConfig <- function(perspectives){
 ##' information on what levels are displayed, which ssffTracks are drawn, 
 ##' and so on. For more information on the structural elements of an emuDB 
 ##' see \code{vignette{emuDB}}.
-##' @param emuDBhandle
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param name name of perspective
 ##' @param dbUUID optional UUID of loaded emuDB
 ##' @name AddListRemovePerspective
@@ -165,7 +165,7 @@ remove_perspective <- function(emuDBhandle,
 ##' spectrogram. For more information on the structural elements of an emuDB 
 ##' see \code{vignette{emuDB}}.
 ##' 
-##' @param emuDBhandle
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param perspectiveName name of perspective
 ##' @param order character vector containig names of ssffTrackDefinitions or "OSCI" / "SPEC"
 ##' @name SetGetSignalCanvasesOrder
@@ -246,7 +246,7 @@ get_signalCanvasesOrder <- function(emuDBhandle,
 ##' For more information on the structural elements of an emuDB 
 ##' see \code{vignette{emuDB}}.
 ##' 
-##' @param emuDBhandle
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param perspectiveName name of perspective
 ##' @param order character vector containig names of levelDefinitions
 ##' @name SetGetlevelCanvasesOrder

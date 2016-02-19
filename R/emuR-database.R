@@ -518,7 +518,7 @@ calculate_postionsOfLinks<-function(emuDBhandle){
 
 ##' List sessions of emuDB
 ##' @description List session names of emuDB
-##' @param emuDBhandle emuDB handle
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @return data.frame object with session names
 ##' @export
 list_sessions <- function(emuDBhandle){
@@ -531,7 +531,7 @@ list_sessions <- function(emuDBhandle){
 ##' List bundles of emuDB
 ##' 
 ##' List all bundles of emuDB or of particular session.
-##' @param emuDBhandle emuDB handle
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param session optional session
 ##' @param dbUUID optional UUID of emuDB
 ##' @return data.frame object with columns session and name of bundles
@@ -571,7 +571,7 @@ list_bundles <- function(emuDBhandle, session=NULL){
 ##' List file paths of files belonging to emuDB.  For 
 ##' more information on the structural elements of an emuDB 
 ##' see \code{vignette{emuDB}}.
-##' @param emuDBhandle
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param fileExtention file extention of files
 ##' @param sessionPattern A (regex) pattern matching sessions of emuDB
 ##' @param bundlePattern A (regex) pattern matching bundles of emuDB
@@ -662,7 +662,7 @@ rewrite_allAnnots <- function(emuDBhandle, verbose=TRUE){
 ##' ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: FALSE
 ##' symbolicLinkSignalFiles if TRUE signal files are symbolic linked instead of copied. Implies: rewriteSSFFTracks=FALSE, Default: FALSE
 ##' 
-##' @param dbName name of emuDB
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param targetDir target directory
 ##' @param dbUUID optional: UUID of database
 ##' @param options list of options
