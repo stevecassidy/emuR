@@ -27,8 +27,11 @@ validate_bundleDBI <- function(emuDBhandle, session, bundle){
                                                         "AND bundle ='", bundle, "'"))$type
   
   levelDefTypes = sapply(DBconfig$levelDefinitions, function(l) l$type)
+
+  delta1 = setdiff(levelTypes, levelDefTypes)
+  delta2 = setdiff(levelDefTypes, levelTypes)
   
-  if(!(length(levelDefTypes) > length(levelTypes)) && !all(levelTypes == levelDefTypes)){
+  if(length(delta1) != 0 || length(delta2) != 0){
     return(list(type = 'ERROR',
                 message = paste('Following level types differ from those defined:', paste(levelNames[levelTypes != levelDefTypes], collapse = ', '), ';',
                                 'in bundle:', bundle)))
