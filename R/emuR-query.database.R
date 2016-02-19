@@ -209,8 +209,8 @@ write_table_forced<-function(dbUUID,name,value){
   dbWriteTable(get_emuDBcon(dbUUID),name = name,value=value)
 }
 
-check_level_attribute_name<-function(dbConfig,name){
-  aNms=get.all.attribute.names(dbConfig)
+check_levelAttributeName<-function(emuDBhandle,name){
+  aNms=get_allAttributeNames(emuDBhandle)
   if(! (name %in% aNms)){
     stop("Unknown level attribute name: '",name,"'. Database attribute names are: ",paste(aNms,collapse=','),"\n")
   }
