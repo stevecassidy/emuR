@@ -83,8 +83,12 @@ bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
     )
   }
   
-  links = apply(annotDFs$links, 1, function(r) list(fromID = as.numeric(r[1]), toID = as.numeric(r[2])))
-
+  if(nrow(annotDFs$links) >0){
+    links = apply(annotDFs$links, 1, function(r) list(fromID = as.numeric(r[1]), toID = as.numeric(r[2])))
+  }else{
+    links = list()
+  }
+  
   annotJSON = list(name = annotDFs$name,
                    annotates = annotDFs$annotates,
                    sampleRate = annotDFs$sampleRate,
