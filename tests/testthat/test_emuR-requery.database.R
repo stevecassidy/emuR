@@ -26,8 +26,8 @@ test_that("Copy example database ae",{
   file.copy(file.path(path2demoData, paste0('ae', emuDB.suffix)), .test_emu_ae_db_dir, recursive = T)
 })
 
-test_that("requeries work on ae",{  
-  ae = load_emuDB(file.path(.test_emu_ae_db_dir, paste0('ae', emuDB.suffix)), inMemoryCache = T, verbose=FALSE)
+test_that("requeries work on ae",{
+  ae = load_emuDB(file.path(.test_emu_ae_db_dir, paste0('ae', emuDB.suffix)), inMemoryCache = testingVars$inMemoryCache, verbose=FALSE)
   expect_that(ae$dbName,is_equivalent_to('ae'))
   
   test_that("Requery sequential",{
@@ -39,8 +39,7 @@ test_that("requeries work on ae",{
     rsl2=requery_seq(ae, sl1, offset=-3, length=5,offsetRef = 'END')
     
     # equivalent requery results should be equal
-    crsl=compare(rsl1,rsl2,allowAll=TRUE)
-    expect_true(crsl$result)
+    expect_equal(rsl1,rsl2)
     
     expect_that(class(rsl1),is_identical_to(c('emuRsegs','emusegs','data.frame')))
     expect_that(nrow(sl1),equals(2))
@@ -54,10 +53,10 @@ test_that("requeries work on ae",{
     expect_that('[.data.frame'(rsl1,2,'endItemID'),equals(105))
     
     # Bug ID 42
-    sl1=query('ae',"[[Phonetic=k -> Phonetic=~.*]->Phonetic=~.*]")
-    sl1w=requery_hier(sl1,level='Word')
+    sl1=query(ae, "[[Phonetic=k -> Phonetic=~.*]->Phonetic=~.*]")
+    sl1w=requery_hier(ae, sl1,level='Word')
     # sl1w has sequence length 1
-    sl1w2=requery_seq(sl1w[1,])
+    sl1w2=requery_seq(ae, sl1w[1,])
     # Bug startItemID != endItemID, and label is not a sequence !!
     expect_that('[.data.frame'(sl1w2,1,'startItemID'),equals(61))
     expect_that('[.data.frame'(sl1w2,1,'endItemID'),equals(61))
@@ -67,9 +66,9 @@ test_that("requeries work on ae",{
   test_that("Requery hierarchical",{
     
     # Text beginning with 'a'
-    sl1=query('ae',"Text=~'a[mn].*'")
+    sl1=query(ae, "Text=~'a[mn].*'")
     # requery to level Phoneme
-    rsl1=requery_hier(sl1,level='Phoneme')
+    rsl1=requery_hier(ae, sl1,level='Phoneme')
     expect_that(class(rsl1),is_identical_to(c('emuRsegs','emusegs','data.frame')))
     expect_that(nrow(sl1),equals(3))
     expect_that(nrow(rsl1),equals(3))

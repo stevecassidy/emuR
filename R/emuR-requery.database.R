@@ -23,7 +23,9 @@ create_requeryTmpTables <- function(emuDBhandle){
 }
 
 drop_requeryTmpTables <- function(emuDBhandle){
-  dbGetQuery(emuDBhandle$connection, "DROP TABLE emuRsegsTmp")
+  if("emuRsegsTmp" %in% dbListTables(emuDBhandle$connection)){
+    dbGetQuery(emuDBhandle$connection, "DROP TABLE emuRsegsTmp")
+  }
 }
 
 
@@ -91,11 +93,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
   if(length<=0){
     stop("Parameter length must be greater than 0")
   }
-  #   
-  # distinctEmuDbs=sqldf("SELECT DISTINCT db_uuid FROM seglist")
-  # distinctEmuDbsCnt=nrow(distinctEmuDbs)
-  
-  
+
   if(nrow(seglist)==0){
     # empty seglist, return the empty list
     return(seglist)
@@ -126,7 +124,6 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
       stop("Parameter offsetRef must be one of 'START' or 'END'\n")
     }
     heQueryStr=paste0(heQueryStr," ORDER BY il.ROWID");
-    browser()
     he = dbGetQuery(emuDBhandle$connection, heQueryStr)
     # he=sqldf(heQueryStr)
     slLen=nrow(seglist)
@@ -139,16 +136,13 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
         stop(outOfBndCnt," of the requested sequence(s) is/are out of boundaries.\nSet parameter 'ignoreOutOfBounds=TRUE' to get residual result segments that lie within the bounds.")
       }
     }
-    result=list(items=he)
-    emuDBs.query.tmp<-list()
-    emuDBs.query.tmp[['queryItems']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
-    emuDBs.query.tmp[['queryLabels']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
-    emuDBs.query.tmp[['queryLinksExt']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
-    setQueryTmpEmuDBs(emuDBs.query.tmp)
-    trSl=convert_queryResultToVariableEmuRsegs(dbConfig = dbConfig,result=result)
-    # free temp tables
-    setQueryTmpEmuDBs(NULL)
     
+    # drop and create tmpQueryTables and write to table
+    drop_tmpQueryTablesDBI(emuDBhandle)
+    create_tmpQueryTablesDBI(emuDBhandle)
+    dbWriteTable(emuDBhandle$connection, "leftIntermResultItemsTmp", he, overwrite=T)
+    
+    trSl=convert_queryResultToVariableEmuRsegs(emuDBhandle)
     drop_requeryTmpTables(emuDBhandle)
     
     return(trSl)
@@ -204,7 +198,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
 ##' requery_seq(requery_hier(sl1,level='Phoneme'),offsetRef = 'END')
 ##' 
 ##' }
-requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
+requery_hier<-function(emuDBhandle, seglist, level=NULL){
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType will be used)")
   }
@@ -215,34 +209,38 @@ requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
   #     return(seglist) 
   #   }
   #   
-  distinctEmuDbs=sqldf("SELECT DISTINCT db_uuid FROM seglist")
-  distinctEmuDbsCnt=nrow(distinctEmuDbs)
+  # distinctEmuDbs=sqldf("SELECT DISTINCT db_uuid FROM seglist")
+  # distinctEmuDbsCnt=nrow(distinctEmuDbs)
   
   
-  if(distinctEmuDbsCnt==0){
+  if(nrow(seglist)==0){
     # empty seglist, return the empty list
     return(seglist)
-  }else if (distinctEmuDbsCnt>1){
-    stop("Context query over multiple emuDbs (in this case: ",distinctEmuDbsCnt,") not (yet) supported.")
   }else{
+    # drop create tmp tables and recreate (will ensure they are empty)
+    drop_requeryTmpTables(emuDBhandle)
+    create_requeryTmpTables(emuDBhandle)
+    # place in emuRsegsTmp table
+    dbWriteTable(emuDBhandle$connection, "emuRsegsTmp", as.data.frame(seglist), overwrite=T)
+    
     # all rows of seglist are in same emuDB
-    dbUUID=distinctEmuDbs[1,'db_uuid']
+    # dbUUID=distinctEmuDbs[1,'db_uuid']
     
     # load emuDB object
-    db=.load.emuDB.DBI(uuid = dbUUID)
+    # db=.load.emuDB.DBI(uuid = dbUUID)
     # load config
-    dbConfig=db[['DBconfig']]
+    dbConfig=load_DBconfig(emuDBhandle)
     
-    items=dbReadTable(get_emuDBcon(dbUUID),'items')
-    itemsIdxSql='CREATE INDEX items_idx ON items(itemID,db_uuid,session,bundle,level,itemID,seqIdx,type,sampleRate,sampleStart,sampleDur,samplePoint)'
-    resIdxSql='CREATE INDEX its_idx ON its(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)'
+    # items=dbReadTable(get_emuDBcon(dbUUID),'items')
+    # itemsIdxSql='CREATE INDEX items_idx ON items(itemID,db_uuid,session,bundle,level,itemID,seqIdx,type,sampleRate,sampleStart,sampleDur,samplePoint)'
+    # resIdxSql='CREATE INDEX its_idx ON its(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)'
     #   
     #labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,name)'
-    labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,db_uuid,session,bundle,name)'
+    # labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,db_uuid,session,bundle,name)'
     
-    linksExt=dbReadTable(get_emuDBcon(dbUUID),'linksExt')
-    itemsIdxSql='CREATE INDEX items_idx ON items(itemID,db_uuid,session,bundle,itemID,level,seqIdx)'
-    linksIdxSql='CREATE INDEX linksExt_idx ON linksExt(db_uuid,session,bundle,fromID,toID)'
+    # linksExt=dbReadTable(get_emuDBcon(dbUUID),'linksExt')
+    # itemsIdxSql='CREATE INDEX items_idx ON items(itemID,db_uuid,session,bundle,itemID,level,seqIdx)'
+    # linksIdxSql='CREATE INDEX linksExt_idx ON linksExt(db_uuid,session,bundle,fromID,toID)'
     
     targetRootLevelName=NULL
     if(is.null(level)){
@@ -274,12 +272,11 @@ requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
       
     }else{
       
-      check_level_attribute_name(dbConfig,level)
-      targetRootLevelName=get.level.name.for.attribute(dbConfig = dbConfig,attributeName = level)
-      
+      check_levelAttributeName(emuDBhandle,level)
+      targetRootLevelName=get_levelNameForAttributeName(emuDBhandle, attributeName = level)
       heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndId,(ir.seqIdx-il.seqIdx+1) AS seqLen,'",level,"' AS level \
                               FROM 
-                              ( SELECT ils.*,min(ils.seqIdx),sll.ROWID AS lrId FROM seglist sll,items ils WHERE \
+                              ( SELECT ils.*,min(ils.seqIdx),sll.ROWID AS lrId FROM emuRsegsTmp sll,items ils WHERE \
                               ils.db_uuid=sll.db_uuid AND ils.session=sll.session AND ils.bundle=sll.bundle AND \
                               ils.level='",targetRootLevelName,"' AND (\
                               (ils.itemID=sll.startItemID) OR 
@@ -289,7 +286,7 @@ requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
                                   )) \
                               ) GROUP BY lrId ORDER BY lrId,ils.seqIdx) \
                               AS il JOIN \
-                              ( SELECT irs.*,max(irs.seqIdx),slr.ROWID AS rrId FROM seglist slr,items irs WHERE \
+                              ( SELECT irs.*,max(irs.seqIdx),slr.ROWID AS rrId FROM emuRsegsTmp slr,items irs WHERE \
                               irs.db_uuid=slr.db_uuid AND irs.session=slr.session AND irs.bundle=slr.bundle AND \
                               irs.level='",targetRootLevelName,"' AND (\
                               (irs.itemID=slr.endItemID) OR
@@ -301,20 +298,24 @@ requery_hier<-function(seglist,level=NULL,dbUUID=NULL){
                               AS ir ON lrId=rrId ")
       
     }
+
+    he = dbGetQuery(emuDBhandle$connection, heQueryStr)
     
-    he=sqldf(c(itemsIdxSql,linksIdxSql,heQueryStr))
-    result=list(items=he)
+    # drop and create tmpQueryTables and write to table
+    drop_tmpQueryTablesDBI(emuDBhandle)
+    create_tmpQueryTablesDBI(emuDBhandle)
+    dbWriteTable(emuDBhandle$connection, "leftIntermResultItemsTmp", he, overwrite=T)
     
-    emuDBs.query.tmp<-list()
-    emuDBs.query.tmp[['queryItems']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
-    emuDBs.query.tmp[['queryLabels']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
-    emuDBs.query.tmp[['queryLinksExt']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
-    setQueryTmpEmuDBs(emuDBs.query.tmp)
-    trSl=convert_queryResultToVariableEmuRsegs(dbConfig = dbConfig,result=result)
+    
+    # emuDBs.query.tmp<-list()
+    # emuDBs.query.tmp[['queryItems']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
+    # emuDBs.query.tmp[['queryLabels']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
+    # emuDBs.query.tmp[['queryLinksExt']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
+    # setQueryTmpEmuDBs(emuDBs.query.tmp)
+    trSl=convert_queryResultToVariableEmuRsegs(emuDBhandle)
     inSlLen=nrow(seglist)
     trSlLen=nrow(trSl)
-    # free temp tables
-    setQueryTmpEmuDBs(NULL)
+
     if(inSlLen!=trSlLen){
       warning("Length of requery segment list (",trSlLen,") differs from input list (",inSlLen,")!")
     }
