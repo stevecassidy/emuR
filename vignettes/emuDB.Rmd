@@ -424,17 +424,17 @@ The `convertSuperlevel` argument of the `autobuild_linkFromTimes()` function, th
 ```{r}
 # add linkDefinition
 add_linkDefinition(dbHandle, type = "ONE_TO_MANY",
-                   superlevelName = "Syllable",
-                   sublevelName = "Phoneme")
+                  superlevelName = "Syllable",
+                  sublevelName = "Phoneme")
 
 # list
 list_linkDefinitions(dbHandle)
 
 # envoke autobuild function
-autobuild_linkFromTimes(dbHandle, 
-                        superlevelName = "Syllable",
-                        sublevelName = "Phoneme",
-                        convertSuperlevel = TRUE)
+autobuild_linkFromTimes(dbHandle,
+                       superlevelName = "Syllable",
+                       sublevelName = "Phoneme",
+                       convertSuperlevel = TRUE)
 
 # list
 list_levelDefinitions(dbHandle)
@@ -445,17 +445,17 @@ As we can see we have now converted the original "Syllable" level to the type `I
 ```{r}
 # add linkDefinition
 add_linkDefinition(dbHandle, type = "MANY_TO_MANY",
-                   superlevelName = "Phoneme",
-                   sublevelName = "Phonetic")
+                  superlevelName = "Phoneme",
+                  sublevelName = "Phonetic")
 
 # list
 list_linkDefinitions(dbHandle)
 
 # invoke autobuild function
-autobuild_linkFromTimes(dbHandle, 
-                        superlevelName = "Phoneme",
-                        sublevelName = "Phonetic",
-                        convertSuperlevel = TRUE)
+autobuild_linkFromTimes(dbHandle,
+                       superlevelName = "Phoneme",
+                       sublevelName = "Phonetic",
+                       convertSuperlevel = TRUE)
 
 # list
 list_levelDefinitions(dbHandle)

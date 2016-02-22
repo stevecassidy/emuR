@@ -3,6 +3,7 @@ require(uuid)
 require(wrassp)
 require(DBI)
 require(tidyjson)
+require(dplyr)
 
 # constants
 

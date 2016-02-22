@@ -6,19 +6,19 @@ require(tidyjson)
 # convert annotJSON to list of data.frames including 
 # meta information (name, annotates, samplerate)
 annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
-  
-  json = annotJSONchar %>% as.tbl_json
+  library(tidyjson) 
+  json = tidyjson::as.tbl_json(annotJSONchar)
   
   # get top level data
   tlData = json %>%
-    spread_values(name = jstring("name"), annotates = jstring("annotates"), sampleRate = jstring("sampleRate"))
+    tidyjson::spread_values(name = jstring("name"), annotates = jstring("annotates"), sampleRate = jstring("sampleRate"))
   
   # gen. links data.frame
   links = json %>%
     enter_object("links") %>%
     gather_array  %>%
     spread_values(fromID = jstring("fromID"), toID = jstring("toID")) %>%
-    select_(~fromID, ~toID)
+    dplyr::select_(~fromID, ~toID)
   
   # gen. items list of data.frame
   items = json %>%
@@ -29,7 +29,7 @@ annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
     enter_object("items") %>%
     gather_array(column.name = "seqIdx") %>%
     spread_values(itemID = jstring("id"), samplePoint = jstring("samplePoint"), sampleStart = jstring("sampleStart"), sampleDur = jstring("sampleDur")) %>%
-    select_(~itemID, ~level, ~type, ~seqIdx, ~sampleRate, ~samplePoint, ~sampleStart, ~sampleDur)
+    dplyr::select_(~itemID, ~level, ~type, ~seqIdx, ~sampleRate, ~samplePoint, ~sampleStart, ~sampleDur)
   
   # gen. label list of data.frame
   labels = json %>%
@@ -42,7 +42,7 @@ annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
     enter_object("labels") %>%
     gather_array(column.name = "labelIdx") %>%
     spread_values(name = jstring("name"), label = jstring("value")) %>%
-    select_(~itemID, ~labelIdx, ~name, ~label)
+    dplyr::select_(~itemID, ~labelIdx, ~name, ~label)
   
   return(list(name = tlData$name, annotates = tlData$annotates, sampleRate = tlData$sampleRate, items = items, links = links, labels = labels))
   
@@ -56,12 +56,12 @@ bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
   levels = list()
   
   for(l in levelDefs$name){
-    levelItems = filter_(annotDFs$items, ~(level == l))
+    levelItems = dplyr::filter_(annotDFs$items, ~(level == l))
     
     levels[[length(levels) + 1]] = list(
       items = apply(levelItems, 1, function(r) {
       
-      labels = apply(filter_(annotDFs$labels, ~(itemID == as.numeric(r[1]))), 1, function(r2) list(name = as.character(r2[3]), value = as.character(r2[4])))
+      labels = apply(dplyr::filter_(annotDFs$labels, ~(itemID == as.numeric(r[1]))), 1, function(r2) list(name = as.character(r2[3]), value = as.character(r2[4])))
       res = NULL
       if(r[3] == "ITEM"){
         res = list(id = as.numeric(r[1]),
