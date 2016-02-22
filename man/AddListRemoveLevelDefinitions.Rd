@@ -11,7 +11,7 @@ add_levelDefinition(emuDBhandle, name, type)
 
 list_levelDefinitions(emuDBhandle)
 
-remove_levelDefinition(emuDBhandle, name, dbUUID = NULL)
+remove_levelDefinition(emuDBhandle, name)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}

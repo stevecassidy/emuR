@@ -10,8 +10,6 @@ list_bundles(emuDBhandle, session = NULL)
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
 
 \item{session}{optional session}
-
-\item{dbUUID}{optional UUID of emuDB}
 }
 \value{
 data.frame object with columns session and name of bundles

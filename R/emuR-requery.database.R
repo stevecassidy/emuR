@@ -155,10 +155,9 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
 ##' If result and input segment list have the same length (for each input segment one segment on the target level was found), the result segment list has the same length and order as the input list; 
 ##' in 'upwards' requeries this can cause a resulting segment list to contain two (or more) copies of the same segment, if the same item from the input list was linked twice or more to an item of the target level, e.g. a phoneme 'p' requeried to the word level might result in two identical segments 'Papa' in the result list. 
 ##' If the length of input and output list differ (e.g. because a link is missing in the emuDB), a synchronous ordering is not possible and therefore a warning is generated.
-##' 
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param seglist segment list to requery on (type: \link{emuRsegs})
 ##' @param level character string: name of target level 
-##' @param dbUUID optional UUID of emuDB, if the emuDB name in the input segment list is not unique
 ##' @return result set object of class \link{emuRsegs}
 ##' @author Klaus Jaensch
 ##' @export

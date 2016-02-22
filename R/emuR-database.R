@@ -538,7 +538,6 @@ list_sessions <- function(emuDBhandle){
 ##' List all bundles of emuDB or of particular session.
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param session optional session
-##' @param dbUUID optional UUID of emuDB
 ##' @return data.frame object with columns session and name of bundles
 ##' @export
 ##' @examples 
@@ -669,7 +668,6 @@ rewrite_allAnnots <- function(emuDBhandle, verbose=TRUE){
 ##' 
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param targetDir target directory
-##' @param dbUUID optional: UUID of database
 ##' @param options list of options
 ##' @param verbose show infos and progress bar
 ##' @author Klaus Jaensch

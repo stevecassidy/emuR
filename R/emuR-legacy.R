@@ -306,7 +306,7 @@ list.emuTemplatePathes<-function(){
 ##' List known database names from legacy EMU installation
 ##' @return character vector with database names
 ##' @author Klaus Jaensch
-##' @seealso \code{\link{list_legacyEmuDBs}} \code{\link{convert_legacyEmuDB_by_name_to_emuDB}} 
+##' @seealso \code{\link{list_legacyEmuDBs}} \code{\link{convert_legacyEmuDbByName}} 
 ##' @export
 ##' @keywords database legacy Emu
 ##' @examples
@@ -973,7 +973,7 @@ convert_legacyEmuDbByName <- function(dbName,targetDir,options=NULL,verbose=TRUE
   if(is.null(emuTplPath)){
     stop("Legacy EMU database '",dbName,"' could not be found.")
   }
-  convert_legacyEmuDB_to_emuDB(emuTplPath = emuTplPath,targetDir = targetDir,options = options,verbose = verbose)
+  convert_legacyEmuDB(emuTplPath = emuTplPath,targetDir = targetDir,options = options,verbose = verbose)
   
   
 }

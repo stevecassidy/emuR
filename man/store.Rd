@@ -14,8 +14,6 @@ store(emuDBhandle, targetDir, options = NULL, verbose = TRUE)
 \item{options}{list of options}
 
 \item{verbose}{show infos and progress bar}
-
-\item{dbUUID}{optional: UUID of database}
 }
 \description{
 Store EMU database to directory

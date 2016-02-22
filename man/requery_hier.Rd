@@ -7,11 +7,11 @@
 requery_hier(emuDBhandle, seglist, level = NULL)
 }
 \arguments{
+\item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
+
 \item{seglist}{segment list to requery on (type: \link{emuRsegs})}
 
 \item{level}{character string: name of target level}
-
-\item{dbUUID}{optional UUID of emuDB, if the emuDB name in the input segment list is not unique}
 }
 \value{
 result set object of class \link{emuRsegs}

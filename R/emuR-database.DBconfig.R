@@ -389,7 +389,7 @@ list_levelDefinitions <- function(emuDBhandle){
 
 ##' @rdname AddListRemoveLevelDefinitions
 ##' @export
-remove_levelDefinition<-function(emuDBhandle, name, dbUUID=NULL){
+remove_levelDefinition<-function(emuDBhandle, name){
   
   dbConfig = load_DBconfig(emuDBhandle)
   # check if level definition (name)exists 
@@ -1086,7 +1086,7 @@ NULL
 
 ##' @rdname AddListRemoveSsffTrackDefinition
 ##' @export
-add_ssffTrackDefinition <- function(emuDBhandle, name, 
+add_ssffTrackDefinition <- function(emuDBhandle, name,
                                     columnName = NULL, fileExtension = NULL, 
                                     onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
                                     onTheFlyOptLogFilePath = NULL,

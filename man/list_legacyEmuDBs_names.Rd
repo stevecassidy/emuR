@@ -25,7 +25,7 @@ list_legacyEmuDBs_names()
 Klaus Jaensch
 }
 \seealso{
-\code{\link{list_legacyEmuDBs}} \code{\link{convert_legacyEmuDB_by_name_to_emuDB}}
+\code{\link{list_legacyEmuDBs}} \code{\link{convert_legacyEmuDbByName}}
 }
 \keyword{Emu}
 \keyword{database}
