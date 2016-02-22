@@ -33,7 +33,7 @@ requireNamespace("RSQLite", quietly = T)
 ##' @param verbose display infos, warnings and show progress bar
 ##' @return NULL
 ##' @export
-##' @seealso convert_TextGridCollection_to_emuDB, convert_legacyEmuDB_to_emuDB
+##' @seealso convert_TextGridCollection, convert_legacyEmuDB
 ##' @examples
 ##' \dontrun{
 ##' 

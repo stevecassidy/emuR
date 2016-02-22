@@ -48,7 +48,7 @@ For a detailed description of the emuDB database structure see \code{vignette(em
 \code{symbolicLinkSignalFiles}: if \code{TRUE}, signal files are symbolic linked instead of copied. Implies: \code{rewriteSSFFTracks=FALSE}, Default: \code{FALSE}
 
 Function \code{convert_legacyEmuDB} tries to get the path of the legacy template file from the given database name using \code{\link{list_legacyEmuDBs}}.
-If the database could be found, the function \code{\link{convert_legacyEmuDB_to_emuDB}} is called.
+If the database could be found, the function \code{\link{convert_legacyEmuDB}} is called.
 }
 \examples{
 \dontrun{

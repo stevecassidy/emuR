@@ -65,32 +65,32 @@ create_emuRtrackdata <- function(sl, td){
 }
 
 
-##' Function to extract an emuRtrackdata at a single time point of to create another EMU-trackdata object between two times
-##' 
-##' this function is intended to mimic some of the dcut behaviour
-##' 
-##' @param emuRtrackdata emuRtrackdata object
-##' @param leftTime bla
-##' @param rightTime bli
-##' @param single blup
-##' @param average blap
-##' @param prop woooord
-cut.emuRtrackdata = function(emuRtrackdata, leftTime, rightTime, 
-                             single = TRUE, average = TRUE, prop = FALSE){
-  
-  if (missing(rightTime)) {
-    if(length(leftTime == 1)){
-      res = emuRtrackdata %>% 
-        dplyr::group_by("sl_rowIdx") %>% 
-        dplyr::mutate(times_propDiff = 1 + ("times_orig" - min("times_orig")) / (max("times_orig") - min("times_orig")) - leftTime) %>%
-        dplyr::filter(times_propDiff == min("times_propDiff")) %>%
-        dplyr::select(-times_propDiff)
-    }else{
-      
-    }
-  }
-  # return(as.data.table(res))
-}
+# ##' Function to extract an emuRtrackdata at a single time point of to create another EMU-trackdata object between two times
+# ##' 
+# ##' this function is intended to mimic some of the dcut behaviour
+# ##' 
+# ##' @param emuRtrackdata emuRtrackdata object
+# ##' @param leftTime bla
+# ##' @param rightTime bli
+# ##' @param single blup
+# ##' @param average blap
+# ##' @param prop woooord
+# cut.emuRtrackdata = function(emuRtrackdata, leftTime, rightTime, 
+#                              single = TRUE, average = TRUE, prop = FALSE){
+#   
+#   if (missing(rightTime)) {
+#     if(length(leftTime == 1)){
+#       res = emuRtrackdata %>% 
+#         dplyr::group_by("sl_rowIdx") %>% 
+#         dplyr::mutate(times_propDiff = 1 + ("times_orig" - min("times_orig")) / (max("times_orig") - min("times_orig")) - leftTime) %>%
+#         dplyr::filter(times_propDiff == min("times_propDiff")) %>%
+#         dplyr::select(-times_propDiff)
+#     }else{
+#       
+#     }
+#   }
+#   # return(as.data.table(res))
+# }
 
 
 #######################

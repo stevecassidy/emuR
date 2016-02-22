@@ -1136,7 +1136,7 @@ add_ssffTrackDefinition <- function(emuDBhandle, name,
     ans = 'y'
     if(length(fp) != 0){
       if(interactive){
-        ans = readline(paste0("There are files present in '",dbName,"' that have the file extention '", 
+        ans = readline(paste0("There are files present in '",emuDBhandle$dbName,"' that have the file extention '", 
                               fileExtension, "' Continuing will overwrite these files! Do you wish to proceed? (y/n) "))
       }
     }else{

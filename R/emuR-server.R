@@ -236,7 +236,7 @@ serve=function(dbName,sessionPattern='.*',bundlePattern='.*',dbUUID=NULL,host='1
             if(inherits(audioFileData,'error')){
               err=audioFileData
             }else{
-              audioBase64=base64encode(audioFileData)
+              audioBase64=base64enc::base64encode(audioFileData)
               mediaFile=list(encoding="BASE64",data=audioBase64)
               close(audioFile)
             }
@@ -281,7 +281,7 @@ serve=function(dbName,sessionPattern='.*',bundlePattern='.*',dbUUID=NULL,host='1
             }else{
               break
             }
-            mfDataBase64=base64encode(mfData)
+            mfDataBase64=base64enc::base64encode(mfData)
             encoding="BASE64"
             ssffDatObj=list(encoding=encoding,data=mfDataBase64,fileExtension=ssffFileExt)
             ssffFiles[[length(ssffFiles)+1]]=ssffDatObj
@@ -349,7 +349,7 @@ serve=function(dbName,sessionPattern='.*',bundlePattern='.*',dbUUID=NULL,host='1
               if(debugLevel>3){
                 cat("Writing SSFF track to file: ",sp,"\n")
               }
-              ssffTrackBin=base64decode(ssffFile[['data']])
+              ssffTrackBin=base64enc::base64decode(ssffFile[['data']])
               ssffCon=tryCatch(file(sp,'wb'),error=function(e){err<<-e})
               if(is.null(err)){
                 res=tryCatch(writeBin(ssffTrackBin,ssffCon))

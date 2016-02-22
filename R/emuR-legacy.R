@@ -936,7 +936,7 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerate(),optio
 
 ##' @rdname convert_legacyEmuDB
 ##' @details Function \code{convert_legacyEmuDB} tries to get the path of the legacy template file from the given database name using \code{\link{list_legacyEmuDBs}}.
-##' If the database could be found, the function \code{\link{convert_legacyEmuDB_to_emuDB}} is called.
+##' If the database could be found, the function \code{\link{convert_legacyEmuDB}} is called.
 ##' 
 ##' @param dbName legacy EMU database name
 ##' @seealso \code{\link{list_legacyEmuDBs}} 
@@ -974,6 +974,5 @@ convert_legacyEmuDbByName <- function(dbName,targetDir,options=NULL,verbose=TRUE
     stop("Legacy EMU database '",dbName,"' could not be found.")
   }
   convert_legacyEmuDB(emuTplPath = emuTplPath,targetDir = targetDir,options = options,verbose = verbose)
-  
   
 }

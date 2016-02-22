@@ -69,6 +69,6 @@ convert_BPFCollection("/tmp/BPF_collection","/tmp/DirNewEmuR",'NewEmuR',
 
 }
 \seealso{
-convert_TextGridCollection_to_emuDB, convert_legacyEmuDB_to_emuDB
+convert_TextGridCollection, convert_legacyEmuDB
 }
 
