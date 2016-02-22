@@ -22,7 +22,6 @@ Imports:
     uuid,stringr,
     RSQLite (>= 1.0.0),
     DBI (>= 0.3.1),
-    sqldf (>= 0.4.9),
     httpuv (>= 1.3.2),
     base64enc,
     data.table (>= 1.9.4),
