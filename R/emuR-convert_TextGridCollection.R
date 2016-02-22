@@ -21,6 +21,7 @@ require(RSQLite)
 ##' tiers are converted.
 ##' @param verbose display infos & show progress bar
 ##' @export
+##' @import tools
 ##' @return NULL
 ##' @examples 
 ##' \dontrun{
