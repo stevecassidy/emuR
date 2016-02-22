@@ -7,9 +7,9 @@
 \method{summary}{emuDBhandle}(object, ...)
 }
 \arguments{
-\item{dbName}{name of emuDB}
+\item{object}{emuDBhandle as returned by \code{\link{load_emuDB}}}
 
-\item{dbUUID}{optional UUID of emuDB}
+\item{...}{additional arguments affecting the summary produced.}
 }
 \description{
 Gives an overview of an EMU database.

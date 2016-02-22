@@ -791,7 +791,6 @@ store<-function(emuDBhandle, targetDir, options=NULL, verbose=TRUE){
 ##' @param targetDir target directory to store the emuDB to
 ##' @param mediaFileExtension defines mediaFileExtention (NOTE: currently only 
 ##' 'wav' (the default) is supported by all components of EMU)
-##' @param purge purge newly created emuDB from R session
 ##' @param store store new created emuDB to file system
 ##' @param verbose display infos & show progress bar
 ##' @export

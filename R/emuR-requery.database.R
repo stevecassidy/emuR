@@ -36,6 +36,7 @@ drop_requeryTmpTables <- function(emuDBhandle){
 ##' parameter \code{length} sets the item length of the result segments.
 ##' If the requested segments are out of bundle item boundaries and parameter \code{ignoreOutOfBounds} is \code{FALSE} (the default), an error is generated. To get residual resulting segments that lie within the bounds the \code{ignoreOutOfBounds} parameter can be set to \code{TRUE}.
 ##' The returned segment list is usually of the same length and order as the input \code{seglist}; if \code{ignoreOutOfBounds=FALSE}, the resulting segment list may be out of sync.
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param seglist segment list to requery on (type: 'emuRsegs')
 ##' @param offset start item offset in sequence (default is 0, meaning the start or end item of the input segment)
 ##' @param offsetRef reference item for offset: 'START' for first and 'END' for last item of segment

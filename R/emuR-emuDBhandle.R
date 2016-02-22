@@ -25,8 +25,8 @@ print.emuDBhandle = function(x, ...){
 ##' Print summary of loaded EMU database (emuDB).
 ##' @description Gives an overview of an EMU database.
 ##' Prints database name, UUID, base directory path, session and bundle count and informations about signal track, annotation level, attribute and link definitions.
-##' @param dbName name of emuDB
-##' @param dbUUID optional UUID of emuDB
+##' @param object emuDBhandle as returned by \code{\link{load_emuDB}}
+##' @param ... additional arguments affecting the summary produced.
 ##' @export
 summary.emuDBhandle = function(object, ...){
   

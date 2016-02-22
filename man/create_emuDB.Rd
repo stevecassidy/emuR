@@ -18,8 +18,6 @@ create_emuDB(name, targetDir, mediaFileExtension = "wav", store = TRUE,
 \item{store}{store new created emuDB to file system}
 
 \item{verbose}{display infos & show progress bar}
-
-\item{purge}{purge newly created emuDB from R session}
 }
 \description{
 Creates an empty emuDB in the target directory specified

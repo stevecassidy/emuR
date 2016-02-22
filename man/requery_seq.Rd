@@ -8,6 +8,8 @@ requery_seq(emuDBhandle, seglist, offset = 0, offsetRef = "START",
   length = 1, ignoreOutOfBounds = FALSE)
 }
 \arguments{
+\item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
+
 \item{seglist}{segment list to requery on (type: 'emuRsegs')}
 
 \item{offset}{start item offset in sequence (default is 0, meaning the start or end item of the input segment)}
