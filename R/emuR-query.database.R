@@ -1,5 +1,4 @@
-require(sqldf)
-require(stringr)
+requireNamespace("stringr", quietly = T)
 
 ###########################################################################
 # create table / index definitions for DBI that are used at query time
@@ -1052,7 +1051,6 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
 ## @param query EQL query string
 ## @return EMU seglist
 ## @author Klaus Jaensch
-## @import sqldf stringr
 ## @export
 ## @keywords emuDB database query Emu EQL 
 ## 
@@ -1087,7 +1085,6 @@ query_databaseWithEqlEmuRsegs<-function(emuDBhandle, query, timeRefSegmentLevel)
 ## @param query EQL query string
 ## @return result set object
 ## @author Klaus Jaensch
-## @import sqldf stringr
 ## @export
 ## @keywords emuDB database query Emu EQL 
 ## 
@@ -1143,8 +1140,6 @@ query_databaseWithEql<-function(emuDBhandle, query, intermResTablePrefix = "left
 ##' @param timeRefSegmentLevel set time derivation segment level
 ##' @param resultType type (class name) of result
 ##' @return result set object of class resultType (default: \link{emuRsegs}, compatible to legacy type \link{emusegs})
-##' @author Klaus Jaensch
-##' @import sqldf stringr
 ##' @export
 ##' @seealso \code{\link{load_emuDB}}
 ##' @keywords emuDB database query Emu EQL 

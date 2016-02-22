@@ -1,4 +1,3 @@
-require(testthat)
 
 # ---------------------------------------------------------------------------
 context("testing convert_BPFCollection")

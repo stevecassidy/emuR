@@ -1,4 +1,3 @@
-require(tidyjson)
 
 #######################################################
 # annotJSON representation to annotDFs conversion functions
@@ -6,18 +5,18 @@ require(tidyjson)
 # convert annotJSON to list of data.frames including 
 # meta information (name, annotates, samplerate)
 annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
-  library(tidyjson) 
+  
   json = tidyjson::as.tbl_json(annotJSONchar)
   
   # get top level data
   tlData = json %>%
-    tidyjson::spread_values(name = jstring("name"), annotates = jstring("annotates"), sampleRate = jstring("sampleRate"))
+    tidyjson::spread_values(name = tidyjson::jstring("name"), annotates = tidyjson::jstring("annotates"), sampleRate = tidyjson::jstring("sampleRate"))
   
   # gen. links data.frame
   links = json %>%
-    enter_object("links") %>%
-    gather_array  %>%
-    spread_values(fromID = jstring("fromID"), toID = jstring("toID")) %>%
+    tidyjson::enter_object("links") %>%
+    tidyjson::gather_array  %>%
+    tidyjson::spread_values(fromID = tidyjson::jstring("fromID"), toID = tidyjson::jstring("toID")) %>%
     dplyr::select_(~fromID, ~toID)
   
   # gen. items list of data.frame

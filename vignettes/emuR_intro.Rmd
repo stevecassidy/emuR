@@ -41,6 +41,8 @@ For people transitioning to `emuR` from the legacy EMU system, `emuR` provides a
 ```{r results='hide', message=FALSE, warning=FALSE}
 # load the package
 library(emuR)
+library(tidyjson)
+library(dplyr)
 
 # create demo data in folder provided by the tempdir() function
 create_emuRdemoData(dir = tempdir())

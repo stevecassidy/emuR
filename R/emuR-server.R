@@ -1,5 +1,5 @@
-require(httpuv)
-require(base64enc)
+requireNamespace("httpuv", quietly = T)
+requireNamespace("base64enc", quietly = T)
 
 getServerHandle <- function() {
   internalVars$serverHandle
@@ -47,7 +47,6 @@ setServerHandle <- function(sh) {
 ##' @param debug TRUE to enable debugging (default: no debugging messages)
 ##' @param debugLevel integer higher values generate more detailed debug output
 ##' @return TRUE if the database was modified, FALSE otherwise
-##' @import httpuv jsonlite base64enc
 ##' @export
 ##' @author Klaus Jaensch
 ##' @keywords emuDB EMU-webApp database websocket Emu
@@ -439,7 +438,7 @@ serve=function(dbName,sessionPattern='.*',bundlePattern='.*',dbUUID=NULL,host='1
     Sys.sleep(0.01)
     
   }
-  stopServer(sh)
+  httpuv::stopServer(sh)
   # regular shutdown, remove handle 
   setServerHandle(NULL)
   if(debugLevel>0){

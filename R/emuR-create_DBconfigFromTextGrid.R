@@ -1,4 +1,4 @@
-require(RSQLite)
+requireNamespace("RSQLite", quietly = T)
 
 ## Create emuDB DBconfig object from a TextGrid file
 ## 

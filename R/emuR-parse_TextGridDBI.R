@@ -1,5 +1,5 @@
-require(stringr)
-require(RSQLite)
+requireNamespace("stringr", quietly = T)
+requireNamespace("RSQLite", quietly = T)
 
 ## Parser for Praat TextGrid files
 ## 

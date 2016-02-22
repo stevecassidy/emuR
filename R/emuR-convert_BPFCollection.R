@@ -1,4 +1,4 @@
-require(RSQLite)
+requireNamespace("RSQLite", quietly = T)
 
 ##' Convert a Bas Partitur File Collection (audio and BAS Partitur files) to an emuDB
 ##' 
@@ -32,7 +32,6 @@ require(RSQLite)
 ##' resolution leads to event overlap (e.g. if one segment's end coincides with the next segment's start), an error is thrown either way. If in doubt whether a level contains segmental overlap, try running the converter with segmentToEventLevels = NULL and see whether an error occurs.
 ##' @param verbose display infos, warnings and show progress bar
 ##' @return NULL
-##' @import RSQLite
 ##' @export
 ##' @seealso convert_TextGridCollection_to_emuDB, convert_legacyEmuDB_to_emuDB
 ##' @examples

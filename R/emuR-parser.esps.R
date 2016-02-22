@@ -1,4 +1,4 @@
-require(stringr)
+requireNamespace("stringr", quietly = T)
 
 ## Parser for ESPS label files
 ## 

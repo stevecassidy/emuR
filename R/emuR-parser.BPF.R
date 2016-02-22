@@ -1,5 +1,5 @@
-require(RSQLite)
-require(stringr)
+requireNamespace("RSQLite", quietly = T)
+requireNamespace("stringr", quietly = T)
 
 ## EmuDB Parser for Bas Partitur Files
 ## 

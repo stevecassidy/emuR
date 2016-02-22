@@ -1,4 +1,4 @@
-require(stringr)
+requireNamespace("stringr", quietly = T)
 
 
 ## Get first position of character in a string from given position

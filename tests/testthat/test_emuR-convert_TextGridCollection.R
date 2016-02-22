@@ -2,7 +2,7 @@
 ##'
 ##' @author Raphael Winkelmann
 
-require(RSQLite)
+requireNamespace("RSQLite", quietly = T)
 
 context("testing convert_TextGridCollection function")
 

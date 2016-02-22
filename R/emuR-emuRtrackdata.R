@@ -1,5 +1,5 @@
-require(data.table)
-require(dplyr)
+requireNamespace("data.table", quietly = T)
+requireNamespace("dplyr", quietly = T)
 
 ##' create emuRtrackdata object
 ##' 

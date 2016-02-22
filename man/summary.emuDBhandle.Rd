@@ -4,7 +4,7 @@
 \alias{summary.emuDBhandle}
 \title{Print summary of loaded EMU database (emuDB).}
 \usage{
-summary.emuDBhandle(object, ...)
+\method{summary}{emuDBhandle}(object, ...)
 }
 \arguments{
 \item{dbName}{name of emuDB}

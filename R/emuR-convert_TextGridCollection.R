@@ -1,4 +1,4 @@
-require(RSQLite)
+requireNamespace("RSQLite", quietly = T)
 
 ##' Convert a TextGridCollection (e.g. .wav & .TextGrid files) to emuDB
 ##' 

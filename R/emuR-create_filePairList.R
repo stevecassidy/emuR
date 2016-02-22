@@ -1,4 +1,5 @@
-require(tools)
+requireNamespace("tools", quietly = T)
+
 ## Create a file-pair-list
 ##
 ## Recursivly searches through a root directory and matches the

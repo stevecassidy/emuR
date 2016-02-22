@@ -1,5 +1,4 @@
-require(sqldf)
-require(stringr)
+requireNamespace("stringr", quietly = T)
 
 database.DDL.emuRsegsTmp = 'CREATE TEMP TABLE emuRsegsTmp (
   labels TEXT,
@@ -43,7 +42,6 @@ drop_requeryTmpTables <- function(emuDBhandle){
 ##' @param length item length of segments in the returned segment list
 ##' @param ignoreOutOfBounds ignore result segments that are out of bundle bounds
 ##' @return result set object of class 'emuRsegs' containing the requeried segments
-##' @import sqldf
 ##' @export
 ##' @seealso \code{\link{query}} \code{\link{requery_hier}} \code{\link{emuRsegs}}
 ##' @keywords emuDB database requery
@@ -163,7 +161,6 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
 ##' @param dbUUID optional UUID of emuDB, if the emuDB name in the input segment list is not unique
 ##' @return result set object of class \link{emuRsegs}
 ##' @author Klaus Jaensch
-##' @import sqldf
 ##' @export
 ##' @seealso \code{\link{query}} \code{\link{requery_seq}} \code{\link{emuRsegs}}
 ##' @keywords emuDB database requery

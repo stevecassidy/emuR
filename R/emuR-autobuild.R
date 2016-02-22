@@ -22,7 +22,6 @@
 ##' superlevel will be converted to a level of type ITEM
 ##' @param backupLevelAppendStr string appended to level name for backup level
 ##' @export
-##' @import RSQLite
 ##' @keywords emuR autobuild
 ##' @seealso add_linkDefinition
 ##' @examples 

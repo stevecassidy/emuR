@@ -62,9 +62,6 @@ query('ae','Phoneme=p',bundlePattern='msajc05.*',sessionPattern ='00.*')
 }
 
 }
-\author{
-Klaus Jaensch
-}
 \seealso{
 \code{\link{load_emuDB}}
 }
