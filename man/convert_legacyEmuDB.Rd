@@ -2,14 +2,13 @@
 % Please edit documentation in R/emuR-legacy.R
 \name{convert_legacyEmuDB}
 \alias{convert_legacyEmuDB}
-\alias{convert_legacyEmuDB_by_name_to_emuDB}
+\alias{convert_legacyEmuDbByName}
 \title{Convert legacy EMU database to the emuDB format}
 \usage{
 convert_legacyEmuDB(emuTplPath, targetDir, dbUUID = UUIDgenerate(),
   options = NULL, verbose = TRUE)
 
-convert_legacyEmuDB_by_name_to_emuDB(dbName, targetDir, options = NULL,
-  verbose = TRUE)
+convert_legacyEmuDbByName(dbName, targetDir, options = NULL, verbose = TRUE)
 }
 \arguments{
 \item{emuTplPath}{EMU template file path}
@@ -48,7 +47,7 @@ For a detailed description of the emuDB database structure see \code{vignette(em
 
 \code{symbolicLinkSignalFiles}: if \code{TRUE}, signal files are symbolic linked instead of copied. Implies: \code{rewriteSSFFTracks=FALSE}, Default: \code{FALSE}
 
-Function \code{convert_legacyEmuDB_by_name_to_emuDB} tries to get the path of the legacy template file from the given database name using \code{\link{list_legacyEmuDBs}}.
+Function \code{convert_legacyEmuDB} tries to get the path of the legacy template file from the given database name using \code{\link{list_legacyEmuDBs}}.
 If the database could be found, the function \code{\link{convert_legacyEmuDB_to_emuDB}} is called.
 }
 \examples{
@@ -79,7 +78,7 @@ dbName=load_emuDB(file.path(targetDir,"ae_emuDB"))
 \dontrun{
 ## Load database "ae", convert and save in new format to directory /homes/mylogin/EMUnew/
 
-convert_legacyEmuDB_by_name_to_emuDB("ae","/homes/mylogin/EMUnew/")
+convert_legacyEmuDbByName("ae","/homes/mylogin/EMUnew/")
 
 }
 

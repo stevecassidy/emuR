@@ -8,11 +8,11 @@
 ##' (as expected by the \code{\link{load_emuDB}} function). See \code{vignette(emuDB)} 
 ##' for more information on this database format.}
 ##' \item{BPF_collection: }{Containing a BAS Patitur Format (BPF) file collection (as 
-##' expected by the \code{\link{convert_BPFCollection_to_emuDB}} function)}
+##' expected by the \code{\link{convert_BPFCollection}} function)}
 ##' \item{legacy_ae: }{Containing legacyEmuDB (as expected by the 
-##' \code{\link{convert_legacyEmuDB_to_emuDB}} function)}
+##' \code{\link{convert_legacyEmuDB}} function)}
 ##' \item{TextGrid_collection: }{Containing a TextGrid file collection 
-##' (as expected from the \code{\link{convert_TextGridCollection_to_emuDB}} function)}
+##' (as expected from the \code{\link{convert_TextGridCollection}} function)}
 ##' }
 ##' @param dir directory to create demo data in (default= tempdir())
 ##' @param precache creates an on-file-system cache for the ae emuDB to allow fast loading
