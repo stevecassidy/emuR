@@ -15,32 +15,32 @@ annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
   # gen. links data.frame
   links = json %>%
     tidyjson::enter_object("links") %>%
-    tidyjson::gather_array  %>%
+    tidyjson::gather_array()  %>%
     tidyjson::spread_values(fromID = tidyjson::jstring("fromID"), toID = tidyjson::jstring("toID")) %>%
     dplyr::select_(~fromID, ~toID)
   
   # gen. items list of data.frame
   items = json %>%
-    spread_values(sampleRate = jstring("sampleRate")) %>%
-    enter_object("levels") %>%
-    gather_array  %>%
-    spread_values(level = jstring("name"), type = jstring("type")) %>%
-    enter_object("items") %>%
-    gather_array(column.name = "seqIdx") %>%
-    spread_values(itemID = jstring("id"), samplePoint = jstring("samplePoint"), sampleStart = jstring("sampleStart"), sampleDur = jstring("sampleDur")) %>%
+    tidyjson::spread_values(sampleRate = tidyjson::jstring("sampleRate")) %>%
+    tidyjson::enter_object("levels") %>%
+    tidyjson::gather_array()  %>%
+    tidyjson::spread_values(level = tidyjson::jstring("name"), type = tidyjson::jstring("type")) %>%
+    tidyjson::enter_object("items") %>%
+    tidyjson::gather_array(column.name = "seqIdx") %>%
+    tidyjson::spread_values(itemID = tidyjson::jstring("id"), samplePoint = tidyjson::jstring("samplePoint"), sampleStart = tidyjson::jstring("sampleStart"), sampleDur = tidyjson::jstring("sampleDur")) %>%
     dplyr::select_(~itemID, ~level, ~type, ~seqIdx, ~sampleRate, ~samplePoint, ~sampleStart, ~sampleDur)
   
   # gen. label list of data.frame
   labels = json %>%
-    enter_object("levels") %>%
-    gather_array  %>%
-    spread_values(level = jstring("name")) %>%
-    enter_object("items") %>%
-    gather_array %>%
-    spread_values(itemID = jstring("id")) %>%
-    enter_object("labels") %>%
-    gather_array(column.name = "labelIdx") %>%
-    spread_values(name = jstring("name"), label = jstring("value")) %>%
+    tidyjson::enter_object("levels") %>%
+    tidyjson::gather_array()  %>%
+    tidyjson::spread_values(level = tidyjson::jstring("name")) %>%
+    tidyjson::enter_object("items") %>%
+    tidyjson::gather_array() %>%
+    tidyjson::spread_values(itemID = tidyjson::jstring("id")) %>%
+    tidyjson::enter_object("labels") %>%
+    tidyjson::gather_array(column.name = "labelIdx") %>%
+    tidyjson::spread_values(name = tidyjson::jstring("name"), label = tidyjson::jstring("value")) %>%
     dplyr::select_(~itemID, ~labelIdx, ~name, ~label)
   
   return(list(name = tlData$name, annotates = tlData$annotates, sampleRate = tlData$sampleRate, items = items, links = links, labels = labels))
