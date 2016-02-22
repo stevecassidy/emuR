@@ -86,14 +86,14 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
   }
 
   # remove superfluous sessions from session table
-  superfluousSessions = anti_join(notUpdatedSessionDBI, sessions, by = "name")
+  superfluousSessions = dplyr::anti_join(notUpdatedSessionDBI, sessions, by = "name")
   if(nrow(superfluousSessions) > 0){
     for(sesIdx in 1:nrow(superfluousSessions)){
       remove_sessionDBI(emuDBhandle, superfluousSessions[sesIdx,])
     }
   }
   # remove superfluous bundles from bundle table and bundleAnnotDBI values from items, labels and links tables
-  superfluousBundles = anti_join(notUpdatedBundlesDBI, bundles, by = c("session", "name"))
+  superfluousBundles = dplyr::anti_join(notUpdatedBundlesDBI, bundles, by = c("session", "name"))
   if(nrow(superfluousBundles) > 0){
     for(bndlIdx in 1:nrow(superfluousBundles)){
       remove_bundleDBI(emuDBhandle, superfluousBundles[bndlIdx,]$session, superfluousBundles[bndlIdx,]$name)

@@ -116,19 +116,19 @@ marshal.for.persistence <- function(x, filter=NULL){
 }
 
 # Applies class names to object hierarchy after loading from JSON without type information
-unmarshal.from.persistence <- function(x,classMap=list()){
-  classNames=names(classMap)
-  for(cn in classNames){
-    pathes=classMap[[cn]]
-    pathesLen=length(pathes)
-    if(pathesLen==0){
-      x=apply.class(x,c(),cn)
-    }else{
-      for(path in pathes){
-        x=apply.class(x,path,cn)
-      }
-    }
-  }  
-  
-  return(x);
-}
+# unmarshal.from.persistence <- function(x,classMap=list()){
+#   classNames=names(classMap)
+#   for(cn in classNames){
+#     pathes=classMap[[cn]]
+#     pathesLen=length(pathes)
+#     if(pathesLen==0){
+#       x=apply.class(x,c(),cn)
+#     }else{
+#       for(path in pathes){
+#         x=apply.class(x,path,cn)
+#       }
+#     }
+#   }  
+#   
+#   return(x);
+# }

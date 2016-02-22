@@ -4,17 +4,15 @@
 \alias{serve}
 \title{Serve EMU database to EMU-webApp}
 \usage{
-serve(dbName, sessionPattern = ".*", bundlePattern = ".*", dbUUID = NULL,
+serve(emuDBhandle, sessionPattern = ".*", bundlePattern = ".*",
   host = "127.0.0.1", port = 17890, debug = FALSE, debugLevel = 0)
 }
 \arguments{
-\item{dbName}{name of a loaded EMU database}
+\item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
 
 \item{sessionPattern}{A regular expression pattern matching session names to be served}
 
 \item{bundlePattern}{A regular expression pattern matching bundle names to be served}
-
-\item{dbUUID}{optional UUID of emuDB, if the emuDB name in the input segment list is not unique}
 
 \item{host}{host IP to listen to (default: 127.0.0.1  (localhost))}
 

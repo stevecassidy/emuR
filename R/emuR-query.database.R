@@ -161,9 +161,9 @@ setQueryTmpEmuDBs<-function(queryTmpEmuDBs){
   internalVars$queryTmpEmuDBs<-queryTmpEmuDBs
 }
 
-getQueryTmpEmuDBs<-function(){
-  return(internalVars$queryTmpEmuDBs)
-}
+# getQueryTmpEmuDBs<-function(){
+#   return(internalVars$queryTmpEmuDBs)
+# }
 
 .create.condition.text<-function(opr,value){
   o=list(opr=opr,value=value)
@@ -201,12 +201,12 @@ emuR.regexprl<-function(pattern,x){
   return((m==1) & (attr(m,'match.length')==nchar(x)))
 }
 
-write_table_forced<-function(dbUUID,name,value){
-  if(dbExistsTable(get_emuDBcon(dbUUID),name)){
-    dbRemoveTable(get_emuDBcon(dbUUID),name)
-  }
-  dbWriteTable(get_emuDBcon(dbUUID),name = name,value=value)
-}
+# write_table_forced<-function(dbUUID,name,value){
+#   if(dbExistsTable(get_emuDBcon(dbUUID),name)){
+#     dbRemoveTable(get_emuDBcon(dbUUID),name)
+#   }
+#   dbWriteTable(get_emuDBcon(dbUUID),name = name,value=value)
+# }
 
 check_levelAttributeName<-function(emuDBhandle,name){
   aNms=get_allAttributeNames(emuDBhandle)
@@ -693,9 +693,9 @@ query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTablePr
       #}else{
       cond = create_conditionTextAlternatives(opr, labelAltsUq)
       #}
-      if(is.null(labels)){
-        labels=getQueryTmpEmuDBs()[['queryLabels']]
-      }
+      # if(is.null(labels)){
+      #   labels=getQueryTmpEmuDBs()[['queryLabels']]
+      # }
       query_labels(emuDBhandle, levelName = lvlName, intermResTablePrefix = intermResTablePrefix, cond, useSubsets)
       #res[['projectionItems']]=NULL
       if(projectionLevel){

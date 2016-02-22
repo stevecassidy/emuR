@@ -1,7 +1,11 @@
-
-emuDBhandle = function(dbName, basePath, UUID, connectionPath){
+# constructor function for emuDBhandle
+emuDBhandle = function(dbName, basePath, UUID, connectionPath, connection=NULL){
   
-  con <- dbConnect(RSQLite::SQLite(), connectionPath)
+  if(is.null(connection)){
+    con <- dbConnect(RSQLite::SQLite(), connectionPath)
+  }else{
+    con = connection
+  }
   
   handle = list(dbName = dbName,
                 basePath = basePath,

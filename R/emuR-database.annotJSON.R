@@ -4,7 +4,8 @@
 
 # convert annotJSON to list of data.frames including 
 # meta information (name, annotates, samplerate)
-#' @import tidyjson dplyr
+#' @importFrom tidyjson as.tbl_json
+#' @importFrom dplyr select_
 annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
   
   json = tidyjson::as.tbl_json(annotJSONchar)

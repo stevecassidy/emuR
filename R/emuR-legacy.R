@@ -303,56 +303,6 @@ list.emuTemplatePathes<-function(){
   }
 }
 
-##' List known database names from legacy EMU installation
-##' @return character vector with database names
-##' @author Klaus Jaensch
-##' @seealso \code{\link{list_legacyEmuDBs}} \code{\link{convert_legacyEmuDbByName}} 
-##' @export
-##' @keywords database legacy Emu
-##' @examples
-##' \dontrun{
-##' ## List legacy EMU known database names
-##' 
-##' list_legacyEmuDBs_names()
-##' 
-##' }
-##' 
-list_legacyEmuDBs_names<-function(){
-  return(names(list_legacyEmuDBs()))
-}
-
-##' List known databases from legacy EMU installation
-##' @description Reads EMU_TEMPLATE_PATH variable from environment or from file ${HOME}/.emu/emu-conf or ${USERPROFILE}/.emu/Emu/emu-conf
-##' and searches for *.tlp template files in this path. The basename of the template file is the database name.
-##' @return named list with pathes to database template files. The names of the list are the database names
-##' @author Klaus Jaensch
-##' @seealso \code{\link{list_legacyEmuDBs_names}}
-##' @export
-##' @keywords database legacy Emu
-##' @examples
-##' \dontrun{
-##' ## List legacy EMU known databases
-##' 
-##' list_legacyEmuDBs()
-##' 
-##' }
-##' 
-list_legacyEmuDBs<-function(){
-  lEmuDbs=list()
-  templPathes=list.emuTemplatePathes()
-  if(!is.null(templPathes)){
-    for(templPath in templPathes){
-      tplFiles=list.files(templPath,'.*[.][tT][pP][lL]$')
-      for(tplFile in tplFiles){
-        tplBasename = basename(tplFile)
-        dbName=gsub("[.][tT][pP][lL]$","",tplBasename)
-        lEmuDbs[[dbName]]=file.path(templPath,tplFile)
-      }
-    }
-  }
-  return(lEmuDbs)
-}
-
 list.file.matching.emu.path.pattern=function(basePath,pathPattern,filePattern=NULL){
   if(is_relativeFilePath(pathPattern)){
     absPathPattern=file.path(basePath,pathPattern)
@@ -931,48 +881,4 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerate(),optio
     setTxtProgressBar(pb,progress)
     cat("\n")
   }
-}
-
-
-##' @rdname convert_legacyEmuDB
-##' @details Function \code{convert_legacyEmuDB} tries to get the path of the legacy template file from the given database name using \code{\link{list_legacyEmuDBs}}.
-##' If the database could be found, the function \code{\link{convert_legacyEmuDB}} is called.
-##' 
-##' @param dbName legacy EMU database name
-##' @seealso \code{\link{list_legacyEmuDBs}} 
-##' @export
-##' @examples
-##' \dontrun{
-##' ## Load database "ae", convert and save in new format to directory /homes/mylogin/EMUnew/
-##' 
-##' convert_legacyEmuDbByName("ae","/homes/mylogin/EMUnew/")
-##' 
-##' }
-##'
-##'
-convert_legacyEmuDbByName <- function(dbName,targetDir,options=NULL,verbose=TRUE){
-  
-  
-  # pre check target dir
-  if(file.exists(targetDir)){
-    tdInfo=file.info(targetDir)
-    if(!tdInfo[['isdir']]){
-      stop(targetDir," exists and is not a directory.")
-    }
-  }
-  
-  # database dir
-  pp=file.path(targetDir,dbName)
-  
-  # check existence of database dir
-  if(file.exists(pp)){
-    stop("Database storage dir ",pp," already exists.")
-  }
-  emuDbsList=list_legacyEmuDBs()
-  emuTplPath=emuDbsList[[dbName]]
-  if(is.null(emuTplPath)){
-    stop("Legacy EMU database '",dbName,"' could not be found.")
-  }
-  convert_legacyEmuDB(emuTplPath = emuTplPath,targetDir = targetDir,options = options,verbose = verbose)
-  
 }

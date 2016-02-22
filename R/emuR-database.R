@@ -602,7 +602,7 @@ list_bundleFilePaths <- function(emuDBhandle, fileExtention,
   bndls = list_bundles(emuDBhandle)
   postPatternBndls = bndls[grepl(sessionPattern, bndls$session) & grepl(bundlePattern, bndls$name),]
   if(dim(postPatternBndls)[1] == 0){
-    stop("No files belonging to bundles found in '", dbName, "' with fileExtention '", fileExtention, "' and the sessionPattern '", 
+    stop("No files belonging to bundles found in '", emuDBhandle$dbName, "' with fileExtention '", fileExtention, "' and the sessionPattern '", 
          sessionPattern, "' and the bundlePattern '", bundlePattern, "'")
   }
   

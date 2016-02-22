@@ -2,13 +2,10 @@
 % Please edit documentation in R/emuR-legacy.R
 \name{convert_legacyEmuDB}
 \alias{convert_legacyEmuDB}
-\alias{convert_legacyEmuDbByName}
 \title{Convert legacy EMU database to the emuDB format}
 \usage{
 convert_legacyEmuDB(emuTplPath, targetDir, dbUUID = UUIDgenerate(),
   options = NULL, verbose = TRUE)
-
-convert_legacyEmuDbByName(dbName, targetDir, options = NULL, verbose = TRUE)
 }
 \arguments{
 \item{emuTplPath}{EMU template file path}
@@ -20,8 +17,6 @@ convert_legacyEmuDbByName(dbName, targetDir, options = NULL, verbose = TRUE)
 \item{options}{optional list of options (see details)}
 
 \item{verbose}{be verbose, default: \code{TRUE}}
-
-\item{dbName}{legacy EMU database name}
 }
 \description{
 Converts an existing legacy EMU database to emuDB database structure. Copies or rewrites signal files and converts the database configuration and annotation data.
@@ -46,9 +41,6 @@ For a detailed description of the emuDB database structure see \code{vignette(em
 \code{sourceFileTextEncoding}: encoding of legacy database text files (template, label and hlb files), possible values: NULL, "latin1", "UTF-8" "bytes" or "unknown" :default \code{NULL} (uses encoding of operating system platform)
 
 \code{symbolicLinkSignalFiles}: if \code{TRUE}, signal files are symbolic linked instead of copied. Implies: \code{rewriteSSFFTracks=FALSE}, Default: \code{FALSE}
-
-Function \code{convert_legacyEmuDB} tries to get the path of the legacy template file from the given database name using \code{\link{list_legacyEmuDBs}}.
-If the database could be found, the function \code{\link{convert_legacyEmuDB}} is called.
 }
 \examples{
 \dontrun{
@@ -75,19 +67,9 @@ dbName=load_emuDB(file.path(targetDir,"ae_emuDB"))
 
 }
 
-\dontrun{
-## Load database "ae", convert and save in new format to directory /homes/mylogin/EMUnew/
-
-convert_legacyEmuDbByName("ae","/homes/mylogin/EMUnew/")
-
-}
-
-
 }
 \seealso{
 \code{\link{load_emuDB}}
-
-\code{\link{list_legacyEmuDBs}}
 }
 \keyword{Emu}
 \keyword{database}

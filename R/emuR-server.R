@@ -38,10 +38,9 @@ setServerHandle <- function(sh) {
 ##' The Web application requests bundle data for viewing or editing. If a bundle is modified with the EMU-webApp and the save button is pressed the server modifies the internal database and saves the changes to disk.
 ##' Communication between server and EMU webApp is defined by EMU-webApp-websocket-protocol version 0.0.2.
 ##' 
-##' @param dbName name of a loaded EMU database
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param sessionPattern A regular expression pattern matching session names to be served
 ##' @param bundlePattern A regular expression pattern matching bundle names to be served
-##' @param dbUUID optional UUID of emuDB, if the emuDB name in the input segment list is not unique
 ##' @param host host IP to listen to (default: 127.0.0.1  (localhost))
 ##' @param port the port number to listen on (default: 17890)
 ##' @param debug TRUE to enable debugging (default: no debugging messages)
@@ -58,13 +57,14 @@ setServerHandle <- function(sh) {
 ##' serve('myDb')
 ##' }
 ##' 
-serve=function(dbName,sessionPattern='.*',bundlePattern='.*',dbUUID=NULL,host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
+serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
   if(debug && debugLevel==0){
     debugLevel=2
   }
   modified=FALSE
   emuDBserverRunning=FALSE
   bundleCount=0
+  stop("here")
   dbUUID=get_UUID(dbName=dbName,dbUUID = dbUUID)
   database=.load.emuDB.DBI(uuid = dbUUID)
   if(!is.null(dbUUID)){
@@ -243,7 +243,7 @@ serve=function(dbName,sessionPattern='.*',bundlePattern='.*',dbUUID=NULL,host='1
           }
         }
         if(is.null(err)){   
-          ssffTracksInUse=get_ssffTracks_used_by_DBconfig(database[['DBconfig']])
+          ssffTracksInUse=get_ssffTracksUsedByDBconfig(database[['DBconfig']])
           ssffTrackNmsInUse=c()
           for(ssffTrackInUse in ssffTracksInUse){
             ssffTrackNmsInUse=c(ssffTrackNmsInUse,ssffTrackInUse[['name']])
@@ -449,7 +449,7 @@ serve=function(dbName,sessionPattern='.*',bundlePattern='.*',dbUUID=NULL,host='1
 
 ## searches for all tracks needed by the EMUwebApp and
 ## returns their ssffTrackDefinitions
-get_ssffTracks_used_by_DBconfig <- function(DBconfig){
+get_ssffTracksUsedByDBconfig <- function(DBconfig){
   allTracks = NULL
   
   # anagestConfig ssffTracks
