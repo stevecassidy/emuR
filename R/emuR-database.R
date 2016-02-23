@@ -131,7 +131,8 @@ database.DDL.emuDB_linksExt = 'CREATE TABLE linksExt (
 
 database.DDL.emuDB_linksExtIdx = 'CREATE INDEX linksExt_idx ON linksExt(db_uuid,session,bundle,fromID,toID,toLevel,type)'
 
-database.DDL.emuDB_linksExtTmp = 'CREATE TEMP TABLE linksExtTmp (
+# this should be a temp table
+database.DDL.emuDB_linksExtTmp = 'CREATE TABLE linksExtTmp (
   db_uuid VARCHAR(36) NOT NULL,
   session TEXT,
   bundle TEXT,
@@ -147,6 +148,7 @@ database.DDL.emuDB_linksExtTmp = 'CREATE TEMP TABLE linksExtTmp (
 );'
 database.DDL.emuDB_linksExtTmpIdx = 'CREATE INDEX linksExtTmp_idx ON linksExtTmp(db_uuid,session,bundle,fromID,toID,toLevel,type)'
 
+# this should be a temp table
 database.DDL.emuDB_linksExtTmp2 = 'CREATE TABLE linksExtTmp2 (
   db_uuid VARCHAR(36) NOT NULL,
   session TEXT,
@@ -197,6 +199,8 @@ initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TR
     if(createIndices){  
       create_emuDBindicesDBI(emuDBhandle)
     }
+  }else if(createTables & dbExistsTable(emuDBhandle$connection, 'emuDB') & dbExistsTable(emuDBhandle$connection, 'linksExtTmp')){
+    # TODO: remove old tmp tables and replace with proper tmp tables
   }
 }
 
