@@ -463,8 +463,8 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
   cat("To stop the server press EMU-webApp 'clear' button or reload the page in your browser.\n")
   #cat("EMU-webApp server handle:",sh,"\n")
   emuRserverRunning=TRUE
-  # open browser with EMU-webApp
-  browseURL("http://localhost:9000/?autoConnect=true")
+  # open browser with EMU-webApp (uncomment once version 0.0.33 of EMU-webApp is released!)
+  # browseURL("ips-lmu.github.io/EMU-webApp/?autoConnect=true")
   while(emuRserverRunning) {
     #cat("emuR websocket service...",emuRserverRunning,"\n")
     httpuv::service()
