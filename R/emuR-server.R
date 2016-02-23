@@ -448,7 +448,7 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
     if(!is.null(getServerHandle())){
       cat("Trying to stop orphaned server (handle: ",getServerHandle(),")\n")
       httpuv::stopServer(getServerHandle())
-      sh=tryCatch(startServer(host=host,port=port,app=app),error=function(e) e)
+      sh=tryCatch(httpuv::startServer(host=host,port=port,app=app),error=function(e) e)
       if(inherits(sh,'error')){
         stop("Error starting server (second try): ",sh,"\n")
       }
