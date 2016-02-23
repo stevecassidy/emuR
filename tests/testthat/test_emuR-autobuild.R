@@ -368,3 +368,34 @@ test_that("rewrite works correctly", {
   expect_equal(lastLvlName, "Phonetic-autobuildBackup")
   
 })
+
+##############################
+test_that("autobuild of converted TGcol works", {
+  
+  path2tgCol = file.path(tempdir(), "emuR_demoData", "TextGrid_collection")
+  
+  # convert TextGridCollection to the emuDB format
+  convert_TextGridCollection(path2tgCol, dbName = "tgCol", 
+                             targetDir = path2testData, verbose = F)
+  
+  tgCol = load_emuDB(file.path(path2testData, paste0("tgCol", emuDB.suffix)), verbose = F)
+  
+  add_linkDefinition(tgCol, "ONE_TO_MANY", superlevelName = "Utterance", sublevelName = "Intonational")
+  
+  autobuild_linkFromTimes(tgCol, "Utterance", "Intonational")
+  
+  test_that("linksExt are added",{
+    linksExt = dbReadTable(tgCol$connection, "linksExt")
+    expect_true(nrow(linksExt) > 0)
+  })
+
+  test_that("MD5 sums are updated",{
+    annotJSONpath = file.path(path2testData, paste0("tgCol", emuDB.suffix), 
+                              paste0("0000", session.suffix), 
+                              paste0("msajc003", bundle.dir.suffix),
+                              paste0("msajc003", bundle.annotation.suffix, ".json"))
+    print(annotJSONpath)
+    
+  })
+  
+})

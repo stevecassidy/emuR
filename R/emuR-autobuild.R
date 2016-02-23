@@ -1,8 +1,8 @@
 ##' Autobuild links between two levels using their time information
 ##' 
-##' Autobuild links between two time levels. This is typically done when we convert from 
-##' a database format that does allow parallel time tiers but no way to relate different 
-##' tiers to each other, except by matching time information (such as praat TextGrid). 
+##' Autobuild links between two time levels. This is typically done when converting from 
+##' a database / annotation format that allows parallel time tiers / levels but does not permit annotational units 
+##' to be linked to each other, except by matching time information (such as Praat's TextGrid format). 
 ##' The super-level has to be of the 
 ##' type SEGMENT and the sub-level either of type EVENT or of type SEGMENT. If
 ##' this is the case and a according link definition is defined for the emuDB,
@@ -17,7 +17,7 @@
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param superlevelName name of level to link from (link definition required in emuDB)
 ##' @param sublevelName name of level to link to (link definition required in emuDB)
-##' @param writeToFS should changes be written to file system (_annot.json files) after completing autobuild process.
+##' @param writeToFS should changes be written to file system (_annot.json files) after completing autobuild process (intended for expert use only)
 ##' @param convertSuperlevel if set to TRUE a backup of the superlevel will be created and the actual
 ##' superlevel will be converted to a level of type ITEM
 ##' @param backupLevelAppendStr string appended to level name for backup level
@@ -29,7 +29,7 @@
 ##' 
 ##' ##################################
 ##' # prerequisite: loaded myTGcolDB emuDB 
-##' # (see ?create_emuRdemoData, ?convert_TextGridCollection_to_emuDB, 
+##' # (see ?create_emuRdemoData, ?convert_TextGridCollection, 
 ##' #  and vignette(emuR_intro) for more information)
 ##' 
 ##' # add linkDefinition as one has to be present for
@@ -113,7 +113,6 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
                                                    "  AND lt.session=tmp.session ",
                                                    "  AND lt.bundle=tmp.bundle ",
                                                    "  AND lt.itemID=tmp.itemID"))
-    #     print(qRes$itemID)
     
     
     # backup items belonging to superlevel (=duplicate level with new ids)    
@@ -128,7 +127,6 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
                                                    "   AND it.session = maxIdRes.session ",
                                                    "   AND it.bundle = maxIdRes.bundle",
                                                    "   AND it.level = '", superlevelName, "'"))    
-    #     print(qRes$itemID)
   }
   # query DB depending on type of sublevelDefinition 
   if(foundSubLevelDev$type == 'EVENT'){
@@ -208,6 +206,9 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
     dbClearResult(res)
   }
   
+  # rebuild redundant links and
+  build_allRedundantLinks(emuDBhandle)
+  calculate_postionsOfLinks(emuDBhandle)
   
   # store changes to disc
   if(writeToFS){
@@ -219,6 +220,6 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
 }
 
 # FOR DEVELOPMENT 
-# library('testthat')
-# test_file('tests/testthat/test_aaa_initData.R')
-# test_file('tests/testthat/test_emuR-autobuild.R')
+library('testthat')
+test_file('tests/testthat/test_aaa_initData.R')
+test_file('tests/testthat/test_emuR-autobuild.R')
