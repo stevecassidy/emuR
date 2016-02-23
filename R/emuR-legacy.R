@@ -257,66 +257,66 @@ list.trackdirs<-function(emuPath=NULL,parsedEmuPathPattern=NULL){
   return(cDir)
 }
 
-list.emuTemplatePathes<-function(){
-  # check if path is set
-  emuTemplatePath=Sys.getenv('EMU_TEMPLATE_PATH')
-  if(is.null(emuTemplatePath) | ''==emuTemplatePath){
-    emuConfFile=NULL
-    homePath=Sys.getenv('HOME')
-    if(!is.null(homePath) & '' != homePath){
-      emuConfFile=file.path(homePath,'.emu','emu-conf')
-      if(!file.exists(emuConfFile)){
-        emuConfFile=file.path(homePath,'.emu','Emu','emu-conf')
-      }
-    }
-    osInfo=Sys.info()
-    isWindos=FALSE
-    if(!is.null(osInfo)){
-      isWindos=('Windows'==osInfo[['sysname']])
-    }
-    if(isWindos & (is.null(emuConfFile) | !file.exists(emuConfFile))){
-      # Windows 7
-      userProfile=Sys.getenv('USERPROFILE')
-      emuConfFile=file.path(userProfile,'.emu','Emu','emu-conf')
-      #cat("emu conf",emuConfFile,"\n")
-    }
-    
-    if(!is.null(emuConfFile) & file.exists(emuConfFile)){
-      
-      lc = try(readLines(emuConfFile,warn=FALSE))
-      if(class(lc) == "try-error") {
-        stop("Cannot read ",emuConfFile)
-      }
-      for(l in lc){
-        
-        kv=parse.line.to.key.value(l)
-        if(!is.null(kv)){
-          if(kv[1]=='#EMU_TEMPLATE_PATH'){
-            etpSpl=strsplit(kv[2],.Platform[['path.sep']])
-            return(etpSpl[[1]])
-            
-          }
-        }
-      }
-    }
-    
-  }
-}
+# list.emuTemplatePathes<-function(){
+#   # check if path is set
+#   emuTemplatePath=Sys.getenv('EMU_TEMPLATE_PATH')
+#   if(is.null(emuTemplatePath) | ''==emuTemplatePath){
+#     emuConfFile=NULL
+#     homePath=Sys.getenv('HOME')
+#     if(!is.null(homePath) & '' != homePath){
+#       emuConfFile=file.path(homePath,'.emu','emu-conf')
+#       if(!file.exists(emuConfFile)){
+#         emuConfFile=file.path(homePath,'.emu','Emu','emu-conf')
+#       }
+#     }
+#     osInfo=Sys.info()
+#     isWindos=FALSE
+#     if(!is.null(osInfo)){
+#       isWindos=('Windows'==osInfo[['sysname']])
+#     }
+#     if(isWindos & (is.null(emuConfFile) | !file.exists(emuConfFile))){
+#       # Windows 7
+#       userProfile=Sys.getenv('USERPROFILE')
+#       emuConfFile=file.path(userProfile,'.emu','Emu','emu-conf')
+#       #cat("emu conf",emuConfFile,"\n")
+#     }
+#     
+#     if(!is.null(emuConfFile) & file.exists(emuConfFile)){
+#       
+#       lc = try(readLines(emuConfFile,warn=FALSE))
+#       if(class(lc) == "try-error") {
+#         stop("Cannot read ",emuConfFile)
+#       }
+#       for(l in lc){
+#         
+#         kv=parse.line.to.key.value(l)
+#         if(!is.null(kv)){
+#           if(kv[1]=='#EMU_TEMPLATE_PATH'){
+#             etpSpl=strsplit(kv[2],.Platform[['path.sep']])
+#             return(etpSpl[[1]])
+#             
+#           }
+#         }
+#       }
+#     }
+#     
+#   }
+# }
 
-list.file.matching.emu.path.pattern=function(basePath,pathPattern,filePattern=NULL){
-  if(is_relativeFilePath(pathPattern)){
-    absPathPattern=file.path(basePath,pathPattern)
-  }else{
-    absPathPattern=pathPattern
-  }
-  dirList=list.trackdirs(absPathPattern)
-  fileList=c()
-  for(dir in dirList){
-    pFileList = list.files(dir, pattern=filePattern, recursive=T, full.names=T)
-    fileList=c(fileList,pFileList)
-  }
-  return(fileList)
-}
+# list.file.matching.emu.path.pattern=function(basePath,pathPattern,filePattern=NULL){
+#   if(is_relativeFilePath(pathPattern)){
+#     absPathPattern=file.path(basePath,pathPattern)
+#   }else{
+#     absPathPattern=pathPattern
+#   }
+#   dirList=list.trackdirs(absPathPattern)
+#   fileList=c()
+#   for(dir in dirList){
+#     pFileList = list.files(dir, pattern=filePattern, recursive=T, full.names=T)
+#     fileList=c(fileList,pFileList)
+#   }
+#   return(fileList)
+# }
 
 # find.file.in.emu.path.pattern=function(emuPathPattern,fileName,basePath=NULL){
 #   if(is_relativeFilePath(emuPathPattern)){
@@ -536,26 +536,26 @@ load_annotationForLegacyBundle=function(schema,legacyBundleID,basePath=NULL,enco
 #   return(sqldf(sqlQuery))
 # }
 
-remove.redundant.links<-function(database,links){
-  # Legacy EMU and query functions link collections contain links for each possible connection between levels
-  # We consider links that do not follow link definition constraints as redundant and therefore we remove them from the
-  # link data model
-  #
-  # build SQL query from link definitions
-  items=database[['items']]
-  sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.session=t.session AND l.session=f.session AND f.itemID=l.fromID AND t.itemID=l.toID AND ("
-  ldCnt=length(database[['DBconfig']][['linkDefinitions']])
-  for(i in 1:ldCnt){
-    ld=database[['DBconfig']][['linkDefinitions']][[i]]
-    sqlQuery=paste0(sqlQuery,'(f.level=\'',ld[['superlevelName']],'\' AND t.level=\'',ld[['sublevelName']],'\')')
-    if(i<ldCnt){
-      sqlQuery=paste0(sqlQuery,' OR ')
-    }
-  }
-  sqlQuery=paste0(sqlQuery,')')
-  #cat(sqlQuery,"\n")
-  return(sqldf(sqlQuery))
-}
+# remove.redundant.links<-function(database,links){
+#   # Legacy EMU and query functions link collections contain links for each possible connection between levels
+#   # We consider links that do not follow link definition constraints as redundant and therefore we remove them from the
+#   # link data model
+#   #
+#   # build SQL query from link definitions
+#   items=database[['items']]
+#   sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.session=t.session AND l.session=f.session AND f.itemID=l.fromID AND t.itemID=l.toID AND ("
+#   ldCnt=length(database[['DBconfig']][['linkDefinitions']])
+#   for(i in 1:ldCnt){
+#     ld=database[['DBconfig']][['linkDefinitions']][[i]]
+#     sqlQuery=paste0(sqlQuery,'(f.level=\'',ld[['superlevelName']],'\' AND t.level=\'',ld[['sublevelName']],'\')')
+#     if(i<ldCnt){
+#       sqlQuery=paste0(sqlQuery,' OR ')
+#     }
+#   }
+#   sqlQuery=paste0(sqlQuery,')')
+#   #cat(sqlQuery,"\n")
+#   return(sqldf(sqlQuery))
+# }
 
 
 
