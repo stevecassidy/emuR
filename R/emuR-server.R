@@ -5,7 +5,7 @@ getServerHandle <- function() {
   internalVars$serverHandle
 }
 setServerHandle <- function(sh) {
-  internalVars$serverHandle<-sh
+  internalVars$serverHandle<<-sh
 }
 
 ##' Serve EMU database to EMU-webApp
@@ -64,23 +64,21 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
   modified=FALSE
   emuDBserverRunning=FALSE
   bundleCount=0
-  stop("here")
-  dbUUID=get_UUID(dbName=dbName,dbUUID = dbUUID)
-  database=.load.emuDB.DBI(uuid = dbUUID)
-  if(!is.null(dbUUID)){
-    allBundlesDf=list_bundles(dbUUID = dbUUID)
-    bundlesDf=allBundlesDf
-    if(!is.null(sessionPattern) && sessionPattern!='.*'){
-      ssl=emuR.regexprl(sessionPattern,bundlesDf[['session']])
-      bundlesDf=bundlesDf[ssl,]
-    }
-    if(!is.null(bundlePattern) && bundlePattern!='.*'){
-      bsl=emuR.regexprl(bundlePattern,bundlesDf[['name']])
-      bundlesDf=bundlesDf[bsl,]
-    }
-  }else{
-    stop("Emu database ",dbName, " not found!");
+  DBconfig = load_DBconfig(emuDBhandle)
+  # dbUUID=get_UUID(dbName=dbName,dbUUID = dbUUID)
+  # database=.load.emuDB.DBI(uuid = dbUUID)
+  
+  allBundlesDf=list_bundles(emuDBhandle)
+  bundlesDf=allBundlesDf
+  if(!is.null(sessionPattern) && sessionPattern!='.*'){
+    ssl=emuR.regexprl(sessionPattern,bundlesDf[['session']])
+    bundlesDf=bundlesDf[ssl,]
   }
+  if(!is.null(bundlePattern) && bundlePattern!='.*'){
+    bsl=emuR.regexprl(bundlePattern,bundlesDf[['name']])
+    bundlesDf=bundlesDf[bsl,]
+  }
+  
   
   httpRequest = function(req){
     # Only 
@@ -157,6 +155,7 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
         
       }
       if(jr$type == 'GETPROTOCOL'){
+        
         protocolData=list(protocol='EMU-webApp-websocket-protocol',version='0.0.2')
         response=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,data=protocolData)
         responseJSON=jsonlite::toJSON(response,auto_unbox=TRUE,force=TRUE,pretty=TRUE) 
@@ -165,14 +164,20 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
           cat("Sent protocol. \n")
         }
         
-      }else if(jr$type == 'GETGLOBALDBCONFIG'){
-        persistFilter=emuR.persist.filters.DBconfig
-        sp=marshal.for.persistence(database[['DBconfig']],persistFilter)
-        #sp=WS[['server']][['emuDb']][['DBconfig']]
-        if(debugLevel >= 4){
-          #cat("Send config: ",sp,"\n")
+      }else if(jr$type == 'GETDOUSERMANAGEMENT'){
+        # R server mode is single user mode 
+        response=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,data="NO")
+        responseJSON=jsonlite::toJSON(response,auto_unbox=TRUE,force=TRUE,pretty=TRUE) 
+        result=ws$send(responseJSON)
+        if(debugLevel >= 2){
+          cat("Sent user managment: no. \n")
         }
-        response=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,data=sp)
+        
+      }else if(jr$type == 'GETGLOBALDBCONFIG'){
+        if(debugLevel >= 4){
+          cat("Send config: ",as.character(DBconfig),"\n")
+        }
+        response=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,data=DBconfig)
         responseJSON=jsonlite::toJSON(response,auto_unbox=TRUE,force=TRUE,pretty=TRUE) 
         result=ws$send(responseJSON)
         if(debugLevel >= 2){
@@ -182,14 +187,6 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
           cat("Sent config. \n")
         }
         #}
-      }else if(jr$type == 'GETDOUSERMANAGEMENT'){
-        # R server mode is single user mode 
-        response=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,data="NO")
-        responseJSON=jsonlite::toJSON(response,auto_unbox=TRUE,force=TRUE,pretty=TRUE) 
-        result=ws$send(responseJSON)
-        if(debugLevel >= 2){
-          cat("Sent user managment: no. \n")
-        }
         
         
       }else if(jr$type == 'GETBUNDLELIST'){
@@ -212,21 +209,26 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
           cat("Requested bundle:",bundleName,",session:",bundleSess,"\n")
         }
         err=NULL
-        sc=database[['DBconfig']]
         if(debugLevel>3){
           cat("Convert bundle to S3 format",bundleName,"\n")
         }
-        b=get.bundle(dbUUID=dbUUID,sessionName=bundleSess,bundleName=bundleName)
+        # construct path to annotJSON
+        annotFilePath = normalizePath(file.path(emuDBhandle$basePath, paste0(bundleSess, session.suffix), 
+                                                paste0(bundleName, bundle.dir.suffix), 
+                                                paste0(bundleName, bundle.annotation.suffix, '.json')))
+        
+        b = jsonlite::fromJSON(annotFilePath, simplifyVector = F)
+        # b=get.bundle(dbUUID=dbUUID,sessionName=bundleSess,bundleName=bundleName)
         if(is.null(b)){
           # error
           err=simpleError(paste('Could not load bundle ',bundleName,' of session ',bundleSess))
         }
         if(is.null(err)){
           
-          bp=database[['basePath']]
-          
           #mediaFilePath=file.path(bp, paste0(b$session, session.suffix), paste0(b$name, bundle.dir.suffix), b$annotates)
-          mediaFilePath=get_media_file_path(database,b)
+          mediaFilePath=normalizePath(file.path(emuDBhandle$basePath, paste0(bundleSess, session.suffix), 
+                                                paste0(bundleName, bundle.dir.suffix), 
+                                                paste0(bundleName, ".", DBconfig$mediafileExtension)))
           if(debugLevel>4){
             cat("Mediafile: ",mediaFilePath," for ",b$name,"\n")
           }
@@ -243,7 +245,7 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
           }
         }
         if(is.null(err)){   
-          ssffTracksInUse=get_ssffTracksUsedByDBconfig(database[['DBconfig']])
+          ssffTracksInUse=get_ssffTracksUsedByDBconfig(DBconfig)
           ssffTrackNmsInUse=c()
           for(ssffTrackInUse in ssffTracksInUse){
             ssffTrackNmsInUse=c(ssffTrackNmsInUse,ssffTrackInUse[['name']])
@@ -260,11 +262,14 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
           # Hash (here: named character vector) with SSFF files extension as key and file path as value
           # avoids duplicates in ssff files list
           ssffFilesHash=character(0)
-          for(ssffTr in sc[['ssffTrackDefinitions']]){
+          for(ssffTr in DBconfig$ssffTrackDefinitions){
             if(ssffTr[['name']] %in% ssffTrackNmsInUse){
               fe=ssffTr[['fileExtension']]
               #ssffFilesHash[fe]=file.path(bp, paste0(b$session, session.suffix), paste0(b$name, bundle.dir.suffix), paste0(b$name, ".", fe))
-              ssffFilesHash[fe]=get_ssfftrack_file_path(database,b,ssffTrackExt = fe)
+              # ssffFilesHash[fe]=get_ssfftrack_file_path(database,b,ssffTrackExt = fe)
+              ssffFilesHash[fe]=normalizePath(file.path(emuDBhandle$basePath, paste0(bundleSess, session.suffix), 
+                                                        paste0(bundleName, bundle.dir.suffix), 
+                                                        paste0(bundleName, ".", fe)))
             }
           }
           # read SSFF track file data
@@ -288,8 +293,8 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
             close(mf)
           }
           if(is.null(err)){
-            anno=marshal.for.persistence(b,emuR.persist.filters.bundle)
-            data=list(mediaFile=mediaFile,ssffFiles=ssffFiles,annotation=anno)
+            # anno=marshal.for.persistence(b,emuR.persist.filters.bundle)
+            data=list(mediaFile=mediaFile,ssffFiles=ssffFiles,annotation=b)
           }
         }
         
@@ -325,22 +330,25 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
         err=NULL
         
         ssffFiles=jr[['data']][['ssffFiles']]
-        oldBundle=get.bundle(dbUUID=dbUUID,sessionName=bundleSession,bundleName=bundleName)
+        oldBundleAnnotDFs = load_bundleAnnotDFsDBI(emuDBhandle, bundleSession, bundleName)
+        # oldBundle=get.bundle(dbUUID=dbUUID,sessionName=bundleSession,bundleName=bundleName)
         
         # warnings as errors
         warnOptionSave=getOption('warn')
         options('warn'=2)
         responseBundle=NULL
         
-        # do we really need the old bundle in DBI version ?
-        if(is.null(oldBundle)){
+        # check if cached version of bundle is available
+        if(is.null(oldBundleAnnotDFs)){
           # error
-          err=simpleError(paste('Could not load bundle ',bundleSession,bundleName))
+          err=simpleError(paste('Could not load bundle ',bundleSession, bundleName))
         }else{
-          bp=database[['basePath']]
           for(ssffFile in ssffFiles){
             inCfg=FALSE
-            sp=get_ssfftrack_file_path(database,oldBundle,ssffTrackExt = ssffFile[['fileExtension']])
+            # sp=get_ssfftrack_file_path(database, oldBundle, ssffTrackExt = ssffFile[['fileExtension']])
+            sp = normalizePath(file.path(emuDBhandle$basePath, paste0(bundleSession, session.suffix), 
+                                         paste0(bundleName, bundle.dir.suffix), 
+                                         paste0(bundleName, ".", ssffFile$fileExtension)))
             if(is.null(sp)){
               errMsg=paste0("SSFF track definition for file extension '",ssffFile[['fileExtension']],"' not found!")
               err=simpleError(errMsg)
@@ -363,13 +371,19 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
             }
           }
           bundleData=jr[['data']][['annotation']]
-          bundle=as.bundle(bundleData=bundleData)
-          bundle[['session']]=bundleSession
-          
+
           # if we do not have an (error) response already
           if(is.null(err)){
-            # try to store annotation, dummy error function, use result type to detect errors
-            res=tryCatch(store.bundle.annotation(bundle=bundle,dbUUID = dbUUID),error=function(e) e)
+            ##### emuDB ####
+            # construct path to annotJSON and store
+            annotFilePath = file.path(emuDBhandle$basePath, paste0(bundleSession, session.suffix), 
+                                      paste0(bundleName, bundle.dir.suffix), 
+                                      paste0(bundleName, bundle.annotation.suffix, '.json'))
+            
+            json = jsonlite::toJSON(bundleData, auto_unbox = TRUE, force = TRUE, pretty = TRUE)
+            
+            # use try mainly for permission problems on file system
+            res=tryCatch(writeLines(json, annotFilePath), error=function(e) e)
             if(inherits(res,'error')){
               err=res
             }else{
@@ -378,6 +392,24 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
               modified<<-TRUE
               
             }
+            
+            #### DBI ###
+            # remove
+            remove_bundleDBI(emuDBhandle, sessionName = bundleSession, name = bundleName)
+            remove_bundleAnnotDBI(emuDBhandle, sessionName = bundleSession, bundleName = bundleName)
+            # store
+            # calculate MD5 sum of bundle annotJSON
+            newMD5annotJSON = md5sum(annotFilePath)
+            names(newMD5annotJSON) = NULL
+            
+            bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(as.character(json))
+            add_bundleDBI(emuDBhandle, sessionName = bundleSession, name = bundleName, bundleAnnotDFs$annotates, bundleAnnotDFs$sampleRate, newMD5annotJSON)
+            store_bundleAnnotDFsDBI(emuDBhandle, bundleAnnotDFs, sessionName = bundleSession, bundleName = bundleName)
+            
+            # rebuild redundant links & calculate posistions
+            build_allRedundantLinks(emuDBhandle, sessionName = bundleSession, bundleName = bundleName)
+            calculate_postionsOfLinks(emuDBhandle)
+            
           }
         }
         if(is.null(err)){
@@ -411,11 +443,11 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
   }
   
   app=list(call=httpRequest,onHeaders=onHeaders,onWSOpen=serverEstablished)
-  sh=tryCatch(startServer(host=host,port=port,app=app),error=function(e) e)
+  sh=tryCatch(httpuv::startServer(host=host,port=port,app=app),error=function(e) e)
   if(inherits(sh,'error')){
     if(!is.null(getServerHandle())){
       cat("Trying to stop orphaned server (handle: ",getServerHandle(),")\n")
-      stopServer(getServerHandle())
+      httpuv::stopServer(getServerHandle())
       sh=tryCatch(startServer(host=host,port=port,app=app),error=function(e) e)
       if(inherits(sh,'error')){
         stop("Error starting server (second try): ",sh,"\n")
@@ -431,10 +463,11 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
   cat("To stop the server press EMU-webApp 'clear' button or reload the page in your browser.\n")
   #cat("EMU-webApp server handle:",sh,"\n")
   emuRserverRunning=TRUE
-  
+  # open browser with EMU-webApp
+  browseURL("http://localhost:9000/?autoConnect=true")
   while(emuRserverRunning) {
     #cat("emuR websocket service...",emuRserverRunning,"\n")
-    service()
+    httpuv::service()
     Sys.sleep(0.01)
     
   }

@@ -11,6 +11,8 @@ requireNamespace("dplyr", quietly = T)
 # increment this value if the internal database object format changes  
 emuDB.apiLevel = 3L
 
+# internalVars currently containing only server handle (should merge testingVars back into it as well)
+internalVars = list(serverHandle = NULL)
 # vars used by testthat tests
 testingVars = list(inMemoryCache = F)
 
@@ -129,7 +131,7 @@ database.DDL.emuDB_linksExt = 'CREATE TABLE linksExt (
 
 database.DDL.emuDB_linksExtIdx = 'CREATE INDEX linksExt_idx ON linksExt(db_uuid,session,bundle,fromID,toID,toLevel,type)'
 
-database.DDL.emuDB_linksExtTmp = 'CREATE TABLE linksExtTmp (
+database.DDL.emuDB_linksExtTmp = 'CREATE TEMP TABLE linksExtTmp (
   db_uuid VARCHAR(36) NOT NULL,
   session TEXT,
   bundle TEXT,
@@ -886,7 +888,11 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, ve
     dbHandle = emuDBhandle(dbName, basePath, dbUUID, connectionPath = ":memory:")
   }else{
     cachePath = file.path(normalizePath(databaseDir), paste0(dbName, database.cache.suffix))
-    dbHandle = emuDBhandle(dbName, basePath, dbUUID, cachePath)
+    if(is.null(connection)){
+      dbHandle = emuDBhandle(dbName, basePath, dbUUID, cachePath)
+    }else{
+      dbHandle = emuDBhandle(dbName, basePath, dbUUID, "", connection = connection)
+    }
   }
   
   # check if cache exist -> update cache if true
