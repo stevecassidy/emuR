@@ -13,7 +13,7 @@ emuDBhandle = function(dbName, basePath, UUID, connectionPath, connection=NULL){
                 connection = con)
   
   class(handle) = "emuDBhandle"
-  if(connectionPath == ":memory:" || file.exists(file.path(basePath, paste0(dbName, database.cache.suffix))) || !is.null(connection)){
+  if(connectionPath == ":memory:" || file.exists(file.path(basePath, paste0(dbName, database.cache.suffix))) || !is.null(connection)){
     initialize_emuDbDBI(handle)
   }
   
