@@ -49,40 +49,44 @@ drop_requeryTmpTables <- function(emuDBhandle){
 ##' @examples
 ##' \dontrun{
 ##' 
-##' ## Requery previous item of 'p' on level 'Phonetic'
-##' sl1=query('ae','Phonetic=p')
+##' ##################################
+##' # prerequisite: loaded ae emuDB 
+##' # (see ?load_emuDB for more information)
 ##' 
-##' requery_seq(sl1,offset=-1)
+##' ## Requery previous item of 'p' on level 'Phonetic'
+##' sl1 = query(ae, "Phonetic == p")
+##' 
+##' requery_seq(sl1, offset = -1)
 ##' 
 ##' ## Requery context (adding previuos and following elements) of 'p' on phonetic level
 ##'
-##' requery_seq(sl1,offset=-1,length=3)
+##' requery_seq(sl1, offset = -1, length = 3)
 ##' 
 ##' ## Requery previous item of n->t sequence
-##' sl2=query('ae',"[Phoneme=n -> Phoneme=t]")
+##' sl2 = query(ae, "[Phoneme == n -> Phoneme == t]")
 ##' 
-##' requery_seq(sl2,offset=-1)
+##' requery_seq(sl2, offset = -1)
 ##' 
 ##' ## Requery last item within n->t sequence
 ##' 
-##' requery_seq(sl2,offsetRef='END')
+##' requery_seq(sl2, offsetRef = 'END')
 ##' 
 ##' ## Requery following item after n->t sequence
 ##' 
-##' requery_seq(sl2,offset=1,offsetRef='END')
+##' requery_seq(sl2, offset = 1, offsetRef = 'END')
 ##' 
 ##' ## Requery context (previous and following items) of n->t sequence
 ##' 
-##' requery_seq(sl2,offset=-1,length=4)
+##' requery_seq(sl2, offset = -1, length = 4)
 ##' 
 ##' ## Requery next word contexts (sequence includes target word)
 ##' 
-##' sl3=query('ae',"Text=to")
-##' requery_seq(sl3,length=2)
+##' sl3 = query(ae, "Text == to")
+##' requery_seq(sl3, length = 2)
 ##' 
 ##' ## Requery following two word contexts, ignoring segment 
 ##' ## sequences that are out of bundle end bounds 
-##' requery_seq(sl3,length=3,ignoreOutOfBounds=TRUE)
+##' requery_seq(sl3, length = 3, ignoreOutOfBounds = TRUE)
 ##' 
 ##' }
 requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBounds=FALSE){
@@ -124,7 +128,6 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
     }
     heQueryStr=paste0(heQueryStr," ORDER BY il.ROWID");
     he = dbGetQuery(emuDBhandle$connection, heQueryStr)
-    # he=sqldf(heQueryStr)
     slLen=nrow(seglist)
     resLen=nrow(he)
     outOfBndCnt=slLen-resLen
@@ -167,48 +170,42 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
 ##' @examples
 ##' \dontrun{
 ##' 
+##' ##################################
+##' # prerequisite: loaded ae emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
 ##' ## Downward requery: find 'Phoneme' sequences of all words 'beautiful' (of level 'Text')
 ##' ## Note that the resulting segments consists of phoneme sequences and have therefore 
 ##' ## the same length as the word segments.
 ##'
-##' sl1=query('ae','Text=beautiful')
-##' requery_hier(sl1,level='Phoneme')
+##' sl1 = query(ae, "Text == beautiful")
+##' requery_hier(sl1, level = "Phoneme")
 ##'
 ##' ## Upward requery: find all word segments that dominate a 'p' on level 'Phoneme'
 ##' ## Note that the resulting segments are larger than the input segments,
 ##' ## because they contain the complete words.
 ##' 
-##' sl1=query('ae','Phonetic==p')
-##' wl1=requery_hier(sl1,level='Text')
+##' sl1 = query(ae, "Phonetic == p")
+##' wl1 = requery_hier(sl1, level = 'Text')
 ##' wl1
 ##' 
 ##' ## Why is there a 'p' the word 'emphazised'? Requery the whole words back down to 'Phoneme' level:
 ##'
-##' requery_hier(wl1,level='Phoneme')
+##' requery_hier(wl1, level = 'Phoneme')
 ##'
 ##' ## ... because of 'stop epenthesis' a 'p' is inserted between 'm' and 'f'
 ##' 
 ##' ## Combined requery: last phonemes of all words beginning with 'an'.
 ##' ## Note that we use a regular expression 'an.*' (EQL operator '=~') in the query.
 ##' 
-##' sl1=query('ae',"Text=~an.*")
-##' requery_seq(requery_hier(sl1,level='Phoneme'),offsetRef = 'END')
+##' sl1=query(ae, "Text =~ an.*")
+##' requery_seq(requery_hier(sl1, level = 'Phoneme'), offsetRef = 'END')
 ##' 
 ##' }
 requery_hier<-function(emuDBhandle, seglist, level=NULL){
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType will be used)")
   }
-  
-  #   # level requeries
-  #   if(is.null(level) & is.null(targetLevel)){
-  #     # no operation, return input seglist
-  #     return(seglist) 
-  #   }
-  #   
-  # distinctEmuDbs=sqldf("SELECT DISTINCT db_uuid FROM seglist")
-  # distinctEmuDbsCnt=nrow(distinctEmuDbs)
-  
   
   if(nrow(seglist)==0){
     # empty seglist, return the empty list
@@ -220,24 +217,8 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
     # place in emuRsegsTmp table
     dbWriteTable(emuDBhandle$connection, "emuRsegsTmp", as.data.frame(seglist), overwrite=T)
     
-    # all rows of seglist are in same emuDB
-    # dbUUID=distinctEmuDbs[1,'db_uuid']
-    
-    # load emuDB object
-    # db=.load.emuDB.DBI(uuid = dbUUID)
     # load config
     dbConfig=load_DBconfig(emuDBhandle)
-    
-    # items=dbReadTable(get_emuDBcon(dbUUID),'items')
-    # itemsIdxSql='CREATE INDEX items_idx ON items(itemID,db_uuid,session,bundle,level,itemID,seqIdx,type,sampleRate,sampleStart,sampleDur,samplePoint)'
-    # resIdxSql='CREATE INDEX its_idx ON its(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)'
-    #   
-    #labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,name)'
-    # labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,db_uuid,session,bundle,name)'
-    
-    # linksExt=dbReadTable(get_emuDBcon(dbUUID),'linksExt')
-    # itemsIdxSql='CREATE INDEX items_idx ON items(itemID,db_uuid,session,bundle,itemID,level,seqIdx)'
-    # linksIdxSql='CREATE INDEX linksExt_idx ON linksExt(db_uuid,session,bundle,fromID,toID)'
     
     targetRootLevelName=NULL
     if(is.null(level)){
@@ -303,12 +284,6 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
     create_tmpQueryTablesDBI(emuDBhandle)
     dbWriteTable(emuDBhandle$connection, "leftIntermResultItemsTmp", he, overwrite=T)
     
-    
-    # emuDBs.query.tmp<-list()
-    # emuDBs.query.tmp[['queryItems']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM items WHERE db_uuid='",dbUUID,"'"))
-    # emuDBs.query.tmp[['queryLabels']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM labels WHERE db_uuid='",dbUUID,"'"))
-    # emuDBs.query.tmp[['queryLinksExt']]<-dbGetQuery(get_emuDBcon(dbConfig$UUID),paste0("SELECT * FROM linksExt WHERE db_uuid='",dbUUID,"'"))
-    # setQueryTmpEmuDBs(emuDBs.query.tmp)
     trSl=convert_queryResultToVariableEmuRsegs(emuDBhandle)
     inSlLen=nrow(seglist)
     trSlLen=nrow(trSl)
@@ -319,5 +294,3 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
     return(trSl)
   }
 }
-
-

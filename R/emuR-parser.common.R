@@ -155,9 +155,6 @@ parse_lineToKeyValue = function(line, separator = '=', doubleQuoted = FALSE, ini
   if(initialTrim){
     line=str_trim(line)
   }
-  #cat("Trimmed line: ",line,"\n",sep='');
-  #eqSignI=str_locate(line,'=')[1]
-  # cat("Pos: ",eqSignI,"\n")
   eqSignI=get_charPosition(line,separator)
   if(eqSignI==-1){
     return(NULL)

@@ -39,25 +39,29 @@ The query may be limited to session and/or bundle names specified by regular exp
 }
 \examples{
 \dontrun{
-## Query database 'ae' using EQL query [Phonetic=t -> Phonetic=s]:
+
+##################################
+# prerequisite: loaded ae emuDB 
+# (see ?load_emuDB for more information)
+
+## Query database ae with EQL query "[Phonetic=t -> Phonetic=s]":
 ## 'Find all sequences /ts/ in level Phonetics'.
 ## and store result seglist in variable segListTs
 
-seglistTs=query('ae','[Phonetic==t -> Phonetic==s]')
+seglistTs=query(ae, "[Phonetic == t -> Phonetic == s]")
 
-## Query database 'ae' using EQL query [Syllable=S ^ Phoneme=t]:
+## Query database ae with EQL query "[Syllable == S ^ Phoneme == t]":
 ## 'Find all items 't' in level Phoneme that are dominated by items 'S' in level Syllable.'
 ## Return legacy Emu result type 'emusegs'
 
-query('ae','[Syllable==S ^ Phoneme==t]',resultType='emusegs')
+query(ae, "[Syllable == S ^ Phoneme == t]", resultType="emusegs")
 
 ## Query 'p' items of level Phoneme from bundles whose bundle names start with 'msajc07' 
 ## and whose session names start with '00'
 ## (Note that here the query uses the operator '=' (meaning '==') which is kept for 
 ##  backwards compatibilty to EQL1.)  
 
-query('ae','Phoneme=p',bundlePattern='msajc05.*',sessionPattern ='00.*')
-
+query(ae, "Phoneme = p", bundlePattern = "msajc05.*", sessionPattern = "00.*")
 
 }
 

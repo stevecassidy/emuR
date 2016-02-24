@@ -16,23 +16,20 @@ setServerHandle <- function(sh) {
 ##' 
 ##' Start and connect:
 ##' 
-##' Call this function to start the server.
-##' 
-##' Start a suitable HTML5 capable Web-Browser (Google Chrome, Firefox,...).
-##' 
-##' Navigate to the EMU-Webapp URL: \url{http://ips-lmu.github.io/EMU-webApp/}.
-##' 
-##' Press the 'Connect' button in the EMU-webApp and connect with default URL.
-##' 
-##' EMU-webApp loads the bundle list and the first bundles media file, SSFF tracks and annotations.
+##' \itemize{
+##' \item Call this function to start the server.
+##' \item Start a suitable HTML5 capable Web-Browser (Google Chrome, Firefox,...).
+##' \item Navigate to the EMU-Webapp URL: \url{http://ips-lmu.github.io/EMU-webApp/}.
+##' \item Press the 'Connect' button in the EMU-webApp and connect with default URL.
+##' \item EMU-webApp loads the bundle list and the first bundles media file, SSFF tracks and annotations.
+##' }
 ##' 
 ##' Disconnect and stop:
-##' 
-##' Disconnect and stop the server with the 'Clear' button of the webapp or the reload button of your browser.
-##' 
-##' The server can also be interrupted with Ctrl-C if something wents wrong.
-##' 
-##' To serve only a subset of sessions or bundles use the parameters \code{sessionPattern} and/or \code{bundlePattern}.
+##' \itemize{
+##' \item Disconnect and stop the server with the 'Clear' button of the webapp or the reload button of your browser.
+##' \item The server can also be interrupted with Ctrl-C if something wents wrong.
+##' \item To serve only a subset of sessions or bundles use the parameters \code{sessionPattern} and/or \code{bundlePattern}.
+##' }
 ##' 
 ##' @details  Function opens a HTTP/websocket and waits in a loop for browser requests. Parameter host determines the IP address(es) of hosts allowed to connect to the server. By default the server only listens to localhost. If you want to allow connection from any host set the host parameter to \code{0.0.0.0}. Please note that this might be an safety issue! The \code{port} parameter determines the port the server listens on. The \code{host} and \code{port} parameters are intended only for expert users. When started the R console will be blocked. On successfull connection the server sends the session and bundle list of the database referenced by name by parameter \code{dbName} or by UUID parameter \code{dbUUID}.
 ##' The Web application requests bundle data for viewing or editing. If a bundle is modified with the EMU-webApp and the save button is pressed the server modifies the internal database and saves the changes to disk.
@@ -57,7 +54,7 @@ setServerHandle <- function(sh) {
 ##' serve('myDb')
 ##' }
 ##' 
-serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
+serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
   if(debug && debugLevel==0){
     debugLevel=2
   }
@@ -65,17 +62,15 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
   emuDBserverRunning=FALSE
   bundleCount=0
   DBconfig = load_DBconfig(emuDBhandle)
-  # dbUUID=get_UUID(dbName=dbName,dbUUID = dbUUID)
-  # database=.load.emuDB.DBI(uuid = dbUUID)
-  
+
   allBundlesDf=list_bundles(emuDBhandle)
   bundlesDf=allBundlesDf
   if(!is.null(sessionPattern) && sessionPattern!='.*'){
-    ssl=emuR.regexprl(sessionPattern,bundlesDf[['session']])
+    ssl=emuR_regexprl(sessionPattern,bundlesDf[['session']])
     bundlesDf=bundlesDf[ssl,]
   }
   if(!is.null(bundlePattern) && bundlePattern!='.*'){
-    bsl=emuR.regexprl(bundlePattern,bundlesDf[['name']])
+    bsl=emuR_regexprl(bundlePattern,bundlesDf[['name']])
     bundlesDf=bundlesDf[bsl,]
   }
   
@@ -100,15 +95,11 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
   
   serverEstablished = function(ws){
     
-    #if(debugLevel>0){
     cat("emuR websocket service established\n")
-    #}
     
     serverClosed = function(ws){
       
-      #if(debugLevel>0){
       cat("emuR websocket service closed\n")
-      #}
       emuRserverRunning<<-FALSE
       
     }
@@ -218,14 +209,11 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
                                                 paste0(bundleName, bundle.annotation.suffix, '.json')))
         
         b = jsonlite::fromJSON(annotFilePath, simplifyVector = F)
-        # b=get.bundle(dbUUID=dbUUID,sessionName=bundleSess,bundleName=bundleName)
         if(is.null(b)){
           # error
           err=simpleError(paste('Could not load bundle ',bundleName,' of session ',bundleSess))
         }
         if(is.null(err)){
-          
-          #mediaFilePath=file.path(bp, paste0(b$session, session.suffix), paste0(b$name, bundle.dir.suffix), b$annotates)
           mediaFilePath=normalizePath(file.path(emuDBhandle$basePath, paste0(bundleSess, session.suffix), 
                                                 paste0(bundleName, bundle.dir.suffix), 
                                                 paste0(bundleName, ".", DBconfig$mediafileExtension)))
@@ -265,8 +253,6 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
           for(ssffTr in DBconfig$ssffTrackDefinitions){
             if(ssffTr[['name']] %in% ssffTrackNmsInUse){
               fe=ssffTr[['fileExtension']]
-              #ssffFilesHash[fe]=file.path(bp, paste0(b$session, session.suffix), paste0(b$name, bundle.dir.suffix), paste0(b$name, ".", fe))
-              # ssffFilesHash[fe]=get_ssfftrack_file_path(database,b,ssffTrackExt = fe)
               ssffFilesHash[fe]=normalizePath(file.path(emuDBhandle$basePath, paste0(bundleSess, session.suffix), 
                                                         paste0(bundleName, bundle.dir.suffix), 
                                                         paste0(bundleName, ".", fe)))
@@ -293,7 +279,6 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
             close(mf)
           }
           if(is.null(err)){
-            # anno=marshal.for.persistence(b,emuR.persist.filters.bundle)
             data=list(mediaFile=mediaFile,ssffFiles=ssffFiles,annotation=b)
           }
         }
@@ -324,14 +309,12 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
         bundleSession=jrData[['session']]
         bundleName=jrData[['annotation']][['name']]
         if(debugLevel>3){
-          #cat("Save bundle ",names(jr$data),"\n");
           cat("Save bundle ",bundleName," from session ",bundleSession,"\n");
         }
         err=NULL
         
         ssffFiles=jr[['data']][['ssffFiles']]
         oldBundleAnnotDFs = load_bundleAnnotDFsDBI(emuDBhandle, bundleSession, bundleName)
-        # oldBundle=get.bundle(dbUUID=dbUUID,sessionName=bundleSession,bundleName=bundleName)
         
         # warnings as errors
         warnOptionSave=getOption('warn')
@@ -345,7 +328,6 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
         }else{
           for(ssffFile in ssffFiles){
             inCfg=FALSE
-            # sp=get_ssfftrack_file_path(database, oldBundle, ssffTrackExt = ssffFile[['fileExtension']])
             sp = normalizePath(file.path(emuDBhandle$basePath, paste0(bundleSession, session.suffix), 
                                          paste0(bundleName, bundle.dir.suffix), 
                                          paste0(bundleName, ".", ssffFile$fileExtension)))
@@ -461,12 +443,10 @@ serve=function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0
   cat("Navigate your browser to the EMU-webApp URL: http://ips-lmu.github.io/EMU-webApp/\n")
   cat("Server connection URL: ws://localhost:",port,"\n",sep='')
   cat("To stop the server press EMU-webApp 'clear' button or reload the page in your browser.\n")
-  #cat("EMU-webApp server handle:",sh,"\n")
   emuRserverRunning=TRUE
-  # open browser with EMU-webApp (uncomment once version 0.0.33 of EMU-webApp is released!)
-  # browseURL("ips-lmu.github.io/EMU-webApp/?autoConnect=true")
+  # open browser with EMU-webApp
+  browseURL("http://ips-lmu.github.io/EMU-webApp/?autoConnect=true")
   while(emuRserverRunning) {
-    #cat("emuR websocket service...",emuRserverRunning,"\n")
     httpuv::service()
     Sys.sleep(0.01)
     

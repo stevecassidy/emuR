@@ -32,23 +32,20 @@ Instructions:
 
 Start and connect:
 
-Call this function to start the server.
-
-Start a suitable HTML5 capable Web-Browser (Google Chrome, Firefox,...).
-
-Navigate to the EMU-Webapp URL: \url{http://ips-lmu.github.io/EMU-webApp/}.
-
-Press the 'Connect' button in the EMU-webApp and connect with default URL.
-
-EMU-webApp loads the bundle list and the first bundles media file, SSFF tracks and annotations.
+\itemize{
+\item Call this function to start the server.
+\item Start a suitable HTML5 capable Web-Browser (Google Chrome, Firefox,...).
+\item Navigate to the EMU-Webapp URL: \url{http://ips-lmu.github.io/EMU-webApp/}.
+\item Press the 'Connect' button in the EMU-webApp and connect with default URL.
+\item EMU-webApp loads the bundle list and the first bundles media file, SSFF tracks and annotations.
+}
 
 Disconnect and stop:
-
-Disconnect and stop the server with the 'Clear' button of the webapp or the reload button of your browser.
-
-The server can also be interrupted with Ctrl-C if something wents wrong.
-
-To serve only a subset of sessions or bundles use the parameters \code{sessionPattern} and/or \code{bundlePattern}.
+\itemize{
+\item Disconnect and stop the server with the 'Clear' button of the webapp or the reload button of your browser.
+\item The server can also be interrupted with Ctrl-C if something wents wrong.
+\item To serve only a subset of sessions or bundles use the parameters \code{sessionPattern} and/or \code{bundlePattern}.
+}
 }
 \details{
 Function opens a HTTP/websocket and waits in a loop for browser requests. Parameter host determines the IP address(es) of hosts allowed to connect to the server. By default the server only listens to localhost. If you want to allow connection from any host set the host parameter to \code{0.0.0.0}. Please note that this might be an safety issue! The \code{port} parameter determines the port the server listens on. The \code{host} and \code{port} parameters are intended only for expert users. When started the R console will be blocked. On successfull connection the server sends the session and bundle list of the database referenced by name by parameter \code{dbName} or by UUID parameter \code{dbUUID}.

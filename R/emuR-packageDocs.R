@@ -57,19 +57,19 @@
 ##' path2ae = file.path(tempdir(), "emuR_demoData", "ae")
 ##' 
 ##' # load emuDB into current R session
-##' dbName = load_emuDB(path2ae)
+##' ae = load_emuDB(path2ae)
 ##' 
 ##' # query loaded emuDB
-##' lvowels = query(dbName, "Phonetic = i: | u: | o:")
+##' lvowels = query(ae, "Phonetic = i: | u: | o:")
 ##' 
 ##' # extract labels from query result 
 ##' lvowels.labs = label(lvowels)
 ##' 
 ##' # list all ssffTrackDefinitions of emuDB
-##' list_ssffTrackDefinitions(dbName)
+##' list_ssffTrackDefinitions(ae)
 ##' 
 ##' # get formant trackdata defined in ssffTrackDefinitions "fm" for query result
-##' lvowels.fm = get_trackdata(dbName, lvowels, "fm")
+##' lvowels.fm = get_trackdata(ae, lvowels, "fm")
 ##' 
 ##' # extract track values at temporal midpoint of segments
 ##' lvowels.fmCut = dcut(lvowels.fm, .5, prop = TRUE)
@@ -82,9 +82,9 @@
 ##'       
 ##'       
 ##' # Plot of spectral data from 50% of aspiration duration
-##' hs = query(dbName,"Phonetic = H")
+##' hs = query(ae,"Phonetic = H")
 ##' hs.labs = label(hs)
-##' hs.dft = get_trackdata(dbName, hs, "dft")
+##' hs.dft = get_trackdata(ae, hs, "dft")
 ##' hs.dftCut = dcut(hs.dft, .5, prop=TRUE)
 ##' plot(hs.dftCut, hs.labs, main = "Spectral data of aspiration")
 ##' 

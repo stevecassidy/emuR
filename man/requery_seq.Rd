@@ -37,40 +37,44 @@ The returned segment list is usually of the same length and order as the input \
 \examples{
 \dontrun{
 
-## Requery previous item of 'p' on level 'Phonetic'
-sl1=query('ae','Phonetic=p')
+##################################
+# prerequisite: loaded ae emuDB 
+# (see ?load_emuDB for more information)
 
-requery_seq(sl1,offset=-1)
+## Requery previous item of 'p' on level 'Phonetic'
+sl1 = query(ae, "Phonetic == p")
+
+requery_seq(sl1, offset = -1)
 
 ## Requery context (adding previuos and following elements) of 'p' on phonetic level
 
-requery_seq(sl1,offset=-1,length=3)
+requery_seq(sl1, offset = -1, length = 3)
 
 ## Requery previous item of n->t sequence
-sl2=query('ae',"[Phoneme=n -> Phoneme=t]")
+sl2 = query(ae, "[Phoneme == n -> Phoneme == t]")
 
-requery_seq(sl2,offset=-1)
+requery_seq(sl2, offset = -1)
 
 ## Requery last item within n->t sequence
 
-requery_seq(sl2,offsetRef='END')
+requery_seq(sl2, offsetRef = 'END')
 
 ## Requery following item after n->t sequence
 
-requery_seq(sl2,offset=1,offsetRef='END')
+requery_seq(sl2, offset = 1, offsetRef = 'END')
 
 ## Requery context (previous and following items) of n->t sequence
 
-requery_seq(sl2,offset=-1,length=4)
+requery_seq(sl2, offset = -1, length = 4)
 
 ## Requery next word contexts (sequence includes target word)
 
-sl3=query('ae',"Text=to")
-requery_seq(sl3,length=2)
+sl3 = query(ae, "Text == to")
+requery_seq(sl3, length = 2)
 
 ## Requery following two word contexts, ignoring segment 
 ## sequences that are out of bundle end bounds 
-requery_seq(sl3,length=3,ignoreOutOfBounds=TRUE)
+requery_seq(sl3, length = 3, ignoreOutOfBounds = TRUE)
 
 }
 }

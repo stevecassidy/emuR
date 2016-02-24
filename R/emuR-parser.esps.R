@@ -22,21 +22,15 @@ parse_espsLabelFile <- function(labFilePath=NULL,tierName,tierType=NULL,sampleRa
   fileToRead=NULL
   inHeaderSection=TRUE
   intervalMode=FALSE
-  #tierType='EVENT'
-  #tierType='event'
   firstDataLine=TRUE
-  #currItem=NULL
   intervalStart=NULL
   itemList=list()
-  #if(is.null(labCon)) {
+
   if(is.null(labFilePath)){
       stop("Argument labFilepath or labCon must not be NULL\n")
   }else{
       fileToRead=labFilePath
   }  
-  #}else{
-  #  fileToRead=labCon
-  #}
   if(sampleRate <=0 ){
     stop("Samplerate must be greater than zero\n")
   }
@@ -53,7 +47,6 @@ parse_espsLabelFile <- function(labFilePath=NULL,tierName,tierType=NULL,sampleRa
     
     for(line in lc){
       trimmedLine=str_trim(line)
-      #cat("Trimmed line: ",trimmedLine,"\n")
       if(inHeaderSection){
       if(trimmedLine == DATA_SECTION_START_KEY){
         inHeaderSection=FALSE
@@ -67,11 +60,9 @@ parse_espsLabelFile <- function(labFilePath=NULL,tierName,tierType=NULL,sampleRa
         # ignore other headers
       }
     }else{
-     # cat("Trimmed line: ",trimmedLine,"\n")
       lineTokensLst=str_split(trimmedLine,'[[:space:]]+',3)
       lineTokens=lineTokensLst[[1]]
       lineTokenCount=length(lineTokens);
-      #cat("Tokens: ",lineTokenCount,"\n")
       if(lineTokenCount>=2){
         
         timeStampStr=lineTokens[1]
@@ -83,9 +74,6 @@ parse_espsLabelFile <- function(labFilePath=NULL,tierName,tierType=NULL,sampleRa
         
         timeStamp=as(timeStampStr,"numeric")
         timeStampInSamples=timeStamp*sampleRate
-        #samplePoint=round(timeStamp*sampleRate)
-       
-        #cat('label:',timeStamp,color,label,"\n")
         if(firstDataLine){
           
           if(is.null(tierType)){
@@ -126,12 +114,6 @@ parse_espsLabelFile <- function(labFilePath=NULL,tierName,tierType=NULL,sampleRa
       }
     }
     }
-  #if(!is.null(labCon)){
-  #close(labCon)
-  #}
-  #if(intervalMode){
-  #  tierType='SEGMENT'
-  #}
   labTier=list(name=tierName,type=tierType,sampleRate=sampleRate,items=itemList);
   return(labTier)
 }

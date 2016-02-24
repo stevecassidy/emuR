@@ -84,8 +84,6 @@ database.DDL.emuDB_rightIntermResultMetaInfosTmp = gsub("CREATE TEMP TABLE leftI
 database.DDL.emuDB_rightIntermResultMetaInfosTmp_idx = "CREATE INDEX rightIntermResultMetaInfosTmp_idx ON rightIntermResultMetaInfosTmp(resultLevel,projectionAttrLevel,queryStr)"
 database.DDL.emuDB_rightIntermResultProjectionItemsTmp = gsub("CREATE TEMP TABLE leftIntermResultProjectionItemsTmp", "CREATE TEMP TABLE rightIntermResultProjectionItemsTmp", database.DDL.emuDB_leftIntermResultProjectionItemsTmp)
 database.DDL.emuDB_rightIntermResultProjectionItemsTmp_idx = "CREATE INDEX rightIntermResultProjectionItemsTmp_idx ON rightIntermResultProjectionItemsTmp(db_uuid,session,bundle,seqStartId,seqEndId)"
-# bracketsIntermResultItemsTmp
-# database.DDL.emuDB_bracketsIntermResultItemsTmp = gsub("CREATE TEMP TABLE leftIntermResultItemsTmp", "CREATE TEMP TABLE bracketsIntermResultItemsTmp", database.DDL.emuDB_leftIntermResultItemsTmp)
 
 
 create_tmpQueryTablesDBI <- function(emuDBhandle){
@@ -119,9 +117,6 @@ create_tmpQueryTablesDBI <- function(emuDBhandle){
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_rightIntermResultMetaInfosTmp_idx)
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_rightIntermResultProjectionItemsTmp)
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_rightIntermResultProjectionItemsTmp_idx)
-  
-  # dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_bracketsIntermResultItemsTmp)
-  
 }
 
 drop_tmpQueryTablesDBI <- function(emuDBhandle){
@@ -132,87 +127,18 @@ drop_tmpQueryTablesDBI <- function(emuDBhandle){
   
   if("itemsFilteredSubsetTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE itemsFilteredSubsetTmp")
   if("labelsFilteredSubsetTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE labelsFilteredSubsetTmp")
-  # if("linksFilteredSubsetTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtFilteredSubsetTmp")
   
   if("lrExpResTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE lrExpResTmp")
   if("lrSeqExpResTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE lrSeqExpResTmp")
   
   if("leftIntermResultItemsTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE leftIntermResultItemsTmp")
-  # if("leftIntermResultLinksTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE leftIntermResultLinksTmp")
   if("leftIntermResultMetaInfosTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE leftIntermResultMetaInfosTmp")
   if("leftIntermResultProjectionItemsTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE leftIntermResultProjectionItemsTmp")
   
   if("rightIntermResultItemsTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE rightIntermResultItemsTmp")
-  # if("rightIntermResultLinksTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE rightIntermResultLinksTmp")
   if("rightIntermResultMetaInfosTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE rightIntermResultMetaInfosTmp")
   if("rightIntermResultProjectionItemsTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE rightIntermResultProjectionItemsTmp")
   
-  # if("bracketsIntermResultItemsTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE bracketsIntermResultItemsTmp")
-  
-}
-
-
-#################################
-#
-
-EMPTY_RESULT_DF=data.frame(db_uuid=character(0),session=character(0),bundle=character(0),seqStartId=character(0),seqEndId=character(0),seqLen=integer(0),level=character(0),stringsAsFactors = FALSE)
-
-setQueryTmpEmuDBs<-function(queryTmpEmuDBs){
-  internalVars$queryTmpEmuDBs<-queryTmpEmuDBs
-}
-
-# getQueryTmpEmuDBs<-function(){
-#   return(internalVars$queryTmpEmuDBs)
-# }
-
-.create.condition.text<-function(opr,value){
-  o=list(opr=opr,value=value)
-  class(o)<-c('emuR.condition.text','emuR.condition')
-  return(o)
-}
-
-create_conditionTextAlternatives<-function(opr,values){
-  o=list(opr=opr,values=values)
-  class(o)<-c('emuR.condition.text.alternatives','emuR.condition')
-  return(o)
-}
-
-create.condition.level.label<-function(levelName,conditionText){
-  o=list(levelName=levelName,conditionText=conditionText)
-  class(o)<-c('emuR.condition.level.label','emuR.condition')
-  return(o)
-}
-
-create.condition<-function(op1,opr,op2){
-  o=list(op1=op1,opr=opr,op2=op2)
-  class(o)<-'emuR.condition'
-  return(o)
-}
-
-
-# create.subtree<-function(items, links, resultLevel = NULL, projectionItems=NULL){
-#   o=list(items=items,links=links,resultLevel=resultLevel,projectionItems=projectionItems)
-#   class(o)<-'emuDB.query.result'
-#   return(o)
-# }
-
-emuR.regexprl<-function(pattern,x){
-  m=regexpr(pattern,x)
-  return((m==1) & (attr(m,'match.length')==nchar(x)))
-}
-
-# write_table_forced<-function(dbUUID,name,value){
-#   if(dbExistsTable(get_emuDBcon(dbUUID),name)){
-#     dbRemoveTable(get_emuDBcon(dbUUID),name)
-#   }
-#   dbWriteTable(get_emuDBcon(dbUUID),name = name,value=value)
-# }
-
-check_levelAttributeName<-function(emuDBhandle,name){
-  aNms=get_allAttributeNames(emuDBhandle)
-  if(! (name %in% aNms)){
-    stop("Unknown level attribute name: '",name,"'. Database attribute names are: ",paste(aNms,collapse=','),"\n")
-  }
 }
 
 ## @param emuDBhandle
@@ -224,6 +150,32 @@ clear_intermResTabels <- function(emuDBhandle, intermResTablePrefix = "left"){
   dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", paste0(intermResTablePrefix, "IntermResultMetaInfosTmp")))
   dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", paste0(intermResTablePrefix, "IntermResultProjectionItemsTmp")))
 }
+###################################################################
+################## Functions implementing EQL #####################
+###################################################################
+
+#################################
+# helper functions for query
+
+create_conditionTextAlternatives<-function(opr,values){
+  o=list(opr=opr,values=values)
+  return(o)
+}
+
+emuR_regexprl<-function(pattern,x){
+  m=regexpr(pattern,x)
+  return((m==1) & (attr(m,'match.length')==nchar(x)))
+}
+
+check_levelAttributeName<-function(emuDBhandle,name){
+  aNms=get_allAttributeNames(emuDBhandle)
+  if(! (name %in% aNms)){
+    stop("Unknown level attribute name: '",name,"'. Database attribute names are: ",paste(aNms,collapse=','),"\n")
+  }
+}
+
+#################################
+# actual query functions
 
 ## @param emuDBhandle
 ## @param levelName
@@ -261,7 +213,7 @@ query_labels <- function(emuDBhandle, levelName, intermResTablePrefix = "left", 
       ldf = dbGetQuery(emuDBhandle$connection, paste0("SELECT db_uuid, session, bundle, itemID AS seqStartId, itemID AS seqEndId, 1 AS seqLen,'", 
                                                       levelName, "' AS level, label FROM ", labelTableName, " ",
                                                       "WHERE name = '", levelName, "'"))
-      ssl = emuR.regexprl(value,ldf[['label']])
+      ssl = emuR_regexprl(value,ldf[['label']])
       res = ldf[ssl,]
       dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultItemsTmp"), subset(res, select = -label), append = T) # label column is ignored by dbWriteTable
     }
@@ -270,7 +222,7 @@ query_labels <- function(emuDBhandle, levelName, intermResTablePrefix = "left", 
       ldf = dbGetQuery(emuDBhandle$connection, paste0("SELECT db_uuid, session, bundle, itemID AS seqStartId, itemID AS seqEndId, 1 AS seqLen,'", 
                                                       levelName, "' AS level, label FROM ", labelTableName, " ",
                                                       "WHERE name = '", levelName, "'"))
-      ssl = !emuR.regexprl(value,ldf[['label']])
+      ssl = !emuR_regexprl(value,ldf[['label']])
       res = ldf[ssl,]
       dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultItemsTmp"), subset(res, select = -label), append = T) # label column is ignored by dbWriteTable
     }
@@ -283,37 +235,10 @@ query_labels <- function(emuDBhandle, levelName, intermResTablePrefix = "left", 
                                             "VALUES ('", levelName, "')"))
 }
 
-# query_databaseLevelLabel<-function(emuDBhandle, levelName, conditionText){
-#   #levelSubset=subset(ldf,name==levelName)
-#   ldf = dbReadTable(emuDBhandle$connection, "labels") # SIC!
-#   subsetSelector=ldf[['name']]==levelName
-#   levelSubset=ldf[subsetSelector,]
-#   itemsMatch=query_labels(levelSubset, conditionText)
-#   itemsAsSeqs=NULL
-#   if(nrow(itemsMatch)>0){
-#     itemsIdxSql='CREATE INDEX itemsMatch_idx ON itemsMatch(itemID)'
-#     
-#     itemsAsSeqQStr=paste0("SELECT db_uuid,session,bundle,itemID AS seqStartId, itemID AS seqEndId,1 AS seqLen,'",levelName,"' AS level FROM itemsMatch")
-#     itemsAsSeqs=sqldf(c(itemsIdxSql,itemsAsSeqQStr))
-#   }else{
-#     itemsAsSeqs=EMPTY_RESULT_DF
-#   }
-#   # add sequence index
-#   #qStr=paste0("SELECT i.*,",rsIdx," AS rsIdx FROM itemsMatch i")
-#   #itemsMatch=sqldf(qStr)
-#   res=create.subtree(items=itemsAsSeqs,links=NULL,resultLevel=levelName)
-#   return(res)
-# }
-
-
 
 query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTablePrefix, useSubsets){
   # BNF: FUNCQ = POSQ | NUMQ;
   qTrim=str_trim(q)
-#   if(is.null(items)){
-#     items=getQueryTmpEmuDBs()[['queryItems']]
-#   }
-#   allItems=getQueryTmpEmuDBs()[['queryItems']]
   if(useSubsets){
     itemsTableName = "itemsFilteredSubsetTmp"
   }else{
@@ -368,15 +293,12 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTablePrefix, useSubset
       
       funcName=str_trim(substr(qTrim,1,prbOpen-1))
       # BNF: POSA = POSFKT,'(',EBENE,',',EBENE,')','=','0'| '1';
-      # links=getQueryTmpEmuDBs()[['queryLinksExt']]
-      #links=database[['linksWithPositions']]
       itemsAsSeqs=NULL
       
       level1=get_levelNameForAttributeName(emuDBhandle, param1)
       level2=get_levelNameForAttributeName(emuDBhandle, param2)
       
       # BNF: VOP = '=' | '!=' | '>' | '<' | '<=' | '>=';
-      
       if(funcName=='Start' | funcName=='End' | funcName=='Medial'){
         
         if(funcValueTerm!=''){
@@ -396,8 +318,6 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTablePrefix, useSubset
           stop("Syntax error: function ",funcName," requires function value in: '",qTrim,"'\n")
         }
       } 
-      # itemsIdxSql='CREATE INDEX items_idx ON items(db_uuid,session,bundle,level,itemID,seqIdx)'
-      # linksIdxSql='CREATE INDEX links_idx ON links(db_uuid,session,bundle,fromID,toID,toSeqIdx,toSeqLen)'
       if(funcName=='Start'){
         cond=NULL
         if(funcValue=='0'){
@@ -417,8 +337,6 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTablePrefix, useSubset
                             AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
                             AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toSeqIdx",cond,"0\
                            )") 
-        
-        # itemsAsSeqs=sqldf(c(itemsIdxSql,linksIdxSql,sqlQStr))
         
         itemsAsSeqs = dbGetQuery(emuDBhandle$connection, sqlQStr)
         resultLevel=param2
@@ -444,7 +362,6 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTablePrefix, useSubset
                         AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
                         AND k.fromID=d.itemID AND k.toID=i.itemID AND (k.toSeqIdx",cond,"0 ",bOp," k.toSeqIdx+1",cond,"k.toSeqLen)\
                        )") 
-        # itemsAsSeqs=sqldf(c(itemsIdxSql,linksIdxSql,sqlQStr))
         itemsAsSeqs = dbGetQuery(emuDBhandle$connection, sqlQStr)
         resultLevel=param2
       }else if(funcName=='End'){
@@ -464,8 +381,7 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTablePrefix, useSubset
                         WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
                             AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
                             AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toSeqIdx+1",cond,"k.toSeqLen\
-                       )") 
-        # itemsAsSeqs=sqldf(c(itemsIdxSql,linksIdxSql,sqlQStr))
+                       )")
         itemsAsSeqs = dbGetQuery(emuDBhandle$connection, sqlQStr)
         resultLevel=param2
       }else if(funcName=='Num'){
@@ -494,21 +410,6 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTablePrefix, useSubset
         }
         # BNF: NUMA = 'Num','(',EBENE,',',EBENE,')',VOP,INTPN;
         # Note return value level is param1 here
-        # sqlQStr=paste0("SELECT d.id AS seqStartId, d.id AS seqEndId FROM allItems i,items d WHERE i.level='",param2,"' AND d.level='",param1,"' AND EXISTS (SELECT * FROM links k WHERE k.bundle=i.bundle AND k.bundle=d.bundle AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toLevel=i.level AND k.toSeqLen=",funcValue,")")
-        #numChilds=as.integer(funcValue)
-        #if(is.na(numChilds)){
-        # stop("Syntax error: Expected integer value after '=' in function term: '",qTrim,"'\n")
-        #}
-        #         sqlQStr=paste0("SELECT DISTINCT d.db_uuid,d.session,d.bundle,d.itemID AS seqStartId, d.itemID AS seqEndId,1 AS seqLen,'",param1,"' AS level \
-        #                        FROM allItems i,items d \
-        #                       WHERE i.db_uuid=d.db_uuid AND i.session=d.session AND i.bundle=d.bundle \
-        #                        AND i.level='",level2,"' AND d.level='",level1,"' AND EXISTS \
-        #                        (SELECT * FROM links k \
-        #                        WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
-        #                         AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
-        #                         AND k.fromID=d.itemID AND k.toID=i.itemID AND k.toLevel=i.level AND k.toSeqLen",sqlFuncOpr,funcVal,"\
-        #                        )") 
-        
         sqlQStr=paste0("SELECT DISTINCT d.db_uuid,d.session,d.bundle,d.itemID AS seqStartId, d.itemID AS seqEndId,1 AS seqLen,'",param1,"' AS level \
                        FROM ", itemsTableName, " d \
                       WHERE (SELECT count(*) FROM itemsFilteredTmp  i WHERE i.db_uuid=d.db_uuid AND i.session=d.session AND i.bundle=d.bundle \
@@ -521,7 +422,6 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTablePrefix, useSubset
                          ( k.fromID=i.itemID AND k.toID=d.itemID AND k.toLevel=d.level ) \
                         )\
                        ))",sqlFuncOpr,funcVal)
-        # itemsAsSeqs=sqldf(c(itemsIdxSql,linksIdxSql,sqlQStr))
         itemsAsSeqs = dbGetQuery(emuDBhandle$connection, sqlQStr)
         resultLevel=param1
       }else{
@@ -562,8 +462,6 @@ query_databaseEqlSQ <- function(emuDBhandle, q, intermResTablePrefix, useSubsets
     # No round brackets, assuming a level query
     query_databaseEqlLABELQ(emuDBhandle, qTrim, useSubsets, intermResTablePrefix = intermResTablePrefix)
   }
-  
-  # return(res)
 }
 
 query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTablePrefix = "left"){
@@ -685,25 +583,11 @@ query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTablePr
             labelAltsUq=c(labelAltsUq,label)
           }
         }
-        
       }
       cond=NULL
-      #if(length(labelAltsUq)==1){
-      #  cond=create.condition.text(opr,label)
-      #}else{
       cond = create_conditionTextAlternatives(opr, labelAltsUq)
-      #}
-      # if(is.null(labels)){
-      #   labels=getQueryTmpEmuDBs()[['queryLabels']]
-      # }
       query_labels(emuDBhandle, levelName = lvlName, intermResTablePrefix = intermResTablePrefix, cond, useSubsets)
-      #res[['projectionItems']]=NULL
       if(projectionLevel){
-        # rIts=res[['items']]
-        # projection of the result items themself
-        # lvlNms=rep(lvlName,nrow(rIts))
-        # res[['projectionItems']]=data.frame(db_uuid=rIts[,'db_uuid'],session=rIts[,'session'],bundle=rIts[,'bundle'],seqStartId=rIts[,'seqStartId'],seqEndId=rIts[,'seqEndId'],seqLen=rIts[,'seqLen'],pSeqStartId=rIts[,'seqStartId'],pSeqEndId=rIts[,'seqEndId'],pSeqLen=rIts[,'seqLen'],pLevel=lvlNms,stringsAsFactors = FALSE)
-        # res[['projectionAttrLevel']]=lvlName
         dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO ", intermResTablePrefix, "IntermResultProjectionItemsTmp ", "SELECT db_uuid, session, bundle, seqStartId, seqEndId, seqStartId AS pSeqStartId, seqEndId AS pSeqEndId, seqLen AS pSeqLen, level AS pLevel FROM ", intermResTablePrefix, "IntermResultItemsTmp"))
         dbGetQuery(emuDBhandle$connection, paste0("UPDATE ", intermResTablePrefix, "IntermResultMetaInfosTmp SET projectionAttrLevel = '", lvlName, "'"))
       }
@@ -718,11 +602,8 @@ query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTablePrefix){
   qTrim=str_trim(q)
   conditions=list()
   # initialize with empty result
-  # res=create.subtree(items=EMPTY_RESULT_DF,links=NULL,resultLevel=NULL,projectionItems=NULL)
   startPos=1
   p=0
-  # items=getQueryTmpEmuDBs()[['queryItems']]
-  # labels=getQueryTmpEmuDBs()[['queryLabels']]
   resultLevel=NULL
   projection=FALSE
   useSubsets = FALSE
@@ -752,14 +633,12 @@ query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTablePrefix){
     query_databaseEqlSQ(emuDBhandle, condStr, intermResTablePrefix, useSubsets = useSubsets)
     # set resultLevel of first term
     if(is.null(resultLevel)){
-      # termResLevel=res[['resultLevel']]
       termResLevel = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM ", intermResTablePrefix, "IntermResultMetaInfosTmp"))$resultLevel
       if(!is.null(termResLevel)){
         resultLevel=termResLevel
       }
     }
     
-    # seqIts=res[['items']]
     nRes = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM ", intermResTablePrefix, "IntermResultItemsTmp"))$n
     if(nRes==0){
       # empty result stop here and return
@@ -779,34 +658,11 @@ query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTablePrefix){
                                                 "WHERE l.db_uuid=imr.db_uuid AND l.session=imr.session AND l.bundle=imr.bundle AND l.itemID=imr.seqStartId"))
       useSubsets = TRUE
       
-      # Proceed with items matching current condition
-      # items=sqldf("SELECT i.* FROM items i,seqIts s WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.itemID=s.seqStartId")
-      # labels=sqldf("SELECT l.* FROM labels l,seqIts s WHERE l.db_uuid=s.db_uuid AND l.session=s.session AND l.bundle=s.bundle AND l.itemID=s.seqStartId")
-#       nProjItems = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM ", intermResTablePrefix, "IntermResultProjectionItemsTmp"))$n
-#       if(!nProjItems == 0){
-#         # only one term can be marked with hashtag
-#         if(projection){
-#           stop("Only one hashtag allowed in linear query term: ",qTrim)
-#         }
-#         # if one of the boolean terms is marked with the hashtag the whole term is marked 
-#         projection=TRUE
-#         # projectionAttrLevel=res[['projectionAttrLevel']]
-#         projectionAttrLevel = dbGetQuery(emuDBhandle$connection, paste0("SELECT projectionAttrLevel FROM ", intermResTablePrefix, "IntermResultMetaInfosTmp"))$projectionAttrLevel
-#       }
     }
   }
-  #res[['items']][,'level']=resultLevel
+
   dbGetQuery(emuDBhandle$connection, paste0("UPDATE ", intermResTablePrefix, "IntermResultItemsTmp ", "SET level ='", resultLevel, "'"))
-  # items=res[['items']]
-  # SIC... why is the items df set again?
-  if(projection){
-    # SIC no idea why this has to be set again? Commenting out for now because it is set by
-    # qStr=paste0('SELECT i.db_uuid,i.session,i.bundle,i.seqStartId,i.seqEndId,i.seqStartId AS pSeqStartId ,i.seqEndId AS pSeqEndId,i.seqLen AS pSeqLen,"',projectionAttrLevel,'" AS pLevel FROM items i')
-    # res[['projectionItems']]=sqldf(qStr)
-  }
-  # res[['resultLevel']]=resultLevel
   dbGetQuery(emuDBhandle$connection, paste0("UPDATE ", intermResTablePrefix, "IntermResultMetaInfosTmp ", "SET resultLevel = '", resultLevel, "'"))
-  # return(res)
 }
 
 query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "left"){
@@ -816,8 +672,6 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
   seqPos = get_stringPositionOutsideBrackets(qTrim,'->',literalQuote="'",bracket=c('[',']'))
   domPos = get_stringPositionOutsideBrackets(qTrim,'^',literalQuote="'",bracket=c('[',']'))
   if(seqPos!=-1 || domPos!=-1){
-    # items=getQueryTmpEmuDBs()[['queryItems']]
-    # links=getQueryTmpEmuDBs()[['queryLinksExt']]
     # parse DOMA or SEQA
     lExpRes=NULL
     prjIts=NULL
@@ -856,27 +710,17 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
       clear_intermResTabels(emuDBhandle, "right")
       return()
     }
-    
-    
-    
-    #lResPIts=lRes[['projectionItems']]
-    #rResPIts=rRes[['projectionItems']]
+
     nLeftProjItems = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM leftIntermResultProjectionItemsTmp"))$n
     nRightProjItems = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM rightIntermResultProjectionItemsTmp"))$n
-    # lIsProj=!is.null(lResPIts)
-    # rIsProj=!is.null(rResPIts)
-    #cat("left: ",lIsProj," right: ",rIsProj,"\n")
+
     if(nLeftProjItems != 0 & nRightProjItems != 0){
       stop("Multiple hash tags '#' not allowed in EQL2 query!")
     }
     # get items on dominance compare levels
-    # lResIts=lRes[['items']]
-    # lResAttrName=lRes[['resultLevel']]
     lResAttrName = dbGetQuery(emuDBhandle$connection, "SELECT resultLevel FROM leftIntermResultMetaInfosTmp")$resultLevel
     lResLvl = get_levelNameForAttributeName(emuDBhandle, lResAttrName)
     
-    
-    # rResAttrName=rRes[['resultLevel']]
     rResAttrName = dbGetQuery(emuDBhandle$connection, "SELECT resultLevel FROM rightIntermResultMetaInfosTmp")$resultLevel
     rResLvl = get_levelNameForAttributeName(emuDBhandle, rResAttrName)
     if(domPos!=-1 & lResLvl==rResLvl){
@@ -900,17 +744,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
       }
       
       # right seq items
-      #rSeqIts=list.seq.items(rResIts)
-      
-      # itemsIdxSql='CREATE INDEX items_idx ON items(db_uuid,session,bundle,itemID)'
-      
-      #       rSeqIts=sqldf(c(itemsIdxSql,"SELECT i.* FROM items s,items i,items e,rResIts r WHERE \
-      #                       s.db_uuid=i.db_uuid AND s.session=i.session AND s.bundle=i.bundle AND \
-      #                       s.db_uuid=e.db_uuid AND s.session=e.session AND s.bundle=e.bundle AND \
-      #                       s.db_uuid=r.db_uuid AND s.session=r.session AND s.bundle=r.bundle AND \
-      #                       s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND i.level=s.level AND i.seqIdx>=s.seqIdx AND i.seqIdx<=e.seqIdx"))
-      lSeqRes=EMPTY_RESULT_DF
-      
+
       # build dominance SQL query string 
       itemsSameBundleCond1="ils.db_uuid=irs.db_uuid AND ils.session=irs.session AND ils.bundle=irs.bundle AND "
       itemsSameBundleCond2="ils.db_uuid=irs.db_uuid AND ils.session=irs.session AND ils.bundle=irs.bundle AND "
@@ -961,12 +795,12 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
           
         }
       }
-
+      
       # move meta infos to correct table
       allMeta = dbGetQuery(emuDBhandle$connection, "SELECT * FROM leftIntermResultMetaInfosTmp")
       dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", intermResTablePrefix, "IntermResultMetaInfosTmp"))
       dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultMetaInfosTmp"), allMeta, append = T)
-
+      
       # place result in correct table
       resItems = dbGetQuery(emuDBhandle$connection, "SELECT DISTINCT db_uuid, session, bundle, lSeqStartId AS seqStartId, lSeqEndId AS seqEndId, lSeqLen AS seqLen, lLevel AS level FROM lrExpResTmp")
       dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", intermResTablePrefix, "IntermResultItemsTmp"))
@@ -975,7 +809,6 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
       
     }
     if(seqPos!=-1){
-      # browser()
       # query the result level of left term (removed lid.seqEndId AS leId,rid.seqStartId AS rsId,)
       lrSeqQueryStr=paste0("SELECT lid.db_uuid, lid.session, lid.bundle, lid.seqStartId AS lSeqStartId, lid.seqEndId AS lSeqEndId, lid.seqLen AS lSeqLen, lid.level AS lLevel, rid.seqStartId AS rSeqStartId, rid.seqEndId AS rSeqEndId, rid.seqLen AS rSeqLen, lid.level AS rLevel ",
                            "FROM leftIntermResultItemsTmp lid, rightIntermResultItemsTmp rid, itemsFilteredTmp il, itemsFilteredTmp ir ",
@@ -999,7 +832,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
       }
       
       
-
+      
       if(nLeftProjItems != 0){
         # check if SEQQ result items and store in correct table
         qStr=paste0("SELECT i.db_uuid, i.session, i.bundle, i.lSeqStartId, i.rSeqEndId, pi.pSeqStartId, pi.pSeqEndId, pi.pSeqLen, pi.pLevel ",
@@ -1017,7 +850,6 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
       }
       
       if(nRightProjItems != 0){
-        # browser()
         qStr=paste0("SELECT i.db_uuid, i.session, i.bundle, i.lSeqStartId, i.rSeqEndId, pi.pSeqStartId, pi.pSeqEndId, pi.pSeqLen, pi.pLevel ",
                     "FROM lrExpResTmp i,rightIntermResultProjectionItemsTmp pi ",
                     "WHERE i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.rSeqStartId=pi.seqStartId AND i.rSeqEndId=pi.seqEndId")
@@ -1042,7 +874,6 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
   }else{
     query_databaseWithEql(emuDBhandle, qTrim, intermResTablePrefix)
   }
-  #stop("Syntax error: Expected sequence '->' or domination '^' operator.")
 }
 
 ## Query EMU database
@@ -1094,8 +925,6 @@ query_databaseWithEql<-function(emuDBhandle, query, intermResTablePrefix = "left
   brOpenPos=get_charPosition(qTrim,'[',literalQuote="'")
   if(brOpenPos==-1){
     query_databaseEqlCONJQ(emuDBhandle, qTrim, intermResTablePrefix = intermResTablePrefix)
-    # res[['queryStr']]=query
-    # dbGetQuery(emuDBhandle$connection, paste0("UPDATE ", intermResTablePrefix, "IntermResultMetaInfosTmp SET queryStr = '", query, "'"))
     return()
   }else{
     
@@ -1115,8 +944,6 @@ query_databaseWithEql<-function(emuDBhandle, query, intermResTablePrefix = "left
     #parse string in bracket
     inBr=substr(qTrim,brOpenPos+1,brClosePos-1)
     query_databaseEqlInBracket(emuDBhandle, inBr, intermResTablePrefix)
-    
-    # inBrRes[['queryStr']]=query
     return()
     
   }
@@ -1145,25 +972,29 @@ query_databaseWithEql<-function(emuDBhandle, query, intermResTablePrefix = "left
 ##' @keywords emuDB database query Emu EQL 
 ##' @examples
 ##' \dontrun{
-##' ## Query database 'ae' using EQL query [Phonetic=t -> Phonetic=s]:
+##' 
+##' ##################################
+##' # prerequisite: loaded ae emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' ## Query database ae with EQL query "[Phonetic=t -> Phonetic=s]":
 ##' ## 'Find all sequences /ts/ in level Phonetics'.
 ##' ## and store result seglist in variable segListTs
 ##' 
-##' seglistTs=query('ae','[Phonetic==t -> Phonetic==s]')
+##' seglistTs=query(ae, "[Phonetic == t -> Phonetic == s]")
 ##' 
-##' ## Query database 'ae' using EQL query [Syllable=S ^ Phoneme=t]:
+##' ## Query database ae with EQL query "[Syllable == S ^ Phoneme == t]":
 ##' ## 'Find all items 't' in level Phoneme that are dominated by items 'S' in level Syllable.'
 ##' ## Return legacy Emu result type 'emusegs'
 ##' 
-##' query('ae','[Syllable==S ^ Phoneme==t]',resultType='emusegs')
+##' query(ae, "[Syllable == S ^ Phoneme == t]", resultType="emusegs")
 ##' 
 ##' ## Query 'p' items of level Phoneme from bundles whose bundle names start with 'msajc07' 
 ##' ## and whose session names start with '00'
 ##' ## (Note that here the query uses the operator '=' (meaning '==') which is kept for 
 ##' ##  backwards compatibilty to EQL1.)  
 ##' 
-##' query('ae','Phoneme=p',bundlePattern='msajc05.*',sessionPattern ='00.*')
-##' 
+##' query(ae, "Phoneme = p", bundlePattern = "msajc05.*", sessionPattern = "00.*")
 ##' 
 ##' }
 ##' 
@@ -1181,18 +1012,18 @@ query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*
     
     # if set get logical vectors that match sessionPattern and bundlePattern
     if(!is.null(sessionPattern) && sessionPattern!='.*'){
-      sesSelIts = emuR.regexprl(sessionPattern, queryItems$session)
-      sesSelLbls = emuR.regexprl(sessionPattern, queryLabels$session)
-      sesSelLks = emuR.regexprl(sessionPattern, queryLinksExt$session)
+      sesSelIts = emuR_regexprl(sessionPattern, queryItems$session)
+      sesSelLbls = emuR_regexprl(sessionPattern, queryLabels$session)
+      sesSelLks = emuR_regexprl(sessionPattern, queryLinksExt$session)
     }else{
       sesSelIts = rep(TRUE, nrow(queryItems))
       sesSelLbls = rep(TRUE, nrow(queryLabels))
       sesSelLks = rep(TRUE, nrow(queryLinksExt))
     }
     if(!is.null(bundlePattern) && bundlePattern!='.*'){
-      bndlSelIts = emuR.regexprl(bundlePattern, queryItems$bundle)
-      bndlSelLbls = emuR.regexprl(bundlePattern, queryLabels$bundle)
-      bndlSelLks = emuR.regexprl(bundlePattern, queryLinksExt$bundle)
+      bndlSelIts = emuR_regexprl(bundlePattern, queryItems$bundle)
+      bndlSelLbls = emuR_regexprl(bundlePattern, queryLabels$bundle)
+      bndlSelLks = emuR_regexprl(bundlePattern, queryLinksExt$bundle)
     }else{
       bndlSelIts = rep(TRUE, nrow(queryItems))
       bndlSelLbls = rep(TRUE, nrow(queryLabels))
@@ -1227,19 +1058,8 @@ query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*
         stop("Unknown result type: '",resultType,"'. Supported result types: 'emuRsegs', emusegs'")
       }
     }
-    # free temp tables
-    setQueryTmpEmuDBs(NULL)
-    
+
   }else{
     stop("Unknown query language '",queryLang,"'.")
   }
 }
-
-
-# print.emuDB.query.result<-function(queryResult){
-#   cat("Item sequences:\n")
-#   print(queryResult[['items']])
-#   cat("\nResult level: ",queryResult[['resultLevel']],"\n")
-#   cat("Query was: ",queryResult[['queryStr']],"\n")
-#   
-# }

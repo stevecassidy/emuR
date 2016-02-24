@@ -31,7 +31,6 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
   lineCount=length(lines)  
   
   # assume header in line 1
-  #if(lines[[1]]!=EMU_HIERARCHY_HEADER){
   # ALC EMU Db has trailing blank in header line 
   headerPattern=paste0(gsub('*','[*]',EMU_HIERARCHY_HEADER,fixed=TRUE),'[:blank:]*')
   # check header
@@ -43,7 +42,6 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
   items=list()
   # assume max id value in line 2
   maxId=as.integer(lines[[2]])
-  #cat("Max ID: ",maxId,"\n")
   
   # initialize vars
   currentTierName=NULL
@@ -74,7 +72,6 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
             if(labitemsCount!=currentitemsCount){
               stop("Tier: ",currentTierName,": count of items (",currentitemsCount,") in HLB file '",hlbFilePath,"'' differs from count in ESPS label file (",labitemsCount,")");
             }
-            #newTier=clone.bundle.level(t);
             newTier=t
             class(newTier) <- 'emuR.annotation.model.Level'
             break
@@ -83,10 +80,7 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
         if(!tierExists){
           currentExistingItems=NULL
           newTier=list(name=currentTierName,type='ITEM',sampleRate=NULL,items=currentitems);
-          
-          #cat("Level Tier: ",newTier$name,length(newTier$items)," items\n")
         }else{
-          #newTier$items=currentitems
           newItems=list()
           # TODO !!
           exItems=newTier$items
@@ -101,7 +95,6 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
             exItem=exItems[[i]]
             currItem=currentitems[[i]]
             exType=exItem$type
-            # cl=class(exItem)[[1]]
             # merge labels
             mergedLabels=exItem[['labels']]
             for(itLbl in currItem[['labels']]){
@@ -123,7 +116,6 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
               }
               
             }
-            # if(cl=='emuR.annotation.model.IntervalItem'){
             if(newTier$type == "SEGMENT"){
               newItems[[i]]=list(id=currItem$id,sampleStart=exItem$sampleStart,sampleDur=exItem$sampleDur,labels=mergedLabels)
             }else if(newTier$type == "EVENT"){
@@ -159,7 +151,6 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
         
         attrs=list()
         # Add label of tier name
-        #attrs[[currentTierName]]=label
         attrs[[length(attrs)+1]]=list(name=currentTierName,value=label)
         
         # add optional other labels
@@ -171,11 +162,8 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
             # set the label key/values according to the order in HLB file 
             for(attrIdx in 1:attrDefCnt){
               ldAttrDef=currentLevelDef[['attributeDefinitions']][[attrIdx]]
-              #cat(attrDefSeq)
               if(ldAttrDef[['name']]==attrDefSeq[ti-2]){
                 l=lineTokens[[ti]]
-                #cat("adding label: ",l," line ",line,"\n")
-                #attrs[[ldAttrDef$name]]=l
                 attrs[[attrIdx]]=list(name=ldAttrDef[['name']],value=l)
               }
             }
@@ -184,13 +172,7 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
         }
         id=as.integer(firstTk)
         item=NULL
-        #if(!is.null(currentExistingItems)){
-        #  exItem=currentExistingItems[[currentIdx]]
-        #  item=emuR.annotation.model.Item.setId(exItem,id)
-        #}else{
         item=list(id=id,labels=attrs)
-        #}
-        #currentIdx=currentIdx+1
         currentitems[[length(currentitems)+1]]=item
         
         items[[firstTk]]=item
@@ -210,7 +192,6 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
               ldAttrDef=NULL
               if(tk!=currentTierName){
                 # ALC db has not the same sequence of attributes in .tpl and .hlb files
-                #ldAttrDef=td$attributeDefinitions[[lblNi]]
                 for(attrDef in td[['attributeDefinitions']]){
                   if(attrDef[['name']]==tk){
                     ldAttrDef=attrDef
@@ -220,10 +201,7 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
                   } 
                 }
                 tdLblName=ldAttrDef[['name']]
-                #for(t1 in td$labelNames){
-                # cat("Labelname: ",t1,"\n")
-                #}
-                #cat("Comp: ",tk," ",tdLblName,"\n")
+
                 if(is.null(ldAttrDef)){
                   stop("Label name ",tk," has no declaration in level definition. '",hlbFilePath,"' line ",lnr,": ",line)
                 }
@@ -242,21 +220,13 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
       }
       if(is.null(currentTierName)){
         # Link line
-        #cat("Link line: ",line,"\n")
         fromIdStr=firstTk
         fromId=as.integer(fromIdStr)
-        #fromItem=items[[fromIdStr]]
         if(lineTokenCount>=2){
           for(ti in 2:lineTokenCount){
-            
             toIdStr=lineTokens[[ti]]
             toId=as.integer(toIdStr)
-            #toItem=items[[toIdStr]]
-            
-            #links[[length(links)+1]]=emuR.annotation.model.Link(fromItem,toItem)
             links[[length(links)+1]]=list(fromID=fromId,toID=toId)
-            
-            #cat("Link: ",fromId,toId,"\n")
           }
         }
         

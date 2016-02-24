@@ -88,7 +88,6 @@ load_dbConfigFromEmuTemplate=function(tplPath,dbUUID=NULL,encoding=NULL){
                 }else if(key=='time-factor'){
                   timeFactor=val
                 }
-                #cat("Tier: ",tierName,key,val,"\n")
                 # reset key
                 key=NULL 
               }
@@ -116,7 +115,6 @@ load_dbConfigFromEmuTemplate=function(tplPath,dbUUID=NULL,encoding=NULL){
             
             name=lineTokens[2]
             extension=lineTokens[3]
-            #cat("Command: ",command,name,'\n')
             track=list(name=name, columnName=name, fileExtension=extension)
             tracks[[length(tracks)+1L]] <- track
           }else if(command==SET_CMD){
@@ -256,7 +254,6 @@ load_dbConfigFromEmuTemplate=function(tplPath,dbUUID=NULL,encoding=NULL){
       mediafileExtension=e
       mediafileBasePathPattern=tr[['basePath']]
     }else{
-      #ssffTracks[[n]]=tr
       #array !
       ssffTrackDefinitions[[length(ssffTrackDefinitions)+1L]]=tr
       # default assign all to spectrum TODO
@@ -266,7 +263,7 @@ load_dbConfigFromEmuTemplate=function(tplPath,dbUUID=NULL,encoding=NULL){
   
   if(is.null(dbUUID)){
   # Generate UUID 
-  # problem: the UUID will cahnge on every reload
+  # problem: the UUID will change on every reload
   dbUUID=UUIDgenerate()
   }
   
@@ -274,12 +271,10 @@ load_dbConfigFromEmuTemplate=function(tplPath,dbUUID=NULL,encoding=NULL){
   # assign all SSFF tracks to sonagram
   assign=list()
   for(ssffTrack in ssffTrackDefinitions){
-    #cat(ssffTrack$name,"\n")
     # TODO dirty workaround
     # detect formant tracks by number of channels
     if(ssffTrack[['name']] == 'fm'){
       #ssffTrack$name='FORMANTS'
-      #cat('Assigned: ',ssffTrack$name,"\n")
       #assign[[length(assign)+1]]=list(signalCanvasName='SPEC',ssffTrackName='FORMANTS')
     }
   }
@@ -292,13 +287,11 @@ load_dbConfigFromEmuTemplate=function(tplPath,dbUUID=NULL,encoding=NULL){
     
     if(ld[['type']]=='SEGMENT' || ld[['type']]=='EVENT'){
       defaultLvlOrder[[length(defaultLvlOrder)+1L]]=ld[['name']]
-      #cat(ld$name,"\n")
     }
   }
   
   defPersp=list(name='default',signalCanvases=sc,levelCanvases=list(order=defaultLvlOrder),twoDimCanvases=list(order=list()))
   waCfg=list(perspectives=list(defPersp))
-  #waCfg$activeButtons=list(saveBundle=TRUE)
   dbSchema=list(name=dbName,UUID=dbUUID,mediafileBasePathPattern=mediafileBasePathPattern,mediafileExtension=mediafileExtension,ssffTrackDefinitions=ssffTrackDefinitions,levelDefinitions=levelDefinitions,linkDefinitions=linkDefinitions,EMUwebAppConfig=waCfg,annotationDescriptors=annotationDescriptors,tracks=tracks,flags=flags);
   
   # get max label array size
