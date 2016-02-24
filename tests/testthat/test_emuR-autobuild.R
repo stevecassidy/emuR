@@ -394,7 +394,12 @@ test_that("autobuild of converted TGcol works", {
                               paste0("0000", session.suffix), 
                               paste0("msajc003", bundle.dir.suffix),
                               paste0("msajc003", bundle.annotation.suffix, ".json"))
-    print(annotJSONpath)
+    
+    curMd5sum = md5sum(annotJSONpath)
+    names(curMd5sum) = NULL
+    bundleDF = dbGetQuery(tgCol$connection, "SELECT * FROM bundle WHERE name ='msajc003'")
+    
+    expect_equal(curMd5sum, bundleDF$MD5annotJSON)
     
   })
   

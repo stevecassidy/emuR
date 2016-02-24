@@ -210,16 +210,26 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
   build_allRedundantLinks(emuDBhandle)
   calculate_postionsOfLinks(emuDBhandle)
   
+  
   # store changes to disc
   if(writeToFS){
     # write DBconfig to disc
     store_DBconfig(emuDBhandle, dbConfig)
     rewrite_allAnnots(emuDBhandle, verbose=F)
   }
+
+  # update MD5sums in bundle table
+  bndls = list_bundles(emuDBhandle)
+  for(i in 1:nrow(bndls)){
+    curBndl = bndls[i,]
+    annotJSONfilePath = file.path(emuDBhandle$basePath, paste0(curBndl$session, session.suffix), paste0(curBndl$name, bundle.dir.suffix), paste0(curBndl$name, bundle.annotation.suffix, ".json"))
+    newMD5sum = md5sum(annotJSONfilePath)                        
+    dbGetQuery(emuDBhandle$connection, paste0("UPDATE bundle SET MD5annotJSON = '", newMD5sum, "' WHERE db_uuid ='", emuDBhandle$UUID, "' AND session='", curBndl$session, "' AND name='", curBndl$name, "'"))
+  }
   
 }
 
 # FOR DEVELOPMENT 
-library('testthat')
-test_file('tests/testthat/test_aaa_initData.R')
-test_file('tests/testthat/test_emuR-autobuild.R')
+# library('testthat')
+# test_file('tests/testthat/test_aaa_initData.R')
+# test_file('tests/testthat/test_emuR-autobuild.R')
