@@ -11,7 +11,7 @@ add_files(emuDBhandle, dir, fileExtension, targetSessionName = "0000")
 
 \item{dir}{directory containing files to be added}
 
-\item{fileExtension}{file extension of file to be added}
+\item{fileExtension}{file extension of files to be added}
 
 \item{targetSessionName}{name of sessions containing 
 bundles that the files will be added to}
@@ -34,7 +34,7 @@ you have defined the usage of these files (e.g. by ssffTrackDefinitions).
 \dontrun{
 
 ##################################
-# prerequisite: loaded "ae" emuDB 
+# prerequisite: loaded ae emuDB 
 # (see ?load_emuDB for more information)
 
 # specify path to folder containing the following
@@ -44,7 +44,7 @@ you have defined the usage of these files (e.g. by ssffTrackDefinitions).
 path2dir = "/path/to/dir/"
 
 # add the files to session "0000" of the "ae" emuDB
-add_files(ae,
+add_files(emuDBhandle = ae,
           dir = path2dir,
           fileExtension = "zcr",
           targetSessionName = "0000")

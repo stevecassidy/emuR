@@ -48,7 +48,7 @@ add_perspective <- function(emuDBhandle,
   
   DBconfig = load_DBconfig(emuDBhandle)
   
-  curPersp = list_perspectives(emuDBhandle, dbUUID = dbUUID)
+  curPersp = list_perspectives(emuDBhandle)
   # check if level defined
   if(name %in% curPersp$name){
     stop("Perspective with name: '", name, "' already exists")
@@ -98,7 +98,7 @@ remove_perspective <- function(emuDBhandle,
   
   DBconfig = load_DBconfig(emuDBhandle)
   
-  curPersp = list_perspectives(emuDBhandle, dbUUID = dbUUID)
+  curPersp = list_perspectives(emuDBhandle)
   
   # check if perspective defined
   if(!name %in% curPersp$name){

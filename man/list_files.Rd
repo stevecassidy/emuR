@@ -25,14 +25,14 @@ see \code{vignette{emuDB}}.
 \dontrun{
 
 ##################################
-# prerequisite: loaded "ae" emuDB
+# prerequisite: loaded ae emuDB
 # (see ?load_emuDB for more information)
 
-# list all files of "ae" emuDB
-list_files(ae) 
+# list all files of ae emuDB
+list_files(emuDBhandle = ae)
 
 # list all files of ae emuDB in bundles ending with '3'
-list_files(ae, bundlePattern="*3") 
+list_files(emuDBhandle = ae, bundlePattern="*3") 
 
 }
 

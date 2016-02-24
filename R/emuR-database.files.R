@@ -163,7 +163,7 @@ import_mediaFiles<-function(emuDBhandle,dir,targetSessionName='0000', verbose=TR
 ##' 
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param dir directory containing files to be added
-##' @param fileExtension file extension of file to be added
+##' @param fileExtension file extension of files to be added
 ##' @param targetSessionName name of sessions containing 
 ##' bundles that the files will be added to
 ##' @export
@@ -172,7 +172,7 @@ import_mediaFiles<-function(emuDBhandle,dir,targetSessionName='0000', verbose=TR
 ##' \dontrun{
 ##' 
 ##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
+##' # prerequisite: loaded ae emuDB 
 ##' # (see ?load_emuDB for more information)
 ##' 
 ##' # specify path to folder containing the following
@@ -182,7 +182,7 @@ import_mediaFiles<-function(emuDBhandle,dir,targetSessionName='0000', verbose=TR
 ##' path2dir = "/path/to/dir/"
 ##' 
 ##' # add the files to session "0000" of the "ae" emuDB
-##' add_files(ae,
+##' add_files(emuDBhandle = ae,
 ##'           dir = path2dir,
 ##'           fileExtension = "zcr",
 ##'           targetSessionName = "0000")
@@ -225,14 +225,14 @@ add_files <- function(emuDBhandle, dir, fileExtension, targetSessionName='0000')
 ##' \dontrun{
 ##' 
 ##' ##################################
-##' # prerequisite: loaded "ae" emuDB
+##' # prerequisite: loaded ae emuDB
 ##' # (see ?load_emuDB for more information)
 ##' 
-##' # list all files of "ae" emuDB
-##' list_files(ae) 
+##' # list all files of ae emuDB
+##' list_files(emuDBhandle = ae)
 ##'
 ##' # list all files of ae emuDB in bundles ending with '3'
-##' list_files(ae, bundlePattern="*3") 
+##' list_files(emuDBhandle = ae, bundlePattern="*3") 
 ##' 
 ##' }
 ##' 
@@ -276,4 +276,3 @@ remove_files <- function(){
 # FOR DEVELOPMENT
 # library('testthat')
 # test_file('tests/testthat/test_emuR-database.files.R')
-

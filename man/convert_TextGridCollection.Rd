@@ -33,7 +33,7 @@ the allowed level names and types in the new emuDB. After this it converts all f
 checking whether they comply to the newly generated database configuration. For 
 more information on the emuDB format see \code{vignette{emuDB}}.
 Note that since Praat TextGrids do not permit explicit hierarchical structures, the created emuDB does not contain
-any links or link definitions. You can however use the \code{\link{autobuild_linkfromTimes}} function after the conversion process
+any links or link definitions. You can however use the \code{\link{autobuild_linkFromTimes}} function after the conversion process
 to automatically build a hierarchal structure.
 }
 \examples{
