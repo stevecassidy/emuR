@@ -29,12 +29,12 @@ see \code{vignette{emuDB}}.
 \dontrun{
 
 ##################################
-# prerequisite: loaded "ae" emuDB 
+# prerequisite: loaded ae emuDB 
 # (see ?load_emuDB for more information)
 
 # get signal canvas order of the "default"
 # perspective of the ae emuDB
-get_signalCanvasesOrder(ae, 
+get_signalCanvasesOrder(emuDBhandle = ae, 
                         perspectiveName = "default")
                         
 }

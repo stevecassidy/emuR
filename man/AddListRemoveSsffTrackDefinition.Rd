@@ -34,7 +34,7 @@ for a list of all the signal processing functions provided by the wrassp package
 
 \item{onTheFlyParams}{a list of parameters that will be given to the function 
 passed in by the onTheFlyFunctionName parameter. This list can easily be 
-generated using the \code{formals} function on the according signal processing function 
+generated using the \code{\link{formals}} function on the according signal processing function 
 provided by the wrassp package and then setting the
 parameter one wishes to change.}
 

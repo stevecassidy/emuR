@@ -31,20 +31,20 @@ see \code{vignette{emuDB}}.
 \dontrun{
 
 ##################################
-# prerequisite: loaded "ae" emuDB 
+# prerequisite: loaded ae emuDB 
 # (see ?load_emuDB for more information)
 
-# get level canvases order of "ae" emuDB
-order = get_levelCanvasesOrder(dbName = "ae",
+# get level canvases order of ae emuDB
+order = get_levelCanvasesOrder(emuDBhandle = ae,
                                perspectiveName = "default")
 
-# reverse the level canvases order of "ae" emuDB
-set_levelCanvasesOrder(dbName = "ae"
+# reverse the level canvases order of ae emuDB
+set_levelCanvasesOrder(emuDBhandle = ae
                        perspectiveName = "default",
                        order = rev(order))
                        
-# get level canvases order of "ae" emuDB                       
-get_levelCanvasesOrder(dbName = "ae",
+# get level canvases order of ae emuDB                       
+get_levelCanvasesOrder(emuDBhandle = ae,
                        perspectiveName = "default")
 }
 

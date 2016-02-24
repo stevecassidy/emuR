@@ -8,7 +8,8 @@ convert_TextGridCollection(dir, dbName, targetDir, tgExt = "TextGrid",
   audioExt = "wav", tierNames = NULL, verbose = TRUE)
 }
 \arguments{
-\item{dir}{path to directory containing the TextGridCollection (in an arbitrary structure)}
+\item{dir}{path to directory containing the TextGridCollection (nested directory structures are permitted as the 
+function recusively through directories)}
 
 \item{dbName}{name given to the new emuDB}
 
@@ -27,12 +28,13 @@ tiers are converted.}
 Converts a TextGridCollection to an emuDB by searching a given directory for .wav & .TextGrid files (default
 extensions) with the same base name. First, the function generates a file pair list 
 containing paths to files with the same base
-name. It then generates an emuDB configuration based on the first TextGrid in this list which specifies 
+name. It then generates an emuDB DBconfig based on the first TextGrid in this list which specifies 
 the allowed level names and types in the new emuDB. After this it converts all file pairs to the new format,
 checking whether they comply to the newly generated database configuration. For 
 more information on the emuDB format see \code{vignette{emuDB}}.
-Note that since praat TextGrid does not use hierarchical structures, the created emuDB does not contain
-any links nor link definitions; you might use \code{autobuild_linkfromTimes} to create a simple hierarchy.
+Note that since Praat TextGrids do not permit explicit hierarchical structures, the created emuDB does not contain
+any links or link definitions. You can however use the \code{\link{autobuild_linkfromTimes}} function after the conversion process
+to automatically build a hierarchal structure.
 }
 \examples{
 \dontrun{
@@ -43,8 +45,8 @@ any links nor link definitions; you might use \code{autobuild_linkfromTimes} to 
 
 # convert TextGridCollection and store 
 # new emuDB in folder provided by tempdir()
-convert_TextGridCollection(dir = "/path/to/directory/", 
-                           dbName = "myTGcolDB", 
+convert_TextGridCollection(dir = "/path/to/directory/",
+                           dbName = "myTGcolDB",
                            targetDir = tempdir())
 
 

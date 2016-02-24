@@ -45,7 +45,7 @@ For all link types the rule applies that no links are allowed to cross any other
 
 ##################################
 # prerequisite: loaded emuDB that was converted
-# using the TextGridCollection function called myTGcolDB
+# using the convert_TextGridCollection function called myTGcolDB
 # (see ?load_emuDB for more information)
 
 # add link definition from super-level "Phoneme"

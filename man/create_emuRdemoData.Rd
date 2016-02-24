@@ -22,7 +22,7 @@ This folder contains the folders:
 for more information on this database format.}
 \item{BPF_collection: }{Containing a BAS Patitur Format (BPF) file collection (as 
 expected by the \code{\link{convert_BPFCollection}} function)}
-\item{legacy_ae: }{Containing legacyEmuDB (as expected by the 
+\item{legacy_ae: }{Containing a legacyEmuDB (as expected by the 
 \code{\link{convert_legacyEmuDB}} function)}
 \item{TextGrid_collection: }{Containing a TextGrid file collection 
 (as expected from the \code{\link{convert_TextGridCollection}} function)}
