@@ -12,9 +12,7 @@ requireNamespace("dplyr", quietly = T)
 emuDB.apiLevel = 3L
 
 # internalVars currently containing only server handle (should merge testingVars back into it as well)
-internalVars = list(serverHandle = NULL)
-# vars used by testthat tests
-testingVars = list(inMemoryCache = F)
+internalVars = list(serverHandle = NULL, testingVars = list(inMemoryCache = F))
 
 #############################################
 # file/folder suffixes of emuDB format

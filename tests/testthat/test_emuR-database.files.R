@@ -17,7 +17,7 @@ test_that("file operations work", {
   unlink(path2db, recursive = T)
   file.copy(path2orig, path2testData, recursive = T)
   
-  ae = load_emuDB(path2db, inMemoryCache = testingVars$inMemoryCache, verbose = F)
+  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
   
   test_that("import_mediaFiles works", {

@@ -21,7 +21,7 @@ test_that("database functions work", {
   unlink(path2db, recursive = T)
   unlink(file.path(path2testData, "fromLegacy"), recursive = T)
   file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = testingVars$inMemoryCache, verbose = F)
+  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
   # convert and load legacy database
   convert_legacyEmuDB(emuTplPath=file.path(path2demoData, "legacy_ae", "ae.tpl"),targetDir=file.path(path2testData, "fromLegacy"),dbUUID=ae$UUID,verbose=FALSE)
@@ -430,7 +430,7 @@ test_that("store works correctly",{
   unlink(path2db, recursive = T)
   unlink(file.path(path2testData, "fromStore"), recursive = T)
   file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = testingVars$inMemoryCache, verbose = F)
+  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
   newFolderPath = file.path(path2testData, "fromStore")
   unlink(newFolderPath, recursive = T)

@@ -18,7 +18,7 @@ test_that("bad calls to autobuild_linkFromTimes", {
   # delete, copy and load
   unlink(path2db, recursive = T)
   file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = testingVars$inMemoryCache, verbose = F)
+  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
   
   expect_error(autobuild_linkFromTimes(ae, 'Phoneti', 'Tone'))
@@ -34,7 +34,7 @@ test_that("correct links are present after autobuild_linkFromTimes with EVENTS",
   # delete, copy and load
   unlink(path2db, recursive = T)
   file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = testingVars$inMemoryCache, verbose = F)
+  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
   # add linkDef.
   add_linkDefinition(ae, "ONE_TO_MANY", superlevelName = "Phonetic", sublevelName = "Tone")
@@ -66,7 +66,7 @@ test_that("no duplicates are present after autobuild_linkFromTimes with EVENTs",
   # delete, copy and load
   unlink(path2db, recursive = T)
   file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = testingVars$inMemoryCache, verbose = F)
+  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
   # add linkDef.
   add_linkDefinition(ae, "ONE_TO_MANY", superlevelName = "Phonetic", sublevelName = "Tone")
@@ -98,7 +98,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   # delete, copy and load
   unlink(path2db, recursive = T)
   file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = testingVars$inMemoryCache, verbose = F)
+  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
   # add levelDef.
   add_levelDefinition(ae, "Phonetic2", "SEGMENT")
@@ -157,7 +157,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   #delete, copy and load
   unlink(path2db, recursive = T)
   file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = testingVars$inMemoryCache, verbose = F)
+  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
   # add levelDef.
   add_levelDefinition(ae, "Phonetic2", "SEGMENT")
@@ -223,7 +223,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   # delete, copy and load
   unlink(path2db, recursive = T)
   file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = testingVars$inMemoryCache, verbose = F)
+  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
   # add levelDef.
   add_levelDefinition(ae, "Phonetic2", "SEGMENT")
@@ -286,7 +286,7 @@ test_that("backup works correctly", {
   # delete, copy and load
   unlink(path2db, recursive = T)
   file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = testingVars$inMemoryCache, verbose = F)
+  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
   # add levelDef.
   add_levelDefinition(ae, "Phonetic2", "SEGMENT")
@@ -337,7 +337,7 @@ test_that("rewrite works correctly", {
   # delete, copy and load
   unlink(path2db, recursive = T)
   file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = testingVars$inMemoryCache, verbose = F)
+  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
   # add levelDef.
   add_levelDefinition(ae, "Phonetic2", "SEGMENT")

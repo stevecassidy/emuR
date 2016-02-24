@@ -7,7 +7,7 @@ dbName = "ae"
 
 path2orig = file.path(tempdir(), "emuR_demoData", paste0(dbName, emuDB.suffix))
 
-ae = load_emuDB(path2orig, inMemoryCache = testingVars$inMemoryCache, verbose = F)
+ae = load_emuDB(path2orig, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
 
 
 # get segmentlist of type segment

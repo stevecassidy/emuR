@@ -27,7 +27,7 @@ test_that("Copy example database ae",{
 })
 
 test_that("requeries work on ae",{
-  ae = load_emuDB(file.path(.test_emu_ae_db_dir, paste0('ae', emuDB.suffix)), inMemoryCache = testingVars$inMemoryCache, verbose=FALSE)
+  ae = load_emuDB(file.path(.test_emu_ae_db_dir, paste0('ae', emuDB.suffix)), inMemoryCache = internalVars$testingVars$inMemoryCache, verbose=FALSE)
   expect_that(ae$dbName,is_equivalent_to('ae'))
   
   test_that("Requery sequential",{

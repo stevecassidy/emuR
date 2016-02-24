@@ -21,7 +21,7 @@ test_that("Convert example database ae",{
 })
 
 test_that("Load example database ae",{  
-  ae = load_emuDB(file.path(.test_emu_ae_db_dir,'ae_emuDB'), inMemoryCache = testingVars$inMemoryCache, verbose=FALSE)
+  ae = load_emuDB(file.path(.test_emu_ae_db_dir,'ae_emuDB'), inMemoryCache = internalVars$testingVars$inMemoryCache, verbose=FALSE)
   #load_emuDB("/scratch/klausj/WORK/EmuDbs/ae")
   
   dbConfig=load_DBconfig(ae)
