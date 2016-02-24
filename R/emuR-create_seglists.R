@@ -1,6 +1,4 @@
 
-
-
 convert_queryResultToEmusegs<-function(emuDBhandle){
   emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle)
   emusegs = as.emusegs(emuRsegs)
@@ -9,9 +7,6 @@ convert_queryResultToEmusegs<-function(emuDBhandle){
 
 
 convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL){
-  # its=NULL
-  
-  # items=getQueryTmpEmuDBs()[['queryItems']]
   itemsTableName = "itemsFilteredTmp"
   labelsTableName = "labelsFilteredTmp"
   linksExtTableName = "linksExtFilteredTmp"
@@ -21,19 +16,16 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   start=c()
   end=c()
   slType=NULL
-  # projectionItems=result[['projectionItems']]
   projectionItemsN = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM leftIntermResultProjectionItemsTmp"))$n
   if(projectionItemsN > 0){ 
-    # projection result (hashtag marker)
-    # its=data.frame(db_uuid=projectionItems[,'db_uuid'],session=projectionItems[,'session'],bundle=projectionItems[,'bundle'],seqStartId=projectionItems[,'pSeqStartId'],seqEndId=projectionItems[,'pSeqEndId'],seqLen=projectionItems[,'pSeqLen'],level=projectionItems[,'pLevel'],stringsAsFactors = FALSE)
+    # use projection items
     itsTableName = "leftIntermResultProjectionItemsTmp"
     seqStartIdColName = "pSeqStartId"
     seqEndIdColName = "pSeqEndId"
     seqLenColName = "pSeqLen"
     levelColName = "pLevel"
   }else{
-    # use "normal" result
-    # its=result[['items']]
+    # use "normal" items
     itsTableName = "leftIntermResultItemsTmp"
     seqStartIdColName = "seqStartId"
     seqEndIdColName = "seqEndId"
@@ -41,14 +33,13 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
     levelColName = "level"
   }
   
-  # get distinct result levels ...
-  # distinctLevels=sqldf("SELECT DISTINCT level FROM its")
+  # get distinct result levels
   distinctLevels = dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT ", levelColName, " FROM ", itsTableName))
   for(attrNm in distinctLevels[,levelColName]){
     
     lvlNm = get_levelNameForAttributeName(emuDBhandle, attributeName = attrNm)
     ld = get_levelDefinition(emuDBhandle, name = lvlNm)
-    #cat("Level ",ld['name']," type ",ld['type'],"\n")
+
     if(ld['type']=='ITEM'){
       segLvlNms = find_segmentLevels(emuDBhandle, attrNm)
       if(!is.null(timeRefSegmentLevel)){
@@ -66,53 +57,20 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
     
   }
   
-  
-#   itCount=nrow(its)
   itCount = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM ", itsTableName))$n
-#   if(itCount==0){
-#     its=data.frame(db_uuid=character(0),session=character(0),bundle=character(0),seqStartId=integer(0),seqEndId=integer(0),seqLen=integer(0),level=character(0),stringsAsFactors = FALSE)
-#   }
-  
-  # links=getQueryTmpEmuDBs()[['queryLinksExt']]
-  
-  # lblsDf=getQueryTmpEmuDBs()[['queryLabels']]
-  # itemsIdxSql='CREATE INDEX items_idx ON items(itemID,db_uuid,session,bundle,level,itemID,seqIdx,type,sampleRate,sampleStart,sampleDur,samplePoint)'
-  # resIdxSql='CREATE INDEX its_idx ON its(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)'
-  
-  #labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,name)'
-  # labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,db_uuid,session,bundle,name)'
-  # get max length
-  #itemsIdxSql='CREATE INDEX items_idx ON items(seqLen)'
   if(itCount > 0){
-    # maxSeqLenDf = sqldf(c(resIdxSql,"SELECT max(seqLen) AS maxSeqLen FROM its"))
-    # maxSeqLen=maxSeqLenDf[1,'maxSeqLen']
     maxSeqLen = dbGetQuery(emuDBhandle$connection, paste0("SELECT max(", seqLenColName, ") AS maxSeqLen FROM ", itsTableName))$maxSeqLen
   }else{
     maxSeqLen=1L
   }
   
-  
   # query seglist data except labels
   # for this data the information in start end item of the sequence is sufficient
-  # it takes only the start  and end items of the query result in account
+  # it takes only the start and end items of the query result into account
   # the CASE WHEN THEN ELSE END terms are necessary to get the start and end samples of sequences which are not segment levels and therefore have no time information
-  # hasLinks=(nrow(links)>0)
   linksExtFilteredCount = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM linksExtFilteredTmp"))$n
   hasLinks = (linksExtFilteredCount > 0)
-  
-  # check for ambigious time information (multiple SEGMENT levels)
-  # TODO   
-  #if(hasLinks){
-  #  # items of type ITEM have no (sample) time information
-  #  # therefore we search for linked SEGMENT items and take their start sample position
-  #  qStr=paste0("SELECT count(l.fromID), FROM links l,items s,items e,its r WHERE s.db_uuid=s.db_uuid AND s.session=l.session AND s.bundle=l.bundle AND s.itemID=l.fromID  AND l.toSeqIdx=0 AND e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND e.level=s.level")
-  #  print(sqldf(qStr))
-  #}
-  
-  
-  
-  
-  
+
   # select columns: id,session,bundle,startItemId,endItemID ,type ...
   selectStr=paste0("SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS startItemID ,e.itemID AS endItemID,r.", levelColName, ",s.type, ")
   
@@ -145,7 +103,6 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   if(hasLinks){
     # items of type ITEM have no (sample) time information
     # therefore we search for linked SEGMENT items and take their end sample position
-    
     selectStr=paste0(selectStr," ELSE (SELECT i.sampleStart+i.sampleDur FROM ", itemsTableName, " i WHERE i.db_uuid=e.db_uuid AND i.session=e.session AND i.bundle=e.bundle AND i.type='SEGMENT' AND ")
     if(!is.null(timeRefSegmentLevel)){
       selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
@@ -183,7 +140,6 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   whereStr=paste0("WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=", seqStartIdColName, " AND e.itemID=", seqEndIdColName ," AND e.level=s.level AND ")
   
   # order
-  #orderStr="ORDER BY s.db_uuid,s.session,s.bundle,startItemID,endItemID"
   orderStr=''
   
   # append terms depending on maximum sequence length
@@ -195,36 +151,18 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   for(seqIdx in 1:maxSeqLen){
     selectStr=paste0(selectStr, "(SELECT l.label FROM ", labelsTableName, " l WHERE l.db_uuid=i", seqIdx, ".db_uuid AND l.session=i", seqIdx, ".session AND l.bundle=i", seqIdx, ".bundle AND l.itemID=i", seqIdx, ".itemID AND l.name=r.", levelColName, ")")
     
-    #selectLblStr=paste0(selectLblStr,)
     fromStr=paste0(fromStr, itemsTableName, " i",seqIdx)
     offset=seqIdx-1
     whereStr=paste0(whereStr, "i", seqIdx, ".db_uuid=s.db_uuid AND i", seqIdx, ".session=s.session AND i", seqIdx, ".bundle=s.bundle AND i", seqIdx ,".level=s.level AND i", seqIdx, ".seqIdx=s.seqIdx+", offset)
     if(seqIdx<maxSeqLen){
-      #selectStrL=paste0(selectStrL,',')
       selectStr=paste0(selectStr," || '->' || ")
       fromStr=paste0(fromStr,',')
       whereStr=paste0(whereStr,' AND ')
     }
   }
   selectStr=paste0(selectStr," AS labels ")
-  
-  
+
   queryStr=paste(selectStr,fromStr,whereStr,orderStr,sep = ' ')
-  
-  # build indices
-  #itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx,type)' # very slow !!
-  # itemsIdxSql='CREATE INDEX items_idx ON items(type,db_uuid,session,bundle,level,itemID,seqIdx)'
-  # linksIdxSql='CREATE INDEX links_idx ON links(db_uuid,session,bundle,fromID,toID,toSeqIdx,toSeqLen)'
-  # if(hasLinks){
-    #st=system.time((segListData=sqldf(c(itemsIdxSql,linksIdxSql,resIdxSql,q))))
-    #cat(st," (with links)\n")
-    # segListData=sqldf(c(itemsIdxSql,linksIdxSql,resIdxSql,labelsIdxSql,queryStr))
-  # }else{
-    # st=system.time((segListData=sqldf(c(itemsIdxSql,resIdxSql,q))))
-    #cat(st," (without links)\n")
-    # segListData=sqldf(c(itemsIdxSql,resIdxSql,labelsIdxSql,queryStr))
-  # }
-  # Note: CASE s.type WHEN 'SEGMENT' OR 'EVENT' did not work.
   
   # convert samples to milliseconds SQL string:
   queryStrInclConvert = paste0("SELECT labels,
@@ -262,32 +200,20 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
 convert_queryResultToVariableEmuRsegs <- function(emuDBhandle,timeRefSegmentLevel=NULL){
   its=NULL
   
-  # items=getQueryTmpEmuDBs()[['queryItems']]
-  
   bundles=c()
   labels=c()
   start=c()
   end=c()
   slType=NULL
   
-#   projectionItems=result[['projectionItems']]
-#   if(!is.null(projectionItems)){ 
-#     # projection result (hashtag marker)
-#     its=data.frame(db_uuid=projectionItems[,'db_uuid'],session=projectionItems[,'session'],bundle=projectionItems[,'bundle'],seqStartId=projectionItems[,'pSeqStartId'],seqEndId=projectionItems[,'pSeqEndId'],seqLen=projectionItems[,'pSeqLen'],level=projectionItems[,'pLevel'],stringsAsFactors = FALSE)
-#   }else{
-    # use "normal" result
-    # its=result[['items']]
-  # }
-  
   itsTableName = "leftIntermResultItemsTmp"
   
-  # get distinct result levels ...
-  # distinctLevels=sqldf("SELECT DISTINCT level FROM its")
+  # get distinct result levels
   distinctLevels=dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT level FROM ", itsTableName))
   for(attrNm in distinctLevels[,'level']){
     lvlNm=get_levelNameForAttributeName(emuDBhandle,attributeName = attrNm)
     ld=get_levelDefinition(emuDBhandle, name = lvlNm)
-    #cat("Level ",ld['name']," type ",ld['type'],"\n")
+
     if(ld['type']=='ITEM'){
       segLvlNms=find_segmentLevels(emuDBhandle,attrNm)
       if(!is.null(timeRefSegmentLevel)){
@@ -311,18 +237,8 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle,timeRefSegmentLeve
   if(itCount==0){
     its=data.frame(db_uuid=character(0),session=character(0),bundle=character(0),seqStartId=integer(0),seqEndId=integer(0),seqLen=integer(0),level=character(0),stringsAsFactors = FALSE)
   }
-  # links=getQueryTmpEmuDBs()[['queryLinksExt']]
-  
-  # lblsDf=getQueryTmpEmuDBs()[['queryLabels']]
-  # itemsIdxSql='CREATE INDEX items_idx ON items(itemID,db_uuid,session,bundle,level,itemID,seqIdx,type,sampleRate,sampleStart,sampleDur,samplePoint)'
-  # resIdxSql='CREATE INDEX its_idx ON its(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)'
-  
-  #labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,name)'
-  # labelsIdxSql='CREATE INDEX labels_idx ON lblsDf(itemID,db_uuid,session,bundle,name)'
-  # get max length
-  #itemsIdxSql='CREATE INDEX items_idx ON items(seqLen)'
+
   if(itCount>0){
-    # maxSeqLenDf=sqldf(c(resIdxSql,"SELECT max(seqLen) AS maxSeqLen FROM its"))
     maxSeqLenDf=dbGetQuery(emuDBhandle$connection, paste0("SELECT max(seqLen) AS maxSeqLen FROM ", itsTableName))
     maxSeqLen=maxSeqLenDf[1,'maxSeqLen']
     
@@ -339,19 +255,9 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle,timeRefSegmentLeve
   # for this data the information in start end item of the sequence is sufficient
   # it takes only the start  and end items of the query result in account
   # the CASE WHEN THEN ELSE END terms are necessary to get the start and end samples of sequences which are not segment levels and therefore have no time information  
-  # hasLinks=(nrow(links)>0)
   hasLinks = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM linksExt"))$n > 0
   
-  
-  # check for ambigious time information (multiple SEGMENT levels)
-  # TODO   
-  #if(hasLinks){
-  #  # items of type ITEM have no (sample) time information
-  #  # therefore we search for linked SEGMENT items and take their start sample position
-  #  qStr=paste0("SELECT count(l.fromID), FROM links l,items s,items e,its r WHERE s.db_uuid=s.db_uuid AND s.session=l.session AND s.bundle=l.bundle AND s.itemID=l.fromID  AND l.toSeqIdx=0 AND e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND e.level=s.level")
-  #  print(sqldf(qStr))
-  #}
-  
+
   # select columns: id,session,bundle,startItemId,endItemID ,type ...
   selectStr=paste0("SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS startItemID ,e.itemID AS endItemID, r.level, s.type, ")
   
@@ -442,32 +348,13 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle,timeRefSegmentLeve
         if(seqIdx<seqLen){
           selectStr=paste0(selectStr," || '->' || ")
         }
-        
       }
-      
     }
     selectStr=paste0(selectStr," END AS labels ")
   }else{
     selectStr=paste0(selectStr," '' AS labels ")
   }
   queryStr=paste(selectStr,fromStr,whereStr,orderStr,sep = ' ')
-  #cat(queryStr,"\n")
-  
-  # build indices
-  #itemsIdxSql='CREATE INDEX items_idx ON items(id,session,bundle,level,itemID,seqIdx,type)' # very slow !!
-  # itemsIdxSql='CREATE INDEX items_idx ON items(type,db_uuid,session,bundle,level,itemID,seqIdx)'
-  # linksIdxSql='CREATE INDEX links_idx ON links(db_uuid,session,bundle,fromID,toID,toSeqIdx,toSeqLen)'
-#   if(hasLinks){
-#     #st=system.time((segListData=sqldf(c(itemsIdxSql,linksIdxSql,resIdxSql,q))))
-#     #cat(st," (with links)\n")
-#     segListData=sqldf(c(itemsIdxSql,linksIdxSql,resIdxSql,labelsIdxSql,queryStr))
-#     
-#   }else{
-#     #st=system.time((segListData=sqldf(c(itemsIdxSql,resIdxSql,q))))
-#     #cat(st," (without links)\n")
-#     segListData=sqldf(c(itemsIdxSql,resIdxSql,labelsIdxSql,queryStr))
-#   }
-  # Note: CASE s.type WHEN 'SEGMENT' OR 'EVENT' did not work.
   
   # convert samples to milliseconds using SQL:
   seglist=dbGetQuery(emuDBhandle$connection, paste0("SELECT \
@@ -490,7 +377,6 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle,timeRefSegmentLeve
   slType='segment'
   if(nrow(seglist)>0){
     # set to event only if all rows are of type EVENT
-    # dTypes=sqldf("SELECT DISTINCT type FROM seglist")
     dTypes=unique(seglist$level)
     if(length(dTypes)==1){
       if(dTypes[1]=='EVENT'){
@@ -528,12 +414,6 @@ equal.emusegs<-function(seglist1,seglist2,compareAttributes=TRUE,tolerance=0.0,u
     }
   }
   # seglist have no implicit order
-  # to compare each segment or segment sequence we have to sort them
-  #sl1bo=order('[[.data.frame'(seglist1,'bundle'))
-  #sl1obb=`[.data.frame`(seglist1,sl1bo)
-  #sl1so=order('[[.data.frame'(sl1obb,'start'))
-  #sl1obbs=`[.data.frame`(sl1obb,sl1bo)
-  
   sl1Order=order('[[.data.frame'(seglist1,'utts'),'[[.data.frame'(seglist1,'start'),'[[.data.frame'(seglist1,'end'),'[[.data.frame'(seglist1,'labels'))
   sl1=`[.data.frame`(seglist1,sl1Order,)
   sl2Order=order('[[.data.frame'(seglist2,'utts'),'[[.data.frame'(seglist2,'start'),'[[.data.frame'(seglist2,'end'),'[[.data.frame'(seglist2,'labels'))
