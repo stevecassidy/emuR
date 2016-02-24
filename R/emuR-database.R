@@ -71,11 +71,11 @@ database.DDL.emuDB_items = 'CREATE TABLE items (
 );'
 
 # Important note:
-# The primary key of items contains mor columns then needed to identify a particular item.
-# PRIMARY KEY (db_uuid,session,bundle,itemID) would be sufficient but teh extended primary key 
-# is necessary to speed up the build.redundnat.links.for.pathes SQL query.
+# The primary key of items contains more columns then needed to identify a particular item.
+# PRIMARY KEY (db_uuid,session,bundle,itemID) would be sufficient but the extended primary key 
+# is necessary to speed up the build_redundnatLinksForPathes SQL query.
 # It did not work to create an index like the one in the comment line below.
-# It seems teh query uses always the index of the primary key.
+# It seems the query always uses the index of the primary key.
 #database.DDL.emuDB_itemsIdx='CREATE UNIQUE INDEX items_level_idx ON items(db_uuid,session,bundle,level,itemID,type)'
 
 database.DDL.emuDB_labels = 'CREATE TABLE labels (
@@ -100,7 +100,7 @@ database.DDL.emuDB_links = 'CREATE TABLE links (
 );'
 database.DDL.emuDB_linksIdx = 'CREATE INDEX links_idx ON links(db_uuid,session,bundle,fromID,toID)'
 
-database.DDL.emuDB_linksTmp = 'CREATE TABLE linksTmp (
+database.DDL.emuDB_linksTmp = 'CREATE TEMP TABLE linksTmp (
    db_uuid VARCHAR(36) NOT NULL,
   session TEXT,
   bundle TEXT,
@@ -130,7 +130,7 @@ database.DDL.emuDB_linksExt = 'CREATE TABLE linksExt (
 database.DDL.emuDB_linksExtIdx = 'CREATE INDEX linksExt_idx ON linksExt(db_uuid,session,bundle,fromID,toID,toLevel,type)'
 
 # this should be a temp table
-database.DDL.emuDB_linksExtTmp = 'CREATE TABLE linksExtTmp (
+database.DDL.emuDB_linksExtTmp = 'CREATE TEMP TABLE linksExtTmp (
   db_uuid VARCHAR(36) NOT NULL,
   session TEXT,
   bundle TEXT,
@@ -147,7 +147,7 @@ database.DDL.emuDB_linksExtTmp = 'CREATE TABLE linksExtTmp (
 database.DDL.emuDB_linksExtTmpIdx = 'CREATE INDEX linksExtTmp_idx ON linksExtTmp(db_uuid,session,bundle,fromID,toID,toLevel,type)'
 
 # this should be a temp table
-database.DDL.emuDB_linksExtTmp2 = 'CREATE TABLE linksExtTmp2 (
+database.DDL.emuDB_linksExtTmp2 = 'CREATE TEMP TABLE linksExtTmp2 (
   db_uuid VARCHAR(36) NOT NULL,
   session TEXT,
   bundle TEXT,
@@ -172,33 +172,30 @@ database.DDL.emuDB_linksExtTmpIdx2 = 'CREATE INDEX linksExtTmp2_idx ON linksExtT
 # init functions (create tables and indices)
 
 initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TRUE){
-  
   if(createTables & !dbExistsTable(emuDBhandle$connection, 'emuDB')){
-    res <- dbSendQuery(emuDBhandle$connection, database.DDL.emuDB)
-    dbClearResult(res)
-    res <- dbSendQuery(emuDBhandle$connection, database.DDL.emuDB_session) 
-    dbClearResult(res)
-    res <- dbSendQuery(emuDBhandle$connection, database.DDL.emuDB_bundle) 
-    dbClearResult(res)
-    res <- dbSendQuery(emuDBhandle$connection, database.DDL.emuDB_items) 
-    dbClearResult(res)
-    res <- dbSendQuery(emuDBhandle$connection, database.DDL.emuDB_labels) 
-    dbClearResult(res)
-    res <- dbSendQuery(emuDBhandle$connection, database.DDL.emuDB_links) 
-    dbClearResult(res)
-    res <- dbSendQuery(emuDBhandle$connection, database.DDL.emuDB_linksExt) 
-    dbClearResult(res)
-    res <- dbSendQuery(emuDBhandle$connection, database.DDL.emuDB_linksTmp) 
-    dbClearResult(res)
-    res <- dbSendQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp) 
-    dbClearResult(res)
-    res <- dbSendQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp2) 
-    dbClearResult(res)
+    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB)
+    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_session)
+    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_bundle)
+    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_items)
+    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labels)
+    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_links)
+    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExt)
+    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksTmp)
+    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp)
+    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp2)
     if(createIndices){  
       create_emuDBindicesDBI(emuDBhandle)
     }
-  }else if(createTables & dbExistsTable(emuDBhandle$connection, 'emuDB') & dbExistsTable(emuDBhandle$connection, 'linksExtTmp')){
-    # TODO: remove old tmp tables and replace with proper tmp tables
+  }else if(createTables & dbExistsTable(emuDBhandle$connection, 'emuDB')){
+    # remove old tmp tables and replace with proper tmp tables (initialized with CREATE TEMP TABLE) that are only valid for the connection
+    # drops
+    if("linksTmp" %in% dbListTables(emuDBhandle$connection)) dbGetQuery(emuDBhandle$connection, "DROP TABLE linksTmp")
+    if("linksExtTmp" %in% dbListTables(emuDBhandle$connection)) dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp")
+    if("linksExtTmp2" %in% dbListTables(emuDBhandle$connection)) dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp2")
+    # creates
+    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksTmp)
+    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp)
+    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp2) 
   }
 }
 
