@@ -19,7 +19,6 @@ test_that("Copy example database ae",{
   legacyDbEmuAeTpl <- file.path(path2demoData, "legacy_ae", "ae.tpl")
   .test_emu_ae_db_dir<<-file.path(path2testhatFolder, 'test_emu_ae')
   unlink(.test_emu_ae_db_dir, recursive = T)
-  # convert_legacyEmuDB_to_emuDB(emuTplPath=legacyDbEmuAeTpl,targetDir=.test_emu_ae_db_dir,dbUUID=.test_emu_ae_db_uuid,verbose=FALSE)
   
   # copy 4 faster tests
   dir.create(.test_emu_ae_db_dir)

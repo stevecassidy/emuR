@@ -22,40 +22,16 @@ test_that("Convert example database ae",{
 
 test_that("Load example database ae",{  
   ae = load_emuDB(file.path(.test_emu_ae_db_dir,'ae_emuDB'), inMemoryCache = internalVars$testingVars$inMemoryCache, verbose=FALSE)
-  #load_emuDB("/scratch/klausj/WORK/EmuDbs/ae")
   
   dbConfig=load_DBconfig(ae)
   expect_that(dbConfig[['name']],is_equivalent_to('ae'))
   
   test_that("Query labels",{
-    #   r1=query.with.eql(andosl,"Text = chill")
-    #   expect_that(nrow(r1[['items']]),equals(2))
-    #   
-    #   # sequence as seglist
-    #   sl1=query.seglist(andosl,"[Text=chill -> Text=wind]")
-    #   expect_that(nrow(sl1),equals(2))
-    #   expect_that(sl1[1,'labels'][['labels']],is_identical_to(I('chill->wind')))
-    #   expect_that(sl1[2,'labels'][['labels']],is_identical_to(I('chill->wind')))
-    #   expect_that(sl1[1,'utts'][['utts']],is_identical_to(I('msadb012')))
-    #   expect_that(sl1[2,'utts'][['utts']],is_identical_to(I('msajc012')))
-    #   
-    
-    #ae=test_load_ae_database()
-    #legacyDbEmuAeTpl <- system.file("extdata/legacy_emu_db/ae","ae.tpl", package="emuR")
-    #expect_that(legacyDbEmuAeTpl,is_equivalent_to('/homes/klausj/DEVELOPMENT/NewEMU/emuR/inst/extdata/legacy_emu_db/ae/ae.tpl'))
-    #aeTmpDir=tempfile('test_emu_ae')
-    #convert.database.from.legacy.emu(emuTplPath=legacyDbEmuAeTpl,targetDir=aeTmpDir)
-    #ae<<-load.database(file.path(aeTmpDir,'ae'))
-    #expect_that(ae[['name']],is_equivalent_to('ae'))
-    #   r1=query.with.eql(andosl,"Text = more")
-    #   expect_that(nrow(r1[['items']]),equals(8))
-    #   
     # sequence as seglist
     sl1=query(ae,"[Text=more -> Text=customers]",resultType='emusegs')
     expect_that(class(sl1),is_identical_to(c('emusegs','data.frame')))
     expect_that(nrow(sl1),equals(1))
     expect_that('[.data.frame'(sl1,1,'labels'),is_identical_to(I('more->customers')))
-    #expect_that(labels.emusegs,is_identical_to(I('more->customers')))
     expect_that('[.data.frame'(sl1,1,'utts'),is_identical_to(I('0000:msajc057')))
   })
   
@@ -80,12 +56,7 @@ test_that("Load example database ae",{
   
   # 
   test_that("Query sequence",{
-    # #   r1=query.with.eql(andosl,"[[[Phoneme='tS' ^ Phonetic='t'] -> Phoneme=a:] -> Phoneme=n]")
-    # #   r1Its=r1[['items']]
-    # #   expect_that(nrow(r1Its),equals(1))
-    # #   expect_that(r1Its[1,'seqStartId'],is_identical_to('andosl_msajc020_97'))  
-    # #   expect_that(r1Its[1,'seqEndId'],is_identical_to('andosl_msajc020_106'))
-    
+
     r1=query(ae,"[[[Phoneme='tS' ^ Phonetic='t'] -> Phoneme=I] -> Phoneme=l]",resultType=NULL)
     expect_that(nrow(r1),equals(1))
     expect_that(r1[1,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
@@ -101,22 +72,7 @@ test_that("Load example database ae",{
   })
   
   test_that("Query combined sequence dominance",{
-    # # r1=query.with.eql(andosl,"[[Syllable=W -> Syllable=W] ^ [Phoneme='n' -> Phoneme='S']]")
-    # # r1Its=r1[['items']]
-    # # expect_that(nrow(r1Its),equals(6))
-    # # expect_that(r1Its[1,'seqStartId'],is_identical_to('andosl_msadb020_59'))
-    # # expect_that(r1Its[1,'seqEndId'],is_identical_to('andosl_msadb020_68'))
-    # # expect_that(r1Its[2,'seqStartId'],is_identical_to('andosl_msadb058_88'))
-    # # expect_that(r1Its[2,'seqEndId'],is_identical_to('andosl_msadb058_97'))
-    # # expect_that(r1Its[3,'seqStartId'],is_identical_to('andosl_msadb063_54'))
-    # # expect_that(r1Its[3,'seqEndId'],is_identical_to('andosl_msadb063_64'))
-    # # expect_that(r1Its[4,'seqStartId'],is_identical_to('andosl_msajc020_65'))
-    # # expect_that(r1Its[4,'seqEndId'],is_identical_to('andosl_msajc020_76'))
-    # # expect_that(r1Its[5,'seqStartId'],is_identical_to('andosl_msajc058_98'))
-    # # expect_that(r1Its[5,'seqEndId'],is_identical_to('andosl_msajc058_109'))
-    # # expect_that(r1Its[6,'seqStartId'],is_identical_to('andosl_msajc063_61'))
-    # # expect_that(r1Its[6,'seqEndId'],is_identical_to('andosl_msajc063_73'))
-    
+
     r1=query(ae,"[[Syllable=W->Syllable=W] ^ [Phoneme=@->Phoneme=s]]",resultType=NULL)
     expect_that(nrow(r1),equals(2))
     expect_that(r1[1,'db_uuid'],is_identical_to(.test_emu_ae_db_uuid))  
@@ -255,11 +211,8 @@ test_that("Load example database ae",{
   test_that("Projection operator #",{
     
     r1=query(ae,"[ Syllable=S ^ #Phonetic=s]")
-    #r1=r1[['items']]
     expect_that(nrow(r1),equals(10))
-    #r1Its=r1[['projectionItems']]
-    #expect_that(nrow(r1Its),equals(10))
-    
+
   })
   
   test_that("Projection operator # for emusegs result type ",{
@@ -277,11 +230,9 @@ test_that("Load example database ae",{
     load(file=legacyEmuAePhoneticSeglist)
     tsl=.legacy_emu_ae_phonetic_seglist
     # get original query string
-    #tslQuery=emusegs.query(tsl)
     tslQuery=attr(tsl,'query')
     # reprduce the original query
     sl=query(ae,tslQuery,resultType='emusegs')
-    #sr=ae[['sessions']][[1]][['bundles']][[1]][['sampleRate']]
     sr=.aeSampleRate
     halfSampleTime=1/sr/2
     # we have to accept numeric deviations caused by double precision calculations
