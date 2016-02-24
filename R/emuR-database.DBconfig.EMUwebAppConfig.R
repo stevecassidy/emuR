@@ -1,36 +1,3 @@
-#emuDB.schema.EMUwebAppConfig.signalCanvases.assign <- function(spec,osci){
-#  o <- list(SPEC=spec,OSCI=osci)
-#  class(o) <- 'emuDB.EMUwebAppConfig.assign'
-#  invisible(o)
-#}
-
-create.EMUwebAppConfig.signalCanvas <- function(order,assign,contourLims){
-  o <- list(order=order,assign=assign,contourLims=contourLims)
-  class(o) <- 'emuDB.EMUwebAppConfig.signalCanvas'
-  invisible(o)
-}
-create.EMUwebAppConfig.levelCanvas <- function(order){
-  o <- list(order=order)
-  class(o) <- 'emuDB.EMUwebAppConfig.levelCanvas'
-  invisible(o)
-}
-create.EMUwebAppConfig.twoDimCanvases <- function(order){
-  o <- list(order=order)
-  class(o) <- 'emuDB.EMUwebAppConfig.twoDimCanvases'
-  invisible(o)
-}
-create.EMUwebAppConfig.perspective <- function(name,signalCanvases,levelCanvases,twoDimCanvases){
-  o <- list(name=name,signalCanvases=signalCanvases,levelCanvases=levelCanvases,twoDimCanvases=twoDimCanvases)
-  class(o) <- 'emuDB.EMUwebAppConfig.perspective'
-  invisible(o)
-}
-create.EMUwebAppConfig <- function(perspectives){
-  o <- list(perspectives=perspectives,restrictions=list(showPerspectivesSidebar=TRUE))
-  class(o) <- 'emuDB.EMUwebAppConfig'
-  invisible(o)
-}
-
-
 
 ###########################################
 # CRUD operation for perspectives
@@ -45,30 +12,29 @@ create.EMUwebAppConfig <- function(perspectives){
 ##' see \code{vignette{emuDB}}.
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param name name of perspective
-##' @param dbUUID optional UUID of loaded emuDB
 ##' @name AddListRemovePerspective
 ##' @keywords emuDB database DBconfig Emu 
 ##' @examples
 ##' \dontrun{
 ##' 
 ##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
+##' # prerequisite: loaded ae emuDB 
 ##' # (see ?load_emuDB for more information)
 ##' 
-##' # add perspective called "justTones" to the "ae" emuDB
-##' add_perspective(dbName ="ae",
+##' # add perspective called "justTones" to the ae emuDB
+##' add_perspective(emuDBhandle = ae,
 ##'                 name = "justTones") 
 ##'                 
 ##' # add levelCanvasOrder so only the "Tone" level is displayed
-##' set_levelCanvasesOrder(dbName = "ae", 
+##' set_levelCanvasesOrder(emuDBhandle = ae, 
 ##'                        perspectiveName = "justTones", 
 ##'                        order = c("Tone"))
 ##' 
-##' # list perspectives of "ae" emuDB
-##' list_perspectives("ae")
+##' # list perspectives of ae emuDB
+##' list_perspectives(emuDBhandle = ae)
 ##' 
 ##' # remove newly added perspective
-##' remove_perspective(dbName = "ae",
+##' remove_perspective(emuDBhandle = ae,
 ##'                    name = "justTones")
 ##'                    
 ##' }
@@ -78,9 +44,8 @@ NULL
 ##' @rdname AddListRemovePerspective
 ##' @export
 add_perspective <- function(emuDBhandle, 
-                            name,
-                            dbUUID = NULL){
-  # dbObj = .load.emuDB.DBI(name = dbName, uuid = dbUUID)
+                            name){
+  
   DBconfig = load_DBconfig(emuDBhandle)
   
   curPersp = list_perspectives(emuDBhandle, dbUUID = dbUUID)
@@ -91,7 +56,7 @@ add_perspective <- function(emuDBhandle,
   
   persp = list(name = name, 
                signalCanvases = list(order = c("OSCI", "SPEC"), 
-                                                                    assign = NULL, contourLims = NULL),
+                                     assign = NULL, contourLims = NULL),
                levelCanvases = list(order = NULL),
                twoDimCanvases = list(order = NULL))
   
@@ -107,9 +72,8 @@ add_perspective <- function(emuDBhandle,
 
 ##' @rdname AddListRemovePerspective
 ##' @export
-list_perspectives <- function(emuDBhandle, dbUUID = NULL){
+list_perspectives <- function(emuDBhandle){
   
-  # dbObj=.load.emuDB.DBI(name=dbName, uuid = dbUUID)
   DBconfig = load_DBconfig(emuDBhandle)
   df = data.frame(name = character(),
                   signalCanvasesOrder = character(),
@@ -130,8 +94,7 @@ list_perspectives <- function(emuDBhandle, dbUUID = NULL){
 ##' @rdname AddListRemovePerspective
 ##' @export
 remove_perspective <- function(emuDBhandle, 
-                               name,
-                               dbUUID = NULL){
+                               name){
   
   DBconfig = load_DBconfig(emuDBhandle)
   
@@ -174,12 +137,12 @@ remove_perspective <- function(emuDBhandle,
 ##' \dontrun{
 ##' 
 ##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
+##' # prerequisite: loaded ae emuDB 
 ##' # (see ?load_emuDB for more information)
 ##' 
 ##' # get signal canvas order of the "default"
 ##' # perspective of the ae emuDB
-##' get_signalCanvasesOrder(ae, 
+##' get_signalCanvasesOrder(emuDBhandle = ae, 
 ##'                         perspectiveName = "default")
 ##'                         
 ##' }
@@ -255,20 +218,20 @@ get_signalCanvasesOrder <- function(emuDBhandle,
 ##' \dontrun{
 ##' 
 ##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
+##' # prerequisite: loaded ae emuDB 
 ##' # (see ?load_emuDB for more information)
 ##' 
-##' # get level canvases order of "ae" emuDB
-##' order = get_levelCanvasesOrder(dbName = "ae",
+##' # get level canvases order of ae emuDB
+##' order = get_levelCanvasesOrder(emuDBhandle = ae,
 ##'                                perspectiveName = "default")
 ##' 
-##' # reverse the level canvases order of "ae" emuDB
-##' set_levelCanvasesOrder(dbName = "ae"
+##' # reverse the level canvases order of ae emuDB
+##' set_levelCanvasesOrder(emuDBhandle = ae
 ##'                        perspectiveName = "default",
 ##'                        order = rev(order))
 ##'                        
-##' # get level canvases order of "ae" emuDB                       
-##' get_levelCanvasesOrder(dbName = "ae",
+##' # get level canvases order of ae emuDB                       
+##' get_levelCanvasesOrder(emuDBhandle = ae,
 ##'                        perspectiveName = "default")
 ##' }
 ##' 
@@ -281,7 +244,7 @@ set_levelCanvasesOrder <- function(emuDBhandle,
                                    order){
   
   DBconfig = load_DBconfig(emuDBhandle)
-
+  
   curLevelNames = list_levelDefinitions(emuDBhandle)$name
   curLevelTypes = list_levelDefinitions(emuDBhandle)$type
   
@@ -311,7 +274,7 @@ set_levelCanvasesOrder <- function(emuDBhandle,
 ##' @export
 get_levelCanvasesOrder <- function(emuDBhandle,
                                    perspectiveName){
-
+  
   DBconfig = load_DBconfig(emuDBhandle)
   
   order = NA
@@ -328,4 +291,3 @@ get_levelCanvasesOrder <- function(emuDBhandle,
 # library('testthat') 
 # test_file("tests/testthat/test_aaa_initData.R")
 # test_file('tests/testthat/test_emuR-database.DBconfig.EMUwebAppConfig.R')
-

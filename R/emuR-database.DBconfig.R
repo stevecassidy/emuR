@@ -3,41 +3,6 @@
 # functions used to build various path combinations
 # plus helper functions
 
-# get_linkLevelChildren <- function(schema, superlevelName){
-#   subLds=list()
-#   for(ld in schema[['linkDefinitions']]){
-#     if(ld[['superlevelName']] == superlevelName){
-#       subLds[[length(subLds) + 1L]] = ld
-#     }
-#   }
-#   return(subLds)
-# }
-# 
-# get_rootLevelNames <- function(schema){
-#   rlNames = character(0)
-#   for(lvlD in schema[['levelDefinitions']]){
-#     hasSuperLevel = FALSE
-#     for(ld in schema[['linkDefinitions']]){
-#       if(ld[['sublevelName']] == lvlD[['name']]){
-#         hasSuperLevel = TRUE
-#         break
-#       }
-#     }
-#     if(!hasSuperLevel){
-#       rlNames = c(rlNames, lvlD[['name']])
-#     }
-#   }
-#   return(rlNames)
-# }
-
-# get_levelNames <- function(schema){
-#   lNames = character(0)
-#   for(lvlD in schema[['levelDefinitions']]){
-#     lNames = c(lNames, lvlD[['name']])
-#   }
-#   return(lNames)
-# }
-
 get_levelNameForAttributeName <- function(emuDBhandle, attributeName){
   DBconfig = load_DBconfig(emuDBhandle)
   for(lvlD in DBconfig$levelDefinitions){
@@ -52,18 +17,6 @@ get_levelNameForAttributeName <- function(emuDBhandle, attributeName){
   return(NULL)
 }
 
-# get_attributeNamesByName<-function(schema, levelName){
-#   aNames=character(0)
-#   for(lvlD in schema[['levelDefinitions']]){
-#     if(lvlD[['name']] == levelName){
-#       for(ad in lvlD[['attributeDefinitions']]){
-#         aNames=c(aNames, ad[['name']])
-#       }
-#       break
-#     }
-#   }
-#   return(aNames)
-# }
 
 get_allAttributeNames<-function(emuDBhandle){
   DBconfig = load_DBconfig(emuDBhandle)
@@ -87,41 +40,6 @@ get_linkLevelChildrenNames<-function(schema, superlevelName){
   }
   return(chNames)
 }
-
-
-# build_levelPartialPathes <- function(schema, fromLevelName, toLevelName){
-#   pathes = list()
-#   chNames = get_linkLevelChildrenNames(schema, fromLevelName)
-#   if(length(chNames) == 0){
-#     #pathes[[length(pathes)+1]]=c(levelName)
-#     
-#   }else{
-#     for(chName in chNames){
-#       if(chName == toLevelName){
-#         # terminated
-#         pathes[[length(pathes)+1L]] = c(fromLevelName, chName)
-#       }else{
-#         chPathes = build_levelPartialPathes(schema, chName, toLevelName)
-#         for(chPath in chPathes){
-#           pathes[[length(pathes)+1L]] = c(fromLevelName,chPath)
-#         }
-#       }
-#     }
-#   }
-#   return(pathes)
-# }
-# 
-# 
-# extract_linkTargetsFromPathes <- function(pathes){
-#   mergedTargets = character(0)
-#   for(p in pathes){
-#     pLen = length(p)
-#     trgs = p[2:pLen]
-#     mergedTargets = c(mergedTargets, trgs)
-#   }
-#   uniqueTargets = unique(mergedTargets)
-#   return(uniqueTargets)
-# }
 
 expand_linkPath <- function(p){
   expPath = list()
@@ -201,8 +119,6 @@ build_extLinkDefinitions <- function(emuDBhandle){
 
 
 find_segmentLevels<-function(emuDBhandle, attrName){
-  # DBconfig = load_DBconfig(emuDBhandle)
-  #cat("Search SEGMENT level for ",attrName,"\n")
   lvlNm = get_levelNameForAttributeName(emuDBhandle, attrName)
   extLnkDefs = build_extLinkDefinitions(emuDBhandle)
   segLvlList=character(0)
@@ -217,46 +133,8 @@ find_segmentLevels<-function(emuDBhandle, attrName){
       }
     }
   }
-  #cat("SEGMENT levels for ",attrName,": ",segLvlList,"\n")
   return(segLvlList)
 }
-
-
-# TODO
-# .store.schema<-function(db,projectDir=NULL){
-#   
-#   if(is.null(projectDir)){
-#     projectDir=db[['basePath']]
-#   }
-#   # store db schema file
-#   dbCfgNm=paste0(db[['name']],database.schema.suffix)
-#   dbCfgPath=file.path(projectDir,dbCfgNm)
-#   
-#   persistFilter=emuR.persist.filters.DBconfig
-#   sp=marshal.for.persistence(db[['DBconfig']],persistFilter)
-#   psJSON=jsonlite::toJSON(sp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-#   writeLines(psJSON,dbCfgPath)
-#   MD5DBconfigJSON = md5sum(dbCfgPath)
-#   .store.DBconfig.DBI(con = get_emuDBcon(db$DBconfig$UUID),DBconfig = db[['DBconfig']], MD5DBconfigJSON)
-# }
-
-# TODO 
-# .store.DBconfig<-function(con,basePath,DBconfig){
-#   
-#   # store db schema file
-#   dbCfgNm=paste0(DBconfig[['name']],database.schema.suffix)
-#   dbCfgPath=file.path(basePath,dbCfgNm)
-#   
-#   persistFilter=emuR.persist.filters.DBconfig
-#   sp=marshal.for.persistence(DBconfig,persistFilter)
-#   psJSON=jsonlite::toJSON(sp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-#   writeLines(psJSON,dbCfgPath)
-#   .store.DBconfig.DBI(con, DBconfig = DBconfig)
-# }
-
-##########################################
-# helper functions
-
 
 get_levelDefinition <- function(emuDBhandle, name){
   DBconfig = load_DBconfig(emuDBhandle)
@@ -880,7 +758,7 @@ remove_attrDefLabelGroup <- function(emuDBhandle,
 ##' 
 ##' ##################################
 ##' # prerequisite: loaded emuDB that was converted
-##' # using the TextGridCollection function called myTGcolDB
+##' # using the convert_TextGridCollection function called myTGcolDB
 ##' # (see ?load_emuDB for more information)
 ##' 
 ##' # add link definition from super-level "Phoneme"
@@ -1039,9 +917,9 @@ remove_linkDefinition <- function(emuDBhandle,
 ##' for a list of all the signal processing functions provided by the wrassp package.
 ##' @param onTheFlyParams a list of parameters that will be given to the function 
 ##' passed in by the onTheFlyFunctionName parameter. This list can easily be 
-##' generated using the \code{formals} function on the according signal processing function 
+##' generated using the \code{\link{formals}} function on the according signal processing function 
 ##' provided by the wrassp package and then setting the
-##' parameter one wishes to change.     
+##' parameter one wishes to change.
 ##' @param onTheFlyOptLogFilePath path to optional log file for on-the-fly function
 ##' @param deleteFiles delete files that belong to ssffTrackDefinition on removal
 ##' @param verbose Show progress bars and further information
@@ -1331,7 +1209,6 @@ remove_labelGroup <- function(emuDBhandle,
 }
 
 
-###############################
 # FOR DEVELOPMENT 
 # library('testthat') 
 # test_file('tests/testthat/test_aaa_initData.R')

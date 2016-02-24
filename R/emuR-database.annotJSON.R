@@ -1,4 +1,3 @@
-
 #######################################################
 # annotJSON representation to annotDFs conversion functions
 
