@@ -18,15 +18,15 @@ requireNamespace("dplyr", quietly = T)
 ##' \dontrun{
 ##' 
 ##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
+##' # prerequisite: loaded ae emuDB 
 ##' # (see ?load_emuDB for more information)
 ##' 
 ##' # query emuDB (to get object of class emuRsegs)
-##' sl = query(dbName = "ae", 
+##' sl = query(emuDBhandle = ae, 
 ##'            query = "Phonetic == i:")
 ##'            
 ##' # get formats for SEGMENTs in sl (to get object of class trackdata)
-##' td = get_trackdata(dbName = "ae", 
+##' td = get_trackdata(emuDBhandle = ae, 
 ##'                    seglist = sl,
 ##'                    onTheFlyFunctionName = "forest")
 ##' 

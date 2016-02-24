@@ -52,27 +52,27 @@
 ##' \dontrun{
 ##' 
 ##' ##################################
-##' # prerequisite: loaded "ae" emuDB 
+##' # prerequisite: loaded ae emuDB 
 ##' # (see ?load_emuDB for more information)
 ##' 
 ##' # query loaded "ae" emuDB for all "i:" segments of the "Phonetic" level
-##' sl = query(ae, 
+##' sl = query(emuDBhandle = ae, 
 ##'            query = "Phonetic == i:")
 ##' 
 ##' # get the corresponding formant trackdata
-##' td = get_trackdata(ae, 
+##' td = get_trackdata(emuDBhandle = ae, 
 ##'                    seglist = sl, 
 ##'                    ssffTrackName = "fm")
 ##' 
 ##' # get the corresponding F0 trackdata
 ##' # as there is no F0 ssffTrack defined in the "ae" emuDB we will 
 ##' # calculate the necessary values on-the-fly
-##' td = get_trackdata(ae, 
+##' td = get_trackdata(emuDBhandle = ae, 
 ##'                    seglist = sl, 
 ##'                    onTheFlyFunctionName = "ksvF0")
 ##'                    
 ##' }
-
+##' 
 "get_trackdata" <- function(emuDBhandle, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
                             npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
                             onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, 
@@ -169,7 +169,6 @@
   
   
   splUtt = str_split(seglist$utts[1], ':')[[1]]
-  #   curBndl <- dbObj$sessions[[splUtt[1]]]$bundles[[splUtt[2]]]
   
   # check if utts entry exists
   bndls = list_bundles(emuDBhandle)
@@ -186,9 +185,6 @@
     funcFormals$toFile = FALSE
     curDObj = do.call(onTheFlyFunctionName,funcFormals)
   }else{
-#     allBndlTrackPaths <- dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT path FROM track WHERE db_uuid='", dbUUID, "' AND session='",
-#                                                                  splUtt[1], "' AND bundle='", splUtt[2], "'"))$path
-    # fpath <- allBndlTrackPaths[grepl(paste(trackDef[[1]]$fileExtension, '$', sep = ''), allBndlTrackPaths)]
     fpath <- file.path(emuDBhandle$basePath, paste0(splUtt[1], session.suffix), paste0(splUtt[2], bundle.dir.suffix), paste0(splUtt[2], ".", trackDef[[1]]$fileExtension))
     curDObj <- read.AsspDataObj(fpath)
   }
@@ -234,11 +230,6 @@
       stop("Following utts entry not found: ", seglist$utts[i])
     }
     
-    
-    # allBndlTrackPaths <- dbGetQuery(get_emuDBcon(dbUUID), paste0("SELECT path FROM track WHERE db_uuid='", dbUUID, "' AND session='",
-                                                                 # splUtt[1], "' AND bundle='", splUtt[2], "'"))$path
-    
-    # fpath <- allBndlTrackPaths[grepl(paste0(trackDef[[1]]$fileExtension, '$'), allBndlTrackPaths)]
     fpath <- file.path(emuDBhandle$basePath, paste0(splUtt[1], session.suffix), paste0(splUtt[2], bundle.dir.suffix), paste0(splUtt[2], ".", trackDef[[1]]$fileExtension))
     
     ################

@@ -73,26 +73,27 @@ see \code{vignette{emuDB}}.
 \dontrun{
 
 ##################################
-# prerequisite: loaded "ae" emuDB 
+# prerequisite: loaded ae emuDB 
 # (see ?load_emuDB for more information)
 
 # query loaded "ae" emuDB for all "i:" segments of the "Phonetic" level
-sl = query(ae, 
+sl = query(emuDBhandle = ae, 
            query = "Phonetic == i:")
 
 # get the corresponding formant trackdata
-td = get_trackdata(ae, 
+td = get_trackdata(emuDBhandle = ae, 
                    seglist = sl, 
                    ssffTrackName = "fm")
 
 # get the corresponding F0 trackdata
 # as there is no F0 ssffTrack defined in the "ae" emuDB we will 
 # calculate the necessary values on-the-fly
-td = get_trackdata(ae, 
+td = get_trackdata(emuDBhandle = ae, 
                    seglist = sl, 
                    onTheFlyFunctionName = "ksvF0")
                    
 }
+
 }
 \seealso{
 \code{\link{formals}}, \code{\link{wrasspOutputInfos}}, \code{\link{trackdata}}, \code{\link{emuRtrackdata}}

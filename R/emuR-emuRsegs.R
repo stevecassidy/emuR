@@ -27,17 +27,8 @@
 make.emuRsegs <- function(dbName,seglist,query,type)
 {
   
-  
-  
-#   seglist <- data.frame(labels=I(as.character(labels)),
-#                         start=as.numeric(start), 
-#                         end=as.numeric(end), 
-#                         utts=I(as.character(utts)))
-#   
- 
   class(seglist) <- c("emuRsegs","emusegs", "data.frame")
-  
-  
+
   attr(seglist, "query") <- query
   attr(seglist, "type") <- type
   attr(seglist, "database") <- dbName
@@ -54,12 +45,6 @@ make.emuRsegs <- function(dbName,seglist,query,type)
 {
   cat(attributes(x)$type, " list from database: ", attributes(x)$database, "\n")
   cat("query was: ", attributes(x)$query, "\n" )
-  #if( version$major >= 5 ) {
-  #oldClass(x) <- "data.frame"
-  #} else {
-  #class(x) <- "data.frame"
-  #}
-  
   printX='[.data.frame'(x,c('labels','start','end','session','bundle','level','type'))
   
   print.data.frame(printX, ...)

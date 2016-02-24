@@ -1,7 +1,5 @@
 build_legacyBundleList<-function(parsedEmuPath,currentPath=NULL,fileSuffixPattern,bundleList=list()){
   if(length(parsedEmuPath)==0){
-    #fileGlobPatt=paste0("*",fileSuffix)
-    #fileRegexPatt=glob2rx(fileGlobPatt)
     fileRegexPattern=paste0('^.*',fileSuffixPattern)
     fileList = list.files(currentPath, pattern=fileRegexPattern, recursive=F, full.names=F)
     if(length(fileList)==0){
@@ -75,39 +73,19 @@ convert_legacyBundleId<-function(legacybundleID){
   return(c(s,legacybundleID[legacybundleIDLen]))
 }
 
-# convert.legacy.bundle.list.to.sessions<-function(bl){
-#   sessions=list()
-#   
-#   if(!is.null(bl) & length(bl)>0){
-#     globPatternCount=length(bl[[1]])-1
-#     
-#     if(globPatternCount>0){
-#       createSessName=function(x,toCol){
-#         return(paste(x[1:toCol],collapse='_'))
-#       }
-#       sesssNonUnique=lapply(bl,createSessName,toCol=globPatternCount)
-#       sessions=unique(sesssNonUnique)
-#     }else{
-#       # no glob patterns, put all bundles to dummy session
-#       sessions[['0000']]=list(bundles=bl)
-#     }
-#   }
-#   return(sessions)
-# }
-
 get_legacyEmuBundles=function(basePath,pathPattern,primaryFileSuffixPattern=NULL){
   if(is_relativeFilePath(pathPattern)){
     absPathPattern=file.path(basePath,pathPattern)
   }else{
     absPathPattern=pathPattern
   }
-  emuParsedPathPattern=parse.emuTrackPath(absPathPattern)
+  emuParsedPathPattern=parse_emuTrackPath(absPathPattern)
   bl=build_legacyBundleList(emuParsedPathPattern[['dirs']],fileSuffixPattern=primaryFileSuffixPattern)
   return(bl)
 }
 
 
-convert.emuTrackPath <- function(absEmuTrackPath){
+convert_emuTrackPath <- function(absEmuTrackPath){
   # Emu track path may have asterisks for pattern matching e.g.
   # wav E:/KielCorpusRead/*/*/*/*
   # to use this pattern with R regex we have to convert to regular expression
@@ -121,9 +99,7 @@ convert.emuTrackPath <- function(absEmuTrackPath){
       # Bug this condition block is never reached!!
       # The regex substitution is done is list.trackdirs
       lastIsAsterisk=FALSE
-      #if(epDir==''){
-      #  cDir='/'
-      #}else{
+
       if(epDir!=''){
         if(is.null(cDir)){
           cDir=epDir
@@ -150,7 +126,7 @@ convert.emuTrackPath <- function(absEmuTrackPath){
   return(pp)
 }
 
-parse.emuTrackPath <- function(absEmuTrackPath){
+parse_emuTrackPath <- function(absEmuTrackPath){
   # Emu track path may have asterisks for pattern matching e.g.
   # wav E:/KielCorpusRead/*/*/*/*
   # to use this pattern with R regex we have to convert to regular expression
@@ -161,12 +137,8 @@ parse.emuTrackPath <- function(absEmuTrackPath){
   cDir=NULL
   lastIsAsterisk=FALSE
   for(epDir in epSpl){
-    #if(epDir!='*'){
     if(!grepl('[*]',epDir)){
       lastIsAsterisk=FALSE
-      #if(epDir==''){
-      #  cDir='/'
-      #}else{
       if(epDir!=''){
         if(is.null(cDir)){
           cDir=epDir
@@ -188,7 +160,6 @@ parse.emuTrackPath <- function(absEmuTrackPath){
       } 
       cDir=NULL
       
-      #epDirRegexPattern=
       pp[[length(pp)+1]]=list(dir=epDir,pattern=TRUE)
       wildcardDirLevelCount=wildcardDirLevelCount+1
       
@@ -196,7 +167,6 @@ parse.emuTrackPath <- function(absEmuTrackPath){
     }
   }
   if(!lastIsAsterisk){
-    #pp=c(pp,cDir)
     pp[[length(pp)+1]]=list(dir=cDir,pattern=FALSE)
   }
   topo[['dirs']]=pp
@@ -213,12 +183,12 @@ parse.emuTrackPath <- function(absEmuTrackPath){
 ## @author Klaus Jaensch
 ## @keywords emuDB bundle Emu
 ## 
-list.trackdirs<-function(emuPath=NULL,parsedEmuPathPattern=NULL){
+list_trackdirs<-function(emuPath=NULL,parsedEmuPathPattern=NULL){
   if(is.null(parsedEmuPathPattern)){
     if(is.null(emuPath)){
       stop("At least one of the parameters emuPath or parsedEmuPathPattern is required.")
     }
-    parsedEmuPathPattern=convert.emuTrackPath(emuPath)
+    parsedEmuPathPattern=convert_emuTrackPath(emuPath)
   }
   cDir=NULL
   dirLevels=length(parsedEmuPathPattern)
@@ -247,7 +217,7 @@ list.trackdirs<-function(emuPath=NULL,parsedEmuPathPattern=NULL){
               newPattern=c(newPattern,parsedEmuPathPattern[j])
             }
           }
-          wcRes=list.trackdirs(parsedEmuPathPattern=newPattern)
+          wcRes=list_trackdirs(parsedEmuPathPattern=newPattern)
           res=c(res,wcRes)
         }
       }
@@ -257,90 +227,13 @@ list.trackdirs<-function(emuPath=NULL,parsedEmuPathPattern=NULL){
   return(cDir)
 }
 
-# list.emuTemplatePathes<-function(){
-#   # check if path is set
-#   emuTemplatePath=Sys.getenv('EMU_TEMPLATE_PATH')
-#   if(is.null(emuTemplatePath) | ''==emuTemplatePath){
-#     emuConfFile=NULL
-#     homePath=Sys.getenv('HOME')
-#     if(!is.null(homePath) & '' != homePath){
-#       emuConfFile=file.path(homePath,'.emu','emu-conf')
-#       if(!file.exists(emuConfFile)){
-#         emuConfFile=file.path(homePath,'.emu','Emu','emu-conf')
-#       }
-#     }
-#     osInfo=Sys.info()
-#     isWindos=FALSE
-#     if(!is.null(osInfo)){
-#       isWindos=('Windows'==osInfo[['sysname']])
-#     }
-#     if(isWindos & (is.null(emuConfFile) | !file.exists(emuConfFile))){
-#       # Windows 7
-#       userProfile=Sys.getenv('USERPROFILE')
-#       emuConfFile=file.path(userProfile,'.emu','Emu','emu-conf')
-#       #cat("emu conf",emuConfFile,"\n")
-#     }
-#     
-#     if(!is.null(emuConfFile) & file.exists(emuConfFile)){
-#       
-#       lc = try(readLines(emuConfFile,warn=FALSE))
-#       if(class(lc) == "try-error") {
-#         stop("Cannot read ",emuConfFile)
-#       }
-#       for(l in lc){
-#         
-#         kv=parse.line.to.key.value(l)
-#         if(!is.null(kv)){
-#           if(kv[1]=='#EMU_TEMPLATE_PATH'){
-#             etpSpl=strsplit(kv[2],.Platform[['path.sep']])
-#             return(etpSpl[[1]])
-#             
-#           }
-#         }
-#       }
-#     }
-#     
-#   }
-# }
-
-# list.file.matching.emu.path.pattern=function(basePath,pathPattern,filePattern=NULL){
-#   if(is_relativeFilePath(pathPattern)){
-#     absPathPattern=file.path(basePath,pathPattern)
-#   }else{
-#     absPathPattern=pathPattern
-#   }
-#   dirList=list.trackdirs(absPathPattern)
-#   fileList=c()
-#   for(dir in dirList){
-#     pFileList = list.files(dir, pattern=filePattern, recursive=T, full.names=T)
-#     fileList=c(fileList,pFileList)
-#   }
-#   return(fileList)
-# }
-
-# find.file.in.emu.path.pattern=function(emuPathPattern,fileName,basePath=NULL){
-#   if(is_relativeFilePath(emuPathPattern)){
-#     absPathPattern=file.path(basePath,emuPathPattern)
-#   }else{
-#     absPathPattern=emuPathPattern
-#   }
-#   dirList=list.trackdirs(absPathPattern)
-#   for(dir in dirList){
-#     tfp=paste0(dir,'/',fileName)
-#     if(file.exists(tfp)){
-#       return(tfp)
-#     }
-#   }
-#   return(NULL)
-# }
-
 get_legacyFilePath=function(basePath,emuPath,legacybundleID,fileExtension){
   if(is_relativeFilePath(emuPath)){
     absPathPattern=file.path(basePath,emuPath)
   }else{
     absPathPattern=emuPath
   }
-  pp=parse.emuTrackPath(absEmuTrackPath = absPathPattern)
+  pp=parse_emuTrackPath(absEmuTrackPath = absPathPattern)
   path=NULL
   bIdIdx=1
   for(pdl in pp[['dirs']]){
@@ -384,18 +277,13 @@ load_annotationForLegacyBundle=function(schema,legacyBundleID,basePath=NULL,enco
   }else{
     # TODO ASSP does not return good error messages if an IO error (not exist, permission dnied ,etc...) occurs
     # TODO test file access first
-    #cat("Determine sample rate from file: ",sampleRateReferenceFile,"\n")
     pfAssp=read.AsspDataObj(sampleRateReferenceFile,0,4000)
     sampleRate=attr(pfAssp,'sampleRate')
   }
   
   # create signal paths list
-  
   signalpaths=list() 
   for(tr in schema[['tracks']]){
-    #cat("Track: ",tr$name," ",tr$fileExtension,"\n")
-    #sigFilename=str_c(uttCode,'.',tr[['fileExtension']])
-    #sFile=find.file.in.emu.path.pattern(tr[['basePath']],sigFilename,basePath)
     sFile=get_legacyFilePath(basePath=basePath,emuPath=tr[['basePath']],legacyBundleID,fileExtension=tr[['fileExtension']])
     if(!is.null(sFile)){
       signalpaths[[length(signalpaths)+1L]]=sFile
@@ -407,20 +295,14 @@ load_annotationForLegacyBundle=function(schema,legacyBundleID,basePath=NULL,enco
   #  ESPS label files first
   for(ad in schema[['annotationDescriptors']]){
     extension=ad[['extension']]
-    #cat("Anno ext: ",extension,ad$basePath,"\n")
     annoBasePath=NULL
     if(is.null(ad[['basePath']])){
-      #annoBasePath=schema$
       # TODO use same as primary track
     }else{
       annoBasePath=ad[['basePath']]
       # Emu: assume that files reside in this directory (no recursive search)
-      
-      #annoFilename=str_c(uttCode,'.',extension)
-      #annoPath=find.file.in.emu.path.pattern(annoBasePath,annoFilename,basePath)
       annoPath=get_legacyFilePath(basePath=basePath,emuPath=ad[['basePath']],legacyBundleID,fileExtension=extension)
       if(!is.null(annoPath)){
-        #cat("Anno: ",annoPath,"\n")
         if(extension!='hlb'){
           # parse lab file
           if(file.exists(annoPath)){
@@ -441,20 +323,13 @@ load_annotationForLegacyBundle=function(schema,legacyBundleID,basePath=NULL,enco
   # now hlb file
   for(ad in schema[['annotationDescriptors']]){
     extension=ad[['extension']]
-    #cat("Anno ext: ",extension,ad$basePath,"\n")
-    #annoBasePath=NULL
+
     if(is.null(ad[['basePath']])){
-      #annoBasePath=schema$
       # TODO use same as primary track
     }else{
       annoBasePathEmu=ad[['basePath']]
       # resolve wildcards
-      #annoFilename=str_c(uttCode,'.',extension)
-      #annoPath=find.file.in.emu.path.pattern(annoBasePathEmu,annoFilename,basePath)
-      #if(!is.null(annoPath)){
-      #cat("Anno: ",annoPath,"\n")
       if(extension=='hlb'){
-        #cat("Parse hlb file:",annoPath,"\n")
         hlbFilePath=get_legacyFilePath(basePath=basePath,emuPath=annoBasePathEmu,legacyBundleID,fileExtension=extension)
         if(file.exists(hlbFilePath)){
           hlbParseResult=parse_hlbFile(hlbFilePath=annoPath,levelDefinitions=schema[['levelDefinitions']],levels=levels,encoding=encoding);
@@ -478,7 +353,6 @@ load_annotationForLegacyBundle=function(schema,legacyBundleID,basePath=NULL,enco
           #cat("Warning: HLB file: ",hlbFilePath," does not exist!\n")
         }
       }
-      #}
     }
     
   }
@@ -498,67 +372,16 @@ load_annotationForLegacyBundle=function(schema,legacyBundleID,basePath=NULL,enco
     }
   }
   # set sample rate even if no annotation levels exist
-  # Bug fix #20
   if(is.null(bundleSampleRate)){
     bundleSampleRate=sampleRate
   }
   
-  #annotates=paste0('0000_ses/',uttCode,bundle.dir.suffix,'/',sampleTrackFile)
   
   sampleTrackFile=paste0(bundleName,'.',schema[['mediafileExtension']]) 
-  #annotates=paste0(sessionName,session.suffix,'/',newBundleId[2],bundle.dir.suffix,'/',sampleTrackFile)
-  # bug #19
   annotates=paste0(sampleTrackFile)
   bundle=list(name=bundleName,sessionName=sessionName,legacyBundleID=legacyBundleID,annotates=annotates,sampleRate=bundleSampleRate,levels=levels,signalpaths=signalpaths,mediaFilePath=sampleRateReferenceFile,links=links)
   return(bundle)
 }
-
-# remove.redundant.bundle.links<-function(bundle){
-#   # Legacy EMU and query functions link collections contain links for each possible connection between levels
-#   # We consider links that do not follow link definition constraints as redundant and therefore we remove them from the
-#   # link data model
-#   #
-#   # build SQL query from link definitions
-#   
-#   move
-#   items=database[['items']]
-#   sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.session=t.session AND l.session=f.session AND f.itemID=l.fromID AND t.itemID=l.toID AND ("
-#   ldCnt=length(database[['DBconfig']][['linkDefinitions']])
-#   for(i in 1:ldCnt){
-#     ld=database[['DBconfig']][['linkDefinitions']][[i]]
-#     sqlQuery=paste0(sqlQuery,'(f.level=\'',ld[['superlevelName']],'\' AND t.level=\'',ld[['sublevelName']],'\')')
-#     if(i<ldCnt){
-#       sqlQuery=paste0(sqlQuery,' OR ')
-#     }
-#   }
-#   sqlQuery=paste0(sqlQuery,')')
-#   #cat(sqlQuery,"\n")
-#   return(sqldf(sqlQuery))
-# }
-
-# remove.redundant.links<-function(database,links){
-#   # Legacy EMU and query functions link collections contain links for each possible connection between levels
-#   # We consider links that do not follow link definition constraints as redundant and therefore we remove them from the
-#   # link data model
-#   #
-#   # build SQL query from link definitions
-#   items=database[['items']]
-#   sqlQuery="SELECT l.* FROM items f,items t,links l WHERE f.bundle=t.bundle AND l.bundle=f.bundle AND f.session=t.session AND l.session=f.session AND f.itemID=l.fromID AND t.itemID=l.toID AND ("
-#   ldCnt=length(database[['DBconfig']][['linkDefinitions']])
-#   for(i in 1:ldCnt){
-#     ld=database[['DBconfig']][['linkDefinitions']][[i]]
-#     sqlQuery=paste0(sqlQuery,'(f.level=\'',ld[['superlevelName']],'\' AND t.level=\'',ld[['sublevelName']],'\')')
-#     if(i<ldCnt){
-#       sqlQuery=paste0(sqlQuery,' OR ')
-#     }
-#   }
-#   sqlQuery=paste0(sqlQuery,')')
-#   #cat(sqlQuery,"\n")
-#   return(sqldf(sqlQuery))
-# }
-
-
-
 
 
 build_hashedLinkDefs<-function(linkDefinitions){
@@ -567,14 +390,7 @@ build_hashedLinkDefs<-function(linkDefinitions){
   linkDefsHashed=list()
   for(ld in linkDefinitions){
     supLvlNm=ld[['superlevelName']]
-    #if(is.null(linkDefsHashed[[supLvlNm]])){
-    #  # set
-    #  linkDefsHashed[[supLvlNm]]=ld[['sublevelName']]
-    #}else{
-    # append
     linkDefsHashed[[supLvlNm]]=c(linkDefsHashed[[supLvlNm]],ld[['sublevelName']])
-    #}
-    
   }
   return(linkDefsHashed)
 }
@@ -610,27 +426,39 @@ remove_redundantBundleLinks<-function(linkDefsHashed,bundle){
 
 
 ##' @title Convert legacy EMU database to the emuDB format
-##' @description Converts an existing legacy EMU database to emuDB database structure. Copies or rewrites signal files and converts the database configuration and annotation data.
-##' The legacy database can be addressed by its template file or by name.
-##' @details The database will be converted if the legacy database template file \code{emuTplPath} could be found and successfully loaded and parsed. The legacy template file usually has the extension '.tpl'. The UUID of the new emuDB will be randomly generated by default. If \code{targetDir} does not exist, the directory and its parents will be created. A new directory with the name of the database and the suffix '_emuDB' will be created in the \code{targetDir}. If the new database directory exists already, the function stops with an error.
-##' The template file is converted to a JSON file.
-##' Some of the flags of the legacy EMU template files are ignored (lines with this syntax: "set [flagName] [flagValue]", known ignored flag names are: 'LabelTracks', 'SpectrogramWhiteLevel', 'HierarchyViewLevels', 'SignalViewLevels'). 
-##' Legacy EMU utterances are reorganized to sessions and bundles. The naming of the sessions depends on the wildcard path pattern of the primary track: If the path contains no wildcard, only one session with name '0000' will be created. If the path contains one wildcard path element, the names of the directories matching the pattern will be used as session names. And if the path contains more than one wildcard path element, the session name is the concatenation of directory names separated by an underscore character.
-##' Media files (usually WAV files) are copied, SSFF track files are rewritten using the ASSP library of package \code{wrassp} by default (see option \code{rewriteSSFFTracks} below, see also \link[wrassp]{read.AsspDataObj} \link[wrassp]{write.AsspDataObj}). Annotations in EMU hierarchy (.hlb) files and ESPS label files are converted to one JSON file per bundle (utterance).
-##' Only those files get copied, which match the scheme of the template file. Additional files in the legacy database directories are ignored. The legacy EMU database will not be modified.
-##' For a detailed description of the emuDB database structure see \code{vignette(emuDB)}.
+##' @description Converts an existing legacy EMU database to emuDB database structure. 
+##' Copies or rewrites signal files and converts the database configuration and annotation data.
+##' The legacy database must be addressed by its template file.
+##' @details The database will be converted if the legacy database template file \code{emuTplPath} could 
+##' be found and successfully loaded and parsed. The legacy template file usually has the extension '.tpl'. 
+##' The UUID of the new emuDB will be randomly generated by default. If \code{targetDir} does not exist, 
+##' the directory and its parents will be created. A new directory with the name of the database and the 
+##' suffix '_emuDB' will be created in the \code{targetDir}. If the new database directory exists 
+##' already, the function stops with an error. The template file is converted to a JSON file.
+##' 
+##' Some of the flags of the legacy EMU template files are ignored (lines with this syntax: "set [flagName] [flagValue]", 
+##' known ignored flag names are: 'LabelTracks', 'SpectrogramWhiteLevel', 'HierarchyViewLevels', 'SignalViewLevels'). 
+##' Legacy EMU utterances are reorganized to sessions and bundles. The naming of the sessions depends on the wildcard 
+##' path pattern of the primary track: If the path contains no wildcard, only one session with the name '0000' will be created. 
+##' If the path contains one wildcard path element, the names of the directories matching the pattern will be used as session names. 
+##' If the path contains more than one wildcard path element, the session name is the concatenation of directory names 
+##' separated by an underscore character.
+##' 
+##' Media files (usually WAV files) are copied, SSFF track files are rewritten using the ASSP library of package
+##' \code{wrassp} by default (see option \code{rewriteSSFFTracks} below, see also \link[wrassp]{read.AsspDataObj} 
+##' \link[wrassp]{write.AsspDataObj}). Annotations in EMU hierarchy (.hlb) files and ESPS label files are 
+##' converted to one JSON file per bundle (utterance). Only those files get copied, which match the scheme 
+##' of the template file. Additional files in the legacy database directories are ignored. The legacy EMU 
+##' database will not be modified. For more information on the structural elements of an emuDB see \code{vignette{emuDB}}.
 ##' 
 ##'
 ##' \code{options} is a list of key value pairs:
-##' 
-##' \code{rewriteSSFFTracks}: if \code{TRUE}, rewrite SSFF tracks instead of copying the file to get rid of big endian encoded SSFF files (SPARC), default: \code{TRUE}
-##' 
-##' \code{ignoreMissingSSFFTrackFiles}: if \code{TRUE}, missing SSFF track files are ignored, if \code{FALSE} an error will be generated, default: \code{TRUE}
-##' 
-##' \code{sourceFileTextEncoding}: encoding of legacy database text files (template, label and hlb files), possible values: NULL, "latin1", "UTF-8" "bytes" or "unknown" :default \code{NULL} (uses encoding of operating system platform)
-##' 
-##' \code{symbolicLinkSignalFiles}: if \code{TRUE}, signal files are symbolic linked instead of copied. Implies: \code{rewriteSSFFTracks=FALSE}, Default: \code{FALSE}
-##' 
+##' \itemize{
+##' \item{\code{rewriteSSFFTracks}: if \code{TRUE}, rewrite SSFF tracks instead of copying the file to get rid of big endian encoded SSFF files (SPARC), default: \code{TRUE}}
+##' \item{\code{ignoreMissingSSFFTrackFiles}: if \code{TRUE}, missing SSFF track files are ignored, if \code{FALSE} an error will be generated, default: \code{TRUE}}
+##' \item{\code{sourceFileTextEncoding}: encoding of legacy database text files (template, label and hlb files), possible values: NULL, "latin1", "UTF-8" "bytes" or "unknown" :default \code{NULL} (uses encoding of operating system platform)}
+##' \item{\code{symbolicLinkSignalFiles}: if \code{TRUE}, signal files are symbolic linked instead of copied. Implies: \code{rewriteSSFFTracks=FALSE}, Default: \code{FALSE}}
+##' }
 ##' @param emuTplPath EMU template file path
 ##' @param targetDir target directory
 ##' @param dbUUID optional UUID of emuDB, will be generated by default
@@ -661,7 +489,7 @@ remove_redundantBundleLinks<-function(linkDefsHashed,bundle){
 ##' demoTplPath=file.path(tempdir(),"emuR_demoData/legacy_ae/ae.tpl")
 ##' targetDir=file.path(tempdir(),"converted_to_emuR")
 ##' convert_legacyEmuDB(demoTplPath,targetDir)
-##' dbName=load_emuDB(file.path(targetDir,"ae_emuDB"))
+##' dbHandle=load_emuDB(file.path(targetDir,"ae_emuDB"))
 ##' 
 ##' }
 ##' 
@@ -702,9 +530,6 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerate(),optio
   tplBaseDir=NULL
   tplBaseDir=dirname(emuTplPath)
   
-  ## create target dir
-  #dir.create(targetDir)
-  
   # create database dir in targetdir
   dir.create(pp,recursive = TRUE)
   
@@ -716,10 +541,7 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerate(),optio
   
   # set user editable
   dbConfig[['EMUwebAppConfig']][['activeButtons']]=list(saveBundle=TRUE, showHierarchy=TRUE)
-  
-  # initialize DBI
-  # .initialize.DBI.database()
-  
+
   # add handle for in memory DB
   dbHandle = emuDBhandle(dbName, pp, dbUUID, connectionPath = ":memory:")
   
@@ -734,18 +556,12 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerate(),optio
   primaryBasePath=NULL
   primaryFileExtension=NULL
   
-  #pattern='*'
   primaryFileSuffixPattern=NULL
   # find primary and sample track paths
   for(tr in dbConfig[['tracks']]){
-    #cat("Track: ",tr$name," ",tr$fileExtension,"\n")
     if(tr[['fileExtension']]==dbConfig[['flags']][['PrimaryExtension']]){
-      
       primaryFileExtension=tr[['fileExtension']]
       primaryBasePath=tr[['basePath']]
-      #if(!is.null(tr[['unitSuffix']])){
-      #  pattern=str_c(pattern,tr[['unitSuffix']])
-      #}
     }
   }
   
@@ -759,14 +575,12 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerate(),optio
     }
     
   }
-  #pattern=str_c(pattern,'[.]',primaryFileExtension)
   primaryFileSuffixPattern=paste0('[.]',primaryFileExtension,'$')
-  #primaryFileList=list.file.matching.emu.path.pattern(db[['basePath']],primaryBasePath,filePattern=pattern)
   legacyBundleIDsList=get_legacyEmuBundles(legacyBasePath,primaryBasePath,primaryFileSuffixPattern)
   
   
   bundlesCount=length(legacyBundleIDsList)
-  #utts=vector(mode='list',length=bundlesCount)
+
   us=1:bundlesCount
   if(verbose){
     cat("INFO: Converting legacy EMU database containing",bundlesCount,"bundles...\n")
@@ -782,32 +596,19 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerate(),optio
     bundleName=newBundleId[2]
     sDir=paste0(sessionName,session.suffix)
     sfp=file.path(pp,sDir)
-    #if(is.null(db[['sessions']][[sessionName]])){
     if(!file.exists(sfp)){
-      # create session if needed
-      #db[['sessions']][[sessionName]]=list(name=sessionName,bundles=list())
-      #.store.session.DBI(dbd[['UUID']],sessionName)
-      
-      #cat(targetDir,s$name,sfp,"\n")
       dir.create(sfp)
     }
     ptrFilePath=get_legacyFilePath(legacyBasePath,primaryBasePath,legacyBundleID,primaryFileExtension)
-    #ptrFilePath=primaryFileList[ui]
-    #cat("Primary track file path: ",ptrFilePath,"\n")
-    
+
     ptrFileBasename=basename(ptrFilePath)
-    #cat("Ext: ",primaryTrackFileExtension,"\n")
+
     cutLen=str_length(primaryFileExtension)+1L
     cutPos=str_length(ptrFileBasename)-cutLen
-    #cat("Cut: ",ptrFileBasename,cutLen,cutPos,"\n")
-    #uttCode=substr(ptrFileBasename,1,cutPos)
+
     bundle=load_annotationForLegacyBundle(dbConfig,legacyBundleID,legacyBasePath,encoding=mergedOptions[['sourceFileTextEncoding']])
     bundle=remove_redundantBundleLinks(linkDefsHashed,bundle)
-    #maxLbls=db[['DBconfig']][['maxNumberOfLabels']]
-    #bundle[['db_UUID']]=dbConfig[['UUID']]
-    #.store.bundle.DBI(db,bundle)
-    #.store.bundle.annot.DBI(db,bundle)
-    
+
     bDir=paste0(bundle[['name']],bundle.dir.suffix)
     bfp=file.path(sfp,bDir)
     dir.create(bfp)
@@ -850,11 +651,9 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerate(),optio
           # read/write instead of copy to get rid of big endian encoded SSFF files (SPARC)
           pfAssp=read.AsspDataObj(sf)
           write.AsspDataObj(pfAssp,nsfp)
-          #cat("Rewritten SSFF: ",sf," to ",nsfp,"\n")
         }else{
           # media file (likely a wav file)
           file.copy(from=sf,to=nsfp)
-          #cat("Copied: ",sf," to ",nsfp,"\n")
         }
       }else{
         if(!mergedOptions[['ignoreMissingSSFFTrackFiles']]){
@@ -867,16 +666,11 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerate(),optio
     
     bName=bundle[['name']]
     
-    #utts[[uttCode]]=bundle
-    #db[['sessions']][[sessionName]][['bundles']][[bName]]=bundle
-    
     progress=progress+1L
     if(verbose){
       setTxtProgressBar(pb,progress)
     }
   }
-  #purge_emuDB(dbUUID = dbUUID,interactive = FALSE)
-  # remove_emuDBhandle(dbUUID)
   if(verbose){
     setTxtProgressBar(pb,progress)
     cat("\n")
