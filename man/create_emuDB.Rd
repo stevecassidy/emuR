@@ -23,6 +23,14 @@ create_emuDB(name, targetDir, mediaFileExtension = "wav", store = TRUE,
 Creates an empty emuDB in the target directory specified
 }
 \details{
-Creates a new directory [name]_emuDB in targetDir. By default the emuDB is created in the R session, written to the filesystem and then purged from the R session.
+Creates a new directory [name]_emuDB in targetDir. By default the emuDB is created in the R session, 
+written to the filesystem and then purged from the R session.
+}
+\examples{
+\dontrun{
+# create empty emuDB in folder provided by tempdir()
+create_emuDB(name = "myNewEmuDB", 
+             targetDir = tempdir())
+}
 }
 

@@ -13,7 +13,8 @@ load_emuDB(databaseDir, inMemoryCache = FALSE, connection = NULL,
 \item{inMemoryCache}{cache the loaded DB in memory}
 
 \item{connection}{pass in DBI connection to SQL database if you want to override the default which is to 
-use an SQLite database either in memory (\code{inMemoryCache = TRUE}) or in the emuDB folder.}
+use an SQLite database either in memory (\code{inMemoryCache = TRUE}) or in the emuDB folder. This is intended
+for expert use only!}
 
 \item{verbose}{be verbose}
 }
@@ -21,16 +22,20 @@ use an SQLite database either in memory (\code{inMemoryCache = TRUE}) or in the 
 name of emuDB
 }
 \description{
-Function loads emuDB from filesystem to R session
+Function loads emuDB into its cached representation and makes it accessible from within the 
+current R session by returning a emuDBhandle object
 }
 \details{
-In order to use an emuDB from R it is necessary to load the annotation and configuration files to an emuR internal database format.
-The function expects an emuDB file structure in directory \code{databaseDir}. The emuDB configuration file is loaded first. On success the function iterates through session and bundle directories and loads found annotation files.
-Parameter \code{inMemoryCache} determines where the internal database is stored:
-If \code{FALSE} a databse cache file in \code{databaseDir} is used. When the database is loaded for the first time the function will create a new cache file and store the data to it. On subsequent loading of the same database the cache is only updated if files have changed, therefore the loading is then much faster.
-The user needs write permissions to \code{databaseDir} and the cache file.
-The database is loaded to a volatile in-memory database if \code{inMemoryCache} is set to \code{TRUE}.
-If the requested emuDB is already loaded to the R session, data of changed annotation or configuration files get updated. The reloaded representation of the database is then in sync with the filesystem.
+In order to access an emuDB from R it is necessary to load the annotation and configuration 
+files to an emuR internal database format. The function expects a emuDB file structure in directory 
+\code{databaseDir}. The emuDB configuration file is loaded first. On success the function iterates 
+through session and bundle directories and loads found annotation files. The parameter \code{inMemoryCache} 
+determines where the internal database is stored: If \code{FALSE} a databse cache file in \code{databaseDir} 
+is used. When the database is loaded for the first time the function will create a new cache file and store 
+the data to it. On subsequent loading of the same database the cache is only updated if files have changed, 
+therefore the loading is then much faster. For this to work the user needs write permissions to 
+\code{databaseDir} and the cache file. The database is loaded into a volatile in-memory database if 
+\code{inMemoryCache} is set to \code{TRUE}.
 }
 \examples{
 \dontrun{
@@ -42,9 +47,9 @@ ae = load_emuDB("/homes/mylogin/EMU/ae")
 ## Load database ae from demo data
 
 # create demo data in temporary directory
-create_emuRdemoData()
+create_emuRdemoData(dir = tempdir())
 # build base path to demo emuDB
-demoDatabaseDir = file.path(tempdir(), "emuR_demoData", "ae")
+demoDatabaseDir = file.path(tempdir(), "emuR_demoData", "ae_emuDB")
 
 # load demo emuDB
 ae = load_emuDB(demoDatabaseDir)

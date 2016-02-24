@@ -382,16 +382,6 @@ build_allRedundantLinks <- function(emuDBhandle, sessionName=NULL, bundleName=NU
   return(build_redundantLinksForPaths(emuDBhandle, hierarchyPaths, sessionName, bundleName) )
 }
 
-## Legacy EMU and query functions link collections contain links for each possible connection between levels
-## We consider links that do not follow link definition constraints as redundant and therefore we remove them from the
-## link data model. For queries we build links for particular start and end level.
-# build_redundantLinks<-function(emuDBhandle, fromLevel, toLevel){
-#   
-#   hierarchyPaths = build_levelPartialPathes(get_DBconfig(emuDBhandle), fromLevel, toLevel)
-#   
-#   return(build_redundantLinksForPaths(database, hierarchyPaths))
-# }
-
 
 build_redundantLinksForPaths <- function(emuDBhandle, hierarchyPaths, sessionName='0000', bundleName=NULL){
   
@@ -412,8 +402,8 @@ build_redundantLinksForPaths <- function(emuDBhandle, hierarchyPaths, sessionNam
     }
     
     sqlQuery=paste0(sqlQuery,' (')
-    # build query for each partial path
     
+    # build query for each partial path
     for(i in 1:hierarchyPathsLen){
       hp = hierarchyPaths[[i]]
       #cat("Path: ",hp,"\n")
@@ -436,30 +426,25 @@ build_redundantLinksForPaths <- function(emuDBhandle, hierarchyPaths, sessionNam
       sqlQuery=paste0(sqlQuery," WHERE ")
       if(hpLen==2){
         sqlQuery=paste0(sqlQuery,"l1.db_uuid=f.db_uuid AND l1.db_uuid=t.db_uuid AND l1.session=f.session AND l1.session=t.session AND l1.bundle=f.bundle AND l1.bundle=t.bundle AND f.itemID=l1.fromID AND t.itemID=l1.toID")
-        #sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=t.bundle AND f.itemID=l1.fromID AND t.itemID=l1.toID")
-        #cat(sHp,eHp,"\n")
+
       }else{
         # TODO start and end connection
         # from start to first in-between item 
         eHp=hp[2]
-        #cat(sHp,eHp,"\n")
         sqlQuery=paste0(sqlQuery,"l1.db_uuid=f.db_uuid AND l1.db_uuid=i2.db_uuid AND l1.session=f.session AND l1.session=i2.session AND l1.bundle=f.bundle AND l1.bundle=i2.bundle AND f.itemID=l1.fromID AND i2.itemID=l1.toID AND f.level='",sHp,"' AND i2.level='",eHp,"' AND ")
-        #sqlQuery=paste0(sqlQuery,"l1.bundle=f.bundle AND l1.bundle=i2.bundle AND f.itemID=l1.fromID AND i2.itemID=l1.toID AND f.level='",sHp,"' AND i2.level='",eHp,"' AND ")
         if(hpLen>3){
           for(j in 2:(hpLen-2)){
             sHp=hp[j]
             eHp=hp[j+1L] 
-            #cat(sHp,eHp,"\n")
             sqlQuery=paste0(sqlQuery,"l",j,".db_uuid=i",j,".db_uuid AND l",j,".db_uuid=i",(j+1),".db_uuid AND l",j,".session=i",j,".session AND l",j,".session=i",(j+1),".session AND l",j,".bundle=i",j,".bundle AND l",j,".bundle=i",(j+1),".bundle AND i",j,".itemID=l",j,".fromID AND i",(j+1L),".itemID=l",j,".toID AND i",j,".level='",sHp,"' AND i",(j+1L),".level='",eHp,"' AND ")
           }
         }
         # from last in-between item to end item
         sHp=hp[(hpLen-1)]
         eHp=hp[hpLen]
-        #cat(sHp,eHp,(hpLen-1),"\n")
+
         j=hpLen-1
         sqlQuery=paste0(sqlQuery,"l",j,".db_uuid=i",j,".db_uuid AND l",j,".db_uuid=t.db_uuid AND l",j,".session=i",j,".session AND l",j,".session=t.session AND l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND i",j,".itemID=l",j,".fromID AND t.itemID=l",j,".toID AND i",j,".level='",sHp,"' AND t.level='",eHp,"'")
-        #sqlQuery=paste0(sqlQuery,"l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND i",j,".itemID=l",j,".fromID AND t.itemID=l",j,".toID AND i",j,".level='",sHp,"' AND t.level='",eHp,"'")
       }
       sqlQuery=paste0(sqlQuery,"))")
       if(i<hierarchyPathsLen){
@@ -467,52 +452,30 @@ build_redundantLinksForPaths <- function(emuDBhandle, hierarchyPaths, sessionNam
       }
     }
     sqlQuery=paste0(sqlQuery,")")
-    #cat(sqlQuery,"\n")
     # since version 2.8.x of sqlite the query is very slow without indices
-    
-    
-    #cat(sqlQuery,"\n")
-    #res<-dbSendQuery(get_emuDBcon(),comQuery)
     res<-dbSendQuery(emuDBhandle$connection, sqlQuery)
     dbClearResult(res)
   }
-  #print(dbReadTable(get_emuDBcon(),'linksTmp'))
-  
 }
 
 calculate_postionsOfLinks<-function(emuDBhandle){
   
   # for all position related functions we need to calculate the sequence indices of dominated items grouped to one dominance item 
   # Extend links table with sequence index of the targeted (dominated) item
-  #links2=sqldf("SELECT k.*,i.seqIdx FROM links k,items i WHERE i.bundle=k.bundle AND k.toID=i.itemID")
+  dbGetQuery(emuDBhandle$connection,"DELETE FROM linksExtTmp")
   
-  # since version 2.8.x of sqlite the query is very slow without indices
-  #res<-dbSendQuery(get_emuDBcon(),'CREATE INDEX items_idx2 ON items(db_uuid,session,bundle,level,itemID,seqIdx)')
-  #dbClearResult(res)
+  dbGetQuery(emuDBhandle$connection,"INSERT INTO linksExtTmp(db_uuid,session,bundle,fromID,toID,seqIdx,toLevel,type,label) SELECT k.db_uuid,k.session,k.bundle,k.fromID,k.toID,i.seqIdx,i.level AS toLevel,i.type,NULL AS label FROM linksTmp k,items i WHERE i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle AND k.toID=i.itemID")
   
-  res<-dbSendQuery(emuDBhandle$connection,"DELETE FROM linksExtTmp")
-  dbClearResult(res)
-  #print(dbReadTable(get_emuDBcon(),'linksTmp'))
-  res<-dbSendQuery(emuDBhandle$connection,"INSERT INTO linksExtTmp(db_uuid,session,bundle,fromID,toID,seqIdx,toLevel,type,label) SELECT k.db_uuid,k.session,k.bundle,k.fromID,k.toID,i.seqIdx,i.level AS toLevel,i.type,NULL AS label FROM linksTmp k,items i WHERE i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle AND k.toID=i.itemID")
-  dbClearResult(res)
-  #dbSendQuery(get_emuDBcon(),"DELETE FROM linksExt")
   # extend links table with relative sequence index
+  dbGetQuery(emuDBhandle$connection,"INSERT INTO linksExtTmp2(db_uuid,session,bundle,seqIdx,fromID,toID,toLevel,type,label,toSeqIdx) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toLevel,k.type,k.label,k.seqIdx-(SELECT MIN(m.seqIdx) FROM linksExtTmp m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqIdx FROM linksExtTmp k")
   
-  res<-dbSendQuery(emuDBhandle$connection,"INSERT INTO linksExtTmp2(db_uuid,session,bundle,seqIdx,fromID,toID,toLevel,type,label,toSeqIdx) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toLevel,k.type,k.label,k.seqIdx-(SELECT MIN(m.seqIdx) FROM linksExtTmp m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqIdx FROM linksExtTmp k")
-  dbClearResult(res)
+  dbGetQuery(emuDBhandle$connection,"DELETE FROM linksExtTmp")
   
-  res<-dbSendQuery(emuDBhandle$connection,"DELETE FROM linksExtTmp")
-  dbClearResult(res)
   # Add length of dominance group sequence
-  #links3IdxSql='CREATE INDEX links3_idx ON links3(session,bundle,fromID,toID,toLevel,type)'
-  res<-dbSendQuery(emuDBhandle$connection,"INSERT INTO linksExt(db_uuid,session,bundle,seqIdx,fromID,toID,toSeqIdx,toLevel,type,label,toSeqLen) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toSeqIdx,k.toLevel,k.type,k.label,(SELECT MAX(m.seqIdx)-MIN(m.seqIdx)+1 FROM linksExtTmp2 m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqLen FROM linksExtTmp2 k")
-  dbClearResult(res)
+  dbGetQuery(emuDBhandle$connection,"INSERT INTO linksExt(db_uuid,session,bundle,seqIdx,fromID,toID,toSeqIdx,toLevel,type,label,toSeqLen) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toSeqIdx,k.toLevel,k.type,k.label,(SELECT MAX(m.seqIdx)-MIN(m.seqIdx)+1 FROM linksExtTmp2 m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqLen FROM linksExtTmp2 k")
   
-  res<-dbSendQuery(emuDBhandle$connection,"DELETE FROM linksExtTmp2")
-  dbClearResult(res)
-  #res<-dbSendQuery(get_emuDBcon(),"INSERT INTO linksExt SELECT * FROM linksExtTmp")
-  #dbClearResult(res)
-  
+  dbGetQuery(emuDBhandle$connection,"DELETE FROM linksExtTmp2")
+
 }
 
 ##########################################
@@ -527,6 +490,18 @@ calculate_postionsOfLinks<-function(emuDBhandle){
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @return data.frame object with session names
 ##' @export
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded ae emuDB
+##' # (see ?load_emuDB for more information)
+##' 
+##' # list all sessions of ae emuDB
+##' list_sessions(emuDBhandle = ae)
+##' 
+##' }
+##' 
 list_sessions <- function(emuDBhandle){
   sesPattern = paste0("^.*", session.suffix ,"$")
   sesDirs = dir(emuDBhandle$basePath, pattern = sesPattern)
@@ -659,40 +634,31 @@ rewrite_allAnnots <- function(emuDBhandle, verbose=TRUE){
 #########################################################
 # store / create / load functions
 
-##' Store EMU database to directory
-##' 
-##' @details 
-##' options is a list of key value pairs:
-##' rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: FALSE
-##' ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: FALSE
-##' symbolicLinkSignalFiles if TRUE signal files are symbolic linked instead of copied. Implies: rewriteSSFFTracks=FALSE, Default: FALSE
-##' 
-##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
-##' @param targetDir target directory
-##' @param options list of options
-##' @param verbose show infos and progress bar
-##' @author Klaus Jaensch
+## Store EMU database to directory
+## 
+## @details 
+## options is a list of key value pairs:
+## rewriteSSFFTracks if TRUE rewrite SSF tracks instead of file copy to get rid of big endian encoded SSFF files (SPARC), default: FALSE
+## ignoreMissingSSFFTrackFiles if TRUE missing SSFF track files are ignored, default: FALSE
+## symbolicLinkSignalFiles if TRUE signal files are symbolic linked instead of copied. Implies: rewriteSSFFTracks=FALSE, Default: FALSE
+## 
+## @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
+## @param targetDir target directory
+## @param options list of options
+## @param verbose show infos and progress bar
+## @import stringr uuid jsonlite
+## @keywords emuDB database Emu
+## @seealso  \code{\link{load_emuDB}}
+## @examples
+## \dontrun{
+## # Store database 'ae' to directory /homes/mylogin/EMUnew/
+## 
+##   store('ae',"/homes/mylogin/EmuStore/")
+## 
+## }
+## 
 ##' @import stringr uuid jsonlite
-##' @export
-##' @keywords emuDB database Emu
-##' @seealso  \code{\link{load_emuDB}}
-##' @examples
-##' \dontrun{
-##' # Store database 'ae' to directory /homes/mylogin/EMUnew/
-##' 
-##'   store('ae',"/homes/mylogin/EmuStore/")
-##' 
-##' }
-##' 
 store<-function(emuDBhandle, targetDir, options=NULL, verbose=TRUE){
-  # TODO how to handle API level in DBI version?
-  #   dbApiLevel=db[['apiLevel']]
-  #   if(is.null(dbApiLevel)){
-  #     stop("Database API level differs from R package API level: ",apiLevel,"\nPlease reload the database: db=reload(db)")
-  #   }else if(dbApiLevel!=emuDB.apiLevel){
-  #     stop("Database API level: ",dbApiLevel," differs from R package API level: ",apiLevel,"\nPlease reload the database: db=reload(db)")
-  #   }
-  #   
   # default options
   # ignore missing SSFF track files
   # rewrite SSFF track files
@@ -737,10 +703,8 @@ store<-function(emuDBhandle, targetDir, options=NULL, verbose=TRUE){
   DBconfig[['EMUwebAppConfig']][['activeButtons']]=list(saveBundle=TRUE,
                                                         showHierarchy=TRUE)
   
-  
   # store db schema file
   store_DBconfig(emuDBhandle,DBconfig, basePath=pp)
-  
   
   # create session dirs
   sessions = list_sessionsDBI(emuDBhandle)
@@ -787,7 +751,8 @@ store<-function(emuDBhandle, targetDir, options=NULL, verbose=TRUE){
 
 ##' @title Create empty emuDB
 ##' @description Creates an empty emuDB in the target directory specified
-##' @details Creates a new directory [name]_emuDB in targetDir. By default the emuDB is created in the R session, written to the filesystem and then purged from the R session.
+##' @details Creates a new directory [name]_emuDB in targetDir. By default the emuDB is created in the R session, 
+##' written to the filesystem and then purged from the R session.
 ##' @param name of new emuDB
 ##' @param targetDir target directory to store the emuDB to
 ##' @param mediaFileExtension defines mediaFileExtention (NOTE: currently only 
@@ -795,12 +760,16 @@ store<-function(emuDBhandle, targetDir, options=NULL, verbose=TRUE){
 ##' @param store store new created emuDB to file system
 ##' @param verbose display infos & show progress bar
 ##' @export
+##' @examples 
+##' \dontrun{
+##' # create empty emuDB in folder provided by tempdir()
+##' create_emuDB(name = "myNewEmuDB", 
+##'              targetDir = tempdir())
+##' }
 create_emuDB<-function(name, targetDir, mediaFileExtension='wav', 
                        store=TRUE, verbose=TRUE){
   
   dbDirName=paste0(name,emuDB.suffix)
-  # basePath=file.path(targetDir,dbDirName)
-  # dbConfig = list(name = name, UUID=uuid::UUIDgenerate(), mediafileExtension = mediaFileExtension, ssffTrackDefinitions=list(),levelDefinitions=list(),linkDefinitions=list())
   dbHandle = emuDBhandle(dbName = name , basePath=NULL, uuid::UUIDgenerate(), ":memory:")
   if(store){
     store(dbHandle, targetDir=targetDir, verbose = verbose)
@@ -811,18 +780,23 @@ create_emuDB<-function(name, targetDir, mediaFileExtension='wav',
 
 ##' Load emuDB
 ##' 
-##' @description Function loads emuDB from filesystem to R session
-##' @details In order to use an emuDB from R it is necessary to load the annotation and configuration files to an emuR internal database format.
-##' The function expects an emuDB file structure in directory \code{databaseDir}. The emuDB configuration file is loaded first. On success the function iterates through session and bundle directories and loads found annotation files.
-##' Parameter \code{inMemoryCache} determines where the internal database is stored:
-##' If \code{FALSE} a databse cache file in \code{databaseDir} is used. When the database is loaded for the first time the function will create a new cache file and store the data to it. On subsequent loading of the same database the cache is only updated if files have changed, therefore the loading is then much faster.
-##' The user needs write permissions to \code{databaseDir} and the cache file.
-##' The database is loaded to a volatile in-memory database if \code{inMemoryCache} is set to \code{TRUE}.
-##' If the requested emuDB is already loaded to the R session, data of changed annotation or configuration files get updated. The reloaded representation of the database is then in sync with the filesystem. 
+##' @description Function loads emuDB into its cached representation and makes it accessible from within the 
+##' current R session by returning a emuDBhandle object
+##' @details In order to access an emuDB from R it is necessary to load the annotation and configuration 
+##' files to an emuR internal database format. The function expects a emuDB file structure in directory 
+##' \code{databaseDir}. The emuDB configuration file is loaded first. On success the function iterates 
+##' through session and bundle directories and loads found annotation files. The parameter \code{inMemoryCache} 
+##' determines where the internal database is stored: If \code{FALSE} a databse cache file in \code{databaseDir} 
+##' is used. When the database is loaded for the first time the function will create a new cache file and store 
+##' the data to it. On subsequent loading of the same database the cache is only updated if files have changed, 
+##' therefore the loading is then much faster. For this to work the user needs write permissions to 
+##' \code{databaseDir} and the cache file. The database is loaded into a volatile in-memory database if 
+##' \code{inMemoryCache} is set to \code{TRUE}.
 ##' @param databaseDir directory of the emuDB
 ##' @param inMemoryCache cache the loaded DB in memory
 ##' @param connection pass in DBI connection to SQL database if you want to override the default which is to 
-##' use an SQLite database either in memory (\code{inMemoryCache = TRUE}) or in the emuDB folder.
+##' use an SQLite database either in memory (\code{inMemoryCache = TRUE}) or in the emuDB folder. This is intended
+##' for expert use only!
 ##' @param verbose be verbose
 ##' @return name of emuDB
 ##' @import jsonlite DBI
@@ -838,9 +812,9 @@ create_emuDB<-function(name, targetDir, mediaFileExtension='wav',
 ##' ## Load database ae from demo data
 ##' 
 ##' # create demo data in temporary directory
-##' create_emuRdemoData()
+##' create_emuRdemoData(dir = tempdir())
 ##' # build base path to demo emuDB
-##' demoDatabaseDir = file.path(tempdir(), "emuR_demoData", "ae")
+##' demoDatabaseDir = file.path(tempdir(), "emuR_demoData", "ae_emuDB")
 ##' 
 ##' # load demo emuDB
 ##' ae = load_emuDB(demoDatabaseDir)

@@ -15,4 +15,17 @@ data.frame object with session names
 \description{
 List session names of emuDB
 }
+\examples{
+\dontrun{
+
+##################################
+# prerequisite: loaded ae emuDB
+# (see ?load_emuDB for more information)
+
+# list all sessions of ae emuDB
+list_sessions(emuDBhandle = ae)
+
+}
+
+}
 
