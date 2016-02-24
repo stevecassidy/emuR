@@ -384,6 +384,10 @@ parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encodi
   }
 }
 
+# TODO implement this to improve perfomance of of convert_TextGridCollection
+TextGridToBundleAnnotDFs <- function(tgPath){
+}
+
 # FOR DEVELOPMENT
 # library('testthat')
 # test_file('tests/testthat/test_aaa_initData.R')
