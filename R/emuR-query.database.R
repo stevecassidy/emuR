@@ -1046,7 +1046,7 @@ query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*
     }else{
       if(resultType=='emuRsegs'){
         emuRsegs = query_databaseWithEqlEmuRsegs(emuDBhandle,query,timeRefSegmentLevel)
-        drop_tmpQueryTablesDBI(emuDBhandle)
+        drop_allTmpTablesDBI(emuDBhandle)
         return(emuRsegs)
       }else if(resultType=='emusegs'){
         if(!is.null(timeRefSegmentLevel)){

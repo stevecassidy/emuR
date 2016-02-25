@@ -180,38 +180,23 @@ initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TR
     dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labels)
     dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_links)
     dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExt)
-    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksTmp)
-    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp)
-    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp2)
     if(createIndices){  
       create_emuDBindicesDBI(emuDBhandle)
     }
   }else if(createTables & dbExistsTable(emuDBhandle$connection, 'emuDB')){
-    # remove old tmp tables and replace with proper tmp tables (initialized with CREATE TEMP TABLE) that are only valid for the connection
+    # remove old tmp tables that where not created with CREATE TEMP TABLE
     # drops
     if("linksTmp" %in% dbListTables(emuDBhandle$connection)) dbGetQuery(emuDBhandle$connection, "DROP TABLE linksTmp")
     if("linksExtTmp" %in% dbListTables(emuDBhandle$connection)) dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp")
     if("linksExtTmp2" %in% dbListTables(emuDBhandle$connection)) dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp2")
-    # creates
-    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksTmp)
-    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp)
-    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp2) 
+    
   }
 }
 
 create_emuDBindicesDBI<-function(emuDBhandle){
   
-  res <- dbSendQuery(emuDBhandle$connection, database.DDL.emuDB_linksIdx) 
-  dbClearResult(res)
-  res <- dbSendQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtIdx) 
-  dbClearResult(res)
-  res <- dbSendQuery(emuDBhandle$connection, database.DDL.emuDB_linksTmpIdx) 
-  dbClearResult(res)
-  res <- dbSendQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmpIdx) 
-  dbClearResult(res)
-  res <- dbSendQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmpIdx2) 
-  dbClearResult(res)
-  
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksIdx) 
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtIdx) 
 }
 
 
@@ -372,6 +357,27 @@ remove_bundleAnnotDBI<-function(emuDBhandle, sessionName, bundleName){
 ###################################################
 # create redundant links functions
 
+create_tmpTablesForBuildingRedLinks <- function(emuDBhandle){
+  if(!"linksTmp" %in% dbListTables(emuDBhandle$connection)){
+    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksTmp)
+    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksTmpIdx)
+  }
+  if(!"linksExtTmp" %in% dbListTables(emuDBhandle$connection)){
+    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp)
+    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmpIdx)
+    }
+  if(!"linksExtTmp2" %in% dbListTables(emuDBhandle$connection)){ 
+    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp2)
+    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmpIdx2)
+    }
+}
+
+drop_tmpTablesForBuildingRedLinks <- function(emuDBhandle){
+  if("linksTmp" %in% dbListTables(emuDBhandle$connection)) dbGetQuery(emuDBhandle$connection, "DROP TABLE linksTmp")
+  if("linksExtTmp" %in% dbListTables(emuDBhandle$connection)) dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp")
+  if("linksExtTmp2" %in% dbListTables(emuDBhandle$connection)) dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp2")
+}
+
 ## Legacy EMU and query functions link collections contain links for each possible connection between levels
 ## We consider links that do not follow link definition constraints as redundant and therefore we remove them from the
 ## link data model
@@ -385,7 +391,9 @@ build_allRedundantLinks <- function(emuDBhandle, sessionName=NULL, bundleName=NU
 
 build_redundantLinksForPaths <- function(emuDBhandle, hierarchyPaths, sessionName='0000', bundleName=NULL){
   
-  # delete any previous redundant links
+  # create tmp tables if not available
+  create_tmpTablesForBuildingRedLinks(emuDBhandle)
+  # delete any previous redundant links (just to be safe)
   res <- dbSendQuery(emuDBhandle$connection, 'DELETE FROM linksTmp')
   dbClearResult(res)
   
@@ -426,7 +434,7 @@ build_redundantLinksForPaths <- function(emuDBhandle, hierarchyPaths, sessionNam
       sqlQuery=paste0(sqlQuery," WHERE ")
       if(hpLen==2){
         sqlQuery=paste0(sqlQuery,"l1.db_uuid=f.db_uuid AND l1.db_uuid=t.db_uuid AND l1.session=f.session AND l1.session=t.session AND l1.bundle=f.bundle AND l1.bundle=t.bundle AND f.itemID=l1.fromID AND t.itemID=l1.toID")
-
+        
       }else{
         # TODO start and end connection
         # from start to first in-between item 
@@ -442,7 +450,7 @@ build_redundantLinksForPaths <- function(emuDBhandle, hierarchyPaths, sessionNam
         # from last in-between item to end item
         sHp=hp[(hpLen-1)]
         eHp=hp[hpLen]
-
+        
         j=hpLen-1
         sqlQuery=paste0(sqlQuery,"l",j,".db_uuid=i",j,".db_uuid AND l",j,".db_uuid=t.db_uuid AND l",j,".session=i",j,".session AND l",j,".session=t.session AND l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND i",j,".itemID=l",j,".fromID AND t.itemID=l",j,".toID AND i",j,".level='",sHp,"' AND t.level='",eHp,"'")
       }
@@ -475,7 +483,9 @@ calculate_postionsOfLinks<-function(emuDBhandle){
   dbGetQuery(emuDBhandle$connection,"INSERT INTO linksExt(db_uuid,session,bundle,seqIdx,fromID,toID,toSeqIdx,toLevel,type,label,toSeqLen) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toSeqIdx,k.toLevel,k.type,k.label,(SELECT MAX(m.seqIdx)-MIN(m.seqIdx)+1 FROM linksExtTmp2 m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqLen FROM linksExtTmp2 k")
   
   dbGetQuery(emuDBhandle$connection,"DELETE FROM linksExtTmp2")
-
+  
+  # remove temporary tables
+  drop_tmpTablesForBuildingRedLinks(emuDBhandle)
 }
 
 ##########################################
