@@ -253,10 +253,11 @@ test_that("Load example database ae",{
   
   test_that("All queries from EQL vignette (slightly adapted)",{
     # SQ
-    qs = "[Phonetic == m]"
-    sl = query(ae, qs)
+    sl = query(ae, "Phonetic == m")
     expect_equal(nrow(sl), 7)
-    expect_equal(attr(sl, "query"), qs)
+    sl = query(ae, "[Phonetic == m]")
+    expect_equal(nrow(sl), 7)
+    expect_equal(attr(sl, "query"), "[Phonetic == m]")
     sl = query(ae, "[Phonetic == m | n]")
     expect_equal(nrow(sl), 19)
     sl = query(ae, "[Phonetic != m | n]")
@@ -386,7 +387,7 @@ test_that("Load example database ae",{
     sl = query(ae, "[[Syllable == S ^ Phoneme == p] -> Syllable == W]")
     expect_equal(nrow(sl), 3)
     expect_true(all(grepl("->", sl$labels)))
-    sl = query(ae, "[[Syllable == S ^ #Phoneme == p] -> Syllable == W]")
+    sl = query(ae, "[[Syllable == S ^ #Phoneme == p] -> Syllable == W]") # SIC is this supposed to work?
     expect_equal(nrow(sl), 3)
     
     # ^ and -> and & (Domination and Sequence and Boolean &)

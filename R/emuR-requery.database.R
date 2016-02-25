@@ -140,10 +140,11 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
     }
     
     # drop and create tmpQueryTables and write to table
-    drop_tmpQueryTablesDBI(emuDBhandle)
-    create_tmpQueryTablesDBI(emuDBhandle)
-    dbWriteTable(emuDBhandle$connection, "leftIntermResultItemsTmp", he, overwrite=T)
+    drop_allTmpTablesDBI(emuDBhandle)
+    create_tmpFilteredQueryTablesDBI(emuDBhandle)
+    dbWriteTable(emuDBhandle$connection, "intermRes_itemsTmp_root", he, overwrite=T)
     
+
     trSl=convert_queryResultToVariableEmuRsegs(emuDBhandle)
     drop_requeryTmpTables(emuDBhandle)
     
@@ -280,9 +281,9 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
     he = dbGetQuery(emuDBhandle$connection, heQueryStr)
     
     # drop and create tmpQueryTables and write to table
-    drop_tmpQueryTablesDBI(emuDBhandle)
-    create_tmpQueryTablesDBI(emuDBhandle)
-    dbWriteTable(emuDBhandle$connection, "leftIntermResultItemsTmp", he, overwrite=T)
+    drop_allTmpTablesDBI(emuDBhandle)
+    create_tmpFilteredQueryTablesDBI(emuDBhandle)
+    dbWriteTable(emuDBhandle$connection, "intermRes_itemsTmp_root", he, overwrite=T)
     
     trSl=convert_queryResultToVariableEmuRsegs(emuDBhandle)
     inSlLen=nrow(seglist)

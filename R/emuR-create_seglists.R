@@ -16,17 +16,17 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   start=c()
   end=c()
   slType=NULL
-  projectionItemsN = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM leftIntermResultProjectionItemsTmp"))$n
+  projectionItemsN = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM intermRes_projItemsTmp_root"))$n
   if(projectionItemsN > 0){ 
     # use projection items
-    itsTableName = "leftIntermResultProjectionItemsTmp"
+    itsTableName = "intermRes_ProjItemsTmp_root"
     seqStartIdColName = "pSeqStartId"
     seqEndIdColName = "pSeqEndId"
     seqLenColName = "pSeqLen"
     levelColName = "pLevel"
   }else{
     # use "normal" items
-    itsTableName = "leftIntermResultItemsTmp"
+    itsTableName = "intermRes_itemsTmp_root"
     seqStartIdColName = "seqStartId"
     seqEndIdColName = "seqEndId"
     seqLenColName = "seqLen"
@@ -190,14 +190,14 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
         slType='event'
     }
   }
-  queryStr = dbGetQuery(emuDBhandle$connection, "SELECT queryStr FROM leftIntermResultMetaInfosTmp")$queryStr
+  queryStr = dbGetQuery(emuDBhandle$connection, "SELECT queryStr FROM intermRes_metaInfosTmp_root")$queryStr
   segmentList=make.emuRsegs(dbName = emuDBhandle$dbName, seglist = seglist, query = queryStr, type = slType)
   return(segmentList)
 }
 
 
 # convert to emuRsegs segemnt list, variable sequenec length of input allowed
-convert_queryResultToVariableEmuRsegs <- function(emuDBhandle,timeRefSegmentLevel=NULL){
+convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL){
   its=NULL
   
   bundles=c()
@@ -206,7 +206,7 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle,timeRefSegmentLeve
   end=c()
   slType=NULL
   
-  itsTableName = "leftIntermResultItemsTmp"
+  itsTableName = "intermRes_itemsTmp_root"
   
   # get distinct result levels
   distinctLevels=dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT level FROM ", itsTableName))

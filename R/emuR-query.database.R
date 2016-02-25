@@ -3,90 +3,17 @@ requireNamespace("stringr", quietly = T)
 ###########################################################################
 # create table / index definitions for DBI that are used at query time
 
-# tabels that store "filtered" items, labels and linksExt (when session/bundlePatterns are used)
-database.DDL.emuDB_itemsFilteredTmp = gsub("CREATE TABLE items", "CREATE TEMP TABLE itemsFilteredTmp", database.DDL.emuDB_items)
-database.DDL.emuDB_itemsFilteredTmp_idx = "CREATE INDEX itemsFilteredTmp_idx ON itemsFilteredTmp(db_uuid,session,bundle,itemID)"
-
-database.DDL.emuDB_labelsFilteredTmp = gsub("CREATE TABLE labels", "CREATE TEMP TABLE labelsFilteredTmp", database.DDL.emuDB_labels)
-database.DDL.emuDB_labelsFilteredTmp_idx = "CREATE INDEX labelsFilteredTmp_idx ON labelsFilteredTmp(itemID,db_uuid,session,bundle,name)"
-
-database.DDL.emuDB_linksExtFilteredTmp = gsub("CREATE TABLE linksExt", "CREATE TEMP TABLE linksExtFilteredTmp", database.DDL.emuDB_linksExt)
-database.DDL.emuDB_linksExtFilteredTmp_idx = 'CREATE INDEX linksExtFilteredTmp_idx ON linksExtFilteredTmp(db_uuid,session,bundle,fromID,toID)'
-
-# tabels that store subsets of filtered tables
-database.DDL.emuDB_itemsFilteredSubsetTmp = gsub("CREATE TABLE items", "CREATE TEMP TABLE itemsFilteredSubsetTmp", database.DDL.emuDB_items) 
-database.DDL.emuDB_itemsFilteredSubsetTmp_idx = "CREATE INDEX itemsFilteredSubsetTmp_idx ON itemsFilteredSubsetTmp(db_uuid,session,bundle,itemID)"
-database.DDL.emuDB_labelsFilteredSubsetTmp = gsub("CREATE TABLE labels", "CREATE TEMP TABLE labelsFilteredSubsetTmp", database.DDL.emuDB_labels)
-database.DDL.emuDB_labelsFilteredSubsetTmp_idx = "CREATE INDEX labelsFilteredSubsetTmp_idx ON labelsFilteredSubsetTmp(itemID,db_uuid,session,bundle,name)"
-database.DDL.emuDB_linksExtFilteredSubsetTmp = gsub("CREATE TABLE linksExt", "CREATE TEMP TABLE linksExtFilteredSubsetTmp", database.DDL.emuDB_linksExt)
-database.DDL.emuDB_linksExtFilteredSubsetTmp_idx = 'CREATE INDEX linksExtFilteredSubsetTmp_idx ON linksExtFilteredSubsetTmp(db_uuid,session,bundle,fromID,toID)'
-
-# tabel that contains left and right expression results (needed for construction of results stored in left/rightIntermResult)
-database.DDL.emuDB_lrExpResTmp = 'CREATE TEMP TABLE lrExpResTmp (
-  db_uuid VARCHAR(36),
-  session TEXT,
-  bundle TEXT,
-  lSeqStartId INTEGER,
-  lSeqEndId INTEGER,
-  lSeqLen INTEGER,
-  lLevel TEXT,
-  rSeqStartId INTEGER,
-  rSeqEndId INTEGER,
-  rSeqLen INTERGER,
-  rLevel TEXT,
-  FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session_name, name)
-);'
-
-database.DDL.emuDB_lrExpResTmp_idx = 'CREATE INDEX lrExpResTmp_idx ON lrExpResTmp(db_uuid,session,bundle)'
-
-# leftIntermResult
-database.DDL.emuDB_leftIntermResultItemsTmp = 'CREATE TEMP TABLE leftIntermResultItemsTmp (
-  db_uuid VARCHAR(36),
-  session TEXT,
-  bundle TEXT,
-  seqStartId INTEGER,
-  seqEndId INTEGER,
-  seqLen INTEGER,
-  level TEXT,
-  PRIMARY KEY (db_uuid, session, bundle, seqStartId, seqEndId),
-  FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session_name, name)
-);'
-
-database.DDL.emuDB_leftIntermResultItemsTmp_idx = "CREATE INDEX leftIntermResultItemsTmp_idx ON leftIntermResultItemsTmp(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)"
-
-database.DDL.emuDB_leftIntermResultMetaInfosTmp = 'CREATE TEMP TABLE leftIntermResultMetaInfosTmp (
-  resultLevel TEXT,
-  projectionAttrLevel TEXT,
-  queryStr TEXT
-);'
-
-database.DDL.emuDB_leftIntermResultMetaInfosTmp_idx = "CREATE INDEX leftIntermResultMetaInfosTmp_idx ON leftIntermResultMetaInfosTmp(resultLevel,projectionAttrLevel,queryStr)"
-
-database.DDL.emuDB_leftIntermResultProjectionItemsTmp = 'CREATE TEMP TABLE leftIntermResultProjectionItemsTmp (
-  db_uuid VARCHAR(36),
-  session TEXT,
-  bundle TEXT,
-  seqStartId INTEGER,
-  seqEndId INTEGER,
-  pSeqStartId INTEGER,
-  pSeqEndId INTEGER,
-  pSeqLen INTEGER,
-  pLevel TEXT,
-  FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session_name, name)
-);'
-
-database.DDL.emuDB_leftIntermResultProjectionItemsTmp_idx = "CREATE INDEX leftIntermResultProjectionItemsTmp_idx ON leftIntermResultProjectionItemsTmp(db_uuid,session,bundle,seqStartId,seqEndId)"
-
-# rightIntermResult
-database.DDL.emuDB_rightIntermResultItemsTmp = gsub("CREATE TEMP TABLE leftIntermResultItemsTmp", "CREATE TEMP TABLE rightIntermResultItemsTmp", database.DDL.emuDB_leftIntermResultItemsTmp)
-database.DDL.emuDB_rightIntermResultItemsTmp_idx = "CREATE INDEX rightIntermResultItemsTmp_idx ON rightIntermResultItemsTmp(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)"
-database.DDL.emuDB_rightIntermResultMetaInfosTmp = gsub("CREATE TEMP TABLE leftIntermResultMetaInfosTmp", "CREATE TEMP TABLE rightIntermResultMetaInfosTmp", database.DDL.emuDB_leftIntermResultMetaInfosTmp)
-database.DDL.emuDB_rightIntermResultMetaInfosTmp_idx = "CREATE INDEX rightIntermResultMetaInfosTmp_idx ON rightIntermResultMetaInfosTmp(resultLevel,projectionAttrLevel,queryStr)"
-database.DDL.emuDB_rightIntermResultProjectionItemsTmp = gsub("CREATE TEMP TABLE leftIntermResultProjectionItemsTmp", "CREATE TEMP TABLE rightIntermResultProjectionItemsTmp", database.DDL.emuDB_leftIntermResultProjectionItemsTmp)
-database.DDL.emuDB_rightIntermResultProjectionItemsTmp_idx = "CREATE INDEX rightIntermResultProjectionItemsTmp_idx ON rightIntermResultProjectionItemsTmp(db_uuid,session,bundle,seqStartId,seqEndId)"
-
-
-create_tmpQueryTablesDBI <- function(emuDBhandle){
+create_tmpFilteredQueryTablesDBI <- function(emuDBhandle){
+  
+  # tabels that store "filtered" items, labels and linksExt (when session/bundlePatterns are used)
+  database.DDL.emuDB_itemsFilteredTmp = gsub("CREATE TABLE items", "CREATE TEMP TABLE itemsFilteredTmp", database.DDL.emuDB_items)
+  database.DDL.emuDB_itemsFilteredTmp_idx = "CREATE INDEX itemsFilteredTmp_idx ON itemsFilteredTmp(db_uuid,session,bundle,itemID)"
+  
+  database.DDL.emuDB_labelsFilteredTmp = gsub("CREATE TABLE labels", "CREATE TEMP TABLE labelsFilteredTmp", database.DDL.emuDB_labels)
+  database.DDL.emuDB_labelsFilteredTmp_idx = "CREATE INDEX labelsFilteredTmp_idx ON labelsFilteredTmp(itemID,db_uuid,session,bundle,name)"
+  
+  database.DDL.emuDB_linksExtFilteredTmp = gsub("CREATE TABLE linksExt", "CREATE TEMP TABLE linksExtFilteredTmp", database.DDL.emuDB_linksExt)
+  database.DDL.emuDB_linksExtFilteredTmp_idx = 'CREATE INDEX linksExtFilteredTmp_idx ON linksExtFilteredTmp(db_uuid,session,bundle,fromID,toID)'
   
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredTmp)
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredTmp_idx)
@@ -95,31 +22,90 @@ create_tmpQueryTablesDBI <- function(emuDBhandle){
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtFilteredTmp)
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtFilteredTmp_idx)
   
+  # tabels that store subsets of filtered tables
+  database.DDL.emuDB_itemsFilteredSubsetTmp = gsub("CREATE TABLE items", "CREATE TEMP TABLE itemsFilteredSubsetTmp", database.DDL.emuDB_items) 
+  database.DDL.emuDB_itemsFilteredSubsetTmp_idx = "CREATE INDEX itemsFilteredSubsetTmp_idx ON itemsFilteredSubsetTmp(db_uuid,session,bundle,itemID)"
+  database.DDL.emuDB_labelsFilteredSubsetTmp = gsub("CREATE TABLE labels", "CREATE TEMP TABLE labelsFilteredSubsetTmp", database.DDL.emuDB_labels)
+  database.DDL.emuDB_labelsFilteredSubsetTmp_idx = "CREATE INDEX labelsFilteredSubsetTmp_idx ON labelsFilteredSubsetTmp(itemID,db_uuid,session,bundle,name)"
+  database.DDL.emuDB_linksExtFilteredSubsetTmp = gsub("CREATE TABLE linksExt", "CREATE TEMP TABLE linksExtFilteredSubsetTmp", database.DDL.emuDB_linksExt)
+  database.DDL.emuDB_linksExtFilteredSubsetTmp_idx = 'CREATE INDEX linksExtFilteredSubsetTmp_idx ON linksExtFilteredSubsetTmp(db_uuid,session,bundle,fromID,toID)'
   
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredSubsetTmp)
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredSubsetTmp_idx)
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labelsFilteredSubsetTmp)
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labelsFilteredSubsetTmp_idx)
   
+  database.DDL.emuDB_lrExpResTmp = paste0("CREATE TEMP TABLE lrExpResTmp (",
+                                          "db_uuid VARCHAR(36),",
+                                          "session TEXT,",
+                                          "bundle TEXT,",
+                                          "lSeqStartId INTEGER,",
+                                          "lSeqEndId INTEGER,",
+                                          "lSeqLen INTEGER,",
+                                          "lLevel TEXT,",
+                                          "rSeqStartId INTEGER,",
+                                          "rSeqEndId INTEGER,",
+                                          "rSeqLen INTERGER,",
+                                          "rLevel TEXT,",
+                                          "FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session_name, name)",
+                                          ");")
+  
+  database.DDL.emuDB_lrExpResTmp_idx = 'CREATE INDEX lrExpResTmp_idx ON lrExpResTmp(db_uuid,session,bundle)'
+  
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_lrExpResTmp)
   dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_lrExpResTmp_idx)
   
-  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_leftIntermResultItemsTmp)
-  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_leftIntermResultItemsTmp_idx)
-  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_leftIntermResultMetaInfosTmp)
-  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_leftIntermResultMetaInfosTmp_idx)
-  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_leftIntermResultProjectionItemsTmp)
-  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_leftIntermResultProjectionItemsTmp_idx)
-  
-  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_rightIntermResultItemsTmp)
-  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_rightIntermResultItemsTmp_idx)
-  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_rightIntermResultMetaInfosTmp)
-  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_rightIntermResultMetaInfosTmp_idx)
-  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_rightIntermResultProjectionItemsTmp)
-  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_rightIntermResultProjectionItemsTmp_idx)
 }
 
-drop_tmpQueryTablesDBI <- function(emuDBhandle){
+#####################################
+create_intermResTmpQueryTablesDBI <- function(emuDBhandle, suffix = "root"){
+  
+  database.DDL.emuDB_intermRes_itemsTmp = paste0("CREATE TEMP TABLE intermRes_itemsTmp_", suffix, " (",
+                                                 "db_uuid VARCHAR(36),",
+                                                 "session TEXT,",
+                                                 "bundle TEXT,",
+                                                 "seqStartId INTEGER,",
+                                                 "seqEndId INTEGER,",
+                                                 "seqLen INTEGER,",
+                                                 "level TEXT,",
+                                                 "PRIMARY KEY (db_uuid, session, bundle, seqStartId, seqEndId),",
+                                                 "FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session_name, name)",
+                                                 ");")
+  
+  database.DDL.emuDB_intermRes_itemsTmp_idx = paste0("CREATE INDEX intermRes_itemsTmp_", suffix, "_idx ON intermRes_itemsTmp_", suffix, "(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)")
+  
+  database.DDL.emuDB_intermRes_metaInfosTmp = paste0("CREATE TEMP TABLE intermRes_metaInfosTmp_", suffix, " (",
+                                                     "resultLevel TEXT,",
+                                                     "projectionAttrLevel TEXT,",
+                                                     "queryStr TEXT",
+                                                     ");")
+  
+  database.DDL.emuDB_intermRes_metaInfosTmp_idx = paste0("CREATE INDEX intermRes_metaInfosTmp_", suffix, "_idx ON intermRes_metaInfosTmp_", suffix, "(resultLevel,projectionAttrLevel,queryStr)")
+  
+  database.DDL.emuDB_intermRes_projItemsTmp = paste0("CREATE TEMP TABLE intermRes_projItemsTmp_", suffix, " (",
+                                                     "db_uuid VARCHAR(36),",
+                                                     "session TEXT,",
+                                                     "bundle TEXT,",
+                                                     "seqStartId INTEGER,",
+                                                     "seqEndId INTEGER,",
+                                                     "pSeqStartId INTEGER,",
+                                                     "pSeqEndId INTEGER,",
+                                                     "pSeqLen INTEGER,",
+                                                     "pLevel TEXT,",
+                                                     "FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session_name, name)",
+                                                     ");")
+  
+  database.DDL.emuDB_intermRes_projItemsTmp_idx = paste0("CREATE INDEX intermRes_projItemsTmp_", suffix, "_idx ON intermRes_projItemsTmp_", suffix, "(db_uuid,session,bundle,seqStartId,seqEndId)")
+  
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_itemsTmp)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_itemsTmp_idx)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_metaInfosTmp)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_metaInfosTmp_idx)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_projItemsTmp)
+  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_projItemsTmp_idx)
+}
+
+drop_tmpFilteredQueryTablesDBI <- function(emuDBhandle){
   tableNames = dbListTables(emuDBhandle$connection)
   if("itemsFilteredTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE itemsFilteredTmp")
   if("labelsFilteredTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE labelsFilteredTmp")
@@ -127,27 +113,22 @@ drop_tmpQueryTablesDBI <- function(emuDBhandle){
   
   if("itemsFilteredSubsetTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE itemsFilteredSubsetTmp")
   if("labelsFilteredSubsetTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE labelsFilteredSubsetTmp")
-  
-  if("lrExpResTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE lrExpResTmp")
-  if("lrSeqExpResTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE lrSeqExpResTmp")
-  
-  if("leftIntermResultItemsTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE leftIntermResultItemsTmp")
-  if("leftIntermResultMetaInfosTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE leftIntermResultMetaInfosTmp")
-  if("leftIntermResultProjectionItemsTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE leftIntermResultProjectionItemsTmp")
-  
-  if("rightIntermResultItemsTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE rightIntermResultItemsTmp")
-  if("rightIntermResultMetaInfosTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE rightIntermResultMetaInfosTmp")
-  if("rightIntermResultProjectionItemsTmp" %in% tableNames) dbGetQuery(emuDBhandle$connection, "DROP TABLE rightIntermResultProjectionItemsTmp")
-  
+}
+
+drop_allTmpTablesDBI <- function(emuDBhandle){
+  allTables = dbListTables(emuDBhandle$connection)
+  allTmpTables = allTables[grepl(".*Tmp.*", allTables)]
+  for(tmpTable in allTmpTables){
+    dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE ", tmpTable))
+  }
 }
 
 ## @param emuDBhandle
-## @param intermResTablePrefix "left" or "right"
-clear_intermResTabels <- function(emuDBhandle, intermResTablePrefix = "left", clearProjectionItems = TRUE){
-  
-  dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", paste0(intermResTablePrefix, "IntermResultItemsTmp")))
-  dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", paste0(intermResTablePrefix, "IntermResultMetaInfosTmp")))
-  if(clearProjectionItems) dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", paste0(intermResTablePrefix, "IntermResultProjectionItemsTmp")))
+## @param intermResTableSuffix
+clear_intermResTabels <- function(emuDBhandle, intermResTableSuffix, clearProjectionItems = TRUE){
+  dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_itemsTmp_", intermResTableSuffix))
+  dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_metaInfosTmp_", intermResTableSuffix))
+  if(clearProjectionItems) dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_projItemsTmp_", intermResTableSuffix))
 }
 ###################################################################
 ################## Functions implementing EQL #####################
@@ -179,26 +160,27 @@ check_levelAttributeName<-function(emuDBhandle,name){
 ## @param emuDBhandle
 ## @param levelName
 ## @param intermResTablePrefix "left" or "right" 
-query_labels <- function(emuDBhandle, levelName, intermResTablePrefix = "left", conditionText, useSubsets){
+query_labels <- function(emuDBhandle, levelName, intermResTableSuffix, conditionText, useSubsets){
+  
   if(useSubsets){
     labelTableName = "labelsFilteredSubsetTmp"
   }else{
     labelTableName = "labelsFilteredTmp"
   }
   # clear tables but keep projectionItems so they don't get lost in queries like : [Text == the -> #Text =~ .* & Accent == S]  (right side of ->)
-  clear_intermResTabels(emuDBhandle, intermResTablePrefix, clearProjectionItems = FALSE)
+  clear_intermResTabels(emuDBhandle, intermResTableSuffix, clearProjectionItems = FALSE)
   opr=conditionText[['opr']]
   values=conditionText[['values']]
   res=NULL
   if(opr=='==' | opr=='='){
     for(value in values){
-      dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO ", intermResTablePrefix, "IntermResultItemsTmp ",
+      dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO intermRes_itemsTmp_", intermResTableSuffix, " ",
                                                 "SELECT db_uuid, session, bundle, itemID AS seqStartId, itemID AS seqEndId, 1 AS seqLen,'", 
                                                 levelName, "' AS level FROM ", labelTableName, " ",
                                                 "WHERE name = '", levelName, "' AND label = '", value, "'"))
     }
   }else if(opr=='!='){   
-    sqlStr = paste0("INSERT INTO ", intermResTablePrefix, "IntermResultItemsTmp ",
+    sqlStr = paste0("INSERT INTO intermRes_itemsTmp_", intermResTableSuffix, " ", 
                     "SELECT db_uuid, session, bundle, itemID AS seqStartId, itemID AS seqEndId, 1 AS seqLen,'", 
                     levelName, "' AS level FROM ", labelTableName, " ",
                     "WHERE name = '", levelName, "'")
@@ -214,7 +196,7 @@ query_labels <- function(emuDBhandle, levelName, intermResTablePrefix = "left", 
                                                       "WHERE name = '", levelName, "'"))
       ssl = emuR_regexprl(value,ldf[['label']])
       res = ldf[ssl,]
-      dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultItemsTmp"), subset(res, select = -label), append = T) # label column is ignored by dbWriteTable
+      dbWriteTable(emuDBhandle$connection, paste0("intermRes_itemsTmp_", intermResTableSuffix), subset(res, select = -label), append = T) # label column is ignored by dbWriteTable
     }
   }else if(opr=='!~'){
     for(value in values){
@@ -223,19 +205,19 @@ query_labels <- function(emuDBhandle, levelName, intermResTablePrefix = "left", 
                                                       "WHERE name = '", levelName, "'"))
       ssl = !emuR_regexprl(value,ldf[['label']])
       res = ldf[ssl,]
-      dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultItemsTmp"), subset(res, select = -label), append = T) # label column is ignored by dbWriteTable
+      dbWriteTable(emuDBhandle$connection, paste0("intermRes_itemsTmp_", intermResTableSuffix), subset(res, select = -label), append = T) # label column is ignored by dbWriteTable
     }
   }else{
     stop("Syntax error: Unknown operator: '",opr,"'\n")
   }
   # clear insert resultLevel
-  dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", intermResTablePrefix, "IntermResultMetaInfosTmp"))
-  dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO ", intermResTablePrefix, "IntermResultMetaInfosTmp (resultLevel) ",
+  dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_metaInfosTmp_", intermResTableSuffix))
+  dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO intermRes_metaInfosTmp_", intermResTableSuffix, " (resultLevel) ",
                                             "VALUES ('", levelName, "')"))
 }
 
 
-query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTablePrefix, useSubsets){
+query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubsets){
   # BNF: FUNCQ = POSQ | NUMQ;
   qTrim=str_trim(q)
   if(useSubsets){
@@ -426,11 +408,11 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTablePrefix, useSubset
       }else{
         stop("Syntax error: Unknwon function: '",funcName,"'")
       }
-      dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", intermResTablePrefix, "IntermResultItemsTmp"))
-      dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultItemsTmp"), itemsAsSeqs, append = T)
+      dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_itemsTmp_", intermResTableSuffix))
+      dbWriteTable(emuDBhandle$connection, paste0("intermRes_itemsTmp_", intermResTableSuffix), itemsAsSeqs, append = T)
       # move meta infos to correct table
-      dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", intermResTablePrefix, "IntermResultMetaInfosTmp"))
-      dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO ", intermResTablePrefix, "IntermResultMetaInfosTmp VALUES ('", resultLevel, "', NULL, '", qTrim, "')"))
+      dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_metaInfosTmp_", intermResTableSuffix))
+      dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO intermRes_metaInfosTmp_", intermResTableSuffix, " VALUES ('", resultLevel, "', NULL, '", qTrim, "')"))
       
     }
   }else{
@@ -438,7 +420,7 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTablePrefix, useSubset
   }
 }
 
-query_databaseEqlSQ <- function(emuDBhandle, q, intermResTablePrefix, useSubsets){
+query_databaseEqlSQ <- function(emuDBhandle, q, intermResTableSuffix, useSubsets){
   # BNF: SQ = LABELQ | FUNCQ;
   qTrim=str_trim(q)
   res=NULL
@@ -455,15 +437,15 @@ query_databaseEqlSQ <- function(emuDBhandle, q, intermResTablePrefix, useSubsets
       if(prbOpen==1){
         stop("Syntax error: Expected function name in '",q,"'\n")
       }
-      res=query_databaseEqlFUNCQ(emuDBhandle, qTrim, intermResTablePrefix, useSubsets)
+      res=query_databaseEqlFUNCQ(emuDBhandle, qTrim, intermResTableSuffix, useSubsets)
     }
   }else{
     # No round brackets, assuming a level query
-    query_databaseEqlLABELQ(emuDBhandle, qTrim, useSubsets, intermResTablePrefix = intermResTablePrefix)
+    query_databaseEqlLABELQ(emuDBhandle, qTrim, useSubsets, intermResTableSuffix = intermResTableSuffix)
   }
 }
 
-query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTablePrefix = "left"){
+query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTableSuffix){
   # BNF: ETIKETTA = ['#'],EBENE,('=' | '!='),ETIKETTALTERNATIVEN;
   
   qTrim=str_trim(q)
@@ -585,10 +567,10 @@ query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTablePr
       }
       cond=NULL
       cond = create_conditionTextAlternatives(opr, labelAltsUq)
-      query_labels(emuDBhandle, levelName = lvlName, intermResTablePrefix = intermResTablePrefix, cond, useSubsets)
+      query_labels(emuDBhandle, levelName = lvlName, intermResTableSuffix = intermResTableSuffix, cond, useSubsets)
       if(projectionLevel){
-        dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO ", intermResTablePrefix, "IntermResultProjectionItemsTmp ", "SELECT db_uuid, session, bundle, seqStartId, seqEndId, seqStartId AS pSeqStartId, seqEndId AS pSeqEndId, seqLen AS pSeqLen, level AS pLevel FROM ", intermResTablePrefix, "IntermResultItemsTmp"))
-        dbGetQuery(emuDBhandle$connection, paste0("UPDATE ", intermResTablePrefix, "IntermResultMetaInfosTmp SET projectionAttrLevel = '", lvlName, "'"))
+        dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO intermRes_projItemsTmp_", intermResTableSuffix, " SELECT db_uuid, session, bundle, seqStartId, seqEndId, seqStartId AS pSeqStartId, seqEndId AS pSeqEndId, seqLen AS pSeqLen, level AS pLevel FROM intermRes_ItemsTmp_", intermResTableSuffix))
+        dbGetQuery(emuDBhandle$connection, paste0("UPDATE intermRes_metaInfosTmp_", intermResTableSuffix, " SET projectionAttrLevel = '", lvlName, "'"))
       }
       return()
     }
@@ -596,7 +578,7 @@ query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTablePr
   stop("Syntax error: No operator found.")
 }
 
-query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTablePrefix){
+query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTableSuffix){
   # BNF: CONJQ = SQ,{'&',SQ};
   qTrim=str_trim(q)
   conditions=list()
@@ -629,16 +611,16 @@ query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTablePrefix){
       }
     }
     # execute query on term
-    query_databaseEqlSQ(emuDBhandle, condStr, intermResTablePrefix, useSubsets = useSubsets)
+    query_databaseEqlSQ(emuDBhandle, condStr, intermResTableSuffix, useSubsets = useSubsets)
     # set resultLevel of first term
     if(is.null(resultLevel)){
-      termResLevel = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM ", intermResTablePrefix, "IntermResultMetaInfosTmp"))$resultLevel
+      termResLevel = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM intermRes_metaInfosTmp_", intermResTableSuffix))$resultLevel
       if(!is.null(termResLevel)){
         resultLevel=termResLevel
       }
     }
     
-    nRes = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM ", intermResTablePrefix, "IntermResultItemsTmp"))$n
+    nRes = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM intermRes_itemsTmp_", intermResTableSuffix))$n
     if(nRes==0){
       # empty result stop here and return
       return()
@@ -649,22 +631,23 @@ query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTablePrefix){
       
       # Proceed with items matching current condition by placeing them into subset tabels
       dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO itemsFilteredSubsetTmp ",
-                                                "SELECT DISTINCT i.* FROM itemsFilteredTmp i, ", intermResTablePrefix, "IntermResultItemsTmp imr ",
+                                                "SELECT DISTINCT i.* FROM itemsFilteredTmp i, intermRes_itemsTmp_", intermResTableSuffix, " imr ",
                                                 "WHERE i.db_uuid=imr.db_uuid AND i.session=imr.session AND i.bundle=imr.bundle AND i.itemID=imr.seqStartId"))
       
       dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labelsFilteredSubsetTmp ",
-                                                "SELECT DISTINCT l.* FROM labelsFilteredTmp l, ", intermResTablePrefix, "IntermResultItemsTmp imr ",
+                                                "SELECT DISTINCT l.* FROM labelsFilteredTmp l, intermRes_itemsTmp_", intermResTableSuffix, " imr ",
                                                 "WHERE l.db_uuid=imr.db_uuid AND l.session=imr.session AND l.bundle=imr.bundle AND l.itemID=imr.seqStartId"))
       useSubsets = TRUE
       
     }
   }
-
-  dbGetQuery(emuDBhandle$connection, paste0("UPDATE ", intermResTablePrefix, "IntermResultItemsTmp ", "SET level ='", resultLevel, "'"))
-  dbGetQuery(emuDBhandle$connection, paste0("UPDATE ", intermResTablePrefix, "IntermResultMetaInfosTmp ", "SET resultLevel = '", resultLevel, "'"))
+  
+  dbGetQuery(emuDBhandle$connection, paste0("UPDATE intermRes_itemsTmp_", intermResTableSuffix, " SET level ='", resultLevel, "'"))
+  dbGetQuery(emuDBhandle$connection, paste0("UPDATE intermRes_metaInfosTmp_", intermResTableSuffix, " SET resultLevel = '", resultLevel, "'"))
 }
 
-query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "left"){
+##################################
+query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftRightTableNrCounter = 0){
   parseRes=list()
   qTrim=str_trim(q)
   # parse SEQQ or DOMQ
@@ -681,45 +664,44 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
       left=str_trim(substr(qTrim,1,seqPos-1))
       right=str_trim(substring(qTrim,seqPos+2))
     }
-    # check that left side is not a SQ -> ensure depth first traversal of parse tree of query
-    brOpenPos = get_charPosition(left, '[', literalQuote="'")
-    if(brOpenPos != -1){
-      # if so query left side before querying right side
-      query_databaseWithEql(emuDBhandle, left, intermResTablePrefix = "left")
-      query_databaseWithEql(emuDBhandle, right, intermResTablePrefix = "right")
-    }else{
-      # else query right side first
-      query_databaseWithEql(emuDBhandle, right, intermResTablePrefix = "right")
-      query_databaseWithEql(emuDBhandle, left, intermResTablePrefix = "left")
-    }
+    # create left & right temp table
+    leftTableSuffix = paste0("left_", leftRightTableNrCounter)
+    rightTableSuffix = paste0("right_", leftRightTableNrCounter)
+    leftRightTableNrCounter = leftRightTableNrCounter + 1
+    
+    create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = leftTableSuffix)
+    create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = rightTableSuffix)
+
+    query_databaseWithEql(emuDBhandle, left, intermResTableSuffix = leftTableSuffix, leftRightTableNrCounter)
+    query_databaseWithEql(emuDBhandle, right, intermResTableSuffix = rightTableSuffix, leftRightTableNrCounter + 1)
     
     # check if left or right side results are empty -> clear tabels and return
-    nLeftResIts = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM leftIntermResultItemsTmp"))$n
+    nLeftResIts = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM intermRes_itemsTmp_", leftTableSuffix))$n
     if(nLeftResIts == 0){
-      clear_intermResTabels(emuDBhandle, "left")
-      clear_intermResTabels(emuDBhandle, "right")
+      clear_intermResTabels(emuDBhandle, leftTableSuffix)
+      clear_intermResTabels(emuDBhandle, rightTableSuffix)
       return()
     }
     
     
-    nRightResIts = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM rightIntermResultItemsTmp"))$n
+    nRightResIts = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM intermRes_itemsTmp_", rightTableSuffix))$n
     if(nRightResIts == 0){
-      clear_intermResTabels(emuDBhandle, "left")
-      clear_intermResTabels(emuDBhandle, "right")
+      clear_intermResTabels(emuDBhandle, leftTableSuffix)
+      clear_intermResTabels(emuDBhandle, rightTableSuffix)
       return()
     }
-
-    nLeftProjItems = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM leftIntermResultProjectionItemsTmp"))$n
-    nRightProjItems = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM rightIntermResultProjectionItemsTmp"))$n
-
+    
+    nLeftProjItems = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM intermRes_projItemsTmp_", leftTableSuffix))$n
+    nRightProjItems = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM intermRes_projItemsTmp_", rightTableSuffix))$n
+    
     if(nLeftProjItems != 0 & nRightProjItems != 0){
       stop("Multiple hash tags '#' not allowed in EQL2 query!")
     }
     # get items on dominance compare levels
-    lResAttrName = dbGetQuery(emuDBhandle$connection, "SELECT resultLevel FROM leftIntermResultMetaInfosTmp")$resultLevel
+    lResAttrName = dbGetQuery(emuDBhandle$connection, paste0("SELECT resultLevel FROM intermRes_MetaInfosTmp_", leftTableSuffix))$resultLevel
     lResLvl = get_levelNameForAttributeName(emuDBhandle, lResAttrName)
     
-    rResAttrName = dbGetQuery(emuDBhandle$connection, "SELECT resultLevel FROM rightIntermResultMetaInfosTmp")$resultLevel
+    rResAttrName = dbGetQuery(emuDBhandle$connection, paste0("SELECT resultLevel FROM intermRes_MetaInfosTmp_", rightTableSuffix))$resultLevel
     rResLvl = get_levelNameForAttributeName(emuDBhandle, rResAttrName)
     if(domPos!=-1 & lResLvl==rResLvl){
       stop("Dominance query on same levels impossible.\nLeft level: ",lResLvl," (attr:",lResAttrName,") equals right level: ",lResLvl," (attr:",rResAttrName,")\n")
@@ -736,13 +718,12 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
       # query the result level of left term
       nLinksExt = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM linksExtFilteredTmp"))$n
       if(nLinksExt==0){
-        clear_intermResTabels(emuDBhandle, "left")
-        clear_intermResTabels(emuDBhandle, "right")
+        clear_intermResTabels(emuDBhandle, leftTableSuffix)
+        clear_intermResTabels(emuDBhandle, rightTableSuffix)
         return()
       }
-      
       # right seq items
-
+      
       # build dominance SQL query string 
       itemsSameBundleCond1="ils.db_uuid=irs.db_uuid AND ils.session=irs.session AND ils.bundle=irs.bundle AND "
       itemsSameBundleCond2="ils.db_uuid=irs.db_uuid AND ils.session=irs.session AND ils.bundle=irs.bundle AND "
@@ -753,7 +734,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
       linkSameBundleCond2="m.db_uuid=ils.db_uuid AND m.db_uuid=irs.db_uuid AND m.session=ils.session AND m.session=irs.session AND m.bundle=ils.bundle AND m.bundle=irs.bundle"
       lDomQuerySelectStr="lid.db_uuid,lid.session,lid.bundle,lid.seqStartId AS lSeqStartId, lid.seqEndId AS lSeqEndId, lid.seqLen AS lSeqLen, lid.level AS lLevel"
       rDomQuerySelectStr="rid.seqStartId AS rSeqStartId, rid.seqEndId AS rSeqEndId, rid.seqLen AS rSeqLen, rid.level AS rLevel"
-      domQueryFromStr="leftIntermResultItemsTmp lid, rightIntermResultItemsTmp rid, itemsFilteredTmp ils, itemsFilteredTmp irs, itemsFilteredTmp ile, itemsFilteredTmp ire"
+      domQueryFromStr=paste0("intermRes_itemsTmp_", leftTableSuffix, " lid, intermRes_ItemsTmp_", rightTableSuffix," rid, itemsFilteredTmp ils, itemsFilteredTmp irs, itemsFilteredTmp ile, itemsFilteredTmp ire")
       domQueryStrCond0=paste0(itemsSameBundleCond1,itemsSameBundleCond2,itemsSameBundleCond3,"ils.itemID=lid.seqStartId AND ile.itemID=lid.seqEndId AND ",itemsSameBundleCond4,"irs.itemID=rid.seqStartId AND ire.itemID=rid.seqEndId AND ",itemsSameBundleCond5)
       # The query has now the corners of the dominance "trapeze" in ils,ile,irs,ire
       # Check sequence start item of left result on existence of a link to the start item of the right sequence 
@@ -774,42 +755,54 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
         if(nLeftProjItems != 0){
           # reduce projection items to DOMQ result items and store in correct table
           qStr = paste0("SELECT i.db_uuid, i.session, i.bundle, i.lSeqStartId AS seqStartId, i.lSeqEndId AS seqEndId, pi.pSeqStartId, pi.pSeqEndId, pi.pSeqLen, pi.pLevel ",
-                        "FROM lrExpResTmp i, leftIntermResultProjectionItemsTmp pi ",
+                        "FROM lrExpResTmp i, intermRes_ProjItemsTmp_", leftTableSuffix, " pi ",
                         "WHERE i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.lSeqStartId=pi.seqStartId AND i.lSeqEndId=pi.seqEndId")
           reducedPI = dbGetQuery(emuDBhandle$connection, qStr)
-          dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", intermResTablePrefix, "IntermResultProjectionItemsTmp"))
-          dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultProjectionItemsTmp"), reducedPI, append = T)
+          dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_ProjItemsTmp_", intermResTableSuffix))
+          dbWriteTable(emuDBhandle$connection, paste0("intermRes_ProjItemsTmp_", intermResTableSuffix), reducedPI, append = T)
+
+          # move meta infos to correct table
+          # allMeta = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM intermRes_MetaInfosTmp_", leftTableSuffix))
+          # dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_MetaInfosTmp_", intermResTableSuffix))
+          # dbWriteTable(emuDBhandle$connection, paste0("intermRes_MetaInfosTmp_", intermResTableSuffix), allMeta, append = T)
           
         }
         
         if(nRightProjItems != 0){
           # reduce projection items to DOMQ result items and store in correct table
           qStr = paste0("SELECT i.db_uuid, i.session, i.bundle, i.lSeqStartId AS seqStartId, i.lSeqEndId AS seqEndId, pi.pSeqStartId, pi.pSeqEndId, pi.pSeqLen, pi.pLevel ",
-                        "FROM lrExpResTmp i, rightIntermResultProjectionItemsTmp pi ",
+                        "FROM lrExpResTmp i, intermRes_ProjItemsTmp_", rightTableSuffix, " pi ",
                         "WHERE i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.rSeqStartId=pi.seqStartId AND i.rSeqEndId=pi.seqEndId")
           reducedPI = dbGetQuery(emuDBhandle$connection, qStr)
-          dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", intermResTablePrefix, "IntermResultProjectionItemsTmp"))
-          dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultProjectionItemsTmp"), reducedPI, append = T)
+          dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_ProjItemsTmp_", intermResTableSuffix))
+          dbWriteTable(emuDBhandle$connection, paste0("intermRes_ProjItemsTmp_", intermResTableSuffix), reducedPI, append = T)
+
+          # move meta infos to correct table
+          # allMeta = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM intermRes_MetaInfosTmp_", rightTableSuffix))
+          # dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_MetaInfosTmp_", intermResTableSuffix))
+          # dbWriteTable(emuDBhandle$connection, paste0("intermRes_MetaInfosTmp_", intermResTableSuffix), allMeta, append = T)
           
         }
       }
       
-      # move meta infos to correct table
-      allMeta = dbGetQuery(emuDBhandle$connection, "SELECT * FROM leftIntermResultMetaInfosTmp")
-      dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", intermResTablePrefix, "IntermResultMetaInfosTmp"))
-      dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultMetaInfosTmp"), allMeta, append = T)
+      # if(nRightProjItems == 0 & nRightProjItems == 0){
+        # if no projItems -> place left Meta infos in result table
+        allMeta = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM intermRes_MetaInfosTmp_", leftTableSuffix))
+        dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_MetaInfosTmp_", intermResTableSuffix))
+        dbWriteTable(emuDBhandle$connection, paste0("intermRes_MetaInfosTmp_", intermResTableSuffix), allMeta, append = T)
+      # }
       
       # place result in correct table
       resItems = dbGetQuery(emuDBhandle$connection, "SELECT DISTINCT db_uuid, session, bundle, lSeqStartId AS seqStartId, lSeqEndId AS seqEndId, lSeqLen AS seqLen, lLevel AS level FROM lrExpResTmp")
-      dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", intermResTablePrefix, "IntermResultItemsTmp"))
-      dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultItemsTmp"), resItems, append = T)
+      dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_ItemsTmp_", intermResTableSuffix))
+      dbWriteTable(emuDBhandle$connection, paste0("intermRes_ItemsTmp_", intermResTableSuffix), resItems, append = T)
       
       
     }
     if(seqPos!=-1){
       # query the result level of left term (removed lid.seqEndId AS leId,rid.seqStartId AS rsId,)
       lrSeqQueryStr=paste0("SELECT lid.db_uuid, lid.session, lid.bundle, lid.seqStartId AS lSeqStartId, lid.seqEndId AS lSeqEndId, lid.seqLen AS lSeqLen, lid.level AS lLevel, rid.seqStartId AS rSeqStartId, rid.seqEndId AS rSeqEndId, rid.seqLen AS rSeqLen, lid.level AS rLevel ",
-                           "FROM leftIntermResultItemsTmp lid, rightIntermResultItemsTmp rid, itemsFilteredTmp il, itemsFilteredTmp ir ",
+                           "FROM intermRes_itemsTmp_", leftTableSuffix, " lid, intermRes_itemsTmp_", rightTableSuffix, " rid, itemsFilteredTmp il, itemsFilteredTmp ir ",
                            "WHERE il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle ",
                            "AND il.db_uuid=lid.db_uuid AND il.session=lid.session AND il.bundle=lid.bundle ",
                            "AND il.db_uuid=rid.db_uuid AND il.session=rid.session AND il.bundle=rid.bundle ",
@@ -824,52 +817,61 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
       # check if no sequences where found -> clear & return
       nSeq = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM lrExpResTmp"))$n
       if(nSeq == 0){
-        clear_intermResTabels(emuDBhandle, "left")
-        clear_intermResTabels(emuDBhandle, "right")
+        clear_intermResTabels(emuDBhandle, leftTableSuffix)
+        clear_intermResTabels(emuDBhandle, rightTableSuffix)
         return()
       }
       
       
       if(nLeftProjItems != 0){
+        # reduce to projection items
         # check if SEQQ result items and store in correct table
         qStr=paste0("SELECT i.db_uuid, i.session, i.bundle, i.lSeqStartId, i.rSeqEndId, pi.pSeqStartId, pi.pSeqEndId, pi.pSeqLen, pi.pLevel ",
-                    "FROM lrExpResTmp i, leftIntermResultProjectionItemsTmp pi ",
+                    "FROM lrExpResTmp i, intermRes_ProjItemsTmp_", leftTableSuffix, " pi ",
                     "WHERE i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.lSeqStartId=pi.seqStartId AND i.lSeqEndId=pi.seqEndId")
         
         reducedPI = dbGetQuery(emuDBhandle$connection, qStr)
-        dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", intermResTablePrefix, "IntermResultProjectionItemsTmp"))
-        dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultProjectionItemsTmp"), reducedPI, append = T)
+        dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_ProjItemsTmp_", intermResTableSuffix))
+        dbWriteTable(emuDBhandle$connection, paste0("intermRes_ProjItemsTmp_", intermResTableSuffix), reducedPI, append = T)
         # move meta infos to correct table
-        allMeta = dbGetQuery(emuDBhandle$connection, "SELECT * FROM leftIntermResultMetaInfosTmp")
-        dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", intermResTablePrefix, "IntermResultMetaInfosTmp"))
-        dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultMetaInfosTmp"), allMeta, append = T)
+        allMeta = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM intermRes_MetaInfosTmp_", leftTableSuffix))
+        dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_MetaInfosTmp_", intermResTableSuffix))
+        dbWriteTable(emuDBhandle$connection, paste0("intermRes_MetaInfosTmp_", intermResTableSuffix), allMeta, append = T)
         
       }
       
       if(nRightProjItems != 0){
+        # reduce to projection items
         qStr=paste0("SELECT i.db_uuid, i.session, i.bundle, i.lSeqStartId, i.rSeqEndId, pi.pSeqStartId, pi.pSeqEndId, pi.pSeqLen, pi.pLevel ",
-                    "FROM lrExpResTmp i,rightIntermResultProjectionItemsTmp pi ",
+                    "FROM lrExpResTmp i,intermRes_ProjItemsTmp_", rightTableSuffix, " pi ",
                     "WHERE i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.rSeqStartId=pi.seqStartId AND i.rSeqEndId=pi.seqEndId")
         
         reducedPI = dbGetQuery(emuDBhandle$connection, qStr)
-        dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", intermResTablePrefix, "IntermResultProjectionItemsTmp"))
-        dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultProjectionItemsTmp"), reducedPI, append = T)
+        dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_ProjItemsTmp_", intermResTableSuffix))
+        dbWriteTable(emuDBhandle$connection, paste0("intermRes_ProjItemsTmp_", intermResTableSuffix), reducedPI, append = T)
         # move meta infos to correct table
-        allMeta = dbGetQuery(emuDBhandle$connection, "SELECT * FROM rightIntermResultMetaInfosTmp")
-        dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", intermResTablePrefix, "IntermResultMetaInfosTmp"))
-        dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultMetaInfosTmp"), allMeta, append = T)
+        allMeta = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM intermRes_MetaInfosTmp_", rightTableSuffix))
+        dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_MetaInfosTmp_", intermResTableSuffix))
+        dbWriteTable(emuDBhandle$connection, paste0("intermRes_MetaInfosTmp_", intermResTableSuffix), allMeta, append = T)
         
+      }
+      
+      if(nLeftProjItems == 0 & nRightProjItems == 0){
+        # if no projItems -> place left Meta infos in result table
+        allMeta = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM intermRes_MetaInfosTmp_", leftTableSuffix))
+        dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_MetaInfosTmp_", intermResTableSuffix))
+        dbWriteTable(emuDBhandle$connection, paste0("intermRes_MetaInfosTmp_", intermResTableSuffix), allMeta, append = T)
       }
       
       # place result in correct table
       resItems = dbGetQuery(emuDBhandle$connection, "SELECT DISTINCT db_uuid, session, bundle, lSeqStartId AS seqStartId, rSeqEndId AS seqEndId, lSeqLen+rSeqLen AS seqLen, lLevel AS level FROM lrExpResTmp")
-      dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", intermResTablePrefix, "IntermResultItemsTmp"))
-      dbWriteTable(emuDBhandle$connection, paste0(intermResTablePrefix, "IntermResultItemsTmp"), resItems, append = T)
+      dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_itemsTmp_", intermResTableSuffix))
+      dbWriteTable(emuDBhandle$connection, paste0("intermRes_ItemsTmp_", intermResTableSuffix), resItems, append = T)
       
     }
     return()
   }else{
-    query_databaseWithEql(emuDBhandle, qTrim, intermResTablePrefix)
+    query_databaseWithEql(emuDBhandle, qTrim, intermResTableSuffix, leftRightTableNrCounter)
   }
 }
 
@@ -878,27 +880,33 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
 ## @param database object of class emuDB
 ## @param query EQL query string
 ## @return EMU seglist
-## @author Klaus Jaensch
 ## @export
 ## @keywords emuDB database query Emu EQL 
 ## 
 query_databaseWithEqlEmusegs<-function(emuDBhandle, query){
-  
-  query_databaseWithEql(emuDBhandle,query)
+
+  # create "root" intermediate result tables
+  create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = "root")
+  # query emuDB
+  query_databaseWithEql(emuDBhandle, query, intermResTableSuffix = "root", leftRightTableNrCounter = 0)
   # escape singel quotes
   query = gsub("'", "''", query)
-  dbGetQuery(emuDBhandle$connection, paste0("UPDATE leftIntermResultMetaInfosTmp SET queryStr = '", query, "'"))
+  dbGetQuery(emuDBhandle$connection, paste0("UPDATE intermRes_MetaInfosTmp_root SET queryStr = '", query, "'"))
   emusegs=convert_queryResultToEmusegs(emuDBhandle)
   return(emusegs)
   
 }
 
+####################
 query_databaseWithEqlEmuRsegs<-function(emuDBhandle, query, timeRefSegmentLevel){
   
-  query_databaseWithEql(emuDBhandle, query)
+  # create "root" intermediate result tables
+  create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = "root")
+  # query emuDB
+  query_databaseWithEql(emuDBhandle, query, intermResTableSuffix = "root", leftRightTableNrCounter = 0)
   # escape singel quotes
   query = gsub("'", "''", query)
-  dbGetQuery(emuDBhandle$connection, paste0("UPDATE leftIntermResultMetaInfosTmp SET queryStr = '", query, "'"))
+  dbGetQuery(emuDBhandle$connection, paste0("UPDATE intermRes_metaInfosTmp_root SET queryStr = '", query, "'"))
   emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel)
   return(emuRsegs)
   
@@ -912,16 +920,15 @@ query_databaseWithEqlEmuRsegs<-function(emuDBhandle, query, timeRefSegmentLevel)
 ## @param database object of class emuDB
 ## @param query EQL query string
 ## @return result set object
-## @author Klaus Jaensch
 ## @export
 ## @keywords emuDB database query Emu EQL 
 ## 
-query_databaseWithEql<-function(emuDBhandle, query, intermResTablePrefix = "left"){
+query_databaseWithEql<-function(emuDBhandle, query, intermResTableSuffix, leftRightTableNrCounter){
   parseRes=list()
   qTrim=str_trim(query)
   brOpenPos=get_charPosition(qTrim,'[',literalQuote="'")
   if(brOpenPos==-1){
-    query_databaseEqlCONJQ(emuDBhandle, qTrim, intermResTablePrefix = intermResTablePrefix)
+    query_databaseEqlCONJQ(emuDBhandle, qTrim, intermResTableSuffix = intermResTableSuffix)
     return()
   }else{
     
@@ -940,7 +947,7 @@ query_databaseWithEql<-function(emuDBhandle, query, intermResTablePrefix = "left
     
     #parse string in bracket
     inBr=substr(qTrim,brOpenPos+1,brClosePos-1)
-    query_databaseEqlInBracket(emuDBhandle, inBr, intermResTablePrefix)
+    query_databaseEqlInBracket(emuDBhandle, inBr, intermResTableSuffix, leftRightTableNrCounter)
     return()
     
   }
@@ -1000,9 +1007,10 @@ query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*
   
   if(queryLang=='EQL2'){
     # create temp tables 
-    drop_tmpQueryTablesDBI(emuDBhandle)
-    create_tmpQueryTablesDBI(emuDBhandle)
+    drop_allTmpTablesDBI(emuDBhandle)
+    create_tmpFilteredQueryTablesDBI(emuDBhandle)
     
+    # extract all items for session/bundlePattern regEx matching (should check if REGEXP is available and is so use that instead)
     queryItems <- dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM items WHERE db_uuid='", emuDBhandle$UUID, "'"))
     queryLabels <- dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM labels WHERE db_uuid='", emuDBhandle$UUID, "'"))
     queryLinksExt <- dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM linksExt WHERE db_uuid='", emuDBhandle$UUID,"'"))
@@ -1026,19 +1034,14 @@ query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*
       bndlSelLbls = rep(TRUE, nrow(queryLabels))
       bndlSelLks = rep(TRUE, nrow(queryLinksExt))
     }
-    # clear tables
-    dbGetQuery(emuDBhandle$connection, "DELETE FROM itemsFilteredTmp")
-    dbGetQuery(emuDBhandle$connection, "DELETE FROM labelsFilteredTmp")
-    dbGetQuery(emuDBhandle$connection, "DELETE FROM linksExtFilteredTmp")
     # write to tmp tables
     dbWriteTable(emuDBhandle$connection, "itemsFilteredTmp", queryItems[sesSelIts & bndlSelIts, ], append = TRUE)
     dbWriteTable(emuDBhandle$connection, "labelsFilteredTmp", queryLabels[sesSelLbls & bndlSelLbls, ], append = TRUE)
     dbWriteTable(emuDBhandle$connection, "linksExtFilteredTmp", queryLinksExt[sesSelLks & bndlSelLks, ], append = TRUE)
     
-    
     if(is.null(resultType)){
       emuRsegs = query_databaseWithEqlEmuRsegs(emuDBhandle,query,timeRefSegmentLevel)
-      drop_tmpQueryTablesDBI(emuDBhandle)
+      drop_allTmpTablesDBI(emuDBhandle)
       return(emuRsegs)
     }else{
       if(resultType=='emuRsegs'){
@@ -1055,7 +1058,7 @@ query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*
         stop("Unknown result type: '",resultType,"'. Supported result types: 'emuRsegs', emusegs'")
       }
     }
-
+    
   }else{
     stop("Unknown query language '",queryLang,"'.")
   }
