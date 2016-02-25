@@ -143,12 +143,11 @@ drop_tmpQueryTablesDBI <- function(emuDBhandle){
 
 ## @param emuDBhandle
 ## @param intermResTablePrefix "left" or "right"
-clear_intermResTabels <- function(emuDBhandle, intermResTablePrefix = "left"){
+clear_intermResTabels <- function(emuDBhandle, intermResTablePrefix = "left", clearProjectionItems = TRUE){
   
   dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", paste0(intermResTablePrefix, "IntermResultItemsTmp")))
-  # dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", paste0(intermResTablePrefix, "IntermResultLinksTmp")))
   dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", paste0(intermResTablePrefix, "IntermResultMetaInfosTmp")))
-  dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", paste0(intermResTablePrefix, "IntermResultProjectionItemsTmp")))
+  if(clearProjectionItems) dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM ", paste0(intermResTablePrefix, "IntermResultProjectionItemsTmp")))
 }
 ###################################################################
 ################## Functions implementing EQL #####################
@@ -186,8 +185,8 @@ query_labels <- function(emuDBhandle, levelName, intermResTablePrefix = "left", 
   }else{
     labelTableName = "labelsFilteredTmp"
   }
-  
-  clear_intermResTabels(emuDBhandle, intermResTablePrefix)
+  # clear tables but keep projectionItems so they don't get lost in queries like : [Text == the -> #Text =~ .* & Accent == S]  (right side of ->)
+  clear_intermResTabels(emuDBhandle, intermResTablePrefix, clearProjectionItems = FALSE)
   opr=conditionText[['opr']]
   values=conditionText[['values']]
   res=NULL
@@ -598,7 +597,7 @@ query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTablePr
 }
 
 query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTablePrefix){
-  # BNF: KONJA = EA,{'&',EA};
+  # BNF: CONJQ = SQ,{'&',SQ};
   qTrim=str_trim(q)
   conditions=list()
   # initialize with empty result
@@ -621,7 +620,7 @@ query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTablePrefix){
       startPos=p+1
     }
     # find projection marker (#) in condStr
-    pHash = get_stringPosition(string=condStr,searchStr='#',pos=startPos,literalQuote="'")
+    pHash = get_stringPosition(string=condStr,searchStr='#',literalQuote="'")
     if(pHash!=-1){
       if(projection){
         stop("Only one hashtag allowed in linear query term: ",qTrim)
@@ -668,11 +667,11 @@ query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTablePrefix){
 query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "left"){
   parseRes=list()
   qTrim=str_trim(q)
-  # parse SEQA or DOMA
+  # parse SEQQ or DOMQ
   seqPos = get_stringPositionOutsideBrackets(qTrim,'->',literalQuote="'",bracket=c('[',']'))
   domPos = get_stringPositionOutsideBrackets(qTrim,'^',literalQuote="'",bracket=c('[',']'))
   if(seqPos!=-1 || domPos!=-1){
-    # parse DOMA or SEQA
+    # parse DOMQ or SEQQ
     lExpRes=NULL
     prjIts=NULL
     if(domPos!=-1){
@@ -682,7 +681,6 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
       left=str_trim(substr(qTrim,1,seqPos-1))
       right=str_trim(substring(qTrim,seqPos+2))
     }
-    
     # check that left side is not a SQ -> ensure depth first traversal of parse tree of query
     brOpenPos = get_charPosition(left, '[', literalQuote="'")
     if(brOpenPos != -1){
@@ -830,7 +828,6 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTablePrefix = "lef
         clear_intermResTabels(emuDBhandle, "right")
         return()
       }
-      
       
       
       if(nLeftProjItems != 0){
@@ -1034,9 +1031,9 @@ query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*
     dbGetQuery(emuDBhandle$connection, "DELETE FROM labelsFilteredTmp")
     dbGetQuery(emuDBhandle$connection, "DELETE FROM linksExtFilteredTmp")
     # write to tmp tables
-    dbWriteTable(emuDBhandle$connection, "itemsFilteredTmp", queryItems[sesSelIts && bndlSelIts, ], append = TRUE)
-    dbWriteTable(emuDBhandle$connection, "labelsFilteredTmp", queryLabels[sesSelLbls && bndlSelLbls, ], append = TRUE)
-    dbWriteTable(emuDBhandle$connection, "linksExtFilteredTmp", queryLinksExt[sesSelLks && bndlSelLks, ], append = TRUE)
+    dbWriteTable(emuDBhandle$connection, "itemsFilteredTmp", queryItems[sesSelIts & bndlSelIts, ], append = TRUE)
+    dbWriteTable(emuDBhandle$connection, "labelsFilteredTmp", queryLabels[sesSelLbls & bndlSelLbls, ], append = TRUE)
+    dbWriteTable(emuDBhandle$connection, "linksExtFilteredTmp", queryLinksExt[sesSelLks & bndlSelLks, ], append = TRUE)
     
     
     if(is.null(resultType)){
