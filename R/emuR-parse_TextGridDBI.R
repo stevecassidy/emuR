@@ -314,8 +314,22 @@ parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encodi
   }
 }
 
-# TODO implement this to improve perfomance of of convert_TextGridCollection
+# TODO implement this to improve performance of of convert_TextGridCollection
 TextGridToBundleAnnotDFs <- function(tgPath){
+  
+  FILE_TYPE_KEY="File type"
+  OBJECT_CLASS_KEY="Object class"
+  
+  tgChar = readChar(tgPath, file.info(tgPath)$size)
+  lines = unlist(strsplit(tgChar, "\n"))
+  
+  if(!grepl(paste0("^", FILE_TYPE_KEY), lines[1]) & !grepl(paste0("^", OBJECT_CLASS_KEY), lines[2])){
+    stop("First two lines of TextGrid file do not match: ", FILE_TYPE_KEY, "; and: ", OBJECT_CLASS_KEY)
+  }
+    
+  tiers = unlist(strsplit(tgChar, ".*item.*\n"))
+  tiers[1]
+  
 }
 
 # FOR DEVELOPMENT
