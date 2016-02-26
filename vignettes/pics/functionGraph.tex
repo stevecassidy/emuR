@@ -1,0 +1,96 @@
+\documentclass[tikz]{standalone}
+\usetikzlibrary{shapes,arrows, backgrounds}
+\begin{document}
+
+\tikzstyle{element}=[color=black]
+\tikzstyle{privateFunc}=[color=red]
+\tikzstyle{publicFunc}=[color=green]
+
+\begin{tikzpicture}
+ 	\node (emuDB) at (0, 1) [element] {\textbf{emuDB}};
+	\node (SQLiteDB) at (0, 0) [element] {\textbf{SQLiteDB}};
+	% tables
+	\node (emuDB_table) at (-5, -2) [element] {\texttt{emuDB}};
+	\node (session_table) at (-3, -2) [element] {\texttt{session}};
+	\node (bundle_table) at (-1, -2) [element] {\texttt{bundle}};
+	\node (items_table) at (1, -2) [element] {\texttt{items}};
+	\node (labels_table) at (3, -2) [element] {\texttt{labels}};
+	\node (links_table) at (5, -2) [element] {\texttt{links}};
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%% emuDB functions
+	\node (load_DBconfig) at (-10, 2) [privateFunc] {\texttt{load\_DBconfig}};
+	\node (store_DBconfig) at (-10, 1.5) [privateFunc] {\texttt{store\_DBconfig}};
+ 	\node (list_sessions) at (-10, 1) [publicFunc] {\texttt{list\_sessions}};
+ 	\node (list_bundles) at (-10, 0.5) [publicFunc] {\texttt{list\_bundles}};
+
+ 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%% DBI functions
+ 	\node (add_emuDbDBI) at (10, 3) [privateFunc] {\texttt{add\_emuDbDBI}};
+ 	\node (get_emuDbDBI) at (10, 2.5) [privateFunc] {\texttt{get\_emuDbDBI}};
+
+ 	% sessions
+ 	\node (add_sessionDBI) at (10, 2) [privateFunc] {\texttt{add\_sessionsDBI}};
+	\node (list_sessionsDBI) at (10, 1.5) [privateFunc] {\texttt{list\_sessionsDBI}};
+	\node (remove_sessionDBI) at (10, 1) [privateFunc] {\texttt{remove\_sessionDBI}};
+
+ 	% bundles
+ 	\node (add_bundleDBI) at (10, 0.5) [privateFunc] {\texttt{add\_bundleDBI}};
+	\node (list_bundlesDBI) at (10, 0) [privateFunc] {\texttt{list\_bundlesDBI}};
+	\node (remove_bundleDBI) at (10, -0.5) [privateFunc] {\texttt{remove\_bundleDBI}};
+	\node (get_MD5annotJsonDBI) at (10, -1) [privateFunc] {\texttt{get\_MD5annotJsonDBI}};
+
+	% bundle annotation data.frames
+	\node (load_bundleAnnotDFsDBI) at (10, -4) [privateFunc] {\texttt{load\_bundleAnnotDFsDBI}};
+	\node (store_bundleAnnotDFsDBI) at (10, -4.5) [privateFunc] {\texttt{store\_bundleAnnotDFsDBI}};
+	\node (remove_bundleAnnotDBI) at (10, -5) [privateFunc] {\texttt{remove\_bundleAnnotDBI}};
+
+	%%%%%%%%%%%%%%%%%%%%%%%%
+	% connections
+
+	% tables 
+	\draw [dotted] (SQLiteDB) to (emuDB_table);
+	\draw [dotted] (SQLiteDB) to (session_table);
+	\draw [dotted] (SQLiteDB) to (bundle_table);
+	\draw [dotted] (SQLiteDB) to (items_table);
+	\draw [dotted] (SQLiteDB) to (labels_table);
+	\draw [dotted] (SQLiteDB) to (links_table);
+
+	%% emuDB actions
+	\draw [<-] (load_DBconfig.east) -- (emuDB);
+	\draw [->] (store_DBconfig.east) -- (emuDB);
+	\draw [<-] (list_sessions.east) -- (emuDB);
+	\draw [<-] (list_bundles.east) -- (emuDB);
+
+	%% DBI actions
+	% emuDB
+	\draw [->] (add_emuDbDBI.west) -- (emuDB_table);
+	\draw [<-] (get_emuDbDBI.west) -- (emuDB_table);
+
+	% sessions
+	\draw [->] (add_sessionDBI.west) -- (session_table);
+	\draw [<-] (list_sessionsDBI.west) -- (session_table);
+	\draw [->] (remove_sessionDBI.west) -- (session_table);
+
+	% bundles
+	\draw [->] (add_bundleDBI.west) -- (bundle_table);
+	\draw [<-] (list_bundlesDBI.west) -- (bundle_table);
+	\draw [->] (remove_bundleDBI.west) -- (bundle_table);
+	\draw [->] (get_MD5annotJsonDBI.west) -- (bundle_table);
+
+	% bundle annotation data.frames
+	\draw [<-] (load_bundleAnnotDFsDBI.west) -- (items_table);
+	\draw [<-] (load_bundleAnnotDFsDBI.west) -- (labels_table);
+	\draw [<-] (load_bundleAnnotDFsDBI.west) -- (links_table);
+
+	\draw [->] (store_bundleAnnotDFsDBI.west) -- (items_table);
+	\draw [->] (store_bundleAnnotDFsDBI.west) -- (labels_table);
+	\draw [->] (store_bundleAnnotDFsDBI.west) -- (links_table);
+
+	\draw [->] (remove_bundleAnnotDBI.west) -- (items_table);
+	\draw [->] (remove_bundleAnnotDBI.west) -- (labels_table);
+	\draw [->] (remove_bundleAnnotDBI.west) -- (links_table);
+
+  
+\end{tikzpicture}
+
+\end{document}

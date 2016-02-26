@@ -1,0 +1,339 @@
+requireNamespace("stringr", quietly = T)
+requireNamespace("RSQLite", quietly = T)
+
+## Parser for Praat TextGrid files
+## 
+## parses directly to DBI tables (items, labels)
+## @param emuDBhandle 
+## @param textGridPath TextGrid file connection
+## @param sampleRate sample rate of correponding signal file
+## @param encoding text encoding (currently the only excepted is the default UTF-8)
+## @param bundle name of bundle 
+## @param session name of session
+## 
+parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encoding="UTF-8", 
+                           bundle=NULL, session="0000") {
+  
+  #####################
+  # check arguments (TODO better checks for classes and the like...)
+  
+  if(is.null(TextGridPath)) {
+    stop("Argument TextGridPath must not be NULL\n")
+  }
+  if(sampleRate <=0 ){
+    stop("Samplerate must be greater than zero\n")
+  }
+  if(encoding != "UTF-8"){
+    stop("The only encoding that is currently supported is UTF-8\n")
+  }
+  if(is.null(bundle)){
+    stop("Argument bundle must not be NULL!\n")
+  }
+  if(is.null(session)){
+    stop("Argument session must not be NULL!\n")
+  }
+  
+  #
+  #####################
+  
+  itemCounterGlobal = 1
+  itemCounterLevel = 1
+  
+  FILE_TYPE_KEY="File type"
+  OBJECT_CLASS_KEY="Object class"
+  TIERS_SIZE_KEY="size"
+  TIER_ITEM_KEY="item"
+  NAME_KEY="name"
+  INTERVALS_KEY="intervals"
+  POINTS_KEY="points"
+  XMIN_KEY="xmin"
+  XMAX_KEY="xmax"
+  TEXT_KEY="text"
+  TIME_KEY="time"
+  
+  FILE_TYPE_VAL_OO_TEXTFILE="ooTextFile"
+  OBJECT_CLASS_VAL_TEXTGRID="TextGrid"
+  TIER_CLASS_VAL_INTERVAL="IntervalTier"
+  TIER_CLASS_VAL_TEXT="TextTier"
+  
+  fileType=NULL
+  objectClass=NULL
+  hasTiers=FALSE
+  tiersCount=NULL
+  currentTier=NULL
+  currentTierClass=NULL
+  currentTierName=NULL
+  currentTierSize=NULL
+  
+  # read TextGrid
+  tg = try(readLines(TextGridPath))
+  if(class(tg) == "try-error") {
+    stop("read.TextGrid: cannot read from file ", TextGridPath)
+  }
+  
+  # remove all trailing/leading white spaces (for speed improvment)
+  tg = gsub("^\\s+|\\s+$", "", tg)
+  
+  for(line in tg){
+    # check for fileType
+    if(is.null(fileType)){
+      p=parse_lineToKeyValue(line,doubleQuoted=TRUE, initialTrim=FALSE)
+      if(! is.null(p)){
+        if(p[1]==FILE_TYPE_KEY){
+          fileType=p[2]
+          # check if of correct type:
+          if(fileType != FILE_TYPE_VAL_OO_TEXTFILE){
+            stop("Can only parse TextGrids with the File type: ", FILE_TYPE_VAL_OO_TEXTFILE, 
+                 ". Found following File type: ", fileType)
+          }
+          
+        }
+      }
+    }else{
+      # check for objectClass
+      if(is.null(objectClass)){
+        p=parse_lineToKeyValue(line,doubleQuoted=TRUE, initialTrim=FALSE)
+        if(! is.null(p)){
+          if(p[1]==OBJECT_CLASS_KEY){
+            objectClass=p[2]
+          }
+        }
+      }else{
+        # if we have both the file type and the object class        
+        if((fileType==FILE_TYPE_VAL_OO_TEXTFILE) && (objectClass==OBJECT_CLASS_VAL_TEXTGRID)){
+          
+          if(is.null(tiersCount)){
+            
+            p=parse_lineToKeyValue(line, initialTrim=FALSE)
+            if((!is.null(p)) && (p[1]=='size')){
+              tiersCount=p[2]
+            }
+          }else{
+            ## if we have tiersCount tiers
+            if(length(grep("^item",line))==1){
+              
+              tierIndexStr=sub('item\\s*','',line);
+              tierIndexStr=sub('\\s*:$','',tierIndexStr);
+              if(length(grep('\\[\\s*[0-9]+\\s*\\]',tierIndexStr))==1){
+                tierIndexStr=sub('\\[\\s*','',tierIndexStr);
+                tierIndexStr=sub('\\s*\\]','',tierIndexStr);
+                
+                tierIndex=tierIndexStr;
+                # reset level/tier attributes
+                itemCounterLevel = 1
+                currentTierClass=NULL;
+                currentTierName=NULL;
+                currentTierSize=NULL;
+                currentSegment=NULL;
+                currentSegmentIndex=NULL;
+                currentSegmentStart=NULL;
+                currentSegmentDur=NULL;
+                currentSegmentLabel=NULL;
+                currentMark=NULL;
+                currentPointIndex=NULL;
+                currentPointSample=NULL;
+                currentPointLabel=NULL;
+              }
+            }else {
+              # check for currentTierClass
+              if(is.null(currentTierClass)){
+                p=parse_lineToKeyValue(line,doubleQuoted=TRUE, initialTrim=FALSE)
+                if((! is.null(p)) && ('class' == p[1])){
+                  currentTierClass=p[2];
+                  if(currentTierClass==TIER_CLASS_VAL_INTERVAL){
+
+                  }else if(currentTierClass==TIER_CLASS_VAL_TEXT){
+                  }else{
+                    stop("TextGrid tiers of class \"",currentTierClass,"\" not supported!");
+                  }
+                }
+              }
+              # check for currentTierName
+              if(is.null(currentTierName)){
+                p=parse_lineToKeyValue(line,doubleQuoted=TRUE, initialTrim=FALSE)
+                if((! is.null(p)) && ('name' == p[1])){
+                  currentTierName=p[2];
+
+                }
+              }
+              # if we have the currentTierClass
+              if(!is.null(currentTierClass)){
+                if(currentTierClass==TIER_CLASS_VAL_INTERVAL){
+                  # find size (and other properties)
+                  if((is.null(currentTierSize)) && (length(grep('^intervals[[:space:]]*:.*',line))==1)){
+                    
+                    intervalsPropertyStr=str_trim(sub('^intervals[[:space:]]*:','',line))
+                    intervalsProperty=parse_lineToKeyValue(intervalsPropertyStr,initialTrim=FALSE);
+                    if((!is.null(intervalsProperty)) && (intervalsProperty[1]=='size')){
+                      currentTierSize=intervalsProperty[2]
+                      #cat("intervals: size=",currentTierSize,"\n");
+                      
+                    }
+                  }
+                  if(length(grep('intervals[[:space:]]*[[][[:space:]]*[0-9]+[[:space:]]*[]][[:space:]]*[:][[:space:]]*',line))==1){
+                    
+                    segmentIndexStr=sub("intervals[[:space:]]*[[][[:space:]]*","",line);
+                    segmentIndexStr=sub("[[:space:]]*[]][[:space:]]*[:][[:space:]]*","",segmentIndexStr);
+                    currentElementIndex=segmentIndexStr;
+                    
+                    currentSegmentIndex=segmentIndexStr;
+                    currentSegmentStart=NULL;
+                    currentSegmentEnd=NULL;
+                    currentSegmentLabel=NULL;
+                  }else{
+                    p=parse_lineToKeyValue(line, doubleQuoted=TRUE, initialTrim=FALSE)
+                    if((!is.null(p)) && (!is.null(currentSegmentIndex))){
+                      if(p[1] == "xmin"){
+                        minTimeStr=p[2]
+                        minTime=as(minTimeStr,"numeric")
+                        startSample = floor(minTime * sampleRate)
+                        currentSegmentStart=startSample
+                      }else if(p[1]=="xmax"){
+                        maxTimeStr=p[2];
+                        maxTime=as(maxTimeStr,"numeric")
+                        currentSegmentEnd = floor(maxTime * sampleRate)
+                        
+                        
+                      }else if(p[1]=="text"){
+                        label=p[2];
+                        currentSegmentLabel=label;
+                      }
+                      
+                      if(!is.null(currentSegmentIndex) && 
+                           !is.null(currentSegmentStart) &&
+                           !is.null(currentSegmentEnd) &&
+                           !is.null(currentSegmentLabel)){
+                        sampleDur = currentSegmentEnd - currentSegmentStart - 1
+                        labels=list(list(name=currentTierName,value=currentSegmentLabel))
+                        
+                        
+                        # item entry:
+                        dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', '", itemCounterGlobal, 
+                                                       "', '", currentTierName, "', '", "SEGMENT", 
+                                                       "', ", itemCounterLevel, ", ", sampleRate, ", ", "NULL", ", ", currentSegmentStart, 
+                                                       ", ", sampleDur, ")"))
+                        
+                        
+                        
+                        # label entry:
+                        dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO labels VALUES","('", 
+                                                       emuDBhandle$UUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
+                                                       ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentSegmentLabel), "')"))
+                        
+                        # links entry:
+                        # no link entry because TextGrids don't have hierarchical infos
+                        
+                        # increase counters
+                        itemCounterGlobal = itemCounterGlobal + 1
+                        itemCounterLevel = itemCounterLevel + 1
+                        
+                        
+                        currentSegment=NULL;
+                        currentSegmentIndex=NULL;
+                        currentSegmentStart=NULL;
+                        currentSegmentDur=NULL;
+                      }
+                      
+                    }
+                  }
+                  
+                }else if(currentTierClass==TIER_CLASS_VAL_TEXT){
+                  # find size (and other properties)
+                  if((is.null(currentTierSize)) && (length(grep('^points[[:space:]]*[:].*',line))==1)){
+                    
+                    intervalsPropertyStr=str_trim(sub('^points[[:space:]]*[:]','',line))
+                    intervalsProperty=parse_lineToKeyValue(intervalsPropertyStr, initialTrim=FALSE);
+                    if((!is.null(intervalsProperty)) && (intervalsProperty[1]=='size')){
+                      currentTierSize=intervalsProperty[2]
+                    }
+                  }
+                  if(length(grep("points[[:space:]]*[[][[:space:]]*[0-9]+[[:space:]]*[]][[:space:]]*[:][[:space:]]*",line))==1){
+                    pointIndexStr=sub("points[[:space:]]*[[][[:space:]]*","",line);
+                    pointIndexStr=sub("[[:space:]]*[]][[:space:]]*[:][[:space:]]*","",pointIndexStr);
+                    currentPointIndex=as.integer(pointIndexStr)
+                    currentElementIndex=currentPointIndex
+                    currentPointLabel=NULL;
+                    currentPointSample=NULL;
+                  }else{
+                    #cat("inside point: \n")
+                    p=parse_lineToKeyValue(line,doubleQuoted=TRUE, initialTrim=FALSE)
+                    if((!is.null(p)) && (!is.null(currentPointIndex))){
+                      if(p[1]=="time" || p[1]=="number"){
+                        timePointStr=p[2];
+                        timePoint=as(timePointStr,"numeric")
+                        samplePoint = floor(timePoint * sampleRate)
+                        currentPointSample=samplePoint
+                      }else if(p[1]=="mark"){
+                        currentPointLabel=p[2]
+                      }else if(p[1]=="text"){
+                        currentPointLabel=p[2]
+                      }
+                    }
+                    if(!is.null(currentPointIndex) && 
+                         !is.null(currentPointSample) &&
+                         !is.null(currentPointLabel)){
+                      
+                      labels=list(list(name=currentTierName,value=currentPointLabel))
+                      
+                      # item entry
+                      itemId = paste0(emuDBhandle$dbName, '_', session, '_', bundle, '_', itemCounterGlobal)
+                      
+                      
+                      dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
+                                                     itemCounterGlobal, ", '", currentTierName,"', '", "EVENT", 
+                                                     "', ", itemCounterLevel, ", ", sampleRate, ", ", currentPointSample, ", ", "NULL", 
+                                                     ", ", "NULL", ")"))
+                      
+                      
+                      # label entry:
+                      dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO labels VALUES","('", 
+                                                     emuDBhandle$UUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
+                                                     ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentPointLabel), "')"))              
+                      
+                      
+                      
+                      # links entry:
+                      # no link entry because TextGrids don't have hierarchical infos
+                      
+                      # increase counters
+                      itemCounterGlobal = itemCounterGlobal + 1
+                      itemCounterLevel = itemCounterLevel + 1
+                      
+                      currentPointIndex=NULL;
+                      currentPointLabel=NULL;
+                      currentPointSample=NULL;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+# TODO implement this to improve performance of of convert_TextGridCollection
+TextGridToBundleAnnotDFs <- function(tgPath){
+  
+  FILE_TYPE_KEY="File type"
+  OBJECT_CLASS_KEY="Object class"
+  
+  tgChar = readChar(tgPath, file.info(tgPath)$size)
+  lines = unlist(strsplit(tgChar, "\n"))
+  
+  if(!grepl(paste0("^", FILE_TYPE_KEY), lines[1]) & !grepl(paste0("^", OBJECT_CLASS_KEY), lines[2])){
+    stop("First two lines of TextGrid file do not match: ", FILE_TYPE_KEY, "; and: ", OBJECT_CLASS_KEY)
+  }
+    
+  tiers = unlist(strsplit(tgChar, ".*item.*\n"))
+  tiers[1]
+  
+}
+
+# FOR DEVELOPMENT
+# library('testthat')
+# test_file('tests/testthat/test_aaa_initData.R')
+# test_file('tests/testthat/test_emuR-parse_TextGrid.R')
+

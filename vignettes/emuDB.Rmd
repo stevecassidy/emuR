@@ -1,6 +1,7 @@
 ---
 title: "The emuDB format"
-subtitle: "The database format of the next iteration of the EMU Speech Database Management System"
+subtitle: "The database format of the next iteration of the EMU Speech Database
+Management System"
 affiliation: "Institute Of Phonetics And Speech Processing (LMU Munich)"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -68,17 +69,11 @@ The initial step in manipulating or generally interacting with a database is to 
 # generate path to the empty fromScratchDB created above
 dbPath = file.path(tempdir(), 'fromScratchDB_emuDB')
 # load database
-dbName = load_emuDB(dbPath, verbose = F)
-print(dbName)
+dbHandle = load_emuDB(dbPath, verbose = F)
+print(dbHandle)
 ```
 
-This will load the database into it's cached form for quick access to the data. Note that if a large emuDB has never been loaded and no cache has previously been generated, this can take a while to complete. Once a cache is present only altered annotation files have to be updated which reduces load times dramatically. As you can see the `load_emuDB()` function returns the name of the database. This name is used to reference the loaded database in most database interaction functions of the `emuR` package. If you have multiple emuDBs loaded these can be listed by calling:
-
-```{r}
-list_emuDBs()
-```
-
-The `emuR` package contains two functions to purge (i.e. unload / remove) loaded databases from the current R session. These functions are `purge_emuDB()` and `purge_all_emuDBs()`. We will not invoke these functions here as we still wish to edit the loaded database. A further thing to note is that if there are duplicate database names among the databases loaded, each database can still be accessed separately using an additional unique identifier that each emuDB has called the UUID. This UUID is also listed by the `list_emuDBs()` function.
+This will load the database into it's cached form for quick access to the data. Note that if a large emuDB has never been loaded and no cache has previously been generated, this can take a while to complete. Once a cache is present only altered annotation files have to be updated which reduces load times dramatically. As you can see the `load_emuDB()` function returns a database handle. This emuDBhandle is used to reference the loaded database in most database interaction functions of the `emuR` package.
 
 Next, let us look at some actual database manipulation functions. The general function prefix naming convention of database manipulation functions for loaded databases are:
 
@@ -97,7 +92,7 @@ The EMU system generally distinguishes between the actual representations of a s
 As the already loaded 'fromScratchDB' does not contain any formal definitions of structural elements including levels we will begin by adding such a formal definition in the form of a new level definition:
 
 ```{r}
-add_levelDefinition(dbName, 
+add_levelDefinition(dbHandle, 
                     name = 'Phonetic', 
                     type = 'SEGMENT')
 ```
@@ -105,18 +100,18 @@ add_levelDefinition(dbName,
 To check if this action was successful we can simply list the current level definitions by calling:
 
 ```{r}
-list_levelDefinitions(dbName)
+list_levelDefinitions(dbHandle)
 ```
 
 Let us add a further level definition that will contain the orthographic word transcriptions for the words uttered in our recordings. This level will be of the type "ITEM" meaning that elements contained within the level are sequentially ordered but do not contain any time information:
 
 ```{r}
 # add
-add_levelDefinition(dbName,
+add_levelDefinition(dbHandle,
                     name = 'Word',
                     type = 'ITEM')
 # list
-list_levelDefinitions(dbName)
+list_levelDefinitions(dbHandle)
 ```
 
 Finally we could remove one of the level definitions with the function `remove_levelDefinition()`, which we will once again not invoke here as we still wish to use these level definitions. 
@@ -129,19 +124,19 @@ Each level definition can contain multiple attributes, the most common and curre
 
 ```{r}
 # list
-list_attributeDefinitions(dbName, 
+list_attributeDefinitions(dbHandle, 
                           levelName = 'Phonetic')
 ```
 
-Even though we have not added a single attribute definition to the 'phonetic' level definition, it already contains the obligatory attribute definition that has the same name as it's level. This indicates that it is the primary attribute of that level. To follow the above example let us now add a further attribute definition to the level definition that will contain the SAMPA versions of our annotations.
+Even though we have not added a single attribute definition to the 'Phonetic' level definition, it already contains the obligatory attribute definition that has the same name as it's level. This indicates that it is the primary attribute of that level. To follow the above example let us now add a further attribute definition to the level definition that will contain the SAMPA versions of our annotations.
 
 ```{r}
 # add
-add_attributeDefinition(dbName,
+add_attributeDefinition(dbHandle,
                         levelName = 'Phonetic',
                         name = 'SAMPA')
 # list
-list_attributeDefinitions(dbName,
+list_attributeDefinitions(dbHandle,
                           levelName = 'Phonetic')
 ```
 
@@ -160,24 +155,24 @@ ipaVowels = c('i', 'iː', 'u', 'uː', 'ə')
 sampaVowels = c('i', 'i:', 'u', 'u:', '@')
 
 # set legalLabels values for phonetic attributeDefinition
-set_legalLabels(dbName,
+set_legalLabels(dbHandle,
                 levelName = 'Phonetic',
                 attributeDefinitionName = 'Phonetic',
                 legalLabels = ipaVowels)
 
 # get
-get_legalLabels(dbName, 
+get_legalLabels(dbHandle, 
                 levelName = 'Phonetic', 
                 attributeDefinitionName = 'Phonetic')
 
 # set legalLabels values for phonetic attributeDefinition
-set_legalLabels(dbName,
+set_legalLabels(dbHandle,
                 levelName = 'Phonetic',
                 attributeDefinitionName = 'SAMPA',
                 legalLabels = sampaVowels)
 
 # get
-get_legalLabels(dbName, 
+get_legalLabels(dbHandle, 
                 levelName = 'Phonetic', 
                 attributeDefinitionName = 'SAMPA')
 
@@ -192,14 +187,14 @@ A further optional field is the `labelGroups` field. It contains specifications 
 
 ```{r}
 # add long vowels
-add_attrDefLabelGroup(dbName,
+add_attrDefLabelGroup(dbHandle,
                       levelName = 'Phonetic', 
                       attributeDefinitionName = 'Phonetic',
                       labelGroupName = 'long',
                       labelGroupValues = c('iː', 'uː'))
 
 # add short vowels
-add_attrDefLabelGroup(dbName,
+add_attrDefLabelGroup(dbHandle,
                       levelName = 'Phonetic', 
                       attributeDefinitionName = 'Phonetic',
                       labelGroupName = 'short',
@@ -207,13 +202,13 @@ add_attrDefLabelGroup(dbName,
 
 
 # list
-list_attrDefLabelGroups(dbName,
+list_attrDefLabelGroups(dbHandle,
                         levelName = 'Phonetic',
                         attributeDefinitionName = 'Phonetic')
 
 ```
 
-*NOTE: It is also possible to define label groups for the entire DB. For more information on this see the R documentation for the `add/list/remove_labelGroups` functions (not yet accessible in the `query()` function!).*
+*NOTE: It is also possible to define label groups for the entire DB. For more information on this see the R documentation for the `add/list/remove_labelGroups` functions.*
 
 **INFO: For users who are familiar with or transitioning from the legacy EMU system the label groups correspond to the unfavorably named 'Legal Labels' entries of the GTemplate Editor (i.e. legal entries in the .tpl file) of the legacy system. In the new system the legalLabel entries specify the legal / allowed labels values of an attribute definitions while the label groups specify groups of labels that can be referenced by the names given to the groups while performing queries.**
 
@@ -233,7 +228,7 @@ Let us now add a link definition to link the 'Phonetic' level to the 'Word' leve
 
 ```{r}
 # add
-add_linkDefinition(dbName,
+add_linkDefinition(dbHandle,
                    type = 'ONE_TO_MANY',
                    superlevelName = 'Word',
                    sublevelName = 'Phonetic')
@@ -252,21 +247,21 @@ Up until now we have defined the structure of our database. An essential part th
 # (in this case wav files that come with the wrassp package)
 fp = system.file('extdata', package='wrassp')
 # import media files into emuDB session called filesFromWrassp
-import_mediaFiles(dbName, 
+import_mediaFiles(dbHandle, 
                   dir = fp, 
                   targetSessionName = 'filesFromWrassp', 
                   verbose = F)
 # list session
-list_sessions(dbName)
+list_sessions(dbHandle)
 # list bundles
-list_bundles(dbName)
+list_bundles(dbHandle)
 ```
 
 We have now added a new session called 'filesFromWrassp' to the 'fromScratchDB' containing a new bundle for each of our imported media files. These bundles adhere to the structure we have specified above. Note however that the levels in the annotation files (`_annot.json`) that where created during the import are still empty. These will have to be created manually at a later stage using the EMU-webApp. To list the files that are part of the emuDB call:
 
 ```{r}
 # show head of list_files
-head(list_files(dbName))
+head(list_files(dbHandle))
 ```
 
 The `emuR` package also provides a mechanism for adding files to preexisting bundle folders as this can be quite tedious to perform manually due to the nested folder structure of an emuDB. Let us create a set of files that contain the zero-crossing-rate values of the wav files we added above and for the sake of demonstration save them to a different location to then re-add them to the database.
@@ -285,7 +280,7 @@ dir.create(outDirPath)
 zcrana(listOfFiles = wavFilePaths, 
        outputDirectory = outDirPath)
 # add zcr files to emuDB
-add_files(dbName,
+add_files(dbHandle,
           dir = outDirPath, 
           fileExtension = 'zcr',
           targetSessionName = 'filesFromWrassp')
@@ -293,7 +288,7 @@ add_files(dbName,
 
 ```{r}
 # show head of list_files to check if files were added
-head(list_files(dbName))
+head(list_files(dbHandle))
 ```
 
 ## SSFF track definitions
@@ -309,15 +304,15 @@ Let us now add an ssffTrackDefinition to our database and calculate the SSFF fil
 # add track and calculate SSFF files by specifying 
 # one of the signal processing functions the wrassp package provides
 # (in this case the forest (formant estimation) function)
-add_ssffTrackDefinition(dbName, 
+add_ssffTrackDefinition(dbHandle, 
                         name = 'formantValues', 
                         columnName = 'fm', 
                         fileExtension = 'fms',
                         onTheFlyFunctionName = 'forest')
 # list
-list_ssffTrackDefinitions(dbName)
+list_ssffTrackDefinitions(dbHandle)
 # show head of list_files to check if files where added
-head(list_files(dbName))
+head(list_files(dbHandle))
 ```
 
 **INFO: to see the fileExtension and columnName defaults produced by the various signal processing functions of the wrassp package see `?wrasspOutputInfos`. For a list of all the available signal processing functions that the wrassp package provides see `?wrassp`.**
@@ -326,12 +321,12 @@ As you might have noticed the `.zcr` files we added in the previous section are 
 
 ```{r}
 # add 
-add_ssffTrackDefinition(dbName, 
+add_ssffTrackDefinition(dbHandle, 
                         name = 'zeroCrossing', 
                         columnName = 'zcr', 
                         fileExtension = 'zcr')
 # list
-list_ssffTrackDefinitions(dbName)
+list_ssffTrackDefinitions(dbHandle)
 ```
 
 
@@ -345,22 +340,22 @@ Before we can start manually annotating our speech database we have to configure
 
 ```{r}
 # list 
-list_perspectives(dbName)
+list_perspectives(dbHandle)
 ```
 
 As you can see there is already a perspective available called 'default'. This perspective was automatically added to the emuDB during the import of our mediaFiles. It currently only displays the oscillogram ("OSCI") followed by the spectrogram ("SPEC"). "OSCI" and "SPEC" can be viewed as predefined tracks that are always available to the EMU-webApp. Using the `add/remove_perspective()` functions we could now add and remove as many additional perspectives to the database as we like. For now we will maintain the 'default' perspective and add the order in which we would like to display our levels.
 
 ```{r}
 # get order array of levels of default perspective
-get_levelCanvasesOrder(dbName, 
+get_levelCanvasesOrder(dbHandle, 
                        perspectiveName = 'default')
 # set order array of levels of default perspective
-set_levelCanvasesOrder(dbName,
+set_levelCanvasesOrder(dbHandle,
                        perspectiveName = 'default',
                        order = c('Phonetic'))
 
 # get order array of levels of default perspective
-get_levelCanvasesOrder(dbName, 
+get_levelCanvasesOrder(dbHandle, 
                        perspectiveName = 'default')
 
 ```
@@ -371,14 +366,14 @@ As the final configuration step let us also add the ssffTracks we defined and ca
 
 ```{r}
 # get order array of signals of default perspective
-get_signalCanvasesOrder(dbName, 
+get_signalCanvasesOrder(dbHandle, 
                         perspectiveName = 'default')
 # set order array of signals of default perspective
-set_signalCanvasesOrder(dbName, 
+set_signalCanvasesOrder(dbHandle, 
                         perspectiveName = 'default',
                         order = c("OSCI", "SPEC", "formantValues", "zeroCrossing"))
 # get order array of signals of default perspective
-get_signalCanvasesOrder(dbName, 
+get_signalCanvasesOrder(dbHandle, 
                         perspectiveName = 'default')
 
 ```
@@ -387,17 +382,6 @@ We have now completed the configuration of the 'fromScratchDB' emuDB. By calling
 
 
 **INFO: the EMU-webApp is highly configurable and only a small subset of the configuration options are available through the `emuR` package. More complex visualization configurations can be achieved by manually editing the `_DBconfig.json` file and reloading the database. For a comprehensive list of all the available fields in the `_DBconfig.json` and their meanings see the [File descriptions](#file-descriptions) section of this document.**
-
-Finally, let us assume that we have finished working on the 'fromScratchDB' emuDB and purge it from our current R session:
-
-```{r}
-# list currently loaded emuDBs
-list_emuDBs()
-# purge the fromScratchDB
-purge_emuDB(dbName, interactive = FALSE)
-# list currently loaded emuDBs
-list_emuDBs()
-```
 
 # Autobuilding
 
@@ -409,19 +393,19 @@ create_emuRdemoData(dir = tempdir())
 # get the path to a folder containing .wav & .TextGrid files that is part of the demo data
 path2folder = file.path(tempdir(), "emuR_demoData", "TextGrid_collection")
 # convert this TextGridCollection to the emuDB format
-convert_TextGridCollection_to_emuDB(path2folder, dbName = "myTGcolDB", 
-                                    targetDir = tempdir(), verbose = F)
+convert_TextGridCollection(path2folder, dbName = "myTGcolDB", 
+                           targetDir = tempdir(), verbose = F)
 # load database
-dbName = load_emuDB(file.path(tempdir(), "myTGcolDB"), verbose = F)
+dbHandle = load_emuDB(file.path(tempdir(), "myTGcolDB_emuDB"), verbose = F)
 ```
 
 By inspecting the emuDB we can see that it has eleven levelDefinitions but no linkDefinitions. This means that it will not be possible to perform hierarchical queries on this emuDB, as there is no explicit hierarchical information in the database.
 
 ```{r}
 # list
-list_levelDefinitions(dbName)
+list_levelDefinitions(dbHandle)
 # list
-list_ssffTrackDefinitions(dbName)
+list_ssffTrackDefinitions(dbHandle)
 ```
 
 ## autobuild_linkFromTimes
@@ -439,42 +423,42 @@ The `convertSuperlevel` argument of the `autobuild_linkFromTimes()` function, th
 
 ```{r}
 # add linkDefinition
-add_linkDefinition(dbName, type = "ONE_TO_MANY",
-                   superlevelName = "Syllable",
-                   sublevelName = "Phoneme")
+add_linkDefinition(dbHandle, type = "ONE_TO_MANY",
+                  superlevelName = "Syllable",
+                  sublevelName = "Phoneme")
 
 # list
-list_linkDefinitions(dbName)
+list_linkDefinitions(dbHandle)
 
 # envoke autobuild function
-autobuild_linkFromTimes(dbName, 
-                        superlevelName = "Syllable",
-                        sublevelName = "Phoneme",
-                        convertSuperlevel = TRUE)
+autobuild_linkFromTimes(dbHandle,
+                       superlevelName = "Syllable",
+                       sublevelName = "Phoneme",
+                       convertSuperlevel = TRUE)
 
 # list
-list_levelDefinitions(dbName)
+list_levelDefinitions(dbHandle)
 ```
 
 As we can see we have now converted the original "Syllable" level to the type `ITEM` and the backup level was added to the emuDB. Let us now perform the same procedure for the "Phoneme" and "Phonetic" levels:
 
 ```{r}
 # add linkDefinition
-add_linkDefinition(dbName, type = "MANY_TO_MANY",
-                   superlevelName = "Phoneme",
-                   sublevelName = "Phonetic")
+add_linkDefinition(dbHandle, type = "MANY_TO_MANY",
+                  superlevelName = "Phoneme",
+                  sublevelName = "Phonetic")
 
 # list
-list_linkDefinitions(dbName)
+list_linkDefinitions(dbHandle)
 
 # invoke autobuild function
-autobuild_linkFromTimes(dbName, 
-                        superlevelName = "Phoneme",
-                        sublevelName = "Phonetic",
-                        convertSuperlevel = TRUE)
+autobuild_linkFromTimes(dbHandle,
+                       superlevelName = "Phoneme",
+                       sublevelName = "Phonetic",
+                       convertSuperlevel = TRUE)
 
 # list
-list_levelDefinitions(dbName)
+list_levelDefinitions(dbHandle)
 
 ```
 
@@ -484,10 +468,7 @@ This time we chose to add a `linkDefinition` of the type `MANY_TO_MANY` between 
 # remove the newly generated emuDB and emuR_demoData as we will not be needing it 
 # throughout the rest of this vignette
 unlink(file.path(tempdir(), "emuR_demoData"), recursive = TRUE)
-unlink(file.path(tempdir(),'myTGcolDB'), recursive = T)
-
-# and purge all loaded emuDBs
-purge_all_emuDBs(interactive = FALSE)
+unlink(file.path(tempdir(),'myTGcolDB_emuDB'), recursive = T)
 ```
 
 
@@ -503,144 +484,144 @@ The `_DBconfig.json` file contains the following fields:
 - `"UUID"` a unique ID given to each database
 - `"mediafileExtension"` the main mediafileExtension (*currently only uncompressed mono 16-bit `.wav` files are supported in every component of the EMU system. This is also the recommended audio format for the EMU_SDMS.*)
 - `"ssffTrackDefinitions"` an array of definitions defining the SSFF tracks of the database. Each ssffTrackDefinition consists of:
-    - `"name"` the name of the ssffTrackDefinition
-    - `"columnName"` the name of the column of the associated SSFF file. For more information on the columns the various function of the `wrassp` produce see the track fields of `wrasspOutputInfos` object that is part of the `wrassp` package. Further, although the SSFF file format is a binary file format it has a plain text header which means that if you open a SSFF file in the text editor of your choice you will be able to see the columns contained within it. Another way of accessing column information about a specific SSFF file is to use the `wrassp` function `res = read.AsspDataObj('/path/2/SSFF/file')` to read the file from the file system. `names(res)` will then give you the names of the columns present in this file. *NOTE: In the context of the SSFF file format the term column and in the context of the EMU system the term track / ssffTrack is used. They both refer to the same data.*
-    - `"fileExtention"` the file extension of the associated SSFF file (also see `?wrasspOutputInfos` for the default extensions produced by the `wrassp` functions)
+- `"name"` the name of the ssffTrackDefinition
+- `"columnName"` the name of the column of the associated SSFF file. For more information on the columns the various function of the `wrassp` produce see the track fields of `wrasspOutputInfos` object that is part of the `wrassp` package. Further, although the SSFF file format is a binary file format it has a plain text header which means that if you open a SSFF file in the text editor of your choice you will be able to see the columns contained within it. Another way of accessing column information about a specific SSFF file is to use the `wrassp` function `res = read.AsspDataObj('/path/2/SSFF/file')` to read the file from the file system. `names(res)` will then give you the names of the columns present in this file. *NOTE: In the context of the SSFF file format the term column and in the context of the EMU system the term track / ssffTrack is used. They both refer to the same data.*
+- `"fileExtention"` the file extension of the associated SSFF file (also see `?wrasspOutputInfos` for the default extensions produced by the `wrassp` functions)
 - `"levelDefinitions"` array of definitions defining the levels of the database. A level is a more general term for what is often referred to as a tier. It is more general in the sense that people quite often expect tiers to contain time information. Levels can however either contain time information if they are of the type `"EVENT"` or of the type `"SEGMENT"` but may also be timeless if they are of the type `"ITEM"`. Each "`levelDefinitions"` consists of:
-    - `"name"` the name of the levelDefinition
-    - `"type"` specifying the type of the level (either `"ITEM"` | `"EVENT"` | `"SEGMENT"`)
-    - `"attributeDefinitions"` an array of definitions defining the attributes of the level. Each attributeDefinition consists out of:
-        - `"name"` the name of the `"attributeDefinition"`
-        - `"type"` specifying the type of the attribute (currently only `"STRING"` permitted)
-        - `"labelGroups"` an (optional) array containing label group definitions. These can be used as a shorthand notation for querying certain groups of labels.
-            - `"name"` name of label group. This will be the value used in a query to refer to this group.
-            - `"values"` array of strings representing the labels
-        - `"legalLabels"` (optional) array of strings specifying which labels are valid / legal for this attribute definition. The EMU-webApp adheres to this set of values and will not let the annotator enter any values other than the ones specified in this field. This can be used to ensure consistent label sets within levels.
-    - `"anagestConfig"` if specified (optional) this will convert the level into a special type of level for labeling articulatory data. This will also serve as a marker for the EMU-webApp to treat this level differently. This optional field may only be set for levels of the type `"EVENT"`.
-        - `"verticalPosSsffTrackName"` name of ssffTrack containing the vertical position data
-        - `"velocitySsffTrackName"` name of ssffTrack containing the velocity data
-        - `"autoLinkLevelName"` name of level that will be used to link the created events to
-        - `"multiplicationFactor"` factor to multiply with (either `-1` | `1`)
-        - `"threshold"` a value between 0 and 1 defining the threshold
-        - `"gestureOnOffsetLabels"` array containing two strings that specify the on- and offset labels
-        - `"maxVelocityOnOffsetLabels"` array containing two strings that specify the on- and offset labels
-        - `"constrictionPlateauBeginEndLabels"` array containing two strings that specify the begin- and end labels
-        - `"maxConstrictionLabel"` string maximum constriction specifying label
+- `"name"` the name of the levelDefinition
+- `"type"` specifying the type of the level (either `"ITEM"` | `"EVENT"` | `"SEGMENT"`)
+- `"attributeDefinitions"` an array of definitions defining the attributes of the level. Each attributeDefinition consists out of:
+- `"name"` the name of the `"attributeDefinition"`
+- `"type"` specifying the type of the attribute (currently only `"STRING"` permitted)
+- `"labelGroups"` an (optional) array containing label group definitions. These can be used as a shorthand notation for querying certain groups of labels.
+- `"name"` name of label group. This will be the value used in a query to refer to this group.
+- `"values"` array of strings representing the labels
+- `"legalLabels"` (optional) array of strings specifying which labels are valid / legal for this attribute definition. The EMU-webApp adheres to this set of values and will not let the annotator enter any values other than the ones specified in this field. This can be used to ensure consistent label sets within levels.
+- `"anagestConfig"` if specified (optional) this will convert the level into a special type of level for labeling articulatory data. This will also serve as a marker for the EMU-webApp to treat this level differently. This optional field may only be set for levels of the type `"EVENT"`.
+- `"verticalPosSsffTrackName"` name of ssffTrack containing the vertical position data
+- `"velocitySsffTrackName"` name of ssffTrack containing the velocity data
+- `"autoLinkLevelName"` name of level that will be used to link the created events to
+- `"multiplicationFactor"` factor to multiply with (either `-1` | `1`)
+- `"threshold"` a value between 0 and 1 defining the threshold
+- `"gestureOnOffsetLabels"` array containing two strings that specify the on- and offset labels
+- `"maxVelocityOnOffsetLabels"` array containing two strings that specify the on- and offset labels
+- `"constrictionPlateauBeginEndLabels"` array containing two strings that specify the begin- and end labels
+- `"maxConstrictionLabel"` string maximum constriction specifying label
 - `"linkDefinitions"` an array of definitions defining the links between levels of the database. The combination of all link definitions specifies the hierarchy of the database. Each linkDefinition consists of:
-    - `"type"` specifying the type of link (either `"ONE_TO_MANY"` | `"MANY_TO_MANY"` | `"ONE_TO_ONE"`).
-    - `"superlevelName"` specifies the name of the superlevel
-    - `"sublevelName"` specifies the name of the sublevel
+- `"type"` specifying the type of link (either `"ONE_TO_MANY"` | `"MANY_TO_MANY"` | `"ONE_TO_ONE"`).
+- `"superlevelName"` specifies the name of the superlevel
+- `"sublevelName"` specifies the name of the sublevel
 - `"labelGroups"` an (optional) array containing label group definitions. These can be used as a shorthand notation for querying certain groups of labels. Compared to the `"labelGroups"` that can be defined within an attributeDefinition the labelGroups defined here are globally defined for the entire database.
-    - `"name"` name of label group
-    - `"values"` array of strings containing labels
+- `"name"` name of label group
+- `"values"` array of strings containing labels
 - `"EMUwebAppConfig"` specifies the configuration options intended for the EMU-webApp, i.e. how the database is to be displayed. This field can contain all the configurations options that are specified in the EMU-webApp's configuration schema (*https://github.com/IPS-LMU/EMU-webApp/blob/master/dist/schemaFiles/emuwebappConfigSchema.json*). The `"EMUwebAppConfig"` contains the following fields:
-    - `"main"` main behavior options 
-        - `"autoConnect"`: auto connect to the `"serverUrl"` on initial load of the webApp to automatically load a database (mainly used for development).
-        - `"serverUrl"`: default server URL that is displayed in the connect modal (and used if `"autoConnect"` is set to `true`). The default: `"ws://localhost:17890"` points to the server started by the `serve()` function of the `emuR` package.
-        - `"serverTimeoutInterval"`: the maximum amount of time the EMU-webApp waits (in milliseconds) for the server to respond. 
-        - `"comMode"`: communication mode that the EMU-webApp is in. Currently the only option that is available is `"WS"` (websocket).
-        - `"catchMouseForKeyBinding"`: check if mouse has to be in labeler for key bindings to work
-    - `"keyMappings"` keyboard shortcut definitions. For the sake of brevity not every keycode is shown (see schema for extensive list)
-        - `"toggleSideBarLeft"` integer value that represents the keycode that toggles the left side bar (== bundleList side bar)
-        - `"toggleSideBarRight"` integer value that represents the keycode that toggles the right side bar (== perspective side bar)
-        - ...
-    - `"spectrogramSettings"` specifies the default settings of the spectrogram. The possible settings are:
-        - `"windowSizeInSecs"` specifies the window size in seconds
-        - `"rangeFrom"` specifies the lowest frequency (in Hz) that will be displayed by the spectrogram 
-        - `"rangeTo"` specifies the highest frequency (in Hz) that will be displayed by the spectrogram
-        - `"dynamicRange"` specifies the dynamic rang for Maximum (in DB)
-        - `"window"` specifies the window type (either `"BARTLETT"` | `"BARTLETTHANN"` | `"BLACKMAN"` | `"COSINE"` | `"GAUSS"` | `"HAMMING"` | `"HANN"` | `"LANCZOS"` | `"RECTANGULAR"` | `"TRIANGULAR"`)
-        - `"preEmphasisFilterFactor"` specifies the preemphasis factor (in formula: s'(k) = s(k) - preEmphasisFilterFactor * s(k-1) )
-        - `"transparency"` specifies the transparency of the spectrogram (integer from 0 to 255)
-        - `"drawHeatMapColors"` (optional) should the spectrogram be drawn using heat-map colors (either true or false)
-        - `"heatMapColorAnchors"` (optional) specify the heat-map color anchors (array of the form [[255, 0, 0], [0, 255, 0], [0, 0, 255]])
-    - `"perspectives"` array containing perspective configurations. Each `"perspective"` consists of:
-        - `"name"` name of perspective
-        - `"signalCanvases"` configuration options for the signalCanvases
-            - `"order"` array specifying the order in which the ssffTracks are to be displayed. Note that the ssffTrack names "OSCI" and "SPEC" are always available additionally to the ssffTrack defined in the database.
-            - `"assign"` array of configuration options to assign one ssffTrack to another effectively creating a visual overlay of one track over another. Each array element consists of:
-                - `"signalCanvasName"` name of signal specified in the `"order"` array
-                - `"ssffTrackName"` name of ssffTrack to overlay onto `"signalCanvasName"`
-            - `"contourLims"` array containing contour limit values that specify an index range that is to be displayed. As a track / column can contain multi-dimensional data (e.g. 4 formant values per time stamp / 256 DFT values per time stamp / ...) it is possible to specify an index range that specifies which values should be displayed (e.g. display formant 2 through 4).
-                - `"ssffTrackName"` name specifying which ssffTrack should be limited
-                - `"minContourIdx"` minimum contour index to display (starts at index 0)
-                - `"maxContourIdx"` maximum contour index to display
-            - `"contourColors"` array to specify colors of individual contours. This overrides the default of automatically calculating distinct colors for each contour
-                - `"ssffTrackName"` name ssffTrackName for that colors are defined
-                - `"colors"` array of rgb strings (e.g. `["rgb(238,130,238)", "rgb(127,255,212)"]`) to specify the color of the contour (first value = first contour color and so on)
-        - `"levelCanvases"` configuration options for the levelCanvases
-            - `"order"` array specifying order in which the levels are to be displayed. Note that only levels of the type "EVENT" or "SEGMENT" can be displayed as `"levelCanvases"`
-        - `"twoDimCanvases"` configuration options for the 2D canvas
-            - `"order"` array specifying order in which the levels are to be displayed. Note that currently only a single twoDimDrawingDefinition can be displayed so this array may currently only contain a single element.
-            - `"twoDimDrawingDefinitions"` array containing two dimensional drawing definitions. Each two dimensional drawing definition consist of: 
-                - `"dots"` array containing dot definitions. Each dot definition consist of:
-                    - `"name"` name of dot
-                    - `"xSsffTrack"` ssffTrackName of track that contains the x axis values
-                    - `"xContourNr"` contour number of track that contains the x axis values
-                    - `"ySsffTrack"` ssffTrackName of track that contains the y axis values
-                    - `"yContourNr"` contour number of track that contains the y axis values
-                    - `"color"` rgb color string specifying color given to dot
-                - `"connectLines"` array specifying which of the dots specified in the `"dots"` definition array should be connected by a line
-                    - `"fromDot"` dot from which the line should start
-                    - `"toDot"` dot to which the line should go
-                    - `"type"` rgb string defining the color of the line
-                - `"staticDots"` array containing static dot definitions
-                    - `"name"` name of static dots
-                    - `"xNameCoordinate"` x coordinate specifying the location where name should be drawn
-                    - `"yNameCoordinate"`y coordinate specifying the location where name should be drawn
-                    - `"xCoordinates"` array of x coordinates (e.g. `[300, 300, 900, 900, 300]`)
-                    - `"yCoordinates"` array of y coordinates (e.g. `[880, 2540, 2540, 880, 880]`)
-                    - `"connect"` boolean value that specifies if to connect the static dots with lines
-                    - `"color"` rgb string specifying color of static dots
-                - `"staticContours"` array containing static contour definitions
-                    - `"name"` name of static contour
-                    - `"xSsffTrack"` ssffTrackName of track that contains the x axis values
-                    - `"xContourNr"` contour number of track that contains the x axis values
-                    - `"ySsffTrack"` ssffTrackName of track that contains the y axis values
-                    - `"yContourNr"` contour number of track that contains the y axis values
-                    - `"connect"` boolean value that specifies if to connect the static dots with lines
-                    - `"color"` rgb string specifying color of static contour
-    - `"labelCanvasConfig"` configuration options for the label canvases
-        - `"addTimeMode"` mode to add / subtrakt time to boundaries 
-        - `"addTimeValue"`: amount of samples added / subtrakted to boundaries
-        - `"newSegmentName"` value given to default label if a new SEGMENT is added (default is "" == empty string) 
-        - `"newEventName"` value given to default label if a new EVENT is added (default is "" == empty string) 
-    - `"restrictions"`
-        - `"playback"` boolean value specifying whether to allow audio playback
-        - `"correctionTool"` boolean value specifying whether correction tools is available
-        - `"editItemSize"` boolean value specifying whether to allow changing the size of an ITEM (i.e. move boundaries)
-        - `"editItemName"` boolean value specifying whether to allow changing the label of an ITEM 
-        - `"deleteItemBoundary"` boolean value specifying whether to allow deletion of boundaries
-        - `"deleteItem"` boolean value specifying whether to allow the deletion of entire ITEMs
-        - `"deleteLevel"` boolean value specifying whether to allow the deletion of entire levels
-        - `"addItem"` boolean value specifying whether to allow the adding of new ITEMs
-        - `"drawCrossHairs"` boolean value specifying whether to draw the cross hairs on signal canvases
-        - `"drawSampleNrs"` boolean value specifying whether to draw the samples numbers in the OSCI canvas if zoomed in close enough to see samples (mainly for debugging / development purposes)
-        - `"drawZeroLine"` boolean value specifying whether to draw zero value line in OSCI canvas
-        - `"bundleComments"` boolean value specifying whether to allow the annotator to add comments to bundles she / he has annotated. A bundle comment field will show up in the bundle list side bar for each bundle if this is set to true. Note that the server has to support saving these comments which the `serve()` function of the `emuR` package doesn't.
-        - `"bundleFinishedEditing"` boolean value specifying whether to allow the annotator to mark when she / he has finished annotating a bundle. A finished editing toggle button will show up in the bundle list side bar for each bundle if this is set to `true. Note that the server has to support saving these comments which the `serve()` function of the `emuR` package doesn't.
-        - `"showPerspectivesSidebar"` boolean value specifying whether to show the perspectives side bar
-    - `"activeButtons"` specifications of which top-/bottom-menu buttons should be active / displayed by the EMU-webApp
-        - `"addLevelSeg"` boolean value specifying whether to show the add SEGMENT level button in the top menu bar 
-        - `"addLevelEvent"` boolean value specifying whether to show the add EVENT level button in the top menu bar
-        - `"renameSelLevel"` boolean value specifying whether to allow the user to rename the currently selected level
-        - `"downloadTextGrid"` boolean value specifying whether to allow the user to download the current annotation as a TextGrid file by displaying a download TextGrid button in the top menu bar 
-        - `"downloadAnnotation"` boolean value specifying whether to allow the user to download the current annotation as a annotJSON file by displaying a download annotJSON button in the top menu bar
-        - `"specSettings"` boolean value specifying whether to show the spec. settings button in the top menu bar
-        - `"connect"` boolean value specifying whether to display the connect button in the top menu bar
-        - `"clear"` boolean value specifying whether to display the clear button in the top menu bar
-        - `"deleteSingleLevel"` boolean value specifying whether to allow the user to delete a level containing time information
-        - `"resizeSingleLevel"` boolean value specifying whether to allow the user to resize a level 
-        - `"saveSingleLevel"` boolean value specifying whether to allow the user to download a single level in the ESPS/waves+ format
-        - `"resizeSignalCanvas"` boolean value specifying whether to allow the user to resize the signalCanvases (`"OSCI"`, `"SPEC"`, ...)
-        - `"openDemoDB"` boolean value specifying whether to show the open demoDB button
-        - `"saveBundle"` boolean value specifying whether to show the save button in bundle list side bar for each bundle
-        - `"openMenu"` boolean value specifying whether open bundle list side bar button (== ☰) is displayed
-        - `"showHierarchy"` boolean value specifying whether to show the "show hierarchy"" button
-        - `"editEMUwebAppConfig"` boolean value specifying whether to show "edit EMUwebAppConfig" button
-    - `"demoDBs"` array of stings specifying which demoDBs to display in the `open demo` dropdown menu. Currently available demo databases are `["ae", "ema", "epgdorsal"]`
+- `"main"` main behavior options 
+- `"autoConnect"`: auto connect to the `"serverUrl"` on initial load of the webApp to automatically load a database (mainly used for development).
+- `"serverUrl"`: default server URL that is displayed in the connect modal (and used if `"autoConnect"` is set to `true`). The default: `"ws://localhost:17890"` points to the server started by the `serve()` function of the `emuR` package.
+- `"serverTimeoutInterval"`: the maximum amount of time the EMU-webApp waits (in milliseconds) for the server to respond. 
+- `"comMode"`: communication mode that the EMU-webApp is in. Currently the only option that is available is `"WS"` (websocket).
+- `"catchMouseForKeyBinding"`: check if mouse has to be in labeler for key bindings to work
+- `"keyMappings"` keyboard shortcut definitions. For the sake of brevity not every keycode is shown (see schema for extensive list)
+- `"toggleSideBarLeft"` integer value that represents the keycode that toggles the left side bar (== bundleList side bar)
+- `"toggleSideBarRight"` integer value that represents the keycode that toggles the right side bar (== perspective side bar)
+- ...
+- `"spectrogramSettings"` specifies the default settings of the spectrogram. The possible settings are:
+- `"windowSizeInSecs"` specifies the window size in seconds
+- `"rangeFrom"` specifies the lowest frequency (in Hz) that will be displayed by the spectrogram 
+- `"rangeTo"` specifies the highest frequency (in Hz) that will be displayed by the spectrogram
+- `"dynamicRange"` specifies the dynamic rang for Maximum (in DB)
+- `"window"` specifies the window type (either `"BARTLETT"` | `"BARTLETTHANN"` | `"BLACKMAN"` | `"COSINE"` | `"GAUSS"` | `"HAMMING"` | `"HANN"` | `"LANCZOS"` | `"RECTANGULAR"` | `"TRIANGULAR"`)
+- `"preEmphasisFilterFactor"` specifies the preemphasis factor (in formula: s'(k) = s(k) - preEmphasisFilterFactor * s(k-1) )
+- `"transparency"` specifies the transparency of the spectrogram (integer from 0 to 255)
+- `"drawHeatMapColors"` (optional) should the spectrogram be drawn using heat-map colors (either true or false)
+- `"heatMapColorAnchors"` (optional) specify the heat-map color anchors (array of the form [[255, 0, 0], [0, 255, 0], [0, 0, 255]])
+- `"perspectives"` array containing perspective configurations. Each `"perspective"` consists of:
+- `"name"` name of perspective
+- `"signalCanvases"` configuration options for the signalCanvases
+- `"order"` array specifying the order in which the ssffTracks are to be displayed. Note that the ssffTrack names "OSCI" and "SPEC" are always available additionally to the ssffTrack defined in the database.
+- `"assign"` array of configuration options to assign one ssffTrack to another effectively creating a visual overlay of one track over another. Each array element consists of:
+- `"signalCanvasName"` name of signal specified in the `"order"` array
+- `"ssffTrackName"` name of ssffTrack to overlay onto `"signalCanvasName"`
+- `"contourLims"` array containing contour limit values that specify an index range that is to be displayed. As a track / column can contain multi-dimensional data (e.g. 4 formant values per time stamp / 256 DFT values per time stamp / ...) it is possible to specify an index range that specifies which values should be displayed (e.g. display formant 2 through 4).
+- `"ssffTrackName"` name specifying which ssffTrack should be limited
+- `"minContourIdx"` minimum contour index to display (starts at index 0)
+- `"maxContourIdx"` maximum contour index to display
+- `"contourColors"` array to specify colors of individual contours. This overrides the default of automatically calculating distinct colors for each contour
+- `"ssffTrackName"` name ssffTrackName for that colors are defined
+- `"colors"` array of rgb strings (e.g. `["rgb(238,130,238)", "rgb(127,255,212)"]`) to specify the color of the contour (first value = first contour color and so on)
+- `"levelCanvases"` configuration options for the levelCanvases
+- `"order"` array specifying order in which the levels are to be displayed. Note that only levels of the type "EVENT" or "SEGMENT" can be displayed as `"levelCanvases"`
+- `"twoDimCanvases"` configuration options for the 2D canvas
+- `"order"` array specifying order in which the levels are to be displayed. Note that currently only a single twoDimDrawingDefinition can be displayed so this array may currently only contain a single element.
+- `"twoDimDrawingDefinitions"` array containing two dimensional drawing definitions. Each two dimensional drawing definition consist of: 
+- `"dots"` array containing dot definitions. Each dot definition consist of:
+- `"name"` name of dot
+- `"xSsffTrack"` ssffTrackName of track that contains the x axis values
+- `"xContourNr"` contour number of track that contains the x axis values
+- `"ySsffTrack"` ssffTrackName of track that contains the y axis values
+- `"yContourNr"` contour number of track that contains the y axis values
+- `"color"` rgb color string specifying color given to dot
+- `"connectLines"` array specifying which of the dots specified in the `"dots"` definition array should be connected by a line
+- `"fromDot"` dot from which the line should start
+- `"toDot"` dot to which the line should go
+- `"type"` rgb string defining the color of the line
+- `"staticDots"` array containing static dot definitions
+- `"name"` name of static dots
+- `"xNameCoordinate"` x coordinate specifying the location where name should be drawn
+- `"yNameCoordinate"`y coordinate specifying the location where name should be drawn
+- `"xCoordinates"` array of x coordinates (e.g. `[300, 300, 900, 900, 300]`)
+- `"yCoordinates"` array of y coordinates (e.g. `[880, 2540, 2540, 880, 880]`)
+- `"connect"` boolean value that specifies if to connect the static dots with lines
+- `"color"` rgb string specifying color of static dots
+- `"staticContours"` array containing static contour definitions
+- `"name"` name of static contour
+- `"xSsffTrack"` ssffTrackName of track that contains the x axis values
+- `"xContourNr"` contour number of track that contains the x axis values
+- `"ySsffTrack"` ssffTrackName of track that contains the y axis values
+- `"yContourNr"` contour number of track that contains the y axis values
+- `"connect"` boolean value that specifies if to connect the static dots with lines
+- `"color"` rgb string specifying color of static contour
+- `"labelCanvasConfig"` configuration options for the label canvases
+- `"addTimeMode"` mode to add / subtrakt time to boundaries 
+- `"addTimeValue"`: amount of samples added / subtrakted to boundaries
+- `"newSegmentName"` value given to default label if a new SEGMENT is added (default is "" == empty string) 
+- `"newEventName"` value given to default label if a new EVENT is added (default is "" == empty string) 
+- `"restrictions"`
+- `"playback"` boolean value specifying whether to allow audio playback
+- `"correctionTool"` boolean value specifying whether correction tools is available
+- `"editItemSize"` boolean value specifying whether to allow changing the size of an ITEM (i.e. move boundaries)
+- `"editItemName"` boolean value specifying whether to allow changing the label of an ITEM 
+- `"deleteItemBoundary"` boolean value specifying whether to allow deletion of boundaries
+- `"deleteItem"` boolean value specifying whether to allow the deletion of entire ITEMs
+- `"deleteLevel"` boolean value specifying whether to allow the deletion of entire levels
+- `"addItem"` boolean value specifying whether to allow the adding of new ITEMs
+- `"drawCrossHairs"` boolean value specifying whether to draw the cross hairs on signal canvases
+- `"drawSampleNrs"` boolean value specifying whether to draw the samples numbers in the OSCI canvas if zoomed in close enough to see samples (mainly for debugging / development purposes)
+- `"drawZeroLine"` boolean value specifying whether to draw zero value line in OSCI canvas
+- `"bundleComments"` boolean value specifying whether to allow the annotator to add comments to bundles she / he has annotated. A bundle comment field will show up in the bundle list side bar for each bundle if this is set to true. Note that the server has to support saving these comments which the `serve()` function of the `emuR` package doesn't.
+- `"bundleFinishedEditing"` boolean value specifying whether to allow the annotator to mark when she / he has finished annotating a bundle. A finished editing toggle button will show up in the bundle list side bar for each bundle if this is set to `true. Note that the server has to support saving these comments which the `serve()` function of the `emuR` package doesn't.
+- `"showPerspectivesSidebar"` boolean value specifying whether to show the perspectives side bar
+- `"activeButtons"` specifications of which top-/bottom-menu buttons should be active / displayed by the EMU-webApp
+- `"addLevelSeg"` boolean value specifying whether to show the add SEGMENT level button in the top menu bar 
+- `"addLevelEvent"` boolean value specifying whether to show the add EVENT level button in the top menu bar
+- `"renameSelLevel"` boolean value specifying whether to allow the user to rename the currently selected level
+- `"downloadTextGrid"` boolean value specifying whether to allow the user to download the current annotation as a TextGrid file by displaying a download TextGrid button in the top menu bar 
+- `"downloadAnnotation"` boolean value specifying whether to allow the user to download the current annotation as a annotJSON file by displaying a download annotJSON button in the top menu bar
+- `"specSettings"` boolean value specifying whether to show the spec. settings button in the top menu bar
+- `"connect"` boolean value specifying whether to display the connect button in the top menu bar
+- `"clear"` boolean value specifying whether to display the clear button in the top menu bar
+- `"deleteSingleLevel"` boolean value specifying whether to allow the user to delete a level containing time information
+- `"resizeSingleLevel"` boolean value specifying whether to allow the user to resize a level 
+- `"saveSingleLevel"` boolean value specifying whether to allow the user to download a single level in the ESPS/waves+ format
+- `"resizeSignalCanvas"` boolean value specifying whether to allow the user to resize the signalCanvases (`"OSCI"`, `"SPEC"`, ...)
+- `"openDemoDB"` boolean value specifying whether to show the open demoDB button
+- `"saveBundle"` boolean value specifying whether to show the save button in bundle list side bar for each bundle
+- `"openMenu"` boolean value specifying whether open bundle list side bar button (== ☰) is displayed
+- `"showHierarchy"` boolean value specifying whether to show the "show hierarchy"" button
+- `"editEMUwebAppConfig"` boolean value specifying whether to show "edit EMUwebAppConfig" button
+- `"demoDBs"` array of stings specifying which demoDBs to display in the `open demo` dropdown menu. Currently available demo databases are `["ae", "ema", "epgdorsal"]`
 
-                
+
 ## _annot.json
 
 The `_annot.json` files contain the the actual annotation information as well as the hierarchical linking information. Legacy EMU users should note that all the information that used to be split into several ESPS/waves+ label files as well as a `.hlb` file is now contained in this single file.
@@ -651,18 +632,18 @@ The `_annot.json` file contains the following fields:
 - `"annotates"` specifies the (relative) media file path that this `_annot.json` file annotates
 - `"sampleRate"` specifies the sample rate of the annotation (should be the same as the sample rate of the file listed in `"annotates"`)
 - `"levels"` contains an array of level annotation informations. Each element consists of:
-    - `"name"` specifying the name of the level
-    - `"items"` array containing the annotational units (i.e. items) of the level
-        - `"id"` unique ID of item (only unique within `_annot.json` file / bundle not globally for the emuDB)
-        - `"sampleStart"` contains start sample value of "SEGMENT" item.
-        - `"sampleDur"` contains sample duration value of "SEGMENT" item. Note that the EMU-webApp does not support overlapping "SEGMENT"s as well as "SEGMENT" sequences containing gaps. This infers that each sample is explicitly and unambiguously associated with a single "SEGMENT". This means that the `"sampleStart"` value of a following "SEGMENT" has to be `"sampleStart"` + `"sampleDur"` + 1 of the previous "SEGMENT".
-        - `"samplePoint"` contains sample point value of "EVENT" items
-        - `"labels"` array containing labels that belong to this item. Each element consists of:
-            - `"name"` specifying the `"attributeDefinition"` that this label is for
-            - `"value"` specifying the label value
+- `"name"` specifying the name of the level
+- `"items"` array containing the annotational units (i.e. items) of the level
+- `"id"` unique ID of item (only unique within `_annot.json` file / bundle not globally for the emuDB)
+- `"sampleStart"` contains start sample value of "SEGMENT" item.
+- `"sampleDur"` contains sample duration value of "SEGMENT" item. Note that the EMU-webApp does not support overlapping "SEGMENT"s as well as "SEGMENT" sequences containing gaps. This infers that each sample is explicitly and unambiguously associated with a single "SEGMENT". This means that the `"sampleStart"` value of a following "SEGMENT" has to be `"sampleStart"` + `"sampleDur"` + 1 of the previous "SEGMENT".
+- `"samplePoint"` contains sample point value of "EVENT" items
+- `"labels"` array containing labels that belong to this item. Each element consists of:
+- `"name"` specifying the `"attributeDefinition"` that this label is for
+- `"value"` specifying the label value
 - `"links"` array containing links between two items. These links have to adhere to the links specified in `"linkDefinitions"` of the according emuDB. Each link consists of:
-    - `"fromID"` ID value of item to link from (i.e. item in superlevel)
-    - `"toID"` ID value of item to link to (i.e. item in sublevel)
+- `"fromID"` ID value of item to link from (i.e. item in superlevel)
+- `"toID"` ID value of item to link to (i.e. item in sublevel)
 
 
 # References

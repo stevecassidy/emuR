@@ -10,17 +10,17 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
-
+  
 # WARNING: DOCUMENT STILL BEING WRITTEN!
-
+  
 # Introduction
-
+  
 This document is an introduction to the `emuR` package and provides an overview of what the package is capable of and how it interacts with the other components of the EMU Speech Database Management System (EMU\_SDMS). It is by no means a complete guide to the EMU\_SDMS but rather tries to give an outline of what it is like working with and analyzing speech databases in the EMU\_SDMS by walking you through a few typical use cases.
-
+  
 The `emuR` package can be viewed as the main component of the EMU\_SDMS as it acts as the central instance that is able to interact with every component of the system. It takes care of database managing duties by being able to interact with a speech database that is stored in the `emuDB` format (see `emuDB` vignette for further details). Further, it has easy to understand and learn yet expressive and powerful querying mechanics that allow the user to easily query the annotation structures of the database (see `EQL` vignette for further details). Finally it provides easy data extraction capabilities that extracts data (e.g. formant values) which corresponds to the result of a query.
-
+  
 If a database in the `emuDB` format is present, the typical workflow in `emuR` is usually something like this:
-
+  
 1. Load database into current R session - `load_emuDB`
 2. Database annotation / visual inspection - `serve` and connect the EMU-webApp to the local server
 3. Query database - `query` (sometimes followed by `requery_hier` or `requery_seq`)
@@ -28,19 +28,21 @@ If a database in the `emuDB` format is present, the typical workflow in `emuR` i
 5. Data preparation
 6. Visual data inspection
 7. Further analysis and statistical processing
-
+  
 # Converting existing databases
-
+  
 As most people that are starting to use the EMU\_SDMS will probably already have some form of annotated data, we will initially show how to easily convert this existing data to the `emuDB` format (for a guide on how to create an `emuDB` from scratch and for information about this format see the `emuDB` vignette).
-
+  
 ## legacy EMU databases
-
+  
 For people transitioning to `emuR` from the legacy EMU system, `emuR` provides a function for converting existing legacyEmuDBs to the new `emuDB` format. Here is an example of how to use this function:
-
-
+  
+  
 ```{r results='hide', message=FALSE, warning=FALSE}
 # load the package
 library(emuR)
+library(tidyjson)
+library(dplyr)
 
 # create demo data in folder provided by the tempdir() function
 create_emuRdemoData(dir = tempdir())
@@ -49,29 +51,29 @@ create_emuRdemoData(dir = tempdir())
 tplPath = file.path(tempdir(), "emuR_demoData", "legacy_ae", "ae.tpl")
 
 # convert this legacyEmuDB to the emuDB format
-convert_legacyEmuDB_to_emuDB(emuTplPath = tplPath, targetDir = tempdir())
+convert_legacyEmuDB(emuTplPath = tplPath, targetDir = tempdir())
 ```
-
-This will create a new `emuDB` in a temporary folder that is provided by the `R` function `tempdir()` containing all the information specified in the `.tpl` file. The name of the new `emuDB` is the same as the basename of the `.tpl` file from which it was generated. In other words, if the template file of your legacyEmuDB has the path `A` and the directory to which the converted database is to be written has the path `B`, then  `convert_legacyEmuDB_to_emuDB("A", targetdir = "B")` will perform the conversion.
-
-
+  
+This will create a new `emuDB` in a temporary folder that is provided by the `R` function `tempdir()` containing all the information specified in the `.tpl` file. The name of the new `emuDB` is the same as the basename of the `.tpl` file from which it was generated. In other words, if the template file of your legacyEmuDB has the path `A` and the directory to which the converted database is to be written has the path `B`, then  `convert_legacyEmuDB("A", targetdir = "B")` will perform the conversion.
+  
+  
 ```{r}
 # remove the newly generated emuDB as we will not be needing it 
 # throughout the rest of this vignette
-unlink(file.path(tempdir(), "ae"), recursive = TRUE)
+unlink(file.path(tempdir(), "ae_emuDB"), recursive = TRUE)
 ```
 
 ## TextGrid collections
 
-A further function provided is the `convert_TextGridCollection_to_emuDB()` function. This function converts an existing `.TextGrid` & `.wav` file collection to the `emuDB` format. In order to pair the correct files together the `.TextGrid` files as well as the `.wav` files must have the same name (i.e. file name without extension). A further restriction is that the tiers contained within all the `.TextGrid` files have to be equal in name & type (equal subsets can be chosen using the `tierNames` argument of the function). For example, if all `.TextGrid` files contain the tiers `Syl: IntervalTier`, `Phonetic: IntervalTier` and `Tone: TextTier` the conversion will work. However, if a single `.TextGrid` of the collection has the additional tier `Word: IntervalTier` the conversion will fail, although it can be made to work by specifying the equal subset `equalSubset = c('Syl', 'Phonetic', 'Tone')` and passing it into the function argument `convert_TextGridCollection_to_emuDB(..., tierNames = equalSubset, ...)`. 
+A further function provided is the `convert_TextGridCollection()` function. This function converts an existing `.TextGrid` & `.wav` file collection to the `emuDB` format. In order to pair the correct files together the `.TextGrid` files as well as the `.wav` files must have the same name (i.e. file name without extension). A further restriction is that the tiers contained within all the `.TextGrid` files have to be equal in name & type (equal subsets can be chosen using the `tierNames` argument of the function). For example, if all `.TextGrid` files contain the tiers `Syl: IntervalTier`, `Phonetic: IntervalTier` and `Tone: TextTier` the conversion will work. However, if a single `.TextGrid` of the collection has the additional tier `Word: IntervalTier` the conversion will fail, although it can be made to work by specifying the equal subset `equalSubset = c('Syl', 'Phonetic', 'Tone')` and passing it into the function argument `convert_TextGridCollection(..., tierNames = equalSubset, ...)`. 
 
 ```{r results='hide', message=FALSE, warning=FALSE}
 # get the path to a folder containing .wav & .TextGrid files that is part of the demo data
 path2folder = file.path(tempdir(), "emuR_demoData", "TextGrid_collection")
 
 # convert this TextGridCollection to the emuDB format
-convert_TextGridCollection_to_emuDB(path2folder, dbName = "myTGcolDB", 
-                                    targetDir = tempdir())
+convert_TextGridCollection(path2folder, dbName = "myTGcolDB", 
+                           targetDir = tempdir())
 ```
 
 This will create a new `emuDB` in the folder `tempdir()` called 'myTGcolDB'. The `emuDB` will contain all the tier information from the `.TextGrid` files but will not contain hierarchical information as `.TextGrid` files do not contain any linking information. If you are interested in how to semi-automatically generate links between the generated `SEGMENT`s and `EVENT`s see the Autobuilding section of the `emuDB` vignette.
@@ -79,21 +81,21 @@ This will create a new `emuDB` in the folder `tempdir()` called 'myTGcolDB'. The
 ```{r}
 # remove the newly generated emuDB as we will not be needing it 
 # throughout the rest of this vignette
-unlink(file.path(tempdir(), "myTGcolDB"), recursive = TRUE)
+unlink(file.path(tempdir(), "myTGcolDB_emuDB"), recursive = TRUE)
 ```
 
 
 ## BPF collections
 
-Similar to the `convert_TextGridCollection_to_emuDB()` function the `emuR` package also provides a function for converting file collections consisting of BAS Partitur Format (BPF) and `.wav` files to the `emuDB` format.
+Similar to the `convert_TextGridCollection()` function the `emuR` package also provides a function for converting file collections consisting of BAS Partitur Format (BPF) and `.wav` files to the `emuDB` format.
 
 ```{r}
 # get the path to a folder containing .wav & .par files that is part of the demo data
 path2folder = file.path(tempdir(), "emuR_demoData", "BPF_collection")
 
 # convert this BPFCollection to the emuDB format
-convert_BPFCollection_to_emuDB(path2folder, dbName = 'myBPF-DB', 
-                               targetDir = tempdir(), verbose = F)
+convert_BPFCollection(path2folder, dbName = 'myBPF-DB', 
+                      targetDir = tempdir(), verbose = F)
 ```
 
 As the BPF format also permits annotational units to be linked to one another, this conversion function can optionally preserve this hierachical information by specifying the `refLevel` argument.
@@ -101,7 +103,7 @@ As the BPF format also permits annotational units to be linked to one another, t
 ```{r}
 # remove the newly generated emuDB as we will not be needing it 
 # throughout the rest of this vignette
-unlink(file.path(tempdir(), "myBPF-DB"), recursive = TRUE)
+unlink(file.path(tempdir(), "myBPF-DB_emuDB"), recursive = TRUE)
 ```
 
 
@@ -111,7 +113,7 @@ As was mentioned in the introduction, the initial step to working with an `emuDB
 
 ```{r}
 # get the path to emuDB called 'ae' that is part of the demo data
-path2folder = file.path(tempdir(), "emuR_demoData", "ae")
+path2folder = file.path(tempdir(), "emuR_demoData", "ae_emuDB")
 
 # load emuDB into current R session
 ae = load_emuDB(path2folder, verbose = FALSE)
@@ -123,7 +125,7 @@ Now that we have loaded the 'ae' `emuDB` into our R session, let's get a first i
 by calling:
 
 ```{r}
-summary_emuDB(ae)
+summary(ae)
 ```
 
 As you can see this displays a lot of information. Most of the information is about the various level and link definitions of the `emuDB`. 
@@ -135,15 +137,17 @@ information.
 The summary information about the Link definitions shows, among others, these three 'Link definitions':
 
 ```
-Word    ->      Syllable        ONE_TO_MANY 
-Syllable        ->      Phoneme ONE_TO_MANY 
-Phoneme ->      Phonetic        MANY_TO_MANY
+...
+4  ONE_TO_MANY           Word     Syllable
+5  ONE_TO_MANY       Syllable      Phoneme
+6 MANY_TO_MANY        Phoneme     Phonetic
+...
 ```
 
 This implies that annotational units from the 'Word' level can somehow be connected to units from the 'Phonetic' level via 
 two other levels called 'Syllable' and 'Phoneme'. This is indeed the case and also the reason `emuR` is able to 
 deduce the time information for annotational units without time information (`type: 'ITEM'`) if they are connected, 
-even over multiple other levels, to annotational units with time information (`type: 'SEGMENT'`, `type: 'EVENT`).
+even over multiple other levels, to annotational units with time information (`type: 'SEGMENT'`, `type: 'EVENT'`).
 
 
 The easiest way to think of levels and links is a graph for each recording where levels are different 
@@ -156,8 +160,8 @@ which are produced as concrete phones. An schematic excerpt of such an annotatio
 
 ## Database annotation / visual inspection
 
-The EMU\_SDMS has a fairly unique approach to annotating and the visually inspecting databases, as it 
-utilizes a web application called the EMU-webApp to act as it's graphical user interface. To be
+The EMU\_SDMS has a fairly unique approach to annotating and visually inspecting databases, as it 
+utilizes a web application called the EMU-webApp to act as its graphical user interface. To be
 able to transfer the necessary data to the web application let's now serve the `emuDB` to it by using the `serve()` function:
 
 ```{r eval=FALSE}
@@ -227,19 +231,18 @@ like follows: "Phonetic=~'[szSZ]'"**
 
 Now that we have extracted the necessary segment information we can simply call:
 
-```{r}
+```{r results='hide', message=FALSE, warning=FALSE}
 # get formant values for those segments
 td = get_trackdata(ae, sl,
                    onTheFlyFunctionName = "forest",
-                   resultType = "emuRtrackdata",
-                   verbos = FALSE)
+                   resultType = "emuRtrackdata")
 ```
 
 In this example the `get_trackdata` function uses a formant estimation function called `forest` to calculate the formant values 
 on-the-fly. This signal processing function is part of the `wrassp` package that is used by the `emuR` package to perform signal
 processing duties as is the case with the above `get_trackdata` command.
 
-**INFO: For more information about the wrassp package and it's available signal processing functions see the `wrassp_intro` vignette 
+**INFO: For more information about the wrassp package and its available signal processing functions see the `wrassp_intro` vignette 
 that is part of the `wrassp` package.**
 
 If the `resultType` parameter is set to `"emuRtrackdata"` the `get_trackdata` function returns an object with the following classes 
@@ -277,18 +280,18 @@ We can now use the `requery_hier()` function to perform an hierarchical requery 
 the hierarchical links described earlier to find the linked annotational units of a different level.
 
 ```{r}
-words = requery_hier(sibil, level = "Word")
+words = requery_hier(ae, sibil, level = "Word")
 
 head(words)
 ```
 
 As we can see, the result is not quite what we would have expected as it does not contain the orthographic word transcriptions but 
-a classification of the words into content words ('C') and function words ('F'). Looking back at the output of `summary_emuDB()` we can 
+a classification of the words into content words ('C') and function words ('F'). Looking back at the output of `summary()` we can 
 see that the 'Words' level has multiple `attributeDefintions` which indicates that each annotational unit in the 'Words' level has multiple
 parallel labels defined for it. So let's instead try the `attributeDefintion` called 'Text'.
 
 ```{r}
-words = requery_hier(sibil, level = "Text")
+words = requery_hier(ae, sibil, level = "Text")
 
 head(words)
 ```
@@ -304,7 +307,7 @@ using the `requery_seq()` function.
 
 ```{r}
 # get left context by off-setting the annotational units in sibil one unit to the left
-leftContext = requery_seq(sibil, offset = -1)
+leftContext = requery_seq(ae, sibil, offset = -1)
 
 head(leftContext)
 ```
@@ -313,14 +316,14 @@ And the right context:
 
 ```{r eval=FALSE}
 # get right context by off-setting the annotational units in sibil one unit to the right
-rightContext = requery_seq(sibil, offset = 1)
+rightContext = requery_seq(ae, sibil, offset = 1)
 ```
 
 This will throw an error as four of the sibilants occur at the very end of the recording and therefore have no phonetic post-context. We can get the 
 remaining post-context by setting the `ignoreOutOfBounds` argument to `TRUE`:
 
 ```{r}
-rightContext = requery_seq(sibil, 
+rightContext = requery_seq(ae, sibil, 
                            offset = 1, 
                            ignoreOutOfBounds = TRUE)
 
@@ -342,7 +345,7 @@ sibil = query(ae,"Phonetic=~'[szSZ]'")
 let's now use `get_trackdata()`, this time to extract the discrete Fourier transform values for our segments:
 
 ```{r results='hide', message=FALSE, warning=FALSE}
-dftTd = get_trackdata(dbName = ae, 
+dftTd = get_trackdata(ae, 
                       seglist = sibil,
                       onTheFlyFunctionName = 'dftSpectrum')
 ```
