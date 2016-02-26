@@ -747,11 +747,13 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
       lrDomQueryStr=paste0("SELECT DISTINCT ",lDomQuerySelectStr,",",rDomQuerySelectStr,domQueryStrTail)
       
       # perform query an place result into lrExpResTmp table
-      lrExpRes = dbGetQuery(emuDBhandle$connection, paste0(lrDomQueryStr))
       dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM lrExpResTmp"))
-      dbWriteTable(emuDBhandle$connection, "lrExpResTmp", lrExpRes, append = T)
+      insertQueryStr = paste0("INSERT INTO lrExpResTmp ", lrDomQueryStr)
+      dbGetQuery(emuDBhandle$connection, insertQueryStr)
       
-      if(nrow(lrExpRes)>0){
+      # dbWriteTable(emuDBhandle$connection, "lrExpResTmp", lrExpRes, append = T)
+      nLrExpRes = dbGetQuery(emuDBhandle$connection, "SELECT COUNT(*) AS n FROM lrExpResTmp")$n
+      if(nLrExpRes>0){
         if(nLeftProjItems != 0){
           # reduce projection items to DOMQ result items and store in correct table
           qStr = paste0("SELECT i.db_uuid, i.session, i.bundle, i.lSeqStartId AS seqStartId, i.lSeqEndId AS seqEndId, pi.pSeqStartId, pi.pSeqEndId, pi.pSeqLen, pi.pLevel ",
@@ -810,10 +812,10 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
       
       
       # perform query an place result into lrExpResTmp table
-      lrExpRes = dbGetQuery(emuDBhandle$connection, lrSeqQueryStr)
       dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM lrExpResTmp"))
-      dbWriteTable(emuDBhandle$connection, "lrExpResTmp", lrExpRes, append = T)
-      
+      insertQueryStr = paste0("INSERT INTO lrExpResTmp ", lrSeqQueryStr)
+      dbGetQuery(emuDBhandle$connection, insertQueryStr)
+
       # check if no sequences where found -> clear & return
       nSeq = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM lrExpResTmp"))$n
       if(nSeq == 0){
