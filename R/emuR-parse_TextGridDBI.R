@@ -12,7 +12,7 @@ requireNamespace("RSQLite", quietly = T)
 ## @param session name of session
 ## 
 parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encoding="UTF-8", 
-                           bundle=NULL, session="0000") {
+                              bundle=NULL, session="0000") {
   
   #####################
   # check arguments (TODO better checks for classes and the like...)
@@ -141,7 +141,7 @@ parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encodi
                 if((! is.null(p)) && ('class' == p[1])){
                   currentTierClass=p[2];
                   if(currentTierClass==TIER_CLASS_VAL_INTERVAL){
-
+                    
                   }else if(currentTierClass==TIER_CLASS_VAL_TEXT){
                   }else{
                     stop("TextGrid tiers of class \"",currentTierClass,"\" not supported!");
@@ -153,7 +153,7 @@ parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encodi
                 p=parse_lineToKeyValue(line,doubleQuoted=TRUE, initialTrim=FALSE)
                 if((! is.null(p)) && ('name' == p[1])){
                   currentTierName=p[2];
-
+                  
                 }
               }
               # if we have the currentTierClass
@@ -200,25 +200,25 @@ parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encodi
                       }
                       
                       if(!is.null(currentSegmentIndex) && 
-                           !is.null(currentSegmentStart) &&
-                           !is.null(currentSegmentEnd) &&
-                           !is.null(currentSegmentLabel)){
+                         !is.null(currentSegmentStart) &&
+                         !is.null(currentSegmentEnd) &&
+                         !is.null(currentSegmentLabel)){
                         sampleDur = currentSegmentEnd - currentSegmentStart - 1
                         labels=list(list(name=currentTierName,value=currentSegmentLabel))
                         
                         
                         # item entry:
                         dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', '", itemCounterGlobal, 
-                                                       "', '", currentTierName, "', '", "SEGMENT", 
-                                                       "', ", itemCounterLevel, ", ", sampleRate, ", ", "NULL", ", ", currentSegmentStart, 
-                                                       ", ", sampleDur, ")"))
+                                                                   "', '", currentTierName, "', '", "SEGMENT", 
+                                                                   "', ", itemCounterLevel, ", ", sampleRate, ", ", "NULL", ", ", currentSegmentStart, 
+                                                                   ", ", sampleDur, ")"))
                         
                         
                         
                         # label entry:
                         dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO labels VALUES","('", 
-                                                       emuDBhandle$UUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
-                                                       ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentSegmentLabel), "')"))
+                                                                   emuDBhandle$UUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
+                                                                   ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentSegmentLabel), "')"))
                         
                         # links entry:
                         # no link entry because TextGrids don't have hierarchical infos
@@ -270,8 +270,8 @@ parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encodi
                       }
                     }
                     if(!is.null(currentPointIndex) && 
-                         !is.null(currentPointSample) &&
-                         !is.null(currentPointLabel)){
+                       !is.null(currentPointSample) &&
+                       !is.null(currentPointLabel)){
                       
                       labels=list(list(name=currentTierName,value=currentPointLabel))
                       
@@ -280,15 +280,15 @@ parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encodi
                       
                       
                       dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
-                                                     itemCounterGlobal, ", '", currentTierName,"', '", "EVENT", 
-                                                     "', ", itemCounterLevel, ", ", sampleRate, ", ", currentPointSample, ", ", "NULL", 
-                                                     ", ", "NULL", ")"))
+                                                                 itemCounterGlobal, ", '", currentTierName,"', '", "EVENT", 
+                                                                 "', ", itemCounterLevel, ", ", sampleRate, ", ", currentPointSample, ", ", "NULL", 
+                                                                 ", ", "NULL", ")"))
                       
                       
                       # label entry:
                       dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO labels VALUES","('", 
-                                                     emuDBhandle$UUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
-                                                     ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentPointLabel), "')"))              
+                                                                 emuDBhandle$UUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
+                                                                 ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentPointLabel), "')"))              
                       
                       
                       
@@ -314,8 +314,8 @@ parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encodi
   }
 }
 
-# TODO implement this to improve performance of of convert_TextGridCollection
-TextGridToBundleAnnotDFs <- function(tgPath){
+#############################
+TextGridToBundleAnnotDFs <- function(tgPath, sampleRate, name, annotates){
   
   FILE_TYPE_KEY="File type"
   OBJECT_CLASS_KEY="Object class"
@@ -324,16 +324,120 @@ TextGridToBundleAnnotDFs <- function(tgPath){
   lines = unlist(strsplit(tgChar, "\n"))
   
   if(!grepl(paste0("^", FILE_TYPE_KEY), lines[1]) & !grepl(paste0("^", OBJECT_CLASS_KEY), lines[2])){
-    stop("First two lines of TextGrid file do not match: ", FILE_TYPE_KEY, "; and: ", OBJECT_CLASS_KEY)
+    stop("First two lines of TextGrid file do not match: ", FILE_TYPE_KEY, "; and: ", OBJECT_CLASS_KEY, ". Only long form TextGrids are currently supported. Problem file is: ", tgPath)
   }
-    
-  tiers = unlist(strsplit(tgChar, ".*item.*\n"))
-  tiers[1]
   
+  
+  # estimate how many items are in TextGrid for preallocation
+  nrOfItems = length(grep("text|mark\\s*=", lines))
+  
+  # init data frames and preallocate enough rows
+  items = data.frame(itemID = integer(nrOfItems), 
+                     level = character(nrOfItems),
+                     type = character(nrOfItems),
+                     seqIdx = integer(nrOfItems),
+                     sampleRate = numeric(nrOfItems),
+                     samplePoint = integer(nrOfItems),
+                     sampleStart = integer(nrOfItems),
+                     sampleDur = integer(nrOfItems),
+                     stringsAsFactors = F)
+  
+  labels = data.frame(itemID = integer(nrOfItems),
+                      labelIdx = integer(nrOfItems),
+                      name = character(nrOfItems),
+                      label = character(nrOfItems),
+                      stringsAsFactors = F)
+  
+  
+  
+  # split at "...items [1]..." type lines
+  tiers = unlist(strsplit(tgChar, ".*item\\s\\[[0-9]+\\].*\n", perl = T))
+  header = tiers[1] # extract header
+  tiers = tiers[-1]
+  
+  maxItemID = 1
+  # iterate through tiers
+  for(i in 1:length(tiers)){
+    curTier = tiers[i]
+    tierLines = unlist(strsplit(curTier, "\n"))
+    
+    tierHeaderEndIdx = grep("[intervals|points]:\\s*size", tierLines, perl = T)
+    tierHeader = tierLines[1:tierHeaderEndIdx]
+    tierLines = tierLines[-1:(-1*tierHeaderEndIdx)]
+    
+    
+    if(grepl("IntervalTier", tierHeader[1])){
+      
+      levelName = sub('\\"\\s*$', "", sub('^\\s*name\\s*=\\s*\\"', "", tierHeader[grepl("name", tierHeader)], perl = T), perl = T)
+      xminTimes = as.numeric(sub("^\\s*xmin\\s*=\\s*", "", tierLines[grepl("xmin", tierLines)], perl = T)) # as.numeric seems to be able to deal with trailing blanks
+      xmaxTimes = as.numeric(sub("^\\s*xmax\\s*=\\s*", "", tierLines[grepl("xmax", tierLines)], perl = T)) # as.numeric seems to be able to deal with trailing blanks
+      texts = sub('\\"\\s*$', "", sub('^\\s*text\\s*=\\s*\\"', "", tierLines[grepl("text", tierLines)]), perl = T)
+      
+      # calculate times 
+      startSamples = floor(xminTimes * sampleRate)
+      endSamples = floor(xmaxTimes * sampleRate)
+      sampleDurs = endSamples - startSamples - 1
+      
+      # insert in data frames  
+      items[maxItemID:(maxItemID + length(xminTimes) - 1), ]  = data.frame(itemID = maxItemID:(maxItemID + length(xminTimes) - 1), 
+                                                                           level = rep(levelName, length(xminTimes)),
+                                                                           type = rep("SEGMENT", length(xminTimes)),
+                                                                           seqIdx = 1:length(xminTimes),
+                                                                           sampleRate = rep(sampleRate, length(xminTimes)),
+                                                                           samplePoint = NA,
+                                                                           sampleStart = startSamples,
+                                                                           sampleDur = sampleDurs,
+                                                                           stringsAsFactors = F)
+      
+      labels[maxItemID:(maxItemID + length(xminTimes) - 1), ] = data.frame(itemID = maxItemID:(maxItemID + length(xminTimes) - 1),
+                                                                           labelIdx = rep(1, length(xminTimes)),
+                                                                           name = rep(levelName, length(xminTimes)),
+                                                                           label = texts,
+                                                                           stringsAsFactors = F)
+      
+      maxItemID = max(items$itemID) + 1
+      
+    }else if(grepl("TextTier", tierHeader[1])){
+      levelName = sub('\\"\\s*$', "", sub('^\\s*name\\s*=\\s*\\"', "", tierHeader[grepl("name", tierHeader)], perl = T), perl = T)
+      pointsTimes = as.numeric(sub("^\\s*number\\s*=\\s*", "", tierLines[grepl("number", tierLines)], perl = T)) # as.numeric seems to be able to deal with trailing blanks
+      marks = sub('\\"\\s*$', "", sub('^\\s*mark\\s*=\\s*\\"', "", tierLines[grepl("mark", tierLines)]), perl = T)
+      
+      # calculate times 
+      samplePoints = floor(pointsTimes * sampleRate)
+      
+      # create data frames
+      items[maxItemID:(maxItemID + length(samplePoints) - 1), ] = data.frame(itemID = maxItemID:(maxItemID + length(pointsTimes) - 1), 
+                         level = rep(levelName, length(pointsTimes)),
+                         type = rep("EVENT", length(pointsTimes)),
+                         seqIdx = 1:length(pointsTimes),
+                         sampleRate = rep(sampleRate, length(pointsTimes)),
+                         samplePoint = samplePoints,
+                         sampleStart = NA,
+                         sampleDur = NA,
+                         stringsAsFactors = F)
+      
+      labels[maxItemID:(maxItemID + length(samplePoints) - 1), ] = data.frame(itemsID = maxItemID:(maxItemID + length(pointsTimes) - 1),
+                          labelIdx = rep(1, length(pointsTimes)),
+                          name = rep(levelName, length(pointsTimes)),
+                          label = marks,
+                          stringsAsFactors = F)
+      
+      maxItemID = max(items$itemID) + 1
+      
+    }else{
+      stop("Found Tier that does not have a class definition 'IntervalTier' or 'TextTier'. This probably means it is a mal formated TextGrid file. Problem file is: ", tgPath)
+    }
+    
+  }
+  
+  links = data.frame(bundle = character(), fromID = integer(), toID = integer(), label = character(), stringsAsFactors = F)
+  
+  return(list(name = name, annotates = annotates, sampleRate = sampleRate, items = items, links = links, labels = labels))
 }
 
 # FOR DEVELOPMENT
 # library('testthat')
 # test_file('tests/testthat/test_aaa_initData.R')
 # test_file('tests/testthat/test_emuR-parse_TextGrid.R')
+# tgPath = "~/Desktop/emuR_demoData/TextGrid_collection/msajc003.TextGrid"
 
