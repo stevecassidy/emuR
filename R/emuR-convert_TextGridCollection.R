@@ -108,7 +108,6 @@ convert_TextGridCollection <- function(dir, dbName,
   # create session entry
   dbGetQuery(dbHandle$connection, paste0("INSERT INTO session VALUES('", dbHandle$UUID, "', '0000')"))
   
-  
   # loop through fpl
   for(i in 1:dim(fpl)[1]){
     
@@ -117,10 +116,12 @@ convert_TextGridCollection <- function(dir, dbName,
     
     # session file path
     if(sesName == ""){
-      sfp = file.path(basePath, paste0("0000", session.suffix))
+      sesName = "0000"
+      sfp = file.path(basePath, paste0(sesName, session.suffix))
     }else{
       sfp = file.path(basePath, paste0(sesName, session.suffix))
     }
+    # create session dir
     if(!dir.exists(sfp)){
       res = dir.create(sfp)
       if(!res){
@@ -133,37 +134,30 @@ convert_TextGridCollection <- function(dir, dbName,
     mfBn = basename(mfPath)
     
     # get sampleRate of audio file
-    asspObj = read.AsspDataObj(mfPath)
+    asspObj = read.AsspDataObj(mfPath, begin = 0, end = 1, samples = T)
     sampleRate = attributes(asspObj)$sampleRate
     # create bundle name
     bndlName = file_path_sans_ext(basename(fpl[i,1]))
     
-    # create bundle entry
-    dbGetQuery(dbHandle$connection, paste0("INSERT INTO bundle VALUES('", dbHandle$UUID, "', '0000', '", bndlName, "', '", mfBn, "', ", sampleRate, ", 'NULL')"))
-    #b=create.bundle(bndlName,sessionName = '0000',annotates=basename(fpl[i,1]),sampleRate = sampleRate)
-    
-    
-    ## create track entry
-    #dbGetQuery(get_emuDBcon(), paste0("INSERT INTO track VALUES('", dbUUID, "', '0000', '", bndlName, "', '", fpl[i,1], "')"))
-    
     # parse TextGrid
-    parse_TextGridDBI(dbHandle, fpl[i,2], sampleRate, bundle=bndlName, session="0000")
+    bundleAnnotDFs = TextGridToBundleAnnotDFs(fpl[i,2], sampleRate = sampleRate, name = bndlName, annotates = paste0(bndlName, ".wav"))
     
     # remove unwanted levels
     if(!is.null(tierNames)){
-      
-      condStr = paste0("level!='", paste0(tierNames, collapse = paste0("' AND ", " level!='")), "'")
-      
-      # delete items
-      dbGetQuery(dbHandle$connection, paste0("DELETE FROM items WHERE ", "db_uuid='", dbHandle$UUID, "' AND ", condStr))
-      
-      # delete labels
-      dbGetQuery(dbHandle$connection, paste0("DELETE FROM labels", 
-                                              " WHERE ", "db_uuid='", dbHandle$UUID, "' AND itemID NOT IN (SELECT itemID FROM items)"))
+      # filter items
+      bundleAnnotDFs$items = filter_(bundleAnnotDFs$items, ~(level %in% tierNames))
+      # filter labels
+      bundleAnnotDFs$labels = filter_(bundleAnnotDFs$labels, ~(name %in% tierNames))
     }
     
+    # add to bundle table
+    add_bundleDBI(dbHandle, sessionName = sesName, name = bndlName, annotates = bundleAnnotDFs$annotates, sampleRate = bundleAnnotDFs$sampleRate, MD5annotJSON = "")
+    # add to items, links, labels tables
+    store_bundleAnnotDFsDBI(dbHandle, bundleAnnotDFs, sessionName = sesName, bundleName = bndlName)
+    
+    
     # validate bundle
-    valRes = validate_bundleDBI(dbHandle, session='0000', bundle=bndlName)
+    valRes = validate_bundleDBI(dbHandle, session=sesName, bundle=bndlName)
     
     if(valRes$type != 'SUCCESS'){
       stop('Parsed TextGrid did not pass validator! The validator message is: ', valRes$message)
@@ -192,7 +186,6 @@ convert_TextGridCollection <- function(dir, dbName,
     }
     
   }
-  
   # store all annotations
   rewrite_allAnnots(dbHandle, verbose = verbose)
   
