@@ -15,7 +15,7 @@ create_DBconfigFromTextGrid = function(tgPath, dbName, basePath, tierNames = NUL
   
   ####################
   # check parameters
-  
+
   if(is.null(tgPath)) {
     stop("Argument tgPath (path to TextGrid file) must not be NULL\n")
   }
@@ -27,25 +27,19 @@ create_DBconfigFromTextGrid = function(tgPath, dbName, basePath, tierNames = NUL
   #
   ####################
   
-  # create tmp dbHandle
-  dbHandle = emuDBhandle(dbName, basePath, UUIDgenerate(), connectionPath = ":memory:")
-  
   # parse TextGrid  
-  parse_TextGridDBI(dbHandle, tgPath, 20000, bundle = "tmpBundleName", session = "0000") # sampleRate doesn't matter!! -> hardcoded
+  tgAnnotDFs = TextGridToBundleAnnotDFs(tgPath, sampleRate = 2000, name = "tmpBundleName", annotates = "tmpBundleName.wav") # sampleRate/name/annotates don't matter!! -> hardcoded
   
   # remove unwanted levels
   if(!is.null(tierNames)){
-    
-    condStr = paste0("level!='", paste0(tierNames, collapse = paste0("' AND ", " level!='")), "'")
-    # delete items
-    dbGetQuery(dbHandle$connection, paste0("DELETE FROM items WHERE db_uuid='", dbHandle$UUID, "' AND ", condStr))
-    
-    # delete labels
-    dbGetQuery(dbHandle$connection, paste0("DELETE FROM labels ", 
-                                           "WHERE db_uuid='", dbHandle$UUID, "' AND itemID NOT IN (SELECT itemID FROM items)"))
+    # filter items
+    tgAnnotDFs$items = filter_(tgAnnotDFs$items, ~(level %in% tierNames))
+    # filter labels
+    tgAnnotDFs$labels = filter_(tgAnnotDFs$labels, ~(name %in% tierNames))
   }
   
-  levels <- dbGetQuery(dbHandle$connection, paste0("SELECT DISTINCT level, type FROM items WHERE db_uuid='", dbHandle$UUID, "'"))
+  # levels <- dbGetQuery(dbHandle$connection, paste0("SELECT DISTINCT level, type FROM items WHERE db_uuid='", dbHandle$UUID, "'"))
+  levels = distinct_(tgAnnotDFs$items, "level")
   
   # create level definitions
   levelDefinitions = list()
@@ -53,7 +47,7 @@ create_DBconfigFromTextGrid = function(tgPath, dbName, basePath, tierNames = NUL
   # generate defaultLvlOrder
   defaultLvlOrder=list()
   levIdx = 1  
-  for(lineIdx in 1:dim(levels)[1]){
+  for(lineIdx in 1:nrow(levels)){
     lev = levels[lineIdx,]
     if(lev$type == 'SEGMENT' || lev$type == 'EVENT'){
       defaultLvlOrder[[length(defaultLvlOrder)+1L]]=lev$level
