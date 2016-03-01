@@ -31,7 +31,8 @@ Suggests:
     testthat(>= 0.7.1.99),
     knitr(>= 1.7),
     compare(>= 0.2.4),
-    ggplot2(>= 1.0.1)
+    ggplot2(>= 1.0.1),
+    rmarkdown(>= 0.9.2)
 LazyLoad: yes
 LazyData: yes
 ZipData: no
