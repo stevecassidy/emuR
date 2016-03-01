@@ -140,7 +140,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   whereStr=paste0("WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=", seqStartIdColName, " AND e.itemID=", seqEndIdColName ," AND e.level=s.level AND ")
   
   # order
-  orderStr=''
+  orderStr="ORDER BY s.db_uuid,s.session,s.bundle,startItemID,endItemID"
   
   # append terms depending on maximum sequence length
   # build query for label sequence string
@@ -328,7 +328,7 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
   whereStr=paste0("WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND e.level=s.level ")
   
   # order
-  orderStr=''
+  orderStr="ORDER BY s.db_uuid,s.session,s.bundle,startItemID,endItemID"
   
   if(itCount>0){
     selectStr=paste0(selectStr," CASE r.seqLen ")
