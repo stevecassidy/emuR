@@ -445,6 +445,11 @@ boxplot(meanFirstMoments ~ sibil$labels)
 by utilizing packages such as `dplyr` for `data.table` / `data.frame` manipulation and `lattice` or `ggplot2` for data
 visualisation.**
 
+```{r results='hide', message=FALSE, warning=FALSE}
+# remove emuR_demoData as we will not be needing it 
+# throughout the rest of this vignette
+unlink(file.path(tempdir(), "emuR_demoData"), recursive = TRUE)
+```
 
 
 # Further reading
