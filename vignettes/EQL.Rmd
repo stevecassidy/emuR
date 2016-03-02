@@ -494,6 +494,11 @@ query(ae, "[Syllable == W & End(Word, Syllable) == 1 ^ Num(Word, Syllable) == 3]
 query(ae, "[[[Phoneme =~ .* ^ Phonetic == H] ^ Start(Word, Syllable) == 1] ^ Accent == S]")
 ```
 
+```{r results='hide', message=FALSE, warning=FALSE}
+# remove emuR_demoData as we will not be needing it 
+# throughout the rest of this vignette
+unlink(file.path(tempdir(), "emuR_demoData"), recursive = TRUE)
+```
 
 # Differences and incompatibilities to legacy EMU query language (R package 'emu', version 4.2)
 
