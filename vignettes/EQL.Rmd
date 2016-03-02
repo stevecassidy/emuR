@@ -12,8 +12,6 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
-# WARNING: DOCUMENT STILL BEING WRITTEN!
-
 # Introduction
 
 This document introduces and defines version 2 of the **E**mu **Q**uery **L**anguage (**EQL**) and tries to show what it is capable of by giving numerous examples. The EQL is a query language that is aimed at speech and language researchers that is supposed to be easy to understand and learn yet expressive and powerful. It enables researchers to easily query annotation structures of databases stored in the emuDB format. The `emuR` package provides a `query()` function to query emuDBs that are loaded into the current R session (for more information see the `emuR_intro` as well as the `emuDB` vignettes). The main argument of the `query()` function is the `query` argument (`query(..., query = "XXX", ...)` where `XXX` is the query string). In this document we will be focusing soley on these query strings and how to compile them.  
@@ -26,7 +24,22 @@ As it is not the focus of this vignette: one thing to note about the `query()` f
 
 # Examples
 
-We will now jump right in by giving you a bunch of examples of query strings that where adapted from [@harrington:2002, @cassidy_harrington:2001].
+We will now jump right in by giving you a bunch of examples of query strings that where adapted from [@harrington:2002, @cassidy_harrington:2001]. To have some data we can play with let us create a demo database and then load it:
+
+```{r results='hide', message=FALSE, warning=FALSE}
+# load the package
+library(emuR)
+
+# create demo data in folder provided by the tempdir() function
+create_emuRdemoData(dir = tempdir())
+
+# get the path to emuDB called 'ae' that is part of the demo data
+path2folder = file.path(tempdir(), "emuR_demoData", "ae_emuDB")
+
+# load emuDB into current R session
+ae = load_emuDB(path2folder)
+```
+
 
 ## Simple equality / inequality / matching / non-matching queries (single argument)
 
@@ -34,18 +47,41 @@ The syntax of a simple equality / inequality / matching / non-matching query is 
 
 Example **Q** & **A**'s:
 
-- **Q**: *What is the query string to retrieve all ITEMs containing the label "m" in the "Phonetic" level?*
-    - **A**: `"[Phonetic == m]"`
-- **Q**: *What is the query string to retrieve all ITEMs containing the label "m" or "n" in the "Phonetic" level?*
-    - **A**: `"[Phonetic == m | n]"`
-- **Q**: *What is the query string to retrieve all ITEMs that don't contain the label "m" or "n"?*
-    - **A**: `"[Phonetic != m | n]"`
-- **Q**: *What is the query string to retrieve all ITEMs in the "Syllable" level?*
-    - **A**: `"[Syllable =~ .*]"`
-- **Q**: *What is the query string to retrieve all ITEMs in the "Text" level beginning with 'fi'?*
-    - **A**: `"[Text =~ fi.*]"`
-- **Q**: *What is the query string to retrieve all ITEMs in the "Text" level that don't begin with 'fi'?*
-    - **A**: `"[Text !~ fi.*]"`
+- **Q**: *What is the query to retrieve all ITEMs containing the label "m" in the "Phonetic" level?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Phonetic == m]")
+```
+
+- **Q**: *What is the query to retrieve all ITEMs containing the label "m" or "n" in the "Phonetic" level?*
+- **A**: 
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Phonetic == m | n]")
+```
+
+- **Q**: *What is the query to retrieve all ITEMs that don't contain the label "m" or "n"?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Phonetic != m | n]")
+```
+
+- **Q**: *What is the query to retrieve all ITEMs in the "Syllable" level?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Syllable =~ .*]")
+```
+
+- **Q**: *What is the query to retrieve all ITEMs in the "Text" level beginning with 'a'?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Text =~ a.*]")
+```
+
+- **Q**: *What is the query to retrieve all ITEMs in the "Text" level that don't begin with 'a'?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Text !~ a.*]")
+```
 
 
 **INFO: The above examples use three operators that are new to the EQL as of version 2. One beeing the "==" equal operator that has the same meaning as the "=" operator of the EQL1 (which is also still available) while providing a cleaner more precise syntax. The other two being the "=~" and "!~" which are the new matching and non-matching regular expression operators.**
@@ -56,12 +92,26 @@ The syntax of a query string using the "->" sequence operator is `"[L == A -> L 
    
 Example **Q** & **A**'s:
 
-- **Q**: *What is the query string to retrieve all sequences of ITEMs containing the label "m" followed by ITEMs containing the label "I" on the "Phonetic" level?*
-    - **A**: `"[Phonetic == m -> Phonetic == I]"` (all row entries in the resulting segment list have the start time of "m", the end time of "I" and their labels will be "m->I")
-- **Q**: *Same as the question above but this time we are only interested in the ITEMs containing the label "m" of the sequences.*
-    - **A**: `"[#Phonetic == m -> Phonetic == I]"`  (all row entries in the resulting segment list have the start time of "m", the end time of "m" and their labels will be "m")  
+- **Q**: *What is the query to retrieve all sequences of ITEMs containing the label "@" followed by ITEMs containing the label "n" on the "Phonetic" level?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+# NOTE: all row entries in the resulting segment list have the start time of "@", the end time of "n" and their labels will be "@->n"
+query(ae, "[Phonetic == @ -> Phonetic == n]")
+```
+
+- **Q**: *Same as the question above but this time we are only interested in the ITEMs containing the label "@" of the sequences.*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+# NOTE: all row entries in the resulting segment list have the start time of "@", the end time of "@" and their labels will also be "@"
+query(ae, "[#Phonetic == @ -> Phonetic == n]")
+```
+
 - **Q**: *Same as the first question but this time we are only interested in the ITEMs containing the label "I".*
-    - **A**: `"[Phonetic == m -> #Phonetic == I]"` (all row entries in the resulting segment list have the start time of "I", the end time of "I" and their labels will be "I")  
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+# NOTE: all row entries in the resulting segment list have the start time of "n", the end time of "n" and their labels will also be "n"
+query(ae, "[Phonetic == @ -> #Phonetic == n]")
+```
 
 ### Subsequent sequence queries using nesting of the "->" sequence operator   
 
@@ -69,12 +119,23 @@ The general strategy to constructing a query string that retrieves subsequent se
 
 Example **Q** & **A**'s:
 
-- **Q**: *What is the query string to retrieve all sequences of ITEMs containing the labels "m", "I" and "n" on the "Phonetic" level?*
-    - **A**: `"[[Phonetic == m -> Phonetic == I ] -> Phonetic == n]"`
-- **Q**: *What is the query string to retrieve all sequences of ITEMs containing the labels "john", "could" and "lend" on the "Text" level?*
-    - **A**: `"[[Text == john -> Text == could] -> Text == lend]"`
-- **Q**: *What is the query string to retrieve all sequences of ITEMs containing labels "the" followed by two arbitrary labels followed by "managed"?*
-    - **A**: `"[[[Text == the -> Text =~ .*] -> Text =~ .* ] -> Text == managed]"`
+- **Q**: *What is the query to retrieve all sequences of ITEMs containing the labels "@", "n" and "s" on the "Phonetic" level?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[[Phonetic == @ -> Phonetic == n ] -> Phonetic =~ s]")
+```
+
+- **Q**: *What is the query to retrieve all sequences of ITEMs containing the labels "to", "offer" and "any" on the "Text" level?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[[Text == to -> Text == offer ] -> Text == any]")
+```
+
+- **Q**: *What is the query to retrieve all sequences of ITEMs containing labels "offer" followed by two arbitrary labels followed by "resistance"?*
+- **A**: ``
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[[[Text =~ offer -> Text =~ .*] -> Text =~ .* ] -> Text == resistance]")
+```
 
 **INFO: As the EQL1 didn't have a regular expression operator, users often resorted to using queries such as "[Phonetic != XXX]" (where XXX is a label that was not part of the label set of the "Phonetic" level) to match every label on the "Phonetic" level. Although this is still possible in the EQL2, we strongly recommend using regular expressions as they provide a much clearer and preciser syntax and are less error prone.**
 
@@ -85,12 +146,23 @@ The syntax of a query string using the conjunction operator can schematically be
 
 Example **Q** & **A**'s:
 
-- **Q**: *What is the query string to retrieve all ITEMs containing the label "S" on the "Syllables" level which also have the label "L+H\*" on a parallel attributeDefintion called "Pitch\_Accent"?*
-    - **A**: `"[Syllable == S & Pitch_Accent == L+H*]"`
-- **Q**: *What is the query string to retrieve all ITEMs of the attributeDefintion "Text" of the level "Word" that where also labeled to be function words (labeled "F" in the "Word" level)?*
-    - **A**: `"[Text =~ .* & Word == F]"`
-- **Q**: *What is the query string to retrieve all ITEMs of the attributeDefintion "Text" of the level "Word" that where also labeled to be content words (labeled "C" in the "Word" level) and labeled to be accentuated (labeled "S" in the attributeDefintion "Accent" of the same level)?*
-    - **A**: `"[Text =~ .* & Word == C & Accent == S]"`
+- **Q**: *What is the query to retrieve all ITEMs containing the label "always" on the "Text" level which also have the label "C" on a parallel attributeDefintion called "Word"?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Text == always & Word == C]")
+```
+
+- **Q**: *What is the query to retrieve all ITEMs of the attributeDefintion "Text" of the level "Word" that where also labeled to be function words (labeled "F" in the "Word" level)?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Text =~ .* & Word == F]")
+```
+
+- **Q**: *What is the query to retrieve all ITEMs of the attributeDefintion "Text" of the level "Word" that where also labeled to be content words (labeled "C" in the "Word" level) and labeled to be accentuated (labeled "S" in the attributeDefintion "Accent" of the same level)?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Text =~ .* & Word == C & Accent == S]")
+```
 
 
 ## Domination operator ^ (== hierarchical queries)
@@ -101,12 +173,28 @@ A schematic representation of a simple domination query string that retrieves al
 
 Example **Q** & **A**'s:
 
-- **Q**: *What is the query string to retrieve all ITEMs containing the label "p" in the "Phoneme" level that occur in strong syllables (i.e. dominated by / linked to ITEMs of the level "Syllable" that contain the label "S")?*
-    - **A**: `"[Phoneme == p ^ Syllable == S]"`
-- **Q**: *What is the query string to retrieve all syllable ITEMs which contain a phoneme ITEM labeled "p"?*
-    - **A**: `"[Syllable =~ .* ^ Phoneme == p]"` or `"[Phoneme == p ^ #Syllable =~ .*]"`
-- **Q**: *What is the query string to retrieve all syllable ITEMs which neither contain a phoneme ITEM labeled "k" nor "p" nor "t"?*
-    - **A**: `"[Syllable =~ .* ^ Phoneme != p | t | k]"` or `"[Phoneme != p | t | k ^ #Syllable =~ .*]"`
+- **Q**: *What is the query to retrieve all ITEMs containing the label "p" in the "Phoneme" level that occur in strong syllables (i.e. dominated by / linked to ITEMs of the level "Syllable" that contain the label "S")?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Phoneme == p ^ Syllable == S]")
+```
+
+- **Q**: *What is the query to retrieve all syllable ITEMs which contain a phoneme ITEM labeled "p"?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Syllable =~ .* ^ Phoneme == p]")
+# or
+query(ae, "[Phoneme == p ^ #Syllable =~ .*]")
+```
+
+- **Q**: *What is the query to retrieve all syllable ITEMs which neither contain a phoneme ITEM labeled "k" nor "p" nor "t"?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Syllable =~ .* ^ Phoneme != p | t | k]")
+# or
+query(ae, "[Phoneme != p | t | k ^ #Syllable =~ .*]")
+```
+
 
 **INFO: Even though the domination operator is not directional, what you place to the left and to the right of the operator does have an impact on the result. If no result modifier (the hash tag "#") is used the query engine will automatically assume that the expression to the left of the operator specifies what is to be returned. This means that the schematic query string: `"[L1 == A ^ L2 == B]"` is semantically equal to the query string: `"[#L1 == A ^ L2 == B]"`. As it is more explicit to mark the desired result we recommend you always use the result modifier where possible.**
 
@@ -116,10 +204,18 @@ The general strategy to constructing a query string that specifies multiple domi
 
 Example **Q** & **A**'s:
 
-- **Q**: *What is the query string to retrieve all ITEMs on the "Pitch_Accent" level that where labeled "H\*" that contain a phoneme "p" and belong to the words "price" or "space"?*
-    - **A**: `"[[Pitch_Accent == H* ^ Phoneme == p] ^ Text == price | space]"`
-- **Q**: *The same as the question above but this time we want the appropriate words.*
-    - **A**: `"[[Pitch_Accent == H* ^ Phoneme == p] ^ #Text == price | space]"`
+- **Q**: *What is the query to retrieve all ITEMs on the "Phonetic" level that are part of a strong syllable (labeled "S") and belong to the words "amongst" or "beautiful"?*
+- **A**: `"`
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[[#Phonetic =~ .* ^ Syllable == S] ^ Text == amongst | beautiful]")
+```
+
+- **Q**: *The same as the question above but this time we want the Text ITEMs.*
+- **A**: `"[[Pitch_Accent == H* ^ Phoneme == p] ^ #Text == price | space]"`
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[[Phonetic =~ .* ^ Syllable == S] ^ #Text == amongst | beautiful]")
+```
+    
 
 
 ## Position
@@ -134,16 +230,36 @@ A schematic representation of a query string representing a simple usage of the 
 
 Example **Q** & **A**'s:
 
-- **Q**: *What is the query string to retrieve all word-initial syllables?*
-    - **A**: `"[Start(Word, Syllable) == 1]"`
-- **Q**: *What is the query string to retrieve all word-initial phonemes?*
-    - **A**: `"[Start(Word, Phoneme) == 1]"`
-- **Q**: *What is the query string to retrieve all non-word-initial syllables?* 
-    - **A**: `"[Start(Word, Syllable) == 0]"`
-- **Q**: *What is the query string to retrieve all word-final syllables?* 
-    - **A**: `"[End(Word, Syllable) == 1]"`
-- **Q**: *What is the query string to retrieve all word-medial syllables?* 
-    - **A**: `"[Medial(Word, Syllable) == 1]"`
+- **Q**: *What is the query to retrieve all word-initial syllables?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Start(Word, Syllable) == 1]")
+```
+
+- **Q**: *What is the query to retrieve all word-initial phonemes?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Start(Word, Phoneme) == 1]")
+```
+
+- **Q**: *What is the query to retrieve all non-word-initial syllables?* 
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Start(Word, Syllable) == 0]")
+```
+
+- **Q**: *What is the query to retrieve all word-final syllables?* 
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[End(Word, Syllable) == 1]")
+```
+
+- **Q**: *What is the query to retrieve all word-medial syllables?* 
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Medial(Word, Syllable) == 1]")
+```
+
     
 ### Position and Boolean &
 
@@ -151,12 +267,23 @@ The syntax for combining a position function with the boolean operator is `"[L =
 
 Example **Q** & **A**'s:
 
-- **Q**: *What is the query string to retrieve all "p" phonemes at the beginning of a syllable?*
-    - **A**: `"[Phoneme == p & Start(Syllable, Phoneme) == 1]"`  
-- **Q**: *What is the query string to retrieve all word-final "m" phonemes?*
-    - **A**: `"[Phoneme == m & End(Word, Phoneme) == 1]"`
-- **Q**: *What is the query string to retrieve all non-word-final "S" syllables which are labeled with tonic accent L+H\*?*
-    - **A**: `"[Syllable == S & Pitch_Accent == L+H* & (Word, Syllable) == 0]"`
+- **Q**: *What is the query to retrieve all "n" phonemes at the beginning of a syllable?*
+- **A**:  
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Phoneme == n & Start(Syllable, Phoneme) == 1]")
+```
+
+- **Q**: *What is the query to retrieve all word-final "m" phonemes?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Phoneme == m & End(Word, Phoneme) == 1]")
+```
+
+- **Q**: *What is the query to retrieve all non-word-final "S" syllables?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Syllable == S .* & End(Word, Syllable) == 0]")
+```
 
 ### Position and Boolean ^
 
@@ -164,10 +291,17 @@ The syntax for combining a position function with the boolean hierarchical opera
 
 Example **Q** & **A**'s:
 
-- **Q**: *What is the query string to retrieve all "p" phonemes, which occur in the first syllable of the word?*
-    - **A**: `"[Phoneme == p ^ Start(Word, Syllable) == 1]"`
-- **Q**: *What is the query string to retrieve all phonemes, which do not occur in the last syllable of the word?*
-    - **A**: `"[Phoneme =~ .* ^ End(Word, Syllable) == 0]"`
+- **Q**: *What is the query to retrieve all "p" phonemes, which occur in the first syllable of the word?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Phoneme == p ^ Start(Word, Syllable) == 1]")
+```
+
+- **Q**: *What is the query to retrieve all phonemes, which do not occur in the last syllable of the word?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Phoneme =~ .* ^ End(Word, Syllable) == 0]")
+```
 
 ## Count
 
@@ -175,10 +309,17 @@ A schematic representation of a query string utilizing the count mechanism would
 
 Example **Q** & **A**'s:
 
-- **Q**: *What is the query string to retrieve all words that contain four syllables?*
-    - **A**: `"[Num(Word, Syllable) == 4]"`
-- **Q**: *What is the query string to retrieve all syllables that contain more than six phonemes?*
-    - **A**: `"[Num(Syllable, Phoneme) > 6]"`
+- **Q**: *What is the query to retrieve all words that contain four syllables?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Num(Word, Syllable) == 4]")
+```
+
+- **Q**: *What is the query to retrieve all syllables that contain more than six phonemes?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Num(Syllable, Phoneme) > 6]")
+```
 
 ### Count and Boolean &
 
@@ -186,10 +327,19 @@ A schematic representation of a query string combining the count and the boolean
 
 Example **Q** & **A**'s:
 
-- **Q**: *What is the query string to retrieve the "Text" of all words, which consist of 11 phonemes?* 
-    - **A**: `"[Text =~ .* & Num(Text, Phoneme) > 11 ]"` or  `"[Text =~ .* & Num(Word, Phoneme) > 11]"`
-- **Q**: *What is the query string to retrieve all "H\*" tonic accents in syllables of 5 phonemes?*
-    - **A**: `"[Pitch_Accent = H* & Num(Syllable, Phoneme) == 5]"`
+- **Q**: *What is the query to retrieve the "Text" of all words, which consist of more than 5 phonemes?* 
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Text =~ .* & Num(Text, Phoneme) > 5 ]")
+# or
+query(ae, "[Text =~ .* & Num(Word, Phoneme) > 5]")
+```
+
+- **Q**: *What is the query to retrieve all strong syllables that contain 5 phonemes?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Syllable == S & Num(Syllable, Phoneme) == 5]")
+```
 
 ### Count and ^
 
@@ -197,12 +347,24 @@ A schematic representation of a query string combining the count and the boolean
 
 Example **Q** & **A**'s:
 
-- **Q**: *What is the query string to retrieve all "m" phonemes in 4-syllable words?* 
-    - **A**: `"[Phoneme == m ^ Num(Word, Syllable) == 4]"`
-- **Q**: *What is the query string to retrieve all "W"-Syllables in words of 3 or less syllables?*
-    - **A**: `"[Syllable = W ^ Num(Word, Syllable) < 3]"`
-- **Q**: *What is the query string to retrieve all words, which contain syllable, which contain 4 phonemes*
-    - **A**: `[Text =~ .* ^ Num(Syllable, Phoneme) == 4]"`
+- **Q**: *What is the query to retrieve all "m" phonemes in 3-syllable words?* 
+- **A**: ``
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Phoneme == m ^ Num(Word, Syllable) == 3]")
+```
+
+- **Q**: *What is the query to retrieve all "W"-Syllables in words of 3 or less syllables?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Syllable = W ^ Num(Word, Syllable) < 3]")
+```
+
+- **Q**: *What is the query to retrieve all words, which contain syllable, which contain 4 phonemes*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Text =~ .* ^ Num(Syllable, Phoneme) == 4]")
+```
+
 
 ## Combinations
 
@@ -213,55 +375,124 @@ A schematic representation of a query string combining the domination and the se
 
 Example **Q** & **A**'s:
 
-- **Q**: *What is the query string to retrieve all "m" preceding "I" and "m" is part of a "S"-syllable?*
-    - **A**: `"[[Phoneme == m -> Phoneme == I] ^ Syllable == S]"`
-- **Q**: *What is the query string to retrieve all "s" preceding "p" and "p" is part of a "W"-syllable?*
-    - **A**: `"[Phoneme == s -> [Phoneme == p ^ Syllable == W]]"`
-- **Q**: *What is the query string to retrieve all "S"-syllables, which contain phoneme "p" and precede a "S"-syllable?*
-    - **A**: `"[[Syllable == S ^ Phoneme == p] -> Syllable == S]"`
-- **Q**: *Same question as the question above but this time we want all "p" ITEMs where "p" is part of a "S"-syllable and this "S"-syllable precedes a "S"-syllable.*
-    - **A**: `"[[Phoneme == p ^ Syllable == S] -> Syllable == S]"` this will cause an error as `Phoneme == p` and `Syllable == S` are not on the same level. Therefore the correct answer is: `"[[Syllable == S ^ #Phoneme == p] -> Syllable == S]"`
+- **Q**: *What is the query to retrieve all "m" preceding "p" and "m" is part of a "S"-syllable?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[[Phoneme == m -> Phoneme =~ p] ^ Syllable == S]")
+```
+
+- **Q**: *What is the query to retrieve all "s" preceding "t" and "t" is part of a "W"-syllable?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Phoneme == s -> [Phoneme == t ^ Syllable == W]]")
+```
+
+- **Q**: *What is the query to retrieve all "S"-syllables, which contain phoneme "s" and precede a "S"-syllable?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[[#Syllable == S ^ Phoneme == s] -> Syllable == S]")
+```
+
+- **Q**: *Same question as the question above but this time we want all "s" ITEMs where "s" is part of a "S"-syllable and this "S"-syllable precedes a "S"-syllable.*
+- **A**: `"[[Phoneme == s ^ Syllable == S] -> Syllable == S]"` this will cause an error as `Phoneme == s` and `Syllable == S` are not on the same level. Therefore the correct answer is:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[[Syllable == S ^ #Phoneme == s] -> Syllable == S]")
+```
 
 ### ^ and -> and & (Domination and Sequence and Boolean &)
 
 Example **Q** & **A**'s:
 
-- **Q**: *What is the query string to retrieve the "Text" of all words, beginning with a schwa?*
-    - **A**: `"[Text =~ .* ^ Phoneme == @ & Start(Text, Phoneme) == 1]"`
-- **Q**: *What is the query string to retrieve all word-initial "m" ITEMs in a strong syllable, which precedes "I"?*
-    - **A**: `"[[Phoneme == m & Start(Word, Phoneme) == 1 -> Phoneme == I] ^ Syllable == S]"`
+- **Q**: *What is the query to retrieve the "Text" of all words, beginning with a schwa?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Text =~ .* ^ Phoneme == @ & Start(Text, Phoneme) == 1]")
+```
+
+- **Q**: *What is the query to retrieve all word-initial "m" ITEMs in a strong syllable, which precedes "o:"?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[[Phoneme == m & Start(Word, Phoneme) == 1 -> Phoneme == o:] ^ Syllable == S]")
+```
+
 - **Q**: *Same question as the question above but this time we want the text.*  
-    - **A**: `"[[[Phoneme == m & Start(Word, Phoneme) == 1 -> Phoneme == I] ^ Syllable == S] ^ #Text != x]"`
-- **Q**: *What is the query string to retrieve the text of all three-syllable words that also precede the word "the", which contain a schwa in the first syllable?*
-    - **A**: As this is a large multi part question, let's break it down:
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[[[Phoneme == m & Start(Word, Phoneme) == 1 -> Phoneme == o:] ^ Syllable == S] ^ #Text =~ .*]")
+```
+
+- **Q**: *What is the query to retrieve the text of all three-syllable words that also precede the word "the", which contain a schwa in the first syllable?*
+- **A**: As this is a large multi part question, let's break it down:
         - 1.) The text of all three-syllable words : `"[Text =~ .* & Num(Text, Syllable) == 3]"`
         - 2.) A schwa occurs in the first syllable: `"[Phoneme == @ ^ Start(Word, Syllable) == 1]"`
         - 3.) The text is "the": `"[Text == the]"`
-        - Let's now combined all three by saying `"[1. ^ 2.]"` and these are followed by three (`"[1. ^ 2.] -> 3.]"`): `"[[Text =~ .* & Num(Text, Syllable) == 3 ^ [Phoneme == @ ^ Start(Word, Syllable) == 1]] -> Text == the]"`
+        - Let's now combined all three by saying `"[1. ^ 2.]"` and these are followed by three (`"[1. ^ 2.] -> 3.]"`):
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[[Text =~ .* & Num(Text, Syllable) == 3 ^ [Phoneme == @ ^ Start(Word, Syllable) == 1]] -> Text == his]")
+```
 
 
 ## A few more Q & A's (because practice makes perfect)
 
-- **Q**: *What is the query string to retrieve all "m" or "n" phonemes, which occur in the word-medial position?*
-    - **A**: `"[Phoneme == m | n & Medial(Word, Phoneme) == 1]"`
-- **Q**: *What is the query string to retrieve all "H" phonetic segments, next an arbitrary segment, next either "I" or "U"?*
-    - **A**: `"[[Phonetic == H -> Phonetic =~ .*] -> Phonetic == I | U ]"`
-- **Q**: *What is the query string to retrieve all syllables, which do not occur in the word-medial position?*
-    - **A**: `"[Syllable =~ .* & Medial(Word, Syllable) == 0]"`
-- **Q**: *What is the query string to retrieve the text of all words, which contain two syllables?*
-    - **A**: `"[Text =~ .* & Num(Text, Syllable) == 2]"`
-- **Q**: *What is the query string to retrieve the text of all accentuated words following "the"?*.  
-    - **A**: `"[Text == the -> #Text =~ .* & Accent == S]"`
-- **Q**: *What is the query string to retrieve all "S" (strong) syllables consisting of 5 phonemes?*
-    - **A**: `"[Syllable = S ^ Num(Word, Phoneme) == 5]"`
-- **Q**: *What is the query string to retrieve all "W" (weak) syllables, which contain a "@" phoneme?*
-    - **A**: `"[Syllable == W ^ Phoneme == @]"`
-- **Q**: *What is the query string to retrieve the text of words, which contain either a "L\*" or "L\+H\*"" tonic accent?*  
-    - **A**: `"[Text =~ .* ^ Pitch_Accent == L* | L+H*]"`
-- **Q**: *What is the query string to retrieve all "H\*" tonic accents of word-final syllables, which occur in three-syllable words?*
-    - **A**: `"[Pitch_Accent == H* & End(Word, Syllable) == 1 ^ Num(Word, Syllable) == 3]"`
-- **Q**: *What is the query string to retrieve all phonemes, dominating Phonetic ITEMs "H", at the beginning of a syllable; and which occur in accentuated (S) words?*
-    - **A**: `"[[[Phoneme =~ .* ^ Phonetic == H] ^ Start(Word, Syllable) == 1] ^ Accent == S]"`
+- **Q**: *What is the query to retrieve all "m" or "n" phonemes, which occur in the word-medial position?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Phoneme == m | n & Medial(Word, Phoneme) == 1]")
+```
+
+- **Q**: *What is the query to retrieve all "H" phonetic segments, next an arbitrary segment, next either "I" or "U"?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[[Phonetic == H -> Phonetic =~ .*] -> Phonetic == I | U ]")
+```
+
+- **Q**: *What is the query to retrieve all syllables, which do not occur in the word-medial position?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Syllable =~ .* & Medial(Word, Syllable) == 0]")
+```
+
+- **Q**: *What is the query to retrieve the text of all words, which contain two syllables?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Text =~ .* & Num(Text, Syllable) == 2]")
+```
+
+- **Q**: *What is the query to retrieve the text of all accentuated words following "the"?*.  
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Text == the -> #Text =~ .* & Accent == S]")
+```
+
+- **Q**: *What is the query to retrieve all "S" (strong) syllables consisting of 5 phonemes?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Syllable = S ^ Num(Word, Phoneme) == 5]")
+```
+
+- **Q**: *What is the query to retrieve all "W" (weak) syllables, which contain a "@" phoneme?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Syllable == W ^ Phoneme == @]")
+```
+
+- **Q**: *What is the query to retrieve all phonetic ITEMs, which belong to a weak syllable?*  
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Phonetic =~ .* ^ #Syllable == W]")
+```
+
+- **Q**: *What is the query to retrieve weak syllables of word-final syllables, which occur in three-syllable words?*
+- **A**: ``
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[Syllable == W & End(Word, Syllable) == 1 ^ Num(Word, Syllable) == 3]")
+```
+
+- **Q**: *What is the query to retrieve all phonemes, dominating Phonetic ITEMs "H", at the beginning of a syllable; and which occur in accentuated (S) words?*
+- **A**:
+```{r results='hide', message=FALSE, warning=FALSE}
+query(ae, "[[[Phoneme =~ .* ^ Phonetic == H] ^ Start(Word, Syllable) == 1] ^ Accent == S]")
+```
 
 
 # Differences and incompatibilities to legacy EMU query language (R package 'emu', version 4.2)
@@ -276,14 +507,14 @@ Example calls to the `query()` function (prerequisite: a loaded emuDB called "an
 
 ```{r, eval=FALSE}
 # query all "p" ITEMs on the "Phoneme" level that are dominated by "S" (strong) syllables
-query(dbName = "andosl", 
+query(emuDBhandle = andosl, 
       query = "[Phoneme == p ^ Syllable == S]")
 
 # same query as before but this time using
 # the sessionPattern and bundlePattern arguments 
 # to only select specific sessions / bundles
 # using regular expressions (RegEx)
-query(dbName = "andosl", 
+query(emuDBhandle = andosl, 
       query = "[Phoneme == p ^ Syllable == S]", 
       sessionPattern = "000.", # RegEx that matches session 0000; 000a; 0001; ...
       bundlePattern = "msajc0[1-2].") # RegEx that matches bundles msajc01a; msajc02a; msajc021; ...
@@ -301,7 +532,7 @@ The emuDB format used by the `emuR` package introduces the concept of bundles th
 
 ## The result modifier hash tag '#'
 
-Compared to the legacy EMU system which allowed multiple occurrences of the hash tag "#" to be present in a query string, the `query()` function only allows a single result modifier. This assures that only consistent result sets are returned. If you however desire to have multiple result sets in one segment list, we recommend you simply  concatenate the result sets of separate queries using the `rbind()` function.
+Compared to the legacy EMU system which allowed multiple occurrences of the hash tag "#" to be present in a query string, the `query()` function only allows a single result modifier. This assures that only consistent result sets are returned. If you however desire to have multiple result sets in one segment list, we recommend you simply concatenate the result sets of separate queries using the `rbind()` function.
 
 ## Interpretation of the hash tag "#" in conjunction operator queries
 #### legacy EMU
@@ -338,7 +569,7 @@ The hash tag "#" had no effect.
 
 #### emuR
 ```{r eval=FALSE}
-> query(dbName = andosl,
+> query(emuDBhandle = andosl,
         query = "[Text == spring & #Accent == S]", 
         resultType == "emusegs")
 ```
