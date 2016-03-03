@@ -104,8 +104,7 @@ data.
 
 }
 \author{
-Jonathan Harrington jmh@ipds.uni-kiel.de, Steve Cassidy, Gordon
-Watson
+Jonathan Harrington jmh@ipds.uni-kiel.de, Steve Cassidy
 }
 \seealso{
 \code{\link{dcut}}

@@ -61,7 +61,6 @@
 ##' @export dct
 "dct" <- function (data, m=NULL, fit=FALSE) 
 {
-  # written by Catherine Watson, modified by Jonathan Harrington
   if (is.matrix(data)) 
     nz <- dimnames(data)[[1]]
   else nz <- names(data)
