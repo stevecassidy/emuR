@@ -257,7 +257,7 @@ list_files <- function(emuDBhandle,
   }
   
   # filter for patterns
-  df = df[grepl(utils::glob2rx(sessionPattern), df$session) & grepl(glob2rx(bundlePattern), df$bundle),]
+  df = df[grepl(utils::glob2rx(sessionPattern), df$session) & grepl(utils::glob2rx(bundlePattern), df$bundle),]
   
   return(df)
   

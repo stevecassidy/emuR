@@ -161,7 +161,7 @@
       ylim <- range(mat)
     if(is.null(xlim))
       xlim <- c(0, (N-1))
-    graphic::plot(c(0:(N - 1)), mat, xlab = xlab, ylab = ylab, type = type, 
+    graphics::plot(c(0:(N - 1)), mat, xlab = xlab, ylab = ylab, type = type, 
          ylim = ylim, xlim = xlim, ...)
     if(dopoints)
       graphics::points(c(0:(N - 1)), mat, pch = 16, mkh = 0.05)
@@ -300,7 +300,7 @@
     cospoints <- Ay * cos(theta)
     xvals <- seq(0, figsize/2, length = N)
     graphics::par(new = TRUE)
-    plot(xvals[first:last], cospoints[first:last], type = "l", xlim = c( - 
+    graphics::plot(xvals[first:last], cospoints[first:last], type = "l", xlim = c( - 
                                                                            pin[1]/2, pin[1]/2), ylim = c( - pin[2]/2, pin[2]/2), axes = FALSE, 
          ylab = "", xlab = "", col = col, lwd = lwd)
   }
@@ -386,7 +386,7 @@
   cospoints <- Ay * cos(theta)
   if(cplot) {
     if(numplot) {
-      points(cbind(sinpoints, cospoints), pch = 16, mkh = 
+      graphics::points(cbind(sinpoints, cospoints), pch = 16, mkh = 
                0.05)
       ## plot the numbers around the circle with an extended radius
       numvals <- round(theta %% (2 * pi), 2)
@@ -437,7 +437,7 @@
     graphics::plot(xvals, cospoints, type = "l", xlim = c( - pin[1]/2, pin[1]/
                                                    2), ylim = c( - pin[2]/2, pin[2]/2), axes = FALSE, ylab = 
            "", xlab = "", col = col, lty = linetype)
-    points(xvals, cospoints, pch = 16, mkh = 0.05)
+    graphics::points(xvals, cospoints, pch = 16, mkh = 0.05)
   }
   ## add any text if specified
   if(!is.null(textplot)) cr.text(Ax, Ay, textplot$radius, textplot$textin,

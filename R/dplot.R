@@ -231,7 +231,7 @@
     ylim <- range(mat.na, na.rm = TRUE)
   if (!average) {
     for (j in 1:nrow(mat.na)) {
-      plot(xtime, mat.na[j, ], xlim = xtimelim, ylim = ylim, 
+      graphics::plot(xtime, mat.na[j, ], xlim = xtimelim, ylim = ylim, 
            xlab = "", ylab = "", axes = FALSE, type = type, 
            col = colour[j], lty = as.numeric(lty[j]), bty="n",
            lwd = as.numeric(lwd[j]), pch=as.numeric(pch[j]))
@@ -269,7 +269,7 @@
     lwd <- col.lty$legend$lwd
     pch <- col.lty$legend$pch
     for (j in 1:nrow(outmat)) {
-      plot(xtime, outmat[j, ], xlim = xtimelim, ylim = ylim, 
+      graphics::plot(xtime, outmat[j, ], xlim = xtimelim, ylim = ylim, 
            xlab = "", ylab = "", axes = FALSE, type = type, bty="n", 
            col = colour[col.code[j]], lty = as.numeric(lty[col.code[j]]), 
            lwd = as.numeric(lwd[col.code[j]]), pch = as.numeric(pch[col.code[j]]))
@@ -340,7 +340,7 @@
   lval <- nrow(x$index)
   if (!average) {
     for (j in 1:lval) {
-      plot(xvec, mat.na[j]$data, xlim = xlim, ylim = ylim, 
+      graphics::plot(xvec, mat.na[j]$data, xlim = xlim, ylim = ylim, 
            xlab = "", ylab = "", axes = FALSE, type = type, bty="n", 
            col = colour[j], lty = as.numeric(lty[j]), 
            lwd = as.numeric(lwd[j]), pch = as.numeric(pch[j]))
@@ -380,7 +380,7 @@
     lwd <- col.lty$legend$lwd
     pch <- col.lty$legend$pch
     for (j in 1:nrow(outmat)) {
-      plot(xvec, outmat[j, ], xlim = xlim, ylim = ylim, 
+      graphics::plot(xvec, outmat[j, ], xlim = xlim, ylim = ylim, 
            xlab = "", ylab = "", axes = FALSE, type = type, bty="n", 
            col = colour[col.code[j]], lty = as.numeric(lty[col.code[j]]), 
            lwd = as.numeric(lwd[col.code[j]]), pch = as.numeric(pch[col.code[j]]))

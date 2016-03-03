@@ -375,8 +375,8 @@
   graphics::image(1:8, 1:8, t(1-sump[8:1,]), col = grDevices::gray(0:gscale/gscale), axes=FALSE, xlab=xlab, ylab=ylab, ...)
   if(axes)
   {
-    axis(side=1)
-    axis(side=2, at=c(1, 3, 5, 7), labels=as.character(c(8, 6, 4, 2)))
+    graphics::axis(side=1)
+    graphics::axis(side=2, at=c(1, 3, 5, 7), labels=as.character(c(8, 6, 4, 2)))
   }
   if(gridlines)
     graphics::grid(8, 8, col = gridcol, lty=gridlty)
