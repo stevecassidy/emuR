@@ -458,7 +458,8 @@ get_bpfSession <- function(filePath,
 {
   DEFAULT_SESSION_NAME = "0000"
   
-  session = dirname(filePath)
+  session = normalizePath(dirname(filePath), winslash = "/")
+  sourceDir = normalizePath(sourceDir, winslash = "/")
   session = str_replace_all(session, sourceDir, "")
   session = str_replace_all(session, .Platform$file.sep, "_")
   session = str_replace_all(session, "^_", "")
