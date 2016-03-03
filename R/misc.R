@@ -123,7 +123,7 @@
 ##' @seealso read.table
 ##' @keywords misc
 ##' @export matscan
-"matscan"<- function(file, num.cols=count.fields(file)[1], what = 0, sk = 0)
+"matscan"<- function(file, num.cols=utils::count.fields(file)[1], what = 0, sk = 0)
 {
   ## first make a template, a list of num.cols what's
   template <- as.list(rep(what, num.cols))

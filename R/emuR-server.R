@@ -444,7 +444,7 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.
   cat("To stop the server press EMU-webApp 'clear' button or reload the page in your browser.\n")
   emuRserverRunning=TRUE
   # open browser with EMU-webApp
-  browseURL("http://ips-lmu.github.io/EMU-webApp/?autoConnect=true")
+  utils::browseURL("http://ips-lmu.github.io/EMU-webApp/?autoConnect=true")
   while(emuRserverRunning) {
     httpuv::service()
     Sys.sleep(0.01)

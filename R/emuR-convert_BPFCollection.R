@@ -165,8 +165,8 @@ convert_BPFCollection <- function(sourceDir,
     nbFilePairs = length(filePairList) / 2
     
     cat("INFO: Parsing BPF collection containing", nbFilePairs, "file pair(s)...\n")
-    pb = txtProgressBar(min = 0, max = nbFilePairs, initial = progress, style=3)
-    setTxtProgressBar(pb, progress)
+    pb = utils::txtProgressBar(min = 0, max = nbFilePairs, initial = progress, style=3)
+    utils::setTxtProgressBar(pb, progress)
   }
   
   # ---------------------------------------------------------------------------
@@ -275,7 +275,7 @@ convert_BPFCollection <- function(sourceDir,
     
     if(verbose)
     {
-      setTxtProgressBar(pb, idx)
+      utils::setTxtProgressBar(pb, idx)
     }
   }
   
@@ -388,8 +388,8 @@ copy_bpfMediaFiles <- function(basePath,
     nbMediaFiles = length(mediaFiles)
     
     cat("INFO: Copying", nbMediaFiles, "media files to EMU database...\n")
-    pb = txtProgressBar(min = 0, max = nbMediaFiles, initial = progress, style=3)
-    setTxtProgressBar(pb, progress)
+    pb = utils::txtProgressBar(min = 0, max = nbMediaFiles, initial = progress, style=3)
+    utils::setTxtProgressBar(pb, progress)
   }
   
   
@@ -424,7 +424,7 @@ copy_bpfMediaFiles <- function(basePath,
     
     if(verbose)
     {
-      setTxtProgressBar(pb, idx)
+      utils::setTxtProgressBar(pb, idx)
     }
     
     # Newline after progress bar:

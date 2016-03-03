@@ -75,19 +75,19 @@
   if (plotgraph) {
     if (is.null(labels.vow)) 
       labels.vow <- rep("x", length(target))
-    plot(target, onset,  type = "n", axes=FALSE,  ...)
+    graphics::plot(target, onset,  type = "n", axes=FALSE,  ...)
     if(axes)
     {
-      axis(side=1)
-      axis(side=2)
+      graphics::axis(side=1)
+      graphics::axis(side=2)
     }
     if(is.character(labels.vow))
-      text(target, onset, labels.vow, ...)
+      graphics::text(target, onset, labels.vow, ...)
     else if(is.numeric(labels.vow))
-      points(target, onset, pch=labels.vow, ...)
-    abline(regr, ...)
+      graphics::points(target, onset, pch=labels.vow, ...)
+    graphics::abline(regr, ...)
     if (yxline) 
-      abline(0, 1, lty = 2)
+      graphics::abline(0, 1, lty = 2)
   }
   
   regr

@@ -583,9 +583,9 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerate(),optio
   us=1:bundlesCount
   if(verbose){
     cat("INFO: Converting legacy EMU database containing",bundlesCount,"bundles...\n")
-    pb=txtProgressBar(min=0,max=bundlesCount+2,initial=progress,style=3)
+    pb=utils::txtProgressBar(min=0,max=bundlesCount+2,initial=progress,style=3)
     
-    setTxtProgressBar(pb,progress)
+    utils::setTxtProgressBar(pb,progress)
   }
   linkDefsHashed=build_hashedLinkDefs(dbConfig[['linkDefinitions']])
   for(ui in us){
@@ -667,11 +667,11 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerate(),optio
     
     progress=progress+1L
     if(verbose){
-      setTxtProgressBar(pb,progress)
+      utils::setTxtProgressBar(pb,progress)
     }
   }
   if(verbose){
-    setTxtProgressBar(pb,progress)
+    utils::setTxtProgressBar(pb,progress)
     cat("\n")
   }
 }

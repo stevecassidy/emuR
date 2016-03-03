@@ -146,7 +146,7 @@
       else vals <- dplot.norm(mat, labs = labs, average = average, 
                               xlim = xlim, ylim = ylim,  lty = lty, 
                               colour = colour, legend = legend, lwd = lwd, pch=pch, type=type,  n = n)
-      par(new = TRUE)
+      graphics::par(new = TRUE)
       pout$data[[j]] <- vals$data
       if (j == ncol(x$data)) {
         pout$time <- vals$time
@@ -165,14 +165,14 @@
                             lwd = lwd, pch=pch, type=type, legend = legend,  n = n)
   }
   
-  par(new = FALSE)
+  graphics::par(new = FALSE)
   
   invisible(pout)
-  title(...)
-  box(...)
+  graphics::title(...)
+  graphics::box(...)
   if (axes) {
-    axis(side = 1)
-    axis(side = 2)
+    graphics::axis(side = 1)
+    graphics::axis(side = 2)
   }
 }
 
@@ -235,7 +235,7 @@
            xlab = "", ylab = "", axes = FALSE, type = type, 
            col = colour[j], lty = as.numeric(lty[j]), bty="n",
            lwd = as.numeric(lwd[j]), pch=as.numeric(pch[j]))
-      par(new = TRUE)
+      graphics::par(new = TRUE)
     }
     ovec$data <- mat.na
     ovec$time <- xtime
@@ -273,7 +273,7 @@
            xlab = "", ylab = "", axes = FALSE, type = type, bty="n", 
            col = colour[col.code[j]], lty = as.numeric(lty[col.code[j]]), 
            lwd = as.numeric(lwd[col.code[j]]), pch = as.numeric(pch[col.code[j]]))
-      par(new = TRUE)
+      graphics::par(new = TRUE)
     }
     ovec$data <- outmat
     ovec$time <- xtime
@@ -344,7 +344,7 @@
            xlab = "", ylab = "", axes = FALSE, type = type, bty="n", 
            col = colour[j], lty = as.numeric(lty[j]), 
            lwd = as.numeric(lwd[j]), pch = as.numeric(pch[j]))
-      par(new = TRUE)
+      graphics::par(new = TRUE)
     }
     ovec$data <- mat.na
     ovec$time <- xvec
@@ -384,7 +384,7 @@
            xlab = "", ylab = "", axes = FALSE, type = type, bty="n", 
            col = colour[col.code[j]], lty = as.numeric(lty[col.code[j]]), 
            lwd = as.numeric(lwd[col.code[j]]), pch = as.numeric(pch[col.code[j]]))
-      par(new = TRUE)
+      graphics::par(new = TRUE)
     }
     ovec$data <- outmat
     ovec$time <- xvec

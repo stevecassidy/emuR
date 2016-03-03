@@ -616,8 +616,8 @@ rewrite_allAnnots <- function(emuDBhandle, verbose=TRUE){
   if(verbose){
     bundleCount=nrow(bndls)
     cat("INFO: Rewriting", bundleCount, "_annot.json files to file system...\n")
-    pb=txtProgressBar(min=0,max=bundleCount,style=3)
-    setTxtProgressBar(pb,progress)
+    pb=utils::txtProgressBar(min=0,max=bundleCount,style=3)
+    utils::setTxtProgressBar(pb,progress)
   }
   
   for(i in 1:nrow(bndls)){
@@ -634,7 +634,7 @@ rewrite_allAnnots <- function(emuDBhandle, verbose=TRUE){
     
     progress=progress+1L
     if(verbose){
-      setTxtProgressBar(pb,progress)
+      utils::setTxtProgressBar(pb,progress)
     }
   } 
 }
@@ -904,8 +904,8 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, ve
     }
     if(verbose){ 
       cat(paste0("INFO: Loading EMU database from ", databaseDir, "... (", bundleCount , " bundles found)\n"))
-      pb=txtProgressBar(min = 0L, max = pMax, style = 3)
-      setTxtProgressBar(pb, progress)
+      pb=utils::txtProgressBar(min = 0L, max = pMax, style = 3)
+      utils::setTxtProgressBar(pb, progress)
     }
     
     # bundles
@@ -940,7 +940,7 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, ve
       # increase progress bar  
       progress=progress+1L
       if(verbose){
-        setTxtProgressBar(pb,progress)
+        utils::setTxtProgressBar(pb,progress)
       }
       
     }

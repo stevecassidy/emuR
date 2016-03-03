@@ -27,8 +27,8 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
   
   if(verbose){
     cat("INFO: Checking if cache needs update for ", nrow(bundles), " bundles...\n")
-    pb = txtProgressBar(min = 0, max = nrow(bundles), initial = progress, style=3)
-    setTxtProgressBar(pb, progress)
+    pb = utils::txtProgressBar(min = 0, max = nrow(bundles), initial = progress, style=3)
+    utils::setTxtProgressBar(pb, progress)
   }
   for(bndlIdx in 1:nrow(bundles)){
     sessionsDBI = list_sessionsDBI(emuDBhandle)
@@ -81,7 +81,7 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
     # increase progress bar  
     progress=progress+1L
     if(verbose){
-      setTxtProgressBar(pb,progress)
+      utils::setTxtProgressBar(pb,progress)
     }
   }
 

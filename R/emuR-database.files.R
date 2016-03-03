@@ -88,8 +88,8 @@ import_mediaFiles<-function(emuDBhandle,dir,targetSessionName='0000', verbose=TR
   progress = 0
   if(verbose){
     cat("INFO: Importing ", length(mfList), " media files...\n")
-    pb = txtProgressBar(min = 0, max = length(mfList), initial = progress, style=3)
-    setTxtProgressBar(pb, progress)
+    pb = utils::txtProgressBar(min = 0, max = length(mfList), initial = progress, style=3)
+    utils::setTxtProgressBar(pb, progress)
   }
   
   for(mf in mfList){
@@ -123,7 +123,7 @@ import_mediaFiles<-function(emuDBhandle,dir,targetSessionName='0000', verbose=TR
     # update pb
     progress = progress + 1
     if(verbose){
-      setTxtProgressBar(pb, progress)
+      utils::setTxtProgressBar(pb, progress)
     }
     mediaAdded = TRUE
   }
@@ -257,7 +257,7 @@ list_files <- function(emuDBhandle,
   }
   
   # filter for patterns
-  df = df[grepl(glob2rx(sessionPattern), df$session) & grepl(glob2rx(bundlePattern), df$bundle),]
+  df = df[grepl(utils::glob2rx(sessionPattern), df$session) & grepl(glob2rx(bundlePattern), df$bundle),]
   
   return(df)
   

@@ -208,12 +208,12 @@
     funcFormals$optLogFilePath = onTheFlyOptLogFilePath
     if(verbose){
       cat('\n  INFO: applying', onTheFlyFunctionName, 'to', length(seglist$utts), 'files\n')
-      pb <- txtProgressBar(min = 0, max = length(seglist$utts), style = 3)
+      pb <- utils::txtProgressBar(min = 0, max = length(seglist$utts), style = 3)
     }
   }else{
     if(verbose){
       cat('\n  INFO: parsing', length(seglist$utts), trackDef[[1]]$fileExtension, 'files\n')
-      pb <- txtProgressBar(min = 0, max = length(seglist$utts), style = 3)
+      pb <- utils::txtProgressBar(min = 0, max = length(seglist$utts), style = 3)
     }
   }
   
@@ -242,12 +242,12 @@
       
       curDObj = do.call(onTheFlyFunctionName, funcFormals)
       if(verbose){
-        setTxtProgressBar(pb, i)
+        utils::setTxtProgressBar(pb, i)
       }
     }else{
       curDObj <- read.AsspDataObj(fpath)
       if(verbose){
-        setTxtProgressBar(pb, i)
+        utils::setTxtProgressBar(pb, i)
       }
     }
     

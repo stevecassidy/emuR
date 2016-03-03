@@ -269,10 +269,10 @@
     lwd <- NULL
   cols <- mu.colour(labs, col, lty, lwd)
   for (j in 1:nrow(specdata)) {
-    plot(f, specdata[j, ], type = type, col = cols$colour[j], 
+    graphics::plot(f, specdata[j, ], type = type, col = cols$colour[j], 
          lty = cols$linetype[j], lwd = cols$lwd[j], xlim = xlim, 
          ylim = ylim, xlab = "", ylab = "", axes = FALSE)
-    par(new = TRUE)
+    graphics::par(new = TRUE)
   }
   if (is.logical(legend)) {
     if (legend & length(unique(labs)) > 1) {
@@ -285,11 +285,11 @@
               lty = as.numeric(cols$legend$lty), lwd = as.numeric(cols$legend$lwd))
   if(axes)
   {
-    axis(side = 1)
-    axis(side = 2)
+    graphics::axis(side = 1)
+    graphics::axis(side = 2)
   }
-  title(...)
-  box(...)
+  graphics::title(...)
+  graphics::box(...)
 }
 
 

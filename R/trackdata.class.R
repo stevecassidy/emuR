@@ -394,25 +394,25 @@
       ylim <- range(data)
     for (k in 1:ncol(data)) {
       if(k==ncol(data))
-        plot(times, data[, k], xlim = xlim, ylim = ylim, 
+        graphics::plot(times, data[, k], xlim = xlim, ylim = ylim, 
              col = col[k], lty = lty[k], pch=pch[k], type=type, ...)
       else
-        plot(times, data[, k], xlim = xlim, ylim = ylim, 
+        graphics::plot(times, data[, k], xlim = xlim, ylim = ylim, 
              col = col[k], lty = lty[k], pch=pch[k], xlab="", ylab="", main="", axes=FALSE, bty="n", type=type)
-      par(new = TRUE)
+      graphics::par(new = TRUE)
     }
-    par(new = FALSE)
+    graphics::par(new = FALSE)
     if (!is.null(labels)) {
       if (length(boundary.times) > 2) 
-        abline(v = boundary.times)
-      mtext(labels, at = label.times)
+        graphics::abline(v = boundary.times)
+      graphics::mtext(labels, at = label.times)
     }
   }
   else {
     if (is.null(labels)) 
       labels <- rep("", nrow(trackdata))
     for (j in 1:nrow(trackdata)) {
-      plot(trackdata[j, ], timestart = timestart, xlim = xlim, 
+      graphics::plot(trackdata[j, ], timestart = timestart, xlim = xlim, 
            ylim = ylim, labels = labels[j], col=col, lty=lty, type=type, pch=pch,contig = TRUE, ...)
     }
   }

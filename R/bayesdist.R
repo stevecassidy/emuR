@@ -308,17 +308,17 @@ bayesplot <- function(data, train, N = 10, ellipse = FALSE,
   points[, 2] <- points[, 2] * (ry[2] - ry[1]) + ry[1]
   ## now classify each point
   blabs <- classify(points, train, metric="bayes")
-  plot(points, type = "n", xlim = rx, ylim = ry, xlab=xlab, ylab=ylab)
+  graphics::plot(points, type = "n", xlim = rx, ylim = ry, xlab=xlab, ylab=ylab)
   ulabs <- unique(blabs)
   k <- 1
   colours <- mu.colour( ulabs, colour, FALSE )$colour
   for(j in ulabs) {
     temp <- muclass(blabs, j)
-    text(points[temp,  ], blabs[temp], col = colours[k])
+    graphics::text(points[temp,  ], blabs[temp], col = colours[k])
     k <- k + 1
   }
   if(ellipse && !is.null(labs) ) {
-    par(new = TRUE)
+    graphics::par(new = TRUE)
     eplot(data, labs, xlim = rx, ylim = ry, colour=colour, ...)
   }
 }
