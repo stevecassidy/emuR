@@ -1,6 +1,5 @@
-# ##' testthat tests for validation of bundles
-# ##'
-# ##' @author Raphael Winkelmann
+##' testthat tests for validation of bundles
+##'
 context("testing validate.XXX.bundle functions")
 
 dbName = "ae"

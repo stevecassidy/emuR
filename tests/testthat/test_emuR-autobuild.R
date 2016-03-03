@@ -1,6 +1,5 @@
 ##' testthat tests for autobuild
 ##'
-##' @author Raphael Winkelmann
 context("testing autobuild functions")
 
 suppressMessages(require('jsonlite'))

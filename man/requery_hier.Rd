@@ -63,9 +63,6 @@ requery_seq(requery_hier(sl1, level = 'Phoneme'), offsetRef = 'END')
 
 }
 }
-\author{
-Klaus Jaensch
-}
 \seealso{
 \code{\link{query}} \code{\link{requery_seq}} \code{\link{emuRsegs}}
 }

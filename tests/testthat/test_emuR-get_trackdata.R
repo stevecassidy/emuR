@@ -1,6 +1,5 @@
 ##' testthat tests for get_trackdata
 ##'
-##' @author Raphael Winkelmann
 context("testing get_trackdata function")
 
 dbName = "ae"

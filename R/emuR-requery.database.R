@@ -164,7 +164,6 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
 ##' @param seglist segment list to requery on (type: \link{emuRsegs})
 ##' @param level character string: name of target level 
 ##' @return result set object of class \link{emuRsegs}
-##' @author Klaus Jaensch
 ##' @export
 ##' @seealso \code{\link{query}} \code{\link{requery_seq}} \code{\link{emuRsegs}}
 ##' @keywords emuDB database requery

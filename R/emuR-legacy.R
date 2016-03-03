@@ -180,7 +180,6 @@ parse_emuTrackPath <- function(absEmuTrackPath){
 ## @param emuPath Emu path specification (may contain asterisk wildcards) type character
 ## @param parsedEmuPathPattern character vector containing the parsed segments of the path. Each segment is a dierctory or a wildacrd asterisk.
 ## @return character vector of absolute path directories 
-## @author Klaus Jaensch
 ## @keywords emuDB bundle Emu
 ## 
 list_trackdirs<-function(emuPath=NULL,parsedEmuPathPattern=NULL){

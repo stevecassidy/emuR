@@ -8,7 +8,6 @@ requireNamespace("stringr", quietly = T)
 ## @param encoding text encoding (default: NULL -> R encoding "unknown")
 ## @return new tier containing parsed items
 ## @import stringr
-## @author Klaus Jaensch
 ## @keywords emuR ESPS lab Emu
 ## 
 parse_espsLabelFile <- function(labFilePath=NULL,tierName,tierType=NULL,sampleRate,encoding=NULL,idCnt=0) {

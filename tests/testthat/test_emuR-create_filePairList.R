@@ -1,6 +1,5 @@
 ##' testthat tests for create_filePairList
 ##'
-##' @author Raphael Winkelmann
 context("testing create_filePairList function")
 
 

@@ -8,7 +8,6 @@ requireNamespace("stringr", quietly = T)
 ## @param levels list of already existing annotation levels
 ## @return emuDB database object including parsed hlb file
 ## @import stringr
-## @author Klaus Jaensch
 ## @keywords emuR Emu hierarchy hlb
 ## 
 parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL) {

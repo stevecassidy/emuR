@@ -1,6 +1,5 @@
 ##' testthat tests for emuRtrackdata
 ##'
-##' @author Raphael Winkelmann
 context("testing emuRtrackdata functions")
 
 dbName = "ae"

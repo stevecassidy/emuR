@@ -1,6 +1,5 @@
 ##' testthat tests for convert_TextGridCollection
 ##'
-##' @author Raphael Winkelmann
 
 requireNamespace("RSQLite", quietly = T)
 

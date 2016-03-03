@@ -1,6 +1,5 @@
 ##' testthat tests for database.DBconfig
 ##'
-##' @author Raphael Winkelmann
 context("testing database.DBconfig functions")
 
 dbName = 'ae'
