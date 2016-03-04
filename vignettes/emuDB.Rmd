@@ -466,7 +466,7 @@ This time we chose to add a `linkDefinition` of the type `MANY_TO_MANY` between 
 # remove the newly generated emuDB and emuR_demoData as we will not be needing it 
 # throughout the rest of this vignette
 unlink(file.path(tempdir(), "emuR_demoData"), recursive = TRUE)
-unlink(file.path(tempdir(),'myTGcolDB_emuDB'), recursive = T)
+unlink(file.path(tempdir(),'myTGcolDB_emuDB'), recursive = TRUE)
 ```
 
 
