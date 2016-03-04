@@ -11,7 +11,10 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
-
+```{r echo=FALSE}
+# make sure emuR_demoData is deleted
+unlink(file.path(tempdir(), "emuR_demoData"), recursive = TRUE)
+```
 # Introduction
 
 This document introduces and defines version 2 of the **E**mu **Q**uery **L**anguage (**EQL**) and tries to show what it is capable of by giving numerous examples. The EQL is a query language that is aimed at speech and language researchers that is supposed to be easy to understand and learn yet expressive and powerful. It enables researchers to easily query annotation structures of databases stored in the emuDB format. The `emuR` package provides a `query()` function to query emuDBs that are loaded into the current R session (for more information see the `emuR_intro` as well as the `emuDB` vignettes). The main argument of the `query()` function is the `query` argument (`query(..., query = "XXX", ...)` where `XXX` is the query string). In this document we will be focusing soley on these query strings and how to compile them.  

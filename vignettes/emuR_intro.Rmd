@@ -11,6 +11,11 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
   
+```{r echo=FALSE}
+# make sure emuR_demoData is deleted
+unlink(file.path(tempdir(), "emuR_demoData"), recursive = TRUE)
+```
+
 # Introduction
   
 This document is an introduction to the `emuR` package and provides an overview of what the package is capable of and how it interacts with the other components of the EMU Speech Database Management System (EMU\_SDMS). It is by no means a complete guide to the EMU\_SDMS but rather tries to give an outline of what it is like working with and analyzing speech databases in the EMU\_SDMS by walking you through a few typical use cases.
