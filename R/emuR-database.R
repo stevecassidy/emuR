@@ -12,6 +12,7 @@ requireNamespace("dplyr", quietly = T)
 emuDB.apiLevel = 3L
 
 # internalVars currently containing only server handle (should merge testingVars back into it as well)
+internalVars<- new.env(parent = emptyenv())
 internalVars = list(serverHandle = NULL, testingVars = list(inMemoryCache = F))
 
 #############################################
