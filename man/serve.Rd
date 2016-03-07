@@ -56,8 +56,8 @@ Communication between server and EMU webApp is defined by EMU-webApp-websocket-p
 \dontrun{ 
 ## Load EMU database 'myDb' and serve it to the EMU-webApp (opens default HTTP/websocket port 17890)
 
-load_emuDB("/path/to/myDb")
-serve('myDb')
+myDb = load_emuDB("/path/to/myDb")
+serve(myDb)
 }
 
 }
