@@ -1,11 +1,15 @@
 requireNamespace("httpuv", quietly = T)
 requireNamespace("base64enc", quietly = T)
 
+.server_env = new.env()
+assign("serverHandle", NULL, envir = .server_env)
+
 getServerHandle <- function() {
-  get("internalVars$serverHandle", envir = .emuR_pkgEnv)
+  get("serverHandle", envir = .server_env)
 }
+
 setServerHandle <- function(sh) {
-  assign("internalVars$serverHandle", sh, envir = .emuR_pkgEnv)
+  assign("serverHandle", sh, envir = .server_env)
 }
 
 ##' Serve EMU database to EMU-webApp
@@ -444,7 +448,7 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.
   cat("To stop the server press EMU-webApp 'clear' button or reload the page in your browser.\n")
   emuRserverRunning=TRUE
   # open browser with EMU-webApp
-  utils::browseURL("http://ips-lmu.github.io/EMU-webApp/?autoConnect=true")
+  utils::browseURL("http://localhost:9000/?autoConnect=true")
   while(emuRserverRunning) {
     httpuv::service()
     Sys.sleep(0.01)
