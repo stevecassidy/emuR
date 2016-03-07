@@ -275,6 +275,7 @@ outDirPath = file.path(tempdir(), 'zcranaVals')
 dir.create(outDirPath)
 # calculate zero-crossing-rate files
 # using zcrana function of wrassp package
+library(wrassp)
 zcrana(listOfFiles = wavFilePaths, 
        outputDirectory = outDirPath)
 # add zcr files to emuDB
