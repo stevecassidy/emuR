@@ -12,9 +12,8 @@ requireNamespace("dplyr", quietly = T)
 emuDB.apiLevel = 3L
 
 # internalVars currently containing only server handle (should merge testingVars back into it as well)
-internalVars <- new.env(parent = emptyenv())
-internalVars$serverHandle = list()
-internalVars$testingVars = list(inMemoryCache = F)
+.emuR_pkgEnv <- new.env()
+assign("internalVars", list(serveHandle = list(), testingVars = list(inMemoryCache = F)), envir = .emuR_pkgEnv)
 
 #############################################
 # file/folder suffixes of emuDB format

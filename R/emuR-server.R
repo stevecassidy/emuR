@@ -2,10 +2,10 @@ requireNamespace("httpuv", quietly = T)
 requireNamespace("base64enc", quietly = T)
 
 getServerHandle <- function() {
-  internalVars$serverHandle
+  get("internalVars$serverHandle", envir = .emuR_pkgEnv)
 }
 setServerHandle <- function(sh) {
-  internalVars$serverHandle<<-sh
+  assign("internalVars$serverHandle", sh, envir = .emuR_pkgEnv)
 }
 
 ##' Serve EMU database to EMU-webApp

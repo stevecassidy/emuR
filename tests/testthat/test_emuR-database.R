@@ -13,7 +13,8 @@ path2orig = file.path(tempdir(), "emuR_demoData", paste0(dbName, emuDB.suffix))
 path2testData = file.path(tempdir(), "emuR_testthat")
 path2db = file.path(path2testData, paste0(dbName, emuDB.suffix))
 
-
+# extract internalVars from environment .emuR_pkgEnv
+internalVars = get("internalVars", envir = .emuR_pkgEnv)
 
 test_that("database functions work", {
   

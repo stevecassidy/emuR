@@ -13,6 +13,9 @@ context("testing queries")
 path2demoData = file.path(tempdir(),"emuR_demoData")
 path2testhatFolder = file.path(tempdir(),"emuR_testthat")
 
+# extract internalVars from environment .emuR_pkgEnv
+internalVars = get("internalVars", envir = .emuR_pkgEnv)
+
 test_that("Convert example database ae",{
   legacyDbEmuAeTpl <- file.path(path2demoData, "legacy_ae", "ae.tpl")
   .test_emu_ae_db_dir<<-file.path(path2testhatFolder, 'test_emu_ae')

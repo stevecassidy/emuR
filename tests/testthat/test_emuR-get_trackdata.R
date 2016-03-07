@@ -6,6 +6,9 @@ dbName = "ae"
 
 path2orig = file.path(tempdir(), "emuR_demoData", paste0(dbName, emuDB.suffix))
 
+# extract internalVars from environment .emuR_pkgEnv
+internalVars = get("internalVars", envir = .emuR_pkgEnv)
+
 ae = load_emuDB(path2orig, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
 
 

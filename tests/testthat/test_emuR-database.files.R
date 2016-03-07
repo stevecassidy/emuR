@@ -2,7 +2,8 @@
 ##'
 context("testing database.files functions")
 
-
+# extract internalVars from environment .emuR_pkgEnv
+internalVars = get("internalVars", envir = .emuR_pkgEnv)
 
 #######################################
 test_that("file operations work", {
@@ -19,6 +20,8 @@ test_that("file operations work", {
   
   ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
   
+  # extract internalVars from environment .emuR_pkgEnv
+  internalVars = get("internalVars", envir = .emuR_pkgEnv)
   
   test_that("import_mediaFiles works", {
     wavPath = system.file('extdata', package='wrassp')
