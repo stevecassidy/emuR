@@ -1,5 +1,5 @@
 ## Test environments
-* local OS X install, Under development (unstable) (2016-03-02 r70268) -- "Unsuffered Consequences"
+* local OS X install, R 3.3.0 Under development (unstable) (2016-03-02 r70268) -- "Unsuffered Consequences"
 * ubuntu 12.04 (on travis-ci), R 3.2.3
 * win-builder (devel and release)
 
