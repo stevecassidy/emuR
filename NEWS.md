@@ -1,3 +1,8 @@
+# emuR 0.1.1.9000
+
+* `serve` problem with internalVars bug fixed
+* file locking problem that caused vignettes to fail under windows problem fixed
+
 # emuR 0.1.0.9000
 
 * massive refactor of all functions that used to refer to an emuDB by 
