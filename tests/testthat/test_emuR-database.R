@@ -344,7 +344,7 @@ test_that("database functions work", {
     #   # should all be equal to original 
     cm2=compare(orgItems,modOrgItems,allowAll=TRUE)
     expect_true(cm2$result)
-    cmLbls2=compare(arrange(orgLabels, bundle, itemID), arrange(modOrgLabels, bundle, itemID),allowAll=TRUE)
+    cmLbls2=compare(dplyr::arrange(orgLabels, bundle, itemID), dplyr::arrange(modOrgLabels, bundle, itemID),allowAll=TRUE)
     expect_true(cmLbls2$result)
     cml2=compare(orgLinks,modOrgLinks,allowAll=TRUE)
     expect_true(cml2$result)
