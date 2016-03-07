@@ -44,6 +44,8 @@ setServerHandle <- function(sh) {
 ##' @param bundlePattern A regular expression pattern matching bundle names to be served
 ##' @param host host IP to listen to (default: 127.0.0.1  (localhost))
 ##' @param port the port number to listen on (default: 17890)
+##' @param autoOpenURL URL passed to \code{\link{browseURL}} function. If NULL or an empty string are passed in
+##' \code{\link{browseURL}} will not be invoked.
 ##' @param debug TRUE to enable debugging (default: no debugging messages)
 ##' @param debugLevel integer higher values generate more detailed debug output
 ##' @return TRUE if the database was modified, FALSE otherwise
@@ -57,7 +59,7 @@ setServerHandle <- function(sh) {
 ##' serve(myDb)
 ##' }
 ##' 
-serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
+serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0.1',port=17890, autoOpenURL = "https://ips-lmu.github.io/EMU-webApp/?autoConnect=true",  debug=FALSE,debugLevel=0){
   if(debug && debugLevel==0){
     debugLevel=2
   }
@@ -447,8 +449,10 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.
   cat("Server connection URL: ws://localhost:",port,"\n",sep='')
   cat("To stop the server press EMU-webApp 'clear' button or reload the page in your browser.\n")
   emuRserverRunning=TRUE
-  # open browser with EMU-webApp
-  utils::browseURL("http://localhost:9000/?autoConnect=true")
+  if(length(autoOpenURL) != 0 && autoOpenURL != ""){
+    # open browser with EMU-webApp
+    utils::browseURL(autoOpenURL)
+  }
   while(emuRserverRunning) {
     httpuv::service()
     Sys.sleep(0.01)

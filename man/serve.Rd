@@ -5,7 +5,9 @@
 \title{Serve EMU database to EMU-webApp}
 \usage{
 serve(emuDBhandle, sessionPattern = ".*", bundlePattern = ".*",
-  host = "127.0.0.1", port = 17890, debug = FALSE, debugLevel = 0)
+  host = "127.0.0.1", port = 17890,
+  autoOpenURL = "https://ips-lmu.github.io/EMU-webApp/?autoConnect=true",
+  debug = FALSE, debugLevel = 0)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
@@ -17,6 +19,9 @@ serve(emuDBhandle, sessionPattern = ".*", bundlePattern = ".*",
 \item{host}{host IP to listen to (default: 127.0.0.1  (localhost))}
 
 \item{port}{the port number to listen on (default: 17890)}
+
+\item{autoOpenURL}{URL passed to \code{\link{browseURL}} function. If NULL or an empty string are passed in
+\code{\link{browseURL}} will not be invoked.}
 
 \item{debug}{TRUE to enable debugging (default: no debugging messages)}
 
