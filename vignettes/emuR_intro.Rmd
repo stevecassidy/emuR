@@ -10,11 +10,6 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
-  
-```{r echo=FALSE}
-# make sure emuR_demoData is deleted
-unlink(file.path(tempdir(), "emuR_demoData"), recursive = TRUE)
-```
 
 # Introduction
   
@@ -449,6 +444,13 @@ boxplot(meanFirstMoments ~ sibil$labels)
 **INFO: Using the `"emuRtrackdata"` `resultType` of `get_trackdata` function we could have performed a comparable analysis 
 by utilizing packages such as `dplyr` for `data.table` / `data.frame` manipulation and `lattice` or `ggplot2` for data
 visualisation.**
+
+```{r echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+# disconnect to avoid file locking to sqliteDB that causes unlink
+# to fail under windows
+DBI::dbDisconnect(ae$connection)
+```
+
 
 ```{r results='hide', message=FALSE, warning=FALSE}
 # remove emuR_demoData as we will not be needing it 
