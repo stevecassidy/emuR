@@ -25,7 +25,7 @@ test_that("update_cache works", {
   # 
   test_that("DBconfig update is re-cached", {
     # change entry
-    dbJson = fromJSON(readLines(file.path(path2db, "ae_DBconfig.json")), simplifyVector=T)
+    dbJson = jsonlite::fromJSON(readLines(file.path(path2db, "ae_DBconfig.json")), simplifyVector=T)
     
     dbJson$name = "ae_copy"
     
@@ -62,7 +62,7 @@ test_that("update_cache works", {
   # 
   test_that("change in _annot.json is re-cached", {
     # change entry
-    annotJson = fromJSON(readLines(file.path(path2db, "new_ses", "msajc010_bndl", "msajc010_annot.json")), simplifyVector=T)
+    annotJson = jsonlite::fromJSON(readLines(file.path(path2db, "new_ses", "msajc010_bndl", "msajc010_annot.json")), simplifyVector=T)
     
     annotJson$levels$items[[1]]$id = 666666
     
