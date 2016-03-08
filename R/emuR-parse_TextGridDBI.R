@@ -162,7 +162,7 @@ parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encodi
                   # find size (and other properties)
                   if((is.null(currentTierSize)) && (length(grep('^intervals[[:space:]]*:.*',line))==1)){
                     
-                    intervalsPropertyStr=str_trim(sub('^intervals[[:space:]]*:','',line))
+                    intervalsPropertyStr=stringr::str_trim(sub('^intervals[[:space:]]*:','',line))
                     intervalsProperty=parse_lineToKeyValue(intervalsPropertyStr,initialTrim=FALSE);
                     if((!is.null(intervalsProperty)) && (intervalsProperty[1]=='size')){
                       currentTierSize=intervalsProperty[2]
@@ -241,7 +241,7 @@ parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encodi
                   # find size (and other properties)
                   if((is.null(currentTierSize)) && (length(grep('^points[[:space:]]*[:].*',line))==1)){
                     
-                    intervalsPropertyStr=str_trim(sub('^points[[:space:]]*[:]','',line))
+                    intervalsPropertyStr=stringr::str_trim(sub('^points[[:space:]]*[:]','',line))
                     intervalsProperty=parse_lineToKeyValue(intervalsPropertyStr, initialTrim=FALSE);
                     if((!is.null(intervalsProperty)) && (intervalsProperty[1]=='size')){
                       currentTierSize=intervalsProperty[2]

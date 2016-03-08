@@ -225,7 +225,7 @@ query_labels <- function(emuDBhandle, levelName, intermResTableSuffix, condition
 
 query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubsets){
   # BNF: FUNCQ = POSQ | NUMQ;
-  qTrim=str_trim(q)
+  qTrim=stringr::str_trim(q)
   if(useSubsets){
     itemsTableName = "itemsFilteredSubsetTmp"
   }else{
@@ -254,8 +254,8 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
       if(paramsLen!=2){
         stop("Syntax error: All EQL functions require exactly two parameters in '",q,"'\n")
       }
-      param1=str_trim(params[[1]])
-      param2=str_trim(params[[2]])
+      param1=stringr::str_trim(params[[1]])
+      param2=stringr::str_trim(params[[2]])
       # check attribute names
       aNms=get_allAttributeNames(emuDBhandle)
       if(! (param1 %in% aNms)){
@@ -275,10 +275,10 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
         stop(msg)
       }
       
-      funcValueTerm=str_trim(substring(qTrim,prbClose+1))
+      funcValueTerm=stringr::str_trim(substring(qTrim,prbClose+1))
       
       
-      funcName=str_trim(substr(qTrim,1,prbOpen-1))
+      funcName=stringr::str_trim(substr(qTrim,1,prbOpen-1))
       # BNF: POSA = POSFKT,'(',EBENE,',',EBENE,')','=','0'| '1';
       itemsAsSeqs=NULL
       
@@ -300,7 +300,7 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
             funcValuePos=3
             op='=='
           }
-          funcValue=str_trim(substring(text=funcValueTerm,first=funcValuePos))
+          funcValue=stringr::str_trim(substring(text=funcValueTerm,first=funcValuePos))
         }else{
           stop("Syntax error: function ",funcName," requires function value in: '",qTrim,"'\n")
         }
@@ -379,7 +379,7 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
           if(p==1){
             oprLen=nchar(opr)
             funcOpr=substr(funcValueTerm,1,oprLen)
-            funcValStr=str_trim(substring(funcValueTerm,oprLen+1))
+            funcValStr=stringr::str_trim(substring(funcValueTerm,oprLen+1))
             funcVal=as.integer(funcValStr)
             if(is.na(funcVal)){
               stop("Syntax error: Could not parse Num function value as integer: '",funcValStr,"'\n")
@@ -428,7 +428,7 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
 
 query_databaseEqlSQ <- function(emuDBhandle, q, intermResTableSuffix, useSubsets){
   # BNF: SQ = LABELQ | FUNCQ;
-  qTrim=str_trim(q)
+  qTrim=stringr::str_trim(q)
   res=NULL
   # detect function calls by existence of round brackets
   prbOpen=get_stringPosition(string=qTrim,searchStr='(',literalQuote="'")
@@ -454,7 +454,7 @@ query_databaseEqlSQ <- function(emuDBhandle, q, intermResTableSuffix, useSubsets
 query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTableSuffix){
   # BNF: ETIKETTA = ['#'],EBENE,('=' | '!='),ETIKETTALTERNATIVEN;
   
-  qTrim=str_trim(q)
+  qTrim=stringr::str_trim(q)
   dbConfig = load_DBconfig(emuDBhandle)
   for(opr in c('==','!=','=~','!~','=')){
     p = get_stringPosition(string = q, searchStr = opr, literalQuote = "'")
@@ -462,14 +462,14 @@ query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTableSu
       oprLen=nchar(opr)
       level=substr(q,1,p-1)
       projectionLevel=FALSE
-      lvlTrim=str_trim(level)
+      lvlTrim=stringr::str_trim(level)
       lvlName=lvlTrim
       if(grepl('^#',lvlTrim)){
         # projection marker
         # the BNF does not allow white space between '#' and level string
         # but the implementation of Emu does, so we allow it here too
         
-        lvlName=str_trim(substring(lvlTrim,2))
+        lvlName=stringr::str_trim(substring(lvlTrim,2))
         projectionLevel=TRUE
       }
       aNms = get_allAttributeNames(emuDBhandle)
@@ -477,7 +477,7 @@ query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTableSu
         stop("Unknown level attribute name: '",lvlName,"'. Database attribute names are: ",paste(aNms,collapse=','),"\n")
       }
       labelStr=substring(q,p+oprLen)
-      labelTrim=str_trim(labelStr)  
+      labelTrim=stringr::str_trim(labelStr)  
       
       
       # check label for key chars
@@ -502,14 +502,14 @@ query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTableSu
             stop("Syntax error: label alternatives cannot start with '|' character in '",labelTrim,"'")
           }
           labelAltTerm=substr(labelTrim,lp,lsp-1)
-          labelAlt=str_trim(labelAltTerm)
+          labelAlt=stringr::str_trim(labelAltTerm)
           labelAlts=c(labelAlts,labelAlt)
           lp=lsp+1
         }
       }
       # add last term
       labelAltTerm=substring(labelTrim,lp)
-      labelAlt=str_trim(labelAltTerm)
+      labelAlt=stringr::str_trim(labelAltTerm)
       labelAlts=c(labelAlts,labelAlt)
       
       labelAltsUq=c()
@@ -586,7 +586,7 @@ query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTableSu
 
 query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTableSuffix){
   # BNF: CONJQ = SQ,{'&',SQ};
-  qTrim=str_trim(q)
+  qTrim=stringr::str_trim(q)
   conditions=list()
   # initialize with empty result
   startPos=1
@@ -600,10 +600,10 @@ query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTableSuffix){
     p = get_stringPosition(string=qTrim,searchStr='&',pos=startPos,literalQuote="'")
     if(p==-1){
       # get single term
-      condStr=str_trim(substring(qTrim,startPos))
+      condStr=stringr::str_trim(substring(qTrim,startPos))
     }else{
       # get leading term
-      condStr=str_trim(substr(qTrim,startPos,p-1))
+      condStr=stringr::str_trim(substr(qTrim,startPos,p-1))
       # advance to next
       startPos=p+1
     }
@@ -655,7 +655,7 @@ query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTableSuffix){
 ##################################
 query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftRightTableNrCounter = 0){
   parseRes=list()
-  qTrim=str_trim(q)
+  qTrim=stringr::str_trim(q)
   # parse SEQQ or DOMQ
   seqPos = get_stringPositionOutsideBrackets(qTrim,'->',literalQuote="'",bracket=c('[',']'))
   domPos = get_stringPositionOutsideBrackets(qTrim,'^',literalQuote="'",bracket=c('[',']'))
@@ -664,11 +664,11 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
     lExpRes=NULL
     prjIts=NULL
     if(domPos!=-1){
-      left=str_trim(substr(qTrim,1,domPos-1))
-      right=str_trim(substring(qTrim,domPos+1))
+      left=stringr::str_trim(substr(qTrim,1,domPos-1))
+      right=stringr::str_trim(substring(qTrim,domPos+1))
     }else if(seqPos!=-1){
-      left=str_trim(substr(qTrim,1,seqPos-1))
-      right=str_trim(substring(qTrim,seqPos+2))
+      left=stringr::str_trim(substr(qTrim,1,seqPos-1))
+      right=stringr::str_trim(substring(qTrim,seqPos+2))
     }
     # create left & right temp table
     leftTableSuffix = paste0("left_", leftRightTableNrCounter)
@@ -933,7 +933,7 @@ query_databaseWithEqlEmuRsegs<-function(emuDBhandle, query, timeRefSegmentLevel)
 ## 
 query_databaseWithEql<-function(emuDBhandle, query, intermResTableSuffix, leftRightTableNrCounter){
   parseRes=list()
-  qTrim=str_trim(query)
+  qTrim=stringr::str_trim(query)
   brOpenPos=get_charPosition(qTrim,'[',literalQuote="'")
   if(brOpenPos==-1){
     query_databaseEqlCONJQ(emuDBhandle, qTrim, intermResTableSuffix = intermResTableSuffix)
