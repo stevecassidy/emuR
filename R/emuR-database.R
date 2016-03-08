@@ -187,9 +187,9 @@ initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TR
   }else if(createTables & dbExistsTable(emuDBhandle$connection, 'emuDB')){
     # remove old tmp tables that where not created with CREATE TEMP TABLE
     # drops
-    if("linksTmp" %in% dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksTmp")
-    if("linksExtTmp" %in% dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp")
-    if("linksExtTmp2" %in% dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp2")
+    if("linksTmp" %in% DBI::dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksTmp")
+    if("linksExtTmp" %in% DBI::dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp")
+    if("linksExtTmp2" %in% DBI::dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp2")
     
   }
 }
@@ -359,24 +359,24 @@ remove_bundleAnnotDBI<-function(emuDBhandle, sessionName, bundleName){
 # create redundant links functions
 
 create_tmpTablesForBuildingRedLinks <- function(emuDBhandle){
-  if(!"linksTmp" %in% dbListTables(emuDBhandle$connection)){
+  if(!"linksTmp" %in% DBI::dbListTables(emuDBhandle$connection)){
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksTmp)
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksTmpIdx)
   }
-  if(!"linksExtTmp" %in% dbListTables(emuDBhandle$connection)){
+  if(!"linksExtTmp" %in% DBI::dbListTables(emuDBhandle$connection)){
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp)
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmpIdx)
     }
-  if(!"linksExtTmp2" %in% dbListTables(emuDBhandle$connection)){ 
+  if(!"linksExtTmp2" %in% DBI::dbListTables(emuDBhandle$connection)){ 
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp2)
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmpIdx2)
     }
 }
 
 drop_tmpTablesForBuildingRedLinks <- function(emuDBhandle){
-  if("linksTmp" %in% dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksTmp")
-  if("linksExtTmp" %in% dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp")
-  if("linksExtTmp2" %in% dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp2")
+  if("linksTmp" %in% DBI::dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksTmp")
+  if("linksExtTmp" %in% DBI::dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp")
+  if("linksExtTmp2" %in% DBI::dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp2")
 }
 
 ## Legacy EMU and query functions link collections contain links for each possible connection between levels

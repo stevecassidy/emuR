@@ -106,7 +106,7 @@ create_intermResTmpQueryTablesDBI <- function(emuDBhandle, suffix = "root"){
 }
 
 drop_tmpFilteredQueryTablesDBI <- function(emuDBhandle){
-  tableNames = dbListTables(emuDBhandle$connection)
+  tableNames = DBI::dbListTables(emuDBhandle$connection)
   if("itemsFilteredTmp" %in% tableNames) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE itemsFilteredTmp")
   if("labelsFilteredTmp" %in% tableNames) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE labelsFilteredTmp")
   if("linksExtFilteredTmp" %in% tableNames) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtFilteredTmp")
@@ -116,7 +116,7 @@ drop_tmpFilteredQueryTablesDBI <- function(emuDBhandle){
 }
 
 drop_allTmpTablesDBI <- function(emuDBhandle){
-  allTables = dbListTables(emuDBhandle$connection)
+  allTables = DBI::dbListTables(emuDBhandle$connection)
   allTmpTables = allTables[grepl(".*Tmp.*", allTables)]
   for(tmpTable in allTmpTables){
     DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE ", tmpTable))

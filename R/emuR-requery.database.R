@@ -22,7 +22,7 @@ create_requeryTmpTables <- function(emuDBhandle){
 }
 
 drop_requeryTmpTables <- function(emuDBhandle){
-  if("emuRsegsTmp" %in% dbListTables(emuDBhandle$connection)){
+  if("emuRsegsTmp" %in% DBI::dbListTables(emuDBhandle$connection)){
     DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE emuRsegsTmp")
   }
 }
