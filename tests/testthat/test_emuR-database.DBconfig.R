@@ -169,8 +169,15 @@ test_that("CRUD operations work for legalLabels", {
   ae = load_emuDB(path2db, inMemoryCache = useInMemoryCache, verbose = F)
   
   test_that("set = (C)RUD", {
-    set_legalLabels(ae, 
+    # non character vector causes error:
+    expect_error(set_legalLabels(ae, 
                     levelName = 'Word', 
+                    attributeDefinitionName = 'Word',
+                    legalLabels=c(1:3)))
+    
+    
+    set_legalLabels(ae,
+                    levelName = 'Word',
                     attributeDefinitionName = 'Word',
                     legalLabels=c('A', 'B', 'C'))
   })

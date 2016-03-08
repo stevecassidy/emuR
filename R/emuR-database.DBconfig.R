@@ -526,6 +526,10 @@ set_legalLabels <- function(emuDBhandle,
                             attributeDefinitionName,
                             legalLabels){
   
+  if(!is.null(legalLabels) & class(legalLabels) != "character"){
+    stop("legalLables must be of class 'character'")
+  }
+  
   dbConfig = load_DBconfig(emuDBhandle)
   
   for(i in 1:length(dbConfig$levelDefinitions)){
