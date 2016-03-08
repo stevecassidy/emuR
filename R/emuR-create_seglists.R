@@ -16,7 +16,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   start=c()
   end=c()
   slType=NULL
-  projectionItemsN = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM intermRes_projItemsTmp_root"))$n
+  projectionItemsN = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM intermRes_projItemsTmp_root"))$n
   if(projectionItemsN > 0){ 
     # use projection items
     itsTableName = "intermRes_ProjItemsTmp_root"
@@ -34,7 +34,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   }
   
   # get distinct result levels
-  distinctLevels = dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT ", levelColName, " FROM ", itsTableName))
+  distinctLevels = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT ", levelColName, " FROM ", itsTableName))
   for(attrNm in distinctLevels[,levelColName]){
     
     lvlNm = get_levelNameForAttributeName(emuDBhandle, attributeName = attrNm)
@@ -57,9 +57,9 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
     
   }
   
-  itCount = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM ", itsTableName))$n
+  itCount = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM ", itsTableName))$n
   if(itCount > 0){
-    maxSeqLen = dbGetQuery(emuDBhandle$connection, paste0("SELECT max(", seqLenColName, ") AS maxSeqLen FROM ", itsTableName))$maxSeqLen
+    maxSeqLen = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT max(", seqLenColName, ") AS maxSeqLen FROM ", itsTableName))$maxSeqLen
   }else{
     maxSeqLen=1L
   }
@@ -68,7 +68,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   # for this data the information in start end item of the sequence is sufficient
   # it takes only the start and end items of the query result into account
   # the CASE WHEN THEN ELSE END terms are necessary to get the start and end samples of sequences which are not segment levels and therefore have no time information
-  linksExtFilteredCount = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM linksExtFilteredTmp"))$n
+  linksExtFilteredCount = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM linksExtFilteredTmp"))$n
   hasLinks = (linksExtFilteredCount > 0)
 
   # select columns: id,session,bundle,startItemId,endItemID ,type ...
@@ -180,7 +180,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
                        db_uuid,session,bundle,startItemID,endItemID,", levelColName, " AS level,type,sampleStart,sampleEnd,sampleRate \
                       FROM (", queryStr, ") ORDER BY db_uuid,session,bundle,sampleStart")
   
-  seglist = dbGetQuery(emuDBhandle$connection, queryStrInclConvert)
+  seglist = DBI::dbGetQuery(emuDBhandle$connection, queryStrInclConvert)
   
   # set emusegs type attribute, default 'segment'
   slType='segment'
@@ -190,7 +190,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
         slType='event'
     }
   }
-  queryStr = dbGetQuery(emuDBhandle$connection, "SELECT queryStr FROM intermRes_metaInfosTmp_root")$queryStr
+  queryStr = DBI::dbGetQuery(emuDBhandle$connection, "SELECT queryStr FROM intermRes_metaInfosTmp_root")$queryStr
   segmentList=make.emuRsegs(dbName = emuDBhandle$dbName, seglist = seglist, query = queryStr, type = slType)
   return(segmentList)
 }
@@ -209,7 +209,7 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
   itsTableName = "intermRes_itemsTmp_root"
   
   # get distinct result levels
-  distinctLevels=dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT level FROM ", itsTableName))
+  distinctLevels=DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT level FROM ", itsTableName))
   for(attrNm in distinctLevels[,'level']){
     lvlNm=get_levelNameForAttributeName(emuDBhandle,attributeName = attrNm)
     ld=get_levelDefinition(emuDBhandle, name = lvlNm)
@@ -233,19 +233,19 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
   
   
   # itCount=nrow(its)
-  itCount = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS N FROM ", itsTableName))$N
+  itCount = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS N FROM ", itsTableName))$N
   if(itCount==0){
     its=data.frame(db_uuid=character(0),session=character(0),bundle=character(0),seqStartId=integer(0),seqEndId=integer(0),seqLen=integer(0),level=character(0),stringsAsFactors = FALSE)
   }
 
   if(itCount>0){
-    maxSeqLenDf=dbGetQuery(emuDBhandle$connection, paste0("SELECT max(seqLen) AS maxSeqLen FROM ", itsTableName))
+    maxSeqLenDf=DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT max(seqLen) AS maxSeqLen FROM ", itsTableName))
     maxSeqLen=maxSeqLenDf[1,'maxSeqLen']
     
     # for string conacatenation: we need all occuring seq lengths 
     # distinct sequence lengths
     # distinctSeqLens=sqldf(c(resIdxSql,"SELECT DISTINCT seqLen FROM its"))
-    distinctSeqLens = dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT seqLen FROM ", itsTableName))
+    distinctSeqLens = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT seqLen FROM ", itsTableName))
   }else{
     maxSeqLen=1L
   }
@@ -255,7 +255,7 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
   # for this data the information in start end item of the sequence is sufficient
   # it takes only the start  and end items of the query result in account
   # the CASE WHEN THEN ELSE END terms are necessary to get the start and end samples of sequences which are not segment levels and therefore have no time information  
-  hasLinks = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM linksExt"))$n > 0
+  hasLinks = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM linksExt"))$n > 0
   
 
   # select columns: id,session,bundle,startItemId,endItemID ,type ...
@@ -357,7 +357,7 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
   queryStr=paste(selectStr,fromStr,whereStr,orderStr,sep = ' ')
   
   # convert samples to milliseconds using SQL:
-  seglist=dbGetQuery(emuDBhandle$connection, paste0("SELECT \
+  seglist=DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT \
                        labels,
                        CASE type WHEN 'EVENT' THEN \
                         CAST (sampleStart AS REAL)/ CAST( sampleRate AS REAL) * 1000.0 \

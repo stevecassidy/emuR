@@ -77,7 +77,7 @@ import_mediaFiles<-function(emuDBhandle,dir,targetSessionName='0000', verbose=TR
     }
     
     qSessSql=paste0("SELECT * FROM session WHERE db_uuid='",emuDBhandle$UUID,"' AND name='",targetSessionName,"'")
-    sessDf<-dbGetQuery(emuDBhandle$connection,qSessSql)
+    sessDf <- DBI::dbGetQuery(emuDBhandle$connection,qSessSql)
     if(nrow(sessDf)==0){
       add_sessionDBI(emuDBhandle, sessionName = targetSessionName)
     }

@@ -179,7 +179,7 @@
   
   if(!is.null(onTheFlyFunctionName)){
     funcFormals = NULL
-    qr = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='",
+    qr = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='",
                                                  splUtt[1], "' AND name='", splUtt[2], "'"))
     funcFormals$listOfFiles = file.path(emuDBhandle$basePath, paste0(qr$session, session.suffix), paste0(qr$name, bundle.dir.suffix), qr$annotates)
     funcFormals$toFile = FALSE
@@ -236,7 +236,7 @@
     #get data object
     
     if(!is.null(onTheFlyFunctionName)){
-      qr = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='",
+      qr = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='",
                                                    splUtt[1], "' AND name='", splUtt[2], "'"))
       funcFormals$listOfFiles = file.path(emuDBhandle$basePath, paste0(qr$session, session.suffix), paste0(qr$name, bundle.dir.suffix), qr$annotates)
       

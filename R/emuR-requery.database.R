@@ -18,12 +18,12 @@ database.DDL.emuRsegsTmp = 'CREATE TEMP TABLE emuRsegsTmp (
 );'
 
 create_requeryTmpTables <- function(emuDBhandle){
-  dbGetQuery(emuDBhandle$connection, database.DDL.emuRsegsTmp)
+  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuRsegsTmp)
 }
 
 drop_requeryTmpTables <- function(emuDBhandle){
   if("emuRsegsTmp" %in% dbListTables(emuDBhandle$connection)){
-    dbGetQuery(emuDBhandle$connection, "DROP TABLE emuRsegsTmp")
+    DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE emuRsegsTmp")
   }
 }
 
@@ -127,7 +127,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
       stop("Parameter offsetRef must be one of 'START' or 'END'\n")
     }
     heQueryStr=paste0(heQueryStr," ORDER BY il.ROWID");
-    he = dbGetQuery(emuDBhandle$connection, heQueryStr)
+    he = DBI::dbGetQuery(emuDBhandle$connection, heQueryStr)
     slLen=nrow(seglist)
     resLen=nrow(he)
     outOfBndCnt=slLen-resLen
@@ -276,7 +276,7 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
       
     }
 
-    he = dbGetQuery(emuDBhandle$connection, heQueryStr)
+    he = DBI::dbGetQuery(emuDBhandle$connection, heQueryStr)
     
     # drop and create tmpQueryTables and write to table
     drop_allTmpTablesDBI(emuDBhandle)

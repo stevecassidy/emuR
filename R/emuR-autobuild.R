@@ -78,7 +78,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
   
   if(convertSuperlevel){
     # check if backup links exist
-    res = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM items ", 
+    res = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM items ", 
                                             "WHERE db_uuid ='", emuDBhandle$UUID, "' ",
                                             "  AND level = '", paste0(superlevelName, backupLevelAppendStr), "'"))
     
@@ -94,7 +94,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
     
     # backup labels belonging to superlevel (labels have to be backed up before items to avoid maxID problem (maybe should rewrite query to avoid this in future versions using labels table to determin
     # maxID))
-    qRes = dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labels ",
+    qRes = DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labels ",
                                                    "SELECT '", emuDBhandle$UUID, "', lt.session, lt.bundle, lt.itemID + bndlMaxValue AS itemID, labelIdx, lt.name || '", backupLevelAppendStr, "' AS name, label FROM ",
                                                    "(SELECT * FROM ",
                                                    "  items AS it",
@@ -116,7 +116,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
     
     
     # backup items belonging to superlevel (=duplicate level with new ids)    
-    qRes = dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items ",
+    qRes = DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items ",
                                                    "SELECT '", emuDBhandle$UUID, "', it.session, it.bundle, it.itemID + bndlMaxValue AS itemID, it.level || '", backupLevelAppendStr, "' AS level, it.type, it.seqIdx, it.sampleRate, it.samplePoint, it.sampleStart, it.sampleDur FROM ",
                                                    "items AS it ",
                                                    "JOIN ",
@@ -224,7 +224,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
     curBndl = bndls[i,]
     annotJSONfilePath = file.path(emuDBhandle$basePath, paste0(curBndl$session, session.suffix), paste0(curBndl$name, bundle.dir.suffix), paste0(curBndl$name, bundle.annotation.suffix, ".json"))
     newMD5sum = md5sum(annotJSONfilePath)                        
-    dbGetQuery(emuDBhandle$connection, paste0("UPDATE bundle SET MD5annotJSON = '", newMD5sum, "' WHERE db_uuid ='", emuDBhandle$UUID, "' AND session='", curBndl$session, "' AND name='", curBndl$name, "'"))
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE bundle SET MD5annotJSON = '", newMD5sum, "' WHERE db_uuid ='", emuDBhandle$UUID, "' AND session='", curBndl$session, "' AND name='", curBndl$name, "'"))
   }
   
 }

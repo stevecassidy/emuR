@@ -217,18 +217,18 @@ convert_BPFCollection <- function(sourceDir,
     # --------------- Write session and bundle to temp DB -------------------
     # -----------------------------------------------------------------------
     queryTxt = paste0("SELECT name from session WHERE name='", session, "'")
-    all_sessions = dbGetQuery(dbHandle$connection, queryTxt)
+    all_sessions = DBI::dbGetQuery(dbHandle$connection, queryTxt)
     
     if(!session %in% all_sessions)
     {
       queryTxt = paste0("INSERT INTO session VALUES('", dbHandle$UUID, "', '", session, "')")
-      dbGetQuery(dbHandle$connection, queryTxt)
+      DBI::dbGetQuery(dbHandle$connection, queryTxt)
     }
     
     queryTxt = paste0("INSERT INTO bundle VALUES('", dbHandle$UUID, "', '", session, "', '", bundle, "', '",
                       annotates, "', ", samplerate, ", 'NULL')")
     
-    dbGetQuery(dbHandle$connection, queryTxt)
+    DBI::dbGetQuery(dbHandle$connection, queryTxt)
     
     # -----------------------------------------------------------------------
     # ------------------------------ Parse BPF ------------------------------
@@ -899,7 +899,7 @@ turn_bpfLinks <- function(emuDBhandle, turnAround)
                       "' AND db_uuid = links.db_uuid AND session = links.session AND bundle = links.bundle) ",
                       "AND toID IN(SELECT itemID FROM items WHERE level = '", link[["tokey"]], "' ",
                       "AND db_uuid = links.db_uuid AND session = links.session AND bundle = links.bundle);")
-    dbGetQuery(emuDBhandle$connection, queryTxt)
+    DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   }
 }
 
@@ -1018,7 +1018,7 @@ link_bpfUtteranceLevel <- function(emuDBhandle, linkTracker,
     # This determines whether the links from 'Utterance' are ONE_TO_ONE or ONE_TO_MANY.
     
     queryTxt = paste0("SELECT DISTINCT db_uuid, session, bundle FROM items WHERE level = '", level, "'")
-    distinctUuidSessionBundle = dbGetQuery(emuDBhandle$connection, queryTxt)
+    distinctUuidSessionBundle = DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
     nbBundles = nrow(distinctUuidSessionBundle)
     
     if(nbBundles < nbItems)
@@ -1093,7 +1093,7 @@ link_bpfUtteranceLevelToCurrentLevel <- function(emuDBhandle, currentLevel)
 {
   # Get UUID, session, bundle and itemID of all items of the relevant level
   queryTxt = paste0("SELECT db_uuid, session, bundle, itemID FROM items WHERE level = '", currentLevel, "'")
-  uuidSessionBundleItemID = dbGetQuery(emuDBhandle$connection, queryTxt)
+  uuidSessionBundleItemID = DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   
   # Loop over all items on this level
   for(idx in 1:nrow(uuidSessionBundleItemID))
@@ -1106,7 +1106,7 @@ link_bpfUtteranceLevelToCurrentLevel <- function(emuDBhandle, currentLevel)
     # Link all items to their corresponding Utterance item 
     # (same UUID, session & bundle, Utterance itemID is always 1).
     queryTxt = paste0("INSERT INTO links VALUES('", db_uuid, "', '", session, "', '", bundle, "', 1, ", itemID, ", NULL)")
-    dbGetQuery(emuDBhandle$connection, queryTxt)
+    DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   }
   
   nbItems = nrow(uuidSessionBundleItemID)
@@ -1289,7 +1289,7 @@ make_bpfDbSkeleton <- function(emuDBhandle)
   # ---------------------------------------------------------------------------
   
   queryTxt = paste0("SELECT name FROM session WHERE db_uuid = '", emuDBhandle$UUID, "'")
-  sessions = dbGetQuery(emuDBhandle$connection, queryTxt)
+  sessions = DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   
   for(idx in 1:nrow(sessions))
   {
@@ -1305,7 +1305,7 @@ make_bpfDbSkeleton <- function(emuDBhandle)
   # ---------------------------------------------------------------------------
   
   queryTxt = paste0("SELECT name, session FROM bundle WHERE db_uuid = '", emuDBhandle$UUID, "'")
-  bundles = dbGetQuery(emuDBhandle$connection, queryTxt)
+  bundles = DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   for(jdx in 1:nrow(bundles))
   {
     bundle = paste0(bundles[jdx,1], bundle.dir.suffix)

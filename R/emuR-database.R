@@ -174,30 +174,30 @@ database.DDL.emuDB_linksExtTmpIdx2 = 'CREATE INDEX linksExtTmp2_idx ON linksExtT
 
 initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TRUE){
   if(createTables & !dbExistsTable(emuDBhandle$connection, 'emuDB')){
-    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB)
-    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_session)
-    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_bundle)
-    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_items)
-    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labels)
-    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_links)
-    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExt)
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB)
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_session)
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_bundle)
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_items)
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labels)
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_links)
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExt)
     if(createIndices){  
       create_emuDBindicesDBI(emuDBhandle)
     }
   }else if(createTables & dbExistsTable(emuDBhandle$connection, 'emuDB')){
     # remove old tmp tables that where not created with CREATE TEMP TABLE
     # drops
-    if("linksTmp" %in% dbListTables(emuDBhandle$connection)) dbGetQuery(emuDBhandle$connection, "DROP TABLE linksTmp")
-    if("linksExtTmp" %in% dbListTables(emuDBhandle$connection)) dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp")
-    if("linksExtTmp2" %in% dbListTables(emuDBhandle$connection)) dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp2")
+    if("linksTmp" %in% dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksTmp")
+    if("linksExtTmp" %in% dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp")
+    if("linksExtTmp2" %in% dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp2")
     
   }
 }
 
 create_emuDBindicesDBI<-function(emuDBhandle){
   
-  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksIdx) 
-  dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtIdx) 
+  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksIdx) 
+  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtIdx) 
 }
 
 
@@ -212,7 +212,7 @@ add_emuDbDBI <- function(emuDBhandle){
 
 get_emuDbDBI <- function(emuDBhandle){
   query = paste0("SELECT * FROM emuDB WHERE uuid='", emuDBhandle$UUID, "'")
-  res <- dbGetQuery(emuDBhandle$connection, query)
+  res <- DBI::dbGetQuery(emuDBhandle$connection, query)
   return(res)
 }
 
@@ -227,13 +227,13 @@ add_sessionDBI <- function(emuDBhandle, sessionName){
 }
 
 list_sessionsDBI <- function(emuDBhandle){
-  dbs=dbGetQuery(emuDBhandle$connection, paste0("SELECT name FROM session WHERE db_uuid='", emuDBhandle$UUID, "'"))
+  dbs=DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT name FROM session WHERE db_uuid='", emuDBhandle$UUID, "'"))
   return(dbs)
 }
 
 
 remove_sessionDBI <- function(emuDBhandle, sessionName){
-  dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM session WHERE ", "db_uuid='", emuDBhandle$UUID, "' AND name='", sessionName, "'"))
+  DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM session WHERE ", "db_uuid='", emuDBhandle$UUID, "' AND name='", sessionName, "'"))
 }
 
 ####################################
@@ -242,25 +242,25 @@ remove_sessionDBI <- function(emuDBhandle, sessionName){
 add_bundleDBI <- function(emuDBhandle, sessionName, name, annotates, sampleRate, MD5annotJSON){
   insertBundleSql = paste0("INSERT INTO bundle(db_uuid, session, name, annotates, sampleRate, MD5annotJSON) VALUES('", 
                            emuDBhandle$UUID, "', '", sessionName, "', '", name, "', '", annotates, "', ", sampleRate, ", '", MD5annotJSON, "')")
-  dbGetQuery(emuDBhandle$connection, insertBundleSql)
+  DBI::dbGetQuery(emuDBhandle$connection, insertBundleSql)
 }
 
 list_bundlesDBI <- function(emuDBhandle, sessionName = NULL){
   if(is.null(sessionName)){
-    bundle = dbGetQuery(emuDBhandle$connection, paste0("SELECT session, name FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "'"))
+    bundle = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT session, name FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "'"))
   }else{
-    bundle = dbGetQuery(emuDBhandle$connection, paste0("SELECT session, name FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "'"))
+    bundle = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT session, name FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "'"))
   }
   return(bundle)
 }
 
 remove_bundleDBI <- function(emuDBhandle, sessionName, name){
-  dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM bundle WHERE ", "db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND name='", name, "'"))
+  DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM bundle WHERE ", "db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND name='", name, "'"))
 }
 
 # MD5annotJSON
 get_MD5annotJsonDBI <- function(emuDBhandle, sessionName, name){
-  MD5annotJSON = dbGetQuery(emuDBhandle$connection, paste0("SELECT MD5annotJSON FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND name='", name, "'"))$MD5annotJSON
+  MD5annotJSON = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT MD5annotJSON FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND name='", name, "'"))$MD5annotJSON
   if(length(MD5annotJSON) == 0){
     MD5annotJSON = ""
   }
@@ -311,23 +311,23 @@ load_bundleAnnotDFsDBI <- function(emuDBhandle, sessionName, bundleName){
   # meta infos
   annotates = paste0(bundleName, ".", DBconfig$mediafileExtension)
   sampleRateQuery = paste0("SELECT sampleRate FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND name='", bundleName,"'")
-  sampleRate = dbGetQuery(emuDBhandle$connection, sampleRateQuery)$sampleRate
+  sampleRate = DBI::dbGetQuery(emuDBhandle$connection, sampleRateQuery)$sampleRate
   
   # items
   itemsQuery = paste0("SELECT itemID, level, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur  FROM items WHERE db_uuid='", 
                       emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"' ORDER BY level, seqIdx")
-  items = dbGetQuery(emuDBhandle$connection, itemsQuery)
+  items = DBI::dbGetQuery(emuDBhandle$connection, itemsQuery)
   # reorder items to match DBconfig
   items = items[order(match(items$level,levelDefs$name)),]
   
   # labels 
   labelsQuery = paste0("SELECT itemID, labelIdx, name, label FROM labels WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
-  labels = dbGetQuery(emuDBhandle$connection, labelsQuery)
+  labels = DBI::dbGetQuery(emuDBhandle$connection, labelsQuery)
   
   # links 
   
   linksQuery = paste0("SELECT fromID, toID, label FROM links WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
-  links = dbGetQuery(emuDBhandle$connection, linksQuery)
+  links = DBI::dbGetQuery(emuDBhandle$connection, linksQuery)
   
   
   return(list(name = bundleName, annotates = annotates, sampleRate = sampleRate, items = items, links = links, labels = labels))
@@ -336,7 +336,7 @@ load_bundleAnnotDFsDBI <- function(emuDBhandle, sessionName, bundleName){
 
 remove_bundleAnnotDBI<-function(emuDBhandle, sessionName, bundleName){
   cntSqlQuery=paste0("SELECT * FROM items WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
-  res<-dbGetQuery(emuDBhandle$connection, cntSqlQuery)
+  res<-DBI::dbGetQuery(emuDBhandle$connection, cntSqlQuery)
   delSqlQuery=paste0("DELETE FROM items WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName, "'")
   res<-dbSendQuery(emuDBhandle$connection, delSqlQuery)
   dbClearResult(res)
@@ -347,7 +347,7 @@ remove_bundleAnnotDBI<-function(emuDBhandle, sessionName, bundleName){
   res<-dbSendQuery(emuDBhandle$connection, delSqlQuery)
   dbClearResult(res)
   cntSqlQuery=paste0("SELECT * FROM linksExt WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName, "'")
-  res<-dbGetQuery(emuDBhandle$connection, cntSqlQuery)
+  res<-DBI::dbGetQuery(emuDBhandle$connection, cntSqlQuery)
   delSqlQuery=paste0("DELETE FROM linksExt WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
   res<-dbSendQuery(emuDBhandle$connection,delSqlQuery)
   dbClearResult(res)
@@ -360,23 +360,23 @@ remove_bundleAnnotDBI<-function(emuDBhandle, sessionName, bundleName){
 
 create_tmpTablesForBuildingRedLinks <- function(emuDBhandle){
   if(!"linksTmp" %in% dbListTables(emuDBhandle$connection)){
-    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksTmp)
-    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksTmpIdx)
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksTmp)
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksTmpIdx)
   }
   if(!"linksExtTmp" %in% dbListTables(emuDBhandle$connection)){
-    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp)
-    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmpIdx)
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp)
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmpIdx)
     }
   if(!"linksExtTmp2" %in% dbListTables(emuDBhandle$connection)){ 
-    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp2)
-    dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmpIdx2)
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp2)
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmpIdx2)
     }
 }
 
 drop_tmpTablesForBuildingRedLinks <- function(emuDBhandle){
-  if("linksTmp" %in% dbListTables(emuDBhandle$connection)) dbGetQuery(emuDBhandle$connection, "DROP TABLE linksTmp")
-  if("linksExtTmp" %in% dbListTables(emuDBhandle$connection)) dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp")
-  if("linksExtTmp2" %in% dbListTables(emuDBhandle$connection)) dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp2")
+  if("linksTmp" %in% dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksTmp")
+  if("linksExtTmp" %in% dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp")
+  if("linksExtTmp2" %in% dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp2")
 }
 
 ## Legacy EMU and query functions link collections contain links for each possible connection between levels
@@ -471,19 +471,19 @@ calculate_postionsOfLinks<-function(emuDBhandle){
   
   # for all position related functions we need to calculate the sequence indices of dominated items grouped to one dominance item 
   # Extend links table with sequence index of the targeted (dominated) item
-  dbGetQuery(emuDBhandle$connection,"DELETE FROM linksExtTmp")
+  DBI::dbGetQuery(emuDBhandle$connection,"DELETE FROM linksExtTmp")
   
-  dbGetQuery(emuDBhandle$connection,"INSERT INTO linksExtTmp(db_uuid,session,bundle,fromID,toID,seqIdx,toLevel,type,label) SELECT k.db_uuid,k.session,k.bundle,k.fromID,k.toID,i.seqIdx,i.level AS toLevel,i.type,NULL AS label FROM linksTmp k,items i WHERE i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle AND k.toID=i.itemID")
+  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO linksExtTmp(db_uuid,session,bundle,fromID,toID,seqIdx,toLevel,type,label) SELECT k.db_uuid,k.session,k.bundle,k.fromID,k.toID,i.seqIdx,i.level AS toLevel,i.type,NULL AS label FROM linksTmp k,items i WHERE i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle AND k.toID=i.itemID")
   
   # extend links table with relative sequence index
-  dbGetQuery(emuDBhandle$connection,"INSERT INTO linksExtTmp2(db_uuid,session,bundle,seqIdx,fromID,toID,toLevel,type,label,toSeqIdx) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toLevel,k.type,k.label,k.seqIdx-(SELECT MIN(m.seqIdx) FROM linksExtTmp m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqIdx FROM linksExtTmp k")
+  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO linksExtTmp2(db_uuid,session,bundle,seqIdx,fromID,toID,toLevel,type,label,toSeqIdx) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toLevel,k.type,k.label,k.seqIdx-(SELECT MIN(m.seqIdx) FROM linksExtTmp m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqIdx FROM linksExtTmp k")
   
-  dbGetQuery(emuDBhandle$connection,"DELETE FROM linksExtTmp")
+  DBI::dbGetQuery(emuDBhandle$connection,"DELETE FROM linksExtTmp")
   
   # Add length of dominance group sequence
-  dbGetQuery(emuDBhandle$connection,"INSERT INTO linksExt(db_uuid,session,bundle,seqIdx,fromID,toID,toSeqIdx,toLevel,type,label,toSeqLen) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toSeqIdx,k.toLevel,k.type,k.label,(SELECT MAX(m.seqIdx)-MIN(m.seqIdx)+1 FROM linksExtTmp2 m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqLen FROM linksExtTmp2 k")
+  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO linksExt(db_uuid,session,bundle,seqIdx,fromID,toID,toSeqIdx,toLevel,type,label,toSeqLen) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toSeqIdx,k.toLevel,k.type,k.label,(SELECT MAX(m.seqIdx)-MIN(m.seqIdx)+1 FROM linksExtTmp2 m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqLen FROM linksExtTmp2 k")
   
-  dbGetQuery(emuDBhandle$connection,"DELETE FROM linksExtTmp2")
+  DBI::dbGetQuery(emuDBhandle$connection,"DELETE FROM linksExtTmp2")
   
   # remove temporary tables
   drop_tmpTablesForBuildingRedLinks(emuDBhandle)

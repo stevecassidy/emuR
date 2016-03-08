@@ -108,12 +108,12 @@ test_that("CRUD operations work for levelDefinitions", {
     expect_error(remove_levelDefinition(ae, name="asdf")) # bad name
     expect_error(remove_levelDefinition(ae, name="Phonetic")) # linkDef present
     
-    dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID,
+    DBI::dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID,
                                      "', '0001', 'fakeBundle', 1, 'Phonetic2', 'ITEM', 20000, 1, NULL, NULL, NULL)")) # add item
     
     expect_error(remove_levelDefinition(ae, name="Phonetic2")) # item present
     
-    dbGetQuery(ae$connection, paste0("DELETE FROM items WHERE db_uuid='", 
+    DBI::dbGetQuery(ae$connection, paste0("DELETE FROM items WHERE db_uuid='", 
                                      ae$UUID,"'")) # items present
     
     remove_levelDefinition(ae, name="Phonetic2")

@@ -106,7 +106,7 @@ convert_TextGridCollection <- function(dir, dbName,
   allBundles = list()
   
   # create session entry
-  dbGetQuery(dbHandle$connection, paste0("INSERT INTO session VALUES('", dbHandle$UUID, "', '0000')"))
+  DBI::dbGetQuery(dbHandle$connection, paste0("INSERT INTO session VALUES('", dbHandle$UUID, "', '0000')"))
   
   # loop through fpl
   for(i in 1:dim(fpl)[1]){
