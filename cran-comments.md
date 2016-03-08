@@ -14,10 +14,10 @@ Maintainer: 'Raphael Winkelmann <raphael@phonetik.uni-muenchen.de>'
 New submission
 
 This is our first submission of this package. However we would like to note that it is 
-a complete rewrite of an archived R package called "emu": 
+a complete rewrite of an archived CRAN package called "emu": 
 https://cran.r-project.org/src/contrib/Archive/emu/. As
 almost the entire API as well as the backend and data structures have changed we have 
-opted for an update of the package name. All the authors of the previous package 
+opted for an update of the package name to "emuR".
 
 ## Downstream dependencies
 There are currently no downstream dependencies for this package.
