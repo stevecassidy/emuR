@@ -24,7 +24,7 @@ As it is not the focus of this vignette: one thing to note about the `query()` f
 
 # Examples
 
-We will now jump right in by giving you a bunch of examples of query strings that where adapted from [@harrington:2002, @cassidy_harrington:2001]. To have some data we can play with let us create a demo database and then load it:
+We will now jump right in by giving you a bunch of examples of query strings that where adapted from [@harrington:2002, @cassidy_harrington:2001]. To have some data we can play with let us create a demo database and then load it into our current R session:
 
 ```{r results='hide', message=FALSE, warning=FALSE}
 # load the package
