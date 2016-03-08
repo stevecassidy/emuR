@@ -40,7 +40,7 @@
 ##' default is NULL in which case all lines are drawn with lwd=1
 ##' @param ... graphical options \link{par}
 ##' @return NULL
-##' @author Jonathan Harrington jmh@@ipds.uni-kiel.de, Steve Cassidy
+##' @author Jonathan Harrington, Steve Cassidy
 ##' @seealso \code{\link{dcut}}
 ##' @keywords dplot
 ##' @examples
