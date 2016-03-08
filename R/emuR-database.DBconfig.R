@@ -229,7 +229,7 @@ add_levelDefinition<-function(emuDBhandle, name,
     stop('Bad type given! Type has to be either ', paste(allowedTypes, collapse = ' | ') )
   }
   levelDefinition=list(name = name, type = type, 
-                       attributeDefinitions = list(list(name = name, type = type)))
+                       attributeDefinitions = list(list(name = name, type = 'STRING')))
   dbConfig = load_DBconfig(emuDBhandle)
   # check if level definition (name) already exists 
   for(ld in dbConfig$levelDefinitions){
