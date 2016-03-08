@@ -56,37 +56,37 @@ drop_requeryTmpTables <- function(emuDBhandle){
 ##' ## Requery previous item of 'p' on level 'Phonetic'
 ##' sl1 = query(ae, "Phonetic == p")
 ##' 
-##' requery_seq(sl1, offset = -1)
+##' requery_seq(ae, sl1, offset = -1)
 ##' 
 ##' ## Requery context (adding previuos and following elements) of 'p' on phonetic level
 ##'
-##' requery_seq(sl1, offset = -1, length = 3)
+##' requery_seq(ae, sl1, offset = -1, length = 3)
 ##' 
 ##' ## Requery previous item of n->t sequence
 ##' sl2 = query(ae, "[Phoneme == n -> Phoneme == t]")
 ##' 
-##' requery_seq(sl2, offset = -1)
+##' requery_seq(ae, sl2, offset = -1)
 ##' 
 ##' ## Requery last item within n->t sequence
 ##' 
-##' requery_seq(sl2, offsetRef = 'END')
+##' requery_seq(ae, sl2, offsetRef = 'END')
 ##' 
 ##' ## Requery following item after n->t sequence
 ##' 
-##' requery_seq(sl2, offset = 1, offsetRef = 'END')
+##' requery_seq(ae, sl2, offset = 1, offsetRef = 'END')
 ##' 
 ##' ## Requery context (previous and following items) of n->t sequence
 ##' 
-##' requery_seq(sl2, offset = -1, length = 4)
+##' requery_seq(ae, sl2, offset = -1, length = 4)
 ##' 
 ##' ## Requery next word contexts (sequence includes target word)
 ##' 
 ##' sl3 = query(ae, "Text == to")
-##' requery_seq(sl3, length = 2)
+##' requery_seq(ae, sl3, length = 2)
 ##' 
 ##' ## Requery following two word contexts, ignoring segment 
 ##' ## sequences that are out of bundle end bounds 
-##' requery_seq(sl3, length = 3, ignoreOutOfBounds = TRUE)
+##' requery_seq(ae, sl3, length = 3, ignoreOutOfBounds = TRUE)
 ##' 
 ##' }
 requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBounds=FALSE){
@@ -179,19 +179,18 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
 ##' ## the same length as the word segments.
 ##'
 ##' sl1 = query(ae, "Text == beautiful")
-##' requery_hier(sl1, level = "Phoneme")
+##' requery_hier(ae, sl1, level = "Phoneme")
 ##'
 ##' ## Upward requery: find all word segments that dominate a 'p' on level 'Phoneme'
 ##' ## Note that the resulting segments are larger than the input segments,
 ##' ## because they contain the complete words.
 ##' 
 ##' sl1 = query(ae, "Phonetic == p")
-##' wl1 = requery_hier(sl1, level = 'Text')
-##' wl1
+##' requery_hier(ae, sl1, level = 'Text')
 ##' 
 ##' ## Why is there a 'p' the word 'emphazised'? Requery the whole words back down to 'Phoneme' level:
 ##'
-##' requery_hier(wl1, level = 'Phoneme')
+##' requery_hier(ae, sl1, level = 'Phoneme')
 ##'
 ##' ## ... because of 'stop epenthesis' a 'p' is inserted between 'm' and 'f'
 ##' 
@@ -199,7 +198,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
 ##' ## Note that we use a regular expression 'an.*' (EQL operator '=~') in the query.
 ##' 
 ##' sl1=query(ae, "Text =~ an.*")
-##' requery_seq(requery_hier(sl1, level = 'Phoneme'), offsetRef = 'END')
+##' requery_seq(ae, requery_hier(ae, sl1, level = 'Phoneme'), offsetRef = 'END')
 ##' 
 ##' }
 requery_hier<-function(emuDBhandle, seglist, level=NULL){

@@ -6,7 +6,7 @@
 \usage{
 serve(emuDBhandle, sessionPattern = ".*", bundlePattern = ".*",
   host = "127.0.0.1", port = 17890,
-  autoOpenURL = "https://ips-lmu.github.io/EMU-webApp/?autoConnect=true",
+  autoOpenURL = "http://ips-lmu.github.io/EMU-webApp/?autoConnect=true",
   debug = FALSE, debugLevel = 0)
 }
 \arguments{

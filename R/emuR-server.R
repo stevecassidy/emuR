@@ -59,7 +59,7 @@ setServerHandle <- function(sh) {
 ##' serve(myDb)
 ##' }
 ##' 
-serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0.1',port=17890, autoOpenURL = "https://ips-lmu.github.io/EMU-webApp/?autoConnect=true",  debug=FALSE,debugLevel=0){
+serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0.1',port=17890, autoOpenURL = "http://ips-lmu.github.io/EMU-webApp/?autoConnect=true",  debug=FALSE,debugLevel=0){
   if(debug && debugLevel==0){
     debugLevel=2
   }
