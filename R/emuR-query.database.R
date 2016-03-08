@@ -11,7 +11,10 @@ create_tmpFilteredQueryTablesDBI <- function(emuDBhandle){
   
   database.DDL.emuDB_labelsFilteredTmp = gsub("CREATE TABLE labels", "CREATE TEMP TABLE labelsFilteredTmp", database.DDL.emuDB_labels)
   database.DDL.emuDB_labelsFilteredTmp_idx = "CREATE INDEX labelsFilteredTmp_idx ON labelsFilteredTmp(itemID,db_uuid,session,bundle,name)"
-  
+
+  database.DDL.emuDB_linksFilteredTmp = gsub("CREATE TABLE links", "CREATE TEMP TABLE linksFilteredTmp", database.DDL.emuDB_links)
+  database.DDL.emuDB_linksFilteredTmp_idx = 'CREATE INDEX linksFilteredTmp_idx ON linksFilteredTmp(db_uuid,session,bundle,fromID,toID)'
+    
   database.DDL.emuDB_linksExtFilteredTmp = gsub("CREATE TABLE linksExt", "CREATE TEMP TABLE linksExtFilteredTmp", database.DDL.emuDB_linksExt)
   database.DDL.emuDB_linksExtFilteredTmp_idx = 'CREATE INDEX linksExtFilteredTmp_idx ON linksExtFilteredTmp(db_uuid,session,bundle,fromID,toID)'
   
@@ -19,6 +22,8 @@ create_tmpFilteredQueryTablesDBI <- function(emuDBhandle){
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredTmp_idx)
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labelsFilteredTmp)
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labelsFilteredTmp_idx)
+  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksFilteredTmp)
+  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksFilteredTmp_idx)
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtFilteredTmp)
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtFilteredTmp_idx)
   
@@ -109,6 +114,7 @@ drop_tmpFilteredQueryTablesDBI <- function(emuDBhandle){
   tableNames = DBI::dbListTables(emuDBhandle$connection)
   if("itemsFilteredTmp" %in% tableNames) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE itemsFilteredTmp")
   if("labelsFilteredTmp" %in% tableNames) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE labelsFilteredTmp")
+  if("linksFilteredTmp" %in% tableNames) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksFilteredTmp")
   if("linksExtFilteredTmp" %in% tableNames) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtFilteredTmp")
   
   if("itemsFilteredSubsetTmp" %in% tableNames) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE itemsFilteredSubsetTmp")
@@ -1015,31 +1021,37 @@ query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*
     # extract all items for session/bundlePattern regEx matching (should check if REGEXP is available and is so use that instead)
     queryItems <- DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM items WHERE db_uuid='", emuDBhandle$UUID, "'"))
     queryLabels <- DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM labels WHERE db_uuid='", emuDBhandle$UUID, "'"))
+    queryLinks <- DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM links WHERE db_uuid='", emuDBhandle$UUID,"'"))
     queryLinksExt <- DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM linksExt WHERE db_uuid='", emuDBhandle$UUID,"'"))
     
     # if set get logical vectors that match sessionPattern and bundlePattern
     if(!is.null(sessionPattern) && sessionPattern!='.*'){
       sesSelIts = emuR_regexprl(sessionPattern, queryItems$session)
       sesSelLbls = emuR_regexprl(sessionPattern, queryLabels$session)
-      sesSelLks = emuR_regexprl(sessionPattern, queryLinksExt$session)
+      sesSelLks = emuR_regexprl(sessionPattern, queryLinks$session)
+      sesSelLksExt = emuR_regexprl(sessionPattern, queryLinksExt$session)
     }else{
       sesSelIts = rep(TRUE, nrow(queryItems))
       sesSelLbls = rep(TRUE, nrow(queryLabels))
-      sesSelLks = rep(TRUE, nrow(queryLinksExt))
+      sesSelLks = rep(TRUE, nrow(queryLinks))
+      sesSelLksExt = rep(TRUE, nrow(queryLinksExt))
     }
     if(!is.null(bundlePattern) && bundlePattern!='.*'){
       bndlSelIts = emuR_regexprl(bundlePattern, queryItems$bundle)
       bndlSelLbls = emuR_regexprl(bundlePattern, queryLabels$bundle)
-      bndlSelLks = emuR_regexprl(bundlePattern, queryLinksExt$bundle)
+      bndlSelLks = emuR_regexprl(bundlePattern, queryLinks$bundle)
+      bndlSelLksExt = emuR_regexprl(bundlePattern, queryLinksExt$bundle)
     }else{
       bndlSelIts = rep(TRUE, nrow(queryItems))
       bndlSelLbls = rep(TRUE, nrow(queryLabels))
-      bndlSelLks = rep(TRUE, nrow(queryLinksExt))
+      bndlSelLks = rep(TRUE, nrow(queryLinks))
+      bndlSelLksExt = rep(TRUE, nrow(queryLinksExt))
     }
     # write to tmp tables
     dbWriteTable(emuDBhandle$connection, "itemsFilteredTmp", queryItems[sesSelIts & bndlSelIts, ], append = TRUE)
     dbWriteTable(emuDBhandle$connection, "labelsFilteredTmp", queryLabels[sesSelLbls & bndlSelLbls, ], append = TRUE)
-    dbWriteTable(emuDBhandle$connection, "linksExtFilteredTmp", queryLinksExt[sesSelLks & bndlSelLks, ], append = TRUE)
+    dbWriteTable(emuDBhandle$connection, "linksFilteredTmp", queryLinks[sesSelLks & bndlSelLks, ], append = TRUE)
+    dbWriteTable(emuDBhandle$connection, "linksExtFilteredTmp", queryLinksExt[sesSelLksExt & bndlSelLksExt, ], append = TRUE)
     
     if(is.null(resultType)){
       emuRsegs = query_databaseWithEqlEmuRsegs(emuDBhandle,query,timeRefSegmentLevel)
