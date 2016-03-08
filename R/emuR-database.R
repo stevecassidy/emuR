@@ -206,8 +206,7 @@ create_emuDBindicesDBI<-function(emuDBhandle){
 
 add_emuDbDBI <- function(emuDBhandle){
   dbSqlInsert = paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('", emuDBhandle$UUID, "','", emuDBhandle$dbName, "',NULL,'", "DEPRICATED COLUMN", "', 'DEPRICATED COLUMN'", ")")
-  res <- dbSendQuery(emuDBhandle$connection, dbSqlInsert)
-  dbClearResult(res)
+  DBI::dbGetQuery(emuDBhandle$connection, dbSqlInsert)
 }
 
 get_emuDbDBI <- function(emuDBhandle){
@@ -222,8 +221,7 @@ get_emuDbDBI <- function(emuDBhandle){
 
 add_sessionDBI <- function(emuDBhandle, sessionName){
   insertSessionSql = paste0("INSERT INTO session(db_uuid, name) VALUES('", emuDBhandle$UUID,"','", sessionName, "')")
-  res<-dbSendQuery(emuDBhandle$connection, insertSessionSql)
-  dbClearResult(res)
+  DBI::dbGetQuery(emuDBhandle$connection, insertSessionSql)
 }
 
 list_sessionsDBI <- function(emuDBhandle){
@@ -337,20 +335,21 @@ load_bundleAnnotDFsDBI <- function(emuDBhandle, sessionName, bundleName){
 remove_bundleAnnotDBI<-function(emuDBhandle, sessionName, bundleName){
   cntSqlQuery=paste0("SELECT * FROM items WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
   res<-DBI::dbGetQuery(emuDBhandle$connection, cntSqlQuery)
+  
   delSqlQuery=paste0("DELETE FROM items WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName, "'")
-  res<-dbSendQuery(emuDBhandle$connection, delSqlQuery)
-  dbClearResult(res)
+  DBI::dbGetQuery(emuDBhandle$connection, delSqlQuery)
+  
   delSqlQuery=paste0("DELETE FROM labels WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
-  res<-dbSendQuery(emuDBhandle$connection, delSqlQuery)
-  dbClearResult(res)
+  DBI::dbGetQuery(emuDBhandle$connection, delSqlQuery)
+  
   delSqlQuery=paste0("DELETE FROM links WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName, "'")
-  res<-dbSendQuery(emuDBhandle$connection, delSqlQuery)
-  dbClearResult(res)
+  DBI::dbGetQuery(emuDBhandle$connection, delSqlQuery)
+  
   cntSqlQuery=paste0("SELECT * FROM linksExt WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName, "'")
   res<-DBI::dbGetQuery(emuDBhandle$connection, cntSqlQuery)
+  
   delSqlQuery=paste0("DELETE FROM linksExt WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
-  res<-dbSendQuery(emuDBhandle$connection,delSqlQuery)
-  dbClearResult(res)
+  DBI::dbGetQuery(emuDBhandle$connection,delSqlQuery)
 }
 
 
@@ -395,8 +394,7 @@ build_redundantLinksForPaths <- function(emuDBhandle, hierarchyPaths, sessionNam
   # create tmp tables if not available
   create_tmpTablesForBuildingRedLinks(emuDBhandle)
   # delete any previous redundant links (just to be safe)
-  res <- dbSendQuery(emuDBhandle$connection, 'DELETE FROM linksTmp')
-  dbClearResult(res)
+  DBI::dbGetQuery(emuDBhandle$connection, 'DELETE FROM linksTmp')
   
   hierarchyPathsLen = length(hierarchyPaths)
   if(hierarchyPathsLen > 0){
@@ -462,8 +460,7 @@ build_redundantLinksForPaths <- function(emuDBhandle, hierarchyPaths, sessionNam
     }
     sqlQuery=paste0(sqlQuery,")")
     # since version 2.8.x of sqlite the query is very slow without indices
-    res<-dbSendQuery(emuDBhandle$connection, sqlQuery)
-    dbClearResult(res)
+    DBI::dbGetQuery(emuDBhandle$connection, sqlQuery)
   }
 }
 
@@ -840,6 +837,10 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, ve
   dbDirInfo=file.info(databaseDir)
   if(!dbDirInfo[['isdir']]){
     stop(databaseDir," exists, but is not a directory.")
+  }
+  
+  if(!is.null(connection)){
+    stop("The explicit 'connection' parameter is not yet available.")
   }
   
   # load db schema file

@@ -131,7 +131,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
   # query DB depending on type of sublevelDefinition 
   if(foundSubLevelDev$type == 'EVENT'){
     
-    dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
                                        " SELECT * FROM",
                                        " (SELECT super.db_uuid, super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
                                        " FROM items AS 'super' JOIN items AS 'sub' ",
@@ -145,7 +145,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
     
     if(ld$type == "ONE_TO_MANY"){
       
-      dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
+      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
                                                " SELECT * FROM",
                                                " (SELECT super.db_uuid, super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
                                                " FROM items as super JOIN items as sub",
@@ -157,7 +157,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
       
     }else if(ld$type == "MANY_TO_MANY"){
       
-      dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
+      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
                                                " SELECT * FROM",
                                                " (SELECT super.db_uuid, super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
                                                " FROM items as super JOIN items as sub",
@@ -173,7 +173,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
       
     }else if(ld$type == "ONE_TO_ONE"){
       
-      dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
+      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
                                                " SELECT * FROM",
                                                " (SELECT super.db_uuid, super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
                                                " FROM items as super JOIN items as sub",
@@ -202,8 +202,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
     dbConfig$levelDefinitions[[length(dbConfig$levelDefinitions) + 1]] = foundSuperLevelDev
     
     # convert superlevel to ITEM level
-    res = dbSendQuery(emuDBhandle$connection, paste0("UPDATE items SET type = 'ITEM', samplePoint = null, sampleStart = null, sampleDur = null WHERE db_uuid='", emuDBhandle$UUID, "' AND level ='", superlevelName,"'"))
-    dbClearResult(res)
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE items SET type = 'ITEM', samplePoint = null, sampleStart = null, sampleDur = null WHERE db_uuid='", emuDBhandle$UUID, "' AND level ='", superlevelName,"'"))
   }
   
   # rebuild redundant links and

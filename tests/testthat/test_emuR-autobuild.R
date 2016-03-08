@@ -73,7 +73,7 @@ test_that("no duplicates are present after autobuild_linkFromTimes with EVENTs",
   add_linkDefinition(ae, "ONE_TO_MANY", superlevelName = "Phonetic", sublevelName = "Tone")
   
   # addlink that will also be automatically linked
-  dbSendQuery(ae$connection, paste0("INSERT INTO links VALUES ('", ae$UUID, "', '0000', 'msajc003', 140, 181, NULL)"))
+  DBI::dbGetQuery(ae$connection, paste0("INSERT INTO links VALUES ('", ae$UUID, "', '0000', 'msajc003', 140, 181, NULL)"))
   
   autobuild_linkFromTimes(ae, 'Phonetic', 'Tone', FALSE)
   
@@ -108,7 +108,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   
   
   # add item to Phonetic2 = left edge
-  dbSendQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 980, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3749, 10)"))
+  DBI::dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 980, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3749, 10)"))
   autobuild_linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='", ae$UUID,"'",
                                         " AND toID = 980"))
@@ -117,7 +117,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   expect_equal(qr$toID, 980)
   
   # add item to Phonetic2 = exact match
-  dbSendQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 981, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3749, 1389)"))
+  DBI::dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 981, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3749, 1389)"))
   autobuild_linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='", ae$UUID,"'",
                                         " AND toID = 981"))
@@ -126,7 +126,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   expect_equal(qr$toID, 981)
   
   # add item to Phonetic2 = completely within
-  dbSendQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 982, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3800, 200)"))
+  DBI::dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 982, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3800, 200)"))
   autobuild_linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='", ae$UUID,"'",
                                         " AND toID = 982"))
@@ -136,7 +136,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   
   
   # add item to Phonetic2 = left overlap
-  dbSendQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 983, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3500, 1000)"))
+  DBI::dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 983, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3500, 1000)"))
   autobuild_linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='", ae$UUID,"'",
                                         " AND toID = 983"))
@@ -144,7 +144,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   
   
   # add item to Phonetic2 = right overlap
-  dbSendQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 984, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3800, 2000)"))
+  DBI::dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 984, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3800, 2000)"))
   autobuild_linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='", ae$UUID,"'",
                                         " AND toID = 984"))
@@ -167,7 +167,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   
   # add item to Phonetic2 = completely within
   #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3800, 200)
-  dbSendQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 980, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3800, 200)"))
+  DBI::dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 980, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3800, 200)"))
   autobuild_linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='", ae$UUID,"'",
                                         " AND toID = 980"))
@@ -177,7 +177,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   
   # add item to Phonetic2 = left overlap
   #     ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3500, 1000)
-  dbSendQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 981, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3500, 1000)"))
+  DBI::dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 981, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3500, 1000)"))
   autobuild_linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='", ae$UUID,"'",
                                         " AND toID = 981"))
@@ -187,7 +187,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   
   # add item to Phonetic2 = right overlap
   #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3800, 2000)
-  dbSendQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 982, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3800, 2000)"))
+  DBI::dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 982, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3800, 2000)"))
   autobuild_linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='", ae$UUID,"'",
                                         " AND toID = 982"))
@@ -198,7 +198,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   
   # add item to Phonetic2 = left and right overlap
   #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3500, 2000)
-  dbSendQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 983, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3500, 2000)"))
+  DBI::dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 983, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3500, 2000)"))
   autobuild_linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='", ae$UUID,"'",
                                         " AND toID = 983"))
@@ -209,7 +209,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   
   # add item to Phonetic2 = not within
   #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 200, 200)
-  dbSendQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 984, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 200, 200)"))
+  DBI::dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 984, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 200, 200)"))
   autobuild_linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='", ae$UUID,"'",
                                         " AND toID = 984"))
@@ -234,7 +234,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   
   # add item to Phonetic2 = exact match
   #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3749, 1389)
-  dbSendQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 980, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3749, 1389)"))
+  DBI::dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 980, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3749, 1389)"))
   autobuild_linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='", ae$UUID,"'",
                                         " AND toID = 980"))
@@ -244,7 +244,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   
   # add item to Phonetic2 = left overlap
   #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3748, 1389)
-  dbSendQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 981, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3748, 1389)"))
+  DBI::dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 981, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3748, 1389)"))
   autobuild_linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='", ae$UUID,"'",
                                         " AND toID = 981"))
@@ -252,7 +252,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   
   # add item to Phonetic2 = right overlap
   #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3749, 1390)
-  dbSendQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 982, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3749, 1390)"))
+  DBI::dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 982, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3749, 1390)"))
   autobuild_linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='", ae$UUID,"'",
                                         " AND toID = 982"))
@@ -262,7 +262,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   
   # add item to Phonetic2 = within
   #   ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 3750, 200)
-  dbSendQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 983, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3750, 200)"))
+  DBI::dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 983, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3750, 200)"))
   autobuild_linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='", ae$UUID,"'",
                                         " AND toID = 983"))
@@ -272,7 +272,7 @@ test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS
   
   # add item to Phonetic2 = not within
   #     ae$items[737, ] = c('ae_0000_msajc003_999', '0000', 'msajc003', 'Phonetic2', 999, 'SEGMENT', 1, 20000, NA, 200, 200)
-  dbSendQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 984, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 200, 200)"))
+  DBI::dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 984, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 200, 200)"))
   autobuild_linkFromTimes(ae, 'Phonetic', 'Phonetic2', FALSE)
   qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='", ae$UUID,"'",
                                         " AND toID = 984"))
@@ -296,7 +296,7 @@ test_that("backup works correctly", {
   
   
   # add item to Phonetic2 = exact match
-  dbSendQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 980, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3749, 1389)"))
+  DBI::dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID, "', '0000', 'msajc003', 980, 'Phonetic2', 'SEGMENT', 1, 20000, NULL, 3749, 1389)"))
   autobuild_linkFromTimes(ae, 'Phonetic', 'Phonetic2', TRUE, TRUE)
   
   

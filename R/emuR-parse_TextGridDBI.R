@@ -208,7 +208,7 @@ parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encodi
                         
                         
                         # item entry:
-                        dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', '", itemCounterGlobal, 
+                        DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', '", itemCounterGlobal, 
                                                                    "', '", currentTierName, "', '", "SEGMENT", 
                                                                    "', ", itemCounterLevel, ", ", sampleRate, ", ", "NULL", ", ", currentSegmentStart, 
                                                                    ", ", sampleDur, ")"))
@@ -216,7 +216,7 @@ parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encodi
                         
                         
                         # label entry:
-                        dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO labels VALUES","('", 
+                        DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labels VALUES","('", 
                                                                    emuDBhandle$UUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
                                                                    ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentSegmentLabel), "')"))
                         
@@ -279,14 +279,14 @@ parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encodi
                       itemId = paste0(emuDBhandle$dbName, '_', session, '_', bundle, '_', itemCounterGlobal)
                       
                       
-                      dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
+                      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
                                                                  itemCounterGlobal, ", '", currentTierName,"', '", "EVENT", 
                                                                  "', ", itemCounterLevel, ", ", sampleRate, ", ", currentPointSample, ", ", "NULL", 
                                                                  ", ", "NULL", ")"))
                       
                       
                       # label entry:
-                      dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO labels VALUES","('", 
+                      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labels VALUES","('", 
                                                                  emuDBhandle$UUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
                                                                  ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentPointLabel), "')"))              
                       
