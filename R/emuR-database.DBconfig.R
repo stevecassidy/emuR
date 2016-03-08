@@ -884,6 +884,7 @@ remove_linkDefinition <- function(emuDBhandle,
   for(i in 1:length(dbConfig$linkDefinitions)){
     if(dbConfig$linkDefinitions[[i]]$superlevelName == superlevelName && dbConfig$linkDefinitions[[i]]$sublevelName == sublevelName){
       dbConfig$linkDefinitions[[i]] = NULL
+      break
     }
   }
   
