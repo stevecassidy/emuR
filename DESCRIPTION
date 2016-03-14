@@ -6,8 +6,9 @@ Authors@R: c(
     person("Klaus", "Jaensch", , "klausj@phonetik.uni-muenchen.de", c("aut", "ctb")),
     person("Steve", "Cassidy", , "steve.cassidy@mq.edu.au", c("aut", "ctb")),
     person("Jonathan", "Harrington", , "jmh@phonetik.uni-muenchen.de", c("aut", "ctb")))
-Description: Provides many special purpose functions for display and analysis
-    of speech data.
+Description: Provides the next iteration of the EMU Speech 
+    Database Management System (EMU_SDMS) with database management, data 
+    extraction, data preparation and data visualization facilities. 
 License: GPL (>= 2)
 Depends:
     R (>= 3.0)
