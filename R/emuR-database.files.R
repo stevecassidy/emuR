@@ -216,8 +216,9 @@ add_files <- function(emuDBhandle, dir, fileExtension, targetSessionName='0000')
 ##' more information on the structural elements of an emuDB 
 ##' see \code{vignette{emuDB}}.
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
-##' @param sessionPattern A (glob) pattern matching sessions to be searched from the database
-##' @param bundlePattern A (glob) pattern matching bundles to be searched from the database
+##' @param fileExtension file extention of files
+##' @param sessionPattern A (RegEx) pattern matching sessions to be searched from the database
+##' @param bundlePattern A (RegEx) pattern matching bundles to be searched from the database
 ##' @return file paths as character vector
 ##' @export
 ##' @keywords emuDB database schema Emu 
@@ -232,13 +233,14 @@ add_files <- function(emuDBhandle, dir, fileExtension, targetSessionName='0000')
 ##' list_files(emuDBhandle = ae)
 ##'
 ##' # list all files of ae emuDB in bundles ending with '3'
-##' list_files(emuDBhandle = ae, bundlePattern="*3") 
+##' list_files(emuDBhandle = ae, bundlePattern=".*3$") 
 ##' 
 ##' }
 ##' 
 list_files <- function(emuDBhandle,
-                       sessionPattern = "*",
-                       bundlePattern = "*"){
+                       fileExtension = ".*",
+                       sessionPattern = ".*",
+                       bundlePattern = ".*"){
 
   bndls = list_bundles(emuDBhandle)
   
@@ -249,7 +251,7 @@ list_files <- function(emuDBhandle,
   # get files for each bundle
   for(i in 1:nrow(bndls)){
     
-    fps = list.files(file.path(emuDBhandle$basePath, paste0(bndls[i,]$session, "_ses"), paste0(bndls[i,]$name, "_bndl")))
+    fps = list.files(file.path(emuDBhandle$basePath, paste0(bndls[i,]$session, "_ses"), paste0(bndls[i,]$name, "_bndl")), pattern = fileExtension)
     df = rbind(df, data.frame(session = rep(bndls[i,]$session, length(fps)), 
                               bundle = rep(bndls[i,]$name, length(fps)), 
                               file = fps,
@@ -257,7 +259,7 @@ list_files <- function(emuDBhandle,
   }
   
   # filter for patterns
-  df = df[grepl(utils::glob2rx(sessionPattern), df$session) & grepl(utils::glob2rx(bundlePattern), df$bundle),]
+  df = df[grepl(sessionPattern, df$session) & grepl(bundlePattern, df$bundle),]
   
   return(df)
   

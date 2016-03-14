@@ -1015,9 +1015,10 @@ add_ssffTrackDefinition <- function(emuDBhandle, name,
   # calculate new files
   if(!is.null(onTheFlyFunctionName)){
     # check if files exist
-    fp = list_bundleFilePaths(emuDBhandle, fileExtension)
+    filesDf = list_files(emuDBhandle, fileExtension)
     ans = 'y'
-    if(length(fp) != 0){
+    if(nrow(filesDf) != 0){
+      fp = paste(emuDBhandle$basePath, paste0(fp$session, session.suffix), paste0(fp$bundle, bundle.dir.suffix), fp$file, sep = .Platform$file.sep)
       if(interactive){
         ans = readline(paste0("There are files present in '",emuDBhandle$dbName,"' that have the file extention '", 
                               fileExtension, "' Continuing will overwrite these files! Do you wish to proceed? (y/n) "))
@@ -1030,7 +1031,8 @@ add_ssffTrackDefinition <- function(emuDBhandle, name,
         funcFormals = formals(onTheFlyFunctionName)
         funcFormals[names(onTheFlyParams)] = onTheFlyParams
         funcFormals$optLogFilePath = onTheFlyOptLogFilePath
-        funcFormals$listOfFiles = list_bundleFilePaths(emuDBhandle, dbConfig$mediafileExtension)
+        fp = list_files(emuDBhandle, dbConfig$mediafileExtension)
+        funcFormals$listOfFiles = paste(emuDBhandle$basePath, paste0(fp$session, session.suffix), paste0(fp$bundle, bundle.dir.suffix), fp$file, sep = .Platform$file.sep)
         funcFormals$explicitExt = fileExtension
         
         # check if columnName is valid track
@@ -1087,8 +1089,9 @@ remove_ssffTrackDefinition <- function(emuDBhandle, name,
   
   # find and delete files
   if(deleteFiles){
-    filePaths = list_bundleFilePaths(emuDBhandle, deletedDef$fileExtension)
-    file.remove(filePaths)
+    fp = list_files(emuDBhandle, deletedDef$fileExtension)
+    fp = paste(emuDBhandle$basePath, paste0(fp$session, session.suffix), paste0(fp$bundle, bundle.dir.suffix), fp$file, sep = .Platform$file.sep)
+    file.remove(fp)
   }
   # store changes
   store_DBconfig(emuDBhandle, dbConfig)

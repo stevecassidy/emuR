@@ -554,53 +554,6 @@ list_bundles <- function(emuDBhandle, session=NULL){
 
 
 
-##' List file paths of emuDBs bundles
-##' 
-##' List file paths of files belonging to emuDB.  For 
-##' more information on the structural elements of an emuDB 
-##' see \code{vignette{emuDB}}.
-##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
-##' @param fileExtention file extention of files
-##' @param sessionPattern A (regex) pattern matching sessions of emuDB
-##' @param bundlePattern A (regex) pattern matching bundles of emuDB
-##' @return file paths as character vector
-##' @export
-##' @examples 
-##' \dontrun{
-##' 
-##' ##################################
-##' # prerequisite: loaded ae emuDB 
-##' # (see ?load_emuDB for more information)
-##' 
-##' # list all .fms file paths of ae emuDB
-##' list_bundleFilePaths(emuDBhandle = ae, 
-##'                      fileExtention = "fms") 
-##' 
-##' }
-##' 
-list_bundleFilePaths <- function(emuDBhandle, fileExtention, 
-                                 sessionPattern='.*', bundlePattern='*'){
-  
-  dbConfig = load_DBconfig(emuDBhandle)
-  
-  bndls = list_bundles(emuDBhandle)
-  postPatternBndls = bndls[grepl(sessionPattern, bndls$session) & grepl(bundlePattern, bndls$name),]
-  if(dim(postPatternBndls)[1] == 0){
-    stop("No files belonging to bundles found in '", emuDBhandle$dbName, "' with fileExtention '", fileExtention, "' and the sessionPattern '", 
-         sessionPattern, "' and the bundlePattern '", bundlePattern, "'")
-  }
-  
-  fp = file.path(emuDBhandle$basePath, paste0(postPatternBndls$session,'_ses'), paste0(postPatternBndls$name, '_bndl'), paste0(postPatternBndls$name, '.', fileExtention))
-  
-  # return only files that exist (should maybe issue warning)
-  fpExist = fp[file.exists(fp)]
-  
-  return(fpExist)
-}
-
-
-
-
 rewrite_allAnnots <- function(emuDBhandle, verbose=TRUE){
   
   bndls = list_bundles(emuDBhandle)

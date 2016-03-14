@@ -69,8 +69,8 @@ test_that("CRUD operations work for ssffTrackDefinitions", {
     expect_equal(dbConfig$ssffTrackDefinitions[[2]]$name, "fm")
     
     # check that files have been deleted
-    filePaths = list_bundleFilePaths(ae, "pit")
-    expect_equal(length(filePaths), 0)
+    filePaths = list_files(ae, "pit")
+    expect_equal(nrow(filePaths), 0)
     
   })
   
