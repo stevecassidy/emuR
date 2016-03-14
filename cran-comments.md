@@ -13,11 +13,17 @@ Maintainer: 'Raphael Winkelmann <raphael@phonetik.uni-muenchen.de>'
 
 New submission
 
-This is our first submission of this package. However we would like to note that it is 
+Possibly mis-spelled words in DESCRIPTION:
+  SDMS (10:37)
+
+@ New submission: This is our first submission of this package. However we would like to note that it is 
 a complete rewrite of an archived CRAN package called "emu": 
 https://cran.r-project.org/src/contrib/Archive/emu/. As
 almost the entire API as well as the backend and data structures have changed we have 
 opted for an update of the package name to "emuR".
+
+@ Possibly mis-spelled words: EMU_SDMS is an acronym for the EMU Speech Database Management System
+
 
 ## Downstream dependencies
 There are currently no downstream dependencies for this package.
