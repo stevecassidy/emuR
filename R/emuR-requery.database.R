@@ -105,7 +105,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
     drop_requeryTmpTables(emuDBhandle)
     create_requeryTmpTables(emuDBhandle)
     # place in emuRsegsTmp table
-    dbWriteTable(emuDBhandle$connection, "emuRsegsTmp", as.data.frame(seglist), overwrite=T)
+    DBI::dbWriteTable(emuDBhandle$connection, "emuRsegsTmp", as.data.frame(seglist), overwrite=T)
     
     # load config
     dbConfig=load_DBconfig(emuDBhandle)
@@ -142,7 +142,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
     # drop and create tmpQueryTables and write to table
     drop_allTmpTablesDBI(emuDBhandle)
     create_tmpFilteredQueryTablesDBI(emuDBhandle)
-    dbWriteTable(emuDBhandle$connection, "intermRes_itemsTmp_root", he, overwrite=T)
+    DBI::dbWriteTable(emuDBhandle$connection, "intermRes_itemsTmp_root", he, overwrite=T)
     
 
     trSl=convert_queryResultToVariableEmuRsegs(emuDBhandle)
@@ -214,7 +214,7 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
     drop_requeryTmpTables(emuDBhandle)
     create_requeryTmpTables(emuDBhandle)
     # place in emuRsegsTmp table
-    dbWriteTable(emuDBhandle$connection, "emuRsegsTmp", as.data.frame(seglist), overwrite=T)
+    DBI::dbWriteTable(emuDBhandle$connection, "emuRsegsTmp", as.data.frame(seglist), overwrite=T)
     
     # load config
     dbConfig=load_DBconfig(emuDBhandle)
@@ -281,7 +281,7 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
     # drop and create tmpQueryTables and write to table
     drop_allTmpTablesDBI(emuDBhandle)
     create_tmpFilteredQueryTablesDBI(emuDBhandle)
-    dbWriteTable(emuDBhandle$connection, "intermRes_itemsTmp_root", he, overwrite=T)
+    DBI::dbWriteTable(emuDBhandle$connection, "intermRes_itemsTmp_root", he, overwrite=T)
     
     trSl=convert_queryResultToVariableEmuRsegs(emuDBhandle)
     inSlLen=nrow(seglist)

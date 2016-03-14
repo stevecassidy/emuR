@@ -277,7 +277,7 @@ store_bundleAnnotDFsDBI <- function(emuDBhandle, bundleAnnotDFs, sessionName,
                                       session = sessionName,
                                       bundle = bundleName,
                                       bundleAnnotDFs$items)
-    dbWriteTable(emuDBhandle$connection, "items", bundleAnnotDFs$items, append = T)
+    DBI::dbWriteTable(emuDBhandle$connection, "items", bundleAnnotDFs$items, append = T)
   }
   
   # insert labels table entries (fist exanding it with db_uuid, session and bundle columns)
@@ -287,7 +287,7 @@ store_bundleAnnotDFsDBI <- function(emuDBhandle, bundleAnnotDFs, sessionName,
                                         bundle = bundleName,
                                         bundleAnnotDFs$labels)
     
-    dbWriteTable(emuDBhandle$connection, "labels", bundleAnnotDFs$labels, append = T)
+    DBI::dbWriteTable(emuDBhandle$connection, "labels", bundleAnnotDFs$labels, append = T)
   }
   
   # insert links table entries (fist exanding it with db_uuid, session and bundle columns)
@@ -298,7 +298,7 @@ store_bundleAnnotDFsDBI <- function(emuDBhandle, bundleAnnotDFs, sessionName,
                                        bundleAnnotDFs$links,
                                        label = NA)
     
-    dbWriteTable(emuDBhandle$connection, "links", bundleAnnotDFs$links, append = T)
+    DBI::dbWriteTable(emuDBhandle$connection, "links", bundleAnnotDFs$links, append = T)
   }
 }
 

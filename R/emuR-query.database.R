@@ -202,7 +202,7 @@ query_labels <- function(emuDBhandle, levelName, intermResTableSuffix, condition
                                                       "WHERE name = '", levelName, "'"))
       ssl = emuR_regexprl(value,ldf[['label']])
       res = ldf[ssl,]
-      dbWriteTable(emuDBhandle$connection, paste0("intermRes_itemsTmp_", intermResTableSuffix), subset(res, select = -label), append = T) # label column is ignored by dbWriteTable
+      DBI::dbWriteTable(emuDBhandle$connection, paste0("intermRes_itemsTmp_", intermResTableSuffix), subset(res, select = -label), append = T) # label column is ignored by DBI::dbWriteTable
     }
   }else if(opr=='!~'){
     for(value in values){
@@ -211,7 +211,7 @@ query_labels <- function(emuDBhandle, levelName, intermResTableSuffix, condition
                                                       "WHERE name = '", levelName, "'"))
       ssl = !emuR_regexprl(value,ldf[['label']])
       res = ldf[ssl,]
-      dbWriteTable(emuDBhandle$connection, paste0("intermRes_itemsTmp_", intermResTableSuffix), subset(res, select = -label), append = T) # label column is ignored by dbWriteTable
+      DBI::dbWriteTable(emuDBhandle$connection, paste0("intermRes_itemsTmp_", intermResTableSuffix), subset(res, select = -label), append = T) # label column is ignored by DBI::dbWriteTable
     }
   }else{
     stop("Syntax error: Unknown operator: '",opr,"'\n")
@@ -415,7 +415,7 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
         stop("Syntax error: Unknwon function: '",funcName,"'")
       }
       DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_itemsTmp_", intermResTableSuffix))
-      dbWriteTable(emuDBhandle$connection, paste0("intermRes_itemsTmp_", intermResTableSuffix), itemsAsSeqs, append = T)
+      DBI::dbWriteTable(emuDBhandle$connection, paste0("intermRes_itemsTmp_", intermResTableSuffix), itemsAsSeqs, append = T)
       # move meta infos to correct table
       DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_metaInfosTmp_", intermResTableSuffix))
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO intermRes_metaInfosTmp_", intermResTableSuffix, " VALUES ('", resultLevel, "', NULL, '", qTrim, "')"))
@@ -757,7 +757,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
       insertQueryStr = paste0("INSERT INTO lrExpResTmp ", lrDomQueryStr)
       DBI::dbGetQuery(emuDBhandle$connection, insertQueryStr)
       
-      # dbWriteTable(emuDBhandle$connection, "lrExpResTmp", lrExpRes, append = T)
+      # DBI::dbWriteTable(emuDBhandle$connection, "lrExpResTmp", lrExpRes, append = T)
       nLrExpRes = DBI::dbGetQuery(emuDBhandle$connection, "SELECT COUNT(*) AS n FROM lrExpResTmp")$n
       if(nLrExpRes>0){
         if(nLeftProjItems != 0){
@@ -767,12 +767,12 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
                         "WHERE i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.lSeqStartId=pi.seqStartId AND i.lSeqEndId=pi.seqEndId")
           reducedPI = DBI::dbGetQuery(emuDBhandle$connection, qStr)
           DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_ProjItemsTmp_", intermResTableSuffix))
-          dbWriteTable(emuDBhandle$connection, paste0("intermRes_ProjItemsTmp_", intermResTableSuffix), reducedPI, append = T)
+          DBI::dbWriteTable(emuDBhandle$connection, paste0("intermRes_ProjItemsTmp_", intermResTableSuffix), reducedPI, append = T)
 
           # move meta infos to correct table
           # allMeta = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM intermRes_MetaInfosTmp_", leftTableSuffix))
           # DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_MetaInfosTmp_", intermResTableSuffix))
-          # dbWriteTable(emuDBhandle$connection, paste0("intermRes_MetaInfosTmp_", intermResTableSuffix), allMeta, append = T)
+          # DBI::dbWriteTable(emuDBhandle$connection, paste0("intermRes_MetaInfosTmp_", intermResTableSuffix), allMeta, append = T)
           
         }
         
@@ -783,12 +783,12 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
                         "WHERE i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.rSeqStartId=pi.seqStartId AND i.rSeqEndId=pi.seqEndId")
           reducedPI = DBI::dbGetQuery(emuDBhandle$connection, qStr)
           DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_ProjItemsTmp_", intermResTableSuffix))
-          dbWriteTable(emuDBhandle$connection, paste0("intermRes_ProjItemsTmp_", intermResTableSuffix), reducedPI, append = T)
+          DBI::dbWriteTable(emuDBhandle$connection, paste0("intermRes_ProjItemsTmp_", intermResTableSuffix), reducedPI, append = T)
 
           # move meta infos to correct table
           # allMeta = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM intermRes_MetaInfosTmp_", rightTableSuffix))
           # DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_MetaInfosTmp_", intermResTableSuffix))
-          # dbWriteTable(emuDBhandle$connection, paste0("intermRes_MetaInfosTmp_", intermResTableSuffix), allMeta, append = T)
+          # DBI::dbWriteTable(emuDBhandle$connection, paste0("intermRes_MetaInfosTmp_", intermResTableSuffix), allMeta, append = T)
           
         }
       }
@@ -797,13 +797,13 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
         # if no projItems -> place left Meta infos in result table
         allMeta = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM intermRes_MetaInfosTmp_", leftTableSuffix))
         DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_MetaInfosTmp_", intermResTableSuffix))
-        dbWriteTable(emuDBhandle$connection, paste0("intermRes_MetaInfosTmp_", intermResTableSuffix), allMeta, append = T)
+        DBI::dbWriteTable(emuDBhandle$connection, paste0("intermRes_MetaInfosTmp_", intermResTableSuffix), allMeta, append = T)
       # }
       
       # place result in correct table
       resItems = DBI::dbGetQuery(emuDBhandle$connection, "SELECT DISTINCT db_uuid, session, bundle, lSeqStartId AS seqStartId, lSeqEndId AS seqEndId, lSeqLen AS seqLen, lLevel AS level FROM lrExpResTmp")
       DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_ItemsTmp_", intermResTableSuffix))
-      dbWriteTable(emuDBhandle$connection, paste0("intermRes_ItemsTmp_", intermResTableSuffix), resItems, append = T)
+      DBI::dbWriteTable(emuDBhandle$connection, paste0("intermRes_ItemsTmp_", intermResTableSuffix), resItems, append = T)
       
       
     }
@@ -840,11 +840,11 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
         
         reducedPI = DBI::dbGetQuery(emuDBhandle$connection, qStr)
         DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_ProjItemsTmp_", intermResTableSuffix))
-        dbWriteTable(emuDBhandle$connection, paste0("intermRes_ProjItemsTmp_", intermResTableSuffix), reducedPI, append = T)
+        DBI::dbWriteTable(emuDBhandle$connection, paste0("intermRes_ProjItemsTmp_", intermResTableSuffix), reducedPI, append = T)
         # move meta infos to correct table
         allMeta = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM intermRes_MetaInfosTmp_", leftTableSuffix))
         DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_MetaInfosTmp_", intermResTableSuffix))
-        dbWriteTable(emuDBhandle$connection, paste0("intermRes_MetaInfosTmp_", intermResTableSuffix), allMeta, append = T)
+        DBI::dbWriteTable(emuDBhandle$connection, paste0("intermRes_MetaInfosTmp_", intermResTableSuffix), allMeta, append = T)
         
       }
       
@@ -856,11 +856,11 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
         
         reducedPI = DBI::dbGetQuery(emuDBhandle$connection, qStr)
         DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_ProjItemsTmp_", intermResTableSuffix))
-        dbWriteTable(emuDBhandle$connection, paste0("intermRes_ProjItemsTmp_", intermResTableSuffix), reducedPI, append = T)
+        DBI::dbWriteTable(emuDBhandle$connection, paste0("intermRes_ProjItemsTmp_", intermResTableSuffix), reducedPI, append = T)
         # move meta infos to correct table
         allMeta = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM intermRes_MetaInfosTmp_", rightTableSuffix))
         DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_MetaInfosTmp_", intermResTableSuffix))
-        dbWriteTable(emuDBhandle$connection, paste0("intermRes_MetaInfosTmp_", intermResTableSuffix), allMeta, append = T)
+        DBI::dbWriteTable(emuDBhandle$connection, paste0("intermRes_MetaInfosTmp_", intermResTableSuffix), allMeta, append = T)
         
       }
       
@@ -868,13 +868,13 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
         # if no projItems -> place left Meta infos in result table
         allMeta = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM intermRes_MetaInfosTmp_", leftTableSuffix))
         DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_MetaInfosTmp_", intermResTableSuffix))
-        dbWriteTable(emuDBhandle$connection, paste0("intermRes_MetaInfosTmp_", intermResTableSuffix), allMeta, append = T)
+        DBI::dbWriteTable(emuDBhandle$connection, paste0("intermRes_MetaInfosTmp_", intermResTableSuffix), allMeta, append = T)
       }
       
       # place result in correct table
       resItems = DBI::dbGetQuery(emuDBhandle$connection, "SELECT DISTINCT db_uuid, session, bundle, lSeqStartId AS seqStartId, rSeqEndId AS seqEndId, lSeqLen+rSeqLen AS seqLen, lLevel AS level FROM lrExpResTmp")
       DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM intermRes_itemsTmp_", intermResTableSuffix))
-      dbWriteTable(emuDBhandle$connection, paste0("intermRes_ItemsTmp_", intermResTableSuffix), resItems, append = T)
+      DBI::dbWriteTable(emuDBhandle$connection, paste0("intermRes_ItemsTmp_", intermResTableSuffix), resItems, append = T)
       
     }
     return()
@@ -1048,10 +1048,10 @@ query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*
       bndlSelLksExt = rep(TRUE, nrow(queryLinksExt))
     }
     # write to tmp tables
-    dbWriteTable(emuDBhandle$connection, "itemsFilteredTmp", queryItems[sesSelIts & bndlSelIts, ], append = TRUE)
-    dbWriteTable(emuDBhandle$connection, "labelsFilteredTmp", queryLabels[sesSelLbls & bndlSelLbls, ], append = TRUE)
-    dbWriteTable(emuDBhandle$connection, "linksFilteredTmp", queryLinks[sesSelLks & bndlSelLks, ], append = TRUE)
-    dbWriteTable(emuDBhandle$connection, "linksExtFilteredTmp", queryLinksExt[sesSelLksExt & bndlSelLksExt, ], append = TRUE)
+    DBI::dbWriteTable(emuDBhandle$connection, "itemsFilteredTmp", queryItems[sesSelIts & bndlSelIts, ], append = TRUE)
+    DBI::dbWriteTable(emuDBhandle$connection, "labelsFilteredTmp", queryLabels[sesSelLbls & bndlSelLbls, ], append = TRUE)
+    DBI::dbWriteTable(emuDBhandle$connection, "linksFilteredTmp", queryLinks[sesSelLks & bndlSelLks, ], append = TRUE)
+    DBI::dbWriteTable(emuDBhandle$connection, "linksExtFilteredTmp", queryLinksExt[sesSelLksExt & bndlSelLksExt, ], append = TRUE)
     
     if(is.null(resultType)){
       emuRsegs = query_databaseWithEqlEmuRsegs(emuDBhandle,query,timeRefSegmentLevel)
