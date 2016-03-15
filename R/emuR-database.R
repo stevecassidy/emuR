@@ -173,7 +173,7 @@ database.DDL.emuDB_linksExtTmpIdx2 = 'CREATE INDEX linksExtTmp2_idx ON linksExtT
 # init functions (create tables and indices)
 
 initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TRUE){
-  if(createTables & !dbExistsTable(emuDBhandle$connection, 'emuDB')){
+  if(createTables & !DBI::dbExistsTable(emuDBhandle$connection, 'emuDB')){
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB)
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_session)
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_bundle)
@@ -184,7 +184,7 @@ initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TR
     if(createIndices){  
       create_emuDBindicesDBI(emuDBhandle)
     }
-  }else if(createTables & dbExistsTable(emuDBhandle$connection, 'emuDB')){
+  }else if(createTables & DBI::dbExistsTable(emuDBhandle$connection, 'emuDB')){
     # remove old tmp tables that where not created with CREATE TEMP TABLE
     # drops
     if("linksTmp" %in% DBI::dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksTmp")
