@@ -107,6 +107,12 @@ test_that("CRUD operations work for levelDefinitions", {
     
     expect_error(remove_levelDefinition(ae, name="asdf")) # bad name
     expect_error(remove_levelDefinition(ae, name="Phonetic")) # linkDef present
+
+    DBI::dbGetQuery(ae$connection, paste0("INSERT INTO session VALUES ('", ae$UUID,
+                                          "', '0001')")) # add item
+
+    DBI::dbGetQuery(ae$connection, paste0("INSERT INTO bundle VALUES ('", ae$UUID,
+                                          "', '0001', 'fakeBundle', 'fakeBundle.wav', 20000, '785c7cdb6d4bd5e8b5cd7c56a5946ddf')")) # add item
     
     DBI::dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID,
                                      "', '0001', 'fakeBundle', 1, 'Phonetic2', 'ITEM', 20000, 1, NULL, NULL, NULL)")) # add item

@@ -75,7 +75,6 @@ convert_BPFCollection <- function(sourceDir,
   # - the order of both vectors must match (i.e. if you add the name at position 10, add the class at position 10 as well)
   
   # If you do not wish to extend the format directly in the source code, use newLevels and newLevelClasses arguments.
-  
   STANDARD_LEVELS = c(
     "KAN", "KAS", "PTR", "ORT", "TRL", "TR2", "SUP", "DAS", "PRS", "NOI", 
     "POS", "LMA", "TRS", "TRW", "PRO", "SYN", "FUN", "LEX", "TLN",
@@ -153,7 +152,10 @@ convert_BPFCollection <- function(sourceDir,
   # ------------------------ Initialize temporary dbHandle --------------------
   # ---------------------------------------------------------------------------
   
-  dbHandle = emuDBhandle(dbName, basePath = basePath, UUIDgenerate(), ":memory:")
+  dbHandle = emuDBhandle(dbName, basePath = basePath, uuid::UUIDgenerate(), ":memory:")
+  # insert into emuDB table
+  queryTxt = paste0("INSERT INTO emuDB (uuid, name) VALUES('", dbHandle$UUID, "', '", dbName,"')")
+  DBI::dbGetQuery(dbHandle$connection, queryTxt)
   
   # ---------------------------------------------------------------------------
   # ------------------------ Initialize progress bar --------------------------
@@ -198,19 +200,19 @@ convert_BPFCollection <- function(sourceDir,
                              sourceDir = sourceDir)
     
     bpfPath = normalizePath(filePairList[idx, 1], winslash = .Platform$file.sep)
-    bundle = file_path_sans_ext(basename(bpfPath))
+    bundle = tools::file_path_sans_ext(basename(bpfPath))
     annotates = basename(filePairList[idx, 2])
     
     # Escaping single quotes in anything user-generated that will be fed into SQL
-    session = str_replace_all(session, "'", "''")
-    bundle = str_replace_all(bundle, "'", "''")
-    annotates = str_replace_all(annotates, "'", "''")
+    session = stringr::str_replace_all(session, "'", "''")
+    bundle = stringr::str_replace_all(bundle, "'", "''")
+    annotates = stringr::str_replace_all(annotates, "'", "''")
     
     # -----------------------------------------------------------------------
     # -------- Get sample rate for comparison with info in BPF header -------
     # -----------------------------------------------------------------------
     
-    asspObj = read.AsspDataObj(filePairList[idx, 2])
+    asspObj = wrassp::read.AsspDataObj(filePairList[idx, 2])
     samplerate = attributes(asspObj)$sampleRate
     
     # -----------------------------------------------------------------------
@@ -404,7 +406,7 @@ copy_bpfMediaFiles <- function(basePath,
                           paste0(get_bpfSession(filePath = mediaFiles[[idx]],
                                                 sourceDir = sourceDir),
                                  session.suffix),
-                          paste0(file_path_sans_ext(basename(mediaFiles[[idx]])), 
+                          paste0(tools::file_path_sans_ext(basename(mediaFiles[[idx]])), 
                                  bundle.dir.suffix)
     )
     
@@ -460,9 +462,9 @@ get_bpfSession <- function(filePath,
   
   session = normalizePath(dirname(filePath), winslash = "/")
   sourceDir = normalizePath(sourceDir, winslash = "/")
-  session = str_replace_all(session, sourceDir, "")
-  session = str_replace_all(session, .Platform$file.sep, "_")
-  session = str_replace_all(session, "^_", "")
+  session = stringr::str_replace_all(session, sourceDir, "")
+  session = stringr::str_replace_all(session, .Platform$file.sep, "_")
+  session = stringr::str_replace_all(session, "^_", "")
   
   if(session == "")
   {

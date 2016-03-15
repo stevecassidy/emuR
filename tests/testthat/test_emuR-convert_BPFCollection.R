@@ -357,7 +357,7 @@ test_that("Correct call with necessary arguments",
             dbAnnot = jsonlite::fromJSON(paste(dbAnnotLines, collapse=''), simplifyVector=F)
                               
             # Check that all labels on level 'MAU' have _start/_end suffix
-            expect_true(all(unlist(sapply(dbAnnot$levels[[5]]$items, function(x) if(str_detect(x$labels[[1]]$value, "_start") || str_detect(x$labels[[1]]$value, "_end")) TRUE))))
+            expect_true(all(unlist(sapply(dbAnnot$levels[[5]]$items, function(x) if(stringr::str_detect(x$labels[[1]]$value, "_start") || stringr::str_detect(x$labels[[1]]$value, "_end")) TRUE))))
             expect_equal(dbAnnot$levels[[5]]$items[[3]]$labels[[1]]$value, "@_start")
             expect_equal(dbAnnot$levels[[5]]$items[[4]]$labels[[1]]$value, "@_end")
                                     

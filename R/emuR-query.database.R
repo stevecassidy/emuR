@@ -7,15 +7,19 @@ create_tmpFilteredQueryTablesDBI <- function(emuDBhandle){
   
   # tabels that store "filtered" items, labels and linksExt (when session/bundlePatterns are used)
   database.DDL.emuDB_itemsFilteredTmp = gsub("CREATE TABLE items", "CREATE TEMP TABLE itemsFilteredTmp", database.DDL.emuDB_items)
+  database.DDL.emuDB_itemsFilteredTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_itemsFilteredTmp) # remove FOREIGN KEY
   database.DDL.emuDB_itemsFilteredTmp_idx = "CREATE INDEX itemsFilteredTmp_idx ON itemsFilteredTmp(db_uuid,session,bundle,itemID)"
   
   database.DDL.emuDB_labelsFilteredTmp = gsub("CREATE TABLE labels", "CREATE TEMP TABLE labelsFilteredTmp", database.DDL.emuDB_labels)
+  database.DDL.emuDB_labelsFilteredTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_labelsFilteredTmp) # remove FOREIGN KEY
   database.DDL.emuDB_labelsFilteredTmp_idx = "CREATE INDEX labelsFilteredTmp_idx ON labelsFilteredTmp(itemID,db_uuid,session,bundle,name)"
 
   database.DDL.emuDB_linksFilteredTmp = gsub("CREATE TABLE links", "CREATE TEMP TABLE linksFilteredTmp", database.DDL.emuDB_links)
+  database.DDL.emuDB_linksFilteredTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_linksFilteredTmp) # remove FOREIGN KEY
   database.DDL.emuDB_linksFilteredTmp_idx = 'CREATE INDEX linksFilteredTmp_idx ON linksFilteredTmp(db_uuid,session,bundle,fromID,toID)'
     
   database.DDL.emuDB_linksExtFilteredTmp = gsub("CREATE TABLE linksExt", "CREATE TEMP TABLE linksExtFilteredTmp", database.DDL.emuDB_linksExt)
+  database.DDL.emuDB_linksExtFilteredTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_linksExtFilteredTmp) # remove FOREIGN KEY
   database.DDL.emuDB_linksExtFilteredTmp_idx = 'CREATE INDEX linksExtFilteredTmp_idx ON linksExtFilteredTmp(db_uuid,session,bundle,fromID,toID)'
   
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredTmp)
@@ -28,11 +32,16 @@ create_tmpFilteredQueryTablesDBI <- function(emuDBhandle){
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtFilteredTmp_idx)
   
   # tabels that store subsets of filtered tables
-  database.DDL.emuDB_itemsFilteredSubsetTmp = gsub("CREATE TABLE items", "CREATE TEMP TABLE itemsFilteredSubsetTmp", database.DDL.emuDB_items) 
+  database.DDL.emuDB_itemsFilteredSubsetTmp = gsub("CREATE TABLE items", "CREATE TEMP TABLE itemsFilteredSubsetTmp", database.DDL.emuDB_items)
+  database.DDL.emuDB_itemsFilteredSubsetTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_itemsFilteredSubsetTmp) # remove FOREIGN KEY
   database.DDL.emuDB_itemsFilteredSubsetTmp_idx = "CREATE INDEX itemsFilteredSubsetTmp_idx ON itemsFilteredSubsetTmp(db_uuid,session,bundle,itemID)"
+  
   database.DDL.emuDB_labelsFilteredSubsetTmp = gsub("CREATE TABLE labels", "CREATE TEMP TABLE labelsFilteredSubsetTmp", database.DDL.emuDB_labels)
+  database.DDL.emuDB_labelsFilteredSubsetTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_labelsFilteredSubsetTmp) # remove FOREIGN KEY
   database.DDL.emuDB_labelsFilteredSubsetTmp_idx = "CREATE INDEX labelsFilteredSubsetTmp_idx ON labelsFilteredSubsetTmp(itemID,db_uuid,session,bundle,name)"
+  
   database.DDL.emuDB_linksExtFilteredSubsetTmp = gsub("CREATE TABLE linksExt", "CREATE TEMP TABLE linksExtFilteredSubsetTmp", database.DDL.emuDB_linksExt)
+  database.DDL.emuDB_linksExtFilteredSubsetTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_linksExtFilteredSubsetTmp) # remove FOREIGN KEY
   database.DDL.emuDB_linksExtFilteredSubsetTmp_idx = 'CREATE INDEX linksExtFilteredSubsetTmp_idx ON linksExtFilteredSubsetTmp(db_uuid,session,bundle,fromID,toID)'
   
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredSubsetTmp)
@@ -51,8 +60,7 @@ create_tmpFilteredQueryTablesDBI <- function(emuDBhandle){
                                           "rSeqStartId INTEGER,",
                                           "rSeqEndId INTEGER,",
                                           "rSeqLen INTERGER,",
-                                          "rLevel TEXT,",
-                                          "FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session_name, name)",
+                                          "rLevel TEXT",
                                           ");")
   
   database.DDL.emuDB_lrExpResTmp_idx = 'CREATE INDEX lrExpResTmp_idx ON lrExpResTmp(db_uuid,session,bundle)'
@@ -73,8 +81,7 @@ create_intermResTmpQueryTablesDBI <- function(emuDBhandle, suffix = "root"){
                                                  "seqEndId INTEGER,",
                                                  "seqLen INTEGER,",
                                                  "level TEXT,",
-                                                 "PRIMARY KEY (db_uuid, session, bundle, seqStartId, seqEndId),",
-                                                 "FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session_name, name)",
+                                                 "PRIMARY KEY (db_uuid, session, bundle, seqStartId, seqEndId)",
                                                  ");")
   
   database.DDL.emuDB_intermRes_itemsTmp_idx = paste0("CREATE INDEX intermRes_itemsTmp_", suffix, "_idx ON intermRes_itemsTmp_", suffix, "(db_uuid,session,bundle,seqStartId,seqEndId,seqLen,level)")
@@ -96,8 +103,7 @@ create_intermResTmpQueryTablesDBI <- function(emuDBhandle, suffix = "root"){
                                                      "pSeqStartId INTEGER,",
                                                      "pSeqEndId INTEGER,",
                                                      "pSeqLen INTEGER,",
-                                                     "pLevel TEXT,",
-                                                     "FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session_name, name)",
+                                                     "pLevel TEXT",
                                                      ");")
   
   database.DDL.emuDB_intermRes_projItemsTmp_idx = paste0("CREATE INDEX intermRes_projItemsTmp_", suffix, "_idx ON intermRes_projItemsTmp_", suffix, "(db_uuid,session,bundle,seqStartId,seqEndId)")
@@ -247,7 +253,7 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
       if(prbOpen==1){
         stop("Syntax error: Expected function name in '",q,"'\n")
       }
-      paramsVec=str_split(substr(qTrim,prbOpen+1,prbClose-1),',')
+      paramsVec=stringr::str_split(substr(qTrim,prbOpen+1,prbClose-1),',')
       params=paramsVec[[1]]
       paramsLen=length(params)
       # all functions require exactly two params
@@ -1012,12 +1018,10 @@ query_databaseWithEql<-function(emuDBhandle, query, intermResTableSuffix, leftRi
 ##' 
 
 query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*', queryLang = 'EQL2', timeRefSegmentLevel = NULL, resultType = NULL){
-  
   if(queryLang=='EQL2'){
     # create temp tables 
     drop_allTmpTablesDBI(emuDBhandle)
     create_tmpFilteredQueryTablesDBI(emuDBhandle)
-    
     # extract all items for session/bundlePattern regEx matching (should check if REGEXP is available and is so use that instead)
     queryItems <- DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM items WHERE db_uuid='", emuDBhandle$UUID, "'"))
     queryLabels <- DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM labels WHERE db_uuid='", emuDBhandle$UUID, "'"))

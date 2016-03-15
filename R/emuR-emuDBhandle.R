@@ -2,7 +2,7 @@
 emuDBhandle = function(dbName, basePath, UUID, connectionPath, connection=NULL){
   
   if(is.null(connection)){
-    con <- dbConnect(RSQLite::SQLite(), connectionPath)
+    con <- DBI::dbConnect(RSQLite::SQLite(), connectionPath)
   }else{
     con = connection
   }
@@ -13,11 +13,22 @@ emuDBhandle = function(dbName, basePath, UUID, connectionPath, connection=NULL){
                 connection = con)
   
   class(handle) = "emuDBhandle"
+  
+  if(class(handle$connection) == "SQLiteConnection"){
+    setSQLitePragmas(handle$connection)
+  }
+  
   if(connectionPath == ":memory:" || file.exists(file.path(basePath, paste0(dbName, database.cache.suffix))) || !is.null(connection)){
     initialize_emuDbDBI(handle)
   }
   
+  
+  
   return(handle)
+}
+
+setSQLitePragmas <- function(con){
+  DBI::dbGetQuery(con, "PRAGMA foreign_keys = ON;")
 }
 
 ##' @export

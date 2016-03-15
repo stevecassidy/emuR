@@ -41,7 +41,7 @@ database.DDL.emuDB_session = 'CREATE TABLE session (
   db_uuid VARCHAR(36),
   name TEXT,
   PRIMARY KEY (db_uuid,name),
-  FOREIGN KEY (db_uuid) REFERENCES emuDB(uuid)
+  FOREIGN KEY (db_uuid) REFERENCES emuDB(uuid) ON DELETE CASCADE
 );'
 
 database.DDL.emuDB_bundle = 'CREATE TABLE bundle (
@@ -51,8 +51,8 @@ database.DDL.emuDB_bundle = 'CREATE TABLE bundle (
   annotates TEXT,
   sampleRate FLOAT,
   MD5annotJSON TEXT,
-  PRIMARY KEY (db_uuid,session,name),
-  FOREIGN KEY (db_uuid,session) REFERENCES session(db_uuid,name)
+  PRIMARY KEY (db_uuid, session, name),
+  FOREIGN KEY (db_uuid, session) REFERENCES session(db_uuid, name) ON DELETE CASCADE
 );'
 
 database.DDL.emuDB_items = 'CREATE TABLE items (
@@ -67,8 +67,8 @@ database.DDL.emuDB_items = 'CREATE TABLE items (
   samplePoint INTEGER,
   sampleStart INTEGER,
   sampleDur INTEGER,
-  PRIMARY KEY (db_uuid,session,bundle,level,itemID,type),
-  FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session_name,name)
+  PRIMARY KEY (db_uuid, session, bundle, level, itemID, type),
+  FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
 );'
 
 # Important note:
@@ -87,7 +87,7 @@ database.DDL.emuDB_labels = 'CREATE TABLE labels (
   labelIdx INTEGER,
   name TEXT,
   label TEXT,
-  FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session,name)
+  FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
 );'
 
 database.DDL.emuDB_links = 'CREATE TABLE links (
@@ -97,7 +97,7 @@ database.DDL.emuDB_links = 'CREATE TABLE links (
   fromID INTEGER,
   toID INTEGER,
   label TEXT,
-  FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session,name)
+  FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
 );'
 database.DDL.emuDB_linksIdx = 'CREATE INDEX links_idx ON links(db_uuid,session,bundle,fromID,toID)'
 
@@ -107,8 +107,7 @@ database.DDL.emuDB_linksTmp = 'CREATE TEMP TABLE linksTmp (
   bundle TEXT,
   fromID INTEGER,
   toID INTEGER,
-  label TEXT,
-  FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session,name)
+  label TEXT
 );'
 database.DDL.emuDB_linksTmpIdx = 'CREATE INDEX linksTmp_idx ON linksTmp(db_uuid,session,bundle,fromID,toID)'
 
@@ -124,7 +123,7 @@ database.DDL.emuDB_linksExt = 'CREATE TABLE linksExt (
   toSeqIdx INTEGER,
   toSeqLen INTEGER,
   label TEXT,
-  FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session,name)
+  FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
 );'
 
 
@@ -142,8 +141,7 @@ database.DDL.emuDB_linksExtTmp = 'CREATE TEMP TABLE linksExtTmp (
   type TEXT,
   toSeqIdx INTEGER,
   toSeqLen INTEGER,
-  label TEXT,
-  FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session,name)
+  label TEXT
 );'
 database.DDL.emuDB_linksExtTmpIdx = 'CREATE INDEX linksExtTmp_idx ON linksExtTmp(db_uuid,session,bundle,fromID,toID,toLevel,type)'
 
@@ -159,8 +157,7 @@ database.DDL.emuDB_linksExtTmp2 = 'CREATE TEMP TABLE linksExtTmp2 (
   type TEXT,
   toSeqIdx INTEGER,
   toSeqLen INTEGER,
-  label TEXT,
-  FOREIGN KEY (db_uuid,session,bundle) REFERENCES bundle(db_uuid,session,name)
+  label TEXT
 );'
 
 database.DDL.emuDB_linksExtTmpIdx2 = 'CREATE INDEX linksExtTmp2_idx ON linksExtTmp2(db_uuid,session,bundle,fromID,toID,toLevel,type)'
@@ -277,6 +274,7 @@ store_bundleAnnotDFsDBI <- function(emuDBhandle, bundleAnnotDFs, sessionName,
                                       session = sessionName,
                                       bundle = bundleName,
                                       bundleAnnotDFs$items)
+
     DBI::dbWriteTable(emuDBhandle$connection, "items", bundleAnnotDFs$items, append = T)
   }
   
@@ -862,7 +860,6 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, ve
       pb=utils::txtProgressBar(min = 0L, max = pMax, style = 3)
       utils::setTxtProgressBar(pb, progress)
     }
-    
     # bundles
     for(bndlIdx in 1:nrow(bundles)){
       bndl = bundles[bndlIdx,]
@@ -904,6 +901,7 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, ve
     if(verbose){ 
       cat("\nbuilding redundant links and position of links... (this may take a while)\n")
     }
+    
     build_allRedundantLinks(dbHandle)
     calculate_postionsOfLinks(dbHandle)
   }
