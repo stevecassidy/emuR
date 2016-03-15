@@ -59,7 +59,7 @@ create_tmpFilteredQueryTablesDBI <- function(emuDBhandle){
                                           "lLevel TEXT,",
                                           "rSeqStartId INTEGER,",
                                           "rSeqEndId INTEGER,",
-                                          "rSeqLen INTERGER,",
+                                          "rSeqLen INTEGER,",
                                           "rLevel TEXT",
                                           ");")
   
