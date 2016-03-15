@@ -474,10 +474,12 @@ remove_attributeDefinition <- function(emuDBhandle,
 ##' specified in this array, this is a simple way of assuring that a level 
 ##' has a consistent label set. For more information 
 ##' on the structural elements of an emuDB see \code{vignette(emuDB)}.
+##' Note that defining legal labels for an attributeDefinition does not imply that the 
+##' existing labels are checked for being 'legal' in the emuDB.
 ##' 
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param levelName name of level
-##' @param attributeDefinitionName name of attributeDefinition
+##' @param attributeDefinitionName name of attributeDefinition (can be and often is the level name)
 ##' @param legalLabels character vector of labels
 ##' @keywords emuDB database schema Emu
 ##' @name SetGetRemoveLegalLabels
@@ -751,6 +753,7 @@ remove_attrDefLabelGroup <- function(emuDBhandle,
 ##' }
 ##' 
 ##' For all link types the rule applies that no links are allowed to cross any other links.
+##' Further, a linkDefinition can not be removed, if there are links present in the emuDB.
 ##' 
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param type type of linkDefinition (either \code{"ONE_TO_MANY"}, \code{"MANY_TO_MANY"} or \code{"ONE_TO_ONE"})
@@ -763,7 +766,7 @@ remove_attrDefLabelGroup <- function(emuDBhandle,
 ##' ##################################
 ##' # prerequisite: loaded emuDB that was converted
 ##' # using the convert_TextGridCollection function called myTGcolDB
-##' # (see ?load_emuDB for more information)
+##' # (see ?load_emuDB and ?convert_TextGridCollection for more information)
 ##' 
 ##' # add link definition from super-level "Phoneme"
 ##' # to sub-level "Phonetic" of type "ONE_TO_MANY"
@@ -898,7 +901,7 @@ remove_linkDefinition <- function(emuDBhandle,
 
 ##' Add / List / Remove ssffTrackDefinition to / from / of emuDB
 ##' 
-##' Add / List / Remove ssffTrackDefinitions to / from / of emuDB. 
+##' Add / List / Remove ssffTrackDefinition to / from / of emuDB. 
 ##' An ssffTrack (often simply referred to as a track) references 
 ##' data that is stored in the Simple Signal File Format (SSFF) 
 ##' in the according bundle folders. The two most common types of data are:
@@ -910,15 +913,18 @@ remove_linkDefinition <- function(emuDBhandle,
 ##' such as formant values and their bandwidths or the short-term Root Mean Square amplitude of the signal.}
 ##' }
 ##' For more information on the structural elements of an emuDB see \code{vignette(emuDB)}.
+##' 
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
-##' @param name name of ssffTrackDefinitions
-##' @param columnName columnName of ssffTrackDefinitions.
-##' If the \code{onTheFlyFunctionName} parameter is set and this one isn't the
+##' @param name name of ssffTrackDefinition
+##' @param columnName columnName of ssffTrackDefinition.
+##' If the \code{onTheFlyFunctionName} parameter is set and columnName isn't, the
 ##' \code{columnName} will default to the first entry in \code{wrasspOutputInfos[[onTheFlyFunctionName]]$tracks}.
 ##' @param fileExtension fileExtension of ssffTrackDefinitions.
-##' If the \code{onTheFlyFunctionName} parameter is set and this one isn't the
+##' If the \code{onTheFlyFunctionName} parameter is set and fileExtension isn't, the
 ##' \code{fileExtension} will default to the first entry in \code{wrasspOutputInfos[[onTheFlyFunctionName]]$ext}.
-##' @param onTheFlyFunctionName name of wrassp function to do on-the-fly calculation. See \code{names(wrasspOutputInfos)}
+##' @param onTheFlyFunctionName name of wrassp function to do on-the-fly calculation. If set to the name of a wrassp 
+##' signal processing function, not only the emuDB schema is extended by the ssffTrackDefintion but also 
+##' the track itself is calculated from the signal file and stored in the emuDB. See \code{names(wrasspOutputInfos)}
 ##' for a list of all the signal processing functions provided by the wrassp package.
 ##' @param onTheFlyParams a list of parameters that will be given to the function 
 ##' passed in by the onTheFlyFunctionName parameter. This list can easily be 
@@ -939,7 +945,7 @@ remove_linkDefinition <- function(emuDBhandle,
 ##' # (see ?load_emuDB for more information)
 ##' 
 ##' # add ssff track definition to ae emuDB
-##' # calculating the according SSFF files on-the-fly
+##' # calculating the according SSFF files (.zcr) on-the-fly
 ##' # using the wrassp function "zcrana" (zero-crossing-rate analysis)
 ##' add_ssffTrackDefinition(emuDBhandle = ae,
 ##'                         name = "ZCRtrack",
@@ -959,7 +965,8 @@ remove_linkDefinition <- function(emuDBhandle,
 ##' # list ssff track definitions for ae emuDB
 ##' list_ssffTrackDefinitions(emuDBhandle = ae)
 ##' 
-##' # remove newly added ssff track definition
+##' # remove newly added ssff track definition (does not delete 
+##' # the actual .zrc files)
 ##' remove_ssffTrackDefinition <- function(emuDBhandle = ae, 
 ##'                                        name = "ZCRtrack")
 ##' 
@@ -1110,8 +1117,13 @@ remove_ssffTrackDefinition <- function(emuDBhandle, name,
 ##' \code{\link{query}}. A common example would be to
 ##' add a label group for something like the phonetic
 ##' category of nasals to be able to reference them 
-##' as "nasals" in a \code{\link{query}}. For 
-##' more information on the structural elements of an emuDB 
+##' as "nasals" in a \code{\link{query}}. 
+##' In theory you could use a labelGroupName as a label instance within the
+##' level, but since this could lead to serious confusion, it is better avoided.
+##' For users transitioning from the legacy EMU system: Do not confuse a 
+##' labelGroup with legal labels: a labelGroup 
+##' had the unfortunate name 'legal labels' in the legacy EMU system.  
+##' For more information on the structural elements of an emuDB 
 ##' see \code{vignette{emuDB}}.
 ##' 
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}

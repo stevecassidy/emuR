@@ -18,7 +18,7 @@ remove_legalLabels(emuDBhandle, levelName, attributeDefinitionName)
 
 \item{levelName}{name of level}
 
-\item{attributeDefinitionName}{name of attributeDefinition}
+\item{attributeDefinitionName}{name of attributeDefinition (can be and often is the level name)}
 
 \item{legalLabels}{character vector of labels}
 }
@@ -30,6 +30,8 @@ As the EMU-webApp won't allow the annotator to enter any labels that are not
 specified in this array, this is a simple way of assuring that a level 
 has a consistent label set. For more information 
 on the structural elements of an emuDB see \code{vignette(emuDB)}.
+Note that defining legal labels for an attributeDefinition does not imply that the 
+existing labels are checked for being 'legal' in the emuDB.
 }
 \examples{
 \dontrun{

@@ -39,6 +39,7 @@ Link type descriptions:
 }
 
 For all link types the rule applies that no links are allowed to cross any other links.
+Further, a linkDefinition can not be removed, if there are links present in the emuDB.
 }
 \examples{
 \dontrun{
@@ -46,7 +47,7 @@ For all link types the rule applies that no links are allowed to cross any other
 ##################################
 # prerequisite: loaded emuDB that was converted
 # using the convert_TextGridCollection function called myTGcolDB
-# (see ?load_emuDB for more information)
+# (see ?load_emuDB and ?convert_TextGridCollection for more information)
 
 # add link definition from super-level "Phoneme"
 # to sub-level "Phonetic" of type "ONE_TO_MANY"

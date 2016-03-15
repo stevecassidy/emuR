@@ -19,17 +19,19 @@ remove_ssffTrackDefinition(emuDBhandle, name, deleteFiles = FALSE)
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
 
-\item{name}{name of ssffTrackDefinitions}
+\item{name}{name of ssffTrackDefinition}
 
-\item{columnName}{columnName of ssffTrackDefinitions.
-If the \code{onTheFlyFunctionName} parameter is set and this one isn't the
+\item{columnName}{columnName of ssffTrackDefinition.
+If the \code{onTheFlyFunctionName} parameter is set and columnName isn't, the
 \code{columnName} will default to the first entry in \code{wrasspOutputInfos[[onTheFlyFunctionName]]$tracks}.}
 
 \item{fileExtension}{fileExtension of ssffTrackDefinitions.
-If the \code{onTheFlyFunctionName} parameter is set and this one isn't the
+If the \code{onTheFlyFunctionName} parameter is set and fileExtension isn't, the
 \code{fileExtension} will default to the first entry in \code{wrasspOutputInfos[[onTheFlyFunctionName]]$ext}.}
 
-\item{onTheFlyFunctionName}{name of wrassp function to do on-the-fly calculation. See \code{names(wrasspOutputInfos)}
+\item{onTheFlyFunctionName}{name of wrassp function to do on-the-fly calculation. If set to the name of a wrassp 
+signal processing function, not only the emuDB schema is extended by the ssffTrackDefintion but also 
+the track itself is calculated from the signal file and stored in the emuDB. See \code{names(wrasspOutputInfos)}
 for a list of all the signal processing functions provided by the wrassp package.}
 
 \item{onTheFlyParams}{a list of parameters that will be given to the function 
@@ -47,7 +49,7 @@ parameter one wishes to change.}
 \item{deleteFiles}{delete files that belong to ssffTrackDefinition on removal}
 }
 \description{
-Add / List / Remove ssffTrackDefinitions to / from / of emuDB. 
+Add / List / Remove ssffTrackDefinition to / from / of emuDB. 
 An ssffTrack (often simply referred to as a track) references 
 data that is stored in the Simple Signal File Format (SSFF) 
 in the according bundle folders. The two most common types of data are:
@@ -68,7 +70,7 @@ For more information on the structural elements of an emuDB see \code{vignette(e
 # (see ?load_emuDB for more information)
 
 # add ssff track definition to ae emuDB
-# calculating the according SSFF files on-the-fly
+# calculating the according SSFF files (.zcr) on-the-fly
 # using the wrassp function "zcrana" (zero-crossing-rate analysis)
 add_ssffTrackDefinition(emuDBhandle = ae,
                         name = "ZCRtrack",
@@ -88,7 +90,8 @@ add_ssffTrackDefinition(emuDBhandle = ae,
 # list ssff track definitions for ae emuDB
 list_ssffTrackDefinitions(emuDBhandle = ae)
 
-# remove newly added ssff track definition
+# remove newly added ssff track definition (does not delete 
+# the actual .zrc files)
 remove_ssffTrackDefinition <- function(emuDBhandle = ae, 
                                        name = "ZCRtrack")
 
