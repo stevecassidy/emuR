@@ -386,7 +386,7 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.
             remove_bundleAnnotDBI(emuDBhandle, sessionName = bundleSession, bundleName = bundleName)
             # store
             # calculate MD5 sum of bundle annotJSON
-            newMD5annotJSON = md5sum(annotFilePath)
+            newMD5annotJSON = tools::md5sum(annotFilePath)
             names(newMD5annotJSON) = NULL
             
             bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(as.character(json))

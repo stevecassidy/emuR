@@ -878,7 +878,7 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, ve
                                               paste0(bndl$name, bundle.annotation.suffix, '.json')))
       
       # calculate MD5 sum of bundle annotJSON
-      newMD5annotJSON = md5sum(annotFilePath)
+      newMD5annotJSON = tools::md5sum(annotFilePath)
       names(newMD5annotJSON) = NULL
       
       # read annotJSON as charac 

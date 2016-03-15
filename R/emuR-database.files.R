@@ -116,7 +116,7 @@ import_mediaFiles<-function(emuDBhandle,dir,targetSessionName='0000', verbose=TR
     writeLines(annotJSONchar, newAnnotFileFullPath)
     
     # calculate MD5 sum of bundle annotJSON
-    MD5annotJSON = md5sum(newAnnotFileFullPath)
+    MD5annotJSON = tools::md5sum(newAnnotFileFullPath)
     
     add_bundleDBI(emuDBhandle, sessionName = targetSessionName, name = bundleName, annotates = mf, sampleRate = sampleRate, MD5annotJSON = MD5annotJSON)
     

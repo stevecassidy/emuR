@@ -46,7 +46,7 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
                                             paste0(bndl$name, bundle.annotation.suffix, '.json')))
     
     # calculate new MD5 sum of bundle annotJSON
-    newMD5annotJSON = md5sum(annotFilePath)
+    newMD5annotJSON = tools::md5sum(annotFilePath)
     names(newMD5annotJSON) = NULL
     
     # get old MD5 sum (NOTE: this returns an empty string if the bundle isn't present)
