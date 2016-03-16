@@ -386,7 +386,7 @@ test_that("autobuild of converted TGcol works", {
   autobuild_linkFromTimes(tgCol, "Utterance", "Intonational")
   
   test_that("linksExt are added",{
-    linksExt = dbReadTable(tgCol$connection, "linksExt")
+    linksExt = dbReadTable(tgCol$connection, "links_ext")
     expect_true(nrow(linksExt) > 0)
   })
 

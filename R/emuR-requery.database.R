@@ -228,7 +228,7 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
                           slil.db_uuid=sl.db_uuid AND slil.session=sl.session AND slil.bundle=sl.bundle AND \
                           slil.itemID=sl.startItemID AND ils.level=slil.level AND (\
                           (ils.itemID=sl.startItemID) OR 
-                          (EXISTS (SELECT * FROM linksExt lr \
+                          (EXISTS (SELECT * FROM links_ext lr \
                           WHERE lr.db_uuid=sl.db_uuid AND lr.session=sl.session AND lr.bundle=sl.bundle \
                           AND ((lr.fromID=sl.startItemID AND lr.toID=ils.itemID) OR (lr.fromID=ils.itemID AND lr.toID= sl.startItemID))\
                           )) \
@@ -239,7 +239,7 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
                           slir.db_uuid=sl.db_uuid AND slir.session=sl.session AND slir.bundle=sl.bundle AND \
                           slir.itemID=sl.endItemID AND irs.level=slir.level AND (\
                           (irs.itemID=sl.endItemID) OR
-                          (EXISTS (SELECT * FROM linksExt lr \
+                          (EXISTS (SELECT * FROM links_ext lr \
                           WHERE lr.db_uuid=sl.db_uuid AND lr.session=sl.session AND lr.bundle=sl.bundle \
                           AND ((lr.fromID=sl.endItemID AND lr.toID=irs.itemID) OR (lr.fromID=irs.itemID AND lr.toID= sl.endItemID))\
                           )) \
@@ -257,7 +257,7 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
                               ils.db_uuid=sll.db_uuid AND ils.session=sll.session AND ils.bundle=sll.bundle AND \
                               ils.level='",targetRootLevelName,"' AND (\
                               (ils.itemID=sll.startItemID) OR 
-                              (EXISTS (SELECT * FROM linksExt ll \
+                              (EXISTS (SELECT * FROM links_ext ll \
                               WHERE ll.db_uuid=sll.db_uuid AND ll.session=sll.session AND ll.bundle=sll.bundle \
                                   AND ((ll.fromID=sll.startItemID AND ll.toID=ils.itemID) OR (ll.fromID=ils.itemID AND ll.toID= sll.startItemID))\
                                   )) \
@@ -267,7 +267,7 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
                               irs.db_uuid=slr.db_uuid AND irs.session=slr.session AND irs.bundle=slr.bundle AND \
                               irs.level='",targetRootLevelName,"' AND (\
                               (irs.itemID=slr.endItemID) OR
-                              (EXISTS (SELECT * FROM linksExt lr \
+                              (EXISTS (SELECT * FROM links_ext lr \
                               WHERE lr.db_uuid=slr.db_uuid AND lr.session=slr.session AND lr.bundle=slr.bundle \
                                   AND ((lr.fromID=slr.endItemID AND lr.toID=irs.itemID) OR (lr.fromID=irs.itemID AND lr.toID= slr.endItemID))\
                                 )) \

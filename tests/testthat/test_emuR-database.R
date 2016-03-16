@@ -49,8 +49,8 @@ test_that("database functions work", {
     convLabels = dbReadTable(aeFromLegacy$connection, "labels")
     expect_equal(origLabels, convLabels)
     
-    origLinksExt = dbReadTable(ae$connection, "linksExt")
-    convLinksExt = dbReadTable(aeFromLegacy$connection, "linksExt")
+    origLinksExt = dbReadTable(ae$connection, "links_ext")
+    convLinksExt = dbReadTable(aeFromLegacy$connection, "links_ext")
     expect_equal(origLinksExt, convLinksExt)
   })
   
@@ -175,7 +175,7 @@ test_that("database functions work", {
     orgItems=DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"'"))
     orgLabels=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM labels WHERE db_uuid='",ae$UUID,"'"))
     orgLinks=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
-    orgLinksExt=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM linksExt WHERE db_uuid='",ae$UUID,"'"))
+    orgLinksExt=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links_ext WHERE db_uuid='",ae$UUID,"'"))
     
     expect_equivalent(nrow(orgItems),736)
     expect_equivalent(nrow(orgLinks),785)
@@ -205,7 +205,7 @@ test_that("database functions work", {
     modItems=DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"'"))
     modLabels=DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM labels WHERE db_uuid='",ae$UUID,"'"))
     modLinks=DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
-    modLinksExt=DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM linksExt WHERE db_uuid='",ae$UUID,"'"))
+    modLinksExt=DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links_ext WHERE db_uuid='",ae$UUID,"'"))
     
     expect_equivalent(nrow(modItems),736)
     expect_equivalent(nrow(modLinks),785)
@@ -235,7 +235,7 @@ test_that("database functions work", {
     mod2Items=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"'"))
     mod2Labels=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM labels WHERE db_uuid='",ae$UUID,"'"))
     mod2Links=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
-    mod2LinksExt=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM linksExt WHERE db_uuid='",ae$UUID,"'"))
+    mod2LinksExt=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links_ext WHERE db_uuid='",ae$UUID,"'"))
     
     expect_equivalent(nrow(mod2Items),736)
     expect_equivalent(nrow(mod2Links),785)
@@ -275,7 +275,7 @@ test_that("database functions work", {
     mod3Items=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"'"))
     mod3Labels=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM labels WHERE db_uuid='",ae$UUID,"'"))
     mod3Links=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
-    mod3LinksExt=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM linksExt WHERE db_uuid='",ae$UUID,"'"))
+    mod3LinksExt=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links_ext WHERE db_uuid='",ae$UUID,"'"))
     
     expect_equivalent(nrow(mod3Items),736)
     expect_equivalent(nrow(mod3Links),784)
@@ -335,7 +335,7 @@ test_that("database functions work", {
     modOrgItems=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"'"))
     modOrgLabels=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM labels WHERE db_uuid='",ae$UUID,"'"))
     modOrgLinks=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
-    modOrgLinksExt=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM linksExt WHERE db_uuid='",ae$UUID,"'"))
+    modOrgLinksExt=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links_ext WHERE db_uuid='",ae$UUID,"'"))
     
     expect_equivalent(nrow(modOrgItems),736)
     expect_equivalent(nrow(modOrgLinks),785)
@@ -441,12 +441,12 @@ test_that("store works correctly",{
   aeItems=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"'"))
   aeLabels=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM labels WHERE db_uuid='",ae$UUID,"'"))
   aeLinks=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
-  aeLinksExt=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM linksExt WHERE db_uuid='",ae$UUID,"'"))
+  aeLinksExt=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links_ext WHERE db_uuid='",ae$UUID,"'"))
   
   aeStoredItems=DBI::dbGetQuery(aeStored$connection,paste0("SELECT * FROM items WHERE db_uuid='",aeStored$UUID,"'"))
   aeStoredLabels=DBI::dbGetQuery(aeStored$connection,paste0("SELECT * FROM labels WHERE db_uuid='",aeStored$UUID,"'"))
   aeStoredLinks=DBI::dbGetQuery(aeStored$connection,paste0("SELECT * FROM links WHERE db_uuid='",aeStored$UUID,"'"))
-  aeStoredLinksExt=DBI::dbGetQuery(aeStored$connection,paste0("SELECT * FROM linksExt WHERE db_uuid='",aeStored$UUID,"'"))
+  aeStoredLinksExt=DBI::dbGetQuery(aeStored$connection,paste0("SELECT * FROM links_ext WHERE db_uuid='",aeStored$UUID,"'"))
   
   # check that all tabels are the same
   expect_equal(aeItems, aeStoredItems)

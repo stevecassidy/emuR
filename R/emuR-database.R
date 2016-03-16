@@ -111,7 +111,7 @@ database.DDL.emuDB_linksTmp = 'CREATE TEMP TABLE linksTmp (
 );'
 database.DDL.emuDB_linksTmpIdx = 'CREATE INDEX linksTmp_idx ON linksTmp(db_uuid,session,bundle,fromID,toID)'
 
-database.DDL.emuDB_linksExt = 'CREATE TABLE linksExt (
+database.DDL.emuDB_linksExt = 'CREATE TABLE links_ext (
   db_uuid VARCHAR(36) NOT NULL,
   session TEXT,
   bundle TEXT,
@@ -127,7 +127,7 @@ database.DDL.emuDB_linksExt = 'CREATE TABLE linksExt (
 );'
 
 
-database.DDL.emuDB_linksExtIdx = 'CREATE INDEX linksExt_idx ON linksExt(db_uuid,session,bundle,fromID,toID,toLevel,type)'
+database.DDL.emuDB_linksExtIdx = 'CREATE INDEX links_ext_idx ON links_ext(db_uuid,session,bundle,fromID,toID,toLevel,type)'
 
 # this should be a temp table
 database.DDL.emuDB_linksExtTmp = 'CREATE TEMP TABLE linksExtTmp (
@@ -345,10 +345,10 @@ remove_bundleAnnotDBI<-function(emuDBhandle, sessionName, bundleName){
   delSqlQuery=paste0("DELETE FROM links WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName, "'")
   DBI::dbGetQuery(emuDBhandle$connection, delSqlQuery)
   
-  cntSqlQuery=paste0("SELECT * FROM linksExt WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName, "'")
+  cntSqlQuery=paste0("SELECT * FROM links_ext WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName, "'")
   res<-DBI::dbGetQuery(emuDBhandle$connection, cntSqlQuery)
   
-  delSqlQuery=paste0("DELETE FROM linksExt WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
+  delSqlQuery=paste0("DELETE FROM links_ext WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
   DBI::dbGetQuery(emuDBhandle$connection,delSqlQuery)
 }
 
@@ -478,7 +478,7 @@ calculate_postionsOfLinks<-function(emuDBhandle){
   DBI::dbGetQuery(emuDBhandle$connection,"DELETE FROM linksExtTmp")
   
   # Add length of dominance group sequence
-  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO linksExt(db_uuid,session,bundle,seqIdx,fromID,toID,toSeqIdx,toLevel,type,label,toSeqLen) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toSeqIdx,k.toLevel,k.type,k.label,(SELECT MAX(m.seqIdx)-MIN(m.seqIdx)+1 FROM linksExtTmp2 m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqLen FROM linksExtTmp2 k")
+  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO links_ext(db_uuid,session,bundle,seqIdx,fromID,toID,toSeqIdx,toLevel,type,label,toSeqLen) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toSeqIdx,k.toLevel,k.type,k.label,(SELECT MAX(m.seqIdx)-MIN(m.seqIdx)+1 FROM linksExtTmp2 m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqLen FROM linksExtTmp2 k")
   
   DBI::dbGetQuery(emuDBhandle$connection,"DELETE FROM linksExtTmp2")
   
