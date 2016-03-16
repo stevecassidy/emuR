@@ -28,7 +28,7 @@ database.cache.suffix = '_emuDBcache.sqlite'
 #############################################
 # create table / index definitions for DBI
 
-database.DDL.emuDB = 'CREATE TABLE emuDB (
+database.DDL.emuDB = 'CREATE TABLE emu_dbs (
   uuid VARCHAR(36) NOT NULL,
   name TEXT,
   basePath TEXT,
@@ -41,7 +41,7 @@ database.DDL.emuDB_session = 'CREATE TABLE session (
   db_uuid VARCHAR(36),
   name TEXT,
   PRIMARY KEY (db_uuid,name),
-  FOREIGN KEY (db_uuid) REFERENCES emuDB(uuid) ON DELETE CASCADE
+  FOREIGN KEY (db_uuid) REFERENCES emu_dbs(uuid) ON DELETE CASCADE
 );'
 
 database.DDL.emuDB_bundle = 'CREATE TABLE bundle (
@@ -170,7 +170,9 @@ database.DDL.emuDB_linksExtTmpIdx2 = 'CREATE INDEX linksExtTmp2_idx ON linksExtT
 # init functions (create tables and indices)
 
 initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TRUE){
-  if(createTables & !DBI::dbExistsTable(emuDBhandle$connection, 'emuDB')){
+  # TODO: check of old tables are present and rename them
+  
+  if(createTables & !DBI::dbExistsTable(emuDBhandle$connection, "emu_dbs")){
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB)
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_session)
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_bundle)
@@ -181,7 +183,7 @@ initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TR
     if(createIndices){  
       create_emuDBindicesDBI(emuDBhandle)
     }
-  }else if(createTables & DBI::dbExistsTable(emuDBhandle$connection, 'emuDB')){
+  }else if(createTables & DBI::dbExistsTable(emuDBhandle$connection, "emu_dbs")){
     # remove old tmp tables that where not created with CREATE TEMP TABLE
     # drops
     if("linksTmp" %in% DBI::dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksTmp")
@@ -202,12 +204,12 @@ create_emuDBindicesDBI<-function(emuDBhandle){
 # emuDB table DBI functions
 
 add_emuDbDBI <- function(emuDBhandle){
-  dbSqlInsert = paste0("INSERT INTO emuDB(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('", emuDBhandle$UUID, "','", emuDBhandle$dbName, "',NULL,'", "DEPRICATED COLUMN", "', 'DEPRICATED COLUMN'", ")")
+  dbSqlInsert = paste0("INSERT INTO emu_dbs(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('", emuDBhandle$UUID, "','", emuDBhandle$dbName, "',NULL,'", "DEPRICATED COLUMN", "', 'DEPRICATED COLUMN'", ")")
   DBI::dbGetQuery(emuDBhandle$connection, dbSqlInsert)
 }
 
 get_emuDbDBI <- function(emuDBhandle){
-  query = paste0("SELECT * FROM emuDB WHERE uuid='", emuDBhandle$UUID, "'")
+  query = paste0("SELECT * FROM emu_dbs WHERE uuid='", emuDBhandle$UUID, "'")
   res <- DBI::dbGetQuery(emuDBhandle$connection, query)
   return(res)
 }
@@ -255,7 +257,7 @@ remove_bundleDBI <- function(emuDBhandle, sessionName, name){
 
 # MD5annotJSON
 get_MD5annotJsonDBI <- function(emuDBhandle, sessionName, name){
-  MD5annotJSON = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT MD5annotJSON FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND name='", name, "'"))$MD5annotJSON
+  MD5annotJSON = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT MD5annotJSON as md5 FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND name='", name, "'"))$md5
   if(length(MD5annotJSON) == 0){
     MD5annotJSON = ""
   }
@@ -275,7 +277,7 @@ store_bundleAnnotDFsDBI <- function(emuDBhandle, bundleAnnotDFs, sessionName,
                                       bundle = bundleName,
                                       bundleAnnotDFs$items)
 
-    DBI::dbWriteTable(emuDBhandle$connection, "items", bundleAnnotDFs$items, append = T)
+    DBI::dbWriteTable(emuDBhandle$connection, "items", bundleAnnotDFs$items, append = T, row.names = F)
   }
   
   # insert labels table entries (fist exanding it with db_uuid, session and bundle columns)
@@ -285,7 +287,7 @@ store_bundleAnnotDFsDBI <- function(emuDBhandle, bundleAnnotDFs, sessionName,
                                         bundle = bundleName,
                                         bundleAnnotDFs$labels)
     
-    DBI::dbWriteTable(emuDBhandle$connection, "labels", bundleAnnotDFs$labels, append = T)
+    DBI::dbWriteTable(emuDBhandle$connection, "labels", bundleAnnotDFs$labels, append = T, row.names = F)
   }
   
   # insert links table entries (fist exanding it with db_uuid, session and bundle columns)
@@ -296,7 +298,7 @@ store_bundleAnnotDFsDBI <- function(emuDBhandle, bundleAnnotDFs, sessionName,
                                        bundleAnnotDFs$links,
                                        label = NA)
     
-    DBI::dbWriteTable(emuDBhandle$connection, "links", bundleAnnotDFs$links, append = T)
+    DBI::dbWriteTable(emuDBhandle$connection, "links", bundleAnnotDFs$links, append = T, row.names = F)
   }
 }
 
@@ -790,9 +792,6 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, ve
     stop(databaseDir," exists, but is not a directory.")
   }
   
-  if(!is.null(connection)){
-    stop("The explicit 'connection' parameter is not yet available.")
-  }
   
   # load db schema file
   dbCfgPattern=paste0('.*',database.schema.suffix,'$')
@@ -830,7 +829,6 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, ve
       dbHandle = emuDBhandle(dbName, basePath, dbUUID, "", connection = connection)
     }
   }
-  
   # check if cache exist -> update cache if true
   dbsDf = get_emuDbDBI(dbHandle)
   if(nrow(dbsDf)>0){
