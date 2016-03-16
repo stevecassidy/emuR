@@ -28,7 +28,7 @@ database.cache.suffix = '_emuDBcache.sqlite'
 #############################################
 # create table / index definitions for DBI
 
-database.DDL.emuDB = 'CREATE TABLE emu_dbs (
+database.DDL.emuDB = 'CREATE TABLE emu_db (
   uuid VARCHAR(36) NOT NULL,
   name TEXT,
   basePath TEXT,
@@ -41,7 +41,7 @@ database.DDL.emuDB_session = 'CREATE TABLE session (
   db_uuid VARCHAR(36),
   name TEXT,
   PRIMARY KEY (db_uuid,name),
-  FOREIGN KEY (db_uuid) REFERENCES emu_dbs(uuid) ON DELETE CASCADE
+  FOREIGN KEY (db_uuid) REFERENCES emu_db(uuid) ON DELETE CASCADE
 );'
 
 database.DDL.emuDB_bundle = 'CREATE TABLE bundle (
@@ -172,7 +172,7 @@ database.DDL.emuDB_linksExtTmpIdx2 = 'CREATE INDEX linksExtTmp2_idx ON linksExtT
 initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TRUE){
   # TODO: check of old tables are present and rename them
   
-  if(createTables & !DBI::dbExistsTable(emuDBhandle$connection, "emu_dbs")){
+  if(createTables & !DBI::dbExistsTable(emuDBhandle$connection, "emu_db")){
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB)
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_session)
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_bundle)
@@ -183,7 +183,7 @@ initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TR
     if(createIndices){  
       create_emuDBindicesDBI(emuDBhandle)
     }
-  }else if(createTables & DBI::dbExistsTable(emuDBhandle$connection, "emu_dbs")){
+  }else if(createTables & DBI::dbExistsTable(emuDBhandle$connection, "emu_db")){
     # remove old tmp tables that where not created with CREATE TEMP TABLE
     # drops
     if("linksTmp" %in% DBI::dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksTmp")
@@ -204,12 +204,12 @@ create_emuDBindicesDBI<-function(emuDBhandle){
 # emuDB table DBI functions
 
 add_emuDbDBI <- function(emuDBhandle){
-  dbSqlInsert = paste0("INSERT INTO emu_dbs(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('", emuDBhandle$UUID, "','", emuDBhandle$dbName, "',NULL,'", "DEPRICATED COLUMN", "', 'DEPRICATED COLUMN'", ")")
+  dbSqlInsert = paste0("INSERT INTO emu_db(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('", emuDBhandle$UUID, "','", emuDBhandle$dbName, "',NULL,'", "DEPRICATED COLUMN", "', 'DEPRICATED COLUMN'", ")")
   DBI::dbGetQuery(emuDBhandle$connection, dbSqlInsert)
 }
 
 get_emuDbDBI <- function(emuDBhandle){
-  query = paste0("SELECT * FROM emu_dbs WHERE uuid='", emuDBhandle$UUID, "'")
+  query = paste0("SELECT * FROM emu_db WHERE uuid='", emuDBhandle$UUID, "'")
   res <- DBI::dbGetQuery(emuDBhandle$connection, query)
   return(res)
 }

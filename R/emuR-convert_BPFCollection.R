@@ -154,7 +154,7 @@ convert_BPFCollection <- function(sourceDir,
   
   dbHandle = emuDBhandle(dbName, basePath = basePath, uuid::UUIDgenerate(), ":memory:")
   # insert into emuDB table
-  queryTxt = paste0("INSERT INTO emu_dbs (uuid, name) VALUES('", dbHandle$UUID, "', '", dbName,"')")
+  queryTxt = paste0("INSERT INTO emu_db (uuid, name) VALUES('", dbHandle$UUID, "', '", dbName,"')")
   DBI::dbGetQuery(dbHandle$connection, queryTxt)
   
   # ---------------------------------------------------------------------------
