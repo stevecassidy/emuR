@@ -109,7 +109,7 @@ database.DDL.emuDB_linksTmp = 'CREATE TEMP TABLE links_tmp (
   toID INTEGER,
   label TEXT
 );'
-database.DDL.emuDB_linksTmpIdx = 'CREATE INDEX linksTmp_idx ON links_tmp(db_uuid,session,bundle,fromID,toID)'
+database.DDL.emuDB_linksTmpIdx = 'CREATE INDEX links_tmp_idx ON links_tmp(db_uuid,session,bundle,fromID,toID)'
 
 database.DDL.emuDB_linksExt = 'CREATE TABLE links_ext (
   db_uuid VARCHAR(36) NOT NULL,
@@ -146,7 +146,7 @@ database.DDL.emuDB_linksExtTmp = 'CREATE TEMP TABLE links_ext_tmp (
 database.DDL.emuDB_linksExtTmpIdx = 'CREATE INDEX links_ext_tmp_idx ON links_ext_tmp(db_uuid,session,bundle,fromID,toID,toLevel,type)'
 
 # this should be a temp table
-database.DDL.emuDB_linksExtTmp2 = 'CREATE TEMP TABLE linksExtTmp2 (
+database.DDL.emuDB_linksExtTmp2 = 'CREATE TEMP TABLE links_ext_tmp2 (
   db_uuid VARCHAR(36) NOT NULL,
   session TEXT,
   bundle TEXT,
@@ -160,7 +160,7 @@ database.DDL.emuDB_linksExtTmp2 = 'CREATE TEMP TABLE linksExtTmp2 (
   label TEXT
 );'
 
-database.DDL.emuDB_linksExtTmpIdx2 = 'CREATE INDEX linksExtTmp2_idx ON linksExtTmp2(db_uuid,session,bundle,fromID,toID,toLevel,type)'
+database.DDL.emuDB_linksExtTmpIdx2 = 'CREATE INDEX links_ext_tmp2_idx ON links_ext_tmp2(db_uuid,session,bundle,fromID,toID,toLevel,type)'
 
 ####################################
 ######### DBI functions ############
@@ -188,7 +188,7 @@ initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TR
     # drops
     if("links_tmp" %in% DBI::dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE links_tmp")
     if("links_ext_tmp" %in% DBI::dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE links_ext_tmp")
-    if("linksExtTmp2" %in% DBI::dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp2")
+    if("links_ext_tmp2" %in% DBI::dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE links_ext_tmp2")
     
   }
 }
@@ -366,7 +366,7 @@ create_tmpTablesForBuildingRedLinks <- function(emuDBhandle){
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp)
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmpIdx)
     }
-  if(!"linksExtTmp2" %in% DBI::dbListTables(emuDBhandle$connection)){ 
+  if(!"links_ext_tmp2" %in% DBI::dbListTables(emuDBhandle$connection)){ 
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp2)
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmpIdx2)
     }
@@ -375,7 +375,7 @@ create_tmpTablesForBuildingRedLinks <- function(emuDBhandle){
 drop_tmpTablesForBuildingRedLinks <- function(emuDBhandle){
   if("links_tmp" %in% DBI::dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE links_tmp")
   if("links_ext_tmp" %in% DBI::dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE links_ext_tmp")
-  if("linksExtTmp2" %in% DBI::dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE linksExtTmp2")
+  if("links_ext_tmp2" %in% DBI::dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE links_ext_tmp2")
 }
 
 ## Legacy EMU and query functions link collections contain links for each possible connection between levels
@@ -473,14 +473,14 @@ calculate_postionsOfLinks<-function(emuDBhandle){
   DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO links_ext_tmp(db_uuid,session,bundle,fromID,toID,seqIdx,toLevel,type,label) SELECT k.db_uuid,k.session,k.bundle,k.fromID,k.toID,i.seqIdx,i.level AS toLevel,i.type,NULL AS label FROM links_tmp k,items i WHERE i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle AND k.toID=i.itemID")
   
   # extend links table with relative sequence index
-  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO linksExtTmp2(db_uuid,session,bundle,seqIdx,fromID,toID,toLevel,type,label,toSeqIdx) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toLevel,k.type,k.label,k.seqIdx-(SELECT MIN(m.seqIdx) FROM links_ext_tmp m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqIdx FROM links_ext_tmp k")
+  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO links_ext_tmp2(db_uuid,session,bundle,seqIdx,fromID,toID,toLevel,type,label,toSeqIdx) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toLevel,k.type,k.label,k.seqIdx-(SELECT MIN(m.seqIdx) FROM links_ext_tmp m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqIdx FROM links_ext_tmp k")
   
   DBI::dbGetQuery(emuDBhandle$connection,"DELETE FROM links_ext_tmp")
   
   # Add length of dominance group sequence
-  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO links_ext(db_uuid,session,bundle,seqIdx,fromID,toID,toSeqIdx,toLevel,type,label,toSeqLen) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toSeqIdx,k.toLevel,k.type,k.label,(SELECT MAX(m.seqIdx)-MIN(m.seqIdx)+1 FROM linksExtTmp2 m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqLen FROM linksExtTmp2 k")
+  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO links_ext(db_uuid,session,bundle,seqIdx,fromID,toID,toSeqIdx,toLevel,type,label,toSeqLen) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toSeqIdx,k.toLevel,k.type,k.label,(SELECT MAX(m.seqIdx)-MIN(m.seqIdx)+1 FROM links_ext_tmp2 m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqLen FROM links_ext_tmp2 k")
   
-  DBI::dbGetQuery(emuDBhandle$connection,"DELETE FROM linksExtTmp2")
+  DBI::dbGetQuery(emuDBhandle$connection,"DELETE FROM links_ext_tmp2")
   
   # remove temporary tables
   drop_tmpTablesForBuildingRedLinks(emuDBhandle)
