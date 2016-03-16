@@ -7,26 +7,26 @@ convert_queryResultToEmusegs<-function(emuDBhandle){
 
 
 convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL){
-  itemsTableName = "itemsFilteredTmp"
-  labelsTableName = "labelsFilteredTmp"
-  linksExtTableName = "linksExtFilteredTmp"
+  itemsTableName = "items_filtered_tmp"
+  labelsTableName = "labels_filtered_tmp"
+  linksExtTableName = "links_ext_filtered_tmp"
   
   bundles=c()
   labels=c()
   start=c()
   end=c()
   slType=NULL
-  projectionItemsN = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM intermRes_projItemsTmp_root"))$n
+  projectionItemsN = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM interm_res_proj_items_tmp_root"))$n
   if(projectionItemsN > 0){ 
     # use projection items
-    itsTableName = "intermRes_ProjItemsTmp_root"
+    itsTableName = "interm_res_proj_items_tmp_root"
     seqStartIdColName = "pSeqStartId"
     seqEndIdColName = "pSeqEndId"
     seqLenColName = "pSeqLen"
     levelColName = "pLevel"
   }else{
     # use "normal" items
-    itsTableName = "intermRes_itemsTmp_root"
+    itsTableName = "interm_res_items_tmp_root"
     seqStartIdColName = "seqStartId"
     seqEndIdColName = "seqEndId"
     seqLenColName = "seqLen"
@@ -68,7 +68,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   # for this data the information in start end item of the sequence is sufficient
   # it takes only the start and end items of the query result into account
   # the CASE WHEN THEN ELSE END terms are necessary to get the start and end samples of sequences which are not segment levels and therefore have no time information
-  linksExtFilteredCount = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM linksExtFilteredTmp"))$n
+  linksExtFilteredCount = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM links_ext_filtered_tmp"))$n
   hasLinks = (linksExtFilteredCount > 0)
 
   # select columns: id,session,bundle,startItemId,endItemID ,type ...
@@ -190,7 +190,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
         slType='event'
     }
   }
-  queryStr = DBI::dbGetQuery(emuDBhandle$connection, "SELECT queryStr FROM intermRes_metaInfosTmp_root")$queryStr
+  queryStr = DBI::dbGetQuery(emuDBhandle$connection, "SELECT queryStr FROM interm_res_meta_infos_tmp_root")$queryStr
   segmentList=make.emuRsegs(dbName = emuDBhandle$dbName, seglist = seglist, query = queryStr, type = slType)
   return(segmentList)
 }
@@ -206,7 +206,7 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
   end=c()
   slType=NULL
   
-  itsTableName = "intermRes_itemsTmp_root"
+  itsTableName = "interm_res_items_tmp_root"
   
   # get distinct result levels
   distinctLevels=DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT level FROM ", itsTableName))
