@@ -20,16 +20,16 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   if(projectionItemsN > 0){ 
     # use projection items
     itsTableName = "interm_res_proj_items_tmp_root"
-    seqStartIdColName = "pSeqStartId"
-    seqEndIdColName = "pSeqEndId"
-    seqLenColName = "pSeqLen"
-    levelColName = "pLevel"
+    seqStartIdColName = "p_seq_start_id"
+    seqEndIdColName = "p_seq_end_id"
+    seqLenColName = "p_seq_len"
+    levelColName = "p_level"
   }else{
     # use "normal" items
     itsTableName = "interm_res_items_tmp_root"
-    seqStartIdColName = "seqStartId"
-    seqEndIdColName = "seqEndId"
-    seqLenColName = "seqLen"
+    seqStartIdColName = "seq_start_id"
+    seqEndIdColName = "seq_end_id"
+    seqLenColName = "seq_len"
     levelColName = "level"
   }
   
@@ -190,7 +190,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
         slType='event'
     }
   }
-  queryStr = DBI::dbGetQuery(emuDBhandle$connection, "SELECT queryStr FROM interm_res_meta_infos_tmp_root")$queryStr
+  queryStr = DBI::dbGetQuery(emuDBhandle$connection, "SELECT query_str FROM interm_res_meta_infos_tmp_root")$query_str
   segmentList=make.emuRsegs(dbName = emuDBhandle$dbName, seglist = seglist, query = queryStr, type = slType)
   return(segmentList)
 }
@@ -235,17 +235,17 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
   # itCount=nrow(its)
   itCount = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS N FROM ", itsTableName))$N
   if(itCount==0){
-    its=data.frame(db_uuid=character(0),session=character(0),bundle=character(0),seqStartId=integer(0),seqEndId=integer(0),seqLen=integer(0),level=character(0),stringsAsFactors = FALSE)
+    its=data.frame(db_uuid=character(0),session=character(0),bundle=character(0),seq_start_id=integer(0),seq_end_id=integer(0),seq_len=integer(0),level=character(0),stringsAsFactors = FALSE)
   }
 
   if(itCount>0){
-    maxSeqLenDf=DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT max(seqLen) AS maxSeqLen FROM ", itsTableName))
+    maxSeqLenDf=DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT max(seq_len) AS maxSeqLen FROM ", itsTableName))
     maxSeqLen=maxSeqLenDf[1,'maxSeqLen']
     
     # for string conacatenation: we need all occuring seq lengths 
     # distinct sequence lengths
-    # distinctSeqLens=sqldf(c(resIdxSql,"SELECT DISTINCT seqLen FROM its"))
-    distinctSeqLens = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT seqLen FROM ", itsTableName))
+    # distinctSeqLens=sqldf(c(resIdxSql,"SELECT DISTINCT seq_len FROM its"))
+    distinctSeqLens = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT seq_len FROM ", itsTableName))
   }else{
     maxSeqLen=1L
   }
@@ -325,13 +325,13 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
   fromStr=paste0("FROM items s,items e,", itsTableName, " r ")
   
   # where clause: make sure start and end are in same emuDB, session and bundle, select start and end id
-  whereStr=paste0("WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND e.level=s.level ")
+  whereStr=paste0("WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=r.seq_start_id AND e.itemID=r.seq_end_id AND e.level=s.level ")
   
   # order
   orderStr="ORDER BY s.db_uuid,s.session,s.bundle,startItemID,endItemID"
   
   if(itCount>0){
-    selectStr=paste0(selectStr," CASE r.seqLen ")
+    selectStr=paste0(selectStr," CASE r.seq_len ")
     distinctSeqLensLength=nrow(distinctSeqLens)
     # for each seq len, which occurs in the input segment list
     for(si in 1:distinctSeqLensLength){

@@ -1,6 +1,6 @@
 requireNamespace("stringr", quietly = T)
 
-database.DDL.emuRsegsTmp = 'CREATE TEMP TABLE emuRsegsTmp (
+database.DDL.emuRsegsTmp = 'CREATE TEMP TABLE emursegs_tmp (
   labels TEXT,
   start FLOAT,
   end FLOAT,
@@ -22,8 +22,8 @@ create_requeryTmpTables <- function(emuDBhandle){
 }
 
 drop_requeryTmpTables <- function(emuDBhandle){
-  if("emuRsegsTmp" %in% DBI::dbListTables(emuDBhandle$connection)){
-    DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE emuRsegsTmp")
+  if("emursegs_tmp" %in% DBI::dbListTables(emuDBhandle$connection)){
+    DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE emursegs_tmp")
   }
 }
 
@@ -105,13 +105,13 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
     drop_requeryTmpTables(emuDBhandle)
     create_requeryTmpTables(emuDBhandle)
     # place in emuRsegsTmp table
-    DBI::dbWriteTable(emuDBhandle$connection, "emuRsegsTmp", as.data.frame(seglist), overwrite=T)
+    DBI::dbWriteTable(emuDBhandle$connection, "emursegs_tmp", as.data.frame(seglist), overwrite=T)
     
     # load config
     dbConfig=load_DBconfig(emuDBhandle)
     
     # query for sequential requeries
-    heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndID,",length," AS seqLen,sl.level FROM emuRsegsTmp sl,items sll,items slr,items il, items ir \
+    heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seq_start_id,ir.itemID AS seq_end_id,",length," AS seq_len,sl.level FROM emursegs_tmp sl,items sll,items slr,items il, items ir \
                         WHERE \
                          il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle AND \
                          il.db_uuid=sl.db_uuid AND il.session=sl.session AND il.bundle=sl.bundle AND \
@@ -213,15 +213,15 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
     # drop create tmp tables and recreate (will ensure they are empty)
     drop_requeryTmpTables(emuDBhandle)
     create_requeryTmpTables(emuDBhandle)
-    # place in emuRsegsTmp table
-    DBI::dbWriteTable(emuDBhandle$connection, "emuRsegsTmp", as.data.frame(seglist), overwrite=T)
+    # place in emursegs_tmp table
+    DBI::dbWriteTable(emuDBhandle$connection, "emursegs_tmp", as.data.frame(seglist), overwrite=T)
     
     # load config
     dbConfig=load_DBconfig(emuDBhandle)
     
     targetRootLevelName=NULL
     if(is.null(level)){
-      heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndId,ir.seqIdx-il.seqIdx+1 AS seqLen,il.level \
+      heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seq_start_id,ir.itemID AS seq_end_id,ir.seqIdx-il.seqIdx+1 AS seq_len,il.level \
                           FROM \
                           ( SELECT ils.*,min(ils.seqIdx),sl.ROWID AS lrId FROM items ils,items slil,seglist sl WHERE \
                           ils.db_uuid=sl.db_uuid AND ils.session=sl.session AND ils.bundle=sl.bundle AND \
@@ -251,9 +251,9 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
       
       check_levelAttributeName(emuDBhandle,level)
       targetRootLevelName=get_levelNameForAttributeName(emuDBhandle, attributeName = level)
-      heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seqStartId,ir.itemID AS seqEndId,(ir.seqIdx-il.seqIdx+1) AS seqLen,'",level,"' AS level \
+      heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seq_start_id,ir.itemID AS seq_end_id,(ir.seqIdx-il.seqIdx+1) AS seq_len,'",level,"' AS level \
                               FROM 
-                              ( SELECT ils.*,min(ils.seqIdx),sll.ROWID AS lrId FROM emuRsegsTmp sll,items ils WHERE \
+                              ( SELECT ils.*,min(ils.seqIdx),sll.ROWID AS lrId FROM emursegs_tmp sll,items ils WHERE \
                               ils.db_uuid=sll.db_uuid AND ils.session=sll.session AND ils.bundle=sll.bundle AND \
                               ils.level='",targetRootLevelName,"' AND (\
                               (ils.itemID=sll.startItemID) OR 
@@ -263,7 +263,7 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
                                   )) \
                               ) GROUP BY lrId ORDER BY lrId,ils.seqIdx) \
                               AS il JOIN \
-                              ( SELECT irs.*,max(irs.seqIdx),slr.ROWID AS rrId FROM emuRsegsTmp slr,items irs WHERE \
+                              ( SELECT irs.*,max(irs.seqIdx),slr.ROWID AS rrId FROM emursegs_tmp slr,items irs WHERE \
                               irs.db_uuid=slr.db_uuid AND irs.session=slr.session AND irs.bundle=slr.bundle AND \
                               irs.level='",targetRootLevelName,"' AND (\
                               (irs.itemID=slr.endItemID) OR
