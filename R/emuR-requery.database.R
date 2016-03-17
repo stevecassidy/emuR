@@ -232,7 +232,7 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
                           (ils.item_id=sl.start_item_id) OR 
                           (EXISTS (SELECT * FROM links_ext lr \
                           WHERE lr.db_uuid=sl.db_uuid AND lr.session=sl.session AND lr.bundle=sl.bundle \
-                          AND ((lr.fromID=sl.start_item_id AND lr.toID=ils.item_id) OR (lr.fromID=ils.item_id AND lr.toID= sl.start_item_id))\
+                          AND ((lr.from_id=sl.start_item_id AND lr.toID=ils.item_id) OR (lr.from_id=ils.item_id AND lr.toID= sl.start_item_id))\
                           )) \
                           ) GROUP BY lrId ) \
                           AS il JOIN \
@@ -243,7 +243,7 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
                           (irs.item_id=sl.end_item_id) OR
                           (EXISTS (SELECT * FROM links_ext lr \
                           WHERE lr.db_uuid=sl.db_uuid AND lr.session=sl.session AND lr.bundle=sl.bundle \
-                          AND ((lr.fromID=sl.end_item_id AND lr.toID=irs.item_id) OR (lr.fromID=irs.item_id AND lr.toID= sl.end_item_id))\
+                          AND ((lr.from_id=sl.end_item_id AND lr.toID=irs.item_id) OR (lr.from_id=irs.item_id AND lr.toID= sl.end_item_id))\
                           )) \
                           ) GROUP BY rrId ) \
                           AS ir ON lrId=rrId
@@ -261,7 +261,7 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
                               (ils.item_id=sll.start_item_id) OR 
                               (EXISTS (SELECT * FROM links_ext ll \
                               WHERE ll.db_uuid=sll.db_uuid AND ll.session=sll.session AND ll.bundle=sll.bundle \
-                                  AND ((ll.fromID=sll.start_item_id AND ll.toID=ils.item_id) OR (ll.fromID=ils.item_id AND ll.toID= sll.start_item_id))\
+                                  AND ((ll.from_id=sll.start_item_id AND ll.toID=ils.item_id) OR (ll.from_id=ils.item_id AND ll.toID= sll.start_item_id))\
                                   )) \
                               ) GROUP BY lrId ORDER BY lrId,ils.seqIdx) \
                               AS il JOIN \
@@ -271,7 +271,7 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
                               (irs.item_id=slr.end_item_id) OR
                               (EXISTS (SELECT * FROM links_ext lr \
                               WHERE lr.db_uuid=slr.db_uuid AND lr.session=slr.session AND lr.bundle=slr.bundle \
-                                  AND ((lr.fromID=slr.end_item_id AND lr.toID=irs.item_id) OR (lr.fromID=irs.item_id AND lr.toID= slr.end_item_id))\
+                                  AND ((lr.from_id=slr.end_item_id AND lr.toID=irs.item_id) OR (lr.from_id=irs.item_id AND lr.toID= slr.end_item_id))\
                                 )) \
                               ) GROUP BY rrId ORDER BY rrId,irs.seqIdx DESC) \
                               AS ir ON lrId=rrId ")

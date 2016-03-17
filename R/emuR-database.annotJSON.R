@@ -16,7 +16,8 @@ annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
     tidyjson::enter_object("links") %>%
     tidyjson::gather_array()  %>%
     tidyjson::spread_values(fromID = tidyjson::jstring("fromID"), toID = tidyjson::jstring("toID")) %>%
-    dplyr::select_(~fromID, ~toID)
+    dplyr::select_(~fromID, ~toID) %>%
+    dplyr::rename_("from_id" = "fromID")
   
   # gen. items list of data.frame
   items = json %>%

@@ -91,28 +91,28 @@ database.DDL.emuDB_links = 'CREATE TABLE links (
   db_uuid VARCHAR(36) NOT NULL,
   session TEXT,
   bundle TEXT,
-  fromID INTEGER,
+  from_id INTEGER,
   toID INTEGER,
   label TEXT,
   FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
 );'
-database.DDL.emuDB_linksIdx = 'CREATE INDEX links_idx ON links(db_uuid,session,bundle,fromID,toID)'
+database.DDL.emuDB_linksIdx = 'CREATE INDEX links_idx ON links(db_uuid,session,bundle,from_id,toID)'
 
 database.DDL.emuDB_linksTmp = 'CREATE TEMP TABLE links_tmp (
    db_uuid VARCHAR(36) NOT NULL,
   session TEXT,
   bundle TEXT,
-  fromID INTEGER,
+  from_id INTEGER,
   toID INTEGER,
   label TEXT
 );'
-database.DDL.emuDB_linksTmpIdx = 'CREATE INDEX links_tmp_idx ON links_tmp(db_uuid,session,bundle,fromID,toID)'
+database.DDL.emuDB_linksTmpIdx = 'CREATE INDEX links_tmp_idx ON links_tmp(db_uuid,session,bundle,from_id,toID)'
 
 database.DDL.emuDB_linksExt = 'CREATE TABLE links_ext (
   db_uuid VARCHAR(36) NOT NULL,
   session TEXT,
   bundle TEXT,
-  fromID INTEGER,
+  from_id INTEGER,
   toID INTEGER,
   seqIdx INTEGER,
   toLevel TEXT,
@@ -124,14 +124,14 @@ database.DDL.emuDB_linksExt = 'CREATE TABLE links_ext (
 );'
 
 
-database.DDL.emuDB_linksExtIdx = 'CREATE INDEX links_ext_idx ON links_ext(db_uuid,session,bundle,fromID,toID,toLevel,type)'
+database.DDL.emuDB_linksExtIdx = 'CREATE INDEX links_ext_idx ON links_ext(db_uuid,session,bundle,from_id,toID,toLevel,type)'
 
 # this should be a temp table
 database.DDL.emuDB_linksExtTmp = 'CREATE TEMP TABLE links_ext_tmp (
   db_uuid VARCHAR(36) NOT NULL,
   session TEXT,
   bundle TEXT,
-  fromID INTEGER,
+  from_id INTEGER,
   toID INTEGER,
   seqIdx INTEGER,
   toLevel TEXT,
@@ -140,14 +140,14 @@ database.DDL.emuDB_linksExtTmp = 'CREATE TEMP TABLE links_ext_tmp (
   toSeqLen INTEGER,
   label TEXT
 );'
-database.DDL.emuDB_linksExtTmpIdx = 'CREATE INDEX links_ext_tmp_idx ON links_ext_tmp(db_uuid,session,bundle,fromID,toID,toLevel,type)'
+database.DDL.emuDB_linksExtTmpIdx = 'CREATE INDEX links_ext_tmp_idx ON links_ext_tmp(db_uuid,session,bundle,from_id,toID,toLevel,type)'
 
 # this should be a temp table
 database.DDL.emuDB_linksExtTmp2 = 'CREATE TEMP TABLE links_ext_tmp2 (
   db_uuid VARCHAR(36) NOT NULL,
   session TEXT,
   bundle TEXT,
-  fromID INTEGER,
+  from_id INTEGER,
   toID INTEGER,
   seqIdx INTEGER,
   toLevel TEXT,
@@ -157,7 +157,7 @@ database.DDL.emuDB_linksExtTmp2 = 'CREATE TEMP TABLE links_ext_tmp2 (
   label TEXT
 );'
 
-database.DDL.emuDB_linksExtTmpIdx2 = 'CREATE INDEX links_ext_tmp2_idx ON links_ext_tmp2(db_uuid,session,bundle,fromID,toID,toLevel,type)'
+database.DDL.emuDB_linksExtTmpIdx2 = 'CREATE INDEX links_ext_tmp2_idx ON links_ext_tmp2(db_uuid,session,bundle,from_id,toID,toLevel,type)'
 
 ####################################
 ######### DBI functions ############
@@ -321,7 +321,7 @@ load_bundleAnnotDFsDBI <- function(emuDBhandle, sessionName, bundleName){
   
   # links 
   
-  linksQuery = paste0("SELECT fromID, toID, label FROM links WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
+  linksQuery = paste0("SELECT from_id, toID, label FROM links WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
   links = DBI::dbGetQuery(emuDBhandle$connection, linksQuery)
   
   
@@ -396,7 +396,7 @@ build_redundantLinksForPaths <- function(emuDBhandle, hierarchyPaths, sessionNam
   hierarchyPathsLen = length(hierarchyPaths)
   if(hierarchyPathsLen > 0){
     
-    sqlQuery = "INSERT INTO links_tmp(db_uuid,session,bundle,fromID,toID,label) SELECT DISTINCT f.db_uuid,f.session,f.bundle,f.item_id AS fromID,t.item_id AS toID, NULL AS label FROM items f,items t"
+    sqlQuery = "INSERT INTO links_tmp(db_uuid,session,bundle,from_id,toID,label) SELECT DISTINCT f.db_uuid,f.session,f.bundle,f.item_id AS from_id,t.item_id AS toID, NULL AS label FROM items f,items t"
     sqlQuery = paste0(sqlQuery," WHERE f.db_uuid='", emuDBhandle$UUID, "' AND f.db_uuid=t.db_uuid AND f.session=t.session AND f.bundle=t.bundle AND ")
     #sqlQuery=paste0(sqlQuery," WHERE f.db_uuid=t.db_uuid AND f.bundle=t.bundle AND f.session=t.session AND ")
     
@@ -429,18 +429,18 @@ build_redundantLinksForPaths <- function(emuDBhandle, hierarchyPaths, sessionNam
       }
       sqlQuery=paste0(sqlQuery," WHERE ")
       if(hpLen==2){
-        sqlQuery=paste0(sqlQuery,"l1.db_uuid=f.db_uuid AND l1.db_uuid=t.db_uuid AND l1.session=f.session AND l1.session=t.session AND l1.bundle=f.bundle AND l1.bundle=t.bundle AND f.item_id=l1.fromID AND t.item_id=l1.toID")
+        sqlQuery=paste0(sqlQuery,"l1.db_uuid=f.db_uuid AND l1.db_uuid=t.db_uuid AND l1.session=f.session AND l1.session=t.session AND l1.bundle=f.bundle AND l1.bundle=t.bundle AND f.item_id=l1.from_id AND t.item_id=l1.toID")
         
       }else{
         # TODO start and end connection
         # from start to first in-between item 
         eHp=hp[2]
-        sqlQuery=paste0(sqlQuery,"l1.db_uuid=f.db_uuid AND l1.db_uuid=i2.db_uuid AND l1.session=f.session AND l1.session=i2.session AND l1.bundle=f.bundle AND l1.bundle=i2.bundle AND f.item_id=l1.fromID AND i2.item_id=l1.toID AND f.level='",sHp,"' AND i2.level='",eHp,"' AND ")
+        sqlQuery=paste0(sqlQuery,"l1.db_uuid=f.db_uuid AND l1.db_uuid=i2.db_uuid AND l1.session=f.session AND l1.session=i2.session AND l1.bundle=f.bundle AND l1.bundle=i2.bundle AND f.item_id=l1.from_id AND i2.item_id=l1.toID AND f.level='",sHp,"' AND i2.level='",eHp,"' AND ")
         if(hpLen>3){
           for(j in 2:(hpLen-2)){
             sHp=hp[j]
             eHp=hp[j+1L] 
-            sqlQuery=paste0(sqlQuery,"l",j,".db_uuid=i",j,".db_uuid AND l",j,".db_uuid=i",(j+1),".db_uuid AND l",j,".session=i",j,".session AND l",j,".session=i",(j+1),".session AND l",j,".bundle=i",j,".bundle AND l",j,".bundle=i",(j+1),".bundle AND i",j,".item_id=l",j,".fromID AND i",(j+1L),".item_id=l",j,".toID AND i",j,".level='",sHp,"' AND i",(j+1L),".level='",eHp,"' AND ")
+            sqlQuery=paste0(sqlQuery,"l",j,".db_uuid=i",j,".db_uuid AND l",j,".db_uuid=i",(j+1),".db_uuid AND l",j,".session=i",j,".session AND l",j,".session=i",(j+1),".session AND l",j,".bundle=i",j,".bundle AND l",j,".bundle=i",(j+1),".bundle AND i",j,".item_id=l",j,".from_id AND i",(j+1L),".item_id=l",j,".toID AND i",j,".level='",sHp,"' AND i",(j+1L),".level='",eHp,"' AND ")
           }
         }
         # from last in-between item to end item
@@ -448,7 +448,7 @@ build_redundantLinksForPaths <- function(emuDBhandle, hierarchyPaths, sessionNam
         eHp=hp[hpLen]
         
         j=hpLen-1
-        sqlQuery=paste0(sqlQuery,"l",j,".db_uuid=i",j,".db_uuid AND l",j,".db_uuid=t.db_uuid AND l",j,".session=i",j,".session AND l",j,".session=t.session AND l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND i",j,".item_id=l",j,".fromID AND t.item_id=l",j,".toID AND i",j,".level='",sHp,"' AND t.level='",eHp,"'")
+        sqlQuery=paste0(sqlQuery,"l",j,".db_uuid=i",j,".db_uuid AND l",j,".db_uuid=t.db_uuid AND l",j,".session=i",j,".session AND l",j,".session=t.session AND l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND i",j,".item_id=l",j,".from_id AND t.item_id=l",j,".toID AND i",j,".level='",sHp,"' AND t.level='",eHp,"'")
       }
       sqlQuery=paste0(sqlQuery,"))")
       if(i<hierarchyPathsLen){
@@ -467,15 +467,15 @@ calculate_postionsOfLinks<-function(emuDBhandle){
   # Extend links table with sequence index of the targeted (dominated) item
   DBI::dbGetQuery(emuDBhandle$connection,"DELETE FROM links_ext_tmp")
   
-  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO links_ext_tmp(db_uuid,session,bundle,fromID,toID,seqIdx,toLevel,type,label) SELECT k.db_uuid,k.session,k.bundle,k.fromID,k.toID,i.seqIdx,i.level AS toLevel,i.type,NULL AS label FROM links_tmp k,items i WHERE i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle AND k.toID=i.item_id")
+  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO links_ext_tmp(db_uuid,session,bundle,from_id,toID,seqIdx,toLevel,type,label) SELECT k.db_uuid,k.session,k.bundle,k.from_id,k.toID,i.seqIdx,i.level AS toLevel,i.type,NULL AS label FROM links_tmp k,items i WHERE i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle AND k.toID=i.item_id")
   
   # extend links table with relative sequence index
-  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO links_ext_tmp2(db_uuid,session,bundle,seqIdx,fromID,toID,toLevel,type,label,toSeqIdx) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toLevel,k.type,k.label,k.seqIdx-(SELECT MIN(m.seqIdx) FROM links_ext_tmp m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqIdx FROM links_ext_tmp k")
+  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO links_ext_tmp2(db_uuid,session,bundle,seqIdx,from_id,toID,toLevel,type,label,toSeqIdx) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.from_id,k.toID,k.toLevel,k.type,k.label,k.seqIdx-(SELECT MIN(m.seqIdx) FROM links_ext_tmp m WHERE m.from_id=k.from_id AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.from_id,m.toLevel) AS toSeqIdx FROM links_ext_tmp k")
   
   DBI::dbGetQuery(emuDBhandle$connection,"DELETE FROM links_ext_tmp")
   
   # Add length of dominance group sequence
-  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO links_ext(db_uuid,session,bundle,seqIdx,fromID,toID,toSeqIdx,toLevel,type,label,toSeqLen) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toSeqIdx,k.toLevel,k.type,k.label,(SELECT MAX(m.seqIdx)-MIN(m.seqIdx)+1 FROM links_ext_tmp2 m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqLen FROM links_ext_tmp2 k")
+  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO links_ext(db_uuid,session,bundle,seqIdx,from_id,toID,toSeqIdx,toLevel,type,label,toSeqLen) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.from_id,k.toID,k.toSeqIdx,k.toLevel,k.type,k.label,(SELECT MAX(m.seqIdx)-MIN(m.seqIdx)+1 FROM links_ext_tmp2 m WHERE m.from_id=k.from_id AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.from_id,m.toLevel) AS toSeqLen FROM links_ext_tmp2 k")
   
   DBI::dbGetQuery(emuDBhandle$connection,"DELETE FROM links_ext_tmp2")
   
