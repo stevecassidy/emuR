@@ -78,7 +78,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   # use sample start of sequence start item for type SEGMENT and samplePoint for type EVENT 
   selectStr=paste0(selectStr,"CASE s.type \
                    WHEN 'SEGMENT' THEN s.sampleStart \
-                   WHEN 'EVENT' THEN s.samplePoint ")
+                   WHEN 'EVENT' THEN s.sample_point ")
   # calculate start sample for type ITEM
   if(hasLinks){
     # items of type ITEM have no (sample) time information
@@ -96,7 +96,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   
   # find sequence end position
   # use sample start plus sample duration of sequence end item for type SEGMENT and zero for type EVENT
-  # TODO is zero correct here ?? should it be e.samplePoint instead ??
+  # TODO is zero correct here ?? should it be e.sample_point instead ??
   selectStr=paste0(selectStr," CASE s.type \
                    WHEN 'SEGMENT' THEN (e.sampleStart+e.sampleDur) \
                    WHEN 'EVENT' THEN NULL ")  
@@ -265,10 +265,10 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
   selectStr=paste0("SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS start_item_id ,e.itemID AS end_item_id, r.level, s.type, ")
   
   # find sequence start position
-  # use sample start of sequence start item for type SEGMENT and samplePoint for type EVENT 
+  # use sample start of sequence start item for type SEGMENT and sample_point for type EVENT 
   selectStr=paste0(selectStr,"CASE s.type \
                    WHEN 'SEGMENT' THEN s.sampleStart \
-                   WHEN 'EVENT' THEN s.samplePoint ")
+                   WHEN 'EVENT' THEN s.sample_point ")
   # calculate start sample for type ITEM
   if(hasLinks){
     # items of type ITEM have no (sample) time information

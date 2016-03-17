@@ -89,7 +89,7 @@ test_that("database functions work", {
     expect_that(class(items[['seqIdx']]),is_equivalent_to('integer'))
     expect_that(class(items[['itemID']]),is_equivalent_to('integer'))
     expect_that(class(items[['sample_rate']]),is_equivalent_to('numeric'))
-    expect_that(class(items[['samplePoint']]),is_equivalent_to('integer'))
+    expect_that(class(items[['sample_point']]),is_equivalent_to('integer'))
     expect_that(class(items[['sampleStart']]),is_equivalent_to('integer'))
     expect_that(class(items[['sampleDur']]),is_equivalent_to('integer'))
     
@@ -164,7 +164,7 @@ test_that("database functions work", {
     teS=1:teCnt
     for(i in teS){
       teTime=msajc015_tone_events[i]
-      teLSample=msajc015_tone_ordered[i,'samplePoint']
+      teLSample=msajc015_tone_ordered[i,'sample_point']
       teLTime=teLSample/aeSampleRate
       absFail=abs(teLTime-teTime)
       expect_less_than(absFail,halfSample)

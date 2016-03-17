@@ -61,7 +61,7 @@ database.DDL.emuDB_items = 'CREATE TABLE items (
   type TEXT,
   seqIdx INTEGER,
   sample_rate FLOAT,
-  samplePoint INTEGER,
+  sample_point INTEGER,
   sampleStart INTEGER,
   sampleDur INTEGER,
   PRIMARY KEY (db_uuid, session, bundle, level, itemID, type),
@@ -309,7 +309,7 @@ load_bundleAnnotDFsDBI <- function(emuDBhandle, sessionName, bundleName){
   sampleRate = DBI::dbGetQuery(emuDBhandle$connection, sampleRateQuery)$sample_rate
   
   # items
-  itemsQuery = paste0("SELECT itemID, level, type, seqIdx, sample_rate, samplePoint, sampleStart, sampleDur  FROM items WHERE db_uuid='", 
+  itemsQuery = paste0("SELECT itemID, level, type, seqIdx, sample_rate, sample_point, sampleStart, sampleDur  FROM items WHERE db_uuid='", 
                       emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"' ORDER BY level, seqIdx")
   items = DBI::dbGetQuery(emuDBhandle$connection, itemsQuery)
   # reorder items to match DBconfig
