@@ -9,7 +9,7 @@ database.DDL.emuRsegsTmp = 'CREATE TEMP TABLE emursegs_tmp (
   session TEXT, 
   bundle TEXT,
   start_item_id INTEGER,
-  endItemID INTEGER,
+  end_item_id INTEGER,
   level TEXT,
   type TEXT,
   sampleStart INTEGER,
@@ -117,7 +117,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
                          il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle AND \
                          il.db_uuid=sl.db_uuid AND il.session=sl.session AND il.bundle=sl.bundle AND \
                          sll.db_uuid=sl.db_uuid AND sll.session=sl.session AND sll.bundle=sl.bundle AND sl.start_item_id=sll.itemID AND \
-                         slr.db_uuid=sl.db_uuid AND slr.session=sl.session AND slr.bundle=sl.bundle AND sl.endItemID=slr.itemID AND ")
+                         slr.db_uuid=sl.db_uuid AND slr.session=sl.session AND slr.bundle=sl.bundle AND sl.end_item_id=slr.itemID AND ")
     if(offsetRef=='START'){
       heQueryStr=paste0(heQueryStr,"il.level=sll.level AND il.seqIdx=sll.seqIdx+",offset," AND \
                           ir.level=sll.level AND ir.seqIdx=sll.seqIdx+",offset+length-1)
@@ -206,7 +206,7 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType will be used)")
   }
-  
+
   if(nrow(seglist)==0){
     # empty seglist, return the empty list
     return(seglist)
@@ -215,7 +215,8 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
     drop_requeryTmpTables(emuDBhandle)
     create_requeryTmpTables(emuDBhandle)
     # place in emursegs_tmp table
-    DBI::dbWriteTable(emuDBhandle$connection, "emursegs_tmp", as.data.frame(seglist), overwrite=T)
+    DBI::dbGetQuery(emuDBhandle$connection, "DELETE FROM emursegs_tmp;")
+    DBI::dbWriteTable(emuDBhandle$connection, "emursegs_tmp", as.data.frame(seglist), append=T) # append to avoid rewirte of col names
     
     # load config
     dbConfig=load_DBconfig(emuDBhandle)
@@ -238,11 +239,11 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
                           ( SELECT irs.*,max(irs.seqIdx),sl.ROWID AS rrId FROM items irs,items slir,seglist sl WHERE \
                           irs.db_uuid=sl.db_uuid AND irs.session=sl.session AND irs.bundle=sl.bundle AND \
                           slir.db_uuid=sl.db_uuid AND slir.session=sl.session AND slir.bundle=sl.bundle AND \
-                          slir.itemID=sl.endItemID AND irs.level=slir.level AND (\
-                          (irs.itemID=sl.endItemID) OR
+                          slir.itemID=sl.end_item_id AND irs.level=slir.level AND (\
+                          (irs.itemID=sl.end_item_id) OR
                           (EXISTS (SELECT * FROM links_ext lr \
                           WHERE lr.db_uuid=sl.db_uuid AND lr.session=sl.session AND lr.bundle=sl.bundle \
-                          AND ((lr.fromID=sl.endItemID AND lr.toID=irs.itemID) OR (lr.fromID=irs.itemID AND lr.toID= sl.endItemID))\
+                          AND ((lr.fromID=sl.end_item_id AND lr.toID=irs.itemID) OR (lr.fromID=irs.itemID AND lr.toID= sl.end_item_id))\
                           )) \
                           ) GROUP BY rrId ) \
                           AS ir ON lrId=rrId
@@ -267,10 +268,10 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
                               ( SELECT irs.*,max(irs.seqIdx),slr.ROWID AS rrId FROM emursegs_tmp slr,items irs WHERE \
                               irs.db_uuid=slr.db_uuid AND irs.session=slr.session AND irs.bundle=slr.bundle AND \
                               irs.level='",targetRootLevelName,"' AND (\
-                              (irs.itemID=slr.endItemID) OR
+                              (irs.itemID=slr.end_item_id) OR
                               (EXISTS (SELECT * FROM links_ext lr \
                               WHERE lr.db_uuid=slr.db_uuid AND lr.session=slr.session AND lr.bundle=slr.bundle \
-                                  AND ((lr.fromID=slr.endItemID AND lr.toID=irs.itemID) OR (lr.fromID=irs.itemID AND lr.toID= slr.endItemID))\
+                                  AND ((lr.fromID=slr.end_item_id AND lr.toID=irs.itemID) OR (lr.fromID=irs.itemID AND lr.toID= slr.end_item_id))\
                                 )) \
                               ) GROUP BY rrId ORDER BY rrId,irs.seqIdx DESC) \
                               AS ir ON lrId=rrId ")
