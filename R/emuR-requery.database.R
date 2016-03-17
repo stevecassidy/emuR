@@ -8,7 +8,7 @@ database.DDL.emuRsegsTmp = 'CREATE TEMP TABLE emursegs_tmp (
   db_uuid VARCHAR(36) NOT NULL,
   session TEXT, 
   bundle TEXT,
-  startItemID INTEGER,
+  start_item_id INTEGER,
   endItemID INTEGER,
   level TEXT,
   type TEXT,
@@ -105,7 +105,8 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
     drop_requeryTmpTables(emuDBhandle)
     create_requeryTmpTables(emuDBhandle)
     # place in emuRsegsTmp table
-    DBI::dbWriteTable(emuDBhandle$connection, "emursegs_tmp", as.data.frame(seglist), overwrite=T)
+    DBI::dbGetQuery(emuDBhandle$connection, "DELETE FROM emursegs_tmp;") # delete 
+    DBI::dbWriteTable(emuDBhandle$connection, "emursegs_tmp", as.data.frame(seglist), append=T) # append to make sure field names done't get overwritten
     
     # load config
     dbConfig=load_DBconfig(emuDBhandle)
@@ -115,7 +116,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
                         WHERE \
                          il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle AND \
                          il.db_uuid=sl.db_uuid AND il.session=sl.session AND il.bundle=sl.bundle AND \
-                         sll.db_uuid=sl.db_uuid AND sll.session=sl.session AND sll.bundle=sl.bundle AND sl.startItemID=sll.itemID AND \
+                         sll.db_uuid=sl.db_uuid AND sll.session=sl.session AND sll.bundle=sl.bundle AND sl.start_item_id=sll.itemID AND \
                          slr.db_uuid=sl.db_uuid AND slr.session=sl.session AND slr.bundle=sl.bundle AND sl.endItemID=slr.itemID AND ")
     if(offsetRef=='START'){
       heQueryStr=paste0(heQueryStr,"il.level=sll.level AND il.seqIdx=sll.seqIdx+",offset," AND \
@@ -226,11 +227,11 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
                           ( SELECT ils.*,min(ils.seqIdx),sl.ROWID AS lrId FROM items ils,items slil,seglist sl WHERE \
                           ils.db_uuid=sl.db_uuid AND ils.session=sl.session AND ils.bundle=sl.bundle AND \
                           slil.db_uuid=sl.db_uuid AND slil.session=sl.session AND slil.bundle=sl.bundle AND \
-                          slil.itemID=sl.startItemID AND ils.level=slil.level AND (\
-                          (ils.itemID=sl.startItemID) OR 
+                          slil.itemID=sl.start_item_id AND ils.level=slil.level AND (\
+                          (ils.itemID=sl.start_item_id) OR 
                           (EXISTS (SELECT * FROM links_ext lr \
                           WHERE lr.db_uuid=sl.db_uuid AND lr.session=sl.session AND lr.bundle=sl.bundle \
-                          AND ((lr.fromID=sl.startItemID AND lr.toID=ils.itemID) OR (lr.fromID=ils.itemID AND lr.toID= sl.startItemID))\
+                          AND ((lr.fromID=sl.start_item_id AND lr.toID=ils.itemID) OR (lr.fromID=ils.itemID AND lr.toID= sl.start_item_id))\
                           )) \
                           ) GROUP BY lrId ) \
                           AS il JOIN \
@@ -256,10 +257,10 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
                               ( SELECT ils.*,min(ils.seqIdx),sll.ROWID AS lrId FROM emursegs_tmp sll,items ils WHERE \
                               ils.db_uuid=sll.db_uuid AND ils.session=sll.session AND ils.bundle=sll.bundle AND \
                               ils.level='",targetRootLevelName,"' AND (\
-                              (ils.itemID=sll.startItemID) OR 
+                              (ils.itemID=sll.start_item_id) OR 
                               (EXISTS (SELECT * FROM links_ext ll \
                               WHERE ll.db_uuid=sll.db_uuid AND ll.session=sll.session AND ll.bundle=sll.bundle \
-                                  AND ((ll.fromID=sll.startItemID AND ll.toID=ils.itemID) OR (ll.fromID=ils.itemID AND ll.toID= sll.startItemID))\
+                                  AND ((ll.fromID=sll.start_item_id AND ll.toID=ils.itemID) OR (ll.fromID=ils.itemID AND ll.toID= sll.start_item_id))\
                                   )) \
                               ) GROUP BY lrId ORDER BY lrId,ils.seqIdx) \
                               AS il JOIN \

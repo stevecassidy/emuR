@@ -71,8 +71,8 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   linksExtFilteredCount = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM links_ext_filtered_tmp"))$n
   hasLinks = (linksExtFilteredCount > 0)
 
-  # select columns: id,session,bundle,startItemId,endItemID ,type ...
-  selectStr=paste0("SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS startItemID ,e.itemID AS endItemID,r.", levelColName, ",s.type, ")
+  # select columns: id,session,bundle,start_item_id,end_item_id ,type ...
+  selectStr=paste0("SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS start_item_id ,e.itemID AS end_item_id,r.", levelColName, ",s.type, ")
   
   # find sequence start position
   # use sample start of sequence start item for type SEGMENT and samplePoint for type EVENT 
@@ -140,7 +140,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   whereStr=paste0("WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=", seqStartIdColName, " AND e.itemID=", seqEndIdColName ," AND e.level=s.level AND ")
   
   # order
-  orderStr="ORDER BY s.db_uuid,s.session,s.bundle,startItemID,endItemID"
+  orderStr="ORDER BY s.db_uuid,s.session,s.bundle,start_item_id,end_item_id"
   
   # append terms depending on maximum sequence length
   # build query for label sequence string
@@ -177,7 +177,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
                         (CAST (sampleEnd AS REAL) + 1.5 ) / CAST( sampleRate AS REAL) * 1000.0 \
                        END AS end, \
                        session || ':' || bundle AS utts, \
-                       db_uuid,session,bundle,startItemID,endItemID,", levelColName, " AS level,type,sampleStart,sampleEnd,sampleRate \
+                       db_uuid,session,bundle, start_item_id  AS startItemID, end_item_id AS endItemID,", levelColName, " AS level,type,sampleStart,sampleEnd,sampleRate \
                       FROM (", queryStr, ") ORDER BY db_uuid,session,bundle,sampleStart")
   
   seglist = DBI::dbGetQuery(emuDBhandle$connection, queryStrInclConvert)
@@ -196,6 +196,9 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
 }
 
 
+##################################
+##################################
+##################################
 # convert to emuRsegs segemnt list, variable sequenec length of input allowed
 convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL){
   its=NULL
@@ -258,8 +261,8 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
   hasLinks = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM links_ext"))$n > 0
   
 
-  # select columns: id,session,bundle,startItemId,endItemID ,type ...
-  selectStr=paste0("SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS startItemID ,e.itemID AS endItemID, r.level, s.type, ")
+  # select columns: id,session,bundle,start_item_id,end_item_id ,type ...
+  selectStr=paste0("SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS start_item_id ,e.itemID AS end_item_id, r.level, s.type, ")
   
   # find sequence start position
   # use sample start of sequence start item for type SEGMENT and samplePoint for type EVENT 
@@ -328,7 +331,7 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
   whereStr=paste0("WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=r.seq_start_id AND e.itemID=r.seq_end_id AND e.level=s.level ")
   
   # order
-  orderStr="ORDER BY s.db_uuid,s.session,s.bundle,startItemID,endItemID"
+  orderStr="ORDER BY s.db_uuid,s.session,s.bundle,start_item_id,end_item_id"
   
   if(itCount>0){
     selectStr=paste0(selectStr," CASE r.seq_len ")
@@ -370,7 +373,7 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
                         (CAST (sampleEnd AS REAL) + 1.5 ) / CAST( sampleRate AS REAL) * 1000.0 \
                        END AS end, \
                        session || ':' || bundle AS utts, \
-                       db_uuid,session,bundle,startItemID,endItemID,level,type,sampleStart,sampleEnd,sampleRate \
+                       db_uuid,session,bundle, start_item_id AS startItemID, end_item_id AS endItemID,level,type,sampleStart,sampleEnd,sampleRate \
                       FROM (", queryStr, ")"))
   
   # set emusegs type attribute, default 'segment'
