@@ -71,7 +71,7 @@ test_that("update_cache works", {
     
     update_cache(ae, verbose = F)
     
-    res = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='", ae$UUID, "' AND session='new' AND bundle='msajc010' AND level='Utterance'"))$itemID
+    res = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='", ae$UUID, "' AND session='new' AND bundle='msajc010' AND level='Utterance'"))$item_id
 
     expect_true(res == 666666)
     

@@ -56,7 +56,7 @@ database.DDL.emuDB_items = 'CREATE TABLE items (
   db_uuid VARCHAR(36),
   session TEXT,
   bundle TEXT,
-  itemID INTEGER,
+  item_id INTEGER,
   level TEXT,
   type TEXT,
   seqIdx INTEGER,
@@ -64,23 +64,23 @@ database.DDL.emuDB_items = 'CREATE TABLE items (
   sample_point INTEGER,
   sample_start INTEGER,
   sample_dur INTEGER,
-  PRIMARY KEY (db_uuid, session, bundle, level, itemID, type),
+  PRIMARY KEY (db_uuid, session, bundle, level, item_id, type),
   FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
 );'
 
 # Important note:
 # The primary key of items contains more columns then needed to identify a particular item.
-# PRIMARY KEY (db_uuid,session,bundle,itemID) would be sufficient but the extended primary key 
+# PRIMARY KEY (db_uuid,session,bundle,item_id) would be sufficient but the extended primary key 
 # is necessary to speed up the build_redundnatLinksForPathes SQL query.
 # It did not work to create an index like the one in the comment line below.
 # It seems the query always uses the index of the primary key.
-#database.DDL.emuDB_itemsIdx='CREATE UNIQUE INDEX items_level_idx ON items(db_uuid,session,bundle,level,itemID,type)'
+#database.DDL.emuDB_itemsIdx='CREATE UNIQUE INDEX items_level_idx ON items(db_uuid,session,bundle,level,item_id,type)'
 
 database.DDL.emuDB_labels = 'CREATE TABLE labels (
   db_uuid VARCHAR(36),
   session TEXT,
   bundle TEXT,
-  itemID INTEGER,
+  item_id INTEGER,
   labelIdx INTEGER,
   name TEXT,
   label TEXT,
@@ -309,14 +309,14 @@ load_bundleAnnotDFsDBI <- function(emuDBhandle, sessionName, bundleName){
   sampleRate = DBI::dbGetQuery(emuDBhandle$connection, sampleRateQuery)$sample_rate
   
   # items
-  itemsQuery = paste0("SELECT itemID, level, type, seqIdx, sample_rate, sample_point, sample_start, sample_dur FROM items WHERE db_uuid='", 
+  itemsQuery = paste0("SELECT item_id, level, type, seqIdx, sample_rate, sample_point, sample_start, sample_dur FROM items WHERE db_uuid='", 
                       emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"' ORDER BY level, seqIdx")
   items = DBI::dbGetQuery(emuDBhandle$connection, itemsQuery)
   # reorder items to match DBconfig
   items = items[order(match(items$level,levelDefs$name)),]
   
   # labels 
-  labelsQuery = paste0("SELECT itemID, labelIdx, name, label FROM labels WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
+  labelsQuery = paste0("SELECT item_id, labelIdx, name, label FROM labels WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
   labels = DBI::dbGetQuery(emuDBhandle$connection, labelsQuery)
   
   # links 
@@ -396,7 +396,7 @@ build_redundantLinksForPaths <- function(emuDBhandle, hierarchyPaths, sessionNam
   hierarchyPathsLen = length(hierarchyPaths)
   if(hierarchyPathsLen > 0){
     
-    sqlQuery = "INSERT INTO links_tmp(db_uuid,session,bundle,fromID,toID,label) SELECT DISTINCT f.db_uuid,f.session,f.bundle,f.itemID AS fromID,t.itemID AS toID, NULL AS label FROM items f,items t"
+    sqlQuery = "INSERT INTO links_tmp(db_uuid,session,bundle,fromID,toID,label) SELECT DISTINCT f.db_uuid,f.session,f.bundle,f.item_id AS fromID,t.item_id AS toID, NULL AS label FROM items f,items t"
     sqlQuery = paste0(sqlQuery," WHERE f.db_uuid='", emuDBhandle$UUID, "' AND f.db_uuid=t.db_uuid AND f.session=t.session AND f.bundle=t.bundle AND ")
     #sqlQuery=paste0(sqlQuery," WHERE f.db_uuid=t.db_uuid AND f.bundle=t.bundle AND f.session=t.session AND ")
     
@@ -429,18 +429,18 @@ build_redundantLinksForPaths <- function(emuDBhandle, hierarchyPaths, sessionNam
       }
       sqlQuery=paste0(sqlQuery," WHERE ")
       if(hpLen==2){
-        sqlQuery=paste0(sqlQuery,"l1.db_uuid=f.db_uuid AND l1.db_uuid=t.db_uuid AND l1.session=f.session AND l1.session=t.session AND l1.bundle=f.bundle AND l1.bundle=t.bundle AND f.itemID=l1.fromID AND t.itemID=l1.toID")
+        sqlQuery=paste0(sqlQuery,"l1.db_uuid=f.db_uuid AND l1.db_uuid=t.db_uuid AND l1.session=f.session AND l1.session=t.session AND l1.bundle=f.bundle AND l1.bundle=t.bundle AND f.item_id=l1.fromID AND t.item_id=l1.toID")
         
       }else{
         # TODO start and end connection
         # from start to first in-between item 
         eHp=hp[2]
-        sqlQuery=paste0(sqlQuery,"l1.db_uuid=f.db_uuid AND l1.db_uuid=i2.db_uuid AND l1.session=f.session AND l1.session=i2.session AND l1.bundle=f.bundle AND l1.bundle=i2.bundle AND f.itemID=l1.fromID AND i2.itemID=l1.toID AND f.level='",sHp,"' AND i2.level='",eHp,"' AND ")
+        sqlQuery=paste0(sqlQuery,"l1.db_uuid=f.db_uuid AND l1.db_uuid=i2.db_uuid AND l1.session=f.session AND l1.session=i2.session AND l1.bundle=f.bundle AND l1.bundle=i2.bundle AND f.item_id=l1.fromID AND i2.item_id=l1.toID AND f.level='",sHp,"' AND i2.level='",eHp,"' AND ")
         if(hpLen>3){
           for(j in 2:(hpLen-2)){
             sHp=hp[j]
             eHp=hp[j+1L] 
-            sqlQuery=paste0(sqlQuery,"l",j,".db_uuid=i",j,".db_uuid AND l",j,".db_uuid=i",(j+1),".db_uuid AND l",j,".session=i",j,".session AND l",j,".session=i",(j+1),".session AND l",j,".bundle=i",j,".bundle AND l",j,".bundle=i",(j+1),".bundle AND i",j,".itemID=l",j,".fromID AND i",(j+1L),".itemID=l",j,".toID AND i",j,".level='",sHp,"' AND i",(j+1L),".level='",eHp,"' AND ")
+            sqlQuery=paste0(sqlQuery,"l",j,".db_uuid=i",j,".db_uuid AND l",j,".db_uuid=i",(j+1),".db_uuid AND l",j,".session=i",j,".session AND l",j,".session=i",(j+1),".session AND l",j,".bundle=i",j,".bundle AND l",j,".bundle=i",(j+1),".bundle AND i",j,".item_id=l",j,".fromID AND i",(j+1L),".item_id=l",j,".toID AND i",j,".level='",sHp,"' AND i",(j+1L),".level='",eHp,"' AND ")
           }
         }
         # from last in-between item to end item
@@ -448,7 +448,7 @@ build_redundantLinksForPaths <- function(emuDBhandle, hierarchyPaths, sessionNam
         eHp=hp[hpLen]
         
         j=hpLen-1
-        sqlQuery=paste0(sqlQuery,"l",j,".db_uuid=i",j,".db_uuid AND l",j,".db_uuid=t.db_uuid AND l",j,".session=i",j,".session AND l",j,".session=t.session AND l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND i",j,".itemID=l",j,".fromID AND t.itemID=l",j,".toID AND i",j,".level='",sHp,"' AND t.level='",eHp,"'")
+        sqlQuery=paste0(sqlQuery,"l",j,".db_uuid=i",j,".db_uuid AND l",j,".db_uuid=t.db_uuid AND l",j,".session=i",j,".session AND l",j,".session=t.session AND l",j,".bundle=i",j,".bundle AND l",j,".bundle=t.bundle AND i",j,".item_id=l",j,".fromID AND t.item_id=l",j,".toID AND i",j,".level='",sHp,"' AND t.level='",eHp,"'")
       }
       sqlQuery=paste0(sqlQuery,"))")
       if(i<hierarchyPathsLen){
@@ -467,7 +467,7 @@ calculate_postionsOfLinks<-function(emuDBhandle){
   # Extend links table with sequence index of the targeted (dominated) item
   DBI::dbGetQuery(emuDBhandle$connection,"DELETE FROM links_ext_tmp")
   
-  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO links_ext_tmp(db_uuid,session,bundle,fromID,toID,seqIdx,toLevel,type,label) SELECT k.db_uuid,k.session,k.bundle,k.fromID,k.toID,i.seqIdx,i.level AS toLevel,i.type,NULL AS label FROM links_tmp k,items i WHERE i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle AND k.toID=i.itemID")
+  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO links_ext_tmp(db_uuid,session,bundle,fromID,toID,seqIdx,toLevel,type,label) SELECT k.db_uuid,k.session,k.bundle,k.fromID,k.toID,i.seqIdx,i.level AS toLevel,i.type,NULL AS label FROM links_tmp k,items i WHERE i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle AND k.toID=i.item_id")
   
   # extend links table with relative sequence index
   DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO links_ext_tmp2(db_uuid,session,bundle,seqIdx,fromID,toID,toLevel,type,label,toSeqIdx) SELECT k.db_uuid,k.session,k.bundle,k.seqIdx,k.fromID,k.toID,k.toLevel,k.type,k.label,k.seqIdx-(SELECT MIN(m.seqIdx) FROM links_ext_tmp m WHERE m.fromID=k.fromID AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.fromID,m.toLevel) AS toSeqIdx FROM links_ext_tmp k")

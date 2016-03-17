@@ -95,12 +95,12 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
     # backup labels belonging to superlevel (labels have to be backed up before items to avoid maxID problem (maybe should rewrite query to avoid this in future versions using labels table to determin
     # maxID))
     qRes = DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labels ",
-                                                   "SELECT '", emuDBhandle$UUID, "', lt.session, lt.bundle, lt.itemID + bndlMaxValue AS itemID, labelIdx, lt.name || '", backupLevelAppendStr, "' AS name, label FROM ",
+                                                   "SELECT '", emuDBhandle$UUID, "', lt.session, lt.bundle, lt.item_id + bndlMaxValue AS item_id, labelIdx, lt.name || '", backupLevelAppendStr, "' AS name, label FROM ",
                                                    "(SELECT * FROM ",
                                                    "  items AS it",
                                                    "  JOIN ",
                                                    "  (",
-                                                   "   SELECT db_uuid, session, bundle, MAX(itemID) AS 'bndlMaxValue'",
+                                                   "   SELECT db_uuid, session, bundle, MAX(item_id) AS 'bndlMaxValue'",
                                                    "   FROM items GROUP BY bundle",
                                                    "  ) AS maxIdRes",
                                                    " WHERE it.db_uuid = maxIdRes.db_uuid ",
@@ -112,15 +112,15 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
                                                    "WHERE lt.db_uuid=tmp.db_uuid ",
                                                    "  AND lt.session=tmp.session ",
                                                    "  AND lt.bundle=tmp.bundle ",
-                                                   "  AND lt.itemID=tmp.itemID"))
+                                                   "  AND lt.item_id=tmp.item_id"))
     
     
     # backup items belonging to superlevel (=duplicate level with new ids)    
     qRes = DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items ",
-                                                   "SELECT '", emuDBhandle$UUID, "', it.session, it.bundle, it.itemID + bndlMaxValue AS itemID, it.level || '", backupLevelAppendStr, "' AS level, it.type, it.seqIdx, it.sample_rate, it.sample_point, it.sample_start, it.sample_dur FROM ",
+                                                   "SELECT '", emuDBhandle$UUID, "', it.session, it.bundle, it.item_id + bndlMaxValue AS item_id, it.level || '", backupLevelAppendStr, "' AS level, it.type, it.seqIdx, it.sample_rate, it.sample_point, it.sample_start, it.sample_dur FROM ",
                                                    "items AS it ",
                                                    "JOIN ",
-                                                   "(SELECT db_uuid, session, bundle, MAX(itemID) AS 'bndlMaxValue' FROM ",
+                                                   "(SELECT db_uuid, session, bundle, MAX(item_id) AS 'bndlMaxValue' FROM ",
                                                    "  items GROUP BY bundle ", 
                                                    ") as maxIdRes ",
                                                    "WHERE it.db_uuid = maxIdRes.db_uuid ",
@@ -133,7 +133,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
     
     DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
                                        " SELECT * FROM",
-                                       " (SELECT super.db_uuid, super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
+                                       " (SELECT super.db_uuid, super.session, super.bundle, super.item_id AS 'fromID', sub.item_id AS 'toID'", 
                                        " FROM items AS 'super' JOIN items AS 'sub' ",
                                        " WHERE super.level = '", superlevelName, "'", " AND sub.level = '", sublevelName, "'", 
                                        " AND super.db_uuid = '", emuDBhandle$UUID, "' AND sub.db_uuid = '", emuDBhandle$UUID, "'",
@@ -147,7 +147,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
       
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
                                                " SELECT * FROM",
-                                               " (SELECT super.db_uuid, super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
+                                               " (SELECT super.db_uuid, super.session, super.bundle, super.item_id AS 'fromID', sub.item_id AS 'toID'", 
                                                " FROM items as super JOIN items as sub",
                                                " WHERE (super.level = '", superlevelName, "'", " AND sub.level = '", sublevelName, "'", 
                                                " AND super.db_uuid = '", emuDBhandle$UUID, "' AND sub.db_uuid = '", emuDBhandle$UUID, "'",
@@ -159,7 +159,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
       
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
                                                " SELECT * FROM",
-                                               " (SELECT super.db_uuid, super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
+                                               " (SELECT super.db_uuid, super.session, super.bundle, super.item_id AS 'fromID', sub.item_id AS 'toID'", 
                                                " FROM items as super JOIN items as sub",
                                                " WHERE super.level = '", superlevelName, "'", " AND sub.level = '", sublevelName, "'", 
                                                " AND super.db_uuid = '", emuDBhandle$UUID, "' AND sub.db_uuid = '", emuDBhandle$UUID, "'",
@@ -175,7 +175,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
       
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
                                                " SELECT * FROM",
-                                               " (SELECT super.db_uuid, super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
+                                               " (SELECT super.db_uuid, super.session, super.bundle, super.item_id AS 'fromID', sub.item_id AS 'toID'", 
                                                " FROM items as super JOIN items as sub",
                                                " WHERE (super.level = '", superlevelName, "'", " AND sub.level = '", sublevelName, "'", 
                                                " AND super.db_uuid = '", emuDBhandle$UUID, "' AND sub.db_uuid = '", emuDBhandle$UUID, "'",

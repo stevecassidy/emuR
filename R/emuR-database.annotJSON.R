@@ -28,7 +28,7 @@ annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
     tidyjson::gather_array(column.name = "seqIdx") %>%
     tidyjson::spread_values(itemID = tidyjson::jstring("id"), samplePoint = tidyjson::jstring("samplePoint"), sampleStart = tidyjson::jstring("sampleStart"), sampleDur = tidyjson::jstring("sampleDur")) %>%
     dplyr::select_(~itemID, ~level, ~type, ~seqIdx, ~sampleRate, ~samplePoint, ~sampleStart, ~sampleDur) %>%
-    dplyr::rename_("sample_rate" = "sampleRate", "sample_point" = "samplePoint", "sample_start" = "sampleStart", "sample_dur" = "sampleDur")
+    dplyr::rename_("item_id" = "itemID", "sample_rate" = "sampleRate", "sample_point" = "samplePoint", "sample_start" = "sampleStart", "sample_dur" = "sampleDur")
     
   # gen. label list of data.frame
   labels = json %>%
@@ -60,7 +60,7 @@ bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
     levels[[length(levels) + 1]] = list(
       items = apply(levelItems, 1, function(r) {
       
-      labels = apply(dplyr::filter_(annotDFs$labels, ~(itemID == as.numeric(r[1]))), 1, function(r2) list(name = as.character(r2[3]), value = as.character(r2[4])))
+      labels = apply(dplyr::filter_(annotDFs$labels, ~(item_id == as.numeric(r[1]))), 1, function(r2) list(name = as.character(r2[3]), value = as.character(r2[4])))
       res = NULL
       if(r[3] == "ITEM"){
         res = list(id = as.numeric(r[1]),

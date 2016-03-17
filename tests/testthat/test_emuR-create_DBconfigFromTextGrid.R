@@ -1,6 +1,5 @@
 ##' testthat tests for convert_TextGridCollection_to_emuDB
 ##'
-require(RSQLite)
 
 context("testing create_DBconfigFromTextGrid function")
 

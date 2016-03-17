@@ -112,12 +112,12 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
     dbConfig=load_DBconfig(emuDBhandle)
     
     # query for sequential requeries
-    heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seq_start_id,ir.itemID AS seq_end_id,",length," AS seq_len,sl.level FROM emursegs_tmp sl,items sll,items slr,items il, items ir \
+    heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.item_id AS seq_start_id,ir.item_id AS seq_end_id,",length," AS seq_len,sl.level FROM emursegs_tmp sl,items sll,items slr,items il, items ir \
                         WHERE \
                          il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle AND \
                          il.db_uuid=sl.db_uuid AND il.session=sl.session AND il.bundle=sl.bundle AND \
-                         sll.db_uuid=sl.db_uuid AND sll.session=sl.session AND sll.bundle=sl.bundle AND sl.start_item_id=sll.itemID AND \
-                         slr.db_uuid=sl.db_uuid AND slr.session=sl.session AND slr.bundle=sl.bundle AND sl.end_item_id=slr.itemID AND ")
+                         sll.db_uuid=sl.db_uuid AND sll.session=sl.session AND sll.bundle=sl.bundle AND sl.start_item_id=sll.item_id AND \
+                         slr.db_uuid=sl.db_uuid AND slr.session=sl.session AND slr.bundle=sl.bundle AND sl.end_item_id=slr.item_id AND ")
     if(offsetRef=='START'){
       heQueryStr=paste0(heQueryStr,"il.level=sll.level AND il.seqIdx=sll.seqIdx+",offset," AND \
                           ir.level=sll.level AND ir.seqIdx=sll.seqIdx+",offset+length-1)
@@ -223,27 +223,27 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
     
     targetRootLevelName=NULL
     if(is.null(level)){
-      heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seq_start_id,ir.itemID AS seq_end_id,ir.seqIdx-il.seqIdx+1 AS seq_len,il.level \
+      heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.item_id AS seq_start_id,ir.item_id AS seq_end_id,ir.seqIdx-il.seqIdx+1 AS seq_len,il.level \
                           FROM \
                           ( SELECT ils.*,min(ils.seqIdx),sl.ROWID AS lrId FROM items ils,items slil,seglist sl WHERE \
                           ils.db_uuid=sl.db_uuid AND ils.session=sl.session AND ils.bundle=sl.bundle AND \
                           slil.db_uuid=sl.db_uuid AND slil.session=sl.session AND slil.bundle=sl.bundle AND \
-                          slil.itemID=sl.start_item_id AND ils.level=slil.level AND (\
-                          (ils.itemID=sl.start_item_id) OR 
+                          slil.item_id=sl.start_item_id AND ils.level=slil.level AND (\
+                          (ils.item_id=sl.start_item_id) OR 
                           (EXISTS (SELECT * FROM links_ext lr \
                           WHERE lr.db_uuid=sl.db_uuid AND lr.session=sl.session AND lr.bundle=sl.bundle \
-                          AND ((lr.fromID=sl.start_item_id AND lr.toID=ils.itemID) OR (lr.fromID=ils.itemID AND lr.toID= sl.start_item_id))\
+                          AND ((lr.fromID=sl.start_item_id AND lr.toID=ils.item_id) OR (lr.fromID=ils.item_id AND lr.toID= sl.start_item_id))\
                           )) \
                           ) GROUP BY lrId ) \
                           AS il JOIN \
                           ( SELECT irs.*,max(irs.seqIdx),sl.ROWID AS rrId FROM items irs,items slir,seglist sl WHERE \
                           irs.db_uuid=sl.db_uuid AND irs.session=sl.session AND irs.bundle=sl.bundle AND \
                           slir.db_uuid=sl.db_uuid AND slir.session=sl.session AND slir.bundle=sl.bundle AND \
-                          slir.itemID=sl.end_item_id AND irs.level=slir.level AND (\
-                          (irs.itemID=sl.end_item_id) OR
+                          slir.item_id=sl.end_item_id AND irs.level=slir.level AND (\
+                          (irs.item_id=sl.end_item_id) OR
                           (EXISTS (SELECT * FROM links_ext lr \
                           WHERE lr.db_uuid=sl.db_uuid AND lr.session=sl.session AND lr.bundle=sl.bundle \
-                          AND ((lr.fromID=sl.end_item_id AND lr.toID=irs.itemID) OR (lr.fromID=irs.itemID AND lr.toID= sl.end_item_id))\
+                          AND ((lr.fromID=sl.end_item_id AND lr.toID=irs.item_id) OR (lr.fromID=irs.item_id AND lr.toID= sl.end_item_id))\
                           )) \
                           ) GROUP BY rrId ) \
                           AS ir ON lrId=rrId
@@ -253,25 +253,25 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
       
       check_levelAttributeName(emuDBhandle,level)
       targetRootLevelName=get_levelNameForAttributeName(emuDBhandle, attributeName = level)
-      heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.itemID AS seq_start_id,ir.itemID AS seq_end_id,(ir.seqIdx-il.seqIdx+1) AS seq_len,'",level,"' AS level \
+      heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.item_id AS seq_start_id,ir.item_id AS seq_end_id,(ir.seqIdx-il.seqIdx+1) AS seq_len,'",level,"' AS level \
                               FROM 
                               ( SELECT ils.*,min(ils.seqIdx),sll.ROWID AS lrId FROM emursegs_tmp sll,items ils WHERE \
                               ils.db_uuid=sll.db_uuid AND ils.session=sll.session AND ils.bundle=sll.bundle AND \
                               ils.level='",targetRootLevelName,"' AND (\
-                              (ils.itemID=sll.start_item_id) OR 
+                              (ils.item_id=sll.start_item_id) OR 
                               (EXISTS (SELECT * FROM links_ext ll \
                               WHERE ll.db_uuid=sll.db_uuid AND ll.session=sll.session AND ll.bundle=sll.bundle \
-                                  AND ((ll.fromID=sll.start_item_id AND ll.toID=ils.itemID) OR (ll.fromID=ils.itemID AND ll.toID= sll.start_item_id))\
+                                  AND ((ll.fromID=sll.start_item_id AND ll.toID=ils.item_id) OR (ll.fromID=ils.item_id AND ll.toID= sll.start_item_id))\
                                   )) \
                               ) GROUP BY lrId ORDER BY lrId,ils.seqIdx) \
                               AS il JOIN \
                               ( SELECT irs.*,max(irs.seqIdx),slr.ROWID AS rrId FROM emursegs_tmp slr,items irs WHERE \
                               irs.db_uuid=slr.db_uuid AND irs.session=slr.session AND irs.bundle=slr.bundle AND \
                               irs.level='",targetRootLevelName,"' AND (\
-                              (irs.itemID=slr.end_item_id) OR
+                              (irs.item_id=slr.end_item_id) OR
                               (EXISTS (SELECT * FROM links_ext lr \
                               WHERE lr.db_uuid=slr.db_uuid AND lr.session=slr.session AND lr.bundle=slr.bundle \
-                                  AND ((lr.fromID=slr.end_item_id AND lr.toID=irs.itemID) OR (lr.fromID=irs.itemID AND lr.toID= slr.end_item_id))\
+                                  AND ((lr.fromID=slr.end_item_id AND lr.toID=irs.item_id) OR (lr.fromID=irs.item_id AND lr.toID= slr.end_item_id))\
                                 )) \
                               ) GROUP BY rrId ORDER BY rrId,irs.seqIdx DESC) \
                               AS ir ON lrId=rrId ")

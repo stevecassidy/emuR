@@ -897,9 +897,9 @@ turn_bpfLinks <- function(emuDBhandle, turnAround)
   for(link in turnAround)
   {
     queryTxt = paste0("UPDATE links SET fromID = toID, toID = fromID WHERE fromID IN",
-                      "(SELECT itemID FROM items WHERE level = '", link[["fromkey"]], 
+                      "(SELECT item_id FROM items WHERE level = '", link[["fromkey"]], 
                       "' AND db_uuid = links.db_uuid AND session = links.session AND bundle = links.bundle) ",
-                      "AND toID IN(SELECT itemID FROM items WHERE level = '", link[["tokey"]], "' ",
+                      "AND toID IN(SELECT item_id FROM items WHERE level = '", link[["tokey"]], "' ",
                       "AND db_uuid = links.db_uuid AND session = links.session AND bundle = links.bundle);")
     DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   }
@@ -1093,8 +1093,8 @@ get_bpfLevelsUnderUtterance <- function(linkTracker,
 
 link_bpfUtteranceLevelToCurrentLevel <- function(emuDBhandle, currentLevel)
 {
-  # Get UUID, session, bundle and itemID of all items of the relevant level
-  queryTxt = paste0("SELECT db_uuid, session, bundle, itemID FROM items WHERE level = '", currentLevel, "'")
+  # Get UUID, session, bundle and item_id of all items of the relevant level
+  queryTxt = paste0("SELECT db_uuid, session, bundle, item_id FROM items WHERE level = '", currentLevel, "'")
   uuidSessionBundleItemID = DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   
   # Loop over all items on this level
@@ -1103,10 +1103,10 @@ link_bpfUtteranceLevelToCurrentLevel <- function(emuDBhandle, currentLevel)
     db_uuid = uuidSessionBundleItemID[idx,][["db_uuid"]]
     session = uuidSessionBundleItemID[idx,][["session"]]
     bundle = uuidSessionBundleItemID[idx,][["bundle"]]
-    itemID = uuidSessionBundleItemID[idx,][["itemID"]]
+    itemID = uuidSessionBundleItemID[idx,][["item_id"]]
     
     # Link all items to their corresponding Utterance item 
-    # (same UUID, session & bundle, Utterance itemID is always 1).
+    # (same UUID, session & bundle, Utterance item_id is always 1).
     queryTxt = paste0("INSERT INTO links VALUES('", db_uuid, "', '", session, "', '", bundle, "', 1, ", itemID, ", NULL)")
     DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   }
