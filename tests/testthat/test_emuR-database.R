@@ -98,7 +98,7 @@ test_that("database functions work", {
     
     links=DBI::dbReadTable(ae$connection,'links')
     expect_that(class(links[['from_id']]),is_equivalent_to('integer'))
-    expect_that(class(links[['toID']]),is_equivalent_to('integer'))
+    expect_that(class(links[['to_id']]),is_equivalent_to('integer'))
   })
   
   test_that("Test ae samples",{

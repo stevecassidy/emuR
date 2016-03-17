@@ -896,10 +896,10 @@ turn_bpfLinks <- function(emuDBhandle, turnAround)
 {
   for(link in turnAround)
   {
-    queryTxt = paste0("UPDATE links SET from_id = toID, toID = from_id WHERE from_id IN",
+    queryTxt = paste0("UPDATE links SET from_id = to_id, to_id = from_id WHERE from_id IN",
                       "(SELECT item_id FROM items WHERE level = '", link[["fromkey"]], 
                       "' AND db_uuid = links.db_uuid AND session = links.session AND bundle = links.bundle) ",
-                      "AND toID IN(SELECT item_id FROM items WHERE level = '", link[["tokey"]], "' ",
+                      "AND to_id IN(SELECT item_id FROM items WHERE level = '", link[["tokey"]], "' ",
                       "AND db_uuid = links.db_uuid AND session = links.session AND bundle = links.bundle);")
     DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   }

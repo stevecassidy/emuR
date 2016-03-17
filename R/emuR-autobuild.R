@@ -131,35 +131,35 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
   # query DB depending on type of sublevelDefinition 
   if(foundSubLevelDev$type == 'EVENT'){
     
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, from_id, toID)",
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, from_id, to_id)",
                                        " SELECT * FROM",
-                                       " (SELECT super.db_uuid, super.session, super.bundle, super.item_id AS 'from_id', sub.item_id AS 'toID'", 
+                                       " (SELECT super.db_uuid, super.session, super.bundle, super.item_id AS 'from_id', sub.item_id AS 'to_id'", 
                                        " FROM items AS 'super' JOIN items AS 'sub' ",
                                        " WHERE super.level = '", superlevelName, "'", " AND sub.level = '", sublevelName, "'", 
                                        " AND super.db_uuid = '", emuDBhandle$UUID, "' AND sub.db_uuid = '", emuDBhandle$UUID, "'",
                                        " AND super.session = sub.session", " AND super.bundle = sub.bundle",
                                        " AND (sub.sample_point + 0 >= super.sample_start + 0) AND sub.sample_point <= (super.sample_start + super.sample_dur)) AS res", # + 0 added to ensure numeric comparison
-                                       " WHERE NOT EXISTS (SELECT lt.from_id, lt.toID FROM links lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.from_id = res.from_id AND lt.toID = res.toID)"))
+                                       " WHERE NOT EXISTS (SELECT lt.from_id, lt.to_id FROM links lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.from_id = res.from_id AND lt.to_id = res.to_id)"))
     
   }else{
     
     if(ld$type == "ONE_TO_MANY"){
       
-      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, from_id, toID)",
+      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, from_id, to_id)",
                                                " SELECT * FROM",
-                                               " (SELECT super.db_uuid, super.session, super.bundle, super.item_id AS 'from_id', sub.item_id AS 'toID'", 
+                                               " (SELECT super.db_uuid, super.session, super.bundle, super.item_id AS 'from_id', sub.item_id AS 'to_id'", 
                                                " FROM items as super JOIN items as sub",
                                                " WHERE (super.level = '", superlevelName, "'", " AND sub.level = '", sublevelName, "'", 
                                                " AND super.db_uuid = '", emuDBhandle$UUID, "' AND sub.db_uuid = '", emuDBhandle$UUID, "'",
                                                " AND super.session = sub.session AND super.bundle = sub.bundle",
                                                " AND (sub.sample_start + 0 >= super.sample_start + 0)) AND ((sub.sample_start + sub.sample_dur) <= (super.sample_start + super.sample_dur))) AS res", # + 0 added to ensure numeric comparison
-                                               " WHERE NOT EXISTS (SELECT lt.from_id, lt.toID FROM links lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.from_id = res.from_id AND lt.toID = res.toID)"))
+                                               " WHERE NOT EXISTS (SELECT lt.from_id, lt.to_id FROM links lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.from_id = res.from_id AND lt.to_id = res.to_id)"))
       
     }else if(ld$type == "MANY_TO_MANY"){
       
-      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, from_id, toID)",
+      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, from_id, to_id)",
                                                " SELECT * FROM",
-                                               " (SELECT super.db_uuid, super.session, super.bundle, super.item_id AS 'from_id', sub.item_id AS 'toID'", 
+                                               " (SELECT super.db_uuid, super.session, super.bundle, super.item_id AS 'from_id', sub.item_id AS 'to_id'", 
                                                " FROM items as super JOIN items as sub",
                                                " WHERE super.level = '", superlevelName, "'", " AND sub.level = '", sublevelName, "'", 
                                                " AND super.db_uuid = '", emuDBhandle$UUID, "' AND sub.db_uuid = '", emuDBhandle$UUID, "'",
@@ -169,19 +169,19 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
                                                " OR ((sub.sample_start + 0 >= super.sample_start + 0) AND ((sub.sample_start + 0) <= (super.sample_start + super.sample_dur)) AND ((sub.sample_start + sub.sample_dur) >= (super.sample_start + super.sample_dur)))", # right overlap
                                                " OR ((sub.sample_start + 0 <= super.sample_start + 0) AND ((sub.sample_start + sub.sample_dur) >= (super.sample_start + super.sample_dur)))", # left and right overlap
                                                ")) AS res", # right overlap
-                                               " WHERE NOT EXISTS (SELECT lt.from_id, lt.toID FROM links lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.from_id = res.from_id AND lt.toID = res.toID)"))
+                                               " WHERE NOT EXISTS (SELECT lt.from_id, lt.to_id FROM links lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.from_id = res.from_id AND lt.to_id = res.to_id)"))
       
     }else if(ld$type == "ONE_TO_ONE"){
       
-      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, from_id, toID)",
+      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, from_id, to_id)",
                                                " SELECT * FROM",
-                                               " (SELECT super.db_uuid, super.session, super.bundle, super.item_id AS 'from_id', sub.item_id AS 'toID'", 
+                                               " (SELECT super.db_uuid, super.session, super.bundle, super.item_id AS 'from_id', sub.item_id AS 'to_id'", 
                                                " FROM items as super JOIN items as sub",
                                                " WHERE (super.level = '", superlevelName, "'", " AND sub.level = '", sublevelName, "'", 
                                                " AND super.db_uuid = '", emuDBhandle$UUID, "' AND sub.db_uuid = '", emuDBhandle$UUID, "'",
                                                " AND super.session = sub.session AND super.bundle = sub.bundle",
                                                " AND (sub.sample_start + 0 = super.sample_start + 0)) AND ((sub.sample_start + sub.sample_dur) = (super.sample_start + super.sample_dur))) AS res", # are exatly the same
-                                               " WHERE NOT EXISTS (SELECT lt.from_id, lt.toID FROM links lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.from_id = res.from_id AND lt.toID = res.toID)"))
+                                               " WHERE NOT EXISTS (SELECT lt.from_id, lt.to_id FROM links lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.from_id = res.from_id AND lt.to_id = res.to_id)"))
       
     }
   }

@@ -16,11 +16,11 @@ create_tmpFilteredQueryTablesDBI <- function(emuDBhandle){
 
   database.DDL.emuDB_linksFilteredTmp = gsub("CREATE TABLE links", "CREATE TEMP TABLE links_filtered_tmp", database.DDL.emuDB_links)
   database.DDL.emuDB_linksFilteredTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_linksFilteredTmp) # remove FOREIGN KEY
-  database.DDL.emuDB_linksFilteredTmp_idx = 'CREATE INDEX links_filtered_tmp_idx ON links_filtered_tmp(db_uuid,session,bundle,from_id,toID)'
+  database.DDL.emuDB_linksFilteredTmp_idx = 'CREATE INDEX links_filtered_tmp_idx ON links_filtered_tmp(db_uuid,session,bundle,from_id,to_id)'
     
   database.DDL.emuDB_linksExtFilteredTmp = gsub("CREATE TABLE links_ext", "CREATE TEMP TABLE links_ext_filtered_tmp", database.DDL.emuDB_linksExt)
   database.DDL.emuDB_linksExtFilteredTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_linksExtFilteredTmp) # remove FOREIGN KEY
-  database.DDL.emuDB_linksExtFilteredTmp_idx = 'CREATE INDEX links_ext_filtered_tmp_idx ON links_ext_filtered_tmp(db_uuid,session,bundle,from_id,toID)'
+  database.DDL.emuDB_linksExtFilteredTmp_idx = 'CREATE INDEX links_ext_filtered_tmp_idx ON links_ext_filtered_tmp(db_uuid,session,bundle,from_id,to_id)'
   
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredTmp)
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredTmp_idx)
@@ -42,7 +42,7 @@ create_tmpFilteredQueryTablesDBI <- function(emuDBhandle){
   
   database.DDL.emuDB_linksExtFilteredSubsetTmp = gsub("CREATE TABLE links_ext", "CREATE TEMP TABLE links_ext_filtered_subset_tmp", database.DDL.emuDB_linksExt)
   database.DDL.emuDB_linksExtFilteredSubsetTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_linksExtFilteredSubsetTmp) # remove FOREIGN KEY
-  database.DDL.emuDB_linksExtFilteredSubsetTmp_idx = 'CREATE INDEX links_ext_filtered_subset_tmp_idx ON links_ext_filtered_subset_tmp(db_uuid,session,bundle,from_id,toID)'
+  database.DDL.emuDB_linksExtFilteredSubsetTmp_idx = 'CREATE INDEX links_ext_filtered_subset_tmp_idx ON links_ext_filtered_subset_tmp(db_uuid,session,bundle,from_id,to_id)'
   
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredSubsetTmp)
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredSubsetTmp_idx)
@@ -328,7 +328,7 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
                           (SELECT * FROM links_ext_filtered_tmp k \
                            WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
                             AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
-                            AND k.from_id=d.item_id AND k.toID=i.item_id AND k.toSeqIdx",cond,"0\
+                            AND k.from_id=d.item_id AND k.to_id=i.item_id AND k.toSeqIdx",cond,"0\
                            )") 
         
         itemsAsSeqs = DBI::dbGetQuery(emuDBhandle$connection, sqlQStr)
@@ -353,7 +353,7 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
                        (SELECT * FROM links_ext_filtered_tmp k \
                        WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
                         AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
-                        AND k.from_id=d.item_id AND k.toID=i.item_id AND (k.toSeqIdx",cond,"0 ",bOp," k.toSeqIdx+1",cond,"k.toSeqLen)\
+                        AND k.from_id=d.item_id AND k.to_id=i.item_id AND (k.toSeqIdx",cond,"0 ",bOp," k.toSeqIdx+1",cond,"k.toSeqLen)\
                        )") 
         itemsAsSeqs = DBI::dbGetQuery(emuDBhandle$connection, sqlQStr)
         resultLevel=param2
@@ -373,7 +373,7 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
                        (SELECT * FROM links_ext_filtered_tmp k \
                         WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
                             AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
-                            AND k.from_id=d.item_id AND k.toID=i.item_id AND k.toSeqIdx+1",cond,"k.toSeqLen\
+                            AND k.from_id=d.item_id AND k.to_id=i.item_id AND k.toSeqIdx+1",cond,"k.toSeqLen\
                        )")
         itemsAsSeqs = DBI::dbGetQuery(emuDBhandle$connection, sqlQStr)
         resultLevel=param2
@@ -411,8 +411,8 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
                        WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
                         AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
                         AND ( \
-                         ( k.from_id=d.item_id AND k.toID=i.item_id AND k.toLevel=i.level ) OR \
-                         ( k.from_id=i.item_id AND k.toID=d.item_id AND k.toLevel=d.level ) \
+                         ( k.from_id=d.item_id AND k.to_id=i.item_id AND k.toLevel=i.level ) OR \
+                         ( k.from_id=i.item_id AND k.to_id=d.item_id AND k.toLevel=d.level ) \
                         )\
                        ))",sqlFuncOpr,funcVal)
         itemsAsSeqs = DBI::dbGetQuery(emuDBhandle$connection, sqlQStr)
@@ -750,9 +750,9 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
       domQueryStrCond0=paste0(itemsSameBundleCond1,itemsSameBundleCond2,itemsSameBundleCond3,"ils.item_id=lid.seq_start_id AND ile.item_id=lid.seq_end_id AND ",itemsSameBundleCond4,"irs.item_id=rid.seq_start_id AND ire.item_id=rid.seq_end_id AND ",itemsSameBundleCond5)
       # The query has now the corners of the dominance "trapeze" in ils,ile,irs,ire
       # Check sequence start item of left result on existence of a link to the start item of the right sequence 
-      domQueryStrCond1=paste0("EXISTS (SELECT * FROM links_ext_filtered_tmp k WHERE ",linkSameBundleCond1," AND ((k.from_id=ils.item_id AND k.toID=irs.item_id) OR (k.toID=ils.item_id AND k.from_id=irs.item_id)))")
+      domQueryStrCond1=paste0("EXISTS (SELECT * FROM links_ext_filtered_tmp k WHERE ",linkSameBundleCond1," AND ((k.from_id=ils.item_id AND k.to_id=irs.item_id) OR (k.to_id=ils.item_id AND k.from_id=irs.item_id)))")
       # ... and sequence end item of left result on existence of a link to the end item of the right sequence 
-      domQueryStrCond2=paste0("EXISTS (SELECT * FROM links_ext_filtered_tmp m WHERE ",linkSameBundleCond2," AND ((m.from_id=ile.item_id AND m.toID=ire.item_id) OR (m.toID=ile.item_id AND m.from_id=ire.item_id)))")
+      domQueryStrCond2=paste0("EXISTS (SELECT * FROM links_ext_filtered_tmp m WHERE ",linkSameBundleCond2," AND ((m.from_id=ile.item_id AND m.to_id=ire.item_id) OR (m.to_id=ile.item_id AND m.from_id=ire.item_id)))")
       
       # concatenate the dominance query string
       domQueryStrTail=paste0(" FROM ",domQueryFromStr," WHERE ", domQueryStrCond0, " AND ", domQueryStrCond1," AND ",domQueryStrCond2)

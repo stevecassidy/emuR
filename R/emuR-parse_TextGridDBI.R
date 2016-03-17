@@ -430,7 +430,7 @@ TextGridToBundleAnnotDFs <- function(tgPath, sampleRate, name, annotates){
     
   }
   
-  links = data.frame(bundle = character(), fromID = integer(), toID = integer(), label = character(), stringsAsFactors = F)
+  links = data.frame(bundle = character(), from_id = integer(), to_id = integer(), label = character(), stringsAsFactors = F)
   
   return(list(name = name, annotates = annotates, sampleRate = sampleRate, items = items, links = links, labels = labels))
 }
