@@ -41,16 +41,16 @@ test_that("database functions work", {
     expect_equal(ae$dbName, aeFromLegacy$dbName)
     expect_equal(ae$UUI, aeFromLegacy$UUID)
     
-    origItems = dbReadTable(ae$connection, "items")
-    convItems = dbReadTable(aeFromLegacy$connection, "items")
+    origItems = DBI::dbReadTable(ae$connection, "items")
+    convItems = DBI::dbReadTable(aeFromLegacy$connection, "items")
     expect_equal(origItems, convItems)
     
-    origLabels = dbReadTable(ae$connection, "labels")
-    convLabels = dbReadTable(aeFromLegacy$connection, "labels")
+    origLabels = DBI::dbReadTable(ae$connection, "labels")
+    convLabels = DBI::dbReadTable(aeFromLegacy$connection, "labels")
     expect_equal(origLabels, convLabels)
     
-    origLinksExt = dbReadTable(ae$connection, "links_ext")
-    convLinksExt = dbReadTable(aeFromLegacy$connection, "links_ext")
+    origLinksExt = DBI::dbReadTable(ae$connection, "links_ext")
+    convLinksExt = DBI::dbReadTable(aeFromLegacy$connection, "links_ext")
     expect_equal(origLinksExt, convLinksExt)
   })
   
@@ -65,6 +65,7 @@ test_that("database functions work", {
     bndls=list_bundlesDBI(ae)
     expect_that(nrow(bndls),is_equivalent_to(7))
     itCntQ=paste0("SELECT count(*) FROM items WHERE db_uuid='",ae$UUID,"'")
+    
     itCntDf=DBI::dbGetQuery(ae$connection,itCntQ)
     itemCnt=itCntDf[[1]]
     liCntQ=paste0("SELECT count(*) FROM links WHERE db_uuid='",ae$UUID,"'")
@@ -83,19 +84,19 @@ test_that("database functions work", {
   })
   
   test_that("Data types are correct",{
-    items=dbReadTable(ae$connection, 'items')
+    items=DBI::dbReadTable(ae$connection, 'items')
     
     expect_that(class(items[['seqIdx']]),is_equivalent_to('integer'))
     expect_that(class(items[['itemID']]),is_equivalent_to('integer'))
-    expect_that(class(items[['sampleRate']]),is_equivalent_to('numeric'))
+    expect_that(class(items[['sample_rate']]),is_equivalent_to('numeric'))
     expect_that(class(items[['samplePoint']]),is_equivalent_to('integer'))
     expect_that(class(items[['sampleStart']]),is_equivalent_to('integer'))
     expect_that(class(items[['sampleDur']]),is_equivalent_to('integer'))
     
-    labels=dbReadTable(ae$connection,'labels')
+    labels=DBI::dbReadTable(ae$connection,'labels')
     expect_that(class(labels[['labelIdx']]),is_equivalent_to('integer'))
     
-    links=dbReadTable(ae$connection,'links')
+    links=DBI::dbReadTable(ae$connection,'links')
     expect_that(class(links[['fromID']]),is_equivalent_to('integer'))
     expect_that(class(links[['toID']]),is_equivalent_to('integer'))
   })

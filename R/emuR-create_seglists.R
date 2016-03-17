@@ -115,13 +115,13 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   # find samplerate
   # use sample rate of sequence start item for type SEGMENT and EVENT 
   selectStr=paste0(selectStr,"CASE s.type \
-                   WHEN 'SEGMENT' THEN s.sampleRate \
-                   WHEN 'EVENT' THEN s.sampleRate ")
+                   WHEN 'SEGMENT' THEN s.sample_rate \
+                   WHEN 'EVENT' THEN s.sample_rate ")
   if(hasLinks){
     # items of type ITEM have no sample rate information
     # therefore we search for linked SEGMENT items and take their start sample position
     # TODO Can we use EVENT items as well ?
-    selectStr=paste0(selectStr," ELSE (SELECT i.sampleRate FROM ", itemsTableName, " i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND ")
+    selectStr=paste0(selectStr," ELSE (SELECT i.sample_rate FROM ", itemsTableName, " i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND ")
     if(!is.null(timeRefSegmentLevel)){
       selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
     }
@@ -131,7 +131,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
     # TODO no samplerate , error ??
   }
   
-  selectStr=paste0(selectStr," END AS sampleRate, ")
+  selectStr=paste0(selectStr," END AS sample_rate, ")
   
   # from clause
   fromStr=paste0("FROM ", itemsTableName, " s,", itemsTableName, " e,", itsTableName, " r, ")
@@ -167,17 +167,17 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   # convert samples to milliseconds SQL string:
   queryStrInclConvert = paste0("SELECT labels,
                        CASE type WHEN 'EVENT' THEN \
-                        CAST (sampleStart AS REAL)/ CAST( sampleRate AS REAL) * 1000.0 \
+                        CAST (sampleStart AS REAL)/ CAST( sample_rate AS REAL) * 1000.0 \
                        ELSE \
-                        (CAST (sampleStart AS REAL) + 0.5 ) / CAST( sampleRate AS REAL) * 1000.0 \
+                        (CAST (sampleStart AS REAL) + 0.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
                        END AS start, \
                        CASE type WHEN 'EVENT' THEN \
                          0.0
                        ELSE \
-                        (CAST (sampleEnd AS REAL) + 1.5 ) / CAST( sampleRate AS REAL) * 1000.0 \
+                        (CAST (sampleEnd AS REAL) + 1.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
                        END AS end, \
                        session || ':' || bundle AS utts, \
-                       db_uuid,session,bundle, start_item_id  AS startItemID, end_item_id AS endItemID,", levelColName, " AS level,type,sampleStart,sampleEnd,sampleRate \
+                       db_uuid,session,bundle, start_item_id  AS startItemID, end_item_id AS endItemID,", levelColName, " AS level,type,sampleStart,sampleEnd,sample_rate \
                       FROM (", queryStr, ") ORDER BY db_uuid,session,bundle,sampleStart")
   
   seglist = DBI::dbGetQuery(emuDBhandle$connection, queryStrInclConvert)
@@ -306,13 +306,13 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
   # find samplerate
   # use sample rate of sequence start item for type SEGMENT and EVENT 
   selectStr=paste0(selectStr,"CASE s.type \
-                   WHEN 'SEGMENT' THEN s.sampleRate \
-                   WHEN 'EVENT' THEN s.sampleRate ")
+                   WHEN 'SEGMENT' THEN s.sample_rate \
+                   WHEN 'EVENT' THEN s.sample_rate ")
   if(hasLinks){
     # items of type ITEM have no sample rate information
     # therefore we search for linked SEGMENT items and take their start sample position
     # TODO Can we use EVENT items as well ?
-    selectStr=paste0(selectStr," ELSE (SELECT i.sampleRate FROM items i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND ")
+    selectStr=paste0(selectStr," ELSE (SELECT i.sample_rate FROM items i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND ")
     if(!is.null(timeRefSegmentLevel)){
       selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
     }
@@ -322,7 +322,7 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
     # TODO no samplerate , error ??
   }
   
-  selectStr=paste0(selectStr," END AS sampleRate, ")
+  selectStr=paste0(selectStr," END AS sample_rate, ")
   
   # from clause
   fromStr=paste0("FROM items s,items e,", itsTableName, " r ")
@@ -363,17 +363,17 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
   seglist=DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT \
                        labels,
                        CASE type WHEN 'EVENT' THEN \
-                        CAST (sampleStart AS REAL)/ CAST( sampleRate AS REAL) * 1000.0 \
+                        CAST (sampleStart AS REAL)/ CAST( sample_rate AS REAL) * 1000.0 \
                        ELSE \
-                        (CAST (sampleStart AS REAL) + 0.5 ) / CAST( sampleRate AS REAL) * 1000.0 \
+                        (CAST (sampleStart AS REAL) + 0.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
                        END AS start, \
                        CASE type WHEN 'EVENT' THEN \
                          0.0
                        ELSE \
-                        (CAST (sampleEnd AS REAL) + 1.5 ) / CAST( sampleRate AS REAL) * 1000.0 \
+                        (CAST (sampleEnd AS REAL) + 1.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
                        END AS end, \
                        session || ':' || bundle AS utts, \
-                       db_uuid,session,bundle, start_item_id AS startItemID, end_item_id AS endItemID,level,type,sampleStart,sampleEnd,sampleRate \
+                       db_uuid,session,bundle, start_item_id AS startItemID, end_item_id AS endItemID,level,type,sampleStart,sampleEnd,sample_rate \
                       FROM (", queryStr, ")"))
   
   # set emusegs type attribute, default 'segment'

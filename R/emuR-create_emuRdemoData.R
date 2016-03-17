@@ -63,8 +63,8 @@ create_emuRdemoData <- function(dir = tempdir(), precache = FALSE){
   
   # calc dft and fms files
   wps = list.files(sesPath, pattern = ".wav$", recursive = T, full.names = T)
-  dftSpectrum(wps)
-  forest(wps)
+  wrassp::dftSpectrum(wps)
+  wrassp::forest(wps)
   
   
   # generate cache of ae emuDB
@@ -112,8 +112,8 @@ create_emuRdemoData <- function(dir = tempdir(), precache = FALSE){
   
   # calc dft and fms files
   wps = list.files(signalsPath, pattern = ".wav$", recursive = T, full.names = T)
-  dftSpectrum(wps)
-  forest(wps)
+  wrassp::dftSpectrum(wps)
+  wrassp::forest(wps)
   
 }
 

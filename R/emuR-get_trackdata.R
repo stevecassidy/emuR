@@ -170,7 +170,7 @@
   # remove uuid & MD5sum because we don't want to scare our users :-)
   sesBndls$db_uuid = NULL
   sesBndls$MD5annotJSON = NULL
-  if(length(unique(sesBndls$sampleRate)) != 1){
+  if(length(unique(sesBndls$sample_rate)) != 1){
     stop("The emusegs/emuRsegs object passed in refers to bundles with in-homogeneous sampling rates in their audio files! Here is a list of all refered to bundles incl. their sampling rate: \n", paste(utils::capture.output(print(sesBndls)), collapse = "\n"))
   }
   

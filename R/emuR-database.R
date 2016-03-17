@@ -31,9 +31,6 @@ database.cache.suffix = '_emuDBcache.sqlite'
 database.DDL.emuDB = 'CREATE TABLE emu_db (
   uuid VARCHAR(36) NOT NULL,
   name TEXT,
-  basePath TEXT,
-  DBconfigJSON TEXT,
-  MD5DBconfigJSON TEXT,
   PRIMARY KEY (uuid)
 );'
 
@@ -49,8 +46,8 @@ database.DDL.emuDB_bundle = 'CREATE TABLE bundle (
   session TEXT,
   name TEXT,
   annotates TEXT,
-  sampleRate FLOAT,
-  MD5annotJSON TEXT,
+  sample_rate FLOAT,
+  md5_annot_json TEXT,
   PRIMARY KEY (db_uuid, session, name),
   FOREIGN KEY (db_uuid, session) REFERENCES session(db_uuid, name) ON DELETE CASCADE
 );'
@@ -63,7 +60,7 @@ database.DDL.emuDB_items = 'CREATE TABLE items (
   level TEXT,
   type TEXT,
   seqIdx INTEGER,
-  sampleRate FLOAT,
+  sample_rate FLOAT,
   samplePoint INTEGER,
   sampleStart INTEGER,
   sampleDur INTEGER,
@@ -204,7 +201,7 @@ create_emuDBindicesDBI<-function(emuDBhandle){
 # emuDB table DBI functions
 
 add_emuDbDBI <- function(emuDBhandle){
-  dbSqlInsert = paste0("INSERT INTO emu_db(uuid,name,basePath,DBconfigJSON,MD5DBconfigJSON) VALUES('", emuDBhandle$UUID, "','", emuDBhandle$dbName, "',NULL,'", "DEPRICATED COLUMN", "', 'DEPRICATED COLUMN'", ")")
+  dbSqlInsert = paste0("INSERT INTO emu_db(uuid,name) VALUES('", emuDBhandle$UUID, "','", emuDBhandle$dbName, "')")
   DBI::dbGetQuery(emuDBhandle$connection, dbSqlInsert)
 }
 
@@ -237,7 +234,7 @@ remove_sessionDBI <- function(emuDBhandle, sessionName){
 # bundle table DBI functions
 
 add_bundleDBI <- function(emuDBhandle, sessionName, name, annotates, sampleRate, MD5annotJSON){
-  insertBundleSql = paste0("INSERT INTO bundle(db_uuid, session, name, annotates, sampleRate, MD5annotJSON) VALUES('", 
+  insertBundleSql = paste0("INSERT INTO bundle(db_uuid, session, name, annotates, sample_rate, md5_annot_json) VALUES('", 
                            emuDBhandle$UUID, "', '", sessionName, "', '", name, "', '", annotates, "', ", sampleRate, ", '", MD5annotJSON, "')")
   DBI::dbGetQuery(emuDBhandle$connection, insertBundleSql)
 }
@@ -257,7 +254,7 @@ remove_bundleDBI <- function(emuDBhandle, sessionName, name){
 
 # MD5annotJSON
 get_MD5annotJsonDBI <- function(emuDBhandle, sessionName, name){
-  MD5annotJSON = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT MD5annotJSON as md5 FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND name='", name, "'"))$md5
+  MD5annotJSON = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT md5_annot_json as md5 FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND name='", name, "'"))$md5
   if(length(MD5annotJSON) == 0){
     MD5annotJSON = ""
   }
@@ -303,16 +300,16 @@ store_bundleAnnotDFsDBI <- function(emuDBhandle, bundleAnnotDFs, sessionName,
 }
 
 load_bundleAnnotDFsDBI <- function(emuDBhandle, sessionName, bundleName){
-  
+
   DBconfig = load_DBconfig(emuDBhandle)
   levelDefs = list_levelDefinitions(emuDBhandle)
   # meta infos
   annotates = paste0(bundleName, ".", DBconfig$mediafileExtension)
-  sampleRateQuery = paste0("SELECT sampleRate FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND name='", bundleName,"'")
-  sampleRate = DBI::dbGetQuery(emuDBhandle$connection, sampleRateQuery)$sampleRate
+  sampleRateQuery = paste0("SELECT sample_rate FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND name='", bundleName,"'")
+  sampleRate = DBI::dbGetQuery(emuDBhandle$connection, sampleRateQuery)$sample_rate
   
   # items
-  itemsQuery = paste0("SELECT itemID, level, type, seqIdx, sampleRate, samplePoint, sampleStart, sampleDur  FROM items WHERE db_uuid='", 
+  itemsQuery = paste0("SELECT itemID, level, type, seqIdx, sample_rate, samplePoint, sampleStart, sampleDur  FROM items WHERE db_uuid='", 
                       emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"' ORDER BY level, seqIdx")
   items = DBI::dbGetQuery(emuDBhandle$connection, itemsQuery)
   # reorder items to match DBconfig
@@ -791,7 +788,6 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, ve
   if(!dbDirInfo[['isdir']]){
     stop(databaseDir," exists, but is not a directory.")
   }
-  
   
   # load db schema file
   dbCfgPattern=paste0('.*',database.schema.suffix,'$')
