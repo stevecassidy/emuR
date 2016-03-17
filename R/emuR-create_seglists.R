@@ -153,7 +153,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
     
     fromStr=paste0(fromStr, itemsTableName, " i",seqIdx)
     offset=seqIdx-1
-    whereStr=paste0(whereStr, "i", seqIdx, ".db_uuid=s.db_uuid AND i", seqIdx, ".session=s.session AND i", seqIdx, ".bundle=s.bundle AND i", seqIdx ,".level=s.level AND i", seqIdx, ".seqIdx=s.seqIdx+", offset)
+    whereStr=paste0(whereStr, "i", seqIdx, ".db_uuid=s.db_uuid AND i", seqIdx, ".session=s.session AND i", seqIdx, ".bundle=s.bundle AND i", seqIdx ,".level=s.level AND i", seqIdx, ".seq_idx=s.seq_idx+", offset)
     if(seqIdx<maxSeqLen){
       selectStr=paste0(selectStr," || '->' || ")
       fromStr=paste0(fromStr,',')
@@ -347,7 +347,7 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
         selectStr=paste0(selectStr,'(SELECT l.label FROM labels l,items i WHERE l.db_uuid=i.db_uuid AND l.session=i.session AND l.bundle=i.bundle AND l.item_id=i.item_id AND l.name=r.level AND ')
         
         offset=seqIdx-1
-        selectStr=paste0(selectStr,'i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.level=s.level AND i.seqIdx=s.seqIdx+',offset,")")
+        selectStr=paste0(selectStr,'i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.level=s.level AND i.seq_idx=s.seq_idx+',offset,")")
         if(seqIdx<seqLen){
           selectStr=paste0(selectStr," || '->' || ")
         }

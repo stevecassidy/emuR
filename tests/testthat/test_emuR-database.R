@@ -86,7 +86,7 @@ test_that("database functions work", {
   test_that("Data types are correct",{
     items=DBI::dbReadTable(ae$connection, 'items')
     
-    expect_that(class(items[['seqIdx']]),is_equivalent_to('integer'))
+    expect_that(class(items[['seq_idx']]),is_equivalent_to('integer'))
     expect_that(class(items[['item_id']]),is_equivalent_to('integer'))
     expect_that(class(items[['sample_rate']]),is_equivalent_to('numeric'))
     expect_that(class(items[['sample_point']]),is_equivalent_to('integer'))
@@ -94,7 +94,7 @@ test_that("database functions work", {
     expect_that(class(items[['sample_dur']]),is_equivalent_to('integer'))
     
     labels=DBI::dbReadTable(ae$connection,'labels')
-    expect_that(class(labels[['labelIdx']]),is_equivalent_to('integer'))
+    expect_that(class(labels[['label_idx']]),is_equivalent_to('integer'))
     
     links=DBI::dbReadTable(ae$connection,'links')
     expect_that(class(links[['from_id']]),is_equivalent_to('integer'))
@@ -121,13 +121,13 @@ test_that("database functions work", {
     rc=nrow(msajc015_phonetic)
     expect_equivalent(rc+1,lvCnt)
     # order by sequence index
-    msajc015_phonetic_ordered=msajc015_phonetic[order(msajc015_phonetic[['seqIdx']]),]
+    msajc015_phonetic_ordered=msajc015_phonetic[order(msajc015_phonetic[['seq_idx']]),]
     rc=nrow(msajc015_phonetic_ordered)
     expect_equivalent(rc+1,lvCnt)
     
     #msajc015_tone=ae[['items']][ae[['items']][['bundle']]=="msajc015" & ae[['items']][['level']]=='Tone',]
     msajc015_tone=DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='", ae$UUID, "' AND session='0000' AND bundle='msajc015' AND level='Tone'"))
-    msajc015_tone_ordered=msajc015_tone[order(msajc015_tone[['seqIdx']]),]
+    msajc015_tone_ordered=msajc015_tone[order(msajc015_tone[['seq_idx']]),]
     lvSq=1:rc
     
     # check sequence

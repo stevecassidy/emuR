@@ -820,7 +820,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
                            "WHERE il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle ",
                            "AND il.db_uuid=lid.db_uuid AND il.session=lid.session AND il.bundle=lid.bundle ",
                            "AND il.db_uuid=rid.db_uuid AND il.session=rid.session AND il.bundle=rid.bundle ",
-                           "AND il.item_id=lid.seq_end_id AND ir.item_id=rid.seq_start_id AND il.level=ir.level AND ir.seqIdx=il.seqIdx+1")
+                           "AND il.item_id=lid.seq_end_id AND ir.item_id=rid.seq_start_id AND il.level=ir.level AND ir.seq_idx=il.seq_idx+1")
       
       
       # perform query an place result into lr_exp_res_tmp table

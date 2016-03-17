@@ -95,7 +95,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
     # backup labels belonging to superlevel (labels have to be backed up before items to avoid maxID problem (maybe should rewrite query to avoid this in future versions using labels table to determin
     # maxID))
     qRes = DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labels ",
-                                                   "SELECT '", emuDBhandle$UUID, "', lt.session, lt.bundle, lt.item_id + bndlMaxValue AS item_id, labelIdx, lt.name || '", backupLevelAppendStr, "' AS name, label FROM ",
+                                                   "SELECT '", emuDBhandle$UUID, "', lt.session, lt.bundle, lt.item_id + bndlMaxValue AS item_id, label_idx, lt.name || '", backupLevelAppendStr, "' AS name, label FROM ",
                                                    "(SELECT * FROM ",
                                                    "  items AS it",
                                                    "  JOIN ",
@@ -117,7 +117,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
     
     # backup items belonging to superlevel (=duplicate level with new ids)    
     qRes = DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items ",
-                                                   "SELECT '", emuDBhandle$UUID, "', it.session, it.bundle, it.item_id + bndlMaxValue AS item_id, it.level || '", backupLevelAppendStr, "' AS level, it.type, it.seqIdx, it.sample_rate, it.sample_point, it.sample_start, it.sample_dur FROM ",
+                                                   "SELECT '", emuDBhandle$UUID, "', it.session, it.bundle, it.item_id + bndlMaxValue AS item_id, it.level || '", backupLevelAppendStr, "' AS level, it.type, it.seq_idx, it.sample_rate, it.sample_point, it.sample_start, it.sample_dur FROM ",
                                                    "items AS it ",
                                                    "JOIN ",
                                                    "(SELECT db_uuid, session, bundle, MAX(item_id) AS 'bndlMaxValue' FROM ",
