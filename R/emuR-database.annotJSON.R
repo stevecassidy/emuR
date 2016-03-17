@@ -28,7 +28,7 @@ annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
     tidyjson::gather_array(column.name = "seqIdx") %>%
     tidyjson::spread_values(itemID = tidyjson::jstring("id"), samplePoint = tidyjson::jstring("samplePoint"), sampleStart = tidyjson::jstring("sampleStart"), sampleDur = tidyjson::jstring("sampleDur")) %>%
     dplyr::select_(~itemID, ~level, ~type, ~seqIdx, ~sampleRate, ~samplePoint, ~sampleStart, ~sampleDur) %>%
-    dplyr::rename_("sample_rate" = "sampleRate", "sample_point" = "samplePoint")
+    dplyr::rename_("sample_rate" = "sampleRate", "sample_point" = "samplePoint", "sample_start" = "sampleStart", "sample_dur" = "sampleDur")
     
   # gen. label list of data.frame
   labels = json %>%

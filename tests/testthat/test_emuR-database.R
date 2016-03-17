@@ -90,8 +90,8 @@ test_that("database functions work", {
     expect_that(class(items[['itemID']]),is_equivalent_to('integer'))
     expect_that(class(items[['sample_rate']]),is_equivalent_to('numeric'))
     expect_that(class(items[['sample_point']]),is_equivalent_to('integer'))
-    expect_that(class(items[['sampleStart']]),is_equivalent_to('integer'))
-    expect_that(class(items[['sampleDur']]),is_equivalent_to('integer'))
+    expect_that(class(items[['sample_start']]),is_equivalent_to('integer'))
+    expect_that(class(items[['sample_dur']]),is_equivalent_to('integer'))
     
     labels=DBI::dbReadTable(ae$connection,'labels')
     expect_that(class(labels[['labelIdx']]),is_equivalent_to('integer'))
@@ -133,10 +133,10 @@ test_that("database functions work", {
     # check sequence
     for(i in lvSq){
       
-      poSampleStart=msajc015_phonetic_ordered[i,'sampleStart']
-      poSampleDur=msajc015_phonetic_ordered[i,'sampleDur']
+      poSampleStart=msajc015_phonetic_ordered[i,'sample_start']
+      poSampleDur=msajc015_phonetic_ordered[i,'sample_dur']
       if(i<rc){
-        poNextSampleStart=msajc015_phonetic_ordered[i+1,'sampleStart']
+        poNextSampleStart=msajc015_phonetic_ordered[i+1,'sample_start']
         # TODO
         expect_equivalent(poNextSampleStart,poSampleStart+poSampleDur+1)
         #expect_equivalent(poNextSampleStart,poSampleStart+poSampleDur+1)
@@ -145,8 +145,8 @@ test_that("database functions work", {
     # check segment boundaries
     for(i in lvSq){
       lv=msajc015_lab_values[i]
-      poSampleStart=msajc015_phonetic_ordered[i,'sampleStart']
-      poSampleDur=msajc015_phonetic_ordered[i,'sampleDur']
+      poSampleStart=msajc015_phonetic_ordered[i,'sample_start']
+      poSampleDur=msajc015_phonetic_ordered[i,'sample_dur']
       poStart=(poSampleStart+0.5)/aeSampleRate
       absFail=abs(poStart-lv)
       # accept deviation of at least half a sample
@@ -154,7 +154,7 @@ test_that("database functions work", {
     }
     # and the last value
     lv=msajc015_lab_values[lvCnt]
-    poSampleEnd=msajc015_phonetic_ordered[rc,'sampleStart']+msajc015_phonetic_ordered[rc,'sampleDur']+1
+    poSampleEnd=msajc015_phonetic_ordered[rc,'sample_start']+msajc015_phonetic_ordered[rc,'sample_dur']+1
     poEnd=(poSampleEnd+0.5)/aeSampleRate
     absFail=abs(poEnd-lv)
     # accept deviation of at least half a sample

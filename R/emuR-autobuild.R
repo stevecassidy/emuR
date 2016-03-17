@@ -117,7 +117,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
     
     # backup items belonging to superlevel (=duplicate level with new ids)    
     qRes = DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items ",
-                                                   "SELECT '", emuDBhandle$UUID, "', it.session, it.bundle, it.itemID + bndlMaxValue AS itemID, it.level || '", backupLevelAppendStr, "' AS level, it.type, it.seqIdx, it.sample_rate, it.sample_point, it.sampleStart, it.sampleDur FROM ",
+                                                   "SELECT '", emuDBhandle$UUID, "', it.session, it.bundle, it.itemID + bndlMaxValue AS itemID, it.level || '", backupLevelAppendStr, "' AS level, it.type, it.seqIdx, it.sample_rate, it.sample_point, it.sample_start, it.sample_dur FROM ",
                                                    "items AS it ",
                                                    "JOIN ",
                                                    "(SELECT db_uuid, session, bundle, MAX(itemID) AS 'bndlMaxValue' FROM ",
@@ -138,7 +138,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
                                        " WHERE super.level = '", superlevelName, "'", " AND sub.level = '", sublevelName, "'", 
                                        " AND super.db_uuid = '", emuDBhandle$UUID, "' AND sub.db_uuid = '", emuDBhandle$UUID, "'",
                                        " AND super.session = sub.session", " AND super.bundle = sub.bundle",
-                                       " AND (sub.sample_point + 0 >= super.sampleStart + 0) AND sub.samplePoint <= (super.sampleStart + super.sampleDur)) AS res", # + 0 added to ensure numeric comparison
+                                       " AND (sub.sample_point + 0 >= super.sample_start + 0) AND sub.sample_point <= (super.sample_start + super.sample_dur)) AS res", # + 0 added to ensure numeric comparison
                                        " WHERE NOT EXISTS (SELECT lt.fromID, lt.toID FROM links lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.fromID = res.fromID AND lt.toID = res.toID)"))
     
   }else{
@@ -152,7 +152,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
                                                " WHERE (super.level = '", superlevelName, "'", " AND sub.level = '", sublevelName, "'", 
                                                " AND super.db_uuid = '", emuDBhandle$UUID, "' AND sub.db_uuid = '", emuDBhandle$UUID, "'",
                                                " AND super.session = sub.session AND super.bundle = sub.bundle",
-                                               " AND (sub.sampleStart + 0 >= super.sampleStart + 0)) AND ((sub.sampleStart + sub.sampleDur) <= (super.sampleStart + super.sampleDur))) AS res", # + 0 added to ensure numeric comparison
+                                               " AND (sub.sample_start + 0 >= super.sample_start + 0)) AND ((sub.sample_start + sub.sample_dur) <= (super.sample_start + super.sample_dur))) AS res", # + 0 added to ensure numeric comparison
                                                " WHERE NOT EXISTS (SELECT lt.fromID, lt.toID FROM links lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.fromID = res.fromID AND lt.toID = res.toID)"))
       
     }else if(ld$type == "MANY_TO_MANY"){
@@ -164,10 +164,10 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
                                                " WHERE super.level = '", superlevelName, "'", " AND sub.level = '", sublevelName, "'", 
                                                " AND super.db_uuid = '", emuDBhandle$UUID, "' AND sub.db_uuid = '", emuDBhandle$UUID, "'",
                                                " AND super.session = sub.session AND super.bundle = sub.bundle",
-                                               " AND (((sub.sampleStart + 0 >= super.sampleStart + 0) AND ((sub.sampleStart + sub.sampleDur) <= (super.sampleStart + super.sampleDur)))", # within
-                                               " OR ((sub.sampleStart + 0 <= super.sampleStart + 0) AND ((sub.sampleStart + sub.sampleDur) >= (super.sampleStart + 0)) AND ((sub.sampleStart + sub.sampleDur) <= (super.sampleStart + super.sampleDur)))", # left overlap
-                                               " OR ((sub.sampleStart + 0 >= super.sampleStart + 0) AND ((sub.sampleStart + 0) <= (super.sampleStart + super.sampleDur)) AND ((sub.sampleStart + sub.sampleDur) >= (super.sampleStart + super.sampleDur)))", # right overlap
-                                               " OR ((sub.sampleStart + 0 <= super.sampleStart + 0) AND ((sub.sampleStart + sub.sampleDur) >= (super.sampleStart + super.sampleDur)))", # left and right overlap
+                                               " AND (((sub.sample_start + 0 >= super.sample_start + 0) AND ((sub.sample_start + sub.sample_dur) <= (super.sample_start + super.sample_dur)))", # within
+                                               " OR ((sub.sample_start + 0 <= super.sample_start + 0) AND ((sub.sample_start + sub.sample_dur) >= (super.sample_start + 0)) AND ((sub.sample_start + sub.sample_dur) <= (super.sample_start + super.sample_dur)))", # left overlap
+                                               " OR ((sub.sample_start + 0 >= super.sample_start + 0) AND ((sub.sample_start + 0) <= (super.sample_start + super.sample_dur)) AND ((sub.sample_start + sub.sample_dur) >= (super.sample_start + super.sample_dur)))", # right overlap
+                                               " OR ((sub.sample_start + 0 <= super.sample_start + 0) AND ((sub.sample_start + sub.sample_dur) >= (super.sample_start + super.sample_dur)))", # left and right overlap
                                                ")) AS res", # right overlap
                                                " WHERE NOT EXISTS (SELECT lt.fromID, lt.toID FROM links lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.fromID = res.fromID AND lt.toID = res.toID)"))
       
@@ -180,7 +180,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
                                                " WHERE (super.level = '", superlevelName, "'", " AND sub.level = '", sublevelName, "'", 
                                                " AND super.db_uuid = '", emuDBhandle$UUID, "' AND sub.db_uuid = '", emuDBhandle$UUID, "'",
                                                " AND super.session = sub.session AND super.bundle = sub.bundle",
-                                               " AND (sub.sampleStart + 0 = super.sampleStart + 0)) AND ((sub.sampleStart + sub.sampleDur) = (super.sampleStart + super.sampleDur))) AS res", # are exatly the same
+                                               " AND (sub.sample_start + 0 = super.sample_start + 0)) AND ((sub.sample_start + sub.sample_dur) = (super.sample_start + super.sample_dur))) AS res", # are exatly the same
                                                " WHERE NOT EXISTS (SELECT lt.fromID, lt.toID FROM links lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.fromID = res.fromID AND lt.toID = res.toID)"))
       
     }
@@ -202,7 +202,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
     dbConfig$levelDefinitions[[length(dbConfig$levelDefinitions) + 1]] = foundSuperLevelDev
     
     # convert superlevel to ITEM level
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE items SET type = 'ITEM', sample_point = null, sampleStart = null, sampleDur = null WHERE db_uuid='", emuDBhandle$UUID, "' AND level ='", superlevelName,"'"))
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE items SET type = 'ITEM', sample_point = null, sample_start = null, sample_dur = null WHERE db_uuid='", emuDBhandle$UUID, "' AND level ='", superlevelName,"'"))
   }
   
   # rebuild redundant links and
