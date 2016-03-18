@@ -1,3 +1,12 @@
+# emuR 0.1.3.9000
+
+* renamed SQL tables & columns from camel case to underscore notation 
+* variable SQL backend implementation
+
+# emuR 0.1.2.9000
+
+* multiple check fixes on various plattforms
+
 # emuR 0.1.1.9000
 
 * `serve` problem with internalVars bug fixed
