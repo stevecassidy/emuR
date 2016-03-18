@@ -167,8 +167,11 @@ database.DDL.emuDB_linksExtTmpIdx2 = 'CREATE INDEX links_ext_tmp2_idx ON links_e
 # init functions (create tables and indices)
 
 initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TRUE){
-  # TODO: check of old tables are present and rename them
-  
+  # check of old tables are present and rename them
+  if(DBI::dbExistsTable(emuDBhandle$connection, "emuDB")){
+    
+  }
+    
   if(createTables & !DBI::dbExistsTable(emuDBhandle$connection, "emu_db")){
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB)
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_session)
@@ -181,11 +184,10 @@ initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TR
       create_emuDBindicesDBI(emuDBhandle)
     }
   }else if(createTables & DBI::dbExistsTable(emuDBhandle$connection, "emu_db")){
-    # remove old tmp tables that where not created with CREATE TEMP TABLE
-    # drops
-    if("links_tmp" %in% DBI::dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE links_tmp")
-    if("links_ext_tmp" %in% DBI::dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE links_ext_tmp")
-    if("links_ext_tmp2" %in% DBI::dbListTables(emuDBhandle$connection)) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE links_ext_tmp2")
+    # remove old tmp tables that where not created without CREATE TEMP TABLE
+    DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE IF EXISTS links_tmp")
+    DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE IF EXISTS links_ext_tmp")
+    DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE IF EXISTS links_ext_tmp2")
     
   }
 }
