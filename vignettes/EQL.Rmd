@@ -282,7 +282,7 @@ query(ae, "[Phoneme == m & End(Word, Phoneme) == 1]")
 - **Q**: *What is the query to retrieve all non-word-final "S" syllables?*
 - **A**:
 ```{r results='hide', message=FALSE, warning=FALSE}
-query(ae, "[Syllable == S .* & End(Word, Syllable) == 0]")
+query(ae, "[Syllable == S & End(Word, Syllable) == 0]")
 ```
 
 ### Position and Boolean ^
