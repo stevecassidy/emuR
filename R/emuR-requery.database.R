@@ -106,7 +106,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
     create_requeryTmpTables(emuDBhandle)
     # place in emuRsegsTmp table
     DBI::dbGetQuery(emuDBhandle$connection, "DELETE FROM emursegs_tmp;") # delete 
-    DBI::dbWriteTable(emuDBhandle$connection, "emursegs_tmp", as.data.frame(seglist), append=T) # append to make sure field names done't get overwritten
+    DBI::dbWriteTable(emuDBhandle$connection, "emursegs_tmp", as.data.frame(seglist), append=T, row.names = F) # append to make sure field names done't get overwritten
     
     # load config
     dbConfig=load_DBconfig(emuDBhandle)
@@ -216,7 +216,7 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
     create_requeryTmpTables(emuDBhandle)
     # place in emursegs_tmp table
     DBI::dbGetQuery(emuDBhandle$connection, "DELETE FROM emursegs_tmp;")
-    DBI::dbWriteTable(emuDBhandle$connection, "emursegs_tmp", as.data.frame(seglist), append=T) # append to avoid rewirte of col names
+    DBI::dbWriteTable(emuDBhandle$connection, "emursegs_tmp", as.data.frame(seglist), append=T, row.names = F) # append to avoid rewirte of col names
     
     # load config
     dbConfig=load_DBconfig(emuDBhandle)
