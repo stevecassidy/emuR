@@ -169,7 +169,11 @@ database.DDL.emuDB_linksExtTmpIdx2 = 'CREATE INDEX links_ext_tmp2_idx ON links_e
 initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TRUE){
   # check of old tables are present and rename them
   if(DBI::dbExistsTable(emuDBhandle$connection, "emuDB")){
-    
+    print("Depricated cache tables found. Deleting these and recreating cache that adheres to the new schema definition.")
+    allTableNames = DBI::dbListTables(emuDBhandle$connection)
+    for(tn in allTableNames){
+      DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE ", tn))
+    }
   }
     
   if(createTables & !DBI::dbExistsTable(emuDBhandle$connection, "emu_db")){
