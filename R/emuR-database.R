@@ -171,9 +171,16 @@ initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TR
   if(DBI::dbExistsTable(emuDBhandle$connection, "emuDB")){
     print("Depricated cache tables found. Deleting these and recreating cache that adheres to new DB schema definition.")
     allTableNames = DBI::dbListTables(emuDBhandle$connection)
-    for(tn in allTableNames){
-      DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE ", tn))
-    }
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "items"))
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "labels"))
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "links"))
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "linksTmp"))
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "linksExt"))
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "linksExtTmp"))
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "linksExtTmp2"))
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "bundle"))
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "session"))
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "emuDB"))
   }
     
   if(createTables & !DBI::dbExistsTable(emuDBhandle$connection, "emu_db")){
@@ -187,12 +194,6 @@ initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TR
     if(createIndices){  
       create_emuDBindicesDBI(emuDBhandle)
     }
-  }else if(createTables & DBI::dbExistsTable(emuDBhandle$connection, "emu_db")){
-    # remove old tmp tables that where not created without CREATE TEMP TABLE
-    DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE IF EXISTS links_tmp")
-    DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE IF EXISTS links_ext_tmp")
-    DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE IF EXISTS links_ext_tmp2")
-    
   }
 }
 
