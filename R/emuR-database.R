@@ -115,16 +115,16 @@ database.DDL.emuDB_linksExt = 'CREATE TABLE links_ext (
   from_id INTEGER,
   to_id INTEGER,
   seq_idx INTEGER,
-  toLevel TEXT,
+  to_level TEXT,
   type TEXT,
-  toSeqIdx INTEGER,
-  toSeqLen INTEGER,
+  to_seq_idx INTEGER,
+  to_seq_len INTEGER,
   label TEXT,
   FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
 );'
 
 
-database.DDL.emuDB_linksExtIdx = 'CREATE INDEX links_ext_idx ON links_ext(db_uuid,session,bundle,from_id,to_id,toLevel,type)'
+database.DDL.emuDB_linksExtIdx = 'CREATE INDEX links_ext_idx ON links_ext(db_uuid,session,bundle,from_id,to_id,to_level,type)'
 
 # this should be a temp table
 database.DDL.emuDB_linksExtTmp = 'CREATE TEMP TABLE links_ext_tmp (
@@ -134,13 +134,13 @@ database.DDL.emuDB_linksExtTmp = 'CREATE TEMP TABLE links_ext_tmp (
   from_id INTEGER,
   to_id INTEGER,
   seq_idx INTEGER,
-  toLevel TEXT,
+  to_level TEXT,
   type TEXT,
-  toSeqIdx INTEGER,
-  toSeqLen INTEGER,
+  to_seq_idx INTEGER,
+  to_seq_len INTEGER,
   label TEXT
 );'
-database.DDL.emuDB_linksExtTmpIdx = 'CREATE INDEX links_ext_tmp_idx ON links_ext_tmp(db_uuid,session,bundle,from_id,to_id,toLevel,type)'
+database.DDL.emuDB_linksExtTmpIdx = 'CREATE INDEX links_ext_tmp_idx ON links_ext_tmp(db_uuid,session,bundle,from_id,to_id,to_level,type)'
 
 # this should be a temp table
 database.DDL.emuDB_linksExtTmp2 = 'CREATE TEMP TABLE links_ext_tmp2 (
@@ -150,14 +150,14 @@ database.DDL.emuDB_linksExtTmp2 = 'CREATE TEMP TABLE links_ext_tmp2 (
   from_id INTEGER,
   to_id INTEGER,
   seq_idx INTEGER,
-  toLevel TEXT,
+  to_level TEXT,
   type TEXT,
-  toSeqIdx INTEGER,
-  toSeqLen INTEGER,
+  to_seq_idx INTEGER,
+  to_seq_len INTEGER,
   label TEXT
 );'
 
-database.DDL.emuDB_linksExtTmpIdx2 = 'CREATE INDEX links_ext_tmp2_idx ON links_ext_tmp2(db_uuid,session,bundle,from_id,to_id,toLevel,type)'
+database.DDL.emuDB_linksExtTmpIdx2 = 'CREATE INDEX links_ext_tmp2_idx ON links_ext_tmp2(db_uuid,session,bundle,from_id,to_id,to_level,type)'
 
 ####################################
 ######### DBI functions ############
@@ -467,15 +467,15 @@ calculate_postionsOfLinks<-function(emuDBhandle){
   # Extend links table with sequence index of the targeted (dominated) item
   DBI::dbGetQuery(emuDBhandle$connection,"DELETE FROM links_ext_tmp")
   
-  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO links_ext_tmp(db_uuid,session,bundle,from_id,to_id,seq_idx,toLevel,type,label) SELECT k.db_uuid,k.session,k.bundle,k.from_id,k.to_id,i.seq_idx,i.level AS toLevel,i.type,NULL AS label FROM links_tmp k,items i WHERE i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle AND k.to_id=i.item_id")
+  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO links_ext_tmp(db_uuid,session,bundle,from_id,to_id,seq_idx,to_level,type,label) SELECT k.db_uuid,k.session,k.bundle,k.from_id,k.to_id,i.seq_idx,i.level AS to_level,i.type,NULL AS label FROM links_tmp k,items i WHERE i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle AND k.to_id=i.item_id")
   
   # extend links table with relative sequence index
-  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO links_ext_tmp2(db_uuid,session,bundle,seq_idx,from_id,to_id,toLevel,type,label,toSeqIdx) SELECT k.db_uuid,k.session,k.bundle,k.seq_idx,k.from_id,k.to_id,k.toLevel,k.type,k.label,k.seq_idx-(SELECT MIN(m.seq_idx) FROM links_ext_tmp m WHERE m.from_id=k.from_id AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.from_id,m.toLevel) AS toSeqIdx FROM links_ext_tmp k")
+  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO links_ext_tmp2(db_uuid,session,bundle,seq_idx,from_id,to_id,to_level,type,label,to_seq_idx) SELECT k.db_uuid,k.session,k.bundle,k.seq_idx,k.from_id,k.to_id,k.to_level,k.type,k.label,k.seq_idx-(SELECT MIN(m.seq_idx) FROM links_ext_tmp m WHERE m.from_id=k.from_id AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.to_level=m.to_level GROUP BY m.db_uuid,m.session,m.bundle,m.from_id,m.to_level) AS to_seq_idx FROM links_ext_tmp k")
   
   DBI::dbGetQuery(emuDBhandle$connection,"DELETE FROM links_ext_tmp")
   
   # Add length of dominance group sequence
-  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO links_ext(db_uuid,session,bundle,seq_idx,from_id,to_id,toSeqIdx,toLevel,type,label,toSeqLen) SELECT k.db_uuid,k.session,k.bundle,k.seq_idx,k.from_id,k.to_id,k.toSeqIdx,k.toLevel,k.type,k.label,(SELECT MAX(m.seq_idx)-MIN(m.seq_idx)+1 FROM links_ext_tmp2 m WHERE m.from_id=k.from_id AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.toLevel=m.toLevel GROUP BY m.db_uuid,m.session,m.bundle,m.from_id,m.toLevel) AS toSeqLen FROM links_ext_tmp2 k")
+  DBI::dbGetQuery(emuDBhandle$connection,"INSERT INTO links_ext(db_uuid,session,bundle,seq_idx,from_id,to_id,to_seq_idx,to_level,type,label,to_seq_len) SELECT k.db_uuid,k.session,k.bundle,k.seq_idx,k.from_id,k.to_id,k.to_seq_idx,k.to_level,k.type,k.label,(SELECT MAX(m.seq_idx)-MIN(m.seq_idx)+1 FROM links_ext_tmp2 m WHERE m.from_id=k.from_id AND m.db_uuid=k.db_uuid AND m.session=k.session AND m.bundle=k.bundle AND k.to_level=m.to_level GROUP BY m.db_uuid,m.session,m.bundle,m.from_id,m.to_level) AS to_seq_len FROM links_ext_tmp2 k")
   DBI::dbGetQuery(emuDBhandle$connection,"DELETE FROM links_ext_tmp2")
   
   # remove temporary tables

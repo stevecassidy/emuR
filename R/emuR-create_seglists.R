@@ -87,7 +87,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
     if(!is.null(timeRefSegmentLevel)){
       selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
     }
-    selectStr=paste0(selectStr," EXISTS (SELECT * FROM ", linksExtTableName, " l WHERE s.db_uuid=s.db_uuid AND s.session=l.session AND s.bundle=l.bundle AND s.item_id=l.from_id AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.item_id=l.to_id AND l.toSeqIdx=0)) ")
+    selectStr=paste0(selectStr," EXISTS (SELECT * FROM ", linksExtTableName, " l WHERE s.db_uuid=s.db_uuid AND s.session=l.session AND s.bundle=l.bundle AND s.item_id=l.from_id AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.item_id=l.to_id AND l.to_seq_idx=0)) ")
   }else{
     # TODO
     # No sample start information. (throw error ?)
@@ -107,7 +107,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
     if(!is.null(timeRefSegmentLevel)){
       selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
     }
-    selectStr=paste0(selectStr," EXISTS (SELECT * FROM ", linksExtTableName, " l WHERE e.db_uuid=l.db_uuid AND e.session=l.session AND e.bundle=l.bundle AND e.item_id=l.from_id AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.item_id=l.to_id AND l.toSeqIdx+1=l.toSeqLen)) ")
+    selectStr=paste0(selectStr," EXISTS (SELECT * FROM ", linksExtTableName, " l WHERE e.db_uuid=l.db_uuid AND e.session=l.session AND e.bundle=l.bundle AND e.item_id=l.from_id AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.item_id=l.to_id AND l.to_seq_idx+1=l.to_seq_len)) ")
     
   }
   selectStr=paste0(selectStr,"END AS sampleEnd, ")
@@ -125,7 +125,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
     if(!is.null(timeRefSegmentLevel)){
       selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
     }
-    selectStr=paste0(selectStr," EXISTS (SELECT * FROM ", linksExtTableName, " l WHERE s.item_id=l.from_id AND i.item_id=l.to_id AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND l.toSeqIdx=0)) ")
+    selectStr=paste0(selectStr," EXISTS (SELECT * FROM ", linksExtTableName, " l WHERE s.item_id=l.from_id AND i.item_id=l.to_id AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND l.to_seq_idx=0)) ")
     
   }else{
     # TODO no samplerate , error ??
@@ -277,7 +277,7 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
     if(!is.null(timeRefSegmentLevel)){
       selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
     }
-    selectStr=paste0(selectStr," EXISTS (SELECT * FROM links_ext l WHERE s.db_uuid=s.db_uuid AND s.session=l.session AND s.bundle=l.bundle AND s.item_id=l.from_id AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.item_id=l.to_id AND l.toSeqIdx=0)) ")
+    selectStr=paste0(selectStr," EXISTS (SELECT * FROM links_ext l WHERE s.db_uuid=s.db_uuid AND s.session=l.session AND s.bundle=l.bundle AND s.item_id=l.from_id AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.item_id=l.to_id AND l.to_seq_idx=0)) ")
   }else{
     # TODO
     # No sample start information. (throw error ?)
@@ -298,7 +298,7 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
     if(!is.null(timeRefSegmentLevel)){
       selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
     }
-    selectStr=paste0(selectStr," EXISTS (SELECT * FROM links_ext l WHERE e.db_uuid=l.db_uuid AND e.session=l.session AND e.bundle=l.bundle AND e.item_id=l.from_id AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.item_id=l.to_id AND l.toSeqIdx+1=l.toSeqLen)) ")
+    selectStr=paste0(selectStr," EXISTS (SELECT * FROM links_ext l WHERE e.db_uuid=l.db_uuid AND e.session=l.session AND e.bundle=l.bundle AND e.item_id=l.from_id AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.item_id=l.to_id AND l.to_seq_idx+1=l.to_seq_len)) ")
     
   }
   selectStr=paste0(selectStr,"END AS sampleEnd, ")
@@ -316,7 +316,7 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
     if(!is.null(timeRefSegmentLevel)){
       selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
     }
-    selectStr=paste0(selectStr," EXISTS (SELECT * FROM links_ext l WHERE s.item_id=l.from_id AND i.item_id=l.to_id AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND l.toSeqIdx=0)) ")
+    selectStr=paste0(selectStr," EXISTS (SELECT * FROM links_ext l WHERE s.item_id=l.from_id AND i.item_id=l.to_id AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND l.to_seq_idx=0)) ")
     
   }else{
     # TODO no samplerate , error ??

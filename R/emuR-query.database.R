@@ -328,7 +328,7 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
                           (SELECT * FROM links_ext_filtered_tmp k \
                            WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
                             AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
-                            AND k.from_id=d.item_id AND k.to_id=i.item_id AND k.toSeqIdx",cond,"0\
+                            AND k.from_id=d.item_id AND k.to_id=i.item_id AND k.to_seq_idx",cond,"0\
                            )") 
         
         itemsAsSeqs = DBI::dbGetQuery(emuDBhandle$connection, sqlQStr)
@@ -353,7 +353,7 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
                        (SELECT * FROM links_ext_filtered_tmp k \
                        WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
                         AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
-                        AND k.from_id=d.item_id AND k.to_id=i.item_id AND (k.toSeqIdx",cond,"0 ",bOp," k.toSeqIdx+1",cond,"k.toSeqLen)\
+                        AND k.from_id=d.item_id AND k.to_id=i.item_id AND (k.to_seq_idx",cond,"0 ",bOp," k.to_seq_idx+1",cond,"k.to_seq_len)\
                        )") 
         itemsAsSeqs = DBI::dbGetQuery(emuDBhandle$connection, sqlQStr)
         resultLevel=param2
@@ -373,7 +373,7 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
                        (SELECT * FROM links_ext_filtered_tmp k \
                         WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
                             AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
-                            AND k.from_id=d.item_id AND k.to_id=i.item_id AND k.toSeqIdx+1",cond,"k.toSeqLen\
+                            AND k.from_id=d.item_id AND k.to_id=i.item_id AND k.to_seq_idx+1",cond,"k.to_seq_len\
                        )")
         itemsAsSeqs = DBI::dbGetQuery(emuDBhandle$connection, sqlQStr)
         resultLevel=param2
@@ -411,8 +411,8 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
                        WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
                         AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
                         AND ( \
-                         ( k.from_id=d.item_id AND k.to_id=i.item_id AND k.toLevel=i.level ) OR \
-                         ( k.from_id=i.item_id AND k.to_id=d.item_id AND k.toLevel=d.level ) \
+                         ( k.from_id=d.item_id AND k.to_id=i.item_id AND k.to_level=i.level ) OR \
+                         ( k.from_id=i.item_id AND k.to_id=d.item_id AND k.to_level=d.level ) \
                         )\
                        ))",sqlFuncOpr,funcVal)
         itemsAsSeqs = DBI::dbGetQuery(emuDBhandle$connection, sqlQStr)
