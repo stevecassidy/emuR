@@ -110,7 +110,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
     selectStr=paste0(selectStr," EXISTS (SELECT * FROM ", linksExtTableName, " l WHERE e.db_uuid=l.db_uuid AND e.session=l.session AND e.bundle=l.bundle AND e.item_id=l.from_id AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.item_id=l.to_id AND l.to_seq_idx+1=l.to_seq_len)) ")
     
   }
-  selectStr=paste0(selectStr,"END AS sampleEnd, ")
+  selectStr=paste0(selectStr,"END AS sample_end, ")
   
   # find samplerate
   # use sample rate of sequence start item for type SEGMENT and EVENT 
@@ -174,10 +174,10 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
                        CASE type WHEN 'EVENT' THEN \
                          0.0
                        ELSE \
-                        (CAST (sampleEnd AS REAL) + 1.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
+                        (CAST (sample_end AS REAL) + 1.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
                        END AS end, \
                        session || ':' || bundle AS utts, \
-                       db_uuid,session,bundle, start_item_id  AS startItemID, end_item_id AS endItemID,", levelColName, " AS level,type, sample_start AS sampleStart,sampleEnd,sample_rate \
+                       db_uuid,session,bundle, start_item_id  AS startItemID, end_item_id AS endItemID,", levelColName, " AS level,type, sample_start AS sampleStart,sample_end AS sampleEnd,sample_rate AS sampleRate \
                       FROM (", queryStr, ") ORDER BY db_uuid,session,bundle,sampleStart")
   
   seglist = DBI::dbGetQuery(emuDBhandle$connection, queryStrInclConvert)
@@ -301,7 +301,7 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
     selectStr=paste0(selectStr," EXISTS (SELECT * FROM links_ext l WHERE e.db_uuid=l.db_uuid AND e.session=l.session AND e.bundle=l.bundle AND e.item_id=l.from_id AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.item_id=l.to_id AND l.to_seq_idx+1=l.to_seq_len)) ")
     
   }
-  selectStr=paste0(selectStr,"END AS sampleEnd, ")
+  selectStr=paste0(selectStr,"END AS sample_end, ")
   
   # find samplerate
   # use sample rate of sequence start item for type SEGMENT and EVENT 
@@ -370,10 +370,10 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
                        CASE type WHEN 'EVENT' THEN \
                          0.0
                        ELSE \
-                        (CAST (sampleEnd AS REAL) + 1.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
+                        (CAST (sample_end AS REAL) + 1.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
                        END AS end, \
                        session || ':' || bundle AS utts, \
-                       db_uuid,session,bundle, start_item_id AS startItemID, end_item_id AS endItemID,level,type,sample_start AS sampleStart,sampleEnd,sample_rate \
+                       db_uuid,session,bundle, start_item_id AS startItemID, end_item_id AS endItemID,level,type,sample_start AS sampleStart,sample_end AS sampleEnd,sample_rate \
                       FROM (", queryStr, ")"))
   
   # set emusegs type attribute, default 'segment'
