@@ -59,7 +59,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   
   itCount = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM ", itsTableName))$n
   if(itCount > 0){
-    maxSeqLen = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT max(", seqLenColName, ") AS maxSeqLen FROM ", itsTableName))$maxSeqLen
+    maxSeqLen = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT max(", seqLenColName, ") AS max_seq_len FROM ", itsTableName))$max_seq_len
   }else{
     maxSeqLen=1L
   }
@@ -178,7 +178,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
                        END AS end, \
                        session || ':' || bundle AS utts, \
                        db_uuid,session,bundle, start_item_id  AS startItemID, end_item_id AS endItemID,", levelColName, " AS level,type, sample_start AS sampleStart,sample_end AS sampleEnd,sample_rate AS sampleRate \
-                      FROM (", queryStr, ") ORDER BY db_uuid,session,bundle,sampleStart")
+                      FROM (", queryStr, ") AS qs_res ORDER BY db_uuid,session,bundle,sampleStart")
   
   seglist = DBI::dbGetQuery(emuDBhandle$connection, queryStrInclConvert)
   
@@ -373,7 +373,7 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
                         (CAST (sample_end AS REAL) + 1.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
                        END AS end, \
                        session || ':' || bundle AS utts, \
-                       db_uuid,session,bundle, start_item_id AS startItemID, end_item_id AS endItemID,level,type,sample_start AS sampleStart,sample_end AS sampleEnd,sample_rate \
+                       db_uuid,session,bundle, start_item_id AS startItemID, end_item_id AS endItemID,level,type,sample_start AS sampleStart,sample_end AS sampleEnd,sample_rate AS sampleRate\
                       FROM (", queryStr, ")"))
   
   # set emusegs type attribute, default 'segment'
