@@ -4,5 +4,4 @@
 # travis ci #
 #############
 .travis.yml
-^NEWS\.md$
 ^cran-comments\.md$
