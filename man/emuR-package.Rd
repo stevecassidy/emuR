@@ -52,7 +52,7 @@ Typical work-flow in emuR (emuDB required):
 create_emuRdemoData(dir = tempdir())
 
 # construct path to demo emuDB
-path2ae = file.path(tempdir(), "emuR_demoData", "ae_emuDB")
+path2ae = file.path(tempdir(), "emuR_demoData", "ae")
 
 # load emuDB into current R session
 ae = load_emuDB(path2ae)
