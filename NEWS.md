@@ -1,3 +1,6 @@
+# emuR 0.1.5.9000
+
+
 # emuR 0.1.3.9000
 
 * renamed SQL tables & columns from camel case to underscore notation 
