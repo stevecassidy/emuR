@@ -427,7 +427,8 @@ test_that("Load example database ae",{
     expect_equal(nrow(sl), 1)
     sl = query(ae, "[[[Phoneme =~ .* ^ Phonetic == H] ^ Start(Word, Syllable) == 1] ^ Accent == S]")
     expect_equal(nrow(sl), 10)
-    
+    sl  = query (ae ,  "[[[Phonetic = n -> Phonetic =z] -> Phonetic = S ] ^ [Text = friends -> Text = she]]")
+    expect_equal(sl$labels, "n->z->S")
   })
   
 })

@@ -1,5 +1,7 @@
 # emuR 0.1.5.9000
 
+* fixed problem of interm\_res\_tables already present with queries that have multiple recursion depth on both sides
+of either -> or ^ operand (e.g. query (ae ,  "[[[Phonetic = n -> Phonetic =z] -> Phonetic = S ] ^ [Text = friends -> Text = she]]")) 
 
 # emuR 0.1.3.9000
 

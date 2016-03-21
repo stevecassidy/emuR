@@ -108,12 +108,24 @@ create_intermResTmpQueryTablesDBI <- function(emuDBhandle, suffix = "root"){
   
   database.DDL.emuDB_intermRes_projItemsTmp_idx = paste0("CREATE INDEX interm_res_proj_items_tmp_", suffix, "_idx ON interm_res_proj_items_tmp_", suffix, "(db_uuid,session,bundle,seq_start_id,seq_end_id)")
   
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_itemsTmp)
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_itemsTmp_idx)
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_metaInfosTmp)
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_metaInfosTmp_idx)
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_projItemsTmp)
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_projItemsTmp_idx)
+  if(!DBI::dbExistsTable(emuDBhandle$connection, paste0("interm_res_items_tmp_", suffix))){
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_itemsTmp)
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_itemsTmp_idx)
+  }else{
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM interm_res_items_tmp_", suffix))
+  }
+  if(!DBI::dbExistsTable(emuDBhandle$connection, paste0("interm_res_meta_infos_tmp_", suffix))){
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_metaInfosTmp)
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_metaInfosTmp_idx)
+  }else{
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM interm_res_meta_infos_tmp_", suffix))
+  }
+  if(!DBI::dbExistsTable(emuDBhandle$connection, paste0("interm_res_proj_items_tmp_", suffix))){
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_projItemsTmp)
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_projItemsTmp_idx)
+  }else{
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM interm_res_proj_items_tmp_", suffix))
+  }
 }
 
 drop_tmpFilteredQueryTablesDBI <- function(emuDBhandle){
@@ -676,6 +688,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
       left=stringr::str_trim(substr(qTrim,1,seqPos-1))
       right=stringr::str_trim(substring(qTrim,seqPos+2))
     }
+
     # create left & right temp table
     leftTableSuffix = paste0("left_", leftRightTableNrCounter)
     rightTableSuffix = paste0("right_", leftRightTableNrCounter)
@@ -746,7 +759,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
       linkSameBundleCond2="m.db_uuid=ils.db_uuid AND m.db_uuid=irs.db_uuid AND m.session=ils.session AND m.session=irs.session AND m.bundle=ils.bundle AND m.bundle=irs.bundle"
       lDomQuerySelectStr="lid.db_uuid,lid.session,lid.bundle,lid.seq_start_id AS l_seq_start_id, lid.seq_end_id AS l_seq_end_id, lid.seq_len AS l_seq_len, lid.level AS l_level"
       rDomQuerySelectStr="rid.seq_start_id AS r_seq_start_id, rid.seq_end_id AS r_seq_end_id, rid.seq_len AS r_seq_len, rid.level AS r_level"
-      domQueryFromStr=paste0("interm_res_items_tmp_", leftTableSuffix, " lid, interm_res_items_Tmp_", rightTableSuffix," rid, items_filtered_tmp ils, items_filtered_tmp irs, items_filtered_tmp ile, items_filtered_tmp ire")
+      domQueryFromStr=paste0("interm_res_items_tmp_", leftTableSuffix, " lid, interm_res_items_tmp_", rightTableSuffix," rid, items_filtered_tmp ils, items_filtered_tmp irs, items_filtered_tmp ile, items_filtered_tmp ire")
       domQueryStrCond0=paste0(itemsSameBundleCond1,itemsSameBundleCond2,itemsSameBundleCond3,"ils.item_id=lid.seq_start_id AND ile.item_id=lid.seq_end_id AND ",itemsSameBundleCond4,"irs.item_id=rid.seq_start_id AND ire.item_id=rid.seq_end_id AND ",itemsSameBundleCond5)
       # The query has now the corners of the dominance "trapeze" in ils,ile,irs,ire
       # Check sequence start item of left result on existence of a link to the start item of the right sequence 
