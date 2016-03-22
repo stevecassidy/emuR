@@ -3,7 +3,7 @@
 
 [![Build Status](https://travis-ci.org/IPS-LMU/emuR.png)](https://travis-ci.org/IPS-LMU/emuR)
 [![Coverage Status](https://coveralls.io/repos/IPS-LMU/emuR/badge.svg)](https://coveralls.io/r/IPS-LMU/emuR)
-[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/emuR)](http://cran.r-project.org/package=emuR)
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/emuR)](http://cran.r-project.org/package=emuR)
 
 The emuR package provides the next iteration of the EMU Speech 
 Database Management System with database management, data 
