@@ -6,7 +6,7 @@ citEntry(entry="Manual",
          author = personList(as.person("Raphael Winkelmann"),
          as.person("Klaus Jaensch"),
          as.person("Steve Cassidy"),
-         as.person("Jonathan Harrington"),),
+         as.person("Jonathan Harrington")),
          year = year,
          note = vers,
          textVersion =
