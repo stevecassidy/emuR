@@ -1,7 +1,7 @@
 ## Resubmission
 This is a resubmission. In this version I have:
 
-* Changed http://cran.r-project.org/package=emuR to https URL in README.md
+* changed http://cran.r-project.org/package=emuR to https URL in README.md
 * added a CITATION file
 * added minor bug fix in the SQL logic of the query engine
 
