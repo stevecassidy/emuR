@@ -1,6 +1,8 @@
+# emuR 0.1.6.9000
+
 # emuR 0.1.5
 
-* fixed problem of interm\_res\_tables already beeing present with queries that have multiple recursion depth on both sides
+* fixed problem of interm\_res\_tables already being present with queries that have multiple recursion depth on both sides
 of either -> or ^ operand (e.g. query (ae ,  "[[[Phonetic = n -> Phonetic =z] -> Phonetic = S ] ^ [Text = friends -> Text = she]]")) 
 * fixed bad URL in README.md
 * added CITATION file
