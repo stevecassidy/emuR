@@ -254,7 +254,8 @@ test_that("Load example database ae",{
     expect_error(query(ae, "[#Text=more -> #Text=customers]"), regexp = "Multiple hash tags")
   })
   
-  test_that("All queries from EQL vignette (slightly adapted)",{
+  test_that("additional queries (simple and complex) work for more thorough query testing",{
+    skip_on_cran()
     # SQ
     sl = query(ae, "Phonetic == m")
     expect_equal(nrow(sl), 7)

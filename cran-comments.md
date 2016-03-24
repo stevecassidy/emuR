@@ -1,9 +1,7 @@
 ## Resubmission
 This is a resubmission. In this version I have:
 
-* changed http://cran.r-project.org/package=emuR to https URL in README.md
-* added a CITATION file
-* added minor bug fix in the SQL logic of the query engine
+* added testthat::skip\_on\_cran() for in-depth thorough tests for query and autobuild SQL functions
 
 ## Test environments
 * local OS X install, R 3.3.0 Under development (unstable) (2016-03-02 r70268) -- "Unsuffered Consequences"
