@@ -77,7 +77,7 @@ import_mediaFiles<-function(emuDBhandle,dir,targetSessionName='0000', verbose=TR
     }
     
     qSessSql=paste0("SELECT * FROM session WHERE db_uuid='",emuDBhandle$UUID,"' AND name='",targetSessionName,"'")
-    sessDf<-dbGetQuery(emuDBhandle$connection,qSessSql)
+    sessDf <- DBI::dbGetQuery(emuDBhandle$connection,qSessSql)
     if(nrow(sessDf)==0){
       add_sessionDBI(emuDBhandle, sessionName = targetSessionName)
     }
@@ -88,8 +88,8 @@ import_mediaFiles<-function(emuDBhandle,dir,targetSessionName='0000', verbose=TR
   progress = 0
   if(verbose){
     cat("INFO: Importing ", length(mfList), " media files...\n")
-    pb = txtProgressBar(min = 0, max = length(mfList), initial = progress, style=3)
-    setTxtProgressBar(pb, progress)
+    pb = utils::txtProgressBar(min = 0, max = length(mfList), initial = progress, style=3)
+    utils::setTxtProgressBar(pb, progress)
   }
   
   for(mf in mfList){
@@ -116,14 +116,14 @@ import_mediaFiles<-function(emuDBhandle,dir,targetSessionName='0000', verbose=TR
     writeLines(annotJSONchar, newAnnotFileFullPath)
     
     # calculate MD5 sum of bundle annotJSON
-    MD5annotJSON = md5sum(newAnnotFileFullPath)
+    MD5annotJSON = tools::md5sum(newAnnotFileFullPath)
     
     add_bundleDBI(emuDBhandle, sessionName = targetSessionName, name = bundleName, annotates = mf, sampleRate = sampleRate, MD5annotJSON = MD5annotJSON)
     
     # update pb
     progress = progress + 1
     if(verbose){
-      setTxtProgressBar(pb, progress)
+      utils::setTxtProgressBar(pb, progress)
     }
     mediaAdded = TRUE
   }
@@ -216,8 +216,9 @@ add_files <- function(emuDBhandle, dir, fileExtension, targetSessionName='0000')
 ##' more information on the structural elements of an emuDB 
 ##' see \code{vignette{emuDB}}.
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
-##' @param sessionPattern A (glob) pattern matching sessions to be searched from the database
-##' @param bundlePattern A (glob) pattern matching bundles to be searched from the database
+##' @param fileExtension file extention of files
+##' @param sessionPattern A (RegEx) pattern matching sessions to be searched from the database
+##' @param bundlePattern A (RegEx) pattern matching bundles to be searched from the database
 ##' @return file paths as character vector
 ##' @export
 ##' @keywords emuDB database schema Emu 
@@ -232,13 +233,14 @@ add_files <- function(emuDBhandle, dir, fileExtension, targetSessionName='0000')
 ##' list_files(emuDBhandle = ae)
 ##'
 ##' # list all files of ae emuDB in bundles ending with '3'
-##' list_files(emuDBhandle = ae, bundlePattern="*3") 
+##' list_files(emuDBhandle = ae, bundlePattern=".*3$") 
 ##' 
 ##' }
 ##' 
 list_files <- function(emuDBhandle,
-                       sessionPattern = "*",
-                       bundlePattern = "*"){
+                       fileExtension = ".*",
+                       sessionPattern = ".*",
+                       bundlePattern = ".*"){
 
   bndls = list_bundles(emuDBhandle)
   
@@ -249,7 +251,7 @@ list_files <- function(emuDBhandle,
   # get files for each bundle
   for(i in 1:nrow(bndls)){
     
-    fps = list.files(file.path(emuDBhandle$basePath, paste0(bndls[i,]$session, "_ses"), paste0(bndls[i,]$name, "_bndl")))
+    fps = list.files(file.path(emuDBhandle$basePath, paste0(bndls[i,]$session, "_ses"), paste0(bndls[i,]$name, "_bndl")), pattern = fileExtension)
     df = rbind(df, data.frame(session = rep(bndls[i,]$session, length(fps)), 
                               bundle = rep(bndls[i,]$name, length(fps)), 
                               file = fps,
@@ -257,7 +259,7 @@ list_files <- function(emuDBhandle,
   }
   
   # filter for patterns
-  df = df[grepl(glob2rx(sessionPattern), df$session) & grepl(glob2rx(bundlePattern), df$bundle),]
+  df = df[grepl(sessionPattern, df$session) & grepl(bundlePattern, df$bundle),]
   
   return(df)
   

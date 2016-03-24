@@ -10,7 +10,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
-  
+
 # Introduction
   
 This document is an introduction to the `emuR` package and provides an overview of what the package is capable of and how it interacts with the other components of the EMU Speech Database Management System (EMU\_SDMS). It is by no means a complete guide to the EMU\_SDMS but rather tries to give an outline of what it is like working with and analyzing speech databases in the EMU\_SDMS by walking you through a few typical use cases.
@@ -444,6 +444,13 @@ boxplot(meanFirstMoments ~ sibil$labels)
 **INFO: Using the `"emuRtrackdata"` `resultType` of `get_trackdata` function we could have performed a comparable analysis 
 by utilizing packages such as `dplyr` for `data.table` / `data.frame` manipulation and `lattice` or `ggplot2` for data
 visualisation.**
+
+```{r echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+# disconnect to avoid file locking to sqliteDB that causes unlink
+# to fail under windows
+DBI::dbDisconnect(ae$connection)
+```
+
 
 ```{r results='hide', message=FALSE, warning=FALSE}
 # remove emuR_demoData as we will not be needing it 

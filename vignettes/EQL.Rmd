@@ -24,7 +24,7 @@ As it is not the focus of this vignette: one thing to note about the `query()` f
 
 # Examples
 
-We will now jump right in by giving you a bunch of examples of query strings that where adapted from [@harrington:2002, @cassidy_harrington:2001]. To have some data we can play with let us create a demo database and then load it:
+We will now jump right in by giving you a bunch of examples of query strings that where adapted from [@harrington:2002, @cassidy_harrington:2001]. To have some data we can play with let us create a demo database and then load it into our current R session:
 
 ```{r results='hide', message=FALSE, warning=FALSE}
 # load the package
@@ -282,7 +282,7 @@ query(ae, "[Phoneme == m & End(Word, Phoneme) == 1]")
 - **Q**: *What is the query to retrieve all non-word-final "S" syllables?*
 - **A**:
 ```{r results='hide', message=FALSE, warning=FALSE}
-query(ae, "[Syllable == S .* & End(Word, Syllable) == 0]")
+query(ae, "[Syllable == S & End(Word, Syllable) == 0]")
 ```
 
 ### Position and Boolean ^
@@ -493,6 +493,13 @@ query(ae, "[Syllable == W & End(Word, Syllable) == 1 ^ Num(Word, Syllable) == 3]
 ```{r results='hide', message=FALSE, warning=FALSE}
 query(ae, "[[[Phoneme =~ .* ^ Phonetic == H] ^ Start(Word, Syllable) == 1] ^ Accent == S]")
 ```
+
+```{r echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+# disconnect to avoid file locking to sqliteDB that causes unlink
+# to fail under windows
+DBI::dbDisconnect(ae$connection)
+```
+
 
 ```{r results='hide', message=FALSE, warning=FALSE}
 # remove emuR_demoData as we will not be needing it 

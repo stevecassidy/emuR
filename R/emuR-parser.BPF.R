@@ -386,7 +386,7 @@ write_bpfUtteranceToDb <- function(emuDBhandle,
   queryTxt = paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
                     utteranceItemID, ", 'Utterance', 'ITEM', 1, ", samplerate, ", NULL, NULL, NULL)")
   
-  dbGetQuery(emuDBhandle$connection, queryTxt)
+  DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   
   labelIdxCounter = 1
   
@@ -394,7 +394,7 @@ write_bpfUtteranceToDb <- function(emuDBhandle,
   queryTxt = paste0("INSERT INTO labels VALUES","('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
                     utteranceItemID, ", ", labelIdxCounter, ", 'Utterance', '", bundle, "')")
   
-  dbGetQuery(emuDBhandle$connection, queryTxt)
+  DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   
   labelIdxCounter = labelIdxCounter + 1
   
@@ -405,7 +405,7 @@ write_bpfUtteranceToDb <- function(emuDBhandle,
     queryTxt = paste0("INSERT INTO labels VALUES","('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
                       utteranceItemID, ", ", labelIdxCounter, ", '", key,"', '", header[[key]], "')")
     
-    dbGetQuery(emuDBhandle$connection, queryTxt)
+    DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
     
     labelTracker[[length(labelTracker) + 1L]] = key
     labelIdxCounter = labelIdxCounter + 1
@@ -1053,7 +1053,7 @@ write_bpfItemsLabelsToDb <- function(emuDBhandle,
                         levels[[key]][[idx]][["seqIdx"]], ", ", samplerate, ", ", levels[[key]][[idx]][["point"]], ", ",
                         levels[[key]][[idx]][["start"]], ", ", levels[[key]][[idx]][["duration"]], ")")
       
-      dbGetQuery(emuDBhandle$connection, queryTxt)
+      DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
       
       labelIdxCounter = 1
       
@@ -1063,7 +1063,7 @@ write_bpfItemsLabelsToDb <- function(emuDBhandle,
                           "', ", levels[[key]][[idx]][["itemID"]], ", ", labelIdxCounter,", '", 
                           labelKey, "', '", levels[[key]][[idx]][["labels"]][[labelKey]], "')")
         
-        dbGetQuery(emuDBhandle$connection, queryTxt)
+        DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
         
         if(!labelKey %in% labelTracker)
         {
@@ -1196,7 +1196,7 @@ write_bpfLinksToDb <- function(emuDBhandle,
                             bundle, "', ", linkIdxMap[[toString(link)]], ", ", 
                             levels[[key]][[idx]][["itemID"]],", NULL)")
           
-          dbGetQuery(emuDBhandle$connection, queryTxt)
+          DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
         }
         else if(lower == refLevel)
         {
@@ -1205,7 +1205,7 @@ write_bpfLinksToDb <- function(emuDBhandle,
                              linkIdxMap[[toString(link)]],", NULL)")
           
           
-          dbGetQuery(emuDBhandle$connection, queryTxt)
+          DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
         }
       }
     }
@@ -1404,7 +1404,7 @@ unify_bpfLevels <- function(emuDBhandle,
                           ", ", currentLabelIdx, ", '", labelKey, "', '", 
                           levels[[key]][[idx]][["labels"]][[labelKey]], "')")
         
-        dbGetQuery(emuDBhandle$connection, queryTxt)
+        DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
         
         currentLabelIdx = currentLabelIdx + 1
         

@@ -40,7 +40,7 @@
 ##' default is NULL in which case all lines are drawn with lwd=1
 ##' @param ... graphical options \link{par}
 ##' @return NULL
-##' @author Jonathan Harrington jmh@@ipds.uni-kiel.de, Steve Cassidy
+##' @author Jonathan Harrington, Steve Cassidy
 ##' @seealso \code{\link{dcut}}
 ##' @keywords dplot
 ##' @examples
@@ -162,12 +162,12 @@
     lowerlim <- rowmarker[j, 1]
     upperlim <- rowmarker[j, 2]
     if (doellipse) {
-      plot(emat[lowerlim:upperlim, ], type = "l", axes = FALSE, 
+      graphics::plot(emat[lowerlim:upperlim, ], type = "l", axes = FALSE, 
            xlim = xlim, ylim = ylim, col = k[j], 
            lty = as.numeric(l[j]), lwd = as.numeric(linewidth[j]), xlab="", ylab="", main="")
     }
     else {
-      plot(emat[lowerlim:upperlim, ], type = "n", axes = FALSE, 
+      graphics::plot(emat[lowerlim:upperlim, ], type = "n", axes = FALSE, 
            xlim = xlim, ylim = ylim, col = k[j], 
            lty = as.numeric(l[j]), lwd = as.numeric(linewidth[j]), xlab="", ylab="", main="")
     }
@@ -178,42 +178,42 @@
       if (!missing(chars)) 
       {
         if(is.numeric(chars))
-          points(x[temp, 1], x[temp, 2], pch=chars[temp], 
+          graphics::points(x[temp, 1], x[temp, 2], pch=chars[temp], 
                  col = k[j])
         else
-          text(x[temp, 1], x[temp, 2], chars[temp], 
+          graphics::text(x[temp, 1], x[temp, 2], chars[temp], 
                col = k[j])
       }
-      else text(x[temp, 1], x[temp, 2], labs[temp], 
+      else graphics::text(x[temp, 1], x[temp, 2], labs[temp], 
                 col = k[j])
     }
     if (centroid) {
       singlelab <- uniqlabels[j]
-      text(cen[j, 1], cen[j, 2], singlelab, col = k[j])
+      graphics::text(cen[j, 1], cen[j, 2], singlelab, col = k[j])
     }
     if (j < nrow(rowmarker)) 
-      par(new = TRUE)
+      graphics::par(new = TRUE)
   }
-  par(col = 1)
+  graphics::par(col = 1)
   
   if (axes) {
     if (formant) {
-      xaxp <- par("xaxp")
-      yaxp <- par("yaxp")
+      xaxp <- graphics::par("xaxp")
+      yaxp <- graphics::par("yaxp")
       xat <- seq(xaxp[1], xaxp[2], length.out = xaxp[3] + 
                    1)
       yat <- seq(yaxp[1], yaxp[2], length.out = yaxp[3] + 
                    1)
-      axis(1, at = xat, labels = -xat)
-      axis(2, at = yat, labels = -yat, srt = 90)
+      graphics::axis(1, at = xat, labels = -xat)
+      graphics::axis(2, at = yat, labels = -yat, srt = 90)
     }
     else {
-      axis(1)
-      axis(2)
+      graphics::axis(1)
+      graphics::axis(2)
     }
   }
-  title(...)
-  box(...)
+  graphics::title(...)
+  graphics::box(...)
 }
 
 
@@ -303,28 +303,28 @@
     points <- rbind( points, apply(tmp, 2, mean) )
   }
   
-  plot( points, type="b", pch=" ", axes=FALSE, xlab="", ylab="" )
-  text( points, order, axes=FALSE, , xlab="", ylab="" )
+  graphics::plot( points, type="b", pch=" ", axes=FALSE, xlab="", ylab="" )
+  graphics::text( points, order, axes=FALSE, , xlab="", ylab="" )
   
-  par(col = 1)
-  box()
+  graphics::par(col = 1)
+  graphics::box()
   if(axes) {
     if(formant) {
       if(missing(xlab))
         xlab <- "F2"
       if(missing(ylab))
         ylab <- "F1"
-      xaxp <- par("xaxp")
-      yaxp <- par("yaxp")
+      xaxp <- graphics::par("xaxp")
+      yaxp <- graphics::par("yaxp")
       xat <- seq(xaxp[1], xaxp[2], length.out = xaxp[3] + 1)
       yat <- seq(yaxp[1], yaxp[2], length.out = yaxp[3] + 1)
-      axis(1, at = xat, labels =  - xat)
-      axis(2, at = yat, labels =  - yat, srt = 90)
+      graphics::axis(1, at = xat, labels =  - xat)
+      graphics::axis(2, at = yat, labels =  - yat, srt = 90)
     }
     else {
-      axis(1)
-      axis(2)
+      graphics::axis(1)
+      graphics::axis(2)
     }
   }
-  title(main = main, xlab = xlab, ylab = ylab)
+  graphics::title(main = main, xlab = xlab, ylab = ylab)
 }

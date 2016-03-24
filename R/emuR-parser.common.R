@@ -153,16 +153,16 @@ get_stringPositionOutsideBrackets <- function(string,search,pos=1,literalQuote=N
 ## @import stringr
 parse_lineToKeyValue = function(line, separator = '=', doubleQuoted = FALSE, initialTrim = TRUE){ 
   if(initialTrim){
-    line=str_trim(line)
+    line=stringr::str_trim(line)
   }
   eqSignI=get_charPosition(line,separator)
   if(eqSignI==-1){
     return(NULL)
   }
   left=str_sub(line,end=eqSignI-1)
-  key=str_trim(left)
+  key=stringr::str_trim(left)
   right=str_sub(line,start=eqSignI+1)
-  value=str_trim(right)
+  value=stringr::str_trim(right)
   if(doubleQuoted){
     value=sub('^\"','',value);
     value=sub('\"$','',value);

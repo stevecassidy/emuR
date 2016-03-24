@@ -52,7 +52,7 @@ load_dbConfigFromEmuTemplate=function(tplPath,dbUUID=NULL,encoding=NULL){
   
   for(line in tpl){
     lineNr=lineNr+1L
-    trimmedLine=str_trim(line)
+    trimmedLine=stringr::str_trim(line)
     if(trimmedLine!=''){
       firstChar=substr(trimmedLine,1,1)
       if(firstChar!='!'){

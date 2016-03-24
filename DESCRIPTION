@@ -1,32 +1,37 @@
 Package: emuR
-Version: 0.1.0
+Version: 0.1.6
 Title: Main Package of the EMU Speech Database Management System
 Authors@R: c(
     person("Raphael", "Winkelmann", , "raphael@phonetik.uni-muenchen.de", c("aut", "cre")),
     person("Klaus", "Jaensch", , "klausj@phonetik.uni-muenchen.de", c("aut", "ctb")),
     person("Steve", "Cassidy", , "steve.cassidy@mq.edu.au", c("aut", "ctb")),
     person("Jonathan", "Harrington", , "jmh@phonetik.uni-muenchen.de", c("aut", "ctb")))
-Description: Provides many special purpose functions for display and analysis
-    of speech data.
+Description: Provides the next iteration of the EMU Speech 
+    Database Management System (EMU_SDMS) with database management, data 
+    extraction, data preparation and data visualization facilities. 
 License: GPL (>= 2)
 Depends:
-    R (>= 3.0),
-    stats,
-    methods,
-    MASS,
-    wrassp (>= 0.1.3),
-    tools,
-    dplyr (>= 0.4.3),
-    tidyjson (>= 0.2.1)
+    R (>= 3.0)
 VignetteBuilder: knitr
 Imports:
+    MASS,
+    tools,
+    utils,
+    stats,
+    methods,
+    graphics,
+    grDevices,
+    stringr,
+    uuid,
+    base64enc,
+    wrassp (>= 0.1.3),
+    tidyjson (>= 0.2.1),
     jsonlite (>= 0.9.13),
-    uuid,stringr,
     RSQLite (>= 1.0.0),
     DBI (>= 0.3.1),
     httpuv (>= 1.3.2),
-    base64enc,
-    data.table (>= 1.9.4)
+    data.table (>= 1.9.4),
+    dplyr (>= 0.4.3)
 Suggests:
     testthat(>= 0.7.1.99),
     knitr(>= 1.7),

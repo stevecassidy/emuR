@@ -86,12 +86,12 @@
     colours <- mu.colour(priorlabels, TRUE, FALSE)$colour
   else
     colours <- col
-  plot(pnts, xlim=xlim, ylim=ylim, ...)
+  graphics::plot(pnts, xlim=xlim, ylim=ylim, ...)
   for (j in priorlabels) {
     temp <- muclass(blabs, j)
-    points(pnts[temp, ],pch=pch, col = colours[k])
+    graphics::points(pnts[temp, ],pch=pch, col = colours[k])
     k <- k + 1
   }
   if(legend)
-    legend(position, legend=priorlabels, col=colours, fill=colours, bg=bg)
+    graphics::legend(position, legend=priorlabels, col=colours, fill=colours, bg=bg)
 }

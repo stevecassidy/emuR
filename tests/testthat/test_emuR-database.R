@@ -13,7 +13,8 @@ path2orig = file.path(tempdir(), "emuR_demoData", paste0(dbName, emuDB.suffix))
 path2testData = file.path(tempdir(), "emuR_testthat")
 path2db = file.path(path2testData, paste0(dbName, emuDB.suffix))
 
-
+# extract internalVars from environment .emuR_pkgEnv
+internalVars = get("internalVars", envir = .emuR_pkgEnv)
 
 test_that("database functions work", {
   
@@ -40,16 +41,16 @@ test_that("database functions work", {
     expect_equal(ae$dbName, aeFromLegacy$dbName)
     expect_equal(ae$UUI, aeFromLegacy$UUID)
     
-    origItems = dbReadTable(ae$connection, "items")
-    convItems = dbReadTable(aeFromLegacy$connection, "items")
+    origItems = DBI::dbReadTable(ae$connection, "items")
+    convItems = DBI::dbReadTable(aeFromLegacy$connection, "items")
     expect_equal(origItems, convItems)
     
-    origLabels = dbReadTable(ae$connection, "labels")
-    convLabels = dbReadTable(aeFromLegacy$connection, "labels")
+    origLabels = DBI::dbReadTable(ae$connection, "labels")
+    convLabels = DBI::dbReadTable(aeFromLegacy$connection, "labels")
     expect_equal(origLabels, convLabels)
     
-    origLinksExt = dbReadTable(ae$connection, "linksExt")
-    convLinksExt = dbReadTable(aeFromLegacy$connection, "linksExt")
+    origLinksExt = DBI::dbReadTable(ae$connection, "links_ext")
+    convLinksExt = DBI::dbReadTable(aeFromLegacy$connection, "links_ext")
     expect_equal(origLinksExt, convLinksExt)
   })
   
@@ -64,10 +65,11 @@ test_that("database functions work", {
     bndls=list_bundlesDBI(ae)
     expect_that(nrow(bndls),is_equivalent_to(7))
     itCntQ=paste0("SELECT count(*) FROM items WHERE db_uuid='",ae$UUID,"'")
-    itCntDf=dbGetQuery(ae$connection,itCntQ)
+    
+    itCntDf=DBI::dbGetQuery(ae$connection,itCntQ)
     itemCnt=itCntDf[[1]]
     liCntQ=paste0("SELECT count(*) FROM links WHERE db_uuid='",ae$UUID,"'")
-    liCntDf=dbGetQuery(ae$connection,liCntQ)
+    liCntDf=DBI::dbGetQuery(ae$connection,liCntQ)
     linkCnt=liCntDf[[1]]
     expect_that(itemCnt,is_equivalent_to(736))
     expect_that(linkCnt,is_equivalent_to(785))
@@ -82,21 +84,21 @@ test_that("database functions work", {
   })
   
   test_that("Data types are correct",{
-    items=dbReadTable(ae$connection, 'items')
+    items=DBI::dbReadTable(ae$connection, 'items')
     
-    expect_that(class(items[['seqIdx']]),is_equivalent_to('integer'))
-    expect_that(class(items[['itemID']]),is_equivalent_to('integer'))
-    expect_that(class(items[['sampleRate']]),is_equivalent_to('numeric'))
-    expect_that(class(items[['samplePoint']]),is_equivalent_to('integer'))
-    expect_that(class(items[['sampleStart']]),is_equivalent_to('integer'))
-    expect_that(class(items[['sampleDur']]),is_equivalent_to('integer'))
+    expect_that(class(items[['seq_idx']]),is_equivalent_to('integer'))
+    expect_that(class(items[['item_id']]),is_equivalent_to('integer'))
+    expect_that(class(items[['sample_rate']]),is_equivalent_to('numeric'))
+    expect_that(class(items[['sample_point']]),is_equivalent_to('integer'))
+    expect_that(class(items[['sample_start']]),is_equivalent_to('integer'))
+    expect_that(class(items[['sample_dur']]),is_equivalent_to('integer'))
     
-    labels=dbReadTable(ae$connection,'labels')
-    expect_that(class(labels[['labelIdx']]),is_equivalent_to('integer'))
+    labels=DBI::dbReadTable(ae$connection,'labels')
+    expect_that(class(labels[['label_idx']]),is_equivalent_to('integer'))
     
-    links=dbReadTable(ae$connection,'links')
-    expect_that(class(links[['fromID']]),is_equivalent_to('integer'))
-    expect_that(class(links[['toID']]),is_equivalent_to('integer'))
+    links=DBI::dbReadTable(ae$connection,'links')
+    expect_that(class(links[['from_id']]),is_equivalent_to('integer'))
+    expect_that(class(links[['to_id']]),is_equivalent_to('integer'))
   })
   
   test_that("Test ae samples",{
@@ -115,26 +117,26 @@ test_that("database functions work", {
     lvCnt=length(msajc015_lab_values)
     teCnt=length(msajc015_tone_events)
     #msajc015_phonetic=ae[['items']][ae[['items']][['bundle']]=="msajc015" & ae[['items']][['level']]=='Phonetic',]
-    msajc015_phonetic=dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"' AND session='0000' AND bundle='msajc015' AND level='Phonetic'"))
+    msajc015_phonetic=DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"' AND session='0000' AND bundle='msajc015' AND level='Phonetic'"))
     rc=nrow(msajc015_phonetic)
     expect_equivalent(rc+1,lvCnt)
     # order by sequence index
-    msajc015_phonetic_ordered=msajc015_phonetic[order(msajc015_phonetic[['seqIdx']]),]
+    msajc015_phonetic_ordered=msajc015_phonetic[order(msajc015_phonetic[['seq_idx']]),]
     rc=nrow(msajc015_phonetic_ordered)
     expect_equivalent(rc+1,lvCnt)
     
     #msajc015_tone=ae[['items']][ae[['items']][['bundle']]=="msajc015" & ae[['items']][['level']]=='Tone',]
-    msajc015_tone=dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='", ae$UUID, "' AND session='0000' AND bundle='msajc015' AND level='Tone'"))
-    msajc015_tone_ordered=msajc015_tone[order(msajc015_tone[['seqIdx']]),]
+    msajc015_tone=DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='", ae$UUID, "' AND session='0000' AND bundle='msajc015' AND level='Tone'"))
+    msajc015_tone_ordered=msajc015_tone[order(msajc015_tone[['seq_idx']]),]
     lvSq=1:rc
     
     # check sequence
     for(i in lvSq){
       
-      poSampleStart=msajc015_phonetic_ordered[i,'sampleStart']
-      poSampleDur=msajc015_phonetic_ordered[i,'sampleDur']
+      poSampleStart=msajc015_phonetic_ordered[i,'sample_start']
+      poSampleDur=msajc015_phonetic_ordered[i,'sample_dur']
       if(i<rc){
-        poNextSampleStart=msajc015_phonetic_ordered[i+1,'sampleStart']
+        poNextSampleStart=msajc015_phonetic_ordered[i+1,'sample_start']
         # TODO
         expect_equivalent(poNextSampleStart,poSampleStart+poSampleDur+1)
         #expect_equivalent(poNextSampleStart,poSampleStart+poSampleDur+1)
@@ -143,8 +145,8 @@ test_that("database functions work", {
     # check segment boundaries
     for(i in lvSq){
       lv=msajc015_lab_values[i]
-      poSampleStart=msajc015_phonetic_ordered[i,'sampleStart']
-      poSampleDur=msajc015_phonetic_ordered[i,'sampleDur']
+      poSampleStart=msajc015_phonetic_ordered[i,'sample_start']
+      poSampleDur=msajc015_phonetic_ordered[i,'sample_dur']
       poStart=(poSampleStart+0.5)/aeSampleRate
       absFail=abs(poStart-lv)
       # accept deviation of at least half a sample
@@ -152,7 +154,7 @@ test_that("database functions work", {
     }
     # and the last value
     lv=msajc015_lab_values[lvCnt]
-    poSampleEnd=msajc015_phonetic_ordered[rc,'sampleStart']+msajc015_phonetic_ordered[rc,'sampleDur']+1
+    poSampleEnd=msajc015_phonetic_ordered[rc,'sample_start']+msajc015_phonetic_ordered[rc,'sample_dur']+1
     poEnd=(poSampleEnd+0.5)/aeSampleRate
     absFail=abs(poEnd-lv)
     # accept deviation of at least half a sample
@@ -162,7 +164,7 @@ test_that("database functions work", {
     teS=1:teCnt
     for(i in teS){
       teTime=msajc015_tone_events[i]
-      teLSample=msajc015_tone_ordered[i,'samplePoint']
+      teLSample=msajc015_tone_ordered[i,'sample_point']
       teLTime=teLSample/aeSampleRate
       absFail=abs(teLTime-teTime)
       expect_less_than(absFail,halfSample)
@@ -171,10 +173,10 @@ test_that("database functions work", {
   })
   
   test_that("Test ae modify",{
-    orgItems=dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"'"))
-    orgLabels=dbGetQuery(ae$connection,paste0("SELECT * FROM labels WHERE db_uuid='",ae$UUID,"'"))
-    orgLinks=dbGetQuery(ae$connection,paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
-    orgLinksExt=dbGetQuery(ae$connection,paste0("SELECT * FROM linksExt WHERE db_uuid='",ae$UUID,"'"))
+    orgItems=DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"'"))
+    orgLabels=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM labels WHERE db_uuid='",ae$UUID,"'"))
+    orgLinks=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
+    orgLinksExt=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links_ext WHERE db_uuid='",ae$UUID,"'"))
     
     expect_equivalent(nrow(orgItems),736)
     expect_equivalent(nrow(orgLinks),785)
@@ -201,10 +203,10 @@ test_that("database functions work", {
     
     # store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015m)
     
-    modItems=dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"'"))
-    modLabels=dbGetQuery(ae$connection, paste0("SELECT * FROM labels WHERE db_uuid='",ae$UUID,"'"))
-    modLinks=dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
-    modLinksExt=dbGetQuery(ae$connection, paste0("SELECT * FROM linksExt WHERE db_uuid='",ae$UUID,"'"))
+    modItems=DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"'"))
+    modLabels=DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM labels WHERE db_uuid='",ae$UUID,"'"))
+    modLinks=DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
+    modLinksExt=DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links_ext WHERE db_uuid='",ae$UUID,"'"))
     
     expect_equivalent(nrow(modItems),736)
     expect_equivalent(nrow(modLinks),785)
@@ -231,10 +233,10 @@ test_that("database functions work", {
     build_allRedundantLinks(ae, "0000", "msajc015")
     calculate_postionsOfLinks(ae)
     
-    mod2Items=dbGetQuery(ae$connection,paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"'"))
-    mod2Labels=dbGetQuery(ae$connection,paste0("SELECT * FROM labels WHERE db_uuid='",ae$UUID,"'"))
-    mod2Links=dbGetQuery(ae$connection,paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
-    mod2LinksExt=dbGetQuery(ae$connection,paste0("SELECT * FROM linksExt WHERE db_uuid='",ae$UUID,"'"))
+    mod2Items=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"'"))
+    mod2Labels=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM labels WHERE db_uuid='",ae$UUID,"'"))
+    mod2Links=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
+    mod2LinksExt=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links_ext WHERE db_uuid='",ae$UUID,"'"))
     
     expect_equivalent(nrow(mod2Items),736)
     expect_equivalent(nrow(mod2Links),785)
@@ -271,10 +273,10 @@ test_that("database functions work", {
     calculate_postionsOfLinks(ae)
     
     
-    mod3Items=dbGetQuery(ae$connection,paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"'"))
-    mod3Labels=dbGetQuery(ae$connection,paste0("SELECT * FROM labels WHERE db_uuid='",ae$UUID,"'"))
-    mod3Links=dbGetQuery(ae$connection,paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
-    mod3LinksExt=dbGetQuery(ae$connection,paste0("SELECT * FROM linksExt WHERE db_uuid='",ae$UUID,"'"))
+    mod3Items=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"'"))
+    mod3Labels=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM labels WHERE db_uuid='",ae$UUID,"'"))
+    mod3Links=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
+    mod3LinksExt=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links_ext WHERE db_uuid='",ae$UUID,"'"))
     
     expect_equivalent(nrow(mod3Items),736)
     expect_equivalent(nrow(mod3Links),784)
@@ -310,7 +312,7 @@ test_that("database functions work", {
     calculate_postionsOfLinks(ae)
     
     
-    mod4Links=dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
+    mod4Links=DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
     cml3=compare(orgLinks,mod4Links,allowAll=TRUE)
     expect_true(cml3$result)
     
@@ -331,10 +333,10 @@ test_that("database functions work", {
     build_allRedundantLinks(ae, "0000", "msajc015")
     calculate_postionsOfLinks(ae)
     #   
-    modOrgItems=dbGetQuery(ae$connection,paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"'"))
-    modOrgLabels=dbGetQuery(ae$connection,paste0("SELECT * FROM labels WHERE db_uuid='",ae$UUID,"'"))
-    modOrgLinks=dbGetQuery(ae$connection,paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
-    modOrgLinksExt=dbGetQuery(ae$connection,paste0("SELECT * FROM linksExt WHERE db_uuid='",ae$UUID,"'"))
+    modOrgItems=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"'"))
+    modOrgLabels=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM labels WHERE db_uuid='",ae$UUID,"'"))
+    modOrgLinks=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
+    modOrgLinksExt=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links_ext WHERE db_uuid='",ae$UUID,"'"))
     
     expect_equivalent(nrow(modOrgItems),736)
     expect_equivalent(nrow(modOrgLinks),785)
@@ -343,7 +345,7 @@ test_that("database functions work", {
     #   # should all be equal to original 
     cm2=compare(orgItems,modOrgItems,allowAll=TRUE)
     expect_true(cm2$result)
-    cmLbls2=compare(arrange(orgLabels, bundle, itemID), arrange(modOrgLabels, bundle, itemID),allowAll=TRUE)
+    cmLbls2=compare(dplyr::arrange(orgLabels, bundle, item_id), dplyr::arrange(modOrgLabels, bundle, item_id),allowAll=TRUE)
     expect_true(cmLbls2$result)
     cml2=compare(orgLinks,modOrgLinks,allowAll=TRUE)
     expect_true(cml2$result)
@@ -437,15 +439,15 @@ test_that("store works correctly",{
   store(ae, targetDir = newFolderPath, verbose = F)
   aeStored = load_emuDB(file.path(newFolderPath, "ae_emuDB"), verbose = F)
   
-  aeItems=dbGetQuery(ae$connection,paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"'"))
-  aeLabels=dbGetQuery(ae$connection,paste0("SELECT * FROM labels WHERE db_uuid='",ae$UUID,"'"))
-  aeLinks=dbGetQuery(ae$connection,paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
-  aeLinksExt=dbGetQuery(ae$connection,paste0("SELECT * FROM linksExt WHERE db_uuid='",ae$UUID,"'"))
+  aeItems=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"'"))
+  aeLabels=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM labels WHERE db_uuid='",ae$UUID,"'"))
+  aeLinks=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
+  aeLinksExt=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links_ext WHERE db_uuid='",ae$UUID,"'"))
   
-  aeStoredItems=dbGetQuery(aeStored$connection,paste0("SELECT * FROM items WHERE db_uuid='",aeStored$UUID,"'"))
-  aeStoredLabels=dbGetQuery(aeStored$connection,paste0("SELECT * FROM labels WHERE db_uuid='",aeStored$UUID,"'"))
-  aeStoredLinks=dbGetQuery(aeStored$connection,paste0("SELECT * FROM links WHERE db_uuid='",aeStored$UUID,"'"))
-  aeStoredLinksExt=dbGetQuery(aeStored$connection,paste0("SELECT * FROM linksExt WHERE db_uuid='",aeStored$UUID,"'"))
+  aeStoredItems=DBI::dbGetQuery(aeStored$connection,paste0("SELECT * FROM items WHERE db_uuid='",aeStored$UUID,"'"))
+  aeStoredLabels=DBI::dbGetQuery(aeStored$connection,paste0("SELECT * FROM labels WHERE db_uuid='",aeStored$UUID,"'"))
+  aeStoredLinks=DBI::dbGetQuery(aeStored$connection,paste0("SELECT * FROM links WHERE db_uuid='",aeStored$UUID,"'"))
+  aeStoredLinksExt=DBI::dbGetQuery(aeStored$connection,paste0("SELECT * FROM links_ext WHERE db_uuid='",aeStored$UUID,"'"))
   
   # check that all tabels are the same
   expect_equal(aeItems, aeStoredItems)

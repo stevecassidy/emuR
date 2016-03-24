@@ -104,7 +104,7 @@ data.
 
 }
 \author{
-Jonathan Harrington jmh@ipds.uni-kiel.de, Steve Cassidy
+Jonathan Harrington, Steve Cassidy
 }
 \seealso{
 \code{\link{dcut}}

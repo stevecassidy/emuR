@@ -13,6 +13,9 @@ context("testing queries")
 path2demoData = file.path(tempdir(),"emuR_demoData")
 path2testhatFolder = file.path(tempdir(),"emuR_testthat")
 
+# extract internalVars from environment .emuR_pkgEnv
+internalVars = get("internalVars", envir = .emuR_pkgEnv)
+
 test_that("Convert example database ae",{
   legacyDbEmuAeTpl <- file.path(path2demoData, "legacy_ae", "ae.tpl")
   .test_emu_ae_db_dir<<-file.path(path2testhatFolder, 'test_emu_ae')
@@ -251,7 +254,8 @@ test_that("Load example database ae",{
     expect_error(query(ae, "[#Text=more -> #Text=customers]"), regexp = "Multiple hash tags")
   })
   
-  test_that("All queries from EQL vignette (slightly adapted)",{
+  test_that("additional queries (simple and complex) work for more thorough query testing",{
+    skip_on_cran()
     # SQ
     sl = query(ae, "Phonetic == m")
     expect_equal(nrow(sl), 7)
@@ -424,7 +428,8 @@ test_that("Load example database ae",{
     expect_equal(nrow(sl), 1)
     sl = query(ae, "[[[Phoneme =~ .* ^ Phonetic == H] ^ Start(Word, Syllable) == 1] ^ Accent == S]")
     expect_equal(nrow(sl), 10)
-    
+    sl  = query (ae ,  "[[[Phonetic = n -> Phonetic =z] -> Phonetic = S ] ^ [Text = friends -> Text = she]]")
+    expect_equal(sl$labels, "n->z->S")
   })
   
 })

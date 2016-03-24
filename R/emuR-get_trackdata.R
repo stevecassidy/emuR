@@ -8,7 +8,10 @@
 ##' segment list (\code{\link{emuRsegs}} or \code{\link{emusegs}}), extracts the 
 ##' specified trackdata and places it into a 
 ##' trackdata object (analogous to the depricated \code{emu.track}). This function
-##' replaces the deprecated \code{emu.track} function. For 
+##' replaces the deprecated \code{emu.track} function. Note that a error is thrown
+##' if the bundles in the \code{\link{emuRsegs}} or \code{\link{emusegs}} object 
+##' have in-homogeneous sampling rates as this will lead to inconsistent/erroneous
+##' \code{\link{trackdata}} or \code{\link{emuRtrackdata}} result objects. For 
 ##' more information on the structural elements of an emuDB 
 ##' see \code{vignette{emuDB}}.
 ##' 
@@ -86,7 +89,7 @@
   
   # set ssffTrackName to fist tracks entry in wrasspOutputInfos if ssffTrackName is not set
   if(!is.null(onTheFlyFunctionName) && is.null(ssffTrackName)){
-    ssffTrackName = wrasspOutputInfos[[onTheFlyFunctionName]]$tracks[1]
+    ssffTrackName = wrassp::wrasspOutputInfos[[onTheFlyFunctionName]]$tracks[1]
   }
   
   # check if all values for minimal call are set
@@ -153,6 +156,25 @@
   }
   
   ###################################
+  # check for sample rate consistancy
+  uniqSessionBndls =utils::read.table(text = as.character(dplyr::distinct_(seglist, "utts")$utts), sep = ":", 
+                                      col.names = c("session", "bundle"), colClasses = c("character", "character"), stringsAsFactors = F)
+  sesBndls = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM bundle WHERE ", 
+                                                            paste0("session = '", 
+                                                                   uniqSessionBndls$session, 
+                                                                   "' AND ", 
+                                                                   "name = '", 
+                                                                   uniqSessionBndls$bundle, 
+                                                                   "'", 
+                                                                   collapse = " OR ")))
+  # remove uuid & MD5sum because we don't want to scare our users :-)
+  sesBndls$db_uuid = NULL
+  sesBndls$MD5annotJSON = NULL
+  if(length(unique(sesBndls$sample_rate)) != 1){
+    stop("The emusegs/emuRsegs object passed in refers to bundles with in-homogeneous sampling rates in their audio files! Here is a list of all refered to bundles incl. their sampling rate: \n", paste(utils::capture.output(print(sesBndls)), collapse = "\n"))
+  }
+  
+  ###################################
   #create empty index, ftime matrices
   index <- matrix(ncol=2, nrow=length(seglist$utts))
   colnames(index) <- c("start","end")
@@ -168,7 +190,7 @@
   # preallocate data (needs first element to be read)
   
   
-  splUtt = str_split(seglist$utts[1], ':')[[1]]
+  splUtt = stringr::str_split(seglist$utts[1], ':')[[1]]
   
   # check if utts entry exists
   bndls = list_bundles(emuDBhandle)
@@ -179,14 +201,14 @@
   
   if(!is.null(onTheFlyFunctionName)){
     funcFormals = NULL
-    qr = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='",
-                                                 splUtt[1], "' AND name='", splUtt[2], "'"))
+    qr = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='",
+                                                        splUtt[1], "' AND name='", splUtt[2], "'"))
     funcFormals$listOfFiles = file.path(emuDBhandle$basePath, paste0(qr$session, session.suffix), paste0(qr$name, bundle.dir.suffix), qr$annotates)
     funcFormals$toFile = FALSE
     curDObj = do.call(onTheFlyFunctionName,funcFormals)
   }else{
     fpath <- file.path(emuDBhandle$basePath, paste0(splUtt[1], session.suffix), paste0(splUtt[2], bundle.dir.suffix), paste0(splUtt[2], ".", trackDef[[1]]$fileExtension))
-    curDObj <- read.AsspDataObj(fpath)
+    curDObj <- wrassp::read.AsspDataObj(fpath)
   }
   tmpData <- eval(parse(text = paste("curDObj$", trackDef[[1]]$columnName, sep = "")))
   if(verbose){
@@ -208,12 +230,12 @@
     funcFormals$optLogFilePath = onTheFlyOptLogFilePath
     if(verbose){
       cat('\n  INFO: applying', onTheFlyFunctionName, 'to', length(seglist$utts), 'files\n')
-      pb <- txtProgressBar(min = 0, max = length(seglist$utts), style = 3)
+      pb <- utils::txtProgressBar(min = 0, max = length(seglist$utts), style = 3)
     }
   }else{
     if(verbose){
       cat('\n  INFO: parsing', length(seglist$utts), trackDef[[1]]$fileExtension, 'files\n')
-      pb <- txtProgressBar(min = 0, max = length(seglist$utts), style = 3)
+      pb <- utils::txtProgressBar(min = 0, max = length(seglist$utts), style = 3)
     }
   }
   
@@ -222,7 +244,7 @@
   curIndexStart = 1
   for (i in 1:length(seglist$utts)){
     
-    splUtt = str_split(seglist$utts[i], ':')[[1]]
+    splUtt = stringr::str_split(seglist$utts[i], ':')[[1]]
     
     # check if utts entry exists
     bndls = list_bundles(emuDBhandle)
@@ -236,18 +258,18 @@
     #get data object
     
     if(!is.null(onTheFlyFunctionName)){
-      qr = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='",
-                                                   splUtt[1], "' AND name='", splUtt[2], "'"))
+      qr = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='",
+                                                          splUtt[1], "' AND name='", splUtt[2], "'"))
       funcFormals$listOfFiles = file.path(emuDBhandle$basePath, paste0(qr$session, session.suffix), paste0(qr$name, bundle.dir.suffix), qr$annotates)
       
       curDObj = do.call(onTheFlyFunctionName, funcFormals)
       if(verbose){
-        setTxtProgressBar(pb, i)
+        utils::setTxtProgressBar(pb, i)
       }
     }else{
-      curDObj <- read.AsspDataObj(fpath)
+      curDObj <- wrassp::read.AsspDataObj(fpath)
       if(verbose){
-        setTxtProgressBar(pb, i)
+        utils::setTxtProgressBar(pb, i)
       }
     }
     

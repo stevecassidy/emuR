@@ -4,14 +4,17 @@
 \alias{list_files}
 \title{List files of emuDB}
 \usage{
-list_files(emuDBhandle, sessionPattern = "*", bundlePattern = "*")
+list_files(emuDBhandle, fileExtension = ".*", sessionPattern = ".*",
+  bundlePattern = ".*")
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
 
-\item{sessionPattern}{A (glob) pattern matching sessions to be searched from the database}
+\item{fileExtension}{file extention of files}
 
-\item{bundlePattern}{A (glob) pattern matching bundles to be searched from the database}
+\item{sessionPattern}{A (RegEx) pattern matching sessions to be searched from the database}
+
+\item{bundlePattern}{A (RegEx) pattern matching bundles to be searched from the database}
 }
 \value{
 file paths as character vector
@@ -32,7 +35,7 @@ see \code{vignette{emuDB}}.
 list_files(emuDBhandle = ae)
 
 # list all files of ae emuDB in bundles ending with '3'
-list_files(emuDBhandle = ae, bundlePattern="*3") 
+list_files(emuDBhandle = ae, bundlePattern=".*3$") 
 
 }
 

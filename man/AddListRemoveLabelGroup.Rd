@@ -29,8 +29,13 @@ are added by \code{\link{add_attrDefLabelGroup}}) in a
 \code{\link{query}}. A common example would be to
 add a label group for something like the phonetic
 category of nasals to be able to reference them 
-as "nasals" in a \code{\link{query}}. For 
-more information on the structural elements of an emuDB 
+as "nasals" in a \code{\link{query}}. 
+In theory you could use a labelGroupName as a label instance within the
+level, but since this could lead to serious confusion, it is better avoided.
+For users transitioning from the legacy EMU system: Do not confuse a 
+labelGroup with legal labels: a labelGroup 
+had the unfortunate name 'legal labels' in the legacy EMU system.  
+For more information on the structural elements of an emuDB 
 see \code{vignette{emuDB}}.
 }
 \examples{

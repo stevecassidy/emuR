@@ -10,6 +10,9 @@ path2orig = file.path(tempdir(), "emuR_demoData", paste0(dbName, emuDB.suffix))
 path2testData = file.path(tempdir(), "emuR_testthat")
 path2db = file.path(path2testData, paste0(dbName, emuDB.suffix))
 
+# extract internalVars from environment .emuR_pkgEnv
+internalVars = get("internalVars", envir = .emuR_pkgEnv)
+
 ###########################
 test_that("update_cache works", {
   
@@ -22,7 +25,7 @@ test_that("update_cache works", {
   # 
   test_that("DBconfig update is re-cached", {
     # change entry
-    dbJson = fromJSON(readLines(file.path(path2db, "ae_DBconfig.json")), simplifyVector=T)
+    dbJson = jsonlite::fromJSON(readLines(file.path(path2db, "ae_DBconfig.json")), simplifyVector=T)
     
     dbJson$name = "ae_copy"
     
@@ -59,7 +62,7 @@ test_that("update_cache works", {
   # 
   test_that("change in _annot.json is re-cached", {
     # change entry
-    annotJson = fromJSON(readLines(file.path(path2db, "new_ses", "msajc010_bndl", "msajc010_annot.json")), simplifyVector=T)
+    annotJson = jsonlite::fromJSON(readLines(file.path(path2db, "new_ses", "msajc010_bndl", "msajc010_annot.json")), simplifyVector=T)
     
     annotJson$levels$items[[1]]$id = 666666
     
@@ -68,7 +71,7 @@ test_that("update_cache works", {
     
     update_cache(ae, verbose = F)
     
-    res = dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='", ae$UUID, "' AND session='new' AND bundle='msajc010' AND level='Utterance'"))$itemID
+    res = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='", ae$UUID, "' AND session='new' AND bundle='msajc010' AND level='Utterance'"))$item_id
 
     expect_true(res == 666666)
     
@@ -82,7 +85,7 @@ test_that("update_cache works", {
     
     update_cache(ae, verbose = F)
     
-    res = dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='", ae$UUID, "' AND session='new' AND bundle='msajc010'"))
+    res = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='", ae$UUID, "' AND session='new' AND bundle='msajc010'"))
     
     expect_true(nrow(res) == 0)
     

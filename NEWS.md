@@ -1,10 +1,32 @@
-# emuR 0.0.6
+# emuR 0.1.6
 
-* switched from `emuDB` class object to DBI conform DB engine. This means all databases are now refered to simply by their name (or by their UUID if a name clash occurs).  
+* skipping in-depth thorough tests on CRAN for query and autobuild SQL functions 
 
-* functions now use `_` notation to avoid S3 naming conflicts (see section "Object names" http://r-pkgs.had.co.nz/style.html)
+# emuR 0.1.5
 
-* `load_emuDB()` now simply returns name of database.
+* fixed problem of interm\_res\_tables already being present with queries that have multiple recursion depth on both sides
+of either -> or ^ operand (e.g. query (ae ,  "[[[Phonetic = n -> Phonetic =z] -> Phonetic = S ] ^ [Text = friends -> Text = she]]")) 
+* fixed bad URL in README.md
+* added CITATION file
 
-* all function now working on DBI (SQL table) representation of loaded DB (see `database.R``for table definitions). 
-  
+
+# emuR 0.1.3.9000
+
+* renamed SQL tables & columns from camel case to underscore notation 
+* variable SQL backend implementation
+
+# emuR 0.1.2.9000
+
+* multiple check fixes on various plattforms
+
+# emuR 0.1.1.9000
+
+* `serve` problem with internalVars bug fixed
+* file locking problem that caused vignettes to fail under windows problem fixed
+
+# emuR 0.1.0.9000
+
+* massive refactor of all functions that used to refer to an emuDB by 
+  name and optionally by its UUID. They now use the new emuDBhandle object
+  that is now returned by the `load_emuDB()` function.
+* `convert_XXX_to_emuDB()` functions renamed to `convert_XXX()`

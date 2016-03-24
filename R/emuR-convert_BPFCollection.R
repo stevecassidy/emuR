@@ -75,7 +75,6 @@ convert_BPFCollection <- function(sourceDir,
   # - the order of both vectors must match (i.e. if you add the name at position 10, add the class at position 10 as well)
   
   # If you do not wish to extend the format directly in the source code, use newLevels and newLevelClasses arguments.
-  
   STANDARD_LEVELS = c(
     "KAN", "KAS", "PTR", "ORT", "TRL", "TR2", "SUP", "DAS", "PRS", "NOI", 
     "POS", "LMA", "TRS", "TRW", "PRO", "SYN", "FUN", "LEX", "TLN",
@@ -153,7 +152,10 @@ convert_BPFCollection <- function(sourceDir,
   # ------------------------ Initialize temporary dbHandle --------------------
   # ---------------------------------------------------------------------------
   
-  dbHandle = emuDBhandle(dbName, basePath = basePath, UUIDgenerate(), ":memory:")
+  dbHandle = emuDBhandle(dbName, basePath = basePath, uuid::UUIDgenerate(), ":memory:")
+  # insert into emuDB table
+  queryTxt = paste0("INSERT INTO emu_db (uuid, name) VALUES('", dbHandle$UUID, "', '", dbName,"')")
+  DBI::dbGetQuery(dbHandle$connection, queryTxt)
   
   # ---------------------------------------------------------------------------
   # ------------------------ Initialize progress bar --------------------------
@@ -165,8 +167,8 @@ convert_BPFCollection <- function(sourceDir,
     nbFilePairs = length(filePairList) / 2
     
     cat("INFO: Parsing BPF collection containing", nbFilePairs, "file pair(s)...\n")
-    pb = txtProgressBar(min = 0, max = nbFilePairs, initial = progress, style=3)
-    setTxtProgressBar(pb, progress)
+    pb = utils::txtProgressBar(min = 0, max = nbFilePairs, initial = progress, style=3)
+    utils::setTxtProgressBar(pb, progress)
   }
   
   # ---------------------------------------------------------------------------
@@ -198,37 +200,37 @@ convert_BPFCollection <- function(sourceDir,
                              sourceDir = sourceDir)
     
     bpfPath = normalizePath(filePairList[idx, 1], winslash = .Platform$file.sep)
-    bundle = file_path_sans_ext(basename(bpfPath))
+    bundle = tools::file_path_sans_ext(basename(bpfPath))
     annotates = basename(filePairList[idx, 2])
     
     # Escaping single quotes in anything user-generated that will be fed into SQL
-    session = str_replace_all(session, "'", "''")
-    bundle = str_replace_all(bundle, "'", "''")
-    annotates = str_replace_all(annotates, "'", "''")
+    session = stringr::str_replace_all(session, "'", "''")
+    bundle = stringr::str_replace_all(bundle, "'", "''")
+    annotates = stringr::str_replace_all(annotates, "'", "''")
     
     # -----------------------------------------------------------------------
     # -------- Get sample rate for comparison with info in BPF header -------
     # -----------------------------------------------------------------------
     
-    asspObj = read.AsspDataObj(filePairList[idx, 2])
+    asspObj = wrassp::read.AsspDataObj(filePairList[idx, 2])
     samplerate = attributes(asspObj)$sampleRate
     
     # -----------------------------------------------------------------------
     # --------------- Write session and bundle to temp DB -------------------
     # -----------------------------------------------------------------------
     queryTxt = paste0("SELECT name from session WHERE name='", session, "'")
-    all_sessions = dbGetQuery(dbHandle$connection, queryTxt)
+    all_sessions = DBI::dbGetQuery(dbHandle$connection, queryTxt)
     
     if(!session %in% all_sessions)
     {
       queryTxt = paste0("INSERT INTO session VALUES('", dbHandle$UUID, "', '", session, "')")
-      dbGetQuery(dbHandle$connection, queryTxt)
+      DBI::dbGetQuery(dbHandle$connection, queryTxt)
     }
     
     queryTxt = paste0("INSERT INTO bundle VALUES('", dbHandle$UUID, "', '", session, "', '", bundle, "', '",
                       annotates, "', ", samplerate, ", 'NULL')")
     
-    dbGetQuery(dbHandle$connection, queryTxt)
+    DBI::dbGetQuery(dbHandle$connection, queryTxt)
     
     # -----------------------------------------------------------------------
     # ------------------------------ Parse BPF ------------------------------
@@ -275,7 +277,7 @@ convert_BPFCollection <- function(sourceDir,
     
     if(verbose)
     {
-      setTxtProgressBar(pb, idx)
+      utils::setTxtProgressBar(pb, idx)
     }
   }
   
@@ -388,8 +390,8 @@ copy_bpfMediaFiles <- function(basePath,
     nbMediaFiles = length(mediaFiles)
     
     cat("INFO: Copying", nbMediaFiles, "media files to EMU database...\n")
-    pb = txtProgressBar(min = 0, max = nbMediaFiles, initial = progress, style=3)
-    setTxtProgressBar(pb, progress)
+    pb = utils::txtProgressBar(min = 0, max = nbMediaFiles, initial = progress, style=3)
+    utils::setTxtProgressBar(pb, progress)
   }
   
   
@@ -404,7 +406,7 @@ copy_bpfMediaFiles <- function(basePath,
                           paste0(get_bpfSession(filePath = mediaFiles[[idx]],
                                                 sourceDir = sourceDir),
                                  session.suffix),
-                          paste0(file_path_sans_ext(basename(mediaFiles[[idx]])), 
+                          paste0(tools::file_path_sans_ext(basename(mediaFiles[[idx]])), 
                                  bundle.dir.suffix)
     )
     
@@ -424,7 +426,7 @@ copy_bpfMediaFiles <- function(basePath,
     
     if(verbose)
     {
-      setTxtProgressBar(pb, idx)
+      utils::setTxtProgressBar(pb, idx)
     }
     
     # Newline after progress bar:
@@ -460,9 +462,9 @@ get_bpfSession <- function(filePath,
   
   session = normalizePath(dirname(filePath), winslash = "/")
   sourceDir = normalizePath(sourceDir, winslash = "/")
-  session = str_replace_all(session, sourceDir, "")
-  session = str_replace_all(session, .Platform$file.sep, "_")
-  session = str_replace_all(session, "^_", "")
+  session = stringr::str_replace_all(session, sourceDir, "")
+  session = stringr::str_replace_all(session, .Platform$file.sep, "_")
+  session = stringr::str_replace_all(session, "^_", "")
   
   if(session == "")
   {
@@ -894,12 +896,12 @@ turn_bpfLinks <- function(emuDBhandle, turnAround)
 {
   for(link in turnAround)
   {
-    queryTxt = paste0("UPDATE links SET fromID = toID, toID = fromID WHERE fromID IN",
-                      "(SELECT itemID FROM items WHERE level = '", link[["fromkey"]], 
+    queryTxt = paste0("UPDATE links SET from_id = to_id, to_id = from_id WHERE from_id IN",
+                      "(SELECT item_id FROM items WHERE level = '", link[["fromkey"]], 
                       "' AND db_uuid = links.db_uuid AND session = links.session AND bundle = links.bundle) ",
-                      "AND toID IN(SELECT itemID FROM items WHERE level = '", link[["tokey"]], "' ",
+                      "AND to_id IN(SELECT item_id FROM items WHERE level = '", link[["tokey"]], "' ",
                       "AND db_uuid = links.db_uuid AND session = links.session AND bundle = links.bundle);")
-    dbGetQuery(emuDBhandle$connection, queryTxt)
+    DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   }
 }
 
@@ -1018,7 +1020,7 @@ link_bpfUtteranceLevel <- function(emuDBhandle, linkTracker,
     # This determines whether the links from 'Utterance' are ONE_TO_ONE or ONE_TO_MANY.
     
     queryTxt = paste0("SELECT DISTINCT db_uuid, session, bundle FROM items WHERE level = '", level, "'")
-    distinctUuidSessionBundle = dbGetQuery(emuDBhandle$connection, queryTxt)
+    distinctUuidSessionBundle = DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
     nbBundles = nrow(distinctUuidSessionBundle)
     
     if(nbBundles < nbItems)
@@ -1091,9 +1093,9 @@ get_bpfLevelsUnderUtterance <- function(linkTracker,
 
 link_bpfUtteranceLevelToCurrentLevel <- function(emuDBhandle, currentLevel)
 {
-  # Get UUID, session, bundle and itemID of all items of the relevant level
-  queryTxt = paste0("SELECT db_uuid, session, bundle, itemID FROM items WHERE level = '", currentLevel, "'")
-  uuidSessionBundleItemID = dbGetQuery(emuDBhandle$connection, queryTxt)
+  # Get UUID, session, bundle and item_id of all items of the relevant level
+  queryTxt = paste0("SELECT db_uuid, session, bundle, item_id FROM items WHERE level = '", currentLevel, "'")
+  uuidSessionBundleItemID = DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   
   # Loop over all items on this level
   for(idx in 1:nrow(uuidSessionBundleItemID))
@@ -1101,12 +1103,12 @@ link_bpfUtteranceLevelToCurrentLevel <- function(emuDBhandle, currentLevel)
     db_uuid = uuidSessionBundleItemID[idx,][["db_uuid"]]
     session = uuidSessionBundleItemID[idx,][["session"]]
     bundle = uuidSessionBundleItemID[idx,][["bundle"]]
-    itemID = uuidSessionBundleItemID[idx,][["itemID"]]
+    itemID = uuidSessionBundleItemID[idx,][["item_id"]]
     
     # Link all items to their corresponding Utterance item 
-    # (same UUID, session & bundle, Utterance itemID is always 1).
+    # (same UUID, session & bundle, Utterance item_id is always 1).
     queryTxt = paste0("INSERT INTO links VALUES('", db_uuid, "', '", session, "', '", bundle, "', 1, ", itemID, ", NULL)")
-    dbGetQuery(emuDBhandle$connection, queryTxt)
+    DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   }
   
   nbItems = nrow(uuidSessionBundleItemID)
@@ -1289,7 +1291,7 @@ make_bpfDbSkeleton <- function(emuDBhandle)
   # ---------------------------------------------------------------------------
   
   queryTxt = paste0("SELECT name FROM session WHERE db_uuid = '", emuDBhandle$UUID, "'")
-  sessions = dbGetQuery(emuDBhandle$connection, queryTxt)
+  sessions = DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   
   for(idx in 1:nrow(sessions))
   {
@@ -1305,7 +1307,7 @@ make_bpfDbSkeleton <- function(emuDBhandle)
   # ---------------------------------------------------------------------------
   
   queryTxt = paste0("SELECT name, session FROM bundle WHERE db_uuid = '", emuDBhandle$UUID, "'")
-  bundles = dbGetQuery(emuDBhandle$connection, queryTxt)
+  bundles = DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   for(jdx in 1:nrow(bundles))
   {
     bundle = paste0(bundles[jdx,1], bundle.dir.suffix)

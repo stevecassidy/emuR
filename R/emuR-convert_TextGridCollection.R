@@ -86,8 +86,8 @@ convert_TextGridCollection <- function(dir, dbName,
   
   if(verbose){
     cat("INFO: Loading TextGridCollection containing", length(fpl[,1]), "file pairs...\n")
-    pb = txtProgressBar(min = 0, max = length(fpl[,1]), initial = progress, style=3)
-    setTxtProgressBar(pb, progress)
+    pb = utils::txtProgressBar(min = 0, max = length(fpl[,1]), initial = progress, style=3)
+    utils::setTxtProgressBar(pb, progress)
   }
   
   # gereate DBconfig from first TextGrid in fpl
@@ -106,7 +106,7 @@ convert_TextGridCollection <- function(dir, dbName,
   allBundles = list()
   
   # create session entry
-  dbGetQuery(dbHandle$connection, paste0("INSERT INTO session VALUES('", dbHandle$UUID, "', '0000')"))
+  DBI::dbGetQuery(dbHandle$connection, paste0("INSERT INTO session VALUES('", dbHandle$UUID, "', '0000')"))
   
   # loop through fpl
   for(i in 1:dim(fpl)[1]){
@@ -182,7 +182,7 @@ convert_TextGridCollection <- function(dir, dbName,
     
     # update pb
     if(verbose){
-      setTxtProgressBar(pb, i)
+      utils::setTxtProgressBar(pb, i)
     }
     
   }

@@ -7,34 +7,34 @@ convert_queryResultToEmusegs<-function(emuDBhandle){
 
 
 convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL){
-  itemsTableName = "itemsFilteredTmp"
-  labelsTableName = "labelsFilteredTmp"
-  linksExtTableName = "linksExtFilteredTmp"
+  itemsTableName = "items_filtered_tmp"
+  labelsTableName = "labels_filtered_tmp"
+  linksExtTableName = "links_ext_filtered_tmp"
   
   bundles=c()
   labels=c()
   start=c()
   end=c()
   slType=NULL
-  projectionItemsN = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM intermRes_projItemsTmp_root"))$n
+  projectionItemsN = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM interm_res_proj_items_tmp_root"))$n
   if(projectionItemsN > 0){ 
     # use projection items
-    itsTableName = "intermRes_ProjItemsTmp_root"
-    seqStartIdColName = "pSeqStartId"
-    seqEndIdColName = "pSeqEndId"
-    seqLenColName = "pSeqLen"
-    levelColName = "pLevel"
+    itsTableName = "interm_res_proj_items_tmp_root"
+    seqStartIdColName = "p_seq_start_id"
+    seqEndIdColName = "p_seq_end_id"
+    seqLenColName = "p_seq_len"
+    levelColName = "p_level"
   }else{
     # use "normal" items
-    itsTableName = "intermRes_itemsTmp_root"
-    seqStartIdColName = "seqStartId"
-    seqEndIdColName = "seqEndId"
-    seqLenColName = "seqLen"
+    itsTableName = "interm_res_items_tmp_root"
+    seqStartIdColName = "seq_start_id"
+    seqEndIdColName = "seq_end_id"
+    seqLenColName = "seq_len"
     levelColName = "level"
   }
   
   # get distinct result levels
-  distinctLevels = dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT ", levelColName, " FROM ", itsTableName))
+  distinctLevels = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT ", levelColName, " FROM ", itsTableName))
   for(attrNm in distinctLevels[,levelColName]){
     
     lvlNm = get_levelNameForAttributeName(emuDBhandle, attributeName = attrNm)
@@ -57,9 +57,9 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
     
   }
   
-  itCount = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM ", itsTableName))$n
+  itCount = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM ", itsTableName))$n
   if(itCount > 0){
-    maxSeqLen = dbGetQuery(emuDBhandle$connection, paste0("SELECT max(", seqLenColName, ") AS maxSeqLen FROM ", itsTableName))$maxSeqLen
+    maxSeqLen = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT max(", seqLenColName, ") AS max_seq_len FROM ", itsTableName))$max_seq_len
   }else{
     maxSeqLen=1L
   }
@@ -68,79 +68,79 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   # for this data the information in start end item of the sequence is sufficient
   # it takes only the start and end items of the query result into account
   # the CASE WHEN THEN ELSE END terms are necessary to get the start and end samples of sequences which are not segment levels and therefore have no time information
-  linksExtFilteredCount = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM linksExtFilteredTmp"))$n
+  linksExtFilteredCount = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM links_ext_filtered_tmp"))$n
   hasLinks = (linksExtFilteredCount > 0)
 
-  # select columns: id,session,bundle,startItemId,endItemID ,type ...
-  selectStr=paste0("SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS startItemID ,e.itemID AS endItemID,r.", levelColName, ",s.type, ")
+  # select columns: id,session,bundle,start_item_id,end_item_id ,type ...
+  selectStr=paste0("SELECT s.db_uuid ,s.session,s.bundle,s.item_id AS start_item_id ,e.item_id AS end_item_id,r.", levelColName, ",s.type, ")
   
   # find sequence start position
   # use sample start of sequence start item for type SEGMENT and samplePoint for type EVENT 
   selectStr=paste0(selectStr,"CASE s.type \
-                   WHEN 'SEGMENT' THEN s.sampleStart \
-                   WHEN 'EVENT' THEN s.samplePoint ")
+                   WHEN 'SEGMENT' THEN s.sample_start \
+                   WHEN 'EVENT' THEN s.sample_point ")
   # calculate start sample for type ITEM
   if(hasLinks){
     # items of type ITEM have no (sample) time information
     # therefore we search for linked SEGMENT items and take their start sample position
-    selectStr=paste0(selectStr," ELSE (SELECT i.sampleStart FROM ", itemsTableName, " i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND ")
+    selectStr=paste0(selectStr," ELSE (SELECT i.sample_start FROM ", itemsTableName, " i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND ")
     if(!is.null(timeRefSegmentLevel)){
       selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
     }
-    selectStr=paste0(selectStr," EXISTS (SELECT * FROM ", linksExtTableName, " l WHERE s.db_uuid=s.db_uuid AND s.session=l.session AND s.bundle=l.bundle AND s.itemID=l.fromID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.itemID=l.toID AND l.toSeqIdx=0)) ")
+    selectStr=paste0(selectStr," EXISTS (SELECT * FROM ", linksExtTableName, " l WHERE s.db_uuid=s.db_uuid AND s.session=l.session AND s.bundle=l.bundle AND s.item_id=l.from_id AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.item_id=l.to_id AND l.to_seq_idx=0)) ")
   }else{
     # TODO
     # No sample start information. (throw error ?)
   }
-  selectStr=paste0(selectStr," END AS sampleStart, ")
+  selectStr=paste0(selectStr," END AS sample_start, ")
   
   # find sequence end position
   # use sample start plus sample duration of sequence end item for type SEGMENT and zero for type EVENT
-  # TODO is zero correct here ?? should it be e.samplePoint instead ??
+  # TODO is zero correct here ?? should it be e.sample_point instead ??
   selectStr=paste0(selectStr," CASE s.type \
-                   WHEN 'SEGMENT' THEN (e.sampleStart+e.sampleDur) \
+                   WHEN 'SEGMENT' THEN (e.sample_start+e.sample_dur) \
                    WHEN 'EVENT' THEN NULL ")  
   if(hasLinks){
     # items of type ITEM have no (sample) time information
     # therefore we search for linked SEGMENT items and take their end sample position
-    selectStr=paste0(selectStr," ELSE (SELECT i.sampleStart+i.sampleDur FROM ", itemsTableName, " i WHERE i.db_uuid=e.db_uuid AND i.session=e.session AND i.bundle=e.bundle AND i.type='SEGMENT' AND ")
+    selectStr=paste0(selectStr," ELSE (SELECT i.sample_start+i.sample_dur FROM ", itemsTableName, " i WHERE i.db_uuid=e.db_uuid AND i.session=e.session AND i.bundle=e.bundle AND i.type='SEGMENT' AND ")
     if(!is.null(timeRefSegmentLevel)){
       selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
     }
-    selectStr=paste0(selectStr," EXISTS (SELECT * FROM ", linksExtTableName, " l WHERE e.db_uuid=l.db_uuid AND e.session=l.session AND e.bundle=l.bundle AND e.itemID=l.fromID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.itemID=l.toID AND l.toSeqIdx+1=l.toSeqLen)) ")
+    selectStr=paste0(selectStr," EXISTS (SELECT * FROM ", linksExtTableName, " l WHERE e.db_uuid=l.db_uuid AND e.session=l.session AND e.bundle=l.bundle AND e.item_id=l.from_id AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.item_id=l.to_id AND l.to_seq_idx+1=l.to_seq_len)) ")
     
   }
-  selectStr=paste0(selectStr,"END AS sampleEnd, ")
+  selectStr=paste0(selectStr,"END AS sample_end, ")
   
   # find samplerate
   # use sample rate of sequence start item for type SEGMENT and EVENT 
   selectStr=paste0(selectStr,"CASE s.type \
-                   WHEN 'SEGMENT' THEN s.sampleRate \
-                   WHEN 'EVENT' THEN s.sampleRate ")
+                   WHEN 'SEGMENT' THEN s.sample_rate \
+                   WHEN 'EVENT' THEN s.sample_rate ")
   if(hasLinks){
     # items of type ITEM have no sample rate information
     # therefore we search for linked SEGMENT items and take their start sample position
     # TODO Can we use EVENT items as well ?
-    selectStr=paste0(selectStr," ELSE (SELECT i.sampleRate FROM ", itemsTableName, " i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND ")
+    selectStr=paste0(selectStr," ELSE (SELECT i.sample_rate FROM ", itemsTableName, " i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND ")
     if(!is.null(timeRefSegmentLevel)){
       selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
     }
-    selectStr=paste0(selectStr," EXISTS (SELECT * FROM ", linksExtTableName, " l WHERE s.itemID=l.fromID AND i.itemID=l.toID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND l.toSeqIdx=0)) ")
+    selectStr=paste0(selectStr," EXISTS (SELECT * FROM ", linksExtTableName, " l WHERE s.item_id=l.from_id AND i.item_id=l.to_id AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND l.to_seq_idx=0)) ")
     
   }else{
     # TODO no samplerate , error ??
   }
   
-  selectStr=paste0(selectStr," END AS sampleRate, ")
+  selectStr=paste0(selectStr," END AS sample_rate, ")
   
   # from clause
   fromStr=paste0("FROM ", itemsTableName, " s,", itemsTableName, " e,", itsTableName, " r, ")
   
   # where clause: make sure start and end are in same emuDB, session and bundle, select start and end id
-  whereStr=paste0("WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=", seqStartIdColName, " AND e.itemID=", seqEndIdColName ," AND e.level=s.level AND ")
+  whereStr=paste0("WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.item_id=", seqStartIdColName, " AND e.item_id=", seqEndIdColName ," AND e.level=s.level AND ")
   
   # order
-  orderStr="ORDER BY s.db_uuid,s.session,s.bundle,startItemID,endItemID"
+  orderStr="ORDER BY s.db_uuid,s.session,s.bundle,start_item_id,end_item_id"
   
   # append terms depending on maximum sequence length
   # build query for label sequence string
@@ -149,11 +149,11 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   # which are not allowed by BNF and in emuR but in fact they are working with Emu 2.3 and emuR requery may produce such results
   # result would be a mix with t->S and I items (sequence lengths 2 and 1)
   for(seqIdx in 1:maxSeqLen){
-    selectStr=paste0(selectStr, "(SELECT l.label FROM ", labelsTableName, " l WHERE l.db_uuid=i", seqIdx, ".db_uuid AND l.session=i", seqIdx, ".session AND l.bundle=i", seqIdx, ".bundle AND l.itemID=i", seqIdx, ".itemID AND l.name=r.", levelColName, ")")
+    selectStr=paste0(selectStr, "(SELECT l.label FROM ", labelsTableName, " l WHERE l.db_uuid=i", seqIdx, ".db_uuid AND l.session=i", seqIdx, ".session AND l.bundle=i", seqIdx, ".bundle AND l.item_id=i", seqIdx, ".item_id AND l.name=r.", levelColName, ")")
     
     fromStr=paste0(fromStr, itemsTableName, " i",seqIdx)
     offset=seqIdx-1
-    whereStr=paste0(whereStr, "i", seqIdx, ".db_uuid=s.db_uuid AND i", seqIdx, ".session=s.session AND i", seqIdx, ".bundle=s.bundle AND i", seqIdx ,".level=s.level AND i", seqIdx, ".seqIdx=s.seqIdx+", offset)
+    whereStr=paste0(whereStr, "i", seqIdx, ".db_uuid=s.db_uuid AND i", seqIdx, ".session=s.session AND i", seqIdx, ".bundle=s.bundle AND i", seqIdx ,".level=s.level AND i", seqIdx, ".seq_idx=s.seq_idx+", offset)
     if(seqIdx<maxSeqLen){
       selectStr=paste0(selectStr," || '->' || ")
       fromStr=paste0(fromStr,',')
@@ -167,20 +167,20 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   # convert samples to milliseconds SQL string:
   queryStrInclConvert = paste0("SELECT labels,
                        CASE type WHEN 'EVENT' THEN \
-                        CAST (sampleStart AS REAL)/ CAST( sampleRate AS REAL) * 1000.0 \
+                        CAST (sample_start AS REAL)/ CAST( sample_rate AS REAL) * 1000.0 \
                        ELSE \
-                        (CAST (sampleStart AS REAL) + 0.5 ) / CAST( sampleRate AS REAL) * 1000.0 \
+                        (CAST (sample_start AS REAL) + 0.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
                        END AS start, \
                        CASE type WHEN 'EVENT' THEN \
                          0.0
                        ELSE \
-                        (CAST (sampleEnd AS REAL) + 1.5 ) / CAST( sampleRate AS REAL) * 1000.0 \
+                        (CAST (sample_end AS REAL) + 1.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
                        END AS end, \
                        session || ':' || bundle AS utts, \
-                       db_uuid,session,bundle,startItemID,endItemID,", levelColName, " AS level,type,sampleStart,sampleEnd,sampleRate \
-                      FROM (", queryStr, ") ORDER BY db_uuid,session,bundle,sampleStart")
+                       db_uuid,session,bundle, start_item_id  AS startItemID, end_item_id AS endItemID,", levelColName, " AS level,type, sample_start AS sampleStart,sample_end AS sampleEnd,sample_rate AS sampleRate \
+                      FROM (", queryStr, ") AS qs_res ORDER BY db_uuid,session,bundle,sampleStart")
   
-  seglist = dbGetQuery(emuDBhandle$connection, queryStrInclConvert)
+  seglist = DBI::dbGetQuery(emuDBhandle$connection, queryStrInclConvert)
   
   # set emusegs type attribute, default 'segment'
   slType='segment'
@@ -190,12 +190,15 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
         slType='event'
     }
   }
-  queryStr = dbGetQuery(emuDBhandle$connection, "SELECT queryStr FROM intermRes_metaInfosTmp_root")$queryStr
+  queryStr = DBI::dbGetQuery(emuDBhandle$connection, "SELECT query_str FROM interm_res_meta_infos_tmp_root")$query_str
   segmentList=make.emuRsegs(dbName = emuDBhandle$dbName, seglist = seglist, query = queryStr, type = slType)
   return(segmentList)
 }
 
 
+##################################
+##################################
+##################################
 # convert to emuRsegs segemnt list, variable sequenec length of input allowed
 convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL){
   its=NULL
@@ -206,10 +209,10 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
   end=c()
   slType=NULL
   
-  itsTableName = "intermRes_itemsTmp_root"
+  itsTableName = "interm_res_items_tmp_root"
   
   # get distinct result levels
-  distinctLevels=dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT level FROM ", itsTableName))
+  distinctLevels=DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT level FROM ", itsTableName))
   for(attrNm in distinctLevels[,'level']){
     lvlNm=get_levelNameForAttributeName(emuDBhandle,attributeName = attrNm)
     ld=get_levelDefinition(emuDBhandle, name = lvlNm)
@@ -233,19 +236,19 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
   
   
   # itCount=nrow(its)
-  itCount = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS N FROM ", itsTableName))$N
+  itCount = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS N FROM ", itsTableName))$N
   if(itCount==0){
-    its=data.frame(db_uuid=character(0),session=character(0),bundle=character(0),seqStartId=integer(0),seqEndId=integer(0),seqLen=integer(0),level=character(0),stringsAsFactors = FALSE)
+    its=data.frame(db_uuid=character(0),session=character(0),bundle=character(0),seq_start_id=integer(0),seq_end_id=integer(0),seq_len=integer(0),level=character(0),stringsAsFactors = FALSE)
   }
 
   if(itCount>0){
-    maxSeqLenDf=dbGetQuery(emuDBhandle$connection, paste0("SELECT max(seqLen) AS maxSeqLen FROM ", itsTableName))
+    maxSeqLenDf=DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT max(seq_len) AS maxSeqLen FROM ", itsTableName))
     maxSeqLen=maxSeqLenDf[1,'maxSeqLen']
     
     # for string conacatenation: we need all occuring seq lengths 
     # distinct sequence lengths
-    # distinctSeqLens=sqldf(c(resIdxSql,"SELECT DISTINCT seqLen FROM its"))
-    distinctSeqLens = dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT seqLen FROM ", itsTableName))
+    # distinctSeqLens=sqldf(c(resIdxSql,"SELECT DISTINCT seq_len FROM its"))
+    distinctSeqLens = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT seq_len FROM ", itsTableName))
   }else{
     maxSeqLen=1L
   }
@@ -255,83 +258,83 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
   # for this data the information in start end item of the sequence is sufficient
   # it takes only the start  and end items of the query result in account
   # the CASE WHEN THEN ELSE END terms are necessary to get the start and end samples of sequences which are not segment levels and therefore have no time information  
-  hasLinks = dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM linksExt"))$n > 0
+  hasLinks = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM links_ext"))$n > 0
   
 
-  # select columns: id,session,bundle,startItemId,endItemID ,type ...
-  selectStr=paste0("SELECT s.db_uuid ,s.session,s.bundle,s.itemID AS startItemID ,e.itemID AS endItemID, r.level, s.type, ")
+  # select columns: id,session,bundle,start_item_id,end_item_id ,type ...
+  selectStr=paste0("SELECT s.db_uuid ,s.session,s.bundle,s.item_id AS start_item_id ,e.item_id AS end_item_id, r.level, s.type, ")
   
   # find sequence start position
-  # use sample start of sequence start item for type SEGMENT and samplePoint for type EVENT 
+  # use sample start of sequence start item for type SEGMENT and sample_point for type EVENT 
   selectStr=paste0(selectStr,"CASE s.type \
-                   WHEN 'SEGMENT' THEN s.sampleStart \
-                   WHEN 'EVENT' THEN s.samplePoint ")
+                   WHEN 'SEGMENT' THEN s.sample_start \
+                   WHEN 'EVENT' THEN s.sample_point ")
   # calculate start sample for type ITEM
   if(hasLinks){
     # items of type ITEM have no (sample) time information
     # therefore we search for linked SEGMENT items and take their start sample position
-    selectStr=paste0(selectStr," ELSE (SELECT i.sampleStart FROM items i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND ")
+    selectStr=paste0(selectStr," ELSE (SELECT i.sample_start FROM items i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND ")
     if(!is.null(timeRefSegmentLevel)){
       selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
     }
-    selectStr=paste0(selectStr," EXISTS (SELECT * FROM linksExt l WHERE s.db_uuid=s.db_uuid AND s.session=l.session AND s.bundle=l.bundle AND s.itemID=l.fromID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.itemID=l.toID AND l.toSeqIdx=0)) ")
+    selectStr=paste0(selectStr," EXISTS (SELECT * FROM links_ext l WHERE s.db_uuid=s.db_uuid AND s.session=l.session AND s.bundle=l.bundle AND s.item_id=l.from_id AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.item_id=l.to_id AND l.to_seq_idx=0)) ")
   }else{
     # TODO
     # No sample start information. (throw error ?)
   }
-  selectStr=paste0(selectStr," END AS sampleStart, ")
+  selectStr=paste0(selectStr," END AS sample_start, ")
   
   # find sequence end position
   # use sample start plus sample duration of sequence end item for type SEGMENT and zero for type EVENT
   # TODO is zero correct here ?? should it be e.samplePoint instead ??
   selectStr=paste0(selectStr," CASE s.type \
-                   WHEN 'SEGMENT' THEN (e.sampleStart+e.sampleDur) \
+                   WHEN 'SEGMENT' THEN (e.sample_start+e.sample_dur) \
                    WHEN 'EVENT' THEN NULL ")  
   if(hasLinks){
     # items of type ITEM have no (sample) time information
     # therefore we search for linked SEGMENT items and take their end sample position
     
-    selectStr=paste0(selectStr," ELSE (SELECT i.sampleStart+i.sampleDur FROM items i WHERE i.db_uuid=e.db_uuid AND i.session=e.session AND i.bundle=e.bundle AND i.type='SEGMENT' AND ")
+    selectStr=paste0(selectStr," ELSE (SELECT i.sample_start+i.sample_dur FROM items i WHERE i.db_uuid=e.db_uuid AND i.session=e.session AND i.bundle=e.bundle AND i.type='SEGMENT' AND ")
     if(!is.null(timeRefSegmentLevel)){
       selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
     }
-    selectStr=paste0(selectStr," EXISTS (SELECT * FROM linksExt l WHERE e.db_uuid=l.db_uuid AND e.session=l.session AND e.bundle=l.bundle AND e.itemID=l.fromID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.itemID=l.toID AND l.toSeqIdx+1=l.toSeqLen)) ")
+    selectStr=paste0(selectStr," EXISTS (SELECT * FROM links_ext l WHERE e.db_uuid=l.db_uuid AND e.session=l.session AND e.bundle=l.bundle AND e.item_id=l.from_id AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND i.item_id=l.to_id AND l.to_seq_idx+1=l.to_seq_len)) ")
     
   }
-  selectStr=paste0(selectStr,"END AS sampleEnd, ")
+  selectStr=paste0(selectStr,"END AS sample_end, ")
   
   # find samplerate
   # use sample rate of sequence start item for type SEGMENT and EVENT 
   selectStr=paste0(selectStr,"CASE s.type \
-                   WHEN 'SEGMENT' THEN s.sampleRate \
-                   WHEN 'EVENT' THEN s.sampleRate ")
+                   WHEN 'SEGMENT' THEN s.sample_rate \
+                   WHEN 'EVENT' THEN s.sample_rate ")
   if(hasLinks){
     # items of type ITEM have no sample rate information
     # therefore we search for linked SEGMENT items and take their start sample position
     # TODO Can we use EVENT items as well ?
-    selectStr=paste0(selectStr," ELSE (SELECT i.sampleRate FROM items i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND ")
+    selectStr=paste0(selectStr," ELSE (SELECT i.sample_rate FROM items i WHERE i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.type='SEGMENT' AND ")
     if(!is.null(timeRefSegmentLevel)){
       selectStr=paste0(selectStr," i.level='",timeRefSegmentLevel,"' AND ")
     }
-    selectStr=paste0(selectStr," EXISTS (SELECT * FROM linksExt l WHERE s.itemID=l.fromID AND i.itemID=l.toID AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND l.toSeqIdx=0)) ")
+    selectStr=paste0(selectStr," EXISTS (SELECT * FROM links_ext l WHERE s.item_id=l.from_id AND i.item_id=l.to_id AND i.db_uuid=l.db_uuid AND i.session=l.session AND i.bundle=l.bundle AND l.to_seq_idx=0)) ")
     
   }else{
     # TODO no samplerate , error ??
   }
   
-  selectStr=paste0(selectStr," END AS sampleRate, ")
+  selectStr=paste0(selectStr," END AS sample_rate, ")
   
   # from clause
   fromStr=paste0("FROM items s,items e,", itsTableName, " r ")
   
   # where clause: make sure start and end are in same emuDB, session and bundle, select start and end id
-  whereStr=paste0("WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.itemID=r.seqStartId AND e.itemID=r.seqEndId AND e.level=s.level ")
+  whereStr=paste0("WHERE e.db_uuid=s.db_uuid AND e.session=s.session AND e.bundle=s.bundle AND r.db_uuid=s.db_uuid AND r.session=s.session AND r.bundle=s.bundle AND s.item_id=r.seq_start_id AND e.item_id=r.seq_end_id AND e.level=s.level ")
   
   # order
-  orderStr="ORDER BY s.db_uuid,s.session,s.bundle,startItemID,endItemID"
+  orderStr="ORDER BY s.db_uuid,s.session,s.bundle,start_item_id,end_item_id"
   
   if(itCount>0){
-    selectStr=paste0(selectStr," CASE r.seqLen ")
+    selectStr=paste0(selectStr," CASE r.seq_len ")
     distinctSeqLensLength=nrow(distinctSeqLens)
     # for each seq len, which occurs in the input segment list
     for(si in 1:distinctSeqLensLength){
@@ -341,10 +344,10 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
       # emuR hierachical requery produces results with differnet seq lengths per row
       selectStr=paste0(selectStr,"WHEN ",seqLen," THEN ")
       for(seqIdx in 1:seqLen){
-        selectStr=paste0(selectStr,'(SELECT l.label FROM labels l,items i WHERE l.db_uuid=i.db_uuid AND l.session=i.session AND l.bundle=i.bundle AND l.itemID=i.itemID AND l.name=r.level AND ')
+        selectStr=paste0(selectStr,'(SELECT l.label FROM labels l,items i WHERE l.db_uuid=i.db_uuid AND l.session=i.session AND l.bundle=i.bundle AND l.item_id=i.item_id AND l.name=r.level AND ')
         
         offset=seqIdx-1
-        selectStr=paste0(selectStr,'i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.level=s.level AND i.seqIdx=s.seqIdx+',offset,")")
+        selectStr=paste0(selectStr,'i.db_uuid=s.db_uuid AND i.session=s.session AND i.bundle=s.bundle AND i.level=s.level AND i.seq_idx=s.seq_idx+',offset,")")
         if(seqIdx<seqLen){
           selectStr=paste0(selectStr," || '->' || ")
         }
@@ -357,20 +360,20 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
   queryStr=paste(selectStr,fromStr,whereStr,orderStr,sep = ' ')
   
   # convert samples to milliseconds using SQL:
-  seglist=dbGetQuery(emuDBhandle$connection, paste0("SELECT \
+  seglist=DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT \
                        labels,
                        CASE type WHEN 'EVENT' THEN \
-                        CAST (sampleStart AS REAL)/ CAST( sampleRate AS REAL) * 1000.0 \
+                        CAST (sample_start AS REAL)/ CAST( sample_rate AS REAL) * 1000.0 \
                        ELSE \
-                        (CAST (sampleStart AS REAL) + 0.5 ) / CAST( sampleRate AS REAL) * 1000.0 \
+                        (CAST (sample_start AS REAL) + 0.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
                        END AS start, \
                        CASE type WHEN 'EVENT' THEN \
                          0.0
                        ELSE \
-                        (CAST (sampleEnd AS REAL) + 1.5 ) / CAST( sampleRate AS REAL) * 1000.0 \
+                        (CAST (sample_end AS REAL) + 1.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
                        END AS end, \
                        session || ':' || bundle AS utts, \
-                       db_uuid,session,bundle,startItemID,endItemID,level,type,sampleStart,sampleEnd,sampleRate \
+                       db_uuid,session,bundle, start_item_id AS startItemID, end_item_id AS endItemID,level,type,sample_start AS sampleStart,sample_end AS sampleEnd,sample_rate AS sampleRate\
                       FROM (", queryStr, ")"))
   
   # set emusegs type attribute, default 'segment'

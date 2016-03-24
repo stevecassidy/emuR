@@ -2,7 +2,7 @@
 emuDBhandle = function(dbName, basePath, UUID, connectionPath, connection=NULL){
   
   if(is.null(connection)){
-    con <- dbConnect(RSQLite::SQLite(), connectionPath)
+    con <- DBI::dbConnect(RSQLite::SQLite(), connectionPath)
   }else{
     con = connection
   }
@@ -13,11 +13,22 @@ emuDBhandle = function(dbName, basePath, UUID, connectionPath, connection=NULL){
                 connection = con)
   
   class(handle) = "emuDBhandle"
+  
+  if(class(handle$connection) == "SQLiteConnection"){
+    setSQLitePragmas(handle$connection)
+  }
+  
   if(connectionPath == ":memory:" || file.exists(file.path(basePath, paste0(dbName, database.cache.suffix))) || !is.null(connection)){
     initialize_emuDbDBI(handle)
   }
   
+  
+  
   return(handle)
+}
+
+setSQLitePragmas <- function(con){
+  DBI::dbGetQuery(con, "PRAGMA foreign_keys = ON;")
 }
 
 ##' @export
@@ -42,10 +53,10 @@ summary.emuDBhandle = function(object, ...){
   cat("Bundle count:", nrow(bndls), "\n")
   
   itCntQ = paste0("SELECT count(*) FROM items WHERE db_uuid='", object$UUID, "'")
-  itCntDf = dbGetQuery(object$connection, itCntQ)
+  itCntDf = DBI::dbGetQuery(object$connection, itCntQ)
   itemCnt = itCntDf[[1]]
   liCntQ = paste0("SELECT count(*) FROM links WHERE db_uuid='", object$UUID, "'")
-  liCntDf = dbGetQuery(object$connection, liCntQ)
+  liCntDf = DBI::dbGetQuery(object$connection, liCntQ)
   linkCnt = liCntDf[[1]]
   cat("Annotation item count: ", itemCnt, ", links count: ", linkCnt, "\n")
   cat("\nDatabase configuration:\n\n")

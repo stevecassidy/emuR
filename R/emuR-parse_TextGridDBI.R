@@ -162,7 +162,7 @@ parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encodi
                   # find size (and other properties)
                   if((is.null(currentTierSize)) && (length(grep('^intervals[[:space:]]*:.*',line))==1)){
                     
-                    intervalsPropertyStr=str_trim(sub('^intervals[[:space:]]*:','',line))
+                    intervalsPropertyStr=stringr::str_trim(sub('^intervals[[:space:]]*:','',line))
                     intervalsProperty=parse_lineToKeyValue(intervalsPropertyStr,initialTrim=FALSE);
                     if((!is.null(intervalsProperty)) && (intervalsProperty[1]=='size')){
                       currentTierSize=intervalsProperty[2]
@@ -208,7 +208,7 @@ parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encodi
                         
                         
                         # item entry:
-                        dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', '", itemCounterGlobal, 
+                        DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', '", itemCounterGlobal, 
                                                                    "', '", currentTierName, "', '", "SEGMENT", 
                                                                    "', ", itemCounterLevel, ", ", sampleRate, ", ", "NULL", ", ", currentSegmentStart, 
                                                                    ", ", sampleDur, ")"))
@@ -216,7 +216,7 @@ parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encodi
                         
                         
                         # label entry:
-                        dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO labels VALUES","('", 
+                        DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labels VALUES","('", 
                                                                    emuDBhandle$UUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
                                                                    ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentSegmentLabel), "')"))
                         
@@ -241,7 +241,7 @@ parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encodi
                   # find size (and other properties)
                   if((is.null(currentTierSize)) && (length(grep('^points[[:space:]]*[:].*',line))==1)){
                     
-                    intervalsPropertyStr=str_trim(sub('^points[[:space:]]*[:]','',line))
+                    intervalsPropertyStr=stringr::str_trim(sub('^points[[:space:]]*[:]','',line))
                     intervalsProperty=parse_lineToKeyValue(intervalsPropertyStr, initialTrim=FALSE);
                     if((!is.null(intervalsProperty)) && (intervalsProperty[1]=='size')){
                       currentTierSize=intervalsProperty[2]
@@ -279,14 +279,14 @@ parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encodi
                       itemId = paste0(emuDBhandle$dbName, '_', session, '_', bundle, '_', itemCounterGlobal)
                       
                       
-                      dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
+                      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
                                                                  itemCounterGlobal, ", '", currentTierName,"', '", "EVENT", 
                                                                  "', ", itemCounterLevel, ", ", sampleRate, ", ", currentPointSample, ", ", "NULL", 
                                                                  ", ", "NULL", ")"))
                       
                       
                       # label entry:
-                      dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO labels VALUES","('", 
+                      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labels VALUES","('", 
                                                                  emuDBhandle$UUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
                                                                  ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentPointLabel), "')"))              
                       
@@ -332,18 +332,18 @@ TextGridToBundleAnnotDFs <- function(tgPath, sampleRate, name, annotates){
   nrOfItems = length(grep("text|mark\\s*=", lines))
   
   # init data frames and preallocate enough rows
-  items = data.frame(itemID = integer(nrOfItems), 
+  items = data.frame(item_id = integer(nrOfItems), 
                      level = character(nrOfItems),
                      type = character(nrOfItems),
-                     seqIdx = integer(nrOfItems),
-                     sampleRate = numeric(nrOfItems),
-                     samplePoint = integer(nrOfItems),
-                     sampleStart = integer(nrOfItems),
-                     sampleDur = integer(nrOfItems),
+                     seq_idx = integer(nrOfItems),
+                     sample_rate = numeric(nrOfItems),
+                     sample_point = integer(nrOfItems),
+                     sample_start = integer(nrOfItems),
+                     sample_dur = integer(nrOfItems),
                      stringsAsFactors = F)
   
-  labels = data.frame(itemID = integer(nrOfItems),
-                      labelIdx = integer(nrOfItems),
+  labels = data.frame(item_id = integer(nrOfItems),
+                      label_idx = integer(nrOfItems),
                       name = character(nrOfItems),
                       label = character(nrOfItems),
                       stringsAsFactors = F)
@@ -379,23 +379,23 @@ TextGridToBundleAnnotDFs <- function(tgPath, sampleRate, name, annotates){
       sampleDurs = endSamples - startSamples - 1
       
       # insert in data frames  
-      items[maxItemID:(maxItemID + length(xminTimes) - 1), ]  = data.frame(itemID = maxItemID:(maxItemID + length(xminTimes) - 1), 
+      items[maxItemID:(maxItemID + length(xminTimes) - 1), ]  = data.frame(item_id = maxItemID:(maxItemID + length(xminTimes) - 1), 
                                                                            level = rep(levelName, length(xminTimes)),
                                                                            type = rep("SEGMENT", length(xminTimes)),
-                                                                           seqIdx = 1:length(xminTimes),
-                                                                           sampleRate = rep(sampleRate, length(xminTimes)),
-                                                                           samplePoint = NA,
-                                                                           sampleStart = startSamples,
-                                                                           sampleDur = sampleDurs,
+                                                                           seq_idx = 1:length(xminTimes),
+                                                                           sample_rate = rep(sampleRate, length(xminTimes)),
+                                                                           sample_point = NA,
+                                                                           sample_start = startSamples,
+                                                                           sample_dur = sampleDurs,
                                                                            stringsAsFactors = F)
       
-      labels[maxItemID:(maxItemID + length(xminTimes) - 1), ] = data.frame(itemID = maxItemID:(maxItemID + length(xminTimes) - 1),
-                                                                           labelIdx = rep(1, length(xminTimes)),
+      labels[maxItemID:(maxItemID + length(xminTimes) - 1), ] = data.frame(item_id = maxItemID:(maxItemID + length(xminTimes) - 1),
+                                                                           label_idx = rep(1, length(xminTimes)),
                                                                            name = rep(levelName, length(xminTimes)),
                                                                            label = texts,
                                                                            stringsAsFactors = F)
       
-      maxItemID = max(items$itemID) + 1
+      maxItemID = max(items$item_id) + 1
       
     }else if(grepl("TextTier", tierHeader[1])){
       levelName = sub('\\"\\s*$', "", sub('^\\s*name\\s*=\\s*\\"', "", tierHeader[grepl("name", tierHeader)], perl = T), perl = T)
@@ -406,23 +406,23 @@ TextGridToBundleAnnotDFs <- function(tgPath, sampleRate, name, annotates){
       samplePoints = floor(pointsTimes * sampleRate)
       
       # create data frames
-      items[maxItemID:(maxItemID + length(samplePoints) - 1), ] = data.frame(itemID = maxItemID:(maxItemID + length(pointsTimes) - 1), 
+      items[maxItemID:(maxItemID + length(samplePoints) - 1), ] = data.frame(item_id = maxItemID:(maxItemID + length(pointsTimes) - 1), 
                          level = rep(levelName, length(pointsTimes)),
                          type = rep("EVENT", length(pointsTimes)),
-                         seqIdx = 1:length(pointsTimes),
-                         sampleRate = rep(sampleRate, length(pointsTimes)),
-                         samplePoint = samplePoints,
-                         sampleStart = NA,
-                         sampleDur = NA,
+                         seq_idx = 1:length(pointsTimes),
+                         sample_rate = rep(sampleRate, length(pointsTimes)),
+                         sample_point = samplePoints,
+                         sample_start = NA,
+                         sample_dur = NA,
                          stringsAsFactors = F)
       
-      labels[maxItemID:(maxItemID + length(samplePoints) - 1), ] = data.frame(itemsID = maxItemID:(maxItemID + length(pointsTimes) - 1),
-                          labelIdx = rep(1, length(pointsTimes)),
+      labels[maxItemID:(maxItemID + length(samplePoints) - 1), ] = data.frame(items_id = maxItemID:(maxItemID + length(pointsTimes) - 1),
+                          label_idx = rep(1, length(pointsTimes)),
                           name = rep(levelName, length(pointsTimes)),
                           label = marks,
                           stringsAsFactors = F)
       
-      maxItemID = max(items$itemID) + 1
+      maxItemID = max(items$item_id) + 1
       
     }else{
       stop("Found Tier that does not have a class definition 'IntervalTier' or 'TextTier'. This probably means it is a mal formated TextGrid file. Problem file is: ", tgPath)
@@ -430,7 +430,7 @@ TextGridToBundleAnnotDFs <- function(tgPath, sampleRate, name, annotates){
     
   }
   
-  links = data.frame(bundle = character(), fromID = integer(), toID = integer(), label = character(), stringsAsFactors = F)
+  links = data.frame(bundle = character(), from_id = integer(), to_id = integer(), label = character(), stringsAsFactors = F)
   
   return(list(name = name, annotates = annotates, sampleRate = sampleRate, items = items, links = links, labels = labels))
 }

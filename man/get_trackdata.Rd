@@ -65,7 +65,10 @@ SSFF/audio file handling. It reads time relevant data from a given
 segment list (\code{\link{emuRsegs}} or \code{\link{emusegs}}), extracts the 
 specified trackdata and places it into a 
 trackdata object (analogous to the depricated \code{emu.track}). This function
-replaces the deprecated \code{emu.track} function. For 
+replaces the deprecated \code{emu.track} function. Note that a error is thrown
+if the bundles in the \code{\link{emuRsegs}} or \code{\link{emusegs}} object 
+have in-homogeneous sampling rates as this will lead to inconsistent/erroneous
+\code{\link{trackdata}} or \code{\link{emuRtrackdata}} result objects. For 
 more information on the structural elements of an emuDB 
 see \code{vignette{emuDB}}.
 }

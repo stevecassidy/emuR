@@ -78,7 +78,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
   
   if(convertSuperlevel){
     # check if backup links exist
-    res = dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM items ", 
+    res = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM items ", 
                                             "WHERE db_uuid ='", emuDBhandle$UUID, "' ",
                                             "  AND level = '", paste0(superlevelName, backupLevelAppendStr), "'"))
     
@@ -94,13 +94,13 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
     
     # backup labels belonging to superlevel (labels have to be backed up before items to avoid maxID problem (maybe should rewrite query to avoid this in future versions using labels table to determin
     # maxID))
-    qRes = dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labels ",
-                                                   "SELECT '", emuDBhandle$UUID, "', lt.session, lt.bundle, lt.itemID + bndlMaxValue AS itemID, labelIdx, lt.name || '", backupLevelAppendStr, "' AS name, label FROM ",
+    qRes = DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labels ",
+                                                   "SELECT '", emuDBhandle$UUID, "', lt.session, lt.bundle, lt.item_id + bndlMaxValue AS item_id, label_idx, lt.name || '", backupLevelAppendStr, "' AS name, label FROM ",
                                                    "(SELECT * FROM ",
                                                    "  items AS it",
                                                    "  JOIN ",
                                                    "  (",
-                                                   "   SELECT db_uuid, session, bundle, MAX(itemID) AS 'bndlMaxValue'",
+                                                   "   SELECT db_uuid, session, bundle, MAX(item_id) AS 'bndlMaxValue'",
                                                    "   FROM items GROUP BY bundle",
                                                    "  ) AS maxIdRes",
                                                    " WHERE it.db_uuid = maxIdRes.db_uuid ",
@@ -112,15 +112,15 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
                                                    "WHERE lt.db_uuid=tmp.db_uuid ",
                                                    "  AND lt.session=tmp.session ",
                                                    "  AND lt.bundle=tmp.bundle ",
-                                                   "  AND lt.itemID=tmp.itemID"))
+                                                   "  AND lt.item_id=tmp.item_id"))
     
     
     # backup items belonging to superlevel (=duplicate level with new ids)    
-    qRes = dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items ",
-                                                   "SELECT '", emuDBhandle$UUID, "', it.session, it.bundle, it.itemID + bndlMaxValue AS itemID, it.level || '", backupLevelAppendStr, "' AS level, it.type, it.seqIdx, it.sampleRate, it.samplePoint, it.sampleStart, it.sampleDur FROM ",
+    qRes = DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items ",
+                                                   "SELECT '", emuDBhandle$UUID, "', it.session, it.bundle, it.item_id + bndlMaxValue AS item_id, it.level || '", backupLevelAppendStr, "' AS level, it.type, it.seq_idx, it.sample_rate, it.sample_point, it.sample_start, it.sample_dur FROM ",
                                                    "items AS it ",
                                                    "JOIN ",
-                                                   "(SELECT db_uuid, session, bundle, MAX(itemID) AS 'bndlMaxValue' FROM ",
+                                                   "(SELECT db_uuid, session, bundle, MAX(item_id) AS 'bndlMaxValue' FROM ",
                                                    "  items GROUP BY bundle ", 
                                                    ") as maxIdRes ",
                                                    "WHERE it.db_uuid = maxIdRes.db_uuid ",
@@ -131,57 +131,57 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
   # query DB depending on type of sublevelDefinition 
   if(foundSubLevelDev$type == 'EVENT'){
     
-    dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, from_id, to_id)",
                                        " SELECT * FROM",
-                                       " (SELECT super.db_uuid, super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
+                                       " (SELECT super.db_uuid, super.session, super.bundle, super.item_id AS 'from_id', sub.item_id AS 'to_id'", 
                                        " FROM items AS 'super' JOIN items AS 'sub' ",
                                        " WHERE super.level = '", superlevelName, "'", " AND sub.level = '", sublevelName, "'", 
                                        " AND super.db_uuid = '", emuDBhandle$UUID, "' AND sub.db_uuid = '", emuDBhandle$UUID, "'",
                                        " AND super.session = sub.session", " AND super.bundle = sub.bundle",
-                                       " AND (sub.samplePoint + 0 >= super.sampleStart + 0) AND sub.samplePoint <= (super.sampleStart + super.sampleDur)) AS res", # + 0 added to ensure numeric comparison
-                                       " WHERE NOT EXISTS (SELECT lt.fromID, lt.toID FROM links lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.fromID = res.fromID AND lt.toID = res.toID)"))
+                                       " AND (sub.sample_point + 0 >= super.sample_start + 0) AND sub.sample_point <= (super.sample_start + super.sample_dur)) AS res", # + 0 added to ensure numeric comparison
+                                       " WHERE NOT EXISTS (SELECT lt.from_id, lt.to_id FROM links lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.from_id = res.from_id AND lt.to_id = res.to_id)"))
     
   }else{
     
     if(ld$type == "ONE_TO_MANY"){
       
-      dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
+      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, from_id, to_id)",
                                                " SELECT * FROM",
-                                               " (SELECT super.db_uuid, super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
+                                               " (SELECT super.db_uuid, super.session, super.bundle, super.item_id AS 'from_id', sub.item_id AS 'to_id'", 
                                                " FROM items as super JOIN items as sub",
                                                " WHERE (super.level = '", superlevelName, "'", " AND sub.level = '", sublevelName, "'", 
                                                " AND super.db_uuid = '", emuDBhandle$UUID, "' AND sub.db_uuid = '", emuDBhandle$UUID, "'",
                                                " AND super.session = sub.session AND super.bundle = sub.bundle",
-                                               " AND (sub.sampleStart + 0 >= super.sampleStart + 0)) AND ((sub.sampleStart + sub.sampleDur) <= (super.sampleStart + super.sampleDur))) AS res", # + 0 added to ensure numeric comparison
-                                               " WHERE NOT EXISTS (SELECT lt.fromID, lt.toID FROM links lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.fromID = res.fromID AND lt.toID = res.toID)"))
+                                               " AND (sub.sample_start + 0 >= super.sample_start + 0)) AND ((sub.sample_start + sub.sample_dur) <= (super.sample_start + super.sample_dur))) AS res", # + 0 added to ensure numeric comparison
+                                               " WHERE NOT EXISTS (SELECT lt.from_id, lt.to_id FROM links lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.from_id = res.from_id AND lt.to_id = res.to_id)"))
       
     }else if(ld$type == "MANY_TO_MANY"){
       
-      dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
+      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, from_id, to_id)",
                                                " SELECT * FROM",
-                                               " (SELECT super.db_uuid, super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
+                                               " (SELECT super.db_uuid, super.session, super.bundle, super.item_id AS 'from_id', sub.item_id AS 'to_id'", 
                                                " FROM items as super JOIN items as sub",
                                                " WHERE super.level = '", superlevelName, "'", " AND sub.level = '", sublevelName, "'", 
                                                " AND super.db_uuid = '", emuDBhandle$UUID, "' AND sub.db_uuid = '", emuDBhandle$UUID, "'",
                                                " AND super.session = sub.session AND super.bundle = sub.bundle",
-                                               " AND (((sub.sampleStart + 0 >= super.sampleStart + 0) AND ((sub.sampleStart + sub.sampleDur) <= (super.sampleStart + super.sampleDur)))", # within
-                                               " OR ((sub.sampleStart + 0 <= super.sampleStart + 0) AND ((sub.sampleStart + sub.sampleDur) >= (super.sampleStart + 0)) AND ((sub.sampleStart + sub.sampleDur) <= (super.sampleStart + super.sampleDur)))", # left overlap
-                                               " OR ((sub.sampleStart + 0 >= super.sampleStart + 0) AND ((sub.sampleStart + 0) <= (super.sampleStart + super.sampleDur)) AND ((sub.sampleStart + sub.sampleDur) >= (super.sampleStart + super.sampleDur)))", # right overlap
-                                               " OR ((sub.sampleStart + 0 <= super.sampleStart + 0) AND ((sub.sampleStart + sub.sampleDur) >= (super.sampleStart + super.sampleDur)))", # left and right overlap
+                                               " AND (((sub.sample_start + 0 >= super.sample_start + 0) AND ((sub.sample_start + sub.sample_dur) <= (super.sample_start + super.sample_dur)))", # within
+                                               " OR ((sub.sample_start + 0 <= super.sample_start + 0) AND ((sub.sample_start + sub.sample_dur) >= (super.sample_start + 0)) AND ((sub.sample_start + sub.sample_dur) <= (super.sample_start + super.sample_dur)))", # left overlap
+                                               " OR ((sub.sample_start + 0 >= super.sample_start + 0) AND ((sub.sample_start + 0) <= (super.sample_start + super.sample_dur)) AND ((sub.sample_start + sub.sample_dur) >= (super.sample_start + super.sample_dur)))", # right overlap
+                                               " OR ((sub.sample_start + 0 <= super.sample_start + 0) AND ((sub.sample_start + sub.sample_dur) >= (super.sample_start + super.sample_dur)))", # left and right overlap
                                                ")) AS res", # right overlap
-                                               " WHERE NOT EXISTS (SELECT lt.fromID, lt.toID FROM links lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.fromID = res.fromID AND lt.toID = res.toID)"))
+                                               " WHERE NOT EXISTS (SELECT lt.from_id, lt.to_id FROM links lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.from_id = res.from_id AND lt.to_id = res.to_id)"))
       
     }else if(ld$type == "ONE_TO_ONE"){
       
-      dbSendQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, fromID, toID)",
+      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links (db_uuid, session, bundle, from_id, to_id)",
                                                " SELECT * FROM",
-                                               " (SELECT super.db_uuid, super.session, super.bundle, super.itemID AS 'fromID', sub.itemID AS 'toID'", 
+                                               " (SELECT super.db_uuid, super.session, super.bundle, super.item_id AS 'from_id', sub.item_id AS 'to_id'", 
                                                " FROM items as super JOIN items as sub",
                                                " WHERE (super.level = '", superlevelName, "'", " AND sub.level = '", sublevelName, "'", 
                                                " AND super.db_uuid = '", emuDBhandle$UUID, "' AND sub.db_uuid = '", emuDBhandle$UUID, "'",
                                                " AND super.session = sub.session AND super.bundle = sub.bundle",
-                                               " AND (sub.sampleStart + 0 = super.sampleStart + 0)) AND ((sub.sampleStart + sub.sampleDur) = (super.sampleStart + super.sampleDur))) AS res", # are exatly the same
-                                               " WHERE NOT EXISTS (SELECT lt.fromID, lt.toID FROM links lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.fromID = res.fromID AND lt.toID = res.toID)"))
+                                               " AND (sub.sample_start + 0 = super.sample_start + 0)) AND ((sub.sample_start + sub.sample_dur) = (super.sample_start + super.sample_dur))) AS res", # are exatly the same
+                                               " WHERE NOT EXISTS (SELECT lt.from_id, lt.to_id FROM links lt WHERE lt.session = res.session AND lt.bundle = res.bundle AND lt.from_id = res.from_id AND lt.to_id = res.to_id)"))
       
     }
   }
@@ -202,8 +202,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
     dbConfig$levelDefinitions[[length(dbConfig$levelDefinitions) + 1]] = foundSuperLevelDev
     
     # convert superlevel to ITEM level
-    res = dbSendQuery(emuDBhandle$connection, paste0("UPDATE items SET type = 'ITEM', samplePoint = null, sampleStart = null, sampleDur = null WHERE db_uuid='", emuDBhandle$UUID, "' AND level ='", superlevelName,"'"))
-    dbClearResult(res)
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE items SET type = 'ITEM', sample_point = null, sample_start = null, sample_dur = null WHERE db_uuid='", emuDBhandle$UUID, "' AND level ='", superlevelName,"'"))
   }
   
   # rebuild redundant links and
@@ -223,8 +222,8 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
   for(i in 1:nrow(bndls)){
     curBndl = bndls[i,]
     annotJSONfilePath = file.path(emuDBhandle$basePath, paste0(curBndl$session, session.suffix), paste0(curBndl$name, bundle.dir.suffix), paste0(curBndl$name, bundle.annotation.suffix, ".json"))
-    newMD5sum = md5sum(annotJSONfilePath)                        
-    dbGetQuery(emuDBhandle$connection, paste0("UPDATE bundle SET MD5annotJSON = '", newMD5sum, "' WHERE db_uuid ='", emuDBhandle$UUID, "' AND session='", curBndl$session, "' AND name='", curBndl$name, "'"))
+    newMD5sum = tools::md5sum(annotJSONfilePath)                        
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE bundle SET md5_annot_json = '", newMD5sum, "' WHERE db_uuid ='", emuDBhandle$UUID, "' AND session='", curBndl$session, "' AND name='", curBndl$name, "'"))
   }
   
 }

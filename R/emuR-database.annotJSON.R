@@ -3,8 +3,6 @@
 
 # convert annotJSON to list of data.frames including 
 # meta information (name, annotates, samplerate)
-#' @importFrom tidyjson as.tbl_json
-#' @importFrom dplyr select_
 annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
   
   json = tidyjson::as.tbl_json(annotJSONchar)
@@ -18,7 +16,8 @@ annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
     tidyjson::enter_object("links") %>%
     tidyjson::gather_array()  %>%
     tidyjson::spread_values(fromID = tidyjson::jstring("fromID"), toID = tidyjson::jstring("toID")) %>%
-    dplyr::select_(~fromID, ~toID)
+    dplyr::select_(~fromID, ~toID) %>%
+    dplyr::rename_("from_id" = "fromID", "to_id" = "toID")
   
   # gen. items list of data.frame
   items = json %>%
@@ -27,10 +26,11 @@ annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
     tidyjson::gather_array()  %>%
     tidyjson::spread_values(level = tidyjson::jstring("name"), type = tidyjson::jstring("type")) %>%
     tidyjson::enter_object("items") %>%
-    tidyjson::gather_array(column.name = "seqIdx") %>%
+    tidyjson::gather_array(column.name = "seq_idx") %>%
     tidyjson::spread_values(itemID = tidyjson::jstring("id"), samplePoint = tidyjson::jstring("samplePoint"), sampleStart = tidyjson::jstring("sampleStart"), sampleDur = tidyjson::jstring("sampleDur")) %>%
-    dplyr::select_(~itemID, ~level, ~type, ~seqIdx, ~sampleRate, ~samplePoint, ~sampleStart, ~sampleDur)
-  
+    dplyr::select_(~itemID, ~level, ~type, ~seq_idx, ~sampleRate, ~samplePoint, ~sampleStart, ~sampleDur) %>%
+    dplyr::rename_("item_id" = "itemID", "sample_rate" = "sampleRate", "sample_point" = "samplePoint", "sample_start" = "sampleStart", "sample_dur" = "sampleDur")
+    
   # gen. label list of data.frame
   labels = json %>%
     tidyjson::enter_object("levels") %>%
@@ -40,9 +40,9 @@ annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
     tidyjson::gather_array() %>%
     tidyjson::spread_values(itemID = tidyjson::jstring("id")) %>%
     tidyjson::enter_object("labels") %>%
-    tidyjson::gather_array(column.name = "labelIdx") %>%
+    tidyjson::gather_array(column.name = "label_idx") %>%
     tidyjson::spread_values(name = tidyjson::jstring("name"), label = tidyjson::jstring("value")) %>%
-    dplyr::select_(~itemID, ~labelIdx, ~name, ~label)
+    dplyr::select_(~itemID, ~label_idx, ~name, ~label)
   
   return(list(name = tlData$name, annotates = tlData$annotates, sampleRate = tlData$sampleRate, items = items, links = links, labels = labels))
   
@@ -61,7 +61,7 @@ bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
     levels[[length(levels) + 1]] = list(
       items = apply(levelItems, 1, function(r) {
       
-      labels = apply(dplyr::filter_(annotDFs$labels, ~(itemID == as.numeric(r[1]))), 1, function(r2) list(name = as.character(r2[3]), value = as.character(r2[4])))
+      labels = apply(dplyr::filter_(annotDFs$labels, ~(item_id == as.numeric(r[1]))), 1, function(r2) list(name = as.character(r2[3]), value = as.character(r2[4])))
       res = NULL
       if(r[3] == "ITEM"){
         res = list(id = as.numeric(r[1]),

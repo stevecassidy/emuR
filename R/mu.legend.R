@@ -18,6 +18,6 @@
   if(legn=="bl")
     return(list(x=xlim[1], y=ylim[1]+fudge.y))
   if(legn=="loc")
-    return(locator(1))
+    return(graphics::locator(1))
   stop("Unknown legend locator in mu.legend")
 }

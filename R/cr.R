@@ -161,10 +161,10 @@
       ylim <- range(mat)
     if(is.null(xlim))
       xlim <- c(0, (N-1))
-    plot(c(0:(N - 1)), mat, xlab = xlab, ylab = ylab, type = type, 
+    graphics::plot(c(0:(N - 1)), mat, xlab = xlab, ylab = ylab, type = type, 
          ylim = ylim, xlim = xlim, ...)
     if(dopoints)
-      points(c(0:(N - 1)), mat, pch = 16, mkh = 0.05)
+      graphics::points(c(0:(N - 1)), mat, pch = 16, mkh = 0.05)
     
   }
   if(values)
@@ -272,7 +272,7 @@
     for(j in 1:length(pivals)) {
       x.th1 <- c(c.x, Ax *  - sin(pivals[j]) - plotshift)
       y.th1 <- c(c.y, Ay * cos(pivals[j]))
-      lines(x.th1, y.th1, col = col, lty = lty)
+      graphics::lines(x.th1, y.th1, col = col, lty = lty)
     }
   }
   
@@ -289,7 +289,7 @@
     nums <- seq(0 + p, (2 * pi) + p, length = npoints)
     cosv <- Ay * cos(nums)
     sinv <- Ax *  - sin(nums)
-    plot(sinv[first:last] - plotshift, cosv[first:last], type = "l", xlim
+    graphics::plot(sinv[first:last] - plotshift, cosv[first:last], type = "l", xlim
          = c( - pin[1]/2, pin[1]/2), ylim = c( - pin[2]/2, pin[2]/2), 
          axes = FALSE, ylab = "", xlab = "", lwd = lwd)
     if(k == 0)
@@ -299,8 +299,8 @@
     sinpoints <- Ax *  - sin(theta) - plotshift
     cospoints <- Ay * cos(theta)
     xvals <- seq(0, figsize/2, length = N)
-    par(new = TRUE)
-    plot(xvals[first:last], cospoints[first:last], type = "l", xlim = c( - 
+    graphics::par(new = TRUE)
+    graphics::plot(xvals[first:last], cospoints[first:last], type = "l", xlim = c( - 
                                                                            pin[1]/2, pin[1]/2), ylim = c( - pin[2]/2, pin[2]/2), axes = FALSE, 
          ylab = "", xlab = "", col = col, lwd = lwd)
   }
@@ -312,7 +312,7 @@
     for(j in 1:length(textin)) {
       numsin <- radius[j] * Ax *  - sin(pivals[j]) - plotshift
       numcos <- radius[j] * Ay * cos(pivals[j])
-      text(numsin, numcos, textin[j], col = col)
+      graphics::text(numsin, numcos, textin[j], col = col)
     }
   }
   
@@ -373,7 +373,7 @@
   cosv <- Ay * cos(nums)
   sinv <- Ax *  - sin(nums)
   if(cplot) {
-    plot(sinv - plotshift, cosv, type = "l", xlim = c( - pin[1]/2, 
+    graphics::plot(sinv - plotshift, cosv, type = "l", xlim = c( - pin[1]/2, 
                                                        pin[1]/2), ylim = c( - pin[2]/2, pin[2]/2), axes = FALSE, 
          ylab = ylab, xlab = "", col = col, lty = linetype)
   }
@@ -386,7 +386,7 @@
   cospoints <- Ay * cos(theta)
   if(cplot) {
     if(numplot) {
-      points(cbind(sinpoints, cospoints), pch = 16, mkh = 
+      graphics::points(cbind(sinpoints, cospoints), pch = 16, mkh = 
                0.05)
       ## plot the numbers around the circle with an extended radius
       numvals <- round(theta %% (2 * pi), 2)
@@ -395,7 +395,7 @@
         numsin <- pointconst * Ax *  - sin(theta[temp][
           1]) - plotshift
         numcos <- pointconst * Ay * cos(theta[temp][1])
-        text(numsin, numcos, paste(c(0:(N - 1))[temp], 
+        graphics::text(numsin, numcos, paste(c(0:(N - 1))[temp], 
                                    collapse = " "), cex = 1, col = col)
       }
     }
@@ -408,22 +408,22 @@
         x.th2 <- c( - plotshift, A *  - sin(theta[2]) - 
                       plotshift)
         y.th2 <- c(0, Ay * cos(theta[2]))
-        lines(x.th1, y.th1, col = col)
-        lines(x.th2, y.th2, col = col)## .
+        graphics::lines(x.th1, y.th1, col = col)
+        graphics::lines(x.th2, y.th2, col = col)## .
         ## draw a part circle between these lines
         cir.thet <- seq(theta[1], theta[2], length = 
                           round((npoints * (theta[2] - theta[1]))/(2 * 
                                                                      pi)))
-        par(new = TRUE)
+        graphics::par(new = TRUE)
         cos.in <- Ay * cos(cir.thet) * 0.5
         sin.in <- Ax *  - sin(cir.thet) * 0.5
-        plot(sin.in - plotshift, cos.in, type = "l", 
+        graphics::plot(sin.in - plotshift, cos.in, type = "l", 
              xlim = c( - pin[1]/2, pin[1]/2), ylim = c( - 
                                                           pin[2]/2, pin[2]/2), axes = FALSE, ylab = "", 
              xlab = "", col = col)## .
         len.in <- length(cos.in)
         if(arrow)
-          arrows(sin.in[len.in - 1] - plotshift, cos.in[
+          graphics::arrows(sin.in[len.in - 1] - plotshift, cos.in[
             len.in - 1], sin.in[len.in] - plotshift, 
             cos.in[len.in], col = col, code=2, length=.1)
       }
@@ -433,11 +433,11 @@
   ## plot the cosine wave
   if(splot) {
     xvals <- seq(0, figsize/2, length = N) * fconst - 0.2
-    par(new = TRUE)
-    plot(xvals, cospoints, type = "l", xlim = c( - pin[1]/2, pin[1]/
+    graphics::par(new = TRUE)
+    graphics::plot(xvals, cospoints, type = "l", xlim = c( - pin[1]/2, pin[1]/
                                                    2), ylim = c( - pin[2]/2, pin[2]/2), axes = FALSE, ylab = 
            "", xlab = "", col = col, lty = linetype)
-    points(xvals, cospoints, pch = 16, mkh = 0.05)
+    graphics::points(xvals, cospoints, pch = 16, mkh = 0.05)
   }
   ## add any text if specified
   if(!is.null(textplot)) cr.text(Ax, Ay, textplot$radius, textplot$textin,
@@ -447,22 +447,22 @@
     cr.lines(lineplot, Ax, Ay, plotshift, col = col)
   if(axes) {
     if(is.null(xaxlab))
-      axis(side = 1, line =  - A * 1.1, at = xvals, labels = 
+      graphics::axis(side = 1, line =  - A * 1.1, at = xvals, labels = 
              c(0:(N - 1)))
-    else axis(side = 1, line =  - A * 1.1, at = seq(0, figsize/2, 
+    else graphics::axis(side = 1, line =  - A * 1.1, at = seq(0, figsize/2, 
                                                     length = length(xaxlab)) - 0.2, labels = xaxlab
     )
-    mtext(xlab, at = figsize/4, line = A * 2, side = 1)
+    graphics::mtext(xlab, at = figsize/4, line = A * 2, side = 1)
     if(is.null(const))
-      axis(side = 2)
-    else axis(side = 2, at = seq( - figsize/4, figsize/4, length = 
+      graphics::axis(side = 2)
+    else graphics::axis(side = 2, at = seq( - figsize/4, figsize/4, length = 
                                     5), labels = seq( - figsize/4, figsize/4, 
                                                       length = 5) + const)
-    abline(h = 0, lty = 2)
+    graphics::abline(h = 0, lty = 2)
   }
   ## superimpose a part circle
   if(!is.null(super)) {
-    par(new = TRUE)
+    graphics::par(new = TRUE)
     cr.super(first = super$first, last = super$last, Ax = Ax, Ay = 
                Ay, k = k, p = p, figsize = figsize, 
              const = const, npoints = npoints)

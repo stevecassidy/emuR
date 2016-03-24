@@ -1,11 +1,15 @@
 requireNamespace("httpuv", quietly = T)
 requireNamespace("base64enc", quietly = T)
 
+.server_env = new.env()
+assign("serverHandle", NULL, envir = .server_env)
+
 getServerHandle <- function() {
-  internalVars$serverHandle
+  get("serverHandle", envir = .server_env)
 }
+
 setServerHandle <- function(sh) {
-  internalVars$serverHandle<<-sh
+  assign("serverHandle", sh, envir = .server_env)
 }
 
 ##' Serve EMU database to EMU-webApp
@@ -40,6 +44,8 @@ setServerHandle <- function(sh) {
 ##' @param bundlePattern A regular expression pattern matching bundle names to be served
 ##' @param host host IP to listen to (default: 127.0.0.1  (localhost))
 ##' @param port the port number to listen on (default: 17890)
+##' @param autoOpenURL URL passed to \code{\link{browseURL}} function. If NULL or an empty string are passed in
+##' \code{\link{browseURL}} will not be invoked.
 ##' @param debug TRUE to enable debugging (default: no debugging messages)
 ##' @param debugLevel integer higher values generate more detailed debug output
 ##' @return TRUE if the database was modified, FALSE otherwise
@@ -49,11 +55,11 @@ setServerHandle <- function(sh) {
 ##' \dontrun{ 
 ##' ## Load EMU database 'myDb' and serve it to the EMU-webApp (opens default HTTP/websocket port 17890)
 ##' 
-##' load_emuDB("/path/to/myDb")
-##' serve('myDb')
+##' myDb = load_emuDB("/path/to/myDb")
+##' serve(myDb)
 ##' }
 ##' 
-serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0.1',port=17890,debug=FALSE,debugLevel=0){
+serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0.1',port=17890, autoOpenURL = "http://ips-lmu.github.io/EMU-webApp/?autoConnect=true",  debug=FALSE,debugLevel=0){
   if(debug && debugLevel==0){
     debugLevel=2
   }
@@ -380,7 +386,7 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.
             remove_bundleAnnotDBI(emuDBhandle, sessionName = bundleSession, bundleName = bundleName)
             # store
             # calculate MD5 sum of bundle annotJSON
-            newMD5annotJSON = md5sum(annotFilePath)
+            newMD5annotJSON = tools::md5sum(annotFilePath)
             names(newMD5annotJSON) = NULL
             
             bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(as.character(json))
@@ -443,8 +449,10 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.
   cat("Server connection URL: ws://localhost:",port,"\n",sep='')
   cat("To stop the server press EMU-webApp 'clear' button or reload the page in your browser.\n")
   emuRserverRunning=TRUE
-  # open browser with EMU-webApp
-  browseURL("http://ips-lmu.github.io/EMU-webApp/?autoConnect=true")
+  if(length(autoOpenURL) != 0 && autoOpenURL != ""){
+    # open browser with EMU-webApp
+    utils::browseURL(autoOpenURL)
+  }
   while(emuRserverRunning) {
     httpuv::service()
     Sys.sleep(0.01)

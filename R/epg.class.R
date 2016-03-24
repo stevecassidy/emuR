@@ -372,14 +372,14 @@
   }
   n = dim(p)[3]
   sump  = (apply(p, c(1,2), sum))/n 
-  image(1:8, 1:8, t(1-sump[8:1,]), col = gray(0:gscale/gscale), axes=FALSE, xlab=xlab, ylab=ylab, ...)
+  graphics::image(1:8, 1:8, t(1-sump[8:1,]), col = grDevices::gray(0:gscale/gscale), axes=FALSE, xlab=xlab, ylab=ylab, ...)
   if(axes)
   {
-    axis(side=1)
-    axis(side=2, at=c(1, 3, 5, 7), labels=as.character(c(8, 6, 4, 2)))
+    graphics::axis(side=1)
+    graphics::axis(side=2, at=c(1, 3, 5, 7), labels=as.character(c(8, 6, 4, 2)))
   }
   if(gridlines)
-    grid(8, 8, col = gridcol, lty=gridlty)
+    graphics::grid(8, 8, col = gridcol, lty=gridlty)
 }
 
 
@@ -474,9 +474,9 @@
   # which is equal in length to the number of palates)
   # xlim: can only be used if epgdata are contiguous!
   
-  oldpar = par(no.readonly=TRUE)
-  on.exit(par(oldpar))
-  par(mar = mar)
+  oldpar = graphics::par(no.readonly=TRUE)
+  on.exit(graphics::par(oldpar))
+  graphics::par(mar = mar)
   epggrid <- function() {
     xgrid <- NULL
     for (j in 0:8) {
@@ -485,10 +485,10 @@
     }
     ygrid <- rep(c(0, 8, NA), 9)
     ygrid[c(2, 26)] <- 7
-    lines(xgrid, ygrid)
+    graphics::lines(xgrid, ygrid)
     ygrid[25] <- 1
     ygrid[2] <- 8
-    lines(ygrid, xgrid)
+    graphics::lines(ygrid, xgrid)
   }
   if (!inherits(epgdata, "EPG")) 
     epgdata <- palate(epgdata)
@@ -549,12 +549,12 @@
       mat$x <- mat$x[-length(mat$x)]
       mat$y <- mat$y[-length(mat$y)]
     }
-    plot(0:8, 0:8, type = "n", axes = FALSE, xlab = "", ylab = "", 
+    graphics::plot(0:8, 0:8, type = "n", axes = FALSE, xlab = "", ylab = "", 
          main = main)
     if (any(which)) 
-      polygon(mat$x, mat$y, col = col)
+      graphics::polygon(mat$x, mat$y, col = col)
   }
-  par(mfrow = mfrow)
+  graphics::par(mfrow = mfrow)
   if (N > 1) {
     for (j in 1:N) {
       epgplot.sub(epgdata[, , j], xpoly, ypoly, col = col, 
@@ -568,7 +568,7 @@
     if (gridlines) 
       epggrid()
   }
-  par(mar = oldpar$mar)
+  graphics::par(mar = oldpar$mar)
 }
 
 

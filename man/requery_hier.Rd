@@ -39,19 +39,18 @@ If the length of input and output list differ (e.g. because a link is missing in
 ## the same length as the word segments.
 
 sl1 = query(ae, "Text == beautiful")
-requery_hier(sl1, level = "Phoneme")
+requery_hier(ae, sl1, level = "Phoneme")
 
 ## Upward requery: find all word segments that dominate a 'p' on level 'Phoneme'
 ## Note that the resulting segments are larger than the input segments,
 ## because they contain the complete words.
 
 sl1 = query(ae, "Phonetic == p")
-wl1 = requery_hier(sl1, level = 'Text')
-wl1
+requery_hier(ae, sl1, level = 'Text')
 
 ## Why is there a 'p' the word 'emphazised'? Requery the whole words back down to 'Phoneme' level:
 
-requery_hier(wl1, level = 'Phoneme')
+requery_hier(ae, sl1, level = 'Phoneme')
 
 ## ... because of 'stop epenthesis' a 'p' is inserted between 'm' and 'f'
 
@@ -59,7 +58,7 @@ requery_hier(wl1, level = 'Phoneme')
 ## Note that we use a regular expression 'an.*' (EQL operator '=~') in the query.
 
 sl1=query(ae, "Text =~ an.*")
-requery_seq(requery_hier(sl1, level = 'Phoneme'), offsetRef = 'END')
+requery_seq(ae, requery_hier(ae, sl1, level = 'Phoneme'), offsetRef = 'END')
 
 }
 }

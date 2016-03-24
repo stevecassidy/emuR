@@ -45,7 +45,7 @@ parse_espsLabelFile <- function(labFilePath=NULL,tierName,tierType=NULL,sampleRa
     }
     
     for(line in lc){
-      trimmedLine=str_trim(line)
+      trimmedLine=stringr::str_trim(line)
       if(inHeaderSection){
       if(trimmedLine == DATA_SECTION_START_KEY){
         inHeaderSection=FALSE

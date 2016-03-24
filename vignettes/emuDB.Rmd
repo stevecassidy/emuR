@@ -14,25 +14,26 @@ vignette: >
 
 # Introduction
 
-This document describes the emuDB format that is used by the `emuR` package and shows how to create and interact with this format. The emuDB format is meant as a simple, general purpose way of storing speech databases that may contain complex, rich, hierarchical annotations as well as derived and complementary speech data. These different components will be described throughout this document and examples given as to how to generate and manipulate them. This document is meant as a practical guide / reference document to the emuDB format. The examples given below can be executed in any R session with the `emuR` package installed and may of course be adapted to your personal needs. First let us have a look at the general structure of an emuDB.
+This document describes the emuDB format that is used by the `emuR` package and shows how to create and interact with this format. The emuDB format is meant as a simple, general purpose way of storing speech databases that may contain complex, rich, hierarchical annotations as well as derived and complementary speech data. These different components will be described throughout this document and examples given as to how to generate and manipulate them. This document is meant as a practical guide / reference document to the emuDB format. The examples given below can be executed in any R session with the `emuR` package installed and may of course be adapted to your personal needs. First let us have a look at the general structure of an emuDB. Whenever we use a name like `_XXX` in the following we imply a varying prefix name (or base name) before the `_` while the `XXX` is an obligatory string, e.g. `_bndl` implies file names such as `rec1_bndl`, `rec2_bndl` of the type `bundle folder`. The extension `.json` denotes a text file in JSON format.
 
 
-# DB design
+# Database design
 
 The database structure is basically a set of files and folders that adhere to a certain structure and naming convention (see Figure below).
 
 ![Alt text](pics/db_structure.svg) 
 
-The database root directory contains a single `_DBconfig.json` file which, as the name implies, contains the configuration options of the database such as its level definitions, how these levels are linked in the database hierarchy and what is displayed in the EMU-webApp. The database root folder also contains session folders (ending with `_ses`). These session folders can be used to logically group the `_bndl` folders described below.
+The database root directory must contain a single `_DBconfig.json` file which, as the name implies, contains the configuration options of the database such as its level definitions, how these levels are linked in the database hierarchy and what is displayed in the EMU-webApp. The database root folder also contains arbitrarily named session folders ending with `_ses`, e.g. `0000_ses`. These session folders can be used to logically group the recordings of a database. All files belonging to a single recording are contained in a so called bundle folder described below. A possible grouping into sessions could for instance be that all recordings of a speaker `AAA` are contained in one session called `AAA_ses`.
 
-Each session folder can contain any number of `_bndl` folders. All the files belonging to a bundle, for example a recorded sentence, are stored in the corresponding bundle folder. This includes the actual recording (`.wav`) and derived / complimentary signal files in the SSFF format [@cassidy:2013a] such as formants (`.fms`) or the fundamental frequency (`.f0`), both of which can be generated using the `wrassp` package. Each bundle folder also contains the annotation file (`_annot.json`) of that bundle. This file contains the actual annotations including the hierarchical linking information. JSON schema files are provided to ensure the syntactic integrity of the database (*https://github.com/IPS-LMU/EMU-webApp/tree/master/dist/schemaFiles*). The following naming restrictions apply:
+Each session folder can contain any number of `_bndl` folders, e.g. `rec1_bndl rec2_bndl ... rec9_bndl`. All the files belonging to a recording, i.e. all files describing the same time line of events, are stored in the corresponding bundle folder. This must include the actual recording (`.wav`) and can contain optional derived / complimentary signal files in the SSFF format [@cassidy:2013a] such as formants (`.fms`) or the fundamental frequency (`.f0`), both of which can be generated using the `wrassp` package. Each bundle folder must also contain the annotation file (`_annot.json`) of that bundle. This file contains the actual annotations including the hierarchical linking information. JSON schema files are provided to ensure the syntactic integrity of the database (see the `dist/schemaFiles/` directory of the EMU-webApp GitHub repository). The following restrictions apply:
 
-- the database folder has to have the same name as the `_DBconfig.json` prefix and may optionally have the suffix `_emuDB`. Note that the `_DBconfig.json` contains the field `name` which specifies the name of the emuDB. This also has to have the same name as the folder and `_DBconfig.json` prefix.
+- the root folder of the emuDB must contain exactly one `_DBconfig.json` file. It is obligatory that the prefix of the `_DBconfig.json` file matches the value of the field `name` within the `_DBconfig.json` file (which specifies the official name of the emuDB), and that the root folder of the emuDB has the same prefix name as well. It is recommended however not obligatory that the root folder has the suffix `_emuDB`.
 - all session folders must be named using the suffix `_ses`. Their prefixes can be chosen by the database maintainer.
-- all bundle folders must be named using suffix `_bndl`. Their prefixes can be chosen by the database maintainer.
-- all files within a bundle that belong to the bundle have to have the same basename as the `_bndl` folder prefix
+- all bundle folders must be named using suffix `_bndl`. Their prefixes can be chosen by the database maintainer; prefixes must be unique within a session but not across sessions.
+- all files within a bundle that belong to the bundle have to have the same basename as the `_bndl` folder prefix, e.g. the signal file in bundle `rec1_bndl` must have the name `rec1.wav` to be recognized by the emuDB system.
+- the (single) obligatory annotation file within a bundle `basename_bndl` must have the same prefix as its bundle: `basename_annot.json`.
 
-Files that do not follow this naming convention will simply be ignored by the database interaction functions of the `emuR` package.
+Files that do not follow this naming convention will simply be ignored by the database interaction functions of the `emuR` package (for instance additional multiple audio channels stored in individual audio files).
 
 Optional files that may also be included in the database root directory are the `_bundleList.json` files. These files specify which annotator is assigned to which bundles. These files are used by EMU-websocket-protocol servers that implement user management to assign the correct bundles to the annotators. The `serve()` function implemented in the `emuR` package DOES NOT support user management which means that these files will simply be ignored by this function.
 
@@ -41,7 +42,7 @@ For more detailed information about the file formats used see the [File descript
 
 # Creating a emuDB
 
-There are multiple ways of creating emuDBs. The two main strategies are to either convert existing databases or file collections to the new format or to create new databases from scratch. As the `emuR\_intro` vignette, that can be accessed by invoking this command: `vignette("emuR_intro", package="emuR")`, already describes how existing databases can be converted, only the latter of both strategies is described below.
+There are multiple ways of creating emuDBs. The two main strategies are to either convert existing databases or file collections to the new format or to create new databases from scratch. Refer to the `emuR\_intro` vignette (command: `vignette("emuR_intro", package="emuR")`) on how existing databases can be converted; in the following the latter of both strategies is described.
 
 ## Creating an emuDB from scratch
 
@@ -54,7 +55,7 @@ library(emuR)
 
 create_emuDB(name = 'fromScratchDB', 
              targetDir = tempdir(), 
-             verbose=F)
+             verbose = F)
 ```
 
 This will create an empty emuDB that does not have any ssffTrackDefinitions or levelsDefinitions as well as not containing any sessions or bundles. Adding these to the emuDB is described in the next section.
@@ -99,6 +100,12 @@ To check if this action was successful we can simply list the current level defi
 
 ```{r}
 list_levelDefinitions(dbHandle)
+```
+
+alternatively a summary of the emuDB also gives us this as well as additional information:
+
+```{r}
+summary(dbHandle)
 ```
 
 Let us add a further level definition that will contain the orthographic word transcriptions for the words uttered in our recordings. This level will be of the type "ITEM" meaning that elements contained within the level are sequentially ordered but do not contain any time information:
@@ -255,7 +262,7 @@ list_sessions(dbHandle)
 list_bundles(dbHandle)
 ```
 
-We have now added a new session called 'filesFromWrassp' to the 'fromScratchDB' containing a new bundle for each of our imported media files. These bundles adhere to the structure we have specified above. Note however that the levels in the annotation files (`_annot.json`) that where created during the import are still empty. These will have to be created manually at a later stage using the EMU-webApp. To list the files that are part of the emuDB call:
+We have now added a new session called 'filesFromWrassp' to the 'fromScratchDB' containing a new bundle for each of our imported media files. These bundles adhere to the structure we have specified above. Note however that the levels in the annotation files (`_annot.json`) that were created during the import are still empty. These will have to be created manually at a later stage using the EMU-webApp. To list the files that are part of the emuDB call:
 
 ```{r}
 # show head of list_files
@@ -275,6 +282,7 @@ outDirPath = file.path(tempdir(), 'zcranaVals')
 dir.create(outDirPath)
 # calculate zero-crossing-rate files
 # using zcrana function of wrassp package
+library(wrassp)
 zcrana(listOfFiles = wavFilePaths, 
        outputDirectory = outDirPath)
 # add zcr files to emuDB
@@ -383,7 +391,7 @@ We have now completed the configuration of the 'fromScratchDB' emuDB. By calling
 
 # Autobuilding
 
-Autobuilding is a process that let's the emuDB maintainer semi-automatically build hierarchical structures from preexisting annotations by linking annotational units together. To have some preexisting annotations to play with, let us convert a TextGridCollection and load the newly created emuDB into the current R session.
+Autobuilding is a process that lets the emuDB maintainer semi-automatically build hierarchical structures from preexisting annotations by linking annotational units together. To have some preexisting annotations to play with, let us convert a TextGridCollection and load the newly created emuDB into the current R session.
 
 ```{r results='hide', message=FALSE, warning=FALSE}
 # create demo data in folder provided by the tempdir() function
@@ -400,9 +408,9 @@ dbHandle = load_emuDB(file.path(tempdir(), "myTGcolDB_emuDB"), verbose = F)
 By inspecting the emuDB we can see that it has eleven levelDefinitions but no linkDefinitions. This means that it will not be possible to perform hierarchical queries on this emuDB, as there is no explicit hierarchical information in the database.
 
 ```{r}
-# list
+# list levels
 list_levelDefinitions(dbHandle)
-# list
+# list ssffTracks
 list_ssffTrackDefinitions(dbHandle)
 ```
 
@@ -462,11 +470,18 @@ list_levelDefinitions(dbHandle)
 
 This time we chose to add a `linkDefinition` of the type `MANY_TO_MANY` between the two levels. This is due to the fact that reduction processes can cause multiple phonemes can be produced as a single phone and due to insertion processes a single phoneme can be produced as multiple phones. We have now created the above hierarchical structure that we where aiming for.
 
+```{r echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+# disconnect to avoid file locking to sqliteDB that causes unlink
+# to fail under windows
+DBI::dbDisconnect(dbHandle$connection)
+```
+
+
 ```{r}
 # remove the newly generated emuDB and emuR_demoData as we will not be needing it 
 # throughout the rest of this vignette
 unlink(file.path(tempdir(), "emuR_demoData"), recursive = TRUE)
-unlink(file.path(tempdir(),'myTGcolDB_emuDB'), recursive = T)
+unlink(file.path(tempdir(),'myTGcolDB_emuDB'), recursive = TRUE)
 ```
 
 
@@ -512,7 +527,7 @@ The `_DBconfig.json` file contains the following fields:
 - `"labelGroups"` an (optional) array containing label group definitions. These can be used as a shorthand notation for querying certain groups of labels. Compared to the `"labelGroups"` that can be defined within an attributeDefinition the labelGroups defined here are globally defined for the entire database.
 - `"name"` name of label group
 - `"values"` array of strings containing labels
-- `"EMUwebAppConfig"` specifies the configuration options intended for the EMU-webApp, i.e. how the database is to be displayed. This field can contain all the configurations options that are specified in the EMU-webApp's configuration schema (*https://github.com/IPS-LMU/EMU-webApp/blob/master/dist/schemaFiles/emuwebappConfigSchema.json*). The `"EMUwebAppConfig"` contains the following fields:
+- `"EMUwebAppConfig"` specifies the configuration options intended for the EMU-webApp, i.e. how the database is to be displayed. This field can contain all the configurations options that are specified in the EMU-webApp's configuration schema (see the `dist/schemaFiles/emuwebappConfigSchema.json` file of the EMU-webApp GitHub repository). The `"EMUwebAppConfig"` contains the following fields:
 - `"main"` main behavior options 
 - `"autoConnect"`: auto connect to the `"serverUrl"` on initial load of the webApp to automatically load a database (mainly used for development).
 - `"serverUrl"`: default server URL that is displayed in the connect modal (and used if `"autoConnect"` is set to `true`). The default: `"ws://localhost:17890"` points to the server started by the `serve()` function of the `emuR` package.
@@ -617,7 +632,7 @@ The `_DBconfig.json` file contains the following fields:
 - `"openMenu"` boolean value specifying whether open bundle list side bar button (== ☰) is displayed
 - `"showHierarchy"` boolean value specifying whether to show the "show hierarchy"" button
 - `"editEMUwebAppConfig"` boolean value specifying whether to show "edit EMUwebAppConfig" button
-- `"demoDBs"` array of stings specifying which demoDBs to display in the `open demo` dropdown menu. Currently available demo databases are `["ae", "ema", "epgdorsal"]`
+- `"demoDBs"` array of strings specifying which demoDBs to display in the `open demo` dropdown menu. Currently available demo databases are `["ae", "ema", "epgdorsal"]`
 
 
 ## _annot.json

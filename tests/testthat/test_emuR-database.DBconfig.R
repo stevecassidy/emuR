@@ -69,8 +69,8 @@ test_that("CRUD operations work for ssffTrackDefinitions", {
     expect_equal(dbConfig$ssffTrackDefinitions[[2]]$name, "fm")
     
     # check that files have been deleted
-    filePaths = list_bundleFilePaths(ae, "pit")
-    expect_equal(length(filePaths), 0)
+    filePaths = list_files(ae, "pit")
+    expect_equal(nrow(filePaths), 0)
     
   })
   
@@ -107,13 +107,19 @@ test_that("CRUD operations work for levelDefinitions", {
     
     expect_error(remove_levelDefinition(ae, name="asdf")) # bad name
     expect_error(remove_levelDefinition(ae, name="Phonetic")) # linkDef present
+
+    DBI::dbGetQuery(ae$connection, paste0("INSERT INTO session VALUES ('", ae$UUID,
+                                          "', '0001')")) # add item
+
+    DBI::dbGetQuery(ae$connection, paste0("INSERT INTO bundle VALUES ('", ae$UUID,
+                                          "', '0001', 'fakeBundle', 'fakeBundle.wav', 20000, '785c7cdb6d4bd5e8b5cd7c56a5946ddf')")) # add item
     
-    dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID,
+    DBI::dbGetQuery(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID,
                                      "', '0001', 'fakeBundle', 1, 'Phonetic2', 'ITEM', 20000, 1, NULL, NULL, NULL)")) # add item
     
     expect_error(remove_levelDefinition(ae, name="Phonetic2")) # item present
     
-    dbGetQuery(ae$connection, paste0("DELETE FROM items WHERE db_uuid='", 
+    DBI::dbGetQuery(ae$connection, paste0("DELETE FROM items WHERE db_uuid='", 
                                      ae$UUID,"'")) # items present
     
     remove_levelDefinition(ae, name="Phonetic2")
@@ -169,8 +175,15 @@ test_that("CRUD operations work for legalLabels", {
   ae = load_emuDB(path2db, inMemoryCache = useInMemoryCache, verbose = F)
   
   test_that("set = (C)RUD", {
-    set_legalLabels(ae, 
+    # non character vector causes error:
+    expect_error(set_legalLabels(ae, 
                     levelName = 'Word', 
+                    attributeDefinitionName = 'Word',
+                    legalLabels=c(1:3)))
+    
+    
+    set_legalLabels(ae,
+                    levelName = 'Word',
                     attributeDefinitionName = 'Word',
                     legalLabels=c('A', 'B', 'C'))
   })
