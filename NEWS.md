@@ -1,4 +1,6 @@
-# emuR 0.1.6.9000
+# emuR 0.1.6
+
+* skipping in-depth thorough tests on CRAN for query and autobuild SQL functions 
 
 # emuR 0.1.5
 
