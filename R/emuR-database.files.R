@@ -198,7 +198,7 @@ add_files <- function(emuDBhandle, dir, fileExtension, targetSessionName='0000')
   
   # copy files
   for (i in 1:length(sourcePaths)){
-    cbn = basename(file_path_sans_ext(sourcePaths[i]))
+    cbn = basename(tools::file_path_sans_ext(sourcePaths[i]))
     cbndl = bndls[bndls$name == cbn, ]
     # check that only one bundle folder
     if(nrow(cbndl) != 1){

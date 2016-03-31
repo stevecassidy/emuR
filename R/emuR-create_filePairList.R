@@ -41,8 +41,8 @@ create_filePairList <- function(ext1Path2rootDir, ext2Path2rootDir, ext1, ext2){
   }
   
   # extract base names
-  allExt1FilePathsBNs = basename(file_path_sans_ext(allExt1FilePaths))
-  allExt2FilePathsBNs = basename(file_path_sans_ext(allExt2FilePaths))
+  allExt1FilePathsBNs = basename(tools::file_path_sans_ext(allExt1FilePaths))
+  allExt2FilePathsBNs = basename(tools::file_path_sans_ext(allExt2FilePaths))
   
   equalToExt1FilePathsBNs = allExt1FilePathsBNs[allExt2FilePathsBNs %in% allExt1FilePathsBNs]
   foundExt2FilePaths = allExt2FilePaths[allExt2FilePathsBNs %in% allExt1FilePathsBNs]

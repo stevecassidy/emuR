@@ -8,7 +8,6 @@ vignettes/pics/db_structure.pdf
 *.log
 *.gz
 *.fdb_latexmk
-inst/doc
 
 *.o
 

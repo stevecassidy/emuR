@@ -38,7 +38,7 @@ create_DBconfigFromTextGrid = function(tgPath, dbName, basePath, tierNames = NUL
     tgAnnotDFs$labels = dplyr::filter_(tgAnnotDFs$labels, ~(name %in% tierNames))
   }
   
-  levels = dplyr::distinct_(tgAnnotDFs$items, "level")
+  levels = dplyr::distinct_(tgAnnotDFs$items, "level", .keep_all = TRUE)
   
   # create level definitions
   levelDefinitions = list()
@@ -46,6 +46,7 @@ create_DBconfigFromTextGrid = function(tgPath, dbName, basePath, tierNames = NUL
   # generate defaultLvlOrder
   defaultLvlOrder=list()
   levIdx = 1  
+
   for(lineIdx in 1:nrow(levels)){
     lev = levels[lineIdx,]
     if(lev$type == 'SEGMENT' || lev$type == 'EVENT'){
@@ -80,7 +81,7 @@ create_DBconfigFromTextGrid = function(tgPath, dbName, basePath, tierNames = NUL
   
   # generate full schema list
   dbSchema = list(name = dbName,
-                  UUID = UUIDgenerate(),
+                  UUID = uuid::UUIDgenerate(),
                   mediafileExtension = 'wav',
                   ssffTrackDefinitions = list(),
                   levelDefinitions = levelDefinitions,

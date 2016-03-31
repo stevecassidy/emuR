@@ -1,7 +1,7 @@
 ## Resubmission
 This is a resubmission. In this version I have:
 
-* added testthat::skip\_on\_cran() for in-depth thorough tests for query and autobuild SQL functions (reduces test times to approx. 1/3 of the original)
+* R depends version bump to 3.2.0 (as requested by CRAN maintainer) + 3 minor bug fixes (see NEWS.md)
 
 ## Test environments
 * local OS X install, R 3.3.0 Under development (unstable) (2016-03-02 r70268) -- "Unsuffered Consequences"
