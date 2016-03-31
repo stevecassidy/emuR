@@ -59,7 +59,6 @@ convert_TextGridCollection <- function(dir, dbName,
   if(!file.exists(dir)){
     stop("dir does not exist!")
   }
-  
   # create
   if(!file.exists(targetDir)){
     res=dir.create(targetDir,recursive = TRUE)
@@ -134,10 +133,10 @@ convert_TextGridCollection <- function(dir, dbName,
     mfBn = basename(mfPath)
     
     # get sampleRate of audio file
-    asspObj = read.AsspDataObj(mfPath, begin = 0, end = 1, samples = T)
+    asspObj = wrassp::read.AsspDataObj(mfPath, begin = 0, end = 1, samples = T)
     sampleRate = attributes(asspObj)$sampleRate
     # create bundle name
-    bndlName = file_path_sans_ext(basename(fpl[i,1]))
+    bndlName = tools::file_path_sans_ext(basename(fpl[i,1]))
     
     # parse TextGrid
     bundleAnnotDFs = TextGridToBundleAnnotDFs(fpl[i,2], sampleRate = sampleRate, name = bndlName, annotates = paste0(bndlName, ".wav"))
