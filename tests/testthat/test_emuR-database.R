@@ -150,7 +150,7 @@ test_that("database functions work", {
       poStart=(poSampleStart+0.5)/aeSampleRate
       absFail=abs(poStart-lv)
       # accept deviation of at least half a sample
-      expect_less_than(absFail,halfSample)
+      expect_lt(absFail,halfSample)
     }
     # and the last value
     lv=msajc015_lab_values[lvCnt]
@@ -158,7 +158,7 @@ test_that("database functions work", {
     poEnd=(poSampleEnd+0.5)/aeSampleRate
     absFail=abs(poEnd-lv)
     # accept deviation of at least half a sample
-    expect_less_than(absFail,halfSample)
+    expect_lt(absFail,halfSample)
     
     # check tone events
     teS=1:teCnt
@@ -167,7 +167,7 @@ test_that("database functions work", {
       teLSample=msajc015_tone_ordered[i,'sample_point']
       teLTime=teLSample/aeSampleRate
       absFail=abs(teLTime-teTime)
-      expect_less_than(absFail,halfSample)
+      expect_lt(absFail,halfSample)
     }
     
   })

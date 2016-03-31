@@ -1,3 +1,8 @@
+# emuR 0.1.7.9000
+
+* R depends version bumpt to 3.2.0
+* updated testthat::expect\_less\_than to expect\_lt calls (due to deprecated warnings)
+
 # emuR 0.1.6
 
 * skipping in-depth thorough tests on CRAN for query and autobuild SQL functions 
