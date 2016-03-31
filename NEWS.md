@@ -1,3 +1,5 @@
+# emuR 0.1.8.9000
+
 # emuR 0.1.7
 
 * R depends version bump to 3.2.0 (as requested by CRAN maintainer)
