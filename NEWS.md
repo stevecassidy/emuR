@@ -1,9 +1,9 @@
-# emuR 0.1.7.9000
+# emuR 0.1.7
 
 * R depends version bump to 3.2.0 (as requested by CRAN maintainer)
 * updated testthat::expect\_less\_than to expect\_lt calls (due to deprecated warnings)
 * Using new .keep_all = T parameter of dplyr 
-* removed legacy version of EQL vignette
+* removed legacy version of EQL vignette (overlooked as inst/doc was in .gitignore)
 
 # emuR 0.1.6
 
