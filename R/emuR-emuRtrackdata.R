@@ -14,6 +14,7 @@ requireNamespace("dplyr", quietly = T)
 ##' @param td \code{\link{trackdata}} object generated from sl
 ##' @return emuRtrackdata object
 ##' @import data.table
+##' @export
 ##' @examples
 ##' \dontrun{
 ##' 
@@ -38,15 +39,14 @@ create_emuRtrackdata <- function(sl, td){
   
   ########################
   # check parameters
-  
   # check correct classes
-  if(!inherits(sl, "emuRsegs") && inherits(td, "trackdata")){
-    stop("sl is not of class 'emuRsegs' or td arguments is not of class 'trackdata'")
+  if(!inherits(sl, "emuRsegs") || !inherits(td, "trackdata")){
+    stop("emuRtrackdata could not be created: sl is not of class 'emuRsegs' or td arguments is not of class 'trackdata'")
   }
   
   # check same number of items
   if(dim(td$index)[1] != nrow(sl)){
-    stop("td and sl objects don't have the same number of elements (dim(td$index)[1] != nrow(sl))")
+    stop("emuRtrackdata could not be created: td and sl objects don't have the same number of elements (dim(td$index)[1] != nrow(sl))")
   }
   
   
