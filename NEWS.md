@@ -1,5 +1,8 @@
 # emuR 0.1.8.9000
 
+* fixed error handling of create_emuRtrackdata + added @export to roxygen doc
+
+
 # emuR 0.1.7
 
 * R depends version bump to 3.2.0 (as requested by CRAN maintainer)
