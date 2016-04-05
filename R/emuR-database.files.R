@@ -101,13 +101,13 @@ import_mediaFiles<-function(emuDBhandle,dir,targetSessionName='0000', verbose=TR
     newMediaFileFullPath=file.path(bundleDir,mf)
     file.copy(from = mfFullPath,to=newMediaFileFullPath)
     
-    pfAssp=read.AsspDataObj(newMediaFileFullPath,0,4000)
+    pfAssp=wrassp::read.AsspDataObj(newMediaFileFullPath,0,4000)
     sampleRate=attr(pfAssp,'sampleRate')
     b = list(name = bundleName, annotates=mf, sampleRate=sampleRate, levels=list(),links=list())
     
     # add empty levels
     for(ld in dbCfg[['levelDefinitions']]){
-      b[['levels']][[ld[['name']]]] = list(name=ld[['name']],type = ld[['type']],items = list())
+      b$levels[[length(b$levels) + 1]] = list(name=ld[['name']],type = ld[['type']],items = list())
     }
     
     # write to file
