@@ -104,12 +104,20 @@ test_that("on-the-fly calculations work if ssffTrackName is not set", {
 
 ##############################
 test_that("data fields are the same as hardcoded values (taken from original emu.track(n, 'fm') command)", {
-  # note that values have slightly changed to to recalulation with wrassp
+  # note that values have slightly changed due to the recalulation with wrassp
   td = get_trackdata(ae, n, 'fm', verbose=F)
   expect_that(td$data[10,1], equals(256))
   expect_that(td$data[10,2], equals(1521))
   expect_that(td$data[10,3], equals(2382))
   expect_that(td$data[10,4], equals(3573))
+  # on-the-fly values should be the same
+  td = get_trackdata(ae, n, onTheFlyFunctionName = "forest", verbose=F)
+  expect_that(td$data[10,1], equals(256))
+  expect_that(td$data[10,2], equals(1521))
+  expect_that(td$data[10,3], equals(2382))
+  expect_that(td$data[10,4], equals(3573))
+  
+  
 })
 
 
