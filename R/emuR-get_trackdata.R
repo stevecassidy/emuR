@@ -239,12 +239,13 @@
     }
   }
   
+  prevUtt = ""
   
   # loop through bundle names
   curIndexStart = 1
   for (i in 1:length(seglist$utts)){
-    
-    splUtt = stringr::str_split(seglist$utts[i], ':')[[1]]
+    curUtt = seglist$utts[i]
+    splUtt = stringr::str_split(curUtt, ':')[[1]]
     
     # check if utts entry exists
     bndls = list_bundles(emuDBhandle)
@@ -261,8 +262,11 @@
       qr = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM bundle WHERE db_uuid='", emuDBhandle$UUID, "' AND session='",
                                                           splUtt[1], "' AND name='", splUtt[2], "'"))
       funcFormals$listOfFiles = file.path(emuDBhandle$basePath, paste0(qr$session, session.suffix), paste0(qr$name, bundle.dir.suffix), qr$annotates)
+      # only perform calculation if curUtt is not equal to preUtt
+      if(curUtt != prevUtt){
+        curDObj = do.call(onTheFlyFunctionName, funcFormals)
+      }
       
-      curDObj = do.call(onTheFlyFunctionName, funcFormals)
       if(verbose){
         utils::setTxtProgressBar(pb, i)
       }
@@ -390,7 +394,8 @@
     timeStampRowNames[curIndexStart:curIndexEnd] <- rowSeq
     curIndexStart <- curIndexEnd + 1
     
-    curDObj = NULL
+    prevUtt = curUtt
+    
   }
   
   ########################################
