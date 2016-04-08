@@ -1380,9 +1380,9 @@ unify_bpfLevels <- function(emuDBhandle,
     for(idx in 1:length(levels[[key]]))
     {
       
-      if(length(levels[[key]][[idx]][["links"]]) != 1 || levels[[key]][[idx]][["links"]][1] %in% seenLinks)
+      if(levels[[key]][[idx]][["links"]][1] %in% seenLinks)
       {
-        stop("If you want to unify level ", key, " with the reference level, their links must be strictly one-to-one. BPF: ", bpfPath)
+        stop("If you want to unify level ", key, " with the reference level, you cannot have more than one item on ", key, " pointing to one item on the reference level. BPF: ", bpfPath)
       }
       
       if(is.na(levels[[key]][[idx]][["links"]][1]))
@@ -1395,23 +1395,25 @@ unify_bpfLevels <- function(emuDBhandle,
         stop("There is a symbolic link on level ", key, " in the following BPF that does not point to any item on the reference level: ", bpfPath)
       }
       
-      seenLinks[[length(seenLinks) + 1L]] = levels[[key]][[idx]][["links"]][1]
-      
       for(labelKey in names(levels[[key]][[idx]][["labels"]]))
       {
-        queryTxt = paste0("INSERT INTO labels VALUES('", emuDBhandle$UUID, "', '", session, "', '", 
-                          bundle, "', ", linkIdxMap[[toString(levels[[key]][[idx]][["links"]][1])]], 
-                          ", ", currentLabelIdx, ", '", labelKey, "', '", 
-                          levels[[key]][[idx]][["labels"]][[labelKey]], "')")
-        
-        DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
-        
-        currentLabelIdx = currentLabelIdx + 1
+        for(link in 1:length(levels[[key]][[idx]][["links"]]))
+        {
+          queryTxt = paste0("INSERT INTO labels VALUES('", emuDBhandle$UUID, "', '", session, "', '", 
+                            bundle, "', ", linkIdxMap[[toString(levels[[key]][[idx]][["links"]][link])]], 
+                            ", ", currentLabelIdx, ", '", labelKey, "', '", 
+                            levels[[key]][[idx]][["labels"]][[labelKey]], "')")
+            
+          DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
+          seenLinks[[length(seenLinks) + 1L]] = levels[[key]][[idx]][["links"]][link]
+        }
         
         if(!labelKey %in% newLabelsforRefLevel)
         {
           newLabelsforRefLevel = c(newLabelsforRefLevel, labelKey)
         }
+        
+        currentLabelIdx = currentLabelIdx + 1
       }
     }
   }

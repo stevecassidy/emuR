@@ -301,6 +301,16 @@ test_that("Conversion with extractLevels.",
 # Cleaning up
 unlink(newDbPath, recursive = T)
 
+test_that("Loading emuDB",
+          {
+            convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, refLevel = "ORT", unifyLevels = c("KAN"))
+            handle = load_emuDB(file.path(testDir, paste0(dbName, emuDB.suffix)), verbose = F)
+          }
+        )
+
+# Cleaning up
+unlink(newDbPath, recursive = T)
+
 
 # ---------------------------------------------------------------------------
 # Testing with manipulated BPFs

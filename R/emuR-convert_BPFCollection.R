@@ -324,7 +324,7 @@ convert_BPFCollection <- function(sourceDir,
   DBconfig = create_bpfSchema(levelTracker = levelTracker,
                               linkTracker = linkTracker,
                               dbName = dbName,
-                              dbUUID = dbHandle$connection,
+                              dbUUID = dbHandle$UUID,
                               audioExt = audioExt)
 
   # ---------------------------------------------------------------------------
