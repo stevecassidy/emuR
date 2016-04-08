@@ -5,6 +5,8 @@
 * convert_TextGridCollection can now handle nested folders again
 * get_trackdata with onTheFly calculation now reuses AsspDataObj if the current utterance is the same as the previous (large performance gain especially on long audio files)
 * checking if DBconfig exists for better error message if 'name' field is not set correctly in DBconfig
+* setting PRAGMA temp_store = 2; for SQLite connections
+* not extracting tables to R if no regex needed to create filtered_tmp tables (performance gain when querying large emuDBs)
 
 # emuR 0.1.7
 
