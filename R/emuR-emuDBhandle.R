@@ -29,6 +29,7 @@ emuDBhandle = function(dbName, basePath, UUID, connectionPath, connection=NULL){
 
 setSQLitePragmas <- function(con){
   DBI::dbGetQuery(con, "PRAGMA foreign_keys = ON;")
+  DBI::dbGetQuery(con, "PRAGMA temp_store = 2;")
 }
 
 ##' @export
