@@ -154,7 +154,11 @@ get_levelDefinition <- function(emuDBhandle, name){
 ## load function for _DBconfig.json file of emuDB
 load_DBconfig <- function(emuDBhandle){
   dbCfgPath = file.path(emuDBhandle$basePath, paste0(emuDBhandle$dbName, database.schema.suffix))
-  DBconfig = jsonlite::fromJSON(dbCfgPath, simplifyVector=FALSE)
+  if(file.exists(dbCfgPath)){
+    DBconfig = jsonlite::fromJSON(dbCfgPath, simplifyVector=FALSE)
+  }else{
+    stop(dbCfgPath, " does not seem to exist. This could be due to a bad 'name' entry in the DBconfig file. This field has to be the same as the name of the emuDB (directory & _DBconfig.json)")
+  }
   return(DBconfig)
 }
 
