@@ -749,7 +749,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
       }
       
       # create temp tables for hier query (should maybe be moved to external functions)
-      hier_left_trapeze_interm_res_tmp = paste0("CREATE TEMP TABLE hier_left_trapeze_interm_res_tmp (",
+      hier_left_trapeze_interm_res_tmp = paste0("CREATE TEMP TABLE IF NOT EXISTS hier_left_trapeze_interm_res_tmp (",
                                                 "db_uuid VARCHAR(36),",
                                                 "session TEXT,",
                                                 "bundle TEXT,",
@@ -764,10 +764,10 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
                                                 "seq_end_id_leaf INTEGER,",
                                                 "seq_len_leaf INTEGER,",
                                                 "level_leaf TEXT,",
-                                                "PRIMARY KEY (db_uuid, session, bundle, seq_start_id, seq_end_id)",
+                                                "PRIMARY KEY (db_uuid, session, bundle, seq_start_id, seq_end_id, db_uuid_leaf, session_leaf, bundle_leaf, seq_start_id_leaf, seq_end_id_leaf)",
                                                 ");")
       
-      hier_right_trapeze_interm_res_tmp = paste0("CREATE TEMP TABLE hier_right_trapeze_interm_res_tmp (",
+      hier_right_trapeze_interm_res_tmp = paste0("CREATE TEMP TABLE IF NOT EXISTS hier_right_trapeze_interm_res_tmp (",
                                                  "db_uuid VARCHAR(36),",
                                                  "session TEXT,",
                                                  "bundle TEXT,",
@@ -782,12 +782,12 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
                                                  "seq_end_id_leaf INTEGER,",
                                                  "seq_len_leaf INTEGER,",
                                                  "level_leaf TEXT,",
-                                                 "PRIMARY KEY (db_uuid, session, bundle, seq_start_id, seq_end_id)",
+                                                 "PRIMARY KEY (db_uuid, session, bundle, seq_start_id, seq_end_id, db_uuid_leaf, session_leaf, bundle_leaf, seq_start_id_leaf, seq_end_id_leaf)",
                                                  ");")
       
       
-      hier_left_trapeze_interm_res_tmp_idx = paste0("CREATE INDEX hier_left_trapeze_interm_res_tmp_idx ON hier_left_trapeze_interm_res_tmp (db_uuid,session,bundle,seq_start_id,seq_end_id,seq_len,level)")
-      hier_right_trapeze_interm_res_tmp_idx = paste0("CREATE INDEX hier_right_trapeze_interm_res_tmp_idx ON hier_right_trapeze_interm_res_tmp (db_uuid,session,bundle,seq_start_id,seq_end_id,seq_len,level)")
+      hier_left_trapeze_interm_res_tmp_idx = paste0("CREATE INDEX IF NOT EXISTS hier_left_trapeze_interm_res_tmp_idx ON hier_left_trapeze_interm_res_tmp (db_uuid,session,bundle,seq_start_id,seq_end_id,seq_len,level)")
+      hier_right_trapeze_interm_res_tmp_idx = paste0("CREATE INDEX IF NOT EXISTS hier_right_trapeze_interm_res_tmp_idx ON hier_right_trapeze_interm_res_tmp (db_uuid,session,bundle,seq_start_id,seq_end_id,seq_len,level)")
       DBI::dbGetQuery(emuDBhandle$connection, hier_left_trapeze_interm_res_tmp)
       DBI::dbGetQuery(emuDBhandle$connection, hier_left_trapeze_interm_res_tmp_idx)
       DBI::dbGetQuery(emuDBhandle$connection, hier_right_trapeze_interm_res_tmp)
@@ -816,11 +816,15 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
         leafSideTableName = paste0("interm_res_items_tmp_", leftTableSuffix)
         # right is anchor
         anchorSideTableName = paste0("interm_res_items_tmp_", rightTableSuffix)
+        # 
+        leftIsLeaf = TRUE
       }else if(rResLvl == connectHierPath[length(connectHierPath)]){
         # right is leaf
         leafSideTableName = paste0("interm_res_items_tmp_", rightTableSuffix)
         # left is anchor
         anchorSideTableName = paste0("interm_res_items_tmp_", leftTableSuffix)
+        # 
+        leftIsLeaf = FALSE
       }
       
       for(i in length(connectHierPath):1){
@@ -828,7 +832,6 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
           # start at bottom of connectHierPath
           
           # walk up left side of trapeze
-          # 
           DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO hier_left_trapeze_interm_res_tmp ",
                                                          "SELECT lstn.db_uuid, lstn.session, lstn.bundle, ift.item_id AS seq_start_id, ift.item_id AS seq_end_id, 1 AS seq_len, ift.level, ",
                                                          "lstn.db_uuid AS db_uuid_leaf, lstn.session AS session_leaf, lstn.bundle AS bundle_leaf, lstn.seq_start_id AS seq_start_id_leaf, lstn.seq_end_id AS seq_end_id_leaf, lstn.seq_len AS seq_len_leaf, lstn.level AS level_leaf ",
@@ -869,13 +872,33 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
         }else{
           # at the top of the trapeze:
           # extract leaf values as right values and hier_left/right_trapeze items as left values
-          DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO lr_exp_res_tmp ",
-                                                         "SELECT DISTINCT hltirt.db_uuid,  hltirt.session, hltirt.bundle, hltirt.seq_start_id AS l_seq_start_id, hrtirt.seq_end_id AS l_seq_end_id, NULL AS l_seq_len, hltirt.level AS l_level, ",
-                                                         "hrtirt.seq_start_id_leaf AS r_seq_start_id, hrtirt.seq_end_id_leaf AS r_seq_end_id, hrtirt.seq_len_leaf AS r_seq_len, hrtirt.level_leaf AS r_level ",
-                                                         "FROM ", anchorSideTableName , " AS astn, hier_left_trapeze_interm_res_tmp AS hltirt, hier_right_trapeze_interm_res_tmp AS hrtirt ",
-                                                         "WHERE astn.db_uuid = hltirt.db_uuid AND astn.session = hltirt.session AND astn.bundle = hltirt.bundle AND astn.seq_start_id = hltirt.seq_start_id ",
-                                                         "AND astn.db_uuid = hrtirt.db_uuid AND astn.session = hrtirt.session AND astn.bundle = hrtirt.bundle AND astn.seq_end_id = hrtirt.seq_start_id "))
+          if(leftIsLeaf){
+            # 
+            DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO lr_exp_res_tmp ",
+                                                           "SELECT DISTINCT hltirt.db_uuid,  hltirt.session, hltirt.bundle, ",
+                                                           "hrtirt.seq_start_id_leaf AS l_seq_start_id, hrtirt.seq_end_id_leaf AS l_seq_end_id, hrtirt.seq_len_leaf AS l_seq_len, hrtirt.level_leaf AS l_level, ",
+                                                           "hltirt.seq_start_id AS r_seq_start_id, hrtirt.seq_end_id AS r_seq_end_id, NULL AS r_seq_len, hltirt.level AS r_level ",
+                                                           "FROM ", anchorSideTableName , " AS astn, hier_left_trapeze_interm_res_tmp AS hltirt, hier_right_trapeze_interm_res_tmp AS hrtirt ",
+                                                           "WHERE astn.db_uuid = hltirt.db_uuid AND astn.session = hltirt.session AND astn.bundle = hltirt.bundle AND astn.seq_start_id = hltirt.seq_start_id ",
+                                                           "AND astn.db_uuid = hrtirt.db_uuid AND astn.session = hrtirt.session AND astn.bundle = hrtirt.bundle AND astn.seq_end_id = hrtirt.seq_start_id "))
 
+            # calculate and update missing r_seq_len
+            DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE lr_exp_res_tmp ",
+                                                           "SET r_seq_len = (",
+                                                           "SELECT ift2.seq_idx - ift1.seq_idx + 1 ",
+                                                           "FROM lr_exp_res_tmp, items_filtered_tmp AS ift1, items_filtered_tmp AS ift2 ",
+                                                           "WHERE lr_exp_res_tmp.db_uuid = ift1.db_uuid AND lr_exp_res_tmp.session = ift1.session AND lr_exp_res_tmp.bundle = ift1.bundle AND lr_exp_res_tmp.l_seq_start_id = ift1.item_id ",
+                                                           "AND lr_exp_res_tmp.db_uuid = ift2.db_uuid AND lr_exp_res_tmp.session = ift2.session AND lr_exp_res_tmp.bundle = ift2.bundle AND lr_exp_res_tmp.l_seq_end_id = ift2.item_id ",
+                                                           ")"))
+            
+          }else{
+            #
+            DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO lr_exp_res_tmp ",
+                                                           "SELECT DISTINCT hltirt.db_uuid,  hltirt.session, hltirt.bundle, hltirt.seq_start_id AS l_seq_start_id, hrtirt.seq_end_id AS l_seq_end_id, NULL AS l_seq_len, hltirt.level AS l_level, ",
+                                                           "hrtirt.seq_start_id_leaf AS r_seq_start_id, hrtirt.seq_end_id_leaf AS r_seq_end_id, hrtirt.seq_len_leaf AS r_seq_len, hrtirt.level_leaf AS r_level ",
+                                                           "FROM ", anchorSideTableName , " AS astn, hier_left_trapeze_interm_res_tmp AS hltirt, hier_right_trapeze_interm_res_tmp AS hrtirt ",
+                                                           "WHERE astn.db_uuid = hltirt.db_uuid AND astn.session = hltirt.session AND astn.bundle = hltirt.bundle AND astn.seq_start_id = hltirt.seq_start_id ",
+                                                           "AND astn.db_uuid = hrtirt.db_uuid AND astn.session = hrtirt.session AND astn.bundle = hrtirt.bundle AND astn.seq_end_id = hrtirt.seq_start_id "))
           # calculate and update missing l_seq_len
           DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE lr_exp_res_tmp ",
                                                          "SET l_seq_len = (",
@@ -884,6 +907,8 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
                                                          "WHERE lr_exp_res_tmp.db_uuid = ift1.db_uuid AND lr_exp_res_tmp.session = ift1.session AND lr_exp_res_tmp.bundle = ift1.bundle AND lr_exp_res_tmp.l_seq_start_id = ift1.item_id ",
                                                          "AND lr_exp_res_tmp.db_uuid = ift2.db_uuid AND lr_exp_res_tmp.session = ift2.session AND lr_exp_res_tmp.bundle = ift2.bundle AND lr_exp_res_tmp.l_seq_end_id = ift2.item_id ",
                                                          ")"))
+          }
+          
           
         }
       }
