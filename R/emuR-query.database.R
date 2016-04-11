@@ -814,9 +814,13 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
       if(lResLvl == connectHierPath[length(connectHierPath)]){
         # left is leaf
         leafSideTableName = paste0("interm_res_items_tmp_", leftTableSuffix)
+        # right is anchor
+        anchorSideTableName = paste0("interm_res_items_tmp_", rightTableSuffix)
       }else if(rResLvl == connectHierPath[length(connectHierPath)]){
         # right is leaf
         leafSideTableName = paste0("interm_res_items_tmp_", rightTableSuffix)
+        # left is anchor
+        anchorSideTableName = paste0("interm_res_items_tmp_", leftTableSuffix)
       }
       
       for(i in length(connectHierPath):1){
@@ -866,12 +870,12 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
           # at the top of the trapeze:
           # extract leaf values as right values and hier_left/right_trapeze items as left values
           DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO lr_exp_res_tmp ",
-                                                         "SELECT hltirt.db_uuid,  hltirt.session, hltirt.bundle, hltirt.seq_start_id AS l_seq_start_id, hrtirt.seq_end_id AS l_seq_end_id, NULL AS l_seq_len, hltirt.level AS l_level, ", # SIC length set to 2 default
+                                                         "SELECT DISTINCT hltirt.db_uuid,  hltirt.session, hltirt.bundle, hltirt.seq_start_id AS l_seq_start_id, hrtirt.seq_end_id AS l_seq_end_id, NULL AS l_seq_len, hltirt.level AS l_level, ",
                                                          "hrtirt.seq_start_id_leaf AS r_seq_start_id, hrtirt.seq_end_id_leaf AS r_seq_end_id, hrtirt.seq_len_leaf AS r_seq_len, hrtirt.level_leaf AS r_level ",
-                                                         "FROM hier_left_trapeze_interm_res_tmp AS hltirt, hier_right_trapeze_interm_res_tmp AS hrtirt ",
-                                                         "WHERE hltirt.db_uuid_leaf = hrtirt.db_uuid_leaf AND hltirt.session_leaf = hrtirt.session_leaf AND hltirt.bundle_leaf = hrtirt.bundle_leaf ",
-                                                         "AND hltirt.seq_start_id_leaf = hrtirt.seq_start_id_leaf AND hltirt.seq_end_id_leaf = hrtirt.seq_end_id_leaf AND hltirt.seq_len_leaf = hrtirt.seq_len_leaf AND hltirt.level_leaf = hrtirt.level_leaf"))
-          
+                                                         "FROM ", anchorSideTableName , " AS astn, hier_left_trapeze_interm_res_tmp AS hltirt, hier_right_trapeze_interm_res_tmp AS hrtirt ",
+                                                         "WHERE astn.db_uuid = hltirt.db_uuid AND astn.session = hltirt.session AND astn.bundle = hltirt.bundle AND astn.seq_start_id = hltirt.seq_start_id ",
+                                                         "AND astn.db_uuid = hrtirt.db_uuid AND astn.session = hrtirt.session AND astn.bundle = hrtirt.bundle AND astn.seq_end_id = hrtirt.seq_start_id "))
+
           # calculate and update missing l_seq_len
           DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE lr_exp_res_tmp ",
                                                          "SET l_seq_len = (",
