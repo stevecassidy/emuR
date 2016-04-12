@@ -1192,13 +1192,13 @@ query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*
       DBI::dbGetQuery(emuDBhandle$connection, "DROP INDEX links_filtered_tmp_idx")
       DBI::dbGetQuery(emuDBhandle$connection, "DROP INDEX links_ext_filtered_tmp_idx")
       
-      system.time(DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items_filtered_tmp SELECT * FROM items WHERE db_uuid='", emuDBhandle$UUID, "'")))
+      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items_filtered_tmp SELECT * FROM items WHERE db_uuid='", emuDBhandle$UUID, "'"))
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labels_filtered_tmp SELECT * FROM labels WHERE db_uuid='", emuDBhandle$UUID, "'"))
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links_filtered_tmp SELECT * FROM links WHERE db_uuid='", emuDBhandle$UUID, "'"))
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links_ext_filtered_tmp SELECT * FROM links_ext WHERE db_uuid='", emuDBhandle$UUID, "'"))
       
       # recreate indices
-      system.time(DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredTmp_idx))
+      DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredTmp_idx)
       DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labelsFilteredTmp_idx)
       DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksFilteredTmp_idx)
       DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtFilteredTmp_idx)
