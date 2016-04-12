@@ -542,8 +542,12 @@ list_sessions <- function(emuDBhandle){
 ##' 
 list_bundles <- function(emuDBhandle, session=NULL){
   sesDf = list_sessions(emuDBhandle)
+  if(!is.null(session)){
+    sesDf = dplyr::filter_(sesDf, ~(name == session))
+  }
   bndlPattern = paste0("^.*", bundle.dir.suffix ,"$")
   res = data.frame(session = character(), name = character(), stringsAsFactors = F)
+  
   
   for(ses in sesDf$name){
     bndlDirs = dir(file.path(emuDBhandle$basePath, paste0(ses, session.suffix)), pattern = bndlPattern)
