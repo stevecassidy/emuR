@@ -7,6 +7,7 @@
 * convert_TextGridCollection can now handle nested folders again
 * invalid UUIDs in DBConfig produced by convert_BPFCollection. Also added additional unit test to detect this.
 * list_bundles uses session argument again
+* fixed "Expression tree is too large (maximum depth 1000)" error in get_trackdata with long emuRsegs lists
 
 ## new features / performance tweaks / improvements
 
