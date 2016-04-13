@@ -95,6 +95,30 @@ build_levelPathes <- function(emuDBhandle){
   return(pathes)
 }
 
+# get all paths through hierarchy connecting two levels
+get_hierPathsConnectingLevels <- function(emuDBhandle, levelName1, levelName2){
+
+  allHierPaths = build_allHierarchyPaths(load_DBconfig(emuDBhandle))
+  
+  conHierPaths = list()
+  
+  
+  for(p in allHierPaths){
+    # assume levelName1 is above levelName2
+    if(p[1] == levelName1 & p[length(p)] == levelName2){
+      conHierPaths[[length(conHierPaths) + 1]] = p
+    }
+    # assume levelName2 is above levelName1
+    if(p[1] == levelName2 & p[length(p)] == levelName1){
+      conHierPaths[[length(conHierPaths) + 1]] = p
+    }
+    
+  }
+  
+  return(conHierPaths)
+}
+
+
 
 # builds "extended" link definitions
 # lists link definitionsfor every possible directed connection between levels
