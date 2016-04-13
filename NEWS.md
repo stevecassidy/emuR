@@ -15,6 +15,8 @@
 * setting PRAGMA temp_store = 2; for SQLite connections
 * not extracting tables to R if no regex needed to create filtered_tmp tables (performance gain when querying large emuDBs)
 * convert_BPFCollection can now assigns the same label to more than one item when unifying tiers
+* newline at the end of load_emuDB if no redundant links are built
+* queries using dominates operator '^' don't use linksExt table anymore -> large performants benifits 
 
 # emuR 0.1.7
 
