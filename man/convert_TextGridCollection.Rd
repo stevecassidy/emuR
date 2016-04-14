@@ -9,7 +9,7 @@ convert_TextGridCollection(dir, dbName, targetDir, tgExt = "TextGrid",
 }
 \arguments{
 \item{dir}{path to directory containing the TextGridCollection (nested directory structures are permitted as the 
-function recusively through directories)}
+function recursively searches through directories, generating the session names from dir. structure)}
 
 \item{dbName}{name given to the new emuDB}
 

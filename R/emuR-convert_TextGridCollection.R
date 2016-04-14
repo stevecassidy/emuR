@@ -14,7 +14,7 @@ requireNamespace("RSQLite", quietly = T)
 ##' to automatically build a hierarchal structure.
 ##' 
 ##' @param dir path to directory containing the TextGridCollection (nested directory structures are permitted as the 
-##' function recusively through directories)
+##' function recursively searches through directories, generating the session names from dir. structure)
 ##' @param dbName name given to the new emuDB
 ##' @param targetDir directory where to save the new emuDB
 ##' @param tgExt extension of TextGrid files (default=TextGrid, meaning file names of the form baseName.TextGrid)
