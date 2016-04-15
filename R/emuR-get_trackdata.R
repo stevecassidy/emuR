@@ -159,14 +159,13 @@
   # check for sample rate consistancy
   uniqSessionBndls =utils::read.table(text = as.character(dplyr::distinct_(seglist, "utts")$utts), sep = ":", 
                                       col.names = c("session", "bundle"), colClasses = c("character", "character"), stringsAsFactors = F)
-  sesBndls = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM bundle WHERE ", 
-                                                            paste0("session = '", 
-                                                                   uniqSessionBndls$session, 
-                                                                   "' AND ", 
-                                                                   "name = '", 
-                                                                   uniqSessionBndls$bundle, 
-                                                                   "'", 
-                                                                   collapse = " OR ")))
+  DBI::dbGetQuery(emuDBhandle$connection,"CREATE TEMP TABLE uniq_session_bndls_tmp (session TEXT,bundle TEXT)")
+  DBI::dbWriteTable(emuDBhandle$connection, "uniq_session_bndls_tmp", uniqSessionBndls, append = T)
+  sesBndls = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT bundle.db_uuid, bundle.session, bundle.name, bundle.annotates, bundle.sample_rate, bundle.md5_annot_json ",
+                                                            "FROM uniq_session_bndls_tmp, bundle ",
+                                                            "WHERE uniq_session_bndls_tmp.session = bundle.session AND uniq_session_bndls_tmp.bundle = bundle.name"))
+  DBI::dbGetQuery(emuDBhandle$connection,"DROP TABLE uniq_session_bndls_tmp")
+  
   # remove uuid & MD5sum because we don't want to scare our users :-)
   sesBndls$db_uuid = NULL
   sesBndls$MD5annotJSON = NULL

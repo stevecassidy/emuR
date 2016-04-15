@@ -7,6 +7,7 @@
 * convert_TextGridCollection can now handle nested folders again
 * invalid UUIDs in DBConfig produced by convert_BPFCollection. Also added additional unit test to detect this.
 * list_bundles uses session argument again
+* fixed "Expression tree is too large (maximum depth 1000)" error in get_trackdata with long emuRsegs lists
 
 ## new features / performance tweaks / improvements
 
@@ -15,6 +16,8 @@
 * setting PRAGMA temp_store = 2; for SQLite connections
 * not extracting tables to R if no regex needed to create filtered_tmp tables (performance gain when querying large emuDBs)
 * convert_BPFCollection can now assigns the same label to more than one item when unifying tiers
+* newline at the end of load_emuDB if no redundant links are built
+* queries using dominates operator '^' don't use linksExt table anymore -> large performants benifits 
 
 # emuR 0.1.7
 
