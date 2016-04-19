@@ -1,15 +1,15 @@
 
-convert_queryResultToEmusegs<-function(emuDBhandle){
-  emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle)
+convert_queryResultToEmusegs<-function(emuDBhandle, timeRefSegmentLevel=NULL, filteredTablesSuffix){
+  emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix)
   emusegs = as.emusegs(emuRsegs)
   return(emusegs)
 }
 
 
-convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL){
-  itemsTableName = "items_filtered_tmp"
-  labelsTableName = "labels_filtered_tmp"
-  linksExtTableName = "links_ext_filtered_tmp"
+convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL, filteredTablesSuffix){
+  itemsTableName = paste0("items", filteredTablesSuffix)
+  labelsTableName = paste0("labels", filteredTablesSuffix)
+  linksExtTableName = paste0("links_ext", filteredTablesSuffix)
   
   bundles=c()
   labels=c()
@@ -68,7 +68,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL)
   # for this data the information in start end item of the sequence is sufficient
   # it takes only the start and end items of the query result into account
   # the CASE WHEN THEN ELSE END terms are necessary to get the start and end samples of sequences which are not segment levels and therefore have no time information
-  linksExtFilteredCount = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM links_ext_filtered_tmp"))$n
+  linksExtFilteredCount = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM ", linksExtTableName))$n
   hasLinks = (linksExtFilteredCount > 0)
 
   # select columns: id,session,bundle,start_item_id,end_item_id ,type ...
