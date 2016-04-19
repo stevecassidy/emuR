@@ -5,7 +5,46 @@ convert_queryResultToEmusegs<-function(emuDBhandle, timeRefSegmentLevel=NULL, fi
   return(emusegs)
 }
 
+##################################
+#
+fconvert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL, filteredTablesSuffix){
+  itemsTableName = paste0("items", filteredTablesSuffix)
+  labelsTableName = paste0("labels", filteredTablesSuffix)
+  linksExtTableName = paste0("links_ext", filteredTablesSuffix)
+  
+  dbConfig = load_DBconfig(emuDBhandle)
+  levelNamesWithTime = unlist(lapply(dbConfig$levelDefinitions, function(x){if(x$type=="SEGMENT" || x$type=="EVENT"){return(x$name)} }))
+  
+  resultLevel = DBI::dbGetQuery(emuDBhandle$connection, "SELECT * FROM interm_res_meta_infos_tmp_root")$result_level
+  
+  browser()
+  for(lnwt in levelNamesWithTime){
+    connectHierPaths = get_hierPathsConnectingLevels(emuDBhandle, lnwt, resultLevel)
+    
+    tln = connectHierPaths[[1]][length(connectHierPaths[[1]])]
+    # insert all time items into new table
+    create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = "queryres_convert_tmp")
+    dbGetQuery(emuDBhandle$connection, paste0("SELECT db_uuid, session, bundle, item_id AS seq_start_id, item_id AS seq_end_id, 1 AS seq_len, level  FROM ", itemsTableName, " ",
+                                              "WHERE db_uuid ='", emuDBhandle$UUID, "' AND level = '", tln, "'"))
+    
+    query_databaseHier(emuDBhandle, resultLevel, connectHierPaths[[1]][length(connectHierPaths[[1]])], leftTableSuffix, "queryres_convert_tmp", filteredTablesSuffix)
+    
+    
+  }
+  
+  
+  # get hierarchy paths
+  
+  
+  # # get hierarchy paths
+  # allHierPaths = build_allHierarchyPaths(load_DBconfig(emuDBhandle))
+  
+  
+  
+  }
 
+#################################
+#
 convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL, filteredTablesSuffix){
   itemsTableName = paste0("items", filteredTablesSuffix)
   labelsTableName = paste0("labels", filteredTablesSuffix)
