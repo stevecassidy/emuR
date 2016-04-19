@@ -1183,26 +1183,8 @@ query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*
     create_tmpFilteredQueryTablesDBI(emuDBhandle)
     # precheck if sessionPattern & bundlePattern are not set
     if((is.null(sessionPattern) || sessionPattern == '.*') && (is.null(bundlePattern) || bundlePattern == '.*')){
-      # copy everything over into filtered_tmp table
-      # drop all indices for faster insert
-      # DBI::dbGetQuery(emuDBhandle$connection, "DROP INDEX items_filtered_tmp_idx")
-      # DBI::dbGetQuery(emuDBhandle$connection, "DROP INDEX labels_filtered_tmp_idx")
-      # DBI::dbGetQuery(emuDBhandle$connection, "DROP INDEX links_filtered_tmp_idx")
-      # DBI::dbGetQuery(emuDBhandle$connection, "DROP INDEX links_ext_filtered_tmp_idx")
-      # 
-      # DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items_filtered_tmp SELECT * FROM items WHERE db_uuid='", emuDBhandle$UUID, "'"))
-      # DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labels_filtered_tmp SELECT * FROM labels WHERE db_uuid='", emuDBhandle$UUID, "'"))
-      # DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links_filtered_tmp SELECT * FROM links WHERE db_uuid='", emuDBhandle$UUID, "'"))
-      # DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links_ext_filtered_tmp SELECT * FROM links_ext WHERE db_uuid='", emuDBhandle$UUID, "'"))
-      # 
-      # # recreate indices
-      # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredTmp_idx)
-      # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labelsFilteredTmp_idx)
-      # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksFilteredTmp_idx)
-      # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtFilteredTmp_idx)
-      
+      # simply use original tables (no "_filtered_tmp suffix")
       filteredTablesSuffix = ""
-      
     }else{
       # extract all items for session/bundlePattern regEx matching (should check if REGEXP is available and is so use that instead)
       queryItems <- DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM items WHERE db_uuid='", emuDBhandle$UUID, "'"))
