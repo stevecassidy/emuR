@@ -12,36 +12,111 @@ fconvert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL
   labelsTableName = paste0("labels", filteredTablesSuffix)
   linksExtTableName = paste0("links_ext", filteredTablesSuffix)
   
+  projectionItemsN = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM interm_res_proj_items_tmp_root"))$n
+  if(projectionItemsN > 0){ 
+    # use projection items
+    itsTableName = "interm_res_proj_items_tmp_root"
+    seqStartIdColName = "p_seq_start_id"
+    seqEndIdColName = "p_seq_end_id"
+    seqLenColName = "p_seq_len"
+    levelColName = "p_level"
+  }else{
+    # use "normal" items
+    itsTableName = "interm_res_items_tmp_root"
+    seqStartIdColName = "seq_start_id"
+    seqEndIdColName = "seq_end_id"
+    seqLenColName = "seq_len"
+    levelColName = "level"
+  }
+  
+  
   dbConfig = load_DBconfig(emuDBhandle)
   levelNamesWithTime = unlist(lapply(dbConfig$levelDefinitions, function(x){if(x$type=="SEGMENT" || x$type=="EVENT"){return(x$name)} }))
   
   resultLevel = DBI::dbGetQuery(emuDBhandle$connection, "SELECT * FROM interm_res_meta_infos_tmp_root")$result_level
-  
-  browser()
-  for(lnwt in levelNamesWithTime){
+  if(resultLevel %in% levelNamesWithTime){
+    
+    seglist = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT labels.label AS labels, ",
+                                                             "CASE items_seq_start.type ",
+                                                             " WHEN 'SEGMENT' THEN items_seq_start.sample_start / items_seq_start.sample_rate * 1000.0 ",
+                                                             " WHEN 'EVENT' THEN 'NOT IMPLEMENTED YET' ",
+                                                             " ELSE 'SIC!! Something went wrong' ",
+                                                             "END AS start, ",
+                                                             "CASE items_seq_start.type ",
+                                                             " WHEN 'SEGMENT' THEN (items_seq_end.sample_start + items_seq_end.sample_dur) / items_seq_end.sample_rate * 1000.0 ",
+                                                             " WHEN 'EVENT' THEN 'NOT IMPLEMENTED YET' ",
+                                                             " ELSE 'SIC!! Something went wrong' ",
+                                                             "END AS end, ",
+                                                             "interm_res_items_tmp_root.session || ':' || interm_res_items_tmp_root.bundle AS utts, ",
+                                                             "interm_res_items_tmp_root.db_uuid, interm_res_items_tmp_root.session, interm_res_items_tmp_root.bundle, interm_res_items_tmp_root.seq_start_id AS startItemID, interm_res_items_tmp_root.seq_end_id AS endItemID, ",
+                                                             "interm_res_items_tmp_root.level AS level, items_seq_start.type AS type, ",
+                                                             "items_seq_start.sample_start AS sampleStart, (items_seq_end.sample_start + items_seq_end.sample_dur) AS sampleEnd, items_seq_start.sample_rate AS sampleRate ",
+                                                             "FROM interm_res_items_tmp_root, items AS items_seq_start, items AS items_seq_end, labels ",
+                                                             "WHERE interm_res_items_tmp_root.db_uuid = items_seq_start.db_uuid AND interm_res_items_tmp_root.session = items_seq_start.session AND interm_res_items_tmp_root.bundle = items_seq_start.bundle AND interm_res_items_tmp_root.seq_start_id = items_seq_start.item_id ",
+                                                             "AND interm_res_items_tmp_root.db_uuid = items_seq_end.db_uuid AND interm_res_items_tmp_root.session = items_seq_end.session AND interm_res_items_tmp_root.bundle = items_seq_end.bundle AND interm_res_items_tmp_root.seq_end_id = items_seq_end.item_id ",
+                                                             "AND interm_res_items_tmp_root.db_uuid = labels.db_uuid AND interm_res_items_tmp_root.session = labels.session AND interm_res_items_tmp_root.bundle = labels.bundle AND interm_res_items_tmp_root.seq_end_id = labels.item_id"))
+    
+  }else{
+    
+    # for(lnwt in levelNamesWithTime){
+    lnwt = levelNamesWithTime[1]
     connectHierPaths = get_hierPathsConnectingLevels(emuDBhandle, lnwt, resultLevel)
     
     tln = connectHierPaths[[1]][length(connectHierPaths[[1]])]
     # insert all time items into new table
-    create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = "queryres_convert_tmp")
-    dbGetQuery(emuDBhandle$connection, paste0("SELECT db_uuid, session, bundle, item_id AS seq_start_id, item_id AS seq_end_id, 1 AS seq_len, level  FROM ", itemsTableName, " ",
-                                              "WHERE db_uuid ='", emuDBhandle$UUID, "' AND level = '", tln, "'"))
+    timeItemsTableSuffix = "time_level_items"
+    create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = timeItemsTableSuffix)
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_", timeItemsTableSuffix, " ",
+                                                   "SELECT db_uuid, session, bundle, item_id AS seq_start_id, item_id AS seq_end_id, 1 AS seq_len, level  FROM ", itemsTableName, " ",
+                                                   "WHERE db_uuid ='", emuDBhandle$UUID, "' AND level = '", tln, "'"))
     
-    query_databaseHier(emuDBhandle, resultLevel, connectHierPaths[[1]][length(connectHierPaths[[1]])], leftTableSuffix, "queryres_convert_tmp", filteredTablesSuffix)
+    query_databaseHier(emuDBhandle, tln, resultLevel, timeItemsTableSuffix, "root", filteredTablesSuffix) # result written to lr_exp_res_tmp table
     
-    
+    # seglist=DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT \
+    #                      labels,
+    #                                                        CASE type WHEN 'EVENT' THEN \
+    #                                                        CAST (sample_start AS REAL)/ CAST( sample_rate AS REAL) * 1000.0 \
+    #                                                        ELSE \
+    #                                                        (CAST (sample_start AS REAL) + 0.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
+    #                                                        END AS start, \
+    #                                                        CASE type WHEN 'EVENT' THEN \
+    #                                                        0.0
+    #                                                        ELSE \
+    #                                                        (CAST (sample_end AS REAL) + 1.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
+    #                                                        END AS end, \
+    #                                                        session || ':' || bundle AS utts, \
+    #                                                        db_uuid,session,bundle, start_item_id AS startItemID, end_item_id AS endItemID,level,type,sample_start AS sampleStart,sample_end AS sampleEnd,sample_rate AS sampleRate\
+    #                                                        FROM (", queryStr, ")"))
+    seglist = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT 'XXX' AS labels, ",
+                                                             "CASE type ",
+                                                             " WHEN 'SEGMENT' THEN min(items.sample_start) / items.sample_rate * 1000.0 ",
+                                                             " ELSE 'SIC SIC SIC' ",
+                                                             "END AS start, ",
+                                                             "CASE type ",
+                                                             " WHEN 'SEGMENT' THEN max(items.sample_start + items.sample_dur) / items.sample_rate * 1000.0 ",
+                                                             " ELSE 'SIC SIC SIC' ",
+                                                             "END AS end, ",
+                                                             "items.session || ':' || items.bundle AS utts, ",
+                                                             "items.db_uuid, items.session, items.bundle, lr_exp_res_tmp.r_seq_start_id AS startItemID, lr_exp_res_tmp.r_seq_end_id AS endItemID, ",
+                                                             "'todo' AS level, 'TODO' AS type, ",
+                                                             "min(items.sample_start) AS sampleStart, max(items.sample_start + items.sample_dur) AS sampleEnd, items.sample_rate AS sampleRate ",
+                                                             "FROM lr_exp_res_tmp, items", filteredTablesSuffix, " ",
+                                                             "WHERE lr_exp_res_tmp.db_uuid = items.db_uuid AND lr_exp_res_tmp.session = items.session AND lr_exp_res_tmp.bundle = items.bundle AND lr_exp_res_tmp.l_seq_start_id = items.item_id ",
+                                                             "GROUP BY r_seq_start_id"))
   }
-  
-  
-  # get hierarchy paths
-  
-  
-  # # get hierarchy paths
-  # allHierPaths = build_allHierarchyPaths(load_DBconfig(emuDBhandle))
-  
-  
-  
+  # set emusegs type attribute, default 'segment'
+  slType='segment'
+  if(nrow(seglist)>0){
+    # set to event only if all rows are of type EVENT
+    if(all(seglist$type == "EVENT")){
+      slType='event'
+    }
   }
+  queryStr = DBI::dbGetQuery(emuDBhandle$connection, "SELECT query_str FROM interm_res_meta_infos_tmp_root")$query_str
+  segmentList=make.emuRsegs(dbName = emuDBhandle$dbName, seglist = seglist, query = queryStr, type = slType)
+  return(segmentList)
+  
+}
 
 #################################
 #
@@ -78,7 +153,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
     
     lvlNm = get_levelNameForAttributeName(emuDBhandle, attributeName = attrNm)
     ld = get_levelDefinition(emuDBhandle, name = lvlNm)
-
+    
     if(ld['type']=='ITEM'){
       segLvlNms = find_segmentLevels(emuDBhandle, attrNm)
       if(!is.null(timeRefSegmentLevel)){
@@ -109,7 +184,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
   # the CASE WHEN THEN ELSE END terms are necessary to get the start and end samples of sequences which are not segment levels and therefore have no time information
   linksExtFilteredCount = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM ", linksExtTableName))$n
   hasLinks = (linksExtFilteredCount > 0)
-
+  
   # select columns: id,session,bundle,start_item_id,end_item_id ,type ...
   selectStr=paste0("SELECT s.db_uuid ,s.session,s.bundle,s.item_id AS start_item_id ,e.item_id AS end_item_id,r.", levelColName, ",s.type, ")
   
@@ -200,7 +275,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
     }
   }
   selectStr=paste0(selectStr," AS labels ")
-
+  
   queryStr=paste(selectStr,fromStr,whereStr,orderStr,sep = ' ')
   
   # convert samples to milliseconds SQL string:
@@ -226,7 +301,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
   if(nrow(seglist)>0){
     # set to event only if all rows are of type EVENT
     if(all(seglist$type == "EVENT")){
-        slType='event'
+      slType='event'
     }
   }
   queryStr = DBI::dbGetQuery(emuDBhandle$connection, "SELECT query_str FROM interm_res_meta_infos_tmp_root")$query_str
@@ -255,7 +330,7 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
   for(attrNm in distinctLevels[,'level']){
     lvlNm=get_levelNameForAttributeName(emuDBhandle,attributeName = attrNm)
     ld=get_levelDefinition(emuDBhandle, name = lvlNm)
-
+    
     if(ld['type']=='ITEM'){
       segLvlNms=find_segmentLevels(emuDBhandle,attrNm)
       if(!is.null(timeRefSegmentLevel)){
@@ -279,7 +354,7 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
   if(itCount==0){
     its=data.frame(db_uuid=character(0),session=character(0),bundle=character(0),seq_start_id=integer(0),seq_end_id=integer(0),seq_len=integer(0),level=character(0),stringsAsFactors = FALSE)
   }
-
+  
   if(itCount>0){
     maxSeqLenDf=DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT max(seq_len) AS maxSeqLen FROM ", itsTableName))
     maxSeqLen=maxSeqLenDf[1,'maxSeqLen']
@@ -299,7 +374,7 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
   # the CASE WHEN THEN ELSE END terms are necessary to get the start and end samples of sequences which are not segment levels and therefore have no time information  
   hasLinks = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM links_ext"))$n > 0
   
-
+  
   # select columns: id,session,bundle,start_item_id,end_item_id ,type ...
   selectStr=paste0("SELECT s.db_uuid ,s.session,s.bundle,s.item_id AS start_item_id ,e.item_id AS end_item_id, r.level, s.type, ")
   

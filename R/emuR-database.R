@@ -64,11 +64,11 @@ database.DDL.emuDB_items = 'CREATE TABLE items (
   sample_point INTEGER,
   sample_start INTEGER,
   sample_dur INTEGER,
-  PRIMARY KEY (db_uuid, session, bundle, level, item_id, type),
+  PRIMARY KEY (db_uuid, session, bundle, item_id),
   FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
 );'
 
-database.DDL.emuDB_items_idx1 = 'CREATE INDEX IF NOT EXISTS items_idx1 ON items(db_uuid,session,bundle,item_id)'
+# database.DDL.emuDB_items_idx1 = 'CREATE INDEX IF NOT EXISTS items_idx1 ON items(item_id, bundle, session, db_uuid)'
 
 # Important note:
 # The primary key of items contains more columns then needed to identify a particular item.
@@ -86,8 +86,11 @@ database.DDL.emuDB_labels = 'CREATE TABLE labels (
   label_idx INTEGER,
   name TEXT,
   label TEXT,
+  PRIMARY KEY (db_uuid, session, bundle, item_id, label_idx),
   FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
 );'
+
+# database.DDL.emuDB_labels_idx1 = 'CREATE INDEX IF NOT EXISTS labels_idx1 ON labels(item_id, bundle, session, db_uuid)'
 
 database.DDL.emuDB_links = 'CREATE TABLE links (
   db_uuid VARCHAR(36) NOT NULL,
@@ -98,7 +101,9 @@ database.DDL.emuDB_links = 'CREATE TABLE links (
   label TEXT,
   FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
 );'
-database.DDL.emuDB_linksIdx = 'CREATE INDEX IF NOT EXISTS links_idx ON links(db_uuid,session,bundle,from_id,to_id)'
+
+database.DDL.emuDB_links_both_ids_idx = 'CREATE INDEX IF NOT EXISTS links_both_ids_idx ON links(db_uuid, session, bundle, from_id, to_id)'
+database.DDL.emuDB_links_to_id_idx = 'CREATE INDEX IF NOT EXISTS links_to_id_idx ON links(db_uuid, session, bundle, to_id)'
 
 database.DDL.emuDB_linksTmp = 'CREATE TEMP TABLE links_tmp (
   db_uuid VARCHAR(36) NOT NULL,
@@ -108,7 +113,8 @@ database.DDL.emuDB_linksTmp = 'CREATE TEMP TABLE links_tmp (
   to_id INTEGER,
   label TEXT
 );'
-database.DDL.emuDB_linksTmpIdx = 'CREATE INDEX IF NOT EXISTS links_tmp_idx ON links_tmp(db_uuid,session,bundle,from_id,to_id)'
+
+database.DDL.emuDB_linksTmpIdx = 'CREATE INDEX IF NOT EXISTS links_tmp_idx ON links_tmp(db_uuid, session, bundle, from_id, to_id)'
 
 database.DDL.emuDB_linksExt = 'CREATE TABLE links_ext (
   db_uuid VARCHAR(36) NOT NULL,
@@ -142,7 +148,8 @@ database.DDL.emuDB_linksExtTmp = 'CREATE TEMP TABLE links_ext_tmp (
   to_seq_len INTEGER,
   label TEXT
 );'
-database.DDL.emuDB_linksExtTmpIdx = 'CREATE INDEX IF NOT EXITST links_ext_tmp_idx ON links_ext_tmp(db_uuid,session,bundle,from_id,to_id,to_level,type)'
+
+database.DDL.emuDB_linksExtTmpIdx = 'CREATE INDEX IF NOT EXISTS links_ext_tmp_idx ON links_ext_tmp(db_uuid,session,bundle,from_id,to_id,to_level,type)'
 
 # this should be a temp table
 database.DDL.emuDB_linksExtTmp2 = 'CREATE TEMP TABLE links_ext_tmp2 (
@@ -200,9 +207,11 @@ initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TR
 }
 
 create_emuDBindicesDBI<-function(emuDBhandle){
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_items_idx1) 
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksIdx) 
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtIdx) 
+  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_links_both_ids_idx)
+  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_links_to_id_idx)
+  # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labels_idx1)
+  # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksIdx)
+  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtIdx)
 }
 
 

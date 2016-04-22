@@ -6,48 +6,48 @@ requireNamespace("stringr", quietly = T)
 # tabels that store "filtered" items, labels and links_ext (when session/bundlePatterns are used)
 database.DDL.emuDB_itemsFilteredTmp = gsub("CREATE TABLE items", "CREATE TEMP TABLE items_filtered_tmp", database.DDL.emuDB_items)
 database.DDL.emuDB_itemsFilteredTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_itemsFilteredTmp) # remove FOREIGN KEY
-database.DDL.emuDB_itemsFilteredTmp_idx = "CREATE INDEX items_filtered_tmp_idx ON items_filtered_tmp(db_uuid,session,bundle,item_id)"
+# database.DDL.emuDB_itemsFilteredTmp_idx = "CREATE INDEX items_filtered_tmp_idx ON items_filtered_tmp(db_uuid,session,bundle,item_id)"
 
 database.DDL.emuDB_labelsFilteredTmp = gsub("CREATE TABLE labels", "CREATE TEMP TABLE labels_filtered_tmp", database.DDL.emuDB_labels)
 database.DDL.emuDB_labelsFilteredTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_labelsFilteredTmp) # remove FOREIGN KEY
-database.DDL.emuDB_labelsFilteredTmp_idx = "CREATE INDEX labels_filtered_tmp_idx ON labels_filtered_tmp(item_id,db_uuid,session,bundle,name)"
+# database.DDL.emuDB_labelsFilteredTmp_idx = "CREATE INDEX labels_filtered_tmp_idx ON labels_filtered_tmp(item_id,db_uuid,session,bundle,name)"
 
 database.DDL.emuDB_linksFilteredTmp = gsub("CREATE TABLE links", "CREATE TEMP TABLE links_filtered_tmp", database.DDL.emuDB_links)
 database.DDL.emuDB_linksFilteredTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_linksFilteredTmp) # remove FOREIGN KEY
-database.DDL.emuDB_linksFilteredTmp_idx = 'CREATE INDEX links_filtered_tmp_idx ON links_filtered_tmp(db_uuid,session,bundle,from_id,to_id)'
+# database.DDL.emuDB_linksFilteredTmp_idx = 'CREATE INDEX links_filtered_tmp_idx ON links_filtered_tmp(db_uuid,session,bundle,from_id,to_id)'
 
 database.DDL.emuDB_linksExtFilteredTmp = gsub("CREATE TABLE links_ext", "CREATE TEMP TABLE links_ext_filtered_tmp", database.DDL.emuDB_linksExt)
 database.DDL.emuDB_linksExtFilteredTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_linksExtFilteredTmp) # remove FOREIGN KEY
-database.DDL.emuDB_linksExtFilteredTmp_idx = 'CREATE INDEX links_ext_filtered_tmp_idx ON links_ext_filtered_tmp(db_uuid,session,bundle,from_id,to_id)'
+# database.DDL.emuDB_linksExtFilteredTmp_idx = 'CREATE INDEX links_ext_filtered_tmp_idx ON links_ext_filtered_tmp(db_uuid,session,bundle,from_id,to_id)'
 
 create_tmpFilteredQueryTablesDBI <- function(emuDBhandle){
   
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredTmp)
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredTmp_idx)
+  # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredTmp_idx)
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labelsFilteredTmp)
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labelsFilteredTmp_idx)
+  # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labelsFilteredTmp_idx)
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksFilteredTmp)
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksFilteredTmp_idx)
+  # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksFilteredTmp_idx)
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtFilteredTmp)
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtFilteredTmp_idx)
+  # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtFilteredTmp_idx)
   
   # tabels that store subsets of filtered tables
   database.DDL.emuDB_itemsFilteredSubsetTmp = gsub("CREATE TABLE items", "CREATE TEMP TABLE items_filtered_subset_tmp", database.DDL.emuDB_items)
   database.DDL.emuDB_itemsFilteredSubsetTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_itemsFilteredSubsetTmp) # remove FOREIGN KEY
-  database.DDL.emuDB_itemsFilteredSubsetTmp_idx = "CREATE INDEX items_filtered_subset_tmp_idx ON items_filtered_subset_tmp(db_uuid,session,bundle,item_id)"
+  # database.DDL.emuDB_itemsFilteredSubsetTmp_idx = "CREATE INDEX items_filtered_subset_tmp_idx ON items_filtered_subset_tmp(db_uuid,session,bundle,item_id)"
   
   database.DDL.emuDB_labelsFilteredSubsetTmp = gsub("CREATE TABLE labels", "CREATE TEMP TABLE labels_filtered_subset_tmp", database.DDL.emuDB_labels)
   database.DDL.emuDB_labelsFilteredSubsetTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_labelsFilteredSubsetTmp) # remove FOREIGN KEY
-  database.DDL.emuDB_labelsFilteredSubsetTmp_idx = "CREATE INDEX labels_filtered_subset_tmp_idx ON labels_filtered_subset_tmp(item_id,db_uuid,session,bundle,name)"
+  # database.DDL.emuDB_labelsFilteredSubsetTmp_idx = "CREATE INDEX labels_filtered_subset_tmp_idx ON labels_filtered_subset_tmp(item_id,db_uuid,session,bundle,name)"
   
   database.DDL.emuDB_linksExtFilteredSubsetTmp = gsub("CREATE TABLE links_ext", "CREATE TEMP TABLE links_ext_filtered_subset_tmp", database.DDL.emuDB_linksExt)
   database.DDL.emuDB_linksExtFilteredSubsetTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_linksExtFilteredSubsetTmp) # remove FOREIGN KEY
-  database.DDL.emuDB_linksExtFilteredSubsetTmp_idx = 'CREATE INDEX links_ext_filtered_subset_tmp_idx ON links_ext_filtered_subset_tmp(db_uuid,session,bundle,from_id,to_id)'
+  # database.DDL.emuDB_linksExtFilteredSubsetTmp_idx = 'CREATE INDEX links_ext_filtered_subset_tmp_idx ON links_ext_filtered_subset_tmp(db_uuid,session,bundle,from_id,to_id)'
   
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredSubsetTmp)
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredSubsetTmp_idx)
+  # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredSubsetTmp_idx)
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labelsFilteredSubsetTmp)
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labelsFilteredSubsetTmp_idx)
+  # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labelsFilteredSubsetTmp_idx)
   
   database.DDL.emuDB_lrExpResTmp = paste0("CREATE TEMP TABLE lr_exp_res_tmp (",
                                           "db_uuid VARCHAR(36),",
@@ -63,10 +63,10 @@ create_tmpFilteredQueryTablesDBI <- function(emuDBhandle){
                                           "r_level TEXT",
                                           ");")
   
-  database.DDL.emuDB_lrExpResTmp_idx = 'CREATE INDEX lr_exp_res_tmp_idx ON lr_exp_res_tmp(db_uuid,session,bundle)'
+  # database.DDL.emuDB_lrExpResTmp_idx = 'CREATE INDEX lr_exp_res_tmp_idx ON lr_exp_res_tmp(db_uuid,session,bundle)'
   
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_lrExpResTmp)
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_lrExpResTmp_idx)
+  # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_lrExpResTmp_idx)
   
 }
 
@@ -84,7 +84,7 @@ create_intermResTmpQueryTablesDBI <- function(emuDBhandle, suffix = "root"){
                                                  "PRIMARY KEY (db_uuid, session, bundle, seq_start_id, seq_end_id)",
                                                  ");")
   
-  database.DDL.emuDB_intermRes_itemsTmp_idx = paste0("CREATE INDEX interm_res_items_tmp_", suffix, "_idx ON interm_res_items_tmp_", suffix, "(db_uuid,session,bundle,seq_start_id,seq_end_id,seq_len,level)")
+  # database.DDL.emuDB_intermRes_itemsTmp_idx = paste0("CREATE INDEX interm_res_items_tmp_", suffix, "_idx ON interm_res_items_tmp_", suffix, "(db_uuid,session,bundle,seq_start_id,seq_end_id,seq_len,level)")
   
   database.DDL.emuDB_intermRes_metaInfosTmp = paste0("CREATE TEMP TABLE interm_res_meta_infos_tmp_", suffix, " (",
                                                      "result_level TEXT,",
@@ -92,7 +92,7 @@ create_intermResTmpQueryTablesDBI <- function(emuDBhandle, suffix = "root"){
                                                      "query_str TEXT",
                                                      ");")
   
-  database.DDL.emuDB_intermRes_metaInfosTmp_idx = paste0("CREATE INDEX interm_res_meta_infos_tmp_", suffix, "_idx ON interm_res_meta_infos_tmp_", suffix, "(result_level,projection_attr_level,query_str)")
+  # database.DDL.emuDB_intermRes_metaInfosTmp_idx = paste0("CREATE INDEX interm_res_meta_infos_tmp_", suffix, "_idx ON interm_res_meta_infos_tmp_", suffix, "(result_level,projection_attr_level,query_str)")
   
   database.DDL.emuDB_intermRes_projItemsTmp = paste0("CREATE TEMP TABLE interm_res_proj_items_tmp_", suffix, " (",
                                                      "db_uuid VARCHAR(36),",
@@ -106,23 +106,23 @@ create_intermResTmpQueryTablesDBI <- function(emuDBhandle, suffix = "root"){
                                                      "p_level TEXT",
                                                      ");")
   
-  database.DDL.emuDB_intermRes_projItemsTmp_idx = paste0("CREATE INDEX interm_res_proj_items_tmp_", suffix, "_idx ON interm_res_proj_items_tmp_", suffix, "(db_uuid,session,bundle,seq_start_id,seq_end_id)")
+  # database.DDL.emuDB_intermRes_projItemsTmp_idx = paste0("CREATE INDEX interm_res_proj_items_tmp_", suffix, "_idx ON interm_res_proj_items_tmp_", suffix, "(db_uuid,session,bundle,seq_start_id,seq_end_id)")
   
   if(!DBI::dbExistsTable(emuDBhandle$connection, paste0("interm_res_items_tmp_", suffix))){
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_itemsTmp)
-    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_itemsTmp_idx)
+    # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_itemsTmp_idx)
   }else{
     DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM interm_res_items_tmp_", suffix))
   }
   if(!DBI::dbExistsTable(emuDBhandle$connection, paste0("interm_res_meta_infos_tmp_", suffix))){
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_metaInfosTmp)
-    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_metaInfosTmp_idx)
+    # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_metaInfosTmp_idx)
   }else{
     DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM interm_res_meta_infos_tmp_", suffix))
   }
   if(!DBI::dbExistsTable(emuDBhandle$connection, paste0("interm_res_proj_items_tmp_", suffix))){
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_projItemsTmp)
-    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_projItemsTmp_idx)
+    # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_projItemsTmp_idx)
   }else{
     DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM interm_res_proj_items_tmp_", suffix))
   }
@@ -710,12 +710,12 @@ query_databaseHier <- function(emuDBhandle, firstLevelName, secondLevelName, lef
                                              ");")
   
   
-  hier_left_trapeze_interm_res_tmp_idx = paste0("CREATE INDEX IF NOT EXISTS hier_left_trapeze_interm_res_tmp_idx ON hier_left_trapeze_interm_res_tmp (db_uuid,session,bundle,seq_start_id,seq_end_id,seq_len,level)")
-  hier_right_trapeze_interm_res_tmp_idx = paste0("CREATE INDEX IF NOT EXISTS hier_right_trapeze_interm_res_tmp_idx ON hier_right_trapeze_interm_res_tmp (db_uuid,session,bundle,seq_start_id,seq_end_id,seq_len,level)")
+  # hier_left_trapeze_interm_res_tmp_idx = paste0("CREATE INDEX IF NOT EXISTS hier_left_trapeze_interm_res_tmp_idx ON hier_left_trapeze_interm_res_tmp (db_uuid,session,bundle,seq_start_id,seq_end_id,seq_len,level)")
+  # hier_right_trapeze_interm_res_tmp_idx = paste0("CREATE INDEX IF NOT EXISTS hier_right_trapeze_interm_res_tmp_idx ON hier_right_trapeze_interm_res_tmp (db_uuid,session,bundle,seq_start_id,seq_end_id,seq_len,level)")
   DBI::dbGetQuery(emuDBhandle$connection, hier_left_trapeze_interm_res_tmp)
-  DBI::dbGetQuery(emuDBhandle$connection, hier_left_trapeze_interm_res_tmp_idx)
+  # DBI::dbGetQuery(emuDBhandle$connection, hier_left_trapeze_interm_res_tmp_idx)
   DBI::dbGetQuery(emuDBhandle$connection, hier_right_trapeze_interm_res_tmp)
-  DBI::dbGetQuery(emuDBhandle$connection, hier_right_trapeze_interm_res_tmp_idx)
+  # DBI::dbGetQuery(emuDBhandle$connection, hier_right_trapeze_interm_res_tmp_idx)
   
   # get hierarchy paths
   connectHierPaths = get_hierPathsConnectingLevels(emuDBhandle, firstLevelName, secondLevelName)
