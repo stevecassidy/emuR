@@ -18,6 +18,7 @@
 * convert_BPFCollection can now assigns the same label to more than one item when unifying tiers
 * newline at the end of load_emuDB if no redundant links are built
 * queries using dominates operator '^' don't use linksExt table anymore -> large performants benifits 
+* only using \_filtered\_tmp tables if regex patterns are used
 
 # emuR 0.1.7
 
