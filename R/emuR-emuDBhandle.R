@@ -56,10 +56,15 @@ summary.emuDBhandle = function(object, ...){
   itCntQ = paste0("SELECT count(*) FROM items WHERE db_uuid='", object$UUID, "'")
   itCntDf = DBI::dbGetQuery(object$connection, itCntQ)
   itemCnt = itCntDf[[1]]
+  labCntQ = paste0("SELECT count(*) FROM labels WHERE db_uuid='", object$UUID, "'")
+  labCntDf = DBI::dbGetQuery(object$connection, labCntQ)
+  labCnt = labCntDf[[1]]
   liCntQ = paste0("SELECT count(*) FROM links WHERE db_uuid='", object$UUID, "'")
   liCntDf = DBI::dbGetQuery(object$connection, liCntQ)
   linkCnt = liCntDf[[1]]
-  cat("Annotation item count: ", itemCnt, ", links count: ", linkCnt, "\n")
+  cat("Annotation item count: ", itemCnt, "\n")
+  cat("Label count: ", labCnt, "\n")
+  cat("Link count: ", linkCnt, "\n")
   cat("\nDatabase configuration:\n\n")
   
   dbConfig = load_DBconfig(object)
