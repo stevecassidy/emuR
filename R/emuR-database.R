@@ -777,6 +777,7 @@ create_emuDB<-function(name, targetDir, mediaFileExtension='wav',
 ##' use an SQLite database either in memory (\code{inMemoryCache = TRUE}) or in the emuDB folder. This is intended
 ##' for expert use only!
 ##' @param verbose be verbose
+##' @param ... additional parameters
 ##' @return name of emuDB
 ##' @import jsonlite DBI
 ##' @export
@@ -799,7 +800,7 @@ create_emuDB<-function(name, targetDir, mediaFileExtension='wav',
 ##' ae = load_emuDB(demoDatabaseDir)
 ##' 
 ##' }
-load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, verbose=TRUE){
+load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, verbose=TRUE, ...){
   progress = 0
   # check database dir
   if(!file.exists(databaseDir)){
@@ -825,6 +826,13 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, ve
   if(!file.exists(dbCfgPath)){
     stop("Could not find database info file: ",dbCfgPath,"\n")
   }
+  # extract ... (ellipsis) parameters
+  dots = list(...)
+  if("update_cache" %in% names(dots)){
+    update_cache = dots$update_cache
+  }else{
+    update_cache = F
+  }
   
   # load DBconfig
   DBconfig = jsonlite::fromJSON(dbCfgPath, simplifyVector=FALSE)
@@ -849,7 +857,9 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, ve
   # check if cache exist -> update cache if true
   dbsDf = get_emuDbDBI(dbHandle)
   if(nrow(dbsDf)>0){
-    update_cache(dbHandle, verbose = verbose)
+    if(update_cache){
+      update_cache(dbHandle, verbose = verbose)
+    }
     return(dbHandle)
   }
   

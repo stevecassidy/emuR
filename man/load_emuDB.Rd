@@ -5,7 +5,7 @@
 \title{Load emuDB}
 \usage{
 load_emuDB(databaseDir, inMemoryCache = FALSE, connection = NULL,
-  verbose = TRUE)
+  verbose = TRUE, ...)
 }
 \arguments{
 \item{databaseDir}{directory of the emuDB}
@@ -17,6 +17,8 @@ use an SQLite database either in memory (\code{inMemoryCache = TRUE}) or in the 
 for expert use only!}
 
 \item{verbose}{be verbose}
+
+\item{...}{additional parameters}
 }
 \value{
 name of emuDB
