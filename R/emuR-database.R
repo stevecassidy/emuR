@@ -829,9 +829,9 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, ve
   # extract ... (ellipsis) parameters
   dots = list(...)
   if("update_cache" %in% names(dots)){
-    update_cache = dots$update_cache
+    updateCache = dots$update_cache
   }else{
-    update_cache = F
+    update_cache = T
   }
   
   # load DBconfig
