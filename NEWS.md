@@ -19,6 +19,7 @@
 * newline at the end of load_emuDB if no redundant links are built
 * queries using dominates operator '^' don't use linksExt table anymore -> large performants benifits 
 * only using \_filtered\_tmp tables if regex patterns are used
+* changed primary key on items table which leads to massive performance gains
 
 # emuR 0.1.7
 
