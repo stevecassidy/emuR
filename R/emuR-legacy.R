@@ -547,8 +547,36 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerate(),verbo
   # add handle for in memory DB
   dbHandle = emuDBhandle(dbName, pp, dbUUID, connectionPath = ":memory:")
   
+  # filter transient properties
+  # the properties listed are not persisted to JSON files
+  
+#   (filter list of old persitence code)  
+#   emuR.persist.filters.DBconfig=list()
+#   emuR.persist.filters.DBconfig[[1]]=c('annotationDescriptors')
+#   emuR.persist.filters.DBconfig[[2]]=c('tracks')
+#   emuR.persist.filters.DBconfig[[3]]=c('flags')
+#   emuR.persist.filters.DBconfig[[4]]=c('ssffTrackDefinitions','basePath')
+#   emuR.persist.filters.DBconfig[[5]]=c('mediafileBasePathPattern')
+#   emuR.persist.filters.DBconfig[[6]]=c('maxNumberOfLabels')
+#   emuR.persist.filters.DBconfig[[7]]=c('itemColNames')
+#   emuR.persist.filters.DBconfig[[8]]=c('basePath')
+#   emuR.persist.filters.DBconfig[[9]]=c('DBconfigPath')
+  
+  dbConfigPersist=dbConfig
+  for(pNm in names(dbConfig)){
+    if(pNm %in% c('annotationDescriptors','tracks','flags','mediafileBasePathPattern','maxNumberOfLabels','itemColNames','basePath','DBconfigPath')){
+      dbConfigPersist[[pNm]]=NULL
+    }
+  }
+  ssffTrCnt=length(dbConfig[['ssffTrackDefinitions']])
+  if(ssffTrCnt>0){
+    for(i in 1:ssffTrCnt){
+      dbConfigPersist[['ssffTrackDefinitions']][[i]][['basePath']]=NULL
+    }
+  }
+  
   # store db schema file
-  store_DBconfig(dbHandle, dbConfig)
+  store_DBconfig(dbHandle, dbConfigPersist)
   progress=progress+1L
   
   # load primary track file list first

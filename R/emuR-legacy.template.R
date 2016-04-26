@@ -1,3 +1,5 @@
+requireNamespace("uuid", quietly = T)
+
 ## Create emuDB database schema object from EMU template (.tpl) file
 ## 
 ## @param tplPath EMU template file path
@@ -173,7 +175,7 @@ load_dbConfigFromEmuTemplate=function(tplPath,dbUUID=NULL,encoding=NULL){
               if(td[['name']]==levelTierName){
                 # replace
                 attrDefs=levelDefinitions[[i]][['attributeDefinitions']]
-                attrDefs[[length(attrDefs)+1L]]=list(name=lineTokens[3])
+                attrDefs[[length(attrDefs)+1L]]=list(name=lineTokens[3],type='STRING')
                 levelDefinitions[[i]]=list(name=levelTierName,type=td[['type']],attributeDefinitions=attrDefs);
                 break
               }
@@ -264,7 +266,7 @@ load_dbConfigFromEmuTemplate=function(tplPath,dbUUID=NULL,encoding=NULL){
   if(is.null(dbUUID)){
   # Generate UUID 
   # problem: the UUID will change on every reload
-  dbUUID=UUIDgenerate()
+  dbUUID=uuid::UUIDgenerate()
   }
   
   # default perspective
