@@ -831,7 +831,7 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, ve
   if("update_cache" %in% names(dots)){
     updateCache = dots$update_cache
   }else{
-    update_cache = T
+    updateCache = T
   }
   
   # load DBconfig
@@ -857,7 +857,7 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, ve
   # check if cache exist -> update cache if true
   dbsDf = get_emuDbDBI(dbHandle)
   if(nrow(dbsDf)>0){
-    if(update_cache){
+    if(updateCache){
       update_cache(dbHandle, verbose = verbose)
     }
     return(dbHandle)
