@@ -1,4 +1,4 @@
-# emuR 0.1.8.9000
+# emuR 0.1.8
 
 ## bug fixes
 
@@ -14,18 +14,18 @@
 * get_trackdata with onTheFly calculation now reuses AsspDataObj if the current utterance is the same as the previous (large performance gain especially on long audio files)
 * checking if DBconfig exists for better error message if 'name' field is not set correctly in DBconfig
 * setting PRAGMA temp_store = 2; for SQLite connections
-* not extracting tables to R if no regex needed to create filtered_tmp tables (performance gain when querying large emuDBs)
+* not extracting tables to R if no RegEx needed to create filtered_tmp tables (performance gain when querying large emuDBs)
 * convert_BPFCollection can now assigns the same label to more than one item when unifying tiers
 * newline at the end of load_emuDB if no redundant links are built
-* queries using dominates operator '^' don't use linksExt table anymore -> large performants benifits 
-* only using \_filtered\_tmp tables if regex patterns are used
-* changed primary key on items table which leads to massive performance gains
+* queries using dominates operator '^' don't use linksExt table anymore -> large performances benefits 
+* only using \_filtered\_tmp tables if RegEx patterns are used
+* changed primary key on items table which leads to massive performance gains (deleting _emuDBcache.sqlite required)
 
 # emuR 0.1.7
 
 * R depends version bump to 3.2.0 (as requested by CRAN maintainer)
 * updated testthat::expect\_less\_than to expect\_lt calls (due to deprecated warnings)
-* Using new .keep_all = T parameter of dplyr 
+* Using new .keep_all = T parameter of dplyr
 * removed legacy version of EQL vignette (overlooked as inst/doc was in .gitignore)
 
 # emuR 0.1.6
