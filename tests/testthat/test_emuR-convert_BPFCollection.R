@@ -305,6 +305,8 @@ test_that("Loading emuDB",
           {
             convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F, refLevel = "ORT", unifyLevels = c("KAN"))
             handle = load_emuDB(file.path(testDir, paste0(dbName, emuDB.suffix)), verbose = F)
+            DBI::dbDisconnect(handle$connection)
+            handle = NULL
           }
         )
 
