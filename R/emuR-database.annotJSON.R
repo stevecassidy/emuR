@@ -89,6 +89,13 @@ bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
     links = list()
   }
   
+  # reset null entries of empty items to list for correct cohesion into json
+  for(i in 1:length(levels)){
+    if(is.null(levels[[i]]$items)){
+      levels[[i]]$items = list()
+    }
+  }
+  
   annotJSON = list(name = annotDFs$name,
                    annotates = annotDFs$annotates,
                    sampleRate = annotDFs$sampleRate,

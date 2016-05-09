@@ -1,3 +1,9 @@
+# emuR 0.1.9.9000
+
+## bug fixes
+
+* fixed problem in conversion to JSON with empty items array (object '{}' vs array '[]')
+
 # emuR 0.1.8
 
 ## bug fixes
