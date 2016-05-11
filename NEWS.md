@@ -3,6 +3,11 @@
 ## bug fixes
 
 * fixed problem in conversion to JSON with empty items array (object '{}' vs array '[]')
+* fixed problem of keywords "number" | "time" | "xmin" | ... in labels causing TextGrid parser to fail
+
+## new features / performance tweaks / improvements
+
+* also allowing "time = " in TextTiers
 
 # emuR 0.1.8
 

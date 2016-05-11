@@ -209,16 +209,16 @@ parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encodi
                         
                         # item entry:
                         DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', '", itemCounterGlobal, 
-                                                                   "', '", currentTierName, "', '", "SEGMENT", 
-                                                                   "', ", itemCounterLevel, ", ", sampleRate, ", ", "NULL", ", ", currentSegmentStart, 
-                                                                   ", ", sampleDur, ")"))
+                                                                       "', '", currentTierName, "', '", "SEGMENT", 
+                                                                       "', ", itemCounterLevel, ", ", sampleRate, ", ", "NULL", ", ", currentSegmentStart, 
+                                                                       ", ", sampleDur, ")"))
                         
                         
                         
                         # label entry:
                         DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labels VALUES","('", 
-                                                                   emuDBhandle$UUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
-                                                                   ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentSegmentLabel), "')"))
+                                                                       emuDBhandle$UUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
+                                                                       ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentSegmentLabel), "')"))
                         
                         # links entry:
                         # no link entry because TextGrids don't have hierarchical infos
@@ -280,15 +280,15 @@ parse_TextGridDBI <- function(emuDBhandle, TextGridPath=NULL, sampleRate, encodi
                       
                       
                       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
-                                                                 itemCounterGlobal, ", '", currentTierName,"', '", "EVENT", 
-                                                                 "', ", itemCounterLevel, ", ", sampleRate, ", ", currentPointSample, ", ", "NULL", 
-                                                                 ", ", "NULL", ")"))
+                                                                     itemCounterGlobal, ", '", currentTierName,"', '", "EVENT", 
+                                                                     "', ", itemCounterLevel, ", ", sampleRate, ", ", currentPointSample, ", ", "NULL", 
+                                                                     ", ", "NULL", ")"))
                       
                       
                       # label entry:
                       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labels VALUES","('", 
-                                                                 emuDBhandle$UUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
-                                                                 ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentPointLabel), "')"))              
+                                                                     emuDBhandle$UUID, "', '", session, "', '", bundle, "',", itemCounterGlobal,
+                                                                     ", ", 0,", '", currentTierName, "', '", gsub("'","''", currentPointLabel), "')"))              
                       
                       
                       
@@ -367,63 +367,64 @@ TextGridToBundleAnnotDFs <- function(tgPath, sampleRate, name, annotates){
     
     
     if(grepl("IntervalTier", tierHeader[1])){
-      
-      levelName = sub('\\"\\s*$', "", sub('^\\s*name\\s*=\\s*\\"', "", tierHeader[grepl("name", tierHeader)], perl = T), perl = T)
-      xminTimes = as.numeric(sub("^\\s*xmin\\s*=\\s*", "", tierLines[grepl("xmin", tierLines)], perl = T)) # as.numeric seems to be able to deal with trailing blanks
-      xmaxTimes = as.numeric(sub("^\\s*xmax\\s*=\\s*", "", tierLines[grepl("xmax", tierLines)], perl = T)) # as.numeric seems to be able to deal with trailing blanks
-      texts = sub('\\"\\s*$', "", sub('^\\s*text\\s*=\\s*\\"', "", tierLines[grepl("text", tierLines)]), perl = T)
-      
-      # calculate times 
-      startSamples = floor(xminTimes * sampleRate)
-      endSamples = floor(xmaxTimes * sampleRate)
-      sampleDurs = endSamples - startSamples - 1
-      
-      # insert in data frames  
-      items[maxItemID:(maxItemID + length(xminTimes) - 1), ]  = data.frame(item_id = maxItemID:(maxItemID + length(xminTimes) - 1), 
-                                                                           level = rep(levelName, length(xminTimes)),
-                                                                           type = rep("SEGMENT", length(xminTimes)),
-                                                                           seq_idx = 1:length(xminTimes),
-                                                                           sample_rate = rep(sampleRate, length(xminTimes)),
-                                                                           sample_point = NA,
-                                                                           sample_start = startSamples,
-                                                                           sample_dur = sampleDurs,
-                                                                           stringsAsFactors = F)
-      
-      labels[maxItemID:(maxItemID + length(xminTimes) - 1), ] = data.frame(item_id = maxItemID:(maxItemID + length(xminTimes) - 1),
-                                                                           label_idx = rep(1, length(xminTimes)),
-                                                                           name = rep(levelName, length(xminTimes)),
-                                                                           label = texts,
-                                                                           stringsAsFactors = F)
-      
-      maxItemID = max(items$item_id) + 1
-      
+      levelName = sub('\\"\\s*$', "", sub('^\\s*name\\s*=\\s*\\"', "", tierHeader[grepl("^\\s*name\\s*=", tierHeader)], perl = T), perl = T)
+      xminTimes = as.numeric(sub("^\\s*xmin\\s*=\\s*", "", tierLines[grepl("^\\s*xmin\\s*=", tierLines)], perl = T)) # as.numeric seems to be able to deal with trailing blanks
+      xmaxTimes = as.numeric(sub("^\\s*xmax\\s*=\\s*", "", tierLines[grepl("^\\s*xmax\\s*=", tierLines)], perl = T)) # as.numeric seems to be able to deal with trailing blanks
+      texts = sub('\\"\\s*$', "", sub('^\\s*text\\s*=\\s*\\"', "", tierLines[grepl("^\\s*text\\s*=", tierLines)]), perl = T)
+      # check if any items where found
+      if(length(xminTimes) != 0){
+        # calculate times 
+        startSamples = floor(xminTimes * sampleRate)
+        endSamples = floor(xmaxTimes * sampleRate)
+        sampleDurs = endSamples - startSamples - 1
+        
+        # insert in data frames  
+        items[maxItemID:(maxItemID + length(xminTimes) - 1), ]  = data.frame(item_id = maxItemID:(maxItemID + length(xminTimes) - 1), 
+                                                                             level = rep(levelName, length(xminTimes)),
+                                                                             type = rep("SEGMENT", length(xminTimes)),
+                                                                             seq_idx = 1:length(xminTimes),
+                                                                             sample_rate = rep(sampleRate, length(xminTimes)),
+                                                                             sample_point = NA,
+                                                                             sample_start = startSamples,
+                                                                             sample_dur = sampleDurs,
+                                                                             stringsAsFactors = F)
+        
+        labels[maxItemID:(maxItemID + length(xminTimes) - 1), ] = data.frame(item_id = maxItemID:(maxItemID + length(xminTimes) - 1),
+                                                                             label_idx = rep(1, length(xminTimes)),
+                                                                             name = rep(levelName, length(xminTimes)),
+                                                                             label = texts,
+                                                                             stringsAsFactors = F)
+        
+        maxItemID = max(items$item_id) + 1
+      }
     }else if(grepl("TextTier", tierHeader[1])){
-      levelName = sub('\\"\\s*$', "", sub('^\\s*name\\s*=\\s*\\"', "", tierHeader[grepl("name", tierHeader)], perl = T), perl = T)
-      pointsTimes = as.numeric(sub("^\\s*number\\s*=\\s*", "", tierLines[grepl("number", tierLines)], perl = T)) # as.numeric seems to be able to deal with trailing blanks
-      marks = sub('\\"\\s*$', "", sub('^\\s*mark\\s*=\\s*\\"', "", tierLines[grepl("mark", tierLines)]), perl = T)
-      
-      # calculate times 
-      samplePoints = floor(pointsTimes * sampleRate)
-      
-      # create data frames
-      items[maxItemID:(maxItemID + length(samplePoints) - 1), ] = data.frame(item_id = maxItemID:(maxItemID + length(pointsTimes) - 1), 
-                         level = rep(levelName, length(pointsTimes)),
-                         type = rep("EVENT", length(pointsTimes)),
-                         seq_idx = 1:length(pointsTimes),
-                         sample_rate = rep(sampleRate, length(pointsTimes)),
-                         sample_point = samplePoints,
-                         sample_start = NA,
-                         sample_dur = NA,
-                         stringsAsFactors = F)
-      
-      labels[maxItemID:(maxItemID + length(samplePoints) - 1), ] = data.frame(items_id = maxItemID:(maxItemID + length(pointsTimes) - 1),
-                          label_idx = rep(1, length(pointsTimes)),
-                          name = rep(levelName, length(pointsTimes)),
-                          label = marks,
-                          stringsAsFactors = F)
-      
-      maxItemID = max(items$item_id) + 1
-      
+      levelName = sub('\\"\\s*$', "", sub('^\\s*name\\s*=\\s*\\"', "", tierHeader[grepl("^\\s*name\\s*=", tierHeader)], perl = T), perl = T)
+      pointsTimes = as.numeric(sub("^\\s*\\w+\\s*=\\s*", "", tierLines[grepl("^\\s*number|time\\s*=", tierLines)], perl = T)) # as.numeric seems to be able to deal with trailing blanks
+      marks = sub('\\"\\s*$', "", sub('^\\s*mark\\s*=\\s*\\"', "", tierLines[grepl("^\\s*mark\\s*=", tierLines)]), perl = T)
+      # check if any items where found
+      if(length(pointsTimes) != 0){
+        # calculate times 
+        samplePoints = floor(pointsTimes * sampleRate)
+        
+        # create data frames
+        items[maxItemID:(maxItemID + length(samplePoints) - 1), ] = data.frame(item_id = maxItemID:(maxItemID + length(pointsTimes) - 1), 
+                                                                               level = rep(levelName, length(pointsTimes)),
+                                                                               type = rep("EVENT", length(pointsTimes)),
+                                                                               seq_idx = 1:length(pointsTimes),
+                                                                               sample_rate = rep(sampleRate, length(pointsTimes)),
+                                                                               sample_point = samplePoints,
+                                                                               sample_start = NA,
+                                                                               sample_dur = NA,
+                                                                               stringsAsFactors = F)
+        
+        labels[maxItemID:(maxItemID + length(samplePoints) - 1), ] = data.frame(items_id = maxItemID:(maxItemID + length(pointsTimes) - 1),
+                                                                                label_idx = rep(1, length(pointsTimes)),
+                                                                                name = rep(levelName, length(pointsTimes)),
+                                                                                label = marks,
+                                                                                stringsAsFactors = F)
+        
+        maxItemID = max(items$item_id) + 1
+      }
     }else{
       stop("Found Tier that does not have a class definition 'IntervalTier' or 'TextTier'. This probably means it is a mal formated TextGrid file. Problem file is: ", tgPath)
     }
