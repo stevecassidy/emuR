@@ -329,7 +329,7 @@ TextGridToBundleAnnotDFs <- function(tgPath, sampleRate, name, annotates){
   
   
   # estimate how many items are in TextGrid for preallocation
-  nrOfItems = length(grep("text|mark\\s*=", lines))
+  nrOfItems = length(grep("^\\s*(text|mark)\\s*=", lines))
   
   # init data frames and preallocate enough rows
   items = data.frame(item_id = integer(nrOfItems), 
@@ -364,7 +364,6 @@ TextGridToBundleAnnotDFs <- function(tgPath, sampleRate, name, annotates){
     tierHeaderEndIdx = grep("[intervals|points]:\\s*size", tierLines, perl = T)
     tierHeader = tierLines[1:tierHeaderEndIdx]
     tierLines = tierLines[-1:(-1*tierHeaderEndIdx)]
-    
     
     if(grepl("IntervalTier", tierHeader[1])){
       levelName = sub('\\"\\s*$', "", sub('^\\s*name\\s*=\\s*\\"', "", tierHeader[grepl("^\\s*name\\s*=", tierHeader)], perl = T), perl = T)
@@ -428,7 +427,6 @@ TextGridToBundleAnnotDFs <- function(tgPath, sampleRate, name, annotates){
     }else{
       stop("Found Tier that does not have a class definition 'IntervalTier' or 'TextTier'. This probably means it is a mal formated TextGrid file. Problem file is: ", tgPath)
     }
-    
   }
   
   links = data.frame(bundle = character(), from_id = integer(), to_id = integer(), label = character(), stringsAsFactors = F)
