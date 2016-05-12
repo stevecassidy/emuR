@@ -4,6 +4,8 @@ validate_bundleDBI <- function(emuDBhandle, session, bundle){
   
   DBconfig = load_DBconfig(emuDBhandle)
   
+  dbLevelDefs = list_levelDefinitions(emuDBhandle)
+  
   # check that levels with same name are present
   levelNames <- DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT level FROM items WHERE db_uuid='", emuDBhandle$UUID, "'AND session = '", session,"' ",
                                                         "AND bundle ='", bundle, "'"))$level
@@ -23,18 +25,14 @@ validate_bundleDBI <- function(emuDBhandle, session, bundle){
   }
   
   # check that levels have same types
-  levelTypes <- DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT level, type FROM items WHERE db_uuid='", emuDBhandle$UUID, "' AND session = '", session,"' ",
-                                                        "AND bundle ='", bundle, "'"))$type
+  bundleLevels <- DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT level AS name, type FROM items WHERE db_uuid='", emuDBhandle$UUID, "' AND session = '", session,"' ",
+                                                        "AND bundle ='", bundle, "'"))
   
-  levelDefTypes = sapply(DBconfig$levelDefinitions, function(l) l$type)
-
-  delta1 = setdiff(levelTypes, levelDefTypes)
-  delta2 = setdiff(levelDefTypes, levelTypes)
+  joinedLevelDefs = bundleLevels %>% dplyr::left_join(dbLevelDefs, by = "name") %>% dplyr::select(name, DBconfigType = type.x, bundleType = type.y)
   
-  if(length(delta1) != 0 || length(delta2) != 0){
+  if(!all(joinedLevelDefs$DBconfigType == joinedLevelDefs$bundleType)){
     return(list(type = 'ERROR',
-                message = paste('Following level types differ from those defined:', paste(levelNames[levelTypes != levelDefTypes], collapse = ', '), ';',
-                                'in bundle:', bundle)))
+                message = paste0('There are level types that differ from those defined:\n', paste(capture.output(print(joinedLevelDefs)), collapse = "\n"))))
   }  
   
   # validate sequence and overlaps in items of type SEGMENTS

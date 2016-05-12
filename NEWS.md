@@ -5,6 +5,7 @@
 * fixed problem in conversion to JSON with empty items array (object '{}' vs array '[]')
 * fixed problem of keywords "number" | "time" | "xmin" | ... in labels causing TextGrid parser to fail
 * fixed problem with to lax regex in TextGrid parser
+* fixed validation problem with missing levels regarding types
 
 ## new features / performance tweaks / improvements
 
