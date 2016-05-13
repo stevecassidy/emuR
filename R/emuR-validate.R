@@ -32,7 +32,7 @@ validate_bundleDBI <- function(emuDBhandle, session, bundle){
   
   if(!all(joinedLevelDefs$DBconfigType == joinedLevelDefs$bundleType)){
     return(list(type = 'ERROR',
-                message = paste0('There are level types that differ from those defined:\n', paste(capture.output(print(joinedLevelDefs)), collapse = "\n"))))
+                message = paste0('There are level types that differ from those defined:\n', paste(utils::capture.output(print(joinedLevelDefs)), collapse = "\n"))))
   }  
   
   # validate sequence and overlaps in items of type SEGMENTS
