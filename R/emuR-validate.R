@@ -28,7 +28,7 @@ validate_bundleDBI <- function(emuDBhandle, session, bundle){
   bundleLevels <- DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT level AS name, type FROM items WHERE db_uuid='", emuDBhandle$UUID, "' AND session = '", session,"' ",
                                                         "AND bundle ='", bundle, "'"))
   
-  joinedLevelDefs = bundleLevels %>% dplyr::left_join(dbLevelDefs, by = "name") %>% dplyr::select(name, DBconfigType = type.x, bundleType = type.y)
+  joinedLevelDefs = bundleLevels %>% dplyr::left_join(dbLevelDefs, by = "name") %>% dplyr::select_(~name, DBconfigType = ~type.x, bundleType = ~type.y)
   
   if(!all(joinedLevelDefs$DBconfigType == joinedLevelDefs$bundleType)){
     return(list(type = 'ERROR',
