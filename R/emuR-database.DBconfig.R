@@ -846,6 +846,12 @@ add_linkDefinition <- function(emuDBhandle,
          superlevelName, "' and sublevelName: '", sublevelName, "'")
   }
   
+  # check that super level isn't of type EVENT -> validates "Events can never be 'parents' in a domination relationship" constraint
+  superLevDev = curLevs %>% dplyr::filter_(~(name==superlevelName))
+  if(superLevDev$type == "EVENT"){
+    stop("levels of type 'EVENT' are not allowed to be super levels (== parents) in a domination relationship!")
+  }
+  
   l = length(dbConfig$linkDefinitions)
   dbConfig$linkDefinitions[[l + 1]] = list(type = type, 
                                            superlevelName = superlevelName,

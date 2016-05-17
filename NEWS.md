@@ -10,6 +10,7 @@
 ## new features / performance tweaks / improvements
 
 * also allowing "time = " in TextTiers
+* "levels of type 'EVENT' are not allowed to be super levels (== parents) in a domination relationship" constraint enforced in add_linkDefinition
 
 # emuR 0.1.8
 
