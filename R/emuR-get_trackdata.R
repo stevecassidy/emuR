@@ -24,6 +24,13 @@
 ##' \code{wrasspOutputInfos[[onTheFlyFunctionName]]$tracks} and \code{\link{wrasspOutputInfos}}). 
 ##' If the parameter \code{onTheFlyFunctionName} is set and this one isn't, then per default
 ##' the first track listed in the \code{wrasspOutputInfos} is chosen (\code{wrasspOutputInfos[[onTheFlyFunctionName]]$tracks[1]}).
+##' 
+##' Constant track names:
+##' 
+##' \itemize{
+##' \item{"MEDIAFILE_SAMPLES": }{refers to the audio sample values specified in by the "mediafileExtension" entry of the DBconfig.json}
+##' }
+##' 
 ##' @param cut An optional cut time for segment data, ranges between 
 ##' 0 and 1, a value of 0.5 will extract data only at the segment midpoint.
 ##' @param npoints An optional number of points to retrieve for each segment or event. 
@@ -136,23 +143,31 @@
   
   #########################
   # get track definition
-  if(is.null(onTheFlyFunctionName)){
-    trackDefFound = sapply(DBconfig$ssffTrackDefinitions, function(x){ x$name == ssffTrackName})
-    trackDef = DBconfig$ssffTrackDefinitions[trackDefFound]
-    
-    # check if correct nr of trackDefs where found
-    if(length(trackDef) != 1){
-      if(length(trackDef) < 1 ){
-        stop('The emuDB object ', DBconfig$name, ' does not have any ssffTrackDefinitions called ', ssffTrackName)
-      }else{
-        stop('The emuDB object ', DBconfig$name, ' has multiple ssffTrackDefinitions called ', ssffTrackName, '! This means the DB has an invalid _DBconfig.json')
-      }
-    }
-  }else{
+  if(ssffTrackName %in% c("MEDIAFILE_SAMPLES")){
     trackDef = list()
     trackDef[[1]] = list()
-    trackDef[[1]]$name = ssffTrackName
-    trackDef[[1]]$columnName =  ssffTrackName
+    trackDef[[1]]$name = "MEDIAFILE_SAMPLES"
+    trackDef[[1]]$columnName =  "audio"
+    trackDef[[1]]$fileExtension = DBconfig$mediafileExtension
+  }else{
+    if(is.null(onTheFlyFunctionName)){
+      trackDefFound = sapply(DBconfig$ssffTrackDefinitions, function(x){ x$name == ssffTrackName})
+      trackDef = DBconfig$ssffTrackDefinitions[trackDefFound]
+      
+      # check if correct nr of trackDefs where found
+      if(length(trackDef) != 1){
+        if(length(trackDef) < 1 ){
+          stop('The emuDB object ', DBconfig$name, ' does not have any ssffTrackDefinitions called ', ssffTrackName)
+        }else{
+          stop('The emuDB object ', DBconfig$name, ' has multiple ssffTrackDefinitions called ', ssffTrackName, '! This means the DB has an invalid _DBconfig.json')
+        }
+      }
+    }else{
+      trackDef = list()
+      trackDef[[1]] = list()
+      trackDef[[1]]$name = ssffTrackName
+      trackDef[[1]]$columnName =  ssffTrackName
+    }
   }
   
   ###################################

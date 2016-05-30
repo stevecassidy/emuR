@@ -1,4 +1,4 @@
-# emuR 0.1.9.9000
+# emuR 0.1.8.9001
 
 ## bug fixes
 
@@ -11,6 +11,7 @@
 
 * also allowing "time = " in TextTiers
 * "levels of type 'EVENT' are not allowed to be super levels (== parents) in a domination relationship" constraint enforced in add_linkDefinition
+* added "MEDIAFILE\_SAMPLES" as constant name to access audio samples to get\_trackdata() function
 
 # emuR 0.1.8
 

@@ -21,7 +21,13 @@ emuDB). If the parameter \code{onTheFlyFunctionName} is set, then
 this corresponds to the column name af the AsspDataObj (see
 \code{wrasspOutputInfos[[onTheFlyFunctionName]]$tracks} and \code{\link{wrasspOutputInfos}}). 
 If the parameter \code{onTheFlyFunctionName} is set and this one isn't, then per default
-the first track listed in the \code{wrasspOutputInfos} is chosen (\code{wrasspOutputInfos[[onTheFlyFunctionName]]$tracks[1]}).}
+the first track listed in the \code{wrasspOutputInfos} is chosen (\code{wrasspOutputInfos[[onTheFlyFunctionName]]$tracks[1]}).
+
+Constant track names:
+
+\itemize{
+\item{"MEDIAFILE_SAMPLES": }{refers to the audio sample values specified in by the "mediafileExtension" entry of the DBconfig.json}
+}}
 
 \item{cut}{An optional cut time for segment data, ranges between 
 0 and 1, a value of 0.5 will extract data only at the segment midpoint.}
