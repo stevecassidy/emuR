@@ -41,10 +41,10 @@ test_that("CRUD operations work for ssffTrackDefinitions", {
     expect_error(add_ssffTrackDefinition(ae, 'fm'))
     expect_error(add_ssffTrackDefinition(ae, 'fm', 'bla'))
     expect_error(add_ssffTrackDefinition(ae, 'newTrackName', 'badColName', 'pit', 
-                                         onTheFlyFunctionName = 'mhsF0', interactive = T))
+                                         onTheFlyFunctionName = 'mhsF0', interactive = T, verbose = F))
     
     add_ssffTrackDefinition(ae, 'newTrackName', 'pitch', 'pit', 
-                            onTheFlyFunctionName = 'mhsF0', interactive = F)
+                            onTheFlyFunctionName = 'mhsF0', interactive = F, verbose = F)
     
     pitFilePaths = list.files(path2db, pattern = 'pit$', recursive = T)
     expect_equal(length(pitFilePaths), 7)

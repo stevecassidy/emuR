@@ -41,7 +41,7 @@ test_that("file operations work", {
       
       outDirPath = file.path(path2testData, 'zcranaVals')
       dir.create(outDirPath)
-      zcrana(wavFilePaths, outputDirectory = outDirPath)
+      wrassp::zcrana(wavFilePaths, outputDirectory = outDirPath, verbose = F)
       
       add_files(ae, dir = outDirPath, fileExtension = 'zcr', targetSessionName = 'newSes')
       zcrPaths = list.files(path2db, pattern = 'zcr$', recursive = T)

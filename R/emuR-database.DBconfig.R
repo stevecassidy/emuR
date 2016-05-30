@@ -1075,6 +1075,7 @@ add_ssffTrackDefinition <- function(emuDBhandle, name,
         fp = list_files(emuDBhandle, dbConfig$mediafileExtension)
         funcFormals$listOfFiles = paste(emuDBhandle$basePath, paste0(fp$session, session.suffix), paste0(fp$bundle, bundle.dir.suffix), fp$file, sep = .Platform$file.sep)
         funcFormals$explicitExt = fileExtension
+        funcFormals$verbose = verbose
         
         # check if columnName is valid track
         if(!(columnName %in% wrasspOutputInfos[[onTheFlyFunctionName]]$tracks)){
