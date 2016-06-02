@@ -803,7 +803,7 @@ create_emuDB<-function(name, targetDir, mediaFileExtension='wav',
 load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, verbose=TRUE, ...){
   progress = 0
   # check database dir
-  if(!file.exists(databaseDir)){
+  if(!dir.exists(databaseDir)){
     stop("Database dir ",databaseDir," does not exist!")
   }
   dbDirInfo=file.info(databaseDir)
