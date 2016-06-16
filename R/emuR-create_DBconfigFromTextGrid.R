@@ -52,7 +52,7 @@ create_DBconfigFromTextGrid = function(tgPath, dbName, basePath, tierNames = NUL
     if(lev$type == 'SEGMENT' || lev$type == 'EVENT'){
       defaultLvlOrder[[length(defaultLvlOrder)+1L]]=lev$level
     }else{
-      stop('Found levelDefinition that is not of type SEGMENT|EVENT while parsing TextGrid...this should not occur!')
+      stop(paste0('Found levelDefinition that is not of type SEGMENT|EVENT while parsing TextGrid...this should not occur! This TextGrid file caused the problem:', tgPath))
     }
     # add new leveDef.
     levelDefinitions[[levIdx]] = list(name = lev$level, 

@@ -12,6 +12,7 @@
 * also allowing "time = " in TextTiers
 * "levels of type 'EVENT' are not allowed to be super levels (== parents) in a domination relationship" constraint enforced in add_linkDefinition
 * added "MEDIAFILE\_SAMPLES" as constant name to access audio samples to get\_trackdata() function
+* improved error message to include tgPath in create_DBconfigFromTextGrid function
 
 # emuR 0.1.8
 
