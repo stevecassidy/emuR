@@ -857,18 +857,19 @@ check_bpfOverlap <- function(levels,
     # If the level is time consuming, check whether there is segmental overlap.
     if(levelClasses[[key]] %in% c(2, 4))
     {
-      for(idx in 1:length(levels[[key]]))
+      start_order = sapply(levels[[key]], "[[", "start")
+      levels[[key]] = levels[[key]][order(start_order)]
+      
+      if(length(levels[[key]]) < 2) { next }
+      
+      for(idx in 2:length(levels[[key]]))
       {
-        for(jdx in 1:length(levels[[key]]))
+        jdx = idx - 1
+        if(
+          levels[[key]][[idx]][["start"]] <= levels[[key]][[jdx]][["start"]] + levels[[key]][[jdx]][["duration"]]
+        )
         {
-          if(
-            idx!=jdx && 
-            levels[[key]][[idx]][["start"]] >= levels[[key]][[jdx]][["start"]] && 
-            levels[[key]][[idx]][["start"]] <= levels[[key]][[jdx]][["start"]] + levels[[key]][[jdx]][["duration"]]
-          )
-          {
-            stop("The following BPF contains overlapping segments on level '", key, "': ", bpfPath)
-          }
+          stop("The following BPF contains overlapping segments on level '", key, "': ", bpfPath)
         }
       }
     }
@@ -876,23 +877,23 @@ check_bpfOverlap <- function(levels,
     # If the level is not time consuming, check whether there are two events pointing to the same sample.
     if(levelClasses[[key]] %in% c(3, 5))  
     {
-      for(idx in 1:length(levels[[key]]))
+      point_order = sapply(levels[[key]], "[[", "point")
+      levels[[key]] = levels[[key]][order(point_order)]
+      
+      if(length(levels[[key]]) < 2) { next }
+      
+      for(idx in 2:length(levels[[key]]))
       {
-        for(jdx in idx:length(levels[[key]]))
+        jdx = idx - 1
+        if(levels[[key]][[idx]][["point"]] == levels[[key]][[jdx]][["point"]])
         {
-          if(
-            idx!=jdx &&
-            levels[[key]][[idx]][["point"]] == levels[[key]][[jdx]][["point"]]
-          )
+          if(key %in% segmentToEventLevels)
           {
-            if(key %in% segmentToEventLevels)
-            {
-              stop("The following BPF contains simultaneous events on level '", key, "' after segment overlap resolution: ", bpfPath, ". Check whether there are any segments with simultaneous starting and/or end points in this BPF.")
-            }
-            else
-            {
-              stop("The following BPF contains simultaneous events on level '", key, "': ", bpfPath)
-            }
+            stop("The following BPF contains simultaneous events on level '", key, "' after segment overlap resolution: ", bpfPath, ". Check whether there are any segments with simultaneous starting and/or end points in this BPF.")
+          }
+          else
+          {
+            stop("The following BPF contains simultaneous events on level '", key, "': ", bpfPath)
           }
         }
       }
