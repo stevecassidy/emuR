@@ -115,6 +115,7 @@ create_emuRdemoData <- function(dir = tempdir(), precache = FALSE){
   wrassp::dftSpectrum(wps, verbose = F)
   wrassp::forest(wps, verbose = F)
   
+  return(invisible())
 }
 
 ## create manipulated BPF_collection
