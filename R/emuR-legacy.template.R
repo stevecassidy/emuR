@@ -124,16 +124,20 @@ load_dbConfigFromEmuTemplate=function(tplPath,dbUUID=NULL,encoding=NULL){
             value=lineTokens[3]
             flags[[key]]=value
           }else if(command==PATH_CMD){
-            annoKey=lineTokens[2]
+            annoKeysStr=lineTokens[2]
             annoBasePath=lineTokens[3]
-            pathDescr=list(basePath=annoBasePath,key=annoKey)
-            pathDescriptors[[length(pathDescriptors)+1L]] <- pathDescr
-            if(annoKey=='hlb'){
-              # special meaning
-              # hlb files are neither declared by tracks nor by labfile directive
-              # add as annotationDescriptor
-              ad=list(name=NULL,extension=annoKey,type='HLB')
-              annotationDescriptors[[length(annotationDescriptors)+1L]] <- ad
+            annoKeysLst=strsplit(annoKeysStr,',')[[1]]
+            for(aki in 1:length(annoKeysLst)){
+              annoKey=annoKeysLst[[aki]]
+              pathDescr=list(basePath=annoBasePath,key=annoKey)
+              pathDescriptors[[length(pathDescriptors)+1L]] <- pathDescr
+              if(annoKey=='hlb'){
+                # special meaning
+                # hlb files are neither declared by tracks nor by labfile directive
+                # add as annotationDescriptor
+                ad=list(name=NULL,extension=annoKey,type='HLB')
+                annotationDescriptors[[length(annotationDescriptors)+1L]] <- ad
+              }
             }
           }else if(command==LEVEL_CMD){
             levelTierName=lineTokens[2]
