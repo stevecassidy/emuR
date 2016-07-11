@@ -88,7 +88,11 @@ parse_espsLabelFile <- function(labFilePath=NULL,tierName,tierType=NULL,sampleRa
             samplePoint=floor(timeStampInSamples)
             intervalStartPoint=samplePoint
         }else{
-          labelAttrs=list(list(name=tierName,value=label))
+          lblVal=''
+          if(!is.null(label)){
+            lblVal=label
+          }
+          labelAttrs=list(list(name=tierName,value=lblVal))
           #labelAttrs[[tierName]]=label
           
           if(tierType=='SEGMENT'){
