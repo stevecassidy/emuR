@@ -15,6 +15,8 @@
 * improved error message to include tgPath in create_DBconfigFromTextGrid function
 * no integer return value returned by create_emuRdemoData() any more! It was implicitaly returned from wrassp function call...
 * improved the slow overlap checking function in the BPF parser (is now O(n) instead of O(n^2))
+* fixed col naming problems for new (unreleased) RSQLite version
+
 
 # emuR 0.1.8
 
