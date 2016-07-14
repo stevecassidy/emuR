@@ -96,7 +96,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
   if(length<=0){
     stop("Parameter length must be greater than 0")
   }
-
+  
   if(nrow(seglist)==0){
     # empty seglist, return the empty list
     return(seglist)
@@ -106,6 +106,8 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
     create_requeryTmpTables(emuDBhandle)
     # place in emuRsegsTmp table
     DBI::dbGetQuery(emuDBhandle$connection, "DELETE FROM emursegs_tmp;") # delete 
+    colnames(seglist) = c("labels", "start", "end", "utts", "db_uuid", "session", "bundle", 
+                          "start_item_id", "end_item_id", "level", "type", "sampleStart", "sampleEnd", "sampleRate")
     DBI::dbWriteTable(emuDBhandle$connection, "emursegs_tmp", as.data.frame(seglist), append=T, row.names = F) # append to make sure field names done't get overwritten
     
     # load config
@@ -145,7 +147,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
     create_tmpFilteredQueryTablesDBI(emuDBhandle)
     DBI::dbWriteTable(emuDBhandle$connection, "interm_res_items_tmp_root", he, overwrite=T)
     
-
+    
     trSl=convert_queryResultToVariableEmuRsegs(emuDBhandle)
     drop_requeryTmpTables(emuDBhandle)
     
@@ -206,7 +208,7 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType will be used)")
   }
-
+  
   if(nrow(seglist)==0){
     # empty seglist, return the empty list
     return(seglist)
@@ -216,6 +218,8 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
     create_requeryTmpTables(emuDBhandle)
     # place in emursegs_tmp table
     DBI::dbGetQuery(emuDBhandle$connection, "DELETE FROM emursegs_tmp;")
+    colnames(seglist) = c("labels", "start", "end", "utts", "db_uuid", "session", "bundle", 
+                          "start_item_id", "end_item_id", "level", "type", "sampleStart", "sampleEnd", "sampleRate")
     DBI::dbWriteTable(emuDBhandle$connection, "emursegs_tmp", as.data.frame(seglist), append=T, row.names = F) # append to avoid rewirte of col names
     
     # load config
@@ -277,7 +281,7 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
                               AS ir ON lrId=rrId ")
       
     }
-
+    
     he = DBI::dbGetQuery(emuDBhandle$connection, heQueryStr)
     
     # drop and create tmpQueryTables and write to table
@@ -288,7 +292,7 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
     trSl=convert_queryResultToVariableEmuRsegs(emuDBhandle)
     inSlLen=nrow(seglist)
     trSlLen=nrow(trSl)
-
+    
     if(inSlLen!=trSlLen){
       warning("Length of requery segment list (",trSlLen,") differs from input list (",inSlLen,")!")
     }

@@ -1001,7 +1001,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
       if(nLeftProjItems != 0){
         # reduce to projection items
         # check if SEQQ result items and store in correct table
-        qStr=paste0("SELECT i.db_uuid, i.session, i.bundle, i.l_seq_start_id, i.r_seq_end_id, pi.p_seq_start_id, pi.p_seq_end_id, pi.p_seq_len, pi.p_level ",
+        qStr=paste0("SELECT i.db_uuid, i.session, i.bundle, i.l_seq_start_id AS seq_start_id, i.r_seq_end_id AS seq_end_id, pi.p_seq_start_id, pi.p_seq_end_id, pi.p_seq_len, pi.p_level ",
                     "FROM lr_exp_res_tmp i, interm_res_proj_items_tmp_", leftTableSuffix, " pi ",
                     "WHERE i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.l_seq_start_id=pi.seq_start_id AND i.l_seq_end_id=pi.seq_end_id")
         
@@ -1017,7 +1017,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
       
       if(nRightProjItems != 0){
         # reduce to projection items
-        qStr=paste0("SELECT i.db_uuid, i.session, i.bundle, i.l_seq_start_id, i.r_seq_end_id, pi.p_seq_start_id, pi.p_seq_end_id, pi.p_seq_len, pi.p_level ",
+        qStr=paste0("SELECT i.db_uuid, i.session, i.bundle, i.l_seq_start_id AS seq_start_id, i.r_seq_end_id AS seq_end_id, pi.p_seq_start_id, pi.p_seq_end_id, pi.p_seq_len, pi.p_level ",
                     "FROM lr_exp_res_tmp i,interm_res_proj_items_tmp_", rightTableSuffix, " pi ",
                     "WHERE i.db_uuid=pi.db_uuid AND i.session=pi.session AND i.bundle=pi.bundle AND i.r_seq_start_id=pi.seq_start_id AND i.r_seq_end_id=pi.seq_end_id")
         
