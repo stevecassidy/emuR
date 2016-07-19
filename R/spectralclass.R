@@ -190,11 +190,13 @@
 ##' @param \dots Further graphical parameters may be supplied.
 ##' @note To plot spectral data from a spectral trackdata object, then call the
 ##' function explicitly with 'plot/spectral' rather than with just 'plot'
+##' @export
 ##' @author Jonathan Harrington
 ##' @seealso \code{\link{plot}} \code{\link{plot.trackdata}}
 ##' \code{\link{as.spectral}}
 ##' @keywords dplot
 ##' @examples
+##' \dontrun{
 ##' 
 ##' plot(vowlax.dft.5[1,])
 ##' 
@@ -207,10 +209,8 @@
 ##' # All the spectra of one segment in a trackdata object
 ##' plot(fric.dft[1,])
 ##' 
+##' }
 ##' 
-##' 
-##' 
-##' @export
 "plot.spectral" <- function (x, labs, ylim, xlim,  col, lty, 
                              lwd, fun, freq, type = "l", 
                              power = FALSE, powcoeffs = c(10, 10), 

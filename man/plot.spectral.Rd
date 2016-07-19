@@ -67,6 +67,7 @@ To plot spectral data from a spectral trackdata object, then call the
 function explicitly with 'plot/spectral' rather than with just 'plot'
 }
 \examples{
+\dontrun{
 
 plot(vowlax.dft.5[1,])
 
@@ -79,8 +80,7 @@ plot(vowlax.dft.5[1:20,], vowlax.l[1:20], fun=mean, power=TRUE)
 # All the spectra of one segment in a trackdata object
 plot(fric.dft[1,])
 
-
-
+}
 
 }
 \author{
