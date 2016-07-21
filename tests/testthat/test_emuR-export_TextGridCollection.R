@@ -40,5 +40,20 @@ test_that("export_TextGridCollection works correctly", {
     # clean up
     unlink(file.path(path2testData, "tgCol"), recursive = T)
   })
+
+  test_that("exporting only msajc003 works", {
+    # preclean just in case
+    unlink(file.path(path2testData, "tgCol"), recursive = T)
+    
+    export_TextGridCollection(ae, targetDir = file.path(path2testData, "tgCol"), bundlePattern = "msajc003")
+    list.files(file.path(path2testData, "tgCol", "0000"))
+    
+    expect_equal(length(list.files(file.path(path2testData, "tgCol", "0000"))), 2)
+    
+    
+    # clean up
+    unlink(file.path(path2testData, "tgCol"), recursive = T)
+  })
   
+    
   })

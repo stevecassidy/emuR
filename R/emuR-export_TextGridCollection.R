@@ -1,11 +1,11 @@
 ##' Export to TextGridCollection
 ##' @description Export the annotations of an emuDB to a TextGrid collection (.TextGrid and .wav file pairs)
-##' @details add more
 ##' @param emuDBhandle emuDB handle object (see \link{load_emuDB})
 ##' @param targetDir directory where the TextGrid collection should be saved
 ##' @param sessionPattern A regular expression pattern matching session names to be exported from the database
 ##' @param bundlePattern A regular expression pattern matching bundle names to be exported from the database
-##' @param attributeDefinitionNames 
+##' @param attributeDefinitionNames list of names of attributeDefinitions that are to be 
+##' exported as tiers. If set to NULL (the default) all attribute definitions will be exported as separate tiers.
 ##' @export
 ##' @seealso \code{\link{load_emuDB}}
 ##' @keywords emuDB database query Emu EQL 
