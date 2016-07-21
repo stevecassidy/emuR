@@ -23,9 +23,22 @@ test_that("export_TextGridCollection works correctly", {
     
     export_TextGridCollection(ae, targetDir = file.path(path2testData, "tgCol"))
     
+    tgLines = readLines(file.path(path2testData, "tgCol", "0000", "msajc003.TextGrid"))
+    # check header
+    expect_match(tgLines[1], ".*ooTextFile.*")
+    expect_match(tgLines[2], ".*TextGrid.*")
+    expect_match(tgLines[4], ".*xmin = 0.*")
+    
+    # check number of levels by name
+    expect_equal(length(grep("name",tgLines)), 11)
+    
+    #check same number of items are present as in items X label
+    qr = DBI::dbGetQuery(ae$connection, "SELECT * FROM items AS it, labels AS l WHERE it.db_uuid = l.db_uuid AND it.session = l.session AND it.bundle = 'msajc003' AND l.bundle = 'msajc003' AND it.item_id = l.item_id")
+    expect_equal(length(grep("text|mark",tgLines)), nrow(qr) + 10 * 2) # 10*2 = left right padding for 10 tiers (from 10 attr. defs.) that are not of type EVENT
+    
     
     # clean up
-    # unlink(file.path(path2testData, "tgCol"), recursive = T)
+    unlink(file.path(path2testData, "tgCol"), recursive = T)
   })
   
   })

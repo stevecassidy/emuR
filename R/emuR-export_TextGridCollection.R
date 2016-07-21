@@ -5,6 +5,7 @@
 ##' @param targetDir directory where the TextGrid collection should be saved
 ##' @param sessionPattern A regular expression pattern matching session names to be exported from the database
 ##' @param bundlePattern A regular expression pattern matching bundle names to be exported from the database
+##' @param attributeDefinitionNames 
 ##' @export
 ##' @seealso \code{\link{load_emuDB}}
 ##' @keywords emuDB database query Emu EQL 
@@ -21,15 +22,17 @@
 ##' }
 ##' 
 export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '.*', bundlePattern = '.*', 
-                                      levelNames = NULL) {
+                                      attributeDefinitionNames = NULL) {
+  
   
   dbConfig = load_DBconfig(emuDBhandle)
-  lds = list_levelDefinitions(emuDBhandle)
+  #lds = list_levelDefinitions(emuDBhandle)
+  allAttrNames = get_allAttributeNames(emuDBhandle)
   
   # extract all items as giant seglist
   slAll = NULL
-  for(i in 1:nrow(lds)){
-    sl = query(emuDBhandle, paste0(lds$name[i], "=~ .*"))
+  for(i in 1:length(allAttrNames)){
+    sl = query(emuDBhandle, paste0(allAttrNames[i], "=~ .*"))
     slAll = rbind(slAll, sl)
   }
   # convert times to seconds
@@ -73,15 +76,14 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
                  "xmin = 0 ",
                  paste0("xmax = ", wavDur, " "),
                  "tiers? <exists> ",
-                 paste0("size = ", nrow(lds), " "),
+                 paste0("size = ", length(allAttrNames), " "),
                  "item []: ")
     
     write(tgHeader, tgPath)
     
-    # TODO: multiple attribute defs!
-    for(ldRowIdx in 1:nrow(lds)){
+    for(attrNameIdx in 1:length(allAttrNames)){
       
-      slTier = slBndl[slBndl$level == lds[ldRowIdx,]$name,]
+      slTier = slBndl[slBndl$level == allAttrNames[attrNameIdx],]
       
       emptyRow = data.frame(labels = "", start = -1, end = -1, 
                             utts = "", db_uuid = "", session = "", bundle = "", 
@@ -107,9 +109,9 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
         }
         # TODO: missing segments!
       }
-      tierHeader = c(paste0("    item [", ldRowIdx, "]:"), 
+      tierHeader = c(paste0("    item [", attrNameIdx, "]:"), 
                      paste0("        class = \"", tierType, "\" "),
-                     paste0("        name = \"", lds[ldRowIdx,]$name, "\" "),
+                     paste0("        name = \"", allAttrNames[attrNameIdx], "\" "),
                      "        xmin = 0 ",
                      paste0("        xmax = ", wavDur, " "))
       
@@ -137,6 +139,6 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
 }
 
 # FOR DEVELOPMENT
-# library('testthat')
-# test_file('tests/testthat/test_emuR-export_TextGridCollection.R')
+library('testthat')
+test_file('tests/testthat/test_emuR-export_TextGridCollection.R')
 
