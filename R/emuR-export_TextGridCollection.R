@@ -139,6 +139,6 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
 }
 
 # FOR DEVELOPMENT
-library('testthat')
-test_file('tests/testthat/test_emuR-export_TextGridCollection.R')
+# library('testthat')
+# test_file('tests/testthat/test_emuR-export_TextGridCollection.R')
 
