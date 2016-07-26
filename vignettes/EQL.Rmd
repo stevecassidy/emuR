@@ -1,5 +1,6 @@
 ---
-title: "Version 2 of the Emu Query Language"
+title: "EQL"
+subtitle: "Version 2 of the Emu Query Language"
 affiliation: "Institute Of Phonetic And Speech Processing (LMU Munich)"
 date: "`r Sys.Date()`"
 output: 
