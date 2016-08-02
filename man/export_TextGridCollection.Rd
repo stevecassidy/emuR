@@ -2,7 +2,7 @@
 % Please edit documentation in R/emuR-export_TextGridCollection.R
 \name{export_TextGridCollection}
 \alias{export_TextGridCollection}
-\title{Export to TextGridCollection}
+\title{Export annotations of emuDB to TextGrid collection}
 \usage{
 export_TextGridCollection(emuDBhandle, targetDir, sessionPattern = ".*",
   bundlePattern = ".*", attributeDefinitionNames = NULL)
@@ -20,7 +20,26 @@ export_TextGridCollection(emuDBhandle, targetDir, sessionPattern = ".*",
 exported as tiers. If set to NULL (the default) all attribute definitions will be exported as separate tiers.}
 }
 \description{
-Export the annotations of an emuDB to a TextGrid collection (.TextGrid and .wav file pairs)
+Exports the annotations of a emuDB to a TextGrid collection (.TextGrid and .wav file pairs).
+To avoid naming conflicts and not to loose the session information the session structure of 
+the database is kept in place by sub-folders that are named as the sessions where. 
+Due to the more complex annotation structure modeling capabilities of 
+the EMU-SDMS system, this export routine has to make several compromises on export which 
+can lead to information loss. So use with caution and at own risk as reimporting the exported
+data will mean that not all information can be recreated!
+The main compromises are:
+}
+\details{
+\itemize{
+  \item {If in a MANY_TO_MANY relationship between two levels, annotation items 
+  are merged (two items from the parent level are linked to a single item on the child level) the 
+  parent items are merged into a single annotation item and their labels are 
+  concatenated using the '->' symbol. An example would be: the annotation items containing the labels 'd' and 'b' of the 
+  Phoneme level are linked to 'db' on the Phonetic level. The generated Phoneme tier then has a segment with the 
+  start and end times of the 'db' item and contains the labels 'db' (see for example 0000_ses/msajc010_bndl of ae_emuDB).}
+  \item {As annotations can contain gaps (e.g. incomplete hierarchies or orphaned items) and do not have to start at
+  time 0 and be the length of the audio file this export routine pads these gaps with empty segments.}
+}
 }
 \examples{
 \dontrun{

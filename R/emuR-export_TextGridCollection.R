@@ -1,5 +1,25 @@
-##' Export to TextGridCollection
-##' @description Export the annotations of an emuDB to a TextGrid collection (.TextGrid and .wav file pairs)
+##' Export annotations of emuDB to TextGrid collection
+##' 
+##' Exports the annotations of a emuDB to a TextGrid collection (.TextGrid and .wav file pairs).
+##' To avoid naming conflicts and not to loose the session information the session structure of 
+##' the database is kept in place by sub-folders that are named as the sessions where. 
+##' Due to the more complex annotation structure modeling capabilities of 
+##' the EMU-SDMS system, this export routine has to make several compromises on export which 
+##' can lead to information loss. So use with caution and at own risk as reimporting the exported
+##' data will mean that not all information can be recreated!
+##' The main compromises are:
+##' 
+##' \itemize{
+##'   \item {If in a MANY_TO_MANY relationship between two levels, annotation items 
+##'   are merged (two items from the parent level are linked to a single item on the child level) the 
+##'   parent items are merged into a single annotation item and their labels are 
+##'   concatenated using the '->' symbol. An example would be: the annotation items containing the labels 'd' and 'b' of the 
+##'   Phoneme level are linked to 'db' on the Phonetic level. The generated Phoneme tier then has a segment with the 
+##'   start and end times of the 'db' item and contains the labels 'db' (see for example 0000_ses/msajc010_bndl of ae_emuDB).}
+##'   \item {As annotations can contain gaps (e.g. incomplete hierarchies or orphaned items) and do not have to start at
+##'   time 0 and be the length of the audio file this export routine pads these gaps with empty segments.}
+##' }
+##' 
 ##' @param emuDBhandle emuDB handle object (see \link{load_emuDB})
 ##' @param targetDir directory where the TextGrid collection should be saved
 ##' @param sessionPattern A regular expression pattern matching session names to be exported from the database
@@ -26,8 +46,16 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
   
   
   dbConfig = load_DBconfig(emuDBhandle)
-  #lds = list_levelDefinitions(emuDBhandle)
+  
   allAttrNames = get_allAttributeNames(emuDBhandle)
+  
+  if(!is.null(attributeDefinitionNames)){
+    
+    if(!all(attributeDefinitionNames %in% allAttrNames)){
+      stop("Bad attributeDefinitionNames given! Valid attributeDefinitionNames of the emuDB are: ", allAttrNames)
+    }
+    allAttrNames = attributeDefinitionNames
+  }
   
   # extract all items as giant seglist
   slAll = NULL
@@ -107,7 +135,58 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
           emptyRow$end = wavDur
           slTier = rbind(slTier, emptyRow)
         }
-        # TODO: missing segments!
+        
+        # check for empty and overlapping segments (caused by orphaned children in hierarchy)
+        problemSegs = slTier[-nrow(slTier),]$end - slTier[-1,]$start != 0
+        # check for overlapping segs
+        overlSegs = slTier[-nrow(slTier),]$end - slTier[-1,]$start > 0
+        # check for duplicate segs (caused by many_to_many -> elisions)
+        dupliSegs = slTier[-nrow(slTier),]$start == slTier[-1,]$start & slTier[-nrow(slTier),]$end == slTier[-1,]$end
+        
+        if(any(problemSegs) | any(overlSegs) | any(dupliSegs)){
+          slTierTmpNrow = nrow(slTier) + length(which(problemSegs)) - length(which(overlSegs)) - length(which(dupliSegs)) # remove overlSegs + dupliSegs from problemSegs (reason for minus)
+          # preallocate data.frame
+          slTierTmp = data.frame(labels = character(slTierTmpNrow), start = integer(slTierTmpNrow), end = integer(slTierTmpNrow), 
+                                 utts = character(slTierTmpNrow), db_uuid = character(slTierTmpNrow), session = character(slTierTmpNrow), bundle = character(slTierTmpNrow), 
+                                 startItemID = character(slTierTmpNrow), endItemID = character(slTierTmpNrow), level = character(slTierTmpNrow), 
+                                 type = character(slTierTmpNrow), sampleStart = integer(slTierTmpNrow), sampleEnd = integer(slTierTmpNrow), sampleRate = integer(slTierTmpNrow), stringsAsFactors = F)
+          
+          slTierTmp[1,] = slTier[1,]
+          curRowIdx = 2
+          dupliSegsRowIdx = NULL
+          for(slTierRowIdx in 2:nrow(slTier)){
+            if(slTier[slTierRowIdx - 1,]$end < slTier[slTierRowIdx,]$start){
+              # add empty segment
+              emptyRow$start = slTier[slTierRowIdx - 1,]$end
+              emptyRow$end = slTier[slTierRowIdx,]$start
+              slTierTmp[curRowIdx,] = emptyRow
+              curRowIdx = curRowIdx + 1
+              slTierTmp[curRowIdx,] = slTier[slTierRowIdx,]
+              curRowIdx = curRowIdx + 1
+              
+            }else{
+              if(slTier[slTierRowIdx - 1,]$end > slTier[slTierRowIdx,]$start | slTier[slTierRowIdx - 1,]$start == slTier[slTierRowIdx,]$start & slTier[slTierRowIdx - 1,]$end == slTier[slTierRowIdx,]$end){ 
+                # overlapping or duplicate
+                slTierTmp[curRowIdx,] = slTier[slTierRowIdx,]
+                slTierTmp[curRowIdx,]$labels = paste0(slTier[slTierRowIdx - 1,]$labels, "->", slTier[slTierRowIdx,]$labels)
+                slTierTmp[curRowIdx,]$start = slTier[slTierRowIdx - 1,]$start
+                slTierTmp[curRowIdx,]$end = slTier[slTierRowIdx - 1,]$end
+                dupliSegsRowIdx = c(dupliSegsRowIdx, curRowIdx - 1)
+                curRowIdx = curRowIdx + 1
+              }else{
+                slTierTmp[curRowIdx,] = slTier[slTierRowIdx,]
+                curRowIdx = curRowIdx + 1
+              }
+            }
+          }
+          
+          
+          if(is.null(dupliSegsRowIdx)){
+            slTier = slTierTmp 
+          }else{
+            slTier = slTierTmp[-1 * dupliSegsRowIdx,]
+          }
+        }
       }
       tierHeader = c(paste0("    item [", attrNameIdx, "]:"), 
                      paste0("        class = \"", tierType, "\" "),

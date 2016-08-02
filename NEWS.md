@@ -1,4 +1,4 @@
-# emuR 0.1.8.9001
+# emuR 0.1.8.9003
 
 ## bug fixes
 
@@ -16,7 +16,7 @@
 * no integer return value returned by create_emuRdemoData() any more! It was implicitaly returned from wrassp function call...
 * improved the slow overlap checking function in the BPF parser (is now O(n) instead of O(n^2))
 * fixed col naming problems for new (unreleased) RSQLite version
-
+* added export_TextGridCollection() function
 
 # emuR 0.1.8
 
