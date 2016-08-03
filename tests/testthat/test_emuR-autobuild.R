@@ -105,7 +105,7 @@ test_that("autobuild_linkFromTimes works correctly", {
     ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
     
     # add levelDef.
-    add_levelDefinition(ae, "Phonetic2", "SEGMENT")
+    add_levelDefinition(ae, "Phonetic2", "SEGMENT", verbose = F)
     # add linkDef.
     add_linkDefinition(ae, "ONE_TO_MANY", superlevelName = "Phonetic", sublevelName = "Phonetic2")
     
@@ -164,7 +164,7 @@ test_that("autobuild_linkFromTimes works correctly", {
     ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
     
     # add levelDef.
-    add_levelDefinition(ae, "Phonetic2", "SEGMENT")
+    add_levelDefinition(ae, "Phonetic2", "SEGMENT", verbose = F)
     # add linkDef.
     add_linkDefinition(ae, "MANY_TO_MANY", superlevelName = "Phonetic", sublevelName = "Phonetic2")
     
@@ -230,7 +230,7 @@ test_that("autobuild_linkFromTimes works correctly", {
     ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
     
     # add levelDef.
-    add_levelDefinition(ae, "Phonetic2", "SEGMENT")
+    add_levelDefinition(ae, "Phonetic2", "SEGMENT", verbose = F)
     # add linkDef.
     add_linkDefinition(ae, "ONE_TO_ONE", superlevelName = "Phonetic", sublevelName = "Phonetic2")
     
@@ -293,7 +293,7 @@ test_that("autobuild_linkFromTimes works correctly", {
     ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
     
     # add levelDef.
-    add_levelDefinition(ae, "Phonetic2", "SEGMENT")
+    add_levelDefinition(ae, "Phonetic2", "SEGMENT", verbose = F)
     # add linkDef.
     add_linkDefinition(ae, "ONE_TO_ONE", superlevelName = "Phonetic", sublevelName = "Phonetic2")
     
@@ -344,7 +344,7 @@ test_that("autobuild_linkFromTimes works correctly", {
     ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
     
     # add levelDef.
-    add_levelDefinition(ae, "Phonetic2", "SEGMENT")
+    add_levelDefinition(ae, "Phonetic2", "SEGMENT", verbose = F)
     # add linkDef.
     add_linkDefinition(ae, "ONE_TO_ONE", superlevelName = "Phonetic", sublevelName = "Phonetic2")
     
