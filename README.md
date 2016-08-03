@@ -1,6 +1,5 @@
 # emuR - Main package of the EMU Speech Database Management System
 
-
 [![Build Status](https://travis-ci.org/IPS-LMU/emuR.png)](https://travis-ci.org/IPS-LMU/emuR)
 [![Coverage Status](https://coveralls.io/repos/IPS-LMU/emuR/badge.svg)](https://coveralls.io/r/IPS-LMU/emuR)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/emuR)](https://cran.r-project.org/package=emuR)
@@ -28,6 +27,13 @@ this URL: [http://ips-lmu.github.io/EMU.html](http://ips-lmu.github.io/EMU.html)
 ```r
 install.packages("emuR")
 ```
+
+As this also installs all of the dependencies (incl. 
+the [wrassp](https://cran.r-project.org/package=wrassp) package) this is 
+the only installation step necessary to install the EMU-SDMS on your system.
+The only other requirement of the EMU-SDMS is a modern web browser (Chrome (recommended!) / Firefox / ...) which
+most people should already have on their systems.
+
 
 ## Quick start
 
