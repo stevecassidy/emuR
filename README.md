@@ -6,7 +6,7 @@
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/emuR)](https://cran.r-project.org/package=emuR)
 
 The emuR package provides the next iteration of the EMU Speech 
-Database Management System with database management, data 
+Database Management System (EMU-SDMS) with database management, data 
 extraction, data preparation and data visualization facilities. 
 It also contains a server that 
 is intended to host databases in the emuDB format 
