@@ -24,12 +24,23 @@ this URL: [http://ips-lmu.github.io/EMU.html](http://ips-lmu.github.io/EMU.html)
 
 ## Installation
 
-* install the current [CRAN release](https://cran.r-project.org/package=emuR):
+* to install the current [CRAN release](https://cran.r-project.org/package=emuR) simply call:
 ```r
 install.packages("emuR")
 ```
 
-* Download & extract the package from GitHub. Then install it with the following command: 
+## Quick start
+
+* for more information see the `An introduction to the emuR package` vignette:
+```r
+vignette('emuR_intro')
+```
+
+## For Developers / Beta-Testers
+
+### Installation (two alternative methods)
+
+* Either download & extract the package from GitHub. Then install it with the following command: 
 ```r
 install.packages("path/to/emuR", repos = NULL, type="source")
 ```
@@ -40,10 +51,3 @@ library(devtools)
 install_github("IPS-LMU/emuR", build_vignettes = TRUE)
 ```
 
-## Quick start
-
-
-* for more information see the `An introduction to the emuR package` vignette: 
-```r
-vignette('emuR_intro')
-```
