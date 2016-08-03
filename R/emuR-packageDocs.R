@@ -4,12 +4,12 @@
 ##' Database Management System with database management, data 
 ##' extraction, data preparation and data visualization facilities. 
 ##' 
-##' This package is part of the next iteration of the EMU Speech Database Management System (EMU_SDMS) 
+##' This package is part of the next iteration of the EMU Speech Database Management System (EMU-SDMS) 
 ##' which aims to be as close to an all-in-one solution for generating, manipulating, querying, 
 ##' analyzing and managing speech databases as possible. 
 ##' For an overview of the system please visit this URL: \url{http://ips-lmu.github.io/EMU.html}.
 ##'
-##' It can be viewed as the main component of the EMU_SDMS as it acts as 
+##' It can be viewed as the main component of the EMU-SDMS as it acts as 
 ##' the central instance that is able to interact with every component of the system.
 ##' It takes care of database managing duties by being able to interact with a speech 
 ##' database that is stored in the emuDB format. Further, it has easy to understand and 
@@ -24,7 +24,7 @@
 ##' For information about the \code{emuDB} database format please see the \code{emuDB}
 ##' vignette by calling: \code{vignette('emuDB')}
 ##' 
-##' For information about the query language used by the EMU_SDMS please see the \code{EQL}
+##' For information about the query language used by the EMU-SDMS please see the \code{EQL}
 ##' vignette by calling: \code{vignette('EQL')}
 ##'    
 ##' Typical work-flow in emuR (emuDB required):
