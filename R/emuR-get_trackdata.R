@@ -25,10 +25,10 @@
 ##' If the parameter \code{onTheFlyFunctionName} is set and this one isn't, then per default
 ##' the first track listed in the \code{wrasspOutputInfos} is chosen (\code{wrasspOutputInfos[[onTheFlyFunctionName]]$tracks[1]}).
 ##' 
-##' Constant track names:
+##' \code{get_trackdata} has so called constant track names that are always available for every emuDB. The constant track names are:
 ##' 
 ##' \itemize{
-##' \item{"MEDIAFILE_SAMPLES": }{refers to the audio sample values specified in by the "mediafileExtension" entry of the DBconfig.json}
+##' \item{"MEDIAFILE_SAMPLES": }{refers to the audio sample values specified by the "mediafileExtension" entry of the DBconfig.json}
 ##' }
 ##' 
 ##' @param cut An optional cut time for segment data, ranges between 
