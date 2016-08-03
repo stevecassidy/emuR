@@ -89,7 +89,7 @@ test_that("CRUD operations work for levelDefinitions", {
     expect_error(add_levelDefinition(ae, 'Phonetic', 'SEGM')) # bad type
     expect_error(add_levelDefinition(ae, 'Phonetic', 'SEGMENT')) # already exists
     
-    add_levelDefinition(ae, 'Phonetic2', 'SEGMENT')
+    add_levelDefinition(ae, 'Phonetic2', 'SEGMENT', verbose = F)
     
     dbConfig = load_DBconfig(ae)
     expect_equal(length(dbConfig$levelDefinitions), 10)
@@ -122,7 +122,7 @@ test_that("CRUD operations work for levelDefinitions", {
     DBI::dbGetQuery(ae$connection, paste0("DELETE FROM items WHERE db_uuid='", 
                                      ae$UUID,"'")) # items present
     
-    remove_levelDefinition(ae, name="Phonetic2")
+    remove_levelDefinition(ae, name="Phonetic2", verbose = F)
     dbConfig = load_DBconfig(ae)
     expect_equal(length(dbConfig$levelDefinition), 9)
     
