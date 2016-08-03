@@ -19,6 +19,7 @@
 * added export_TextGridCollection() function
 * improved doc for get_trackdata
 * constant naming of EMU-SDMS vs EMU_SDMS in various files
+* rewriting all annotation file on add\_levelDefinition, remove\_levelDefinition 
 
 # emuR 0.1.8
 

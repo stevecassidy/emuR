@@ -222,6 +222,7 @@ store_DBconfig <- function(emuDBhandle, dbConfig, basePath = NULL){
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param name name of level definition
 ##' @param type type of level definition ("SEGMENT","EVENT","ITEM")
+##' @param verbose Show progress bars and further information
 ##' @keywords emuDB database schema Emu
 ##' @name AddListRemoveLevelDefinitions
 ##' @examples 
@@ -250,7 +251,7 @@ NULL
 ##' @rdname AddListRemoveLevelDefinitions
 ##' @export
 add_levelDefinition<-function(emuDBhandle, name,
-                              type){
+                              type, verbose = T){
   allowedTypes = c('ITEM', 'SEGMENT', 'EVENT')
   # precheck type 
   if(!(type %in% allowedTypes)){
@@ -269,6 +270,8 @@ add_levelDefinition<-function(emuDBhandle, name,
   dbConfig$levelDefinitions[[length(dbConfig$levelDefinitions) + 1]] = levelDefinition
   
   store_DBconfig(emuDBhandle, dbConfig)
+  
+  rewrite_allAnnots(emuDBhandle, verbose = verbose)
   
   invisible(NULL)
 }
@@ -295,7 +298,7 @@ list_levelDefinitions <- function(emuDBhandle){
 
 ##' @rdname AddListRemoveLevelDefinitions
 ##' @export
-remove_levelDefinition<-function(emuDBhandle, name){
+remove_levelDefinition<-function(emuDBhandle, name, verbose = T){
   
   dbConfig = load_DBconfig(emuDBhandle)
   # check if level definition (name)exists 
@@ -328,6 +331,8 @@ remove_levelDefinition<-function(emuDBhandle, name){
   dbConfig$levelDefinitions = newLvlDefs
   
   store_DBconfig(emuDBhandle, dbConfig)
+  
+  rewrite_allAnnots(emuDBhandle, verbose = verbose)
   
   return(invisible(NULL))
 }
@@ -405,7 +410,7 @@ add_attributeDefinition <- function(emuDBhandle, levelName,
   }else{
     stop(paste0("attributeDefinition with name '", name, "' already present in level '", levelName, "'"))
   }
-  
+
   # store changes
   store_DBconfig(emuDBhandle, dbConfig)
   

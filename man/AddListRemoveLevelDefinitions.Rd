@@ -7,11 +7,11 @@
 \alias{remove_levelDefinition}
 \title{Add / List / Remove level definition to / of / from emuDB}
 \usage{
-add_levelDefinition(emuDBhandle, name, type)
+add_levelDefinition(emuDBhandle, name, type, verbose = T)
 
 list_levelDefinitions(emuDBhandle)
 
-remove_levelDefinition(emuDBhandle, name)
+remove_levelDefinition(emuDBhandle, name, verbose = T)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
@@ -19,6 +19,8 @@ remove_levelDefinition(emuDBhandle, name)
 \item{name}{name of level definition}
 
 \item{type}{type of level definition ("SEGMENT","EVENT","ITEM")}
+
+\item{verbose}{Show progress bars and further information}
 }
 \description{
 Add / List / Remove database operation functions for level definitions. 
