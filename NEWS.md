@@ -17,6 +17,8 @@
 * improved the slow overlap checking function in the BPF parser (is now O(n) instead of O(n^2))
 * fixed col naming problems for new (unreleased) RSQLite version
 * added export_TextGridCollection() function
+* improved doc for get_trackdata
+* constant naming of EMU-SDMS vs EMU_SDMS
 
 # emuR 0.1.8
 

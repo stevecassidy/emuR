@@ -13,9 +13,9 @@ vignette: >
 
 # Introduction
   
-This document is an introduction to the `emuR` package and provides an overview of what the package is capable of and how it interacts with the other components of the EMU Speech Database Management System (EMU\_SDMS). It is by no means a complete guide to the EMU\_SDMS but rather tries to give an outline of what it is like working with and analyzing speech databases in the EMU\_SDMS by walking you through a few typical use cases.
+This document is an introduction to the `emuR` package and provides an overview of what the package is capable of and how it interacts with the other components of the EMU Speech Database Management System (EMU-SDMS). It is by no means a complete guide to the EMU-SDMS but rather tries to give an outline of what it is like working with and analyzing speech databases in the EMU-SDMS by walking you through a few typical use cases.
   
-The `emuR` package can be viewed as the main component of the EMU\_SDMS as it acts as the central instance that is able to interact with every component of the system. It takes care of database managing duties by being able to interact with a speech database that is stored in the `emuDB` format (see `emuDB` vignette for further details). Further, it has easy to understand and learn yet expressive and powerful querying mechanics that allow the user to easily query the annotation structures of the database (see `EQL` vignette for further details). Finally it provides easy data extraction capabilities that extracts data (e.g. formant values) which corresponds to the result of a query.
+The `emuR` package can be viewed as the main component of the EMU-SDMS as it acts as the central instance that is able to interact with every component of the system. It takes care of database managing duties by being able to interact with a speech database that is stored in the `emuDB` format (see `emuDB` vignette for further details). Further, it has easy to understand and learn yet expressive and powerful querying mechanics that allow the user to easily query the annotation structures of the database (see `EQL` vignette for further details). Finally it provides easy data extraction capabilities that extracts data (e.g. formant values) which corresponds to the result of a query.
   
 If a database in the `emuDB` format is present, the typical workflow in `emuR` is usually something like this:
   
@@ -29,7 +29,7 @@ If a database in the `emuDB` format is present, the typical workflow in `emuR` i
   
 # Converting existing databases
   
-As most people that are starting to use the EMU\_SDMS will probably already have some form of annotated data, we will initially show how to easily convert this existing data to the `emuDB` format (for a guide on how to create an `emuDB` from scratch and for information about this format see the `emuDB` vignette).
+As most people that are starting to use the EMU-SDMS will probably already have some form of annotated data, we will initially show how to easily convert this existing data to the `emuDB` format (for a guide on how to create an `emuDB` from scratch and for information about this format see the `emuDB` vignette).
   
 ## legacy EMU databases
   
@@ -156,7 +156,7 @@ which are produced as concrete phones. An schematic excerpt of such an annotatio
 
 ## Database annotation / visual inspection
 
-The EMU\_SDMS has a fairly unique approach to annotating and visually inspecting databases, as it 
+The EMU-SDMS has a fairly unique approach to annotating and visually inspecting databases, as it 
 utilizes a web application called the EMU-webApp to act as its graphical user interface. To be
 able to transfer the necessary data to the web application let's now serve the `emuDB` to it by using the `serve()` function:
 
@@ -462,7 +462,7 @@ unlink(file.path(tempdir(), "emuR_demoData"), recursive = TRUE)
 # Further reading
 
 In this vignette we tried to give you a quick practical overview of what it is like working with the emuR package that is part of the
-EMU_SDMS. If you are new to the system we definitely also recommend that you read the `emuDB` and `EQL` vignettes that are part of the `emuR`
+EMU-SDMS. If you are new to the system we definitely also recommend that you read the `emuDB` and `EQL` vignettes that are part of the `emuR`
 package. These will give more insight into the structure of / how you can interact with with `emuDB`s and what the EMU Query Language offers.
 As the new EMU system has kept most of the concepts of the legacy EMU system in place it is definitely also worth looking at
 Jonathan Harrington's Book *Phonetic Analysis of Speech Corpora* [@harrington:2010a].

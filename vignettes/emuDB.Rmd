@@ -495,7 +495,7 @@ The `_DBconfig.json` file contains the following fields:
 
 - `"name"` specifying the name of the database
 - `"UUID"` a unique ID given to each database
-- `"mediafileExtension"` the main mediafileExtension (*currently only uncompressed mono 16-bit `.wav` files are supported in every component of the EMU system. This is also the recommended audio format for the EMU_SDMS.*)
+- `"mediafileExtension"` the main mediafileExtension (*currently only uncompressed mono 16-bit `.wav` files are supported in every component of the EMU system. This is also the recommended audio format for the EMU-SDMS.*)
 - `"ssffTrackDefinitions"` an array of definitions defining the SSFF tracks of the database. Each ssffTrackDefinition consists of:
 - `"name"` the name of the ssffTrackDefinition
 - `"columnName"` the name of the column of the associated SSFF file. For more information on the columns the various function of the `wrassp` produce see the track fields of `wrasspOutputInfos` object that is part of the `wrassp` package. Further, although the SSFF file format is a binary file format it has a plain text header which means that if you open a SSFF file in the text editor of your choice you will be able to see the columns contained within it. Another way of accessing column information about a specific SSFF file is to use the `wrassp` function `res = read.AsspDataObj('/path/2/SSFF/file')` to read the file from the file system. `names(res)` will then give you the names of the columns present in this file. *NOTE: In the context of the SSFF file format the term column and in the context of the EMU system the term track / ssffTrack is used. They both refer to the same data.*

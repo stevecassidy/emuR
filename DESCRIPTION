@@ -7,7 +7,7 @@ Authors@R: c(
     person("Steve", "Cassidy", , "steve.cassidy@mq.edu.au", c("aut", "ctb")),
     person("Jonathan", "Harrington", , "jmh@phonetik.uni-muenchen.de", c("aut", "ctb")))
 Description: Provides the next iteration of the EMU Speech 
-    Database Management System (EMU_SDMS) with database management, data 
+    Database Management System (EMU-SDMS) with database management, data 
     extraction, data preparation and data visualization facilities. 
 License: GPL (>= 2)
 Depends:
