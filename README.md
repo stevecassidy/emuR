@@ -40,7 +40,7 @@ vignette('emuR_intro')
 
 ### Installation (two alternative methods)
 
-* Either download & extract the package from GitHub. Then install it with the following command: 
+* either download & extract the package from GitHub. Then install it with the following command: 
 ```r
 install.packages("path/to/emuR", repos = NULL, type="source")
 ```
