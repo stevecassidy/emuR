@@ -51,7 +51,7 @@ The main compromises are:
 # (see ?load_emuDB for more information)
 
 ## Export all levels
-
+export_TextGridCollection(ae, "/path/2/targetDir")
 
 }
 
