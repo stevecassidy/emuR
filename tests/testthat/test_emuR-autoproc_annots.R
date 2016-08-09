@@ -33,7 +33,7 @@ test_that("replace_itemLabels works correctly", {
     sl = query(ae, "Phonetic == n")
     expect_equal(nrow(sl), 0)
     sl = query(ae, "Phonetic == n_rep")
-    expect_equal(origAmount, 12)
+    expect_equal(nrow(sl), 12)
     
     replace_itemLabels(ae, attributeDefinitionName = "Phonetic", origLabels = c("I", "p"), newLabels = c("I_rep", "p_rep"), verbose = F)
     
