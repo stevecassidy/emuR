@@ -39,7 +39,7 @@ replace_itemLabels <- function(emuDBhandle, attributeDefinitionName, origLabels,
   
   allAttrNames = get_allAttributeNames(emuDBhandle)
   if(!attributeDefinitionName %in% allAttrNames){
-    stop(paste0("No attributeDefinitionName: ", attributeDefinitionName, " found in emuDB! The available attributeNames are: ", paste0(get_allAttributeNames(ae), collapse = "; ")))
+    stop(paste0("No attributeDefinitionName: ", attributeDefinitionName, " found in emuDB! The available attributeNames are: ", paste0(get_allAttributeNames(emuDBhandle), collapse = "; ")))
   }
   
   if(class(origLabels) != "character" | class(newLabels) != "character" | length(origLabels) != length(newLabels)){
