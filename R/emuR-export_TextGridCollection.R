@@ -61,18 +61,18 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
   # create target dir
   if(!dir.exists(targetDir)){
     if(verbose){
-      print("targetDir DOESN'T exist! Creating new dir...")
+      cat("targetDir DOESN'T exist! Creating new dir...\n")
     }
     dir.create(targetDir)
   }else{
     if(verbose){
-      print("targetDir exists! Using specified dir...")
+      cat("targetDir exists! Using specified dir...\n")
     }
   }
   
   # extract all items as giant seglist
   if(verbose){
-    print("Querying all annotation items... (this may take a while!)")
+    cat("Querying all annotation items... (this may take a while!)\n")
   }
   
   slAll = NULL
