@@ -1,4 +1,4 @@
-##' testthat tests for autobuild
+##' testthat tests for export_TextGridCollection
 ##'
 context("testing export_TextGridCollection")
 
