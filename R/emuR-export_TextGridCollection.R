@@ -58,6 +58,18 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
     allAttrNames = attributeDefinitionNames
   }
   
+  # create target dir
+  if(!dir.exists(targetDir)){
+    if(verbose){
+      print("targetDir DOESN'T exist! Creating new dir...")
+    }
+    dir.create(targetDir)
+  }else{
+    if(verbose){
+      print("targetDir exists! Using specified dir...")
+    }
+  }
+  
   # extract all items as giant seglist
   if(verbose){
     print("Querying all annotation items... (this may take a while!)")
@@ -71,14 +83,6 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
   # convert times to seconds
   slAll$start = slAll$start / 1000
   slAll$end = slAll$end / 1000
-  
-  # create target dir
-  if(dir.exists(targetDir)){
-    stop(paste0("targetDir: ", targetDir, " already exists!"))
-  }else{
-    dir.create(targetDir)
-  }
-  
   
   # extract rel.  bundles
   bndls = list_bundles(emuDBhandle)

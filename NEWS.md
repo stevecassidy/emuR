@@ -5,6 +5,7 @@
 ## new features / performance tweaks / improvements
 
 * added verbose parameter to export\_TextGridCollection()
+* improved pre-check of dir exists in export\_TextGridCollection()
 
 # emuR 0.1.9
 
