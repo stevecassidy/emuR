@@ -56,9 +56,9 @@ add_perspective <- function(emuDBhandle,
   
   persp = list(name = name, 
                signalCanvases = list(order = c("OSCI", "SPEC"), 
-                                     assign = NULL, contourLims = NULL),
-               levelCanvases = list(order = NULL),
-               twoDimCanvases = list(order = NULL))
+                                     assign = list(), contourLims = list()),
+               levelCanvases = list(order = list()),
+               twoDimCanvases = list(order = list()))
   
   l = length(DBconfig$EMUwebAppConfig$perspectives)
   
