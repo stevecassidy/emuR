@@ -504,6 +504,31 @@ calculate_postionsOfLinks<-function(emuDBhandle){
 ################# emuDB ##################
 ##########################################
 
+##' Rename emuDB
+##' @description Rename a emuDB. This effectively renames the folder of a 
+##' emuDB the _DBconfig.json file as well as the "name" entry in the _DBconfig.json
+##' file.
+##' @param databaseDir directory of the emuDB
+##' @param newName new name of emuDB
+##' @export
+##' @examples
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded ae emuDB
+##' # (see ?load_emuDB for more information)
+##' 
+##' # rename ae emuDB to "aeNew"
+##' rename(emuDBhandle = ae, newName = "aeNew")
+##' 
+##' }
+##' 
+rename <- function(databaseDir, newName){
+  
+  stop("not implemented yet!")
+  
+}
+
 #############################################
 # function that use emuDB files (vs. DBI)
 
