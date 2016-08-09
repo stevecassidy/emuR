@@ -21,14 +21,14 @@ test_that("export_TextGridCollection works correctly", {
     # preclean just in case
     unlink(file.path(path2testData, "tgCol"), recursive = T)
     # bad attr. name
-    expect_error(export_TextGridCollection(ae, targetDir = file.path(path2testData, "tgCol"), attributeDefinitionNames = "badName"))
+    expect_error(export_TextGridCollection(ae, targetDir = file.path(path2testData, "tgCol"), attributeDefinitionNames = "badName"), verbose = F)
   })
   
   test_that("exporting every level works", {
     # preclean just in case
     unlink(file.path(path2testData, "tgCol"), recursive = T)
 
-    export_TextGridCollection(ae, targetDir = file.path(path2testData, "tgCol"))
+    export_TextGridCollection(ae, targetDir = file.path(path2testData, "tgCol"), verbose = F)
 
     tgLines = readLines(file.path(path2testData, "tgCol", "0000", "msajc003.TextGrid"))
     # check header
@@ -52,7 +52,7 @@ test_that("export_TextGridCollection works correctly", {
     # preclean just in case
     unlink(file.path(path2testData, "tgCol"), recursive = T)
 
-    export_TextGridCollection(ae, targetDir = file.path(path2testData, "tgCol"), bundlePattern = "msajc003")
+    export_TextGridCollection(ae, targetDir = file.path(path2testData, "tgCol"), bundlePattern = "msajc003", verbose = F)
     list.files(file.path(path2testData, "tgCol", "0000"))
 
     expect_equal(length(list.files(file.path(path2testData, "tgCol", "0000"))), 2)
@@ -66,7 +66,7 @@ test_that("export_TextGridCollection works correctly", {
     # preclean just in case
     unlink(file.path(path2testData, "tgCol"), recursive = T)
     
-    export_TextGridCollection(ae, targetDir = file.path(path2testData, "tgCol"), bundlePattern = "msajc010")
+    export_TextGridCollection(ae, targetDir = file.path(path2testData, "tgCol"), bundlePattern = "msajc010", verbose = F)
     
     tgLines = readLines(file.path(path2testData, "tgCol", "0000", "msajc010.TextGrid"))
     
@@ -81,7 +81,7 @@ test_that("export_TextGridCollection works correctly", {
     # preclean just in case
     unlink(file.path(path2testData, "tgCol"), recursive = T)
     
-    export_TextGridCollection(ae, targetDir = file.path(path2testData, "tgCol"), bundlePattern = "msajc010", attributeDefinitionNames = "Phonetic")
+    export_TextGridCollection(ae, targetDir = file.path(path2testData, "tgCol"), bundlePattern = "msajc010", attributeDefinitionNames = "Phonetic", verbose = F)
     
     tgLines = readLines(file.path(path2testData, "tgCol", "0000", "msajc010.TextGrid"))
     

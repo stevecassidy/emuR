@@ -26,6 +26,7 @@
 ##' @param bundlePattern A regular expression pattern matching bundle names to be exported from the database
 ##' @param attributeDefinitionNames list of names of attributeDefinitions that are to be 
 ##' exported as tiers. If set to NULL (the default) all attribute definitions will be exported as separate tiers.
+##' @param verbose Show progress bars and further information
 ##' @export
 ##' @seealso \code{\link{load_emuDB}}
 ##' @keywords emuDB database query Emu EQL 
@@ -42,7 +43,7 @@
 ##' }
 ##' 
 export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '.*', bundlePattern = '.*', 
-                                      attributeDefinitionNames = NULL) {
+                                      attributeDefinitionNames = NULL, verbose = TRUE) {
   
   
   dbConfig = load_DBconfig(emuDBhandle)
@@ -58,6 +59,10 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
   }
   
   # extract all items as giant seglist
+  if(verbose){
+    print("Querying all annotation items... (this may take a while!)")
+  }
+  
   slAll = NULL
   for(i in 1:length(allAttrNames)){
     sl = query(emuDBhandle, paste0(allAttrNames[i], "=~ .*"))
@@ -74,9 +79,15 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
     dir.create(targetDir)
   }
   
+  
   # extract rel.  bundles
   bndls = list_bundles(emuDBhandle)
   bndls = bndls[grepl(sessionPattern, bndls$session) & grepl(bundlePattern, bndls$name),]
+  
+  if(verbose){
+    cat('\n  INFO: exporting', nrow(bndls), 'bundles\n')
+    pb <- utils::txtProgressBar(min = 0, max = nrow(bndls), style = 3)
+  }
   
   # loop through bundles and write to TextGrids & copy wav
   for(i in 1:nrow(bndls)){
@@ -213,7 +224,19 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
       }
       write(tierItems, tgPath, append=TRUE)
     }
+    
+    # increase pb
+    if(verbose){
+      utils::setTxtProgressBar(pb, i)
+    }
+    
   }
+  
+  # close progress bar if open
+  if(exists('pb')){
+    close(pb)
+  }
+  
   
 }
 

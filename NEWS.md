@@ -1,3 +1,11 @@
+# emuR 0.1.9.9000
+
+## bug fixes
+
+## new features / performance tweaks / improvements
+
+* added verbose parameter to export\_TextGridCollection()
+
 # emuR 0.1.9
 
 ## bug fixes

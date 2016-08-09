@@ -5,7 +5,7 @@
 \title{Export annotations of emuDB to TextGrid collection}
 \usage{
 export_TextGridCollection(emuDBhandle, targetDir, sessionPattern = ".*",
-  bundlePattern = ".*", attributeDefinitionNames = NULL)
+  bundlePattern = ".*", attributeDefinitionNames = NULL, verbose = TRUE)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle object (see \link{load_emuDB})}
@@ -18,6 +18,8 @@ export_TextGridCollection(emuDBhandle, targetDir, sessionPattern = ".*",
 
 \item{attributeDefinitionNames}{list of names of attributeDefinitions that are to be 
 exported as tiers. If set to NULL (the default) all attribute definitions will be exported as separate tiers.}
+
+\item{verbose}{Show progress bars and further information}
 }
 \description{
 Exports the annotations of a emuDB to a TextGrid collection (.TextGrid and .wav file pairs).
