@@ -2,6 +2,8 @@
 
 ## bug fixes
 
+* added missing example to export\_TextGridCollection()
+
 ## new features / performance tweaks / improvements
 
 * added verbose parameter to export\_TextGridCollection()
