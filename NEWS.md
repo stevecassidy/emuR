@@ -3,6 +3,7 @@
 ## bug fixes
 
 * added missing example to export\_TextGridCollection()
+* fixed bad DBconfig gen on add_perspective
 
 ## new features / performance tweaks / improvements
 
@@ -10,6 +11,7 @@
 * improved pre-check of dir exists in export\_TextGridCollection()
 * added new replace\_itemLabels function
 * imporved export\_TextGridCollection() doc
+* improved replace_itemLables() speed
 
 # emuR 0.1.9
 
