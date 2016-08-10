@@ -16,7 +16,7 @@ test_that("replace_itemLabels works correctly", {
   unlink(path2db, recursive = T)
   file.copy(path2orig, path2testData, recursive = T)
   ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
-
+  
   test_that("replace_itemLabels throws correct errors", {
     
     expect_error(replace_itemLabels(ae, attributeDefinitionName = "badName", origLabels = "a", newLabels = "a"), regexp = "No attributeDefinitionName: badName", ignore.case = T)
@@ -24,7 +24,7 @@ test_that("replace_itemLabels works correctly", {
     expect_error(replace_itemLabels(ae, attributeDefinitionName = "Phonetic", origLabels = 1, newLabels = "a"), regexp = "origLabels and newLabels have to be", ignore.case = T) 
     expect_error(replace_itemLabels(ae, attributeDefinitionName = "Phonetic", origLabels = "a", newLabels = 1), regexp = "origLabels and newLabels have to be", ignore.case = T)
   })
-
+  
   
   test_that("replace_itemLabels replaces correct labels", {
     
@@ -43,4 +43,25 @@ test_that("replace_itemLabels works correctly", {
     expect_equal(nrow(sl), 2)
   })
   
+})
+
+
+test_that("duplicate_level works correctly", {
+  
+  # delete, copy and load
+  unlink(path2db, recursive = T)
+  file.copy(path2orig, path2testData, recursive = T)
+  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
+  
+  test_that("duplicate_level throws correct errors", {
+    
+    expect_error(duplicate_level(ae, levelName = "badName", duplicateLevelName = "bla"), regexp = "not a valid level name", ignore.case = T)
+    
+  })
+
+  test_that("duplicate_level works correctly", {
+    duplicate_level(ae, levelName = "Phonetic", duplicateLevelName = "Phonetic2")
+    #TODO: check if multiple attribute defintions are also copied.. probably not!
+  })
+    
 })

@@ -1,4 +1,4 @@
-# emuR 0.1.9.9002
+# emuR 0.1.9.9003
 
 ## bug fixes
 
@@ -13,6 +13,7 @@
 * imporved export\_TextGridCollection() doc
 * improved replace_itemLables() speed
 * implemented rename\_emuDB() (\#116)
+* implemented duplicate\_level() (\#113)
 
 # emuR 0.1.9
 
