@@ -49,12 +49,39 @@ replace_itemLabels <- function(emuDBhandle, attributeDefinitionName, origLabels,
   #
   #############################
   
+  cat("\n  INFO: creating temporary index...\n")
+  # create temp index
+  DBI::dbGetQuery(emuDBhandle$connection, paste0("CREATE INDEX IF NOT EXISTS label_replace_tmp_idx ON labels(db_uuid, name, label)"))
+  
+  # progressbar 
+  if(verbose){
+    cat("\n  INFO: replacing ", length(origLabels), " attribute labels\n")
+    pb <- utils::txtProgressBar(min = 0, max = length(origLabels), style = 3)
+  }
+
+  # transaction start
+  DBI::dbBegin(emuDBhandle$connection)
+  
   for(i in 1:length(origLabels)){
-    
-    DBI::dbReadTable(emuDBhandle$connection, "labels")
     DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE labels SET label = '", newLabels[i], "' ",
                                                    "WHERE db_uuid='", emuDBhandle$UUID, "' AND name = '", attributeDefinitionName, "' AND label = '", origLabels[i], "'"))
+    if(verbose){
+      utils::setTxtProgressBar(pb, i)
+    }
   }
+  
+  # transaction end
+  DBI::dbCommit(emuDBhandle$connection)
+  
+  # remove temp index
+  DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP INDEX IF EXISTS label_replace_tmp_idx"))
+  
+  # close progress bar if open
+  if(exists('pb')){
+    close(pb)
+    cat("\n")
+  }
+  
   
   rewrite_allAnnots(emuDBhandle, verbose = verbose)
   
