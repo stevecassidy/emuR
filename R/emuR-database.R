@@ -609,7 +609,7 @@ rewrite_allAnnots <- function(emuDBhandle, verbose=TRUE){
   progress = 0
   if(verbose){
     bundleCount=nrow(bndls)
-    cat("INFO: Rewriting", bundleCount, "_annot.json files to file system...\n")
+    cat("  INFO: Rewriting", bundleCount, "_annot.json files to file system...\n")
     pb=utils::txtProgressBar(min=0,max=bundleCount,style=3)
     utils::setTxtProgressBar(pb,progress)
   }
