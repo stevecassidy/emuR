@@ -12,6 +12,7 @@
 * added new replace\_itemLabels function
 * imporved export\_TextGridCollection() doc
 * improved replace_itemLables() speed
+* implemented rename\_emuDB() (\#116)
 
 # emuR 0.1.9
 
