@@ -1,4 +1,4 @@
-# emuR 0.1.9.9001
+# emuR 0.1.9.9002
 
 ## bug fixes
 
@@ -9,6 +9,7 @@
 * added verbose parameter to export\_TextGridCollection()
 * improved pre-check of dir exists in export\_TextGridCollection()
 * added new replace\_itemLabels function
+* imporved export\_TextGridCollection() doc
 
 # emuR 0.1.9
 
