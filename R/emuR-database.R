@@ -523,7 +523,7 @@ calculate_postionsOfLinks<-function(emuDBhandle){
 ##' 
 ##' }
 ##' 
-rename <- function(databaseDir, newName){
+rename_emuDB <- function(databaseDir, newName){
   
   stop("not implemented yet!")
   
