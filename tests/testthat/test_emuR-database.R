@@ -459,4 +459,23 @@ test_that("store works correctly",{
   unlink(file.path(path2testData, "fromStore"), recursive = T)
 })
 
+test_that("rename works correctly",{
+  
+  # delete, copy and load
+  unlink(path2db, recursive = T)
+  unlink(file.path(path2testData, "fromStore"), recursive = T)
+  file.copy(path2orig, path2testData, recursive = T)
+  
+  rename_emuDB(path2db, "aeRename")
+  newPath = file.path(path2testData, paste0("aeRename", "_emuDB"))
+  
+  DBconfig = jsonlite::fromJSON(file.path(newPath, "aeRename_DBconfig.json"), simplifyVector=FALSE)
+  expect_equal(DBconfig$name, "aeRename")
+  
+  expect_true("aeRename_emuDB" %in% list.files(path2testData))
+  expect_true("aeRename_emuDBcache.sqlite" %in% list.files(newPath))
+  
+  # cleanup
+  unlink(newPath, recursive = T)
+})
 

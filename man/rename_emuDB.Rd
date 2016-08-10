@@ -14,7 +14,7 @@ rename_emuDB(databaseDir, newName)
 \description{
 Rename a emuDB. This effectively renames the folder of a 
 emuDB the _DBconfig.json file as well as the "name" entry in the _DBconfig.json
-file.
+file and the _emuDBcache.sqlite file if available.
 }
 \examples{
 \dontrun{
@@ -24,7 +24,7 @@ file.
 # (see ?load_emuDB for more information)
 
 # rename ae emuDB to "aeNew"
-rename(emuDBhandle = ae, newName = "aeNew")
+rename(databaseDir = "/path/2/ae_emuDB", newName = "aeNew")
 
 }
 

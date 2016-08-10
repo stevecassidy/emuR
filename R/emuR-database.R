@@ -507,7 +507,7 @@ calculate_postionsOfLinks<-function(emuDBhandle){
 ##' Rename emuDB
 ##' @description Rename a emuDB. This effectively renames the folder of a 
 ##' emuDB the _DBconfig.json file as well as the "name" entry in the _DBconfig.json
-##' file.
+##' file and the _emuDBcache.sqlite file if available.
 ##' @param databaseDir directory of the emuDB
 ##' @param newName new name of emuDB
 ##' @export
@@ -519,14 +519,40 @@ calculate_postionsOfLinks<-function(emuDBhandle){
 ##' # (see ?load_emuDB for more information)
 ##' 
 ##' # rename ae emuDB to "aeNew"
-##' rename(emuDBhandle = ae, newName = "aeNew")
+##' rename(databaseDir = "/path/2/ae_emuDB", newName = "aeNew")
 ##' 
 ##' }
 ##' 
 rename_emuDB <- function(databaseDir, newName){
   
-  stop("not implemented yet!")
+  dbName_old = stringr::str_replace_all(basename(databaseDir), pattern =  "_emuDB$", "")
   
+  #######################
+  # handle DBconfig.json
+  dbCfgPath_old = file.path(databaseDir, paste0(dbName_old, database.schema.suffix))
+  dbCfgPath_new = file.path(databaseDir, paste0(newName, database.schema.suffix))
+  dbConfig = jsonlite::fromJSON(dbCfgPath_old, simplifyVector=FALSE)
+
+  # change name entry, store and rename DBconfig
+  dbConfig$name = newName
+  json = jsonlite::toJSON(dbConfig, auto_unbox = TRUE, force = TRUE, pretty = TRUE)
+  writeLines(json, dbCfgPath_old)
+  file.rename(dbCfgPath_old, dbCfgPath_new)
+
+  ############################
+  # handle emuDBcache.sqlite
+  cachePath_old = file.path(normalizePath(databaseDir), paste0(dbName_old, database.cache.suffix))
+  cachePath_new = file.path(normalizePath(databaseDir), paste0(newName, database.cache.suffix))
+  if(file.exists(cachePath_old)){ # because it doesn't have to exist if it hasn't been created yet
+    file.rename(cachePath_old, cachePath_new)
+  }
+
+  ############################
+  # handle _emuDB folder
+  databaseDir_new = file.path(stringr::str_replace_all(normalizePath(databaseDir), pattern = basename(normalizePath(databaseDir)), ""), paste0(newName, emuDB.suffix))
+  file.rename(databaseDir, databaseDir_new)
+  
+  return(invisible(NULL))
 }
 
 #############################################
