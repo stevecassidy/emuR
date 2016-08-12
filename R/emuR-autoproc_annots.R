@@ -48,8 +48,9 @@ replace_itemLabels <- function(emuDBhandle, attributeDefinitionName, origLabels,
   
   #
   #############################
-  
-  cat("\n  INFO: creating temporary index...\n")
+  if(verbose){
+    cat("\n  INFO: creating temporary index...\n")
+  }
   # create temp index
   DBI::dbGetQuery(emuDBhandle$connection, paste0("CREATE INDEX IF NOT EXISTS label_replace_tmp_idx ON labels(db_uuid, name, label)"))
   
@@ -205,7 +206,7 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
       add_linkDefinition(emuDBhandle, type = superLds[i,]$type, superlevelName = duplicateLevelName, sublevelName = superLds[i,]$sublevelName)
     }
   }
-
+  
   # sub 
   subLds = linkDefs[linkDefs$sublevelName == levelName,]
   if(nrow(subLds) > 0){
@@ -213,13 +214,40 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
       add_linkDefinition(emuDBhandle, type = subLds[i,]$type, superlevelName = subLds[i,]$superlevelName, sublevelName = duplicateLevelName)
     }
   }
-
+  
   ########################
   # add attributeDefintions
   attrDefs = list_attributeDefinitions(emuDBhandle, levelName)
-  if(nrow(attrDefs) > 1){
-    stop("copying levels with multiple attrDefs not implemented yet!")
+  # if(nrow(attrDefs) > 1){
+  for(i in 1:nrow(attrDefs)){
+    if(attrDefs[i,]$name != levelName){
+      add_attributeDefinition(emuDBhandle,
+                              levelName = duplicateLevelName,
+                              name = attrDefs[i,]$name,
+                              type = attrDefs[i,]$type)
+    }
+    # copy legalLabels
+    ll = get_legalLabels(emuDBhandle, levelName, attrDefs[i,]$name)
+    if(!is.na(ll)){
+      set_legalLabels(emuDBhandle, duplicateLevelName, attrDefs[i,]$name, legalLabels = ll)
+    }
+    # copy labelGroups
+    attrDefLgs = list_attrDefLabelGroups(emuDBhandle, levelName, attributeDefinitionName = attrDefs[i,]$name)
+    if(nrow(attrDefLgs) > 0){
+      for(j in 1:nrow(attrDefLgs)){
+        if(attrDefs[i,]$name == levelName){
+          tmpAttrDefName = duplicateLevelName
+        }else{
+          tmpAttrDefName = attrDefs[i,]$name
+        }
+        add_attrDefLabelGroup(emuDBhandle, duplicateLevelName, 
+                              attributeDefinitionName = tmpAttrDefName, 
+                              labelGroupName = attrDefLgs[j,]$name, 
+                              labelGroupValues = unlist(stringr::str_split(attrDefLgs[j,]$values, "; ")))
+      }
+    }
   }
+  # }
 }
 
 # FOR DEVELOPMENT

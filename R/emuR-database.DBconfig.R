@@ -726,7 +726,8 @@ list_attrDefLabelGroups <- function(emuDBhandle,
       if(!is.null(ad$labelGroups)){
         for(lg in ad$labelGroups){
           df = rbind(df, data.frame(name = lg$name,
-                                    values = paste0(lg$values, collapse = "; ") ))
+                                    values = paste0(lg$values, collapse = "; "), 
+                                    stringsAsFactors = F ))
         }
       }
     }
@@ -1239,7 +1240,8 @@ list_labelGroups <- function(emuDBhandle){
   
   for(lg in dbConfig$labelGroups){
     df = rbind(df, data.frame(name = lg$name,
-                              values = paste0(lg$values, collapse = "; ")))
+                              values = paste0(lg$values, collapse = "; "),
+                              stringsAsFactors = F))
   }
   
   return(df)

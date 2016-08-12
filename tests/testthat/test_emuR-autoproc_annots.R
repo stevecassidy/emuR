@@ -60,8 +60,29 @@ test_that("duplicate_level works correctly", {
   })
 
   test_that("duplicate_level works correctly", {
-    duplicate_level(ae, levelName = "Phonetic", duplicateLevelName = "Phonetic2")
-    #TODO: check if multiple attribute defintions are also copied.. probably not!
-  })
+    duplicate_level(ae, levelName = "Phonetic", duplicateLevelName = "Phonetic2", verbose = F)
+    dbConfig = load_DBconfig(ae)
+    expect_true(length(dbConfig$levelDefinitions) == 10)
+    expect_equal(dbConfig$levelDefinitions[[10]]$name, "Phonetic2")
+    # check items
+    oldIts = DBI::dbGetQuery(ae$connection, "SELECT * FROM items WHERE level = 'Phonetic'")
+    newIts = DBI::dbGetQuery(ae$connection, "SELECT * FROM items WHERE level = 'Phonetic2'")
+    expect_equal(nrow(oldIts), nrow(newIts))
+    # check labels
+    oldLabs = DBI::dbGetQuery(ae$connection, "SELECT * FROM labels WHERE name = 'Phonetic'")
+    newLabs = DBI::dbGetQuery(ae$connection, "SELECT * FROM labels WHERE name = 'Phonetic2'")
+    expect_equal(nrow(oldLabs), nrow(newLabs))
+    # check labelGroups
+    oldLG = list_attrDefLabelGroups(ae, "Phonetic", "Phonetic")
+    newLG = list_attrDefLabelGroups(ae, "Phonetic2", "Phonetic2")
+    expect_equal(nrow(oldLG), nrow(newLG))
     
+    # check multiple attribute definitions
+    duplicate_level(ae, levelName = "Word", duplicateLevelName = "Word2", verbose = F)
+    dbConfig = load_DBconfig(ae)
+    expect_equal(length(dbConfig$levelDefinitions[[4]]$attributeDefinitions), length(dbConfig$levelDefinitions[[4]]$attributeDefinitions))
+    
+  })
+  # clean up
+  unlink(path2db, recursive = T)
 })
