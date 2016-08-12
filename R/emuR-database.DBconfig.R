@@ -882,7 +882,8 @@ list_linkDefinitions <- function(emuDBhandle){
   for(ld in dbConfig$linkDefinitions){
     df = rbind(df, data.frame(type = ld$type,
                               superlevelName = ld$superlevelName,
-                              sublevelName = ld$sublevelName))
+                              sublevelName = ld$sublevelName,
+                              stringsAsFactors = F))
   }
   
   return(df)

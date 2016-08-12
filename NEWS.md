@@ -4,6 +4,7 @@
 
 * added missing example to export\_TextGridCollection()
 * fixed bad DBconfig gen on add_perspective
+* fixed list\_linkDefinitions() returning strings as factors
 
 ## new features / performance tweaks / improvements
 
