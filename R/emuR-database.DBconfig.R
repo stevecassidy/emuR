@@ -693,6 +693,11 @@ add_attrDefLabelGroup <- function(emuDBhandle,
                                    levelName, 
                                    attributeDefinitionName)
   
+  # wrap in list if array of length 1 -> so converted to json
+  if(length(labelGroupValues) ==1 ){
+    labelGroupValues = list(labelGroupValues)
+  }
+  
   if(labelGroupName %in% curLgs$name){
     stop("labelGroupName '", labelGroupName ,"' already exists!")
   }
