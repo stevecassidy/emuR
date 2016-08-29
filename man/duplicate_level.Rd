@@ -5,7 +5,8 @@
 \title{Duplicate level}
 \usage{
 duplicate_level(emuDBhandle, levelName, duplicateLevelName,
-  duplicateLinks = TRUE, verbose = TRUE)
+  duplicateLinks = TRUE, linkDuplicates = FALSE,
+  linkDefType = "ONE_TO_ONE", verbose = TRUE)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle object (see \link{load_emuDB})}
@@ -18,12 +19,18 @@ duplicate_level(emuDBhandle, levelName, duplicateLevelName,
 links to and from the original items are duplicated to point to the 
 new items of the new duplicate level.}
 
-\item{verbose}{Show progress bars and further information}
+\item{linkDuplicates}{link the duplicated ITEMs to the originals. This
+can only be set to \code{TRUE} if \code{duplicateLinks} is set to \code{FALSE}.}
+
+\item{linkDefType}{type given to link definition. Only relevant if \code{linkDuplicates}
+is set to \code{TRUE}.}
+
+\item{verbose}{show progress bars and further information}
 }
 \description{
 Duplicate level of emuDB including all of its items and its various 
 attributeDefinitions. If the \code{duplicateLinks} variable is set 
-to \code{TRUE} all the links to and from the original items are also 
+to \code{TRUE} all the links to and from the original items are 
 duplicated.
 }
 \examples{

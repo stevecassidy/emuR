@@ -1,4 +1,4 @@
-# emuR 0.1.9.9003
+# emuR 0.1.9.9004
 
 ## bug fixes
 
@@ -15,6 +15,7 @@
 * improved replace_itemLables() speed
 * implemented rename\_emuDB() (\#116)
 * implemented duplicate\_level() (\#113)
+* implemented linkDuplicates parameter in duplicate\_level()
 
 # emuR 0.1.9
 

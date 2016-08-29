@@ -56,6 +56,7 @@ test_that("duplicate_level works correctly", {
   test_that("duplicate_level throws correct errors", {
     
     expect_error(duplicate_level(ae, levelName = "badName", duplicateLevelName = "bla"), regexp = "not a valid level name", ignore.case = T)
+    expect_error(duplicate_level(ae, levelName = "Phonetic", duplicateLevelName = "bla", duplicateLinks = T, linkDuplicates = T), regexp = "duplicateLinks & linkDuplicates", ignore.case = T)
     
   })
 
@@ -83,6 +84,27 @@ test_that("duplicate_level works correctly", {
     expect_equal(length(dbConfig$levelDefinitions[[4]]$attributeDefinitions), length(dbConfig$levelDefinitions[[4]]$attributeDefinitions))
     
   })
+
+  test_that("duplicateLinks = F works correctly", {
+    duplicate_level(ae, levelName = "Phonetic", duplicateLevelName = "Phonetic3", duplicateLinks = F, verbose = F)
+    linkDefs = list_linkDefinitions(ae)
+    # no linkdefs are added 
+    expect_false("Phonetic3" %in% linkDefs$superlevelName)
+    expect_false("Phonetic3" %in% linkDefs$sublevelName)
+  })
+  
+    
+  test_that("linkDuplicates works correctly", {
+    duplicate_level(ae, levelName = "Phonetic", duplicateLevelName = "Phonetic4", duplicateLinks = F, linkDuplicates = T, verbose = F)
+    linkDefs = list_linkDefinitions(ae)
+    # linkdefs are added
+    expect_true("Phonetic4" %in% linkDefs$sublevelName)
+    
+    sl1 = query(ae, "[Phonetic == n ^ #Word =~.*]", timeRefSegmentLevel = "Phonetic")
+    sl2 = query(ae, "[Phonetic4 == n ^ #Word =~.*]", timeRefSegmentLevel = "Phonetic4")
+    expect_true(all(sl1 == sl2))
+  })
+  
   # clean up
   unlink(path2db, recursive = T)
 })

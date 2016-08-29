@@ -92,7 +92,7 @@ replace_itemLabels <- function(emuDBhandle, attributeDefinitionName, origLabels,
 ##' 
 ##' Duplicate level of emuDB including all of its items and its various 
 ##' attributeDefinitions. If the \code{duplicateLinks} variable is set 
-##' to \code{TRUE} all the links to and from the original items are also 
+##' to \code{TRUE} all the links to and from the original items are 
 ##' duplicated.
 ##' 
 ##' @param emuDBhandle emuDB handle object (see \link{load_emuDB})
@@ -101,7 +101,11 @@ replace_itemLabels <- function(emuDBhandle, attributeDefinitionName, origLabels,
 ##' @param duplicateLinks if set to \code{TRUE} (the default) all the
 ##' links to and from the original items are duplicated to point to the 
 ##' new items of the new duplicate level.
-##' @param verbose Show progress bars and further information
+##' @param linkDuplicates link the duplicated ITEMs to the originals. This
+##' can only be set to \code{TRUE} if \code{duplicateLinks} is set to \code{FALSE}.
+##' @param linkDefType type given to link definition. Only relevant if \code{linkDuplicates}
+##' is set to \code{TRUE}.
+##' @param verbose show progress bars and further information
 ##' @export
 ##' @seealso \code{\link{load_emuDB}}
 ##' @keywords emuDB
@@ -119,7 +123,8 @@ replace_itemLabels <- function(emuDBhandle, attributeDefinitionName, origLabels,
 ##' }
 ##' 
 duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName, 
-                            duplicateLinks = TRUE, verbose = TRUE) {
+                            duplicateLinks = TRUE, linkDuplicates = FALSE, 
+                            linkDefType = "ONE_TO_ONE", verbose = TRUE) {
   
   ldefs = list_levelDefinitions(emuDBhandle)
   
@@ -129,6 +134,10 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
   
   if(duplicateLevelName %in% ldefs$name){
     stop(paste0(duplicateLevelName, " already exists in the emuDB: ", emuDBhandle$dbName))
+  }
+  
+  if(duplicateLinks & linkDuplicates){
+    stop(paste0("duplicateLinks & linkDuplicates are both set to TRUE! This is not allowed!"))
   }
   
   
@@ -187,6 +196,15 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
                                                    "AND it.db_uuid = mid.db_uuid AND it.session = mid.session AND it.bundle = mid.bundle ",
                                                    "AND it.level = '", levelName, "'"))
     
+  }else{
+    if(linkDuplicates){
+      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links ",
+                                                     "SELECT it1.db_uuid, it1.session, it1.bundle, it1.item_id AS from_id, it2.item_id AS to_id, null AS label ",
+                                                     "FROM items AS it1, items AS it2 ",
+                                                     "WHERE it1.db_uuid = it2.db_uuid AND it1.session = it2.session AND it1.bundle = it2.bundle ",
+                                                     "AND it1.level = '", levelName,"' ",
+                                                     "AND it2.level = '", duplicateLevelName,"' AND it1.type = it2.type AND it1.seq_idx = it2.seq_idx"))
+    }
   }
   
   # drop temp tables
@@ -198,27 +216,32 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
   
   ########################
   # add linkDefinitions
-  linkDefs = list_linkDefinitions(emuDBhandle)
-  # super 
-  superLds = linkDefs[linkDefs$superlevelName == levelName,]
-  if(nrow(superLds) > 0){
-    for(i in 1:nrow(superLds)){
-      add_linkDefinition(emuDBhandle, type = superLds[i,]$type, superlevelName = duplicateLevelName, sublevelName = superLds[i,]$sublevelName)
+  if(duplicateLinks){
+    linkDefs = list_linkDefinitions(emuDBhandle)
+    # super 
+    superLds = linkDefs[linkDefs$superlevelName == levelName,]
+    if(nrow(superLds) > 0){
+      for(i in 1:nrow(superLds)){
+        add_linkDefinition(emuDBhandle, type = superLds[i,]$type, superlevelName = duplicateLevelName, sublevelName = superLds[i,]$sublevelName)
+      }
+    }
+    
+    # sub 
+    subLds = linkDefs[linkDefs$sublevelName == levelName,]
+    if(nrow(subLds) > 0){
+      for(i in 1:nrow(subLds)){
+        add_linkDefinition(emuDBhandle, type = subLds[i,]$type, superlevelName = subLds[i,]$superlevelName, sublevelName = duplicateLevelName)
+      }
     }
   }
   
-  # sub 
-  subLds = linkDefs[linkDefs$sublevelName == levelName,]
-  if(nrow(subLds) > 0){
-    for(i in 1:nrow(subLds)){
-      add_linkDefinition(emuDBhandle, type = subLds[i,]$type, superlevelName = subLds[i,]$superlevelName, sublevelName = duplicateLevelName)
-    }
+  if(linkDuplicates){
+    add_linkDefinition(emuDBhandle, type = linkDefType, superlevelName = levelName, sublevelName = duplicateLevelName)
   }
   
   ########################
   # add attributeDefintions
   attrDefs = list_attributeDefinitions(emuDBhandle, levelName)
-  # if(nrow(attrDefs) > 1){
   for(i in 1:nrow(attrDefs)){
     if(attrDefs[i,]$name != levelName){
       add_attributeDefinition(emuDBhandle,
@@ -247,7 +270,11 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
       }
     }
   }
-  # }
+  
+  # update redundant links
+  build_allRedundantLinks(emuDBhandle)
+  calculate_postionsOfLinks(emuDBhandle)
+  
 }
 
 # FOR DEVELOPMENT
