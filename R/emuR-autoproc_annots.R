@@ -214,6 +214,16 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
   # add levelDefs 
   add_levelDefinition(emuDBhandle, duplicateLevelName, type = ldef$type, verbose = verbose) # this also calls rewrite_allAnnots()
   
+  # update MD5sums in bundle table
+  bndls = list_bundles(emuDBhandle)
+  for(i in 1:nrow(bndls)){
+    curBndl = bndls[i,]
+    annotJSONfilePath = file.path(emuDBhandle$basePath, paste0(curBndl$session, session.suffix), paste0(curBndl$name, bundle.dir.suffix), paste0(curBndl$name, bundle.annotation.suffix, ".json"))
+    newMD5sum = tools::md5sum(annotJSONfilePath)                        
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE bundle SET md5_annot_json = '", newMD5sum, "' WHERE db_uuid ='", emuDBhandle$UUID, "' AND session='", curBndl$session, "' AND name='", curBndl$name, "'"))
+  }
+  
+  
   ########################
   # add linkDefinitions
   if(duplicateLinks){
