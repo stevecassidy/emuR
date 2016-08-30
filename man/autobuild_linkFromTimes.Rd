@@ -6,7 +6,7 @@
 \usage{
 autobuild_linkFromTimes(emuDBhandle, superlevelName, sublevelName,
   writeToFS = TRUE, convertSuperlevel = FALSE,
-  backupLevelAppendStr = "-autobuildBackup")
+  backupLevelAppendStr = "-autobuildBackup", verbose = TRUE)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
@@ -21,6 +21,8 @@ autobuild_linkFromTimes(emuDBhandle, superlevelName, sublevelName,
 superlevel will be converted to a level of type ITEM}
 
 \item{backupLevelAppendStr}{string appended to level name for backup level}
+
+\item{verbose}{show progress bars and further information}
 }
 \description{
 Autobuild links between two time levels. This is typically done when converting from 
