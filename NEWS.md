@@ -1,4 +1,4 @@
-# emuR 0.1.9.9004
+# emuR 0.1.9.9005
 
 ## bug fixes
 
@@ -16,6 +16,8 @@
 * implemented rename\_emuDB() (\#116)
 * implemented duplicate\_level() (\#113)
 * implemented linkDuplicates parameter in duplicate\_level()
+* autobuild\_linkFromTimes() speed improvements 
+
 
 # emuR 0.1.9
 
