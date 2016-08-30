@@ -93,41 +93,72 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
       stop("Backup of parellel labels not implemented yet!")
     }
     
+    # create temp tables
+    DBI::dbGetQuery(emuDBhandle$connection, "CREATE TEMP TABLE IF NOT EXISTS bndl_max_item_id_tmp (
+                    db_uuid VARCHAR(36),
+                    session TEXT,
+                    bundle TEXT,
+                    bndl_max_item_id INTEGER,
+                    PRIMARY KEY (db_uuid, session, bundle)
+    )")
+    
+    # create bndl_max_item_id_tmp table
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO bndl_max_item_id_tmp ",
+                                                   "SELECT db_uuid, session, bundle, max(item_id) AS bndl_max_item_id FROM items WHERE db_uuid = '", emuDBhandle$UUID, "' ",
+                                                   "GROUP BY db_uuid, session, bundle"))
+    
+
+    #
+    # qRes = DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labels ",
+    #                                                       "SELECT '", emuDBhandle$UUID, "', lt.session, lt.bundle, lt.item_id + bndlMaxValue AS item_id, label_idx, lt.name || '", backupLevelAppendStr, "' AS name, label FROM ",
+    #                                                       "(SELECT * FROM ",
+    #                                                       "  items AS it",
+    #                                                       "  JOIN ",
+    #                                                       "  (",
+    #                                                       "   SELECT db_uuid, session, bundle, MAX(item_id) AS 'bndlMaxValue'",
+    #                                                       "   FROM items GROUP BY bundle",
+    #                                                       "  ) AS maxIdRes",
+    #                                                       " WHERE it.db_uuid = maxIdRes.db_uuid ",
+    #                                                       "   AND it.session = maxIdRes.session ",
+    #                                                       "   AND it.bundle = maxIdRes.bundle",
+    #                                                       "   AND it.level = '", superlevelName, "'",
+    #                                                       ") AS tmp ",
+    #                                                       "JOIN labels AS lt ", 
+    #                                                       "WHERE lt.db_uuid=tmp.db_uuid ",
+    #                                                       "  AND lt.session=tmp.session ",
+    #                                                       "  AND lt.bundle=tmp.bundle ",
+    #                                                       "  AND lt.item_id=tmp.item_id"))
+    
     # backup labels belonging to superlevel (labels have to be backed up before items to avoid maxID problem (maybe should rewrite query to avoid this in future versions using labels table to determin
     # maxID))
-    qRes = DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labels ",
-                                                          "SELECT '", emuDBhandle$UUID, "', lt.session, lt.bundle, lt.item_id + bndlMaxValue AS item_id, label_idx, lt.name || '", backupLevelAppendStr, "' AS name, label FROM ",
-                                                          "(SELECT * FROM ",
-                                                          "  items AS it",
-                                                          "  JOIN ",
-                                                          "  (",
-                                                          "   SELECT db_uuid, session, bundle, MAX(item_id) AS 'bndlMaxValue'",
-                                                          "   FROM items GROUP BY bundle",
-                                                          "  ) AS maxIdRes",
-                                                          " WHERE it.db_uuid = maxIdRes.db_uuid ",
-                                                          "   AND it.session = maxIdRes.session ",
-                                                          "   AND it.bundle = maxIdRes.bundle",
-                                                          "   AND it.level = '", superlevelName, "'",
-                                                          ") AS tmp ",
-                                                          "JOIN labels AS lt ", 
-                                                          "WHERE lt.db_uuid=tmp.db_uuid ",
-                                                          "  AND lt.session=tmp.session ",
-                                                          "  AND lt.bundle=tmp.bundle ",
-                                                          "  AND lt.item_id=tmp.item_id"))
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labels ",
+                                                   "SELECT l.db_uuid, l.session, l.bundle, (l.item_id + mid.bndl_max_item_id) AS item_id, l.label_idx, l.name || '", backupLevelAppendStr, "' AS name, l.label ",
+                                                   "FROM items AS it, labels AS l, bndl_max_item_id_tmp AS mid ",
+                                                   "WHERE it.db_uuid = '", emuDBhandle$UUID, "' AND it.db_uuid = l.db_uuid AND it.session = l.session AND it.bundle = l.bundle AND it.item_id = l.item_id ",
+                                                   "AND it.db_uuid = mid.db_uuid AND it.session = mid.session AND it.bundle = mid.bundle ",
+                                                   "AND it.level = '", superlevelName, "'"))
     
+    
+    
+    # qRes = DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items ",
+    #                                                       "SELECT '", emuDBhandle$UUID, "', it.session, it.bundle, it.item_id + bndlMaxValue AS item_id, it.level || '", backupLevelAppendStr, "' AS level, it.type, it.seq_idx, it.sample_rate, it.sample_point, it.sample_start, it.sample_dur FROM ",
+    #                                                       "items AS it ",
+    #                                                       "JOIN ",
+    #                                                       "(SELECT db_uuid, session, bundle, MAX(item_id) AS 'bndlMaxValue' FROM ",
+    #                                                       "  items GROUP BY bundle ", 
+    #                                                       ") as maxIdRes ",
+    #                                                       "WHERE it.db_uuid = maxIdRes.db_uuid ",
+    #                                                       "   AND it.session = maxIdRes.session ",
+    #                                                       "   AND it.bundle = maxIdRes.bundle",
+    #                                                       "   AND it.level = '", superlevelName, "'"))    
     
     # backup items belonging to superlevel (=duplicate level with new ids)    
-    qRes = DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items ",
-                                                          "SELECT '", emuDBhandle$UUID, "', it.session, it.bundle, it.item_id + bndlMaxValue AS item_id, it.level || '", backupLevelAppendStr, "' AS level, it.type, it.seq_idx, it.sample_rate, it.sample_point, it.sample_start, it.sample_dur FROM ",
-                                                          "items AS it ",
-                                                          "JOIN ",
-                                                          "(SELECT db_uuid, session, bundle, MAX(item_id) AS 'bndlMaxValue' FROM ",
-                                                          "  items GROUP BY bundle ", 
-                                                          ") as maxIdRes ",
-                                                          "WHERE it.db_uuid = maxIdRes.db_uuid ",
-                                                          "   AND it.session = maxIdRes.session ",
-                                                          "   AND it.bundle = maxIdRes.bundle",
-                                                          "   AND it.level = '", superlevelName, "'"))    
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items ",
+                                                   "SELECT items.db_uuid, items.session, items.bundle, (item_id + bndl_max_item_id) AS item_id, items.level || '", backupLevelAppendStr, "' AS level, type, seq_idx, sample_rate, sample_point, sample_start, sample_dur ",
+                                                   "FROM items, bndl_max_item_id_tmp ", 
+                                                   "WHERE items.db_uuid = bndl_max_item_id_tmp.db_uuid AND items.session = bndl_max_item_id_tmp.session ",
+                                                   "AND items.bundle = bndl_max_item_id_tmp.bundle AND items.level = '", superlevelName, "'"))
+    
   }
   
   # create temp table to store all links in. Duplicates will be removed in a sep. query -> performance improvement!
@@ -297,3 +328,4 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
 # library('testthat')
 # test_file('tests/testthat/test_aaa_initData.R')
 # test_file('tests/testthat/test_emuR-autobuild.R')
+
