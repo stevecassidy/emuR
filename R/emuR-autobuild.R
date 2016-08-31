@@ -158,6 +158,8 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
                                                    "FROM items, bndl_max_item_id_tmp ", 
                                                    "WHERE items.db_uuid = bndl_max_item_id_tmp.db_uuid AND items.session = bndl_max_item_id_tmp.session ",
                                                    "AND items.bundle = bndl_max_item_id_tmp.bundle AND items.level = '", superlevelName, "'"))
+    # drop temp tables
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "bndl_max_item_id_tmp"))
     
   }
   
