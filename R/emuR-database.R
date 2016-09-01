@@ -191,7 +191,7 @@ initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TR
     DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "session"))
     DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "emuDB"))
   }
-    
+  
   if(createTables & !DBI::dbExistsTable(emuDBhandle$connection, "emu_db")){
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB)
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_session)
@@ -291,7 +291,7 @@ store_bundleAnnotDFsDBI <- function(emuDBhandle, bundleAnnotDFs, sessionName,
                                       session = sessionName,
                                       bundle = bundleName,
                                       bundleAnnotDFs$items)
-
+    
     DBI::dbWriteTable(emuDBhandle$connection, "items", bundleAnnotDFs$items, append = T, row.names = F)
   }
   
@@ -318,7 +318,7 @@ store_bundleAnnotDFsDBI <- function(emuDBhandle, bundleAnnotDFs, sessionName,
 }
 
 load_bundleAnnotDFsDBI <- function(emuDBhandle, sessionName, bundleName){
-
+  
   DBconfig = load_DBconfig(emuDBhandle)
   levelDefs = list_levelDefinitions(emuDBhandle)
   # meta infos
@@ -380,11 +380,11 @@ create_tmpTablesForBuildingRedLinks <- function(emuDBhandle){
   if(!"links_ext_tmp" %in% DBI::dbListTables(emuDBhandle$connection)){
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp)
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmpIdx)
-    }
+  }
   if(!"links_ext_tmp2" %in% DBI::dbListTables(emuDBhandle$connection)){ 
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmp2)
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtTmpIdx2)
-    }
+  }
 }
 
 drop_tmpTablesForBuildingRedLinks <- function(emuDBhandle){
@@ -401,6 +401,93 @@ build_allRedundantLinks <- function(emuDBhandle, sessionName=NULL, bundleName=NU
   hierarchyPaths = build_allHierarchyPaths(load_DBconfig(emuDBhandle))
   
   return(build_redundantLinksForPaths(emuDBhandle, hierarchyPaths, sessionName, bundleName) )
+}
+
+# test version for faster build_redundantLinksForPaths
+fbuild_redundantLinksForPaths <- function(emuDBhandle, hierarchyPaths, sessionName='0000', bundleName=NULL){
+  
+  # create tmp tables if not available
+  create_tmpTablesForBuildingRedLinks(emuDBhandle)
+  # delete any previous redundant links (just to be safe)
+  DBI::dbGetQuery(emuDBhandle$connection, 'DELETE FROM links_tmp')
+  
+  hierarchyPathsLen = length(hierarchyPaths)
+  if(hierarchyPathsLen > 0){
+    
+    # create tmp table
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("CREATE TEMP TABLE IF NOT EXISTS arlid_tmp (", # all redundant links incl duplicates
+                                                   "db_uuid VARCHAR(36),",
+                                                   "session TEXT,",
+                                                   "bundle TEXT,",
+                                                   "from_id INTEGER,",
+                                                   "to_id INTEGER,",
+                                                   "label TEXT)"))
+    
+    # build query for each partial path
+    for(i in 1:hierarchyPathsLen){
+      hp = hierarchyPaths[[i]]
+      #cat("Path: ",hp,"\n")
+      hpLen = length(hp)
+      sHp = hp[1]
+      eHp = hp[hpLen]
+      sqlQuery = ""
+      
+      
+      # build SELECT x FROM clause
+      sqlQuery = paste0(sqlQuery, "INSERT INTO arlid_tmp SELECT root.db_uuid, root.session, root.bundle, root.item_id AS from_id, leaf.item_id AS to_id, NULL AS label FROM ")
+      for(li in 1:hpLen){
+        if(li == 1){
+          sqlQuery = paste0(sqlQuery, "items root")
+        }else if(li == hpLen){
+          sqlQuery = paste0(sqlQuery, "items leaf")
+          break;
+        }else{
+          sqlQuery = paste0(sqlQuery, "items i", li)
+        }
+        
+        sqlQuery = paste0(sqlQuery, ', ')
+        
+        sqlQuery = paste0(sqlQuery, 'links l', li)
+        
+        sqlQuery = paste0(sqlQuery, ', ')
+        
+      }
+      
+      # build WHERE clause -> 
+      sqlQuery=paste0(sqlQuery," WHERE ")
+      for(j in 1:(hpLen - 1)){
+        pln = hp[j] # parent level name
+        cln = hp[j + 1] # child level name
+        if(j == 1){
+          pitr = "root" # parent items table reference
+        }else{
+          pitr = paste0("i", j) # parent items table reference
+        }
+        ltr = paste0("l", j) # link table ref.
+        if(j == hpLen - 1){
+          citr = "leaf" # child items table reference
+        }else{
+          citr = paste0("i", j + 1) # child items table reference
+        }
+        if(j > 1){
+          sqlQuery = paste0(sqlQuery, " AND ")
+        }
+        sqlQuery = paste0(sqlQuery, pitr,".level = '", pln, "' AND ", citr, ".level = '", cln, "' AND ")
+        # parent items to links
+        sqlQuery = paste0(sqlQuery, pitr,".db_uuid = ", ltr, ".db_uuid AND ", pitr, ".session = ", ltr, ".session AND ", pitr,".bundle = ", ltr, ".bundle AND ", pitr,".item_id = ", ltr, ".from_id AND ")
+        # links to parent items
+        sqlQuery = paste0(sqlQuery, ltr,".db_uuid = ", citr, ".db_uuid AND ", ltr, ".session = ", citr, ".session AND ", ltr,".bundle = ", citr, ".bundle AND ", ltr,".to_id = ", citr, ".item_id")
+      }
+      
+      DBI::dbGetQuery(emuDBhandle$connection, sqlQuery)
+    }
+    
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links_tmp ", "SELECT DISTINCT db_uuid, session, bundle, from_id, to_id, label FROM arlid_tmp"))
+    
+    # drop temp table
+    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "arlid_tmp"))
+    
+  }
 }
 
 
@@ -532,13 +619,13 @@ rename_emuDB <- function(databaseDir, newName){
   dbCfgPath_old = file.path(databaseDir, paste0(dbName_old, database.schema.suffix))
   dbCfgPath_new = file.path(databaseDir, paste0(newName, database.schema.suffix))
   dbConfig = jsonlite::fromJSON(dbCfgPath_old, simplifyVector=FALSE)
-
+  
   # change name entry, store and rename DBconfig
   dbConfig$name = newName
   json = jsonlite::toJSON(dbConfig, auto_unbox = TRUE, force = TRUE, pretty = TRUE)
   writeLines(json, dbCfgPath_old)
   file.rename(dbCfgPath_old, dbCfgPath_new)
-
+  
   ############################
   # handle emuDBcache.sqlite
   cachePath_old = file.path(normalizePath(databaseDir), paste0(dbName_old, database.cache.suffix))
@@ -546,7 +633,7 @@ rename_emuDB <- function(databaseDir, newName){
   if(file.exists(cachePath_old)){ # because it doesn't have to exist if it hasn't been created yet
     file.rename(cachePath_old, cachePath_new)
   }
-
+  
   ############################
   # handle _emuDB folder
   databaseDir_new = file.path(stringr::str_replace_all(normalizePath(databaseDir), pattern = basename(normalizePath(databaseDir)), ""), paste0(newName, emuDB.suffix))
