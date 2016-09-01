@@ -237,10 +237,10 @@ test_that("Load example database ae",{
     # reprduce the original query
     sl=query(ae,tslQuery,resultType='emusegs')
     sr=.aeSampleRate
-    halfSampleTime=1/sr/2
+    doubleSampleTime=2/sr
     # we have to accept numeric deviations caused by double precision calculations
-    # therefore add the machine epsilon to the tolerance of a half sample 
-    tolSec=halfSampleTime+.Machine[['double.eps']]
+    # therefore add the machine epsilon to the tolerance of two sample 
+    tolSec=doubleSampleTime+.Machine[['double.eps']]
     tolMs=tolSec*1000
     # compare legacy emu generated and new seglist
     eq=equal.emusegs(sl,tsl,tolerance =tolMs,uttsPrefix2='0000:')

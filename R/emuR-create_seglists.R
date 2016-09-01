@@ -34,16 +34,22 @@ fconvert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL
   levelNamesWithTime = unlist(lapply(dbConfig$levelDefinitions, function(x){if(x$type=="SEGMENT" || x$type=="EVENT"){return(x$name)} }))
   
   resultLevel = DBI::dbGetQuery(emuDBhandle$connection, "SELECT * FROM interm_res_meta_infos_tmp_root")$result_level
+  # if level has time information time can be calculated from sample values directly
   if(resultLevel %in% levelNamesWithTime){
     
+    browser()
     seglist = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT labels.label AS labels, ",
                                                              "CASE items_seq_start.type ",
-                                                             " WHEN 'SEGMENT' THEN items_seq_start.sample_start / items_seq_start.sample_rate * 1000.0 ",
+                                                             " WHEN 'SEGMENT' THEN ",
+                                                             "  CASE sample_start ",
+                                                             "  WHEN 0 THEN 0.0 ",
+                                                             "  ELSE (CAST (sample_start AS REAL) - 0.5 ) / CAST( sample_rate AS REAL) * 1000.0 ",
+                                                             "  END",
                                                              " WHEN 'EVENT' THEN 'NOT IMPLEMENTED YET' ",
                                                              " ELSE 'SIC!! Something went wrong' ",
                                                              "END AS start, ",
                                                              "CASE items_seq_start.type ",
-                                                             " WHEN 'SEGMENT' THEN (items_seq_end.sample_start + items_seq_end.sample_dur) / items_seq_end.sample_rate * 1000.0 ",
+                                                             " WHEN 'SEGMENT' THEN (items_seq_end.sample_start + items_seq_end.sample_dur + 0.5) / items_seq_end.sample_rate * 1000.0 ",
                                                              " WHEN 'EVENT' THEN 'NOT IMPLEMENTED YET' ",
                                                              " ELSE 'SIC!! Something went wrong' ",
                                                              "END AS end, ",
@@ -283,12 +289,15 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
                        CASE type WHEN 'EVENT' THEN \
                         CAST (sample_start AS REAL)/ CAST( sample_rate AS REAL) * 1000.0 \
                        ELSE \
-                        (CAST (sample_start AS REAL) + 0.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
+                          CASE sample_start \
+                          WHEN 0 THEN 0.0 \
+                          ELSE (CAST (sample_start AS REAL) - 0.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
+                          END
                        END AS start, \
                        CASE type WHEN 'EVENT' THEN \
                          0.0
                        ELSE \
-                        (CAST (sample_end AS REAL) + 1.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
+                        (CAST (sample_end AS REAL) + 0.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
                        END AS end, \
                        session || ':' || bundle AS utts, \
                        db_uuid,session,bundle, start_item_id  AS startItemID, end_item_id AS endItemID,", levelColName, " AS level,type, sample_start AS sampleStart,sample_end AS sampleEnd,sample_rate AS sampleRate \
@@ -479,16 +488,20 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
                        CASE type WHEN 'EVENT' THEN \
                         CAST (sample_start AS REAL)/ CAST( sample_rate AS REAL) * 1000.0 \
                        ELSE \
-                        (CAST (sample_start AS REAL) + 0.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
+                          CASE sample_start \
+                          WHEN 0 THEN 0.0 \
+                          ELSE (CAST (sample_start AS REAL) - 0.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
+                          END
                        END AS start, \
                        CASE type WHEN 'EVENT' THEN \
                          0.0
                        ELSE \
-                        (CAST (sample_end AS REAL) + 1.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
+                        (CAST (sample_end AS REAL) + 0.5 ) / CAST( sample_rate AS REAL) * 1000.0 \
                        END AS end, \
                        session || ':' || bundle AS utts, \
                        db_uuid,session,bundle, start_item_id AS startItemID, end_item_id AS endItemID,level,type,sample_start AS sampleStart,sample_end AS sampleEnd,sample_rate AS sampleRate\
                       FROM (", queryStr, ")"))
+  
   
   # set emusegs type attribute, default 'segment'
   slType='segment'
@@ -509,6 +522,7 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
 ##################################
 ##################################
 equal.emusegs<-function(seglist1,seglist2,compareAttributes=TRUE,tolerance=0.0,uttsPrefix2=''){
+  
   if(!inherits(seglist1,"emusegs")){
     stop("seglist1 is not of class emusegs")
   }
