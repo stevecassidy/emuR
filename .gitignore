@@ -12,3 +12,5 @@ vignettes/pics/db_structure.pdf
 *.o
 
 *.so
+
+.DS_Store
