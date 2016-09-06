@@ -255,10 +255,12 @@ test_that("Load example database ae",{
   })
   
   test_that("additional queries (simple and complex) work for more thorough query testing",{
-    skip_on_cran()
+    # skip_on_cran()
     # SQ
-    sl = query(ae, "Phonetic == m")
+    qs = "Phonetic == m"
+    sl = query(ae, qs)
     expect_equal(nrow(sl), 7)
+    expect_equal(attributes(sl)$query, qs)
     sl = query(ae, "[Phonetic == m]")
     expect_equal(nrow(sl), 7)
     expect_equal(attr(sl, "query"), "[Phonetic == m]")
@@ -278,8 +280,10 @@ test_that("Load example database ae",{
     expect_equal(nrow(sl), 3)
     sl = query(ae, "[Text=to -> #Text=~.*]")
     expect_equal(nrow(sl), 3)
-    sl = query(ae, "[Phonetic == m -> Phonetic == I]") 
+    qs = "[Phonetic == m -> Phonetic == I]"
+    sl = query(ae, qs)
     expect_equal(nrow(sl), 0)
+    expect_equal(attributes(sl)$query, qs)
     sl = query(ae, "[#Phonetic == m -> Phonetic == I]")
     expect_equal(nrow(sl), 0)
     sl = query(ae, "[Phonetic == m -> #Phonetic == I]")
@@ -320,7 +324,7 @@ test_that("Load example database ae",{
     sl = query(ae, "[Syllable =~ .* ^ Phoneme != p | t | k]")
     expect_equal(nrow(sl), 83)
     sl = query(ae, "[#Syllable =~ .* ^ Phoneme != p | t | k]")
-    expect_equal(nrow(sl), 195)
+    expect_equal(nrow(sl), 83)
     sl = query(ae, "[Syllable =~ .* ^ #Phoneme != p | t | k]")
     expect_equal(nrow(sl), 195)
     
@@ -434,5 +438,17 @@ test_that("Load example database ae",{
     expect_equal(nrow(sl), 7)
     expect_equal(sl$labels[1], "")
   })
+  
+  # 
+  test_that("timeRefSegmentLevel works correctly",{
+    # skip_on_cran()
+    sl = query(ae, "[Syllable == W]")
+    sl = query(ae, "[Syllable == W]", timeRefSegmentLevel = "Phonetic")
+    duplicate_level(ae, "Phonetic", "Phonetic2", verbose = F)
+    expect_error(query(ae, "[Syllable == W]"), regexp = "The level is linked")
+    expect_error(query(ae, "[Syllable == W]", timeRefSegmentLevel = "badLevelName"), regexp = "Cannot resolve time information for result level")
+    query(ae, "[Syllable == W]", timeRefSegmentLevel = "Phonetic2")
+  })
+  
   
 })

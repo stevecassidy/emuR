@@ -992,6 +992,11 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
       # check if no sequences where found -> clear & return
       nSeq = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM lr_exp_res_tmp"))$n
       if(nSeq == 0){
+        # move left meta infos (to avoid empty meta table for ("query_str" entry))
+        allMeta = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM interm_res_meta_infos_tmp_", leftTableSuffix))
+        DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM interm_res_meta_infos_tmp_", intermResTableSuffix))
+        DBI::dbWriteTable(emuDBhandle$connection, paste0("interm_res_meta_infos_tmp_", intermResTableSuffix), allMeta, append = T, row.names = F)
+        
         clear_intermResTabels(emuDBhandle, leftTableSuffix)
         clear_intermResTabels(emuDBhandle, rightTableSuffix)
         return()
@@ -1080,7 +1085,7 @@ query_databaseWithEqlEmuRsegs<-function(emuDBhandle, query, timeRefSegmentLevel,
   # escape singel quotes
   query = gsub("'", "''", query)
   DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE interm_res_meta_infos_tmp_root SET query_str = '", query, "'"))
-  emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix)
+  emuRsegs = fconvert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix)
   return(emuRsegs)
   
 }
