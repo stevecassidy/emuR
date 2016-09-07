@@ -204,7 +204,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
 ##' requery_seq(ae, requery_hier(ae, sl1, level = 'Phoneme'), offsetRef = 'END')
 ##' 
 ##' }
-requery_hier<-function(emuDBhandle, seglist, level=NULL){
+requery_hier<-function(emuDBhandle, seglist, level){
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType will be used)")
   }
@@ -226,38 +226,11 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
     dbConfig=load_DBconfig(emuDBhandle)
     
     targetRootLevelName=NULL
-    if(is.null(level)){
-      heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.item_id AS seq_start_id,ir.item_id AS seq_end_id,ir.seq_idx-il.seq_idx+1 AS seq_len,il.level \
-                          FROM \
-                          ( SELECT ils.*,min(ils.seq_idx),sl.ROWID AS lrId FROM items ils,items slil,seglist sl WHERE \
-                          ils.db_uuid=sl.db_uuid AND ils.session=sl.session AND ils.bundle=sl.bundle AND \
-                          slil.db_uuid=sl.db_uuid AND slil.session=sl.session AND slil.bundle=sl.bundle AND \
-                          slil.item_id=sl.start_item_id AND ils.level=slil.level AND (\
-                          (ils.item_id=sl.start_item_id) OR 
-                          (EXISTS (SELECT * FROM links_ext lr \
-                          WHERE lr.db_uuid=sl.db_uuid AND lr.session=sl.session AND lr.bundle=sl.bundle \
-                          AND ((lr.from_id=sl.start_item_id AND lr.to_id=ils.item_id) OR (lr.from_id=ils.item_id AND lr.to_id= sl.start_item_id))\
-                          )) \
-                          ) GROUP BY lrId ) \
-                          AS il JOIN \
-                          ( SELECT irs.*,max(irs.seq_idx),sl.ROWID AS rrId FROM items irs,items slir,seglist sl WHERE \
-                          irs.db_uuid=sl.db_uuid AND irs.session=sl.session AND irs.bundle=sl.bundle AND \
-                          slir.db_uuid=sl.db_uuid AND slir.session=sl.session AND slir.bundle=sl.bundle AND \
-                          slir.item_id=sl.end_item_id AND irs.level=slir.level AND (\
-                          (irs.item_id=sl.end_item_id) OR
-                          (EXISTS (SELECT * FROM links_ext lr \
-                          WHERE lr.db_uuid=sl.db_uuid AND lr.session=sl.session AND lr.bundle=sl.bundle \
-                          AND ((lr.from_id=sl.end_item_id AND lr.to_id=irs.item_id) OR (lr.from_id=irs.item_id AND lr.to_id= sl.end_item_id))\
-                          )) \
-                          ) GROUP BY rrId ) \
-                          AS ir ON lrId=rrId
-                          ")
-      
-    }else{
-      
-      check_levelAttributeName(emuDBhandle,level)
-      targetRootLevelName=get_levelNameForAttributeName(emuDBhandle, attributeName = level)
-      heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.item_id AS seq_start_id,ir.item_id AS seq_end_id,(ir.seq_idx-il.seq_idx+1) AS seq_len,'",level,"' AS level \
+    
+    check_levelAttributeName(emuDBhandle,level)
+    
+    targetRootLevelName=get_levelNameForAttributeName(emuDBhandle, attributeName = level)
+    heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.item_id AS seq_start_id,ir.item_id AS seq_end_id,(ir.seq_idx-il.seq_idx+1) AS seq_len,'",level,"' AS level \
                               FROM 
                               ( SELECT ils.*,min(ils.seq_idx),sll.ROWID AS lrId FROM emursegs_tmp sll,items ils WHERE \
                               ils.db_uuid=sll.db_uuid AND ils.session=sll.session AND ils.bundle=sll.bundle AND \
@@ -279,8 +252,6 @@ requery_hier<-function(emuDBhandle, seglist, level=NULL){
                                 )) \
                               ) GROUP BY rrId ORDER BY rrId,irs.seq_idx DESC) \
                               AS ir ON lrId=rrId ")
-      
-    }
     
     he = DBI::dbGetQuery(emuDBhandle$connection, heQueryStr)
     
