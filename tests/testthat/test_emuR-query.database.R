@@ -255,7 +255,7 @@ test_that("Load example database ae",{
   })
   
   test_that("additional queries (simple and complex) work for more thorough query testing",{
-    # skip_on_cran()
+    skip_on_cran()
     # SQ
     qs = "Phonetic == m"
     sl = query(ae, qs)
@@ -441,7 +441,7 @@ test_that("Load example database ae",{
   
   # 
   test_that("timeRefSegmentLevel works correctly",{
-    # skip_on_cran()
+    skip_on_cran()
     sl = query(ae, "[Syllable == W]")
     sl = query(ae, "[Syllable == W]", timeRefSegmentLevel = "Phonetic")
     duplicate_level(ae, "Phonetic", "Phonetic2", verbose = F)
