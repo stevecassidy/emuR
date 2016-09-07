@@ -115,20 +115,15 @@ fconvert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL
         }
         lnwt = segLvlNms[1] # level name with time
       }
-      connectHierPaths = get_hierPathsConnectingLevels(emuDBhandle, lnwt, attrDefLn) # segLvlNms only contains a single segLvlNm at this point
-      if(length(connectHierPaths) > 1){
-        stop("Found multiple paths through hierarchy while trying to resolve the time information! This is not implemented yet...")
-      }
-      
-      tln = connectHierPaths[[1]][length(connectHierPaths[[1]])]
+
       # insert all time items into new table
       timeItemsTableSuffix = "time_level_items"
       create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = timeItemsTableSuffix)
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_", timeItemsTableSuffix, " ",
                                                      "SELECT db_uuid, session, bundle, item_id AS seq_start_id, item_id AS seq_end_id, 1 AS seq_len, level  FROM ", itemsTableName, " ",
-                                                     "WHERE db_uuid ='", emuDBhandle$UUID, "' AND level = '", tln, "'"))
+                                                     "WHERE db_uuid ='", emuDBhandle$UUID, "' AND level = '", lnwt, "'"))
       
-      query_databaseHier(emuDBhandle, firstLevelName = tln, secondLevelName = attrDefLn, leftTableSuffix = timeItemsTableSuffix, rightTableSuffix = "root", filteredTablesSuffix) # result written to lr_exp_res_tmp table
+      query_databaseHier(emuDBhandle, firstLevelName = lnwt, secondLevelName = attrDefLn, leftTableSuffix = timeItemsTableSuffix, rightTableSuffix = "root", filteredTablesSuffix) # result written to lr_exp_res_tmp table
       
       # calculate left and right times and store in tmp table
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO emuRsegs_tmp ",
