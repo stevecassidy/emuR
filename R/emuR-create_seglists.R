@@ -1,19 +1,23 @@
 
 convert_queryResultToEmusegs<-function(emuDBhandle, timeRefSegmentLevel=NULL, filteredTablesSuffix){
-  emuRsegs = fconvert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix)
+  queryStr = DBI::dbGetQuery(emuDBhandle$connection, "SELECT query_str FROM interm_res_meta_infos_tmp_root")$query_str
+  emuRsegs = fconvert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix, queryStr = queryStr)
   emusegs = as.emusegs(emuRsegs)
   return(emusegs)
 }
 
 ##################################
 #
-fconvert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL, filteredTablesSuffix){
+fconvert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL, filteredTablesSuffix, queryStr = ""){
   
   itemsTableName = paste0("items", filteredTablesSuffix)
   labelsTableName = paste0("labels", filteredTablesSuffix)
   linksExtTableName = paste0("links_ext", filteredTablesSuffix)
   
-  projectionItemsN = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM interm_res_proj_items_tmp_root"))$n
+  projectionItemsN = 0 
+  if(DBI::dbExistsTable(emuDBhandle$connection, "interm_res_proj_items_tmp_root")){
+    projectionItemsN = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM interm_res_proj_items_tmp_root"))$n
+  }
   
   if(projectionItemsN > 0){
     
@@ -187,7 +191,7 @@ fconvert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL
       slType='event'
     }
   }
-  queryStr = DBI::dbGetQuery(emuDBhandle$connection, "SELECT query_str FROM interm_res_meta_infos_tmp_root")$query_str
+  # queryStr = DBI::dbGetQuery(emuDBhandle$connection, "SELECT query_str FROM interm_res_meta_infos_tmp_root")$query_str
   segmentList=make.emuRsegs(dbName = emuDBhandle$dbName, seglist = seglist, query = queryStr, type = slType)
   return(segmentList)
   
@@ -584,7 +588,7 @@ convert_queryResultToVariableEmuRsegs <- function(emuDBhandle, timeRefSegmentLev
       }
     }
   }
-  segmentList=make.emuRsegs(dbName = emuDBhandle$dbName, seglist = seglist,query = "FROM REQUERY", type = slType)
+  segmentList=make.emuRsegs(dbName = emuDBhandle$dbName, seglist = seglist, query = "FROM REQUERY", type = slType)
   return(segmentList)
 }
 

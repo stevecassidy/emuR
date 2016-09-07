@@ -148,7 +148,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
     DBI::dbWriteTable(emuDBhandle$connection, "interm_res_items_tmp_root", he, overwrite=T)
     
     
-    trSl=convert_queryResultToVariableEmuRsegs(emuDBhandle)
+    trSl=fconvert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel = NULL, filteredTablesSuffix = "", queryStr = "FROM REQUERY")
     drop_requeryTmpTables(emuDBhandle)
     
     return(trSl)
