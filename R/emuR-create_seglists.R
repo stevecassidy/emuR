@@ -144,7 +144,7 @@ fconvert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL
                                                      "END AS end, ",
                                                      "lr_exp_res_tmp.session || ':' || lr_exp_res_tmp.bundle AS utts, ",
                                                      "lr_exp_res_tmp.db_uuid, lr_exp_res_tmp.session, lr_exp_res_tmp.bundle, lr_exp_res_tmp.r_seq_start_id AS start_item_id, lr_exp_res_tmp.r_seq_end_id AS end_item_id, ",
-                                                     "r_level AS level, '", ld$type, "' AS type, ",
+                                                     "'", resultAttrDef, "' AS level, '", ld$type, "' AS type, ",
                                                      "min(itl.sample_start + 0) AS sample_start, max(itr.sample_start + itr.sample_dur) AS sample_end, itl.sample_rate AS sample_rate ",
                                                      "FROM lr_exp_res_tmp, ", itemsTableName, " AS itl, ", itemsTableName, " AS itr ", # items table left & right
                                                      "WHERE lr_exp_res_tmp.db_uuid = itl.db_uuid AND lr_exp_res_tmp.session = itl.session AND lr_exp_res_tmp.bundle = itl.bundle AND lr_exp_res_tmp.l_seq_start_id = itl.item_id ",
