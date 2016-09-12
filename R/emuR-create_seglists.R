@@ -592,64 +592,64 @@ fconvert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL
 #   return(segmentList)
 # }
 # 
-# ##################################
-# ##################################
-# ##################################
-# equal.emusegs<-function(seglist1,seglist2,compareAttributes=TRUE,tolerance=0.0,uttsPrefix2=''){
-#   
-#   if(!inherits(seglist1,"emusegs")){
-#     stop("seglist1 is not of class emusegs")
-#   }
-#   if(!inherits(seglist2,"emusegs")){
-#     stop("seglist2 is not of class emusegs")
-#   }
-#   if(tolerance<0){
-#     stop("tolerance must be greater or equal 0")
-#   }
-#   
-#   sl1RowCnt=nrow(seglist1)
-#   sl2RowCnt=nrow(seglist2)
-#   if(sl1RowCnt!=sl2RowCnt){
-#     return(FALSE)
-#   }
-#   if(compareAttributes){
-#     attrEq=((attr(seglist1,'query')==attr(seglist2,'query'))&attr(seglist1,'database')==attr(seglist2,'database'))
-#     if(!attrEq){
-#       return(FALSE)
-#     }
-#   }
-#   # seglist have no implicit order
-#   sl1Order=order('[[.data.frame'(seglist1,'utts'),'[[.data.frame'(seglist1,'start'),'[[.data.frame'(seglist1,'end'),'[[.data.frame'(seglist1,'labels'))
-#   sl1=`[.data.frame`(seglist1,sl1Order,)
-#   sl2Order=order('[[.data.frame'(seglist2,'utts'),'[[.data.frame'(seglist2,'start'),'[[.data.frame'(seglist2,'end'),'[[.data.frame'(seglist2,'labels'))
-#   sl2=`[.data.frame`(seglist2,sl2Order,)
-#   equal=TRUE
-#   rs=1:sl1RowCnt
-#   for(i in rs){
-#     l1='[[.data.frame'(sl1,i,'labels')
-#     l2='[[.data.frame'(sl2,i,'labels')
-#     s1='[[.data.frame'(sl1,i,'start')
-#     s2='[[.data.frame'(sl2,i,'start')
-#     e1='[[.data.frame'(sl1,i,'end')
-#     e2='[[.data.frame'(sl2,i,'end')
-#     u1='[[.data.frame'(sl1,i,'utts')
-#     u2='[[.data.frame'(sl2,i,'utts')
-#     u2Sess=paste0(uttsPrefix2,u2)
-#     if(l1!=l2 | u1!=u2Sess){
-#       return(FALSE)
-#     }
-#     sdAbs=abs(s2-s1)
-#     if(sdAbs>tolerance){
-#       equal=FALSE
-#       #cat("Start differs ",s1,s2,sdAbs,"\n")
-#     }
-#     edAbs=abs(e2-e1)
-#     if(edAbs>tolerance){
-#       equal=FALSE
-#       #cat("End differs ",e1,e2,edAbs,"\n")
-#     }
-#     
-#   }
-#   return(equal)
-#   
-# }
+##################################
+##################################
+##################################
+equal.emusegs<-function(seglist1,seglist2,compareAttributes=TRUE,tolerance=0.0,uttsPrefix2=''){
+
+  if(!inherits(seglist1,"emusegs")){
+    stop("seglist1 is not of class emusegs")
+  }
+  if(!inherits(seglist2,"emusegs")){
+    stop("seglist2 is not of class emusegs")
+  }
+  if(tolerance<0){
+    stop("tolerance must be greater or equal 0")
+  }
+
+  sl1RowCnt=nrow(seglist1)
+  sl2RowCnt=nrow(seglist2)
+  if(sl1RowCnt!=sl2RowCnt){
+    return(FALSE)
+  }
+  if(compareAttributes){
+    attrEq=((attr(seglist1,'query')==attr(seglist2,'query'))&attr(seglist1,'database')==attr(seglist2,'database'))
+    if(!attrEq){
+      return(FALSE)
+    }
+  }
+  # seglist have no implicit order
+  sl1Order=order('[[.data.frame'(seglist1,'utts'),'[[.data.frame'(seglist1,'start'),'[[.data.frame'(seglist1,'end'),'[[.data.frame'(seglist1,'labels'))
+  sl1=`[.data.frame`(seglist1,sl1Order,)
+  sl2Order=order('[[.data.frame'(seglist2,'utts'),'[[.data.frame'(seglist2,'start'),'[[.data.frame'(seglist2,'end'),'[[.data.frame'(seglist2,'labels'))
+  sl2=`[.data.frame`(seglist2,sl2Order,)
+  equal=TRUE
+  rs=1:sl1RowCnt
+  for(i in rs){
+    l1='[[.data.frame'(sl1,i,'labels')
+    l2='[[.data.frame'(sl2,i,'labels')
+    s1='[[.data.frame'(sl1,i,'start')
+    s2='[[.data.frame'(sl2,i,'start')
+    e1='[[.data.frame'(sl1,i,'end')
+    e2='[[.data.frame'(sl2,i,'end')
+    u1='[[.data.frame'(sl1,i,'utts')
+    u2='[[.data.frame'(sl2,i,'utts')
+    u2Sess=paste0(uttsPrefix2,u2)
+    if(l1!=l2 | u1!=u2Sess){
+      return(FALSE)
+    }
+    sdAbs=abs(s2-s1)
+    if(sdAbs>tolerance){
+      equal=FALSE
+      #cat("Start differs ",s1,s2,sdAbs,"\n")
+    }
+    edAbs=abs(e2-e1)
+    if(edAbs>tolerance){
+      equal=FALSE
+      #cat("End differs ",e1,e2,edAbs,"\n")
+    }
+
+  }
+  return(equal)
+
+}
