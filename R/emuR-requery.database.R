@@ -167,6 +167,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
 ##' @param seglist segment list to requery on (type: \link{emuRsegs})
 ##' @param level character string: name of target level
 ##' @param collapse collapse the found items in the requested level to a sequence (concatenated with ->). If set to \code{FALSE} separate items as new entries in the emuRsegs object are returned.
+##' @param verbose be verbose
 ##' @return result set object of class \link{emuRsegs}
 ##' @export
 ##' @seealso \code{\link{query}} \code{\link{requery_seq}} \code{\link{emuRsegs}}
@@ -205,7 +206,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
 ##' requery_seq(ae, requery_hier(ae, sl1, level = 'Phoneme'), offsetRef = 'END')
 ##' 
 ##' }
-requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE){
+requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE, verbose = TRUE){
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType will be used)")
   }
@@ -284,7 +285,15 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE){
                                                      "GROUP BY lr.db_uuid, lr.session, lr.bundle, lr.l_seq_start_id, lr.l_seq_end_id",
                                                      ""))
     }else{
-      stop("Not implemented yet!")
+      # use right side of lr_exp_res_tmp if not collapsing
+      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO seq_idx_tmp ",
+                                                     "SELECT lr.db_uuid, lr.session, lr.bundle, r_level AS level, min(i_start.seq_idx) AS min_seq_idx, max(i_end.seq_idx) AS max_seq_idx ",
+                                                     "FROM lr_exp_res_tmp AS lr, items AS i_start, items AS i_end ",
+                                                     "WHERE lr.db_uuid = i_start.db_uuid AND lr.session = i_start.session AND lr.bundle = i_start.bundle AND lr.r_seq_start_id = i_start.item_id ",
+                                                     "AND lr.db_uuid = i_end.db_uuid AND lr.session = i_end.session AND lr.bundle = i_end.bundle AND lr.r_seq_end_id = i_end.item_id ",
+                                                     "GROUP BY lr.db_uuid, lr.session, lr.bundle, lr.r_seq_start_id, lr.r_seq_end_id",
+                                                     ""))
+      
     }
     #extract according item_id#s
     DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_root ",
@@ -302,7 +311,7 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE){
     inSlLen=nrow(seglist)
     trSlLen=nrow(trSl)
     
-    if(inSlLen!=trSlLen){
+    if(verbose & inSlLen!=trSlLen){
       warning("Length of requery segment list (",trSlLen,") differs from input list (",inSlLen,")!")
     }
     

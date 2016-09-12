@@ -55,7 +55,7 @@ test_that("requeries work on ae",{
     
     # Bug ID 42
     sl1=query(ae, "[[Phonetic=k -> Phonetic=~.*]->Phonetic=~.*]")
-    sl1w=requery_hier(ae, sl1,level='Word')
+    sl1w=requery_hier(ae, sl1,level='Word', verbose = F)
     # sl1w has sequence length 1
     sl1w2=requery_seq(ae, sl1w[1,])
     # Bug startItemID != endItemID, and label is not a sequence !!
@@ -86,5 +86,15 @@ test_that("requeries work on ae",{
     expect_that('[.data.frame'(rsl1,3,'endItemID'),equals(103))
     
   })
+
+  test_that("Requery hierarchical",{
+    
+    # Text beginning with 'a'
+    sl1=query(ae, "Text=~'a[mn].*'")
+    # requery to level Phoneme
+    rsl1=requery_hier(ae, sl1,level='Phonetic', collapse = F)
+    expect_that(class(rsl1),is_identical_to(c('emuRsegs','emusegs','data.frame')))
+  })
   
+    
 })

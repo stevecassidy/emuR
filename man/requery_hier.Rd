@@ -4,7 +4,7 @@
 \alias{requery_hier}
 \title{Requery hierarchical context of a segment list in an emuDB}
 \usage{
-requery_hier(emuDBhandle, seglist, level, collapse = TRUE)
+requery_hier(emuDBhandle, seglist, level, collapse = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
@@ -14,6 +14,8 @@ requery_hier(emuDBhandle, seglist, level, collapse = TRUE)
 \item{level}{character string: name of target level}
 
 \item{collapse}{collapse the found items in the requested level to a sequence (concatenated with ->). If set to \code{FALSE} separate items as new entries in the emuRsegs object are returned.}
+
+\item{verbose}{be verbose}
 }
 \value{
 result set object of class \link{emuRsegs}
