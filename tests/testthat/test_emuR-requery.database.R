@@ -87,13 +87,14 @@ test_that("requeries work on ae",{
     
   })
 
-  test_that("Requery hierarchical",{
+  test_that("Requery hierarchical with collapse works",{
     
     # Text beginning with 'a'
     sl1=query(ae, "Text=~'a[mn].*'")
     # requery to level Phoneme
-    rsl1=requery_hier(ae, sl1,level='Phonetic', collapse = F)
-    expect_that(class(rsl1),is_identical_to(c('emuRsegs','emusegs','data.frame')))
+    rsl1=requery_hier(ae, sl1,level='Phonetic', collapse = F, verbose = F)
+    allLabels = paste0(rsl1$labels, collapse = "->")
+    expect_equal(allLabels, "V->m->V->N->s->t->H->E->n->i:->@->n")
   })
   
     
