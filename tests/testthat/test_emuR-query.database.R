@@ -382,7 +382,7 @@ test_that("Load example database ae",{
     sl = query(ae, "[Phoneme == m ^ Num(Word, Syllable) == 3]")
     expect_equal(nrow(sl), 2)
     sl = query(ae, "[Syllable = W ^ Num(Word, Syllable) < 3]")
-    expect_equal(nrow(sl), 46)
+    expect_equal(nrow(sl), 28)
     sl = query(ae, "[Text =~ .* ^ Num(Syllable, Phoneme) == 4]")
     expect_equal(nrow(sl), 7)
     

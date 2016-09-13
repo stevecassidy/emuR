@@ -17,8 +17,8 @@
 * implemented duplicate\_level() (\#113)
 * implemented linkDuplicates parameter in duplicate\_level()
 * autobuild\_linkFromTimes() speed improvements
-* FUNQQ queries (start(),end(), medial()) now additionally support TRUE & FALSE and T & F values (vs. 0 & 1) 
-
+* FUNCQ queries (start(),end(), medial()) now additionally support TRUE & FALSE and T & F values (vs. 0 & 1) 
+* rewrite of query engine to not require links_ext table any more (== redundant links)
 
 # emuR 0.1.9
 
