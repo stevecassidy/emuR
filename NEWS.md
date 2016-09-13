@@ -16,7 +16,8 @@
 * implemented rename\_emuDB() (\#116)
 * implemented duplicate\_level() (\#113)
 * implemented linkDuplicates parameter in duplicate\_level()
-* autobuild\_linkFromTimes() speed improvements 
+* autobuild\_linkFromTimes() speed improvements
+* FUNQQ queries (start(),end(), medial()) now additionally support TRUE & FALSE and T & F values (vs. 0 & 1) 
 
 
 # emuR 0.1.9
