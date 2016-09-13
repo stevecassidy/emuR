@@ -303,6 +303,60 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
       level1=get_levelNameForAttributeName(emuDBhandle, param1)
       level2=get_levelNameForAttributeName(emuDBhandle, param2)
       
+      #######################################
+      # connect all children to parents
+      level1ItemsTableSuffix = "funcq_level1_items"
+      create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = level1ItemsTableSuffix)
+      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_", level1ItemsTableSuffix, " ",
+                                                     "SELECT db_uuid, session, bundle, item_id AS start_item_id, item_id AS seq_end_id, 1 AS seq_len, level FROM items", filteredTablesSuffix, " ",
+                                                     "WHERE db_uuid ='", emuDBhandle$UUID, "' AND level = '", level1, "'"))
+      
+      # place all level2 items into temp table
+      level2ItemsTableSuffix = "funcq_level2_items"
+      create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = level2ItemsTableSuffix)
+      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_", level2ItemsTableSuffix, " ",
+                                                     "SELECT db_uuid, session, bundle, item_id AS start_item_id, item_id AS seq_end_id, 1 AS seq_len, level FROM items", filteredTablesSuffix, " ",
+                                                     "WHERE db_uuid ='", emuDBhandle$UUID, "' AND level = '", level2, "'"))
+      
+      
+      
+      query_databaseHier(emuDBhandle, firstLevelName = level1, secondLevelName = level2, 
+                         leftTableSuffix = level1ItemsTableSuffix, rightTableSuffix = level2ItemsTableSuffix, filteredTablesSuffix = filteredTablesSuffix) # result written to lr_exp_res_tmp table
+      
+      
+      # create temp table to insert 
+      DBI::dbGetQuery(emuDBhandle$connection,paste0("CREATE TEMP TABLE IF NOT EXISTS seq_idx_tmp ( ",
+                                                    "db_uuid VARCHAR(36), ",
+                                                    "session TEXT, ",
+                                                    "bundle TEXT, ",
+                                                    "level TEXT,",
+                                                    "min_seq_idx INTEGER, ",
+                                                    "max_seq_idx INTEGER, ",
+                                                    "parent_item_id INTEGER",
+                                                    ")"))
+      
+      
+      DBI::dbGetQuery(emuDBhandle$connection,paste0("CREATE TEMP TABLE IF NOT EXISTS items_as_seqs_tmp ( ",
+                                                    "db_uuid VARCHAR(36), ",
+                                                    "session TEXT, ",
+                                                    "bundle TEXT, ",
+                                                    "seq_start_id INTEGER, ",
+                                                    "seq_end_id INTEGER, ", 
+                                                    "seq_len INTEGER, ", 
+                                                    "level TEXT",
+                                                    ")"))
+      
+      # first step in two step process to group by and get seq min/max
+      # then extract according item_id
+      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO seq_idx_tmp ",
+                                                     "SELECT lr.db_uuid, lr.session, lr.bundle, r_level AS level, min(i_start.seq_idx) AS min_seq_idx, max(i_end.seq_idx) AS max_seq_idx, l_seq_start_id AS parent_item_id ",
+                                                     "FROM lr_exp_res_tmp AS lr, items AS i_start, items AS i_end ",
+                                                     "WHERE lr.db_uuid = i_start.db_uuid AND lr.session = i_start.session AND lr.bundle = i_start.bundle AND lr.r_seq_start_id = i_start.item_id ",
+                                                     "AND lr.db_uuid = i_end.db_uuid AND lr.session = i_end.session AND lr.bundle = i_end.bundle AND lr.r_seq_end_id = i_end.item_id ",
+                                                     "GROUP BY lr.db_uuid, lr.session, lr.bundle, lr.l_seq_start_id, lr.l_seq_end_id",
+                                                     ""))
+      
+      
       # BNF: VOP = '=' | '!=' | '>' | '<' | '<=' | '>=';
       if(funcName=='Start' | funcName=='End' | funcName=='Medial'){
         
@@ -325,69 +379,73 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
       } 
       if(funcName=='Start'){
         cond=NULL
-        if(funcValue=='0'){
-          cond='!='
-        }else if(funcValue=='1'){
-          cond='='
+        if(funcValue=='0' | funcValue=='F' | funcValue=='FALSE'){
+          #extract according items
+          DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items_as_seqs_tmp ",
+                                                         "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, sit.level AS level  ",
+                                                         "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
+                                                         "WHERE sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND sit.min_seq_idx < i1.seq_idx AND sit.max_seq_idx >= i1.seq_idx",
+                                                         ""))
+          
+        }else if(funcValue=='1' | funcValue=='T' | funcValue=='TRUE'){
+          #extract according items
+          DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items_as_seqs_tmp ",
+                                                         "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, sit.level AS level  ",
+                                                         "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
+                                                         "WHERE sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND sit.min_seq_idx = i1.seq_idx ",
+                                                         ""))
+          
         }else{
-          stop("Syntax error: Expected function value 0 or 1 after '",op,"' in function term: '",qTrim,"'\n")
+          stop("Syntax error: Expected function value TRUE or FALSE / T OR F / 0 or 1 after '",op,"' in function term: '",qTrim,"'\n")
         }
-        sqlQStr=paste0("SELECT DISTINCT i.db_uuid,i.session,i.bundle,i.item_id AS seq_start_id, i.item_id AS seq_end_id,1 AS seq_len,'",param2,"' AS level \
-                        FROM ", itemsTableName, " i, items", filteredTablesSuffix, " d \
-                        WHERE i.db_uuid=d.db_uuid AND i.session=d.session AND i.bundle=d.bundle\
-                         AND i.level='",level2,"' AND d.level='",level1,"' \
-                         AND EXISTS \
-                          (SELECT * FROM links_ext", filteredTablesSuffix, " k \
-                           WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
-                            AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
-                            AND k.from_id=d.item_id AND k.to_id=i.item_id AND k.to_seq_idx",cond,"0\
-                           )") 
         
-        itemsAsSeqs = DBI::dbGetQuery(emuDBhandle$connection, sqlQStr)
         resultLevel=param2
+        
       }else if(funcName=='Medial'){
         cond=NULL
         bOp=NULL
-        if(funcValue=='0'){
-          cond='='
-          bOp='OR'
-        }else if(funcValue=='1'){
-          cond='!='
-          bOp='AND'
+        if(funcValue=='0' | funcValue=='F' | funcValue=='FALSE'){
+          #extract according items
+          DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items_as_seqs_tmp ",
+                                                         "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, sit.level AS level  ",
+                                                         "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
+                                                         "WHERE (sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND i1.seq_idx = sit.min_seq_idx) ",
+                                                         "OR (sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND i1.seq_idx = sit.max_seq_idx)",
+                                                         ""))
+          
+        }else if(funcValue=='1' | funcValue=='T' | funcValue=='TRUE'){
+          #extract according items
+          DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items_as_seqs_tmp ",
+                                                         "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, sit.level AS level  ",
+                                                         "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
+                                                         "WHERE sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND i1.seq_idx > sit.min_seq_idx AND i1.seq_idx < sit.max_seq_idx",
+                                                         ""))
         }else{
           stop("Syntax error: Expected function value 0 or 1 after '",op,"' in function term: '",qTrim,"'\n")
         }
-        sqlQStr=paste0("SELECT DISTINCT i.db_uuid,i.session,i.bundle,i.item_id AS seq_start_id, i.item_id AS seq_end_id,1 AS seq_len,'",param2,"' AS level \
-                       FROM ", itemsTableName, " i, items", filteredTablesSuffix, " d \
-                       WHERE i.db_uuid=d.db_uuid AND i.session=d.session AND i.bundle=d.bundle \
-                       AND i.level='",level2,"' AND d.level='",level1,"' \
-                       AND EXISTS \
-                       (SELECT * FROM links_ext", filteredTablesSuffix, " k \
-                       WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
-                        AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
-                        AND k.from_id=d.item_id AND k.to_id=i.item_id AND (k.to_seq_idx",cond,"0 ",bOp," k.to_seq_idx+1",cond,"k.to_seq_len)\
-                       )") 
-        itemsAsSeqs = DBI::dbGetQuery(emuDBhandle$connection, sqlQStr)
+        
         resultLevel=param2
       }else if(funcName=='End'){
         cond=NULL
-        if(funcValue=='0'){
-          cond='!='
-        }else if(funcValue=='1'){
-          cond='='
+        if(funcValue=='0' | funcValue=='F' | funcValue=='FALSE'){
+          #extract according items
+          DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items_as_seqs_tmp ",
+                                                         "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, sit.level AS level  ",
+                                                         "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
+                                                         "WHERE sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND i1.seq_idx >= sit.min_seq_idx AND i1.seq_idx < sit.max_seq_idx",
+                                                         ""))
+          
+        }else if(funcValue=='1'  | funcValue=='T' | funcValue=='TRUE'){
+          #extract according items
+          DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items_as_seqs_tmp ",
+                                                         "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, sit.level AS level  ",
+                                                         "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
+                                                         "WHERE sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND sit.max_seq_idx = i1.seq_idx ",
+                                                         ""))
+          
         }else{
           stop("Syntax error: Expected function value 0 or 1 after '",op,"' in function term: '",qTrim,"'\n")
         }
-        sqlQStr=paste0("SELECT DISTINCT i.db_uuid,i.session,i.bundle,i.item_id AS seq_start_id, i.item_id AS seq_end_id,1 AS seq_len,'",param2,"' AS level FROM \
-                       ", itemsTableName, " i, items", filteredTablesSuffix, " d \
-                       WHERE i.db_uuid=d.db_uuid AND i.session=d.session AND i.bundle=d.bundle \
-                       AND i.level='",level2,"' AND d.level='",level1,"' AND EXISTS \
-                       (SELECT * FROM links_ext", filteredTablesSuffix, " k \
-                        WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
-                            AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
-                            AND k.from_id=d.item_id AND k.to_id=i.item_id AND k.to_seq_idx+1",cond,"k.to_seq_len\
-                       )")
-        itemsAsSeqs = DBI::dbGetQuery(emuDBhandle$connection, sqlQStr)
         resultLevel=param2
       }else if(funcName=='Num'){
         funcVal=NULL
@@ -413,30 +471,36 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
         }else{
           sqlFuncOpr=funcOpr
         }
+        
         # BNF: NUMA = 'Num','(',EBENE,',',EBENE,')',VOP,INTPN;
-        # Note return value level is param1 here
-        sqlQStr=paste0("SELECT DISTINCT d.db_uuid,d.session,d.bundle,d.item_id AS seq_start_id, d.item_id AS seq_end_id,1 AS seq_len,'",param1,"' AS level \
-                       FROM ", itemsTableName, " d \
-                      WHERE (SELECT count(*) FROM items", filteredTablesSuffix, " i WHERE i.db_uuid=d.db_uuid AND i.session=d.session AND i.bundle=d.bundle \
-                       AND i.level='",level2,"' AND d.level='",level1,"' AND EXISTS \
-                       (SELECT * FROM links_ext", filteredTablesSuffix, " k \
-                       WHERE d.db_uuid=k.db_uuid AND d.session=k.session AND d.bundle=k.bundle \
-                        AND i.db_uuid=k.db_uuid AND i.session=k.session AND i.bundle=k.bundle \
-                        AND ( \
-                         ( k.from_id=d.item_id AND k.to_id=i.item_id AND k.to_level=i.level ) OR \
-                         ( k.from_id=i.item_id AND k.to_id=d.item_id AND k.to_level=d.level ) \
-                        )\
-                       ))",sqlFuncOpr,funcVal)
-        itemsAsSeqs = DBI::dbGetQuery(emuDBhandle$connection, sqlQStr)
+        # NOTE: return value level is param1 here
+        DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items_as_seqs_tmp ",
+                                                       "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, '", param1, "' AS level ",
+                                                       "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
+                                                       "WHERE sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.parent_item_id = i1.item_id ",
+                                                       "AND (sit.max_seq_idx - sit.min_seq_idx) + 1 ", sqlFuncOpr, " ",  funcVal, " ",
+                                                       ""))
+        
         resultLevel=param1
       }else{
         stop("Syntax error: Unknwon function: '",funcName,"'")
       }
+      
+      # merge results with itemsTableName table (in case filtered subsets are used) and place in interm_res_items_tmp_ + intermResTableSuffix table
       DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM interm_res_items_tmp_", intermResTableSuffix))
-      DBI::dbWriteTable(emuDBhandle$connection, paste0("interm_res_items_tmp_", intermResTableSuffix), itemsAsSeqs, append = T)
+      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_", intermResTableSuffix, " ",
+                                                     "SELECT iast.* ", 
+                                                     "FROM items_as_seqs_tmp AS iast, ", itemsTableName, " AS it ", 
+                                                     "WHERE iast.db_uuid = it.db_uuid AND iast.session = it.session AND iast.bundle = it.bundle ",
+                                                     "AND iast.seq_start_id = it.item_id ",
+                                                     ""))
       # move meta infos to correct table
       DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM interm_res_meta_infos_tmp_", intermResTableSuffix))
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_meta_infos_tmp_", intermResTableSuffix, " VALUES ('", resultLevel, "', NULL, '", qTrim, "')"))
+      
+      # drop temp table
+      DBI::dbGetQuery(emuDBhandle$connection,paste0("DROP TABLE IF EXISTS seq_idx_tmp"))
+      DBI::dbGetQuery(emuDBhandle$connection,paste0("DROP TABLE IF EXISTS items_as_seqs_tmp"))
       
     }
   }else{
@@ -719,7 +783,7 @@ query_databaseHier <- function(emuDBhandle, firstLevelName, secondLevelName, lef
   
   # get hierarchy paths
   connectHierPaths = get_hierPathsConnectingLevels(emuDBhandle, firstLevelName, secondLevelName)
-
+  
   # loop through multiple paths
   for(connectHierPath in connectHierPaths){
     
