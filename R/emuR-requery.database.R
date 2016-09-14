@@ -148,7 +148,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
     DBI::dbWriteTable(emuDBhandle$connection, "interm_res_items_tmp_root", he, overwrite=T)
     
     
-    trSl=fconvert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel = NULL, filteredTablesSuffix = "", queryStr = "FROM REQUERY")
+    trSl=convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel = NULL, filteredTablesSuffix = "", queryStr = "FROM REQUERY")
     drop_allTmpTablesDBI(emuDBhandle)
     
     return(trSl)
@@ -306,7 +306,7 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE, verbose = T
     DBI::dbGetQuery(emuDBhandle$connection,paste0("DROP TABLE IF EXISTS seq_idx_tmp"))
     
     # trSl=convert_queryResultToVariableEmuRsegs(emuDBhandle)
-    trSl=fconvert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel = NULL, filteredTablesSuffix = "", queryStr = "FROM REQUERY")
+    trSl=convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel = NULL, filteredTablesSuffix = "", queryStr = "FROM REQUERY")
     inSlLen=nrow(seglist)
     trSlLen=nrow(trSl)
     

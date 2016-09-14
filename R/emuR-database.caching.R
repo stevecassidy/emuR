@@ -72,10 +72,6 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
       }
       # add to items, links, labels tables
       store_bundleAnnotDFsDBI(emuDBhandle, bundleAnnotDFs, bndl$session, bndl$name)
-      
-      # build redundat links and calc positions
-      build_allRedundantLinks(emuDBhandle, bndl$session, bndl$name)
-      calculate_postionsOfLinks(emuDBhandle)
     }
     
     # increase progress bar  

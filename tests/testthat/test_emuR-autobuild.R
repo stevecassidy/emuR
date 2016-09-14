@@ -15,7 +15,7 @@ internalVars = get("internalVars", envir = .emuR_pkgEnv)
 
 
 test_that("autobuild_linkFromTimes works correctly", {
-  skip_on_cran()
+  # skip_on_cran()
   ############################
   test_that("bad calls to autobuild_linkFromTimes", {
     
@@ -387,11 +387,6 @@ test_that("autobuild_linkFromTimes works correctly", {
     add_linkDefinition(tgCol, "ONE_TO_MANY", superlevelName = "Utterance", sublevelName = "Intonational")
     
     autobuild_linkFromTimes(tgCol, "Utterance", "Intonational", verbose = F)
-    
-    test_that("linksExt are added",{
-      linksExt = dbReadTable(tgCol$connection, "links_ext")
-      expect_true(nrow(linksExt) > 0)
-    })
     
     test_that("MD5 sums are updated",{
       annotJSONpath = file.path(path2testData, paste0("tgCol", emuDB.suffix), 

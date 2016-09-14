@@ -300,14 +300,6 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
     DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE items SET type = 'ITEM', sample_point = null, sample_start = null, sample_dur = null WHERE db_uuid='", emuDBhandle$UUID, "' AND level ='", superlevelName,"'"))
   }
   
-  # rebuild redundant links and
-  if(verbose){
-    cat("rebuilding redundant links and position of links... (this may take a while)")
-  }
-  build_allRedundantLinks(emuDBhandle)
-  calculate_postionsOfLinks(emuDBhandle)
-  
-  
   # store changes to disc
   if(writeToFS){
     # write DBconfig to disc

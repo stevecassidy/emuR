@@ -3,7 +3,7 @@ requireNamespace("stringr", quietly = T)
 ###########################################################################
 # create table / index definitions for DBI that are used at query time
 
-# tabels that store "filtered" items, labels and links_ext (when session/bundlePatterns are used)
+# tabels that store "filtered" items and labels (when session/bundlePatterns are used)
 database.DDL.emuDB_itemsFilteredTmp = gsub("CREATE TABLE items", "CREATE TEMP TABLE items_filtered_tmp", database.DDL.emuDB_items)
 database.DDL.emuDB_itemsFilteredTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_itemsFilteredTmp) # remove FOREIGN KEY
 # database.DDL.emuDB_itemsFilteredTmp_idx = "CREATE INDEX items_filtered_tmp_idx ON items_filtered_tmp(db_uuid,session,bundle,item_id)"
@@ -16,9 +16,6 @@ database.DDL.emuDB_linksFilteredTmp = gsub("CREATE TABLE links", "CREATE TEMP TA
 database.DDL.emuDB_linksFilteredTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_linksFilteredTmp) # remove FOREIGN KEY
 # database.DDL.emuDB_linksFilteredTmp_idx = 'CREATE INDEX links_filtered_tmp_idx ON links_filtered_tmp(db_uuid,session,bundle,from_id,to_id)'
 
-database.DDL.emuDB_linksExtFilteredTmp = gsub("CREATE TABLE links_ext", "CREATE TEMP TABLE links_ext_filtered_tmp", database.DDL.emuDB_linksExt)
-database.DDL.emuDB_linksExtFilteredTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_linksExtFilteredTmp) # remove FOREIGN KEY
-# database.DDL.emuDB_linksExtFilteredTmp_idx = 'CREATE INDEX links_ext_filtered_tmp_idx ON links_ext_filtered_tmp(db_uuid,session,bundle,from_id,to_id)'
 
 create_tmpFilteredQueryTablesDBI <- function(emuDBhandle){
   
@@ -28,9 +25,7 @@ create_tmpFilteredQueryTablesDBI <- function(emuDBhandle){
   # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labelsFilteredTmp_idx)
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksFilteredTmp)
   # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksFilteredTmp_idx)
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtFilteredTmp)
-  # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_linksExtFilteredTmp_idx)
-  
+
   # tabels that store subsets of filtered tables
   database.DDL.emuDB_itemsFilteredSubsetTmp = gsub("CREATE TABLE items", "CREATE TEMP TABLE items_filtered_subset_tmp", database.DDL.emuDB_items)
   database.DDL.emuDB_itemsFilteredSubsetTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_itemsFilteredSubsetTmp) # remove FOREIGN KEY
@@ -39,10 +34,6 @@ create_tmpFilteredQueryTablesDBI <- function(emuDBhandle){
   database.DDL.emuDB_labelsFilteredSubsetTmp = gsub("CREATE TABLE labels", "CREATE TEMP TABLE labels_filtered_subset_tmp", database.DDL.emuDB_labels)
   database.DDL.emuDB_labelsFilteredSubsetTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_labelsFilteredSubsetTmp) # remove FOREIGN KEY
   # database.DDL.emuDB_labelsFilteredSubsetTmp_idx = "CREATE INDEX labels_filtered_subset_tmp_idx ON labels_filtered_subset_tmp(item_id,db_uuid,session,bundle,name)"
-  
-  database.DDL.emuDB_linksExtFilteredSubsetTmp = gsub("CREATE TABLE links_ext", "CREATE TEMP TABLE links_ext_filtered_subset_tmp", database.DDL.emuDB_linksExt)
-  database.DDL.emuDB_linksExtFilteredSubsetTmp = gsub(",...FOREIGN.*CASCADE", "", database.DDL.emuDB_linksExtFilteredSubsetTmp) # remove FOREIGN KEY
-  # database.DDL.emuDB_linksExtFilteredSubsetTmp_idx = 'CREATE INDEX links_ext_filtered_subset_tmp_idx ON links_ext_filtered_subset_tmp(db_uuid,session,bundle,from_id,to_id)'
   
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredSubsetTmp)
   # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_itemsFilteredSubsetTmp_idx)
@@ -133,7 +124,6 @@ drop_tmpFilteredQueryTablesDBI <- function(emuDBhandle){
   if("items_filtered_tmp" %in% tableNames) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE items_filtered_tmp")
   if("labels_filtered_tmp" %in% tableNames) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE labels_filtered_tmp")
   if("links_filtered_tmp" %in% tableNames) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE links_filtered_tmp")
-  if("links_ext_filtered_tmp" %in% tableNames) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE links_ext_filtered_tmp")
   
   if("items_filtered_subset_tmp" %in% tableNames) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE items_filtered_subset_tmp")
   if("labels_filtered_subset_tmp" %in% tableNames) DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE labels_filtered_subset_tmp")
@@ -980,8 +970,8 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
     if(domPos!=-1){
       # parse DOMQ
       # query the result level of left term
-      nLinksExt = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM links_ext", filteredTablesSuffix))$n
-      if(nLinksExt==0){
+      nLinks = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM links", filteredTablesSuffix))$n
+      if(nLinks==0){
         clear_intermResTabels(emuDBhandle, leftTableSuffix)
         clear_intermResTabels(emuDBhandle, rightTableSuffix)
         return()
@@ -1149,7 +1139,7 @@ query_databaseWithEqlEmuRsegs<-function(emuDBhandle, query, timeRefSegmentLevel,
   # escape singel quotes
   queryStr = gsub("'", "''", query)
   # DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE interm_res_meta_infos_tmp_root SET query_str = '", queryStr, "'"))
-  emuRsegs = fconvert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix, queryStr = queryStr)
+  emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix, queryStr = queryStr)
   return(emuRsegs)
   
 }
@@ -1259,36 +1249,30 @@ query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*
       queryItems <- DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM items WHERE db_uuid='", emuDBhandle$UUID, "'"))
       queryLabels <- DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM labels WHERE db_uuid='", emuDBhandle$UUID, "'"))
       queryLinks <- DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM links WHERE db_uuid='", emuDBhandle$UUID,"'"))
-      queryLinksExt <- DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM links_ext WHERE db_uuid='", emuDBhandle$UUID,"'"))
       
       # if set get logical vectors that match sessionPattern and bundlePattern
       if(!is.null(sessionPattern) && sessionPattern!='.*'){
         sesSelIts = emuR_regexprl(sessionPattern, queryItems$session)
         sesSelLbls = emuR_regexprl(sessionPattern, queryLabels$session)
         sesSelLks = emuR_regexprl(sessionPattern, queryLinks$session)
-        sesSelLksExt = emuR_regexprl(sessionPattern, queryLinksExt$session)
       }else{
         sesSelIts = rep(TRUE, nrow(queryItems))
         sesSelLbls = rep(TRUE, nrow(queryLabels))
         sesSelLks = rep(TRUE, nrow(queryLinks))
-        sesSelLksExt = rep(TRUE, nrow(queryLinksExt))
       }
       if(!is.null(bundlePattern) && bundlePattern!='.*'){
         bndlSelIts = emuR_regexprl(bundlePattern, queryItems$bundle)
         bndlSelLbls = emuR_regexprl(bundlePattern, queryLabels$bundle)
         bndlSelLks = emuR_regexprl(bundlePattern, queryLinks$bundle)
-        bndlSelLksExt = emuR_regexprl(bundlePattern, queryLinksExt$bundle)
       }else{
         bndlSelIts = rep(TRUE, nrow(queryItems))
         bndlSelLbls = rep(TRUE, nrow(queryLabels))
         bndlSelLks = rep(TRUE, nrow(queryLinks))
-        bndlSelLksExt = rep(TRUE, nrow(queryLinksExt))
       }
       # write to tmp tables
       DBI::dbWriteTable(emuDBhandle$connection, "items_filtered_tmp", queryItems[sesSelIts & bndlSelIts, ], append = TRUE, row.names = F)
       DBI::dbWriteTable(emuDBhandle$connection, "labels_filtered_tmp", queryLabels[sesSelLbls & bndlSelLbls, ], append = TRUE, row.names = F)
       DBI::dbWriteTable(emuDBhandle$connection, "links_filtered_tmp", queryLinks[sesSelLks & bndlSelLks, ], append = TRUE, row.names = F)
-      DBI::dbWriteTable(emuDBhandle$connection, "links_ext_filtered_tmp", queryLinksExt[sesSelLksExt & bndlSelLksExt, ], append = TRUE, row.names = F)
       
       filteredTablesSuffix = "_filtered_tmp"
     }

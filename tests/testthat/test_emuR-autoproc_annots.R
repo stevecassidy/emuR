@@ -102,6 +102,7 @@ test_that("duplicate_level works correctly", {
     
     sl1 = query(ae, "[Phonetic == n ^ #Word =~.*]", timeRefSegmentLevel = "Phonetic")
     sl2 = query(ae, "[Phonetic4 == n ^ #Word =~.*]", timeRefSegmentLevel = "Phonetic4")
+    
     expect_true(all(sl1 == sl2))
   })
   

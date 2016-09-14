@@ -280,14 +280,7 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
       }
     }
   }
-  
-  if(verbose){
-    cat("rebuilding redundant links and position of links... (this may take a while)\n")
-  }
-  # update redundant links
-  build_allRedundantLinks(emuDBhandle)
-  calculate_postionsOfLinks(emuDBhandle)
-  
+
 }
 
 # FOR DEVELOPMENT

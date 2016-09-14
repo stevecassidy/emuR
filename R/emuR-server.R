@@ -392,11 +392,6 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.
             bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(as.character(json))
             add_bundleDBI(emuDBhandle, sessionName = bundleSession, name = bundleName, bundleAnnotDFs$annotates, bundleAnnotDFs$sampleRate, newMD5annotJSON)
             store_bundleAnnotDFsDBI(emuDBhandle, bundleAnnotDFs, sessionName = bundleSession, bundleName = bundleName)
-            
-            # rebuild redundant links & calculate posistions
-            build_allRedundantLinks(emuDBhandle, sessionName = bundleSession, bundleName = bundleName)
-            calculate_postionsOfLinks(emuDBhandle)
-            
           }
         }
         if(is.null(err)){
