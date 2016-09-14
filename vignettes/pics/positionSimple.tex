@@ -24,18 +24,18 @@
   \node (s_Phoneme) at (1.5, 2) [element] {s}; 
 
   %%%%%%%%%%%%%%%%%%%
-  \node (Start_true) at (-4.5, 1) [element, green] {\small{\texttt{"[Start(Syllable, Phoneme) == 1]"}}}; 
+  \node (Start_true) at (-4.5, 1) [element, green] {\small{\texttt{"[Start(Syllable, Phoneme) == TRUE]"}}}; 
 
-  \node (Medial_true) at (-4.5, 0.5) [element, green] {\small{\texttt{"[Medial(Syllable, Phoneme) == 1]"}}}; 
+  \node (Medial_true) at (-4.5, 0.5) [element, green] {\small{\texttt{"[Medial(Syllable, Phoneme) == TRUE]"}}}; 
 
-  \node (End_true) at (-4.5, 0) [element, green] {\small{\texttt{"[End(Syllable, Phoneme) == 1]"}}}; 
+  \node (End_true) at (-4.5, 0) [element, green] {\small{\texttt{"[End(Syllable, Phoneme) == TRUE]"}}}; 
 
   %%%%%%%%%%%%%%%%%%%
-  \node (Start_false) at (4.5, 1) [element, red] {\small{\texttt{"[Start(Syllable, Phoneme) == 0]"}}}; 
+  \node (Start_false) at (4.5, 1) [element, red] {\small{\texttt{"[Start(Syllable, Phoneme) == FALSE]"}}}; 
 
-  \node (Medial_false) at (4.5, 0.5) [element, red] {\small{\texttt{"[Medial(Syllable, Phoneme) == 0]"}}}; 
+  \node (Medial_false) at (4.5, 0.5) [element, red] {\small{\texttt{"[Medial(Syllable, Phoneme) == FALSE]"}}}; 
 
-  \node (End_false) at (4.5, 0) [element, red] {\small{\texttt{"[End(Syllable, Phoneme) == 0]"}}}; 
+  \node (End_false) at (4.5, 0) [element, red] {\small{\texttt{"[End(Syllable, Phoneme) == FALSE]"}}}; 
 
   %%%%%%%%%%%%%%%%%%%%
   \draw [->] (S_Syllable) to (m_Phoneme);

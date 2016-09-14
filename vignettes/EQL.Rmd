@@ -19,7 +19,7 @@ This document introduces and defines version 2 of the **E**mu **Q**uery **L**ang
 
 To revise what was already mentioned in the `emuR_intro` as well as the `emuDB` vignette: The annotation structure of an `emuDB` can be thought of as a graph. Each annotation consist of annotational units (called ITEMs) that are grouped together in an ordered array. Each ITEM can be linked to other ITEMs of other levels if an according linkDefinition is present in the `emuDB`. An exemplary excerpt of such an annotation can be seen below.
 
-![Alt text](pics/msajc003.svg)
+![Example of simple hierarchy](pics/msajc003.svg)
 
 As it is not the focus of this vignette: one thing to note about the `query()` function are the parameters `bundlePattern` and `sessionPattern`. These can be used to restrict which session and bundle the query will be run against. They both expect a regular expression string to restrict the sessions or bundles one wishes to query.
 
@@ -225,40 +225,43 @@ The EQL has three function terms to specify where in a dominance relationship a 
 
 ### Simple usage of Start(), End() and Medial()
 
-A schematic representation of a query string representing a simple usage of the "Start()", "End()" and "Medial()" function would be: `"POSFCT(L1, L2) == 1"`. In this representation "POSFCT" is a placeholder for one of the three function where the level "L1" has to dominate level "L2". The "== 1" part of the query string indicates that if a match is found (match is `TRUE` or "== 1") then the according ITEM of the level "L2" is returned. If this expression is set to "== 0" (`FALSE`), all the ITEMs that do not match the condition of "L2" will be returned. For a visualization of what is returned by the various options of the three functions see the illustration below.
+A schematic representation of a query string representing a simple usage of the `Start()`, `End()` and `Medial()` function would be: `"POSFCT(L1, L2) == 1"` or `"POSFCT(L1, L2) == TRUE"`. In this representation "POSFCT" is a placeholder for one of the three function where the level "L1" has to dominate level "L2". The "== 1" / "== TRUE" part of the query string indicates that if a match is found (match is `TRUE` or "== 1") then the according ITEM of the level "L2" is returned. If this expression is set to "== 0" / "== FALSE" (`FALSE`), all the ITEMs that do not match the condition of "L2" will be returned. For a visualization of what is returned by the various options of the three functions see the illustration below.
 
-![Alt text](pics/positionSimple.svg)
+![Illustration of what is returned by the `Start()`, `Medial()` and `End()` functions](pics/positionSimple.svg)
+
+**INFO: As using 1 and 0 for `TRUE` and `FALSE` is not that intuative to most R users, the EQL version 2 optionally allows for the values TRUE / T and FALSE / F to be used instead of 1 and 0. This syntax should be more familiar to most R users.**
+
 
 Example **Q** & **A**'s:
 
 - **Q**: *What is the query to retrieve all word-initial syllables?*
 - **A**:
 ```{r results='hide', message=FALSE, warning=FALSE}
-query(ae, "[Start(Word, Syllable) == 1]")
+query(ae, "[Start(Word, Syllable) == TRUE]")
 ```
 
 - **Q**: *What is the query to retrieve all word-initial phonemes?*
 - **A**:
 ```{r results='hide', message=FALSE, warning=FALSE}
-query(ae, "[Start(Word, Phoneme) == 1]")
+query(ae, "[Start(Word, Phoneme) == TRUE]")
 ```
 
 - **Q**: *What is the query to retrieve all non-word-initial syllables?* 
 - **A**:
 ```{r results='hide', message=FALSE, warning=FALSE}
-query(ae, "[Start(Word, Syllable) == 0]")
+query(ae, "[Start(Word, Syllable) == FALSE]")
 ```
 
 - **Q**: *What is the query to retrieve all word-final syllables?* 
 - **A**:
 ```{r results='hide', message=FALSE, warning=FALSE}
-query(ae, "[End(Word, Syllable) == 1]")
+query(ae, "[End(Word, Syllable) == TRUE]")
 ```
 
 - **Q**: *What is the query to retrieve all word-medial syllables?* 
 - **A**:
 ```{r results='hide', message=FALSE, warning=FALSE}
-query(ae, "[Medial(Word, Syllable) == 1]")
+query(ae, "[Medial(Word, Syllable) == TRUE]")
 ```
 
     
@@ -728,7 +731,7 @@ The terminal symbols described below are ordered descending by their binding pri
 +-----------------------------------------------------------------------------------+-------------------------------------+-----------------------------------------------+
 | `FUNCQ = POSQ | NUMQ;`                                                            | **fun**ction **q**uery              |                                               |
 +-----------------------------------------------------------------------------------+-------------------------------------+-----------------------------------------------+
-| `POSQ = POSFCT, "(", LEVEL, ",", LEVEL, ")", "=", "0" | "1";`                     | **position** **q**uery              | levels must be hierarchically associated;     |
+| `POSQ = POSFCT, "(", LEVEL, ",", LEVEL, ")", "=", "0" | "1" | "TRUE" | "FALSE";`  | **position** **q**uery              | levels must be hierarchically associated;     |
 |                                                                                   |                                     | second level determines semantic              |
 +-----------------------------------------------------------------------------------+-------------------------------------+-----------------------------------------------+
 | `NUMQ = "Num", "(", LEVEL, ",", LEVEL, ")", COP, INTPN;`                          | **number**  **q**uery               | levels must be hierarchically associated;     |
