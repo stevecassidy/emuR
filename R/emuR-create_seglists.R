@@ -12,7 +12,6 @@ fconvert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL
   
   itemsTableName = paste0("items", filteredTablesSuffix)
   labelsTableName = paste0("labels", filteredTablesSuffix)
-  linksExtTableName = paste0("links_ext", filteredTablesSuffix)
   
   projectionItemsN = 0 
   if(DBI::dbExistsTable(emuDBhandle$connection, "interm_res_proj_items_tmp_root")){
