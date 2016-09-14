@@ -1,5 +1,5 @@
 Package: emuR
-Version: 0.1.9.9006
+Version: 0.1.9.9007
 Title: Main Package of the EMU Speech Database Management System
 Authors@R: c(
     person("Raphael", "Winkelmann", , "raphael@phonetik.uni-muenchen.de", c("aut", "cre")),
@@ -8,7 +8,7 @@ Authors@R: c(
     person("Jonathan", "Harrington", , "jmh@phonetik.uni-muenchen.de", c("aut", "ctb")))
 Description: Provides the next iteration of the EMU Speech 
     Database Management System (EMU-SDMS) with database management, data 
-    extraction, data preparation and data visualization facilities. 
+    extraction, data preparation and data visualization facilities.
 License: GPL (>= 2)
 Depends:
     R (>= 3.2.0)
