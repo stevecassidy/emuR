@@ -20,7 +20,6 @@ test_that("update_cache works", {
   unlink(path2db, recursive = T)
   file.copy(path2orig, path2testData, recursive = T)
   ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
-  
 
   ################################
   # 
@@ -32,9 +31,9 @@ test_that("update_cache works", {
     
     update_cache(ae, verbose=F)
     
-    l = list_sessions(ae)
+    l = list_sessionsDBI(ae)
     expect_true("new" %in% l$name)
-    b = list_bundles(ae)
+    b = list_bundlesDBI(ae)
     expect_true(any(b$session == "new" & b$name == 'msajc010'))
     
     sl = query(ae, "Phonetic=n")
