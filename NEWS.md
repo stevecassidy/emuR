@@ -11,7 +11,7 @@
 * added verbose parameter to export\_TextGridCollection()
 * improved pre-check of dir exists in export\_TextGridCollection()
 * added new replace\_itemLabels function
-* imporved export\_TextGridCollection() doc
+* improved export\_TextGridCollection() doc
 * improved replace_itemLables() speed
 * implemented rename\_emuDB() (\#116)
 * implemented duplicate\_level() (\#113)
