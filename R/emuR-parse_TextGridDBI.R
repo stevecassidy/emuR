@@ -362,6 +362,9 @@ TextGridToBundleAnnotDFs <- function(tgPath, sampleRate, name, annotates){
     tierLines = unlist(strsplit(curTier, "\n"))
     
     tierHeaderEndIdx = grep("[intervals|points]:\\s*size", tierLines, perl = T)
+    if(length(tierHeaderEndIdx) == 0){
+      stop("Couldn't find a match for [intervals|points]:\\s*size in ", tgPath, "!!! The first few lines of the current tier are (might help spot the error...): \n", head(curTier))
+    }
     tierHeader = tierLines[1:tierHeaderEndIdx]
     tierLines = tierLines[-1:(-1*tierHeaderEndIdx)]
     
