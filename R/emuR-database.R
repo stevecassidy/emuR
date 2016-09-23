@@ -105,17 +105,6 @@ database.DDL.emuDB_links = 'CREATE TABLE links (
 database.DDL.emuDB_links_both_ids_idx = 'CREATE INDEX IF NOT EXISTS links_both_ids_idx ON links(db_uuid, session, bundle, from_id, to_id)'
 database.DDL.emuDB_links_to_id_idx = 'CREATE INDEX IF NOT EXISTS links_to_id_idx ON links(db_uuid, session, bundle, to_id)'
 
-database.DDL.emuDB_linksTmp = 'CREATE TEMP TABLE links_tmp (
-  db_uuid VARCHAR(36) NOT NULL,
-  session TEXT,
-  bundle TEXT,
-  from_id INTEGER,
-  to_id INTEGER,
-  label TEXT
-);'
-
-database.DDL.emuDB_linksTmpIdx = 'CREATE INDEX IF NOT EXISTS links_tmp_idx ON links_tmp(db_uuid, session, bundle, from_id, to_id)'
-
 
 ####################################
 ######### DBI functions ############
@@ -704,7 +693,6 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, ve
   # shorthand vars
   dbName = DBconfig$name
   dbUUID = DBconfig$UUID
-  
   # create dbHandle
   if(inMemoryCache){
     dbHandle = emuDBhandle(dbName, basePath, dbUUID, connectionPath = ":memory:")
@@ -770,7 +758,6 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, ve
       
       # convert to bundleAnnotDFs
       bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(annotJSONchar)
-      
       # add to bundle table
       add_bundleDBI(dbHandle, bndl$session, bndl$name, bundleAnnotDFs$annotates, bundleAnnotDFs$sampleRate, newMD5annotJSON)
       # add to items, links, labels tables
