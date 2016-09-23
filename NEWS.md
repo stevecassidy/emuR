@@ -19,6 +19,7 @@
 * autobuild\_linkFromTimes() speed improvements
 * FUNCQ queries (start(),end(), medial()) now additionally support TRUE & FALSE and T & F values (vs. 0 & 1) 
 * rewrite of query engine to not require links_ext table any more (== redundant links)
+* added attrDefNames column to list\_levelDefinitions() output
 
 # emuR 0.1.9
 

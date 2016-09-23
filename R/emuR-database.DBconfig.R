@@ -290,6 +290,7 @@ list_levelDefinitions <- function(emuDBhandle){
     df <- rbind(df, data.frame(name = ld$name, 
                                type = ld$type, 
                                nrOfAttrDefs = length(ld$attributeDefinitions),
+                               attrDefNames = paste0(sapply(ld$attributeDefinitions, function(ad) paste0(ad$name, ";")), collapse = " "),
                                stringsAsFactors = FALSE))
   }
   return(df)
