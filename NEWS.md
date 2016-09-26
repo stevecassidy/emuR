@@ -21,6 +21,7 @@
 * rewrite of query engine to not require links_ext table any more (== redundant links)
 * added attrDefNames column to list\_levelDefinitions() output
 * rewrite of annotJSONcharToBundleAnnotDFs() for faster loads emuDBs containing large annotJSONs
+* replaced tidyjson as annot.json parser with own solution at tidyjson didn't scale well on larger annotation files
 
 # emuR 0.1.9
 

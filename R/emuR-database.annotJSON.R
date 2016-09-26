@@ -4,48 +4,142 @@
 # convert annotJSON to list of data.frames including 
 # meta information (name, annotates, samplerate)
 annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
+
+  jsonObj = jsonlite::fromJSON(annotJSONchar, simplifyVector=F) # SIC pass in path 2 json instead -> a bit faster
+
+  ##############################
+  # extract items
+
+  # extract all IDs
+  allIds = unlist(lapply(jsonObj$levels, function(level){
+    allIds = sapply(level$items, function(it) {
+      it$id
+    })
+  }))
+  if(is.null(allIds)) allIds = integer()
   
-  json = tidyjson::as.tbl_json(annotJSONchar)
+  # extract all levels
+  allLevels = unlist(lapply(jsonObj$levels, function(level){
+    allLevels = sapply(level$items, function(it) {
+      level$name
+    })
+  }))
+  if(is.null(allLevels)) allLevels = character()
   
-  # get top level data
-  tlData = json %>%
-    tidyjson::spread_values(name = tidyjson::jstring("name"), annotates = tidyjson::jstring("annotates"), sampleRate = tidyjson::jstring("sampleRate"))
+  # extract all types
+  allTypes = unlist(lapply(jsonObj$levels, function(level){
+    allTypes = sapply(level$items, function(it) {
+      level$type
+    })
+  }))
+  if(is.null(allTypes)) allTypes = character()
   
-  # gen. links data.frame
-  links = json %>%
-    tidyjson::enter_object("links") %>%
-    tidyjson::gather_array()  %>%
-    tidyjson::spread_values(fromID = tidyjson::jstring("fromID"), toID = tidyjson::jstring("toID")) %>%
-    dplyr::select_(~fromID, ~toID) %>%
-    dplyr::rename_("from_id" = "fromID", "to_id" = "toID")
+  # extract all seq_idx
+  allSeqIdx = unlist(lapply(jsonObj$levels, function(level){
+    curIdx = 0
+    allIdx = sapply(level$items, function(it) {
+      curIdx <<- curIdx + 1
+      curIdx
+    })
+  }))
+  if(is.null(allSeqIdx)) allSeqIdx = integer()
   
-  # gen. items list of data.frame
-  items = json %>%
-    tidyjson::spread_values(sampleRate = tidyjson::jstring("sampleRate")) %>%
-    tidyjson::enter_object("levels") %>%
-    tidyjson::gather_array()  %>%
-    tidyjson::spread_values(level = tidyjson::jstring("name"), type = tidyjson::jstring("type")) %>%
-    tidyjson::enter_object("items") %>%
-    tidyjson::gather_array(column.name = "seq_idx") %>%
-    tidyjson::spread_values(itemID = tidyjson::jstring("id"), samplePoint = tidyjson::jstring("samplePoint"), sampleStart = tidyjson::jstring("sampleStart"), sampleDur = tidyjson::jstring("sampleDur")) %>%
-    dplyr::select_(~itemID, ~level, ~type, ~seq_idx, ~sampleRate, ~samplePoint, ~sampleStart, ~sampleDur) %>%
-    dplyr::rename_("item_id" = "itemID", "sample_rate" = "sampleRate", "sample_point" = "samplePoint", "sample_start" = "sampleStart", "sample_dur" = "sampleDur")
-    
-  # gen. label list of data.frame
-  labels = json %>%
-    tidyjson::enter_object("levels") %>%
-    tidyjson::gather_array()  %>%
-    tidyjson::spread_values(level = tidyjson::jstring("name")) %>%
-    tidyjson::enter_object("items") %>%
-    tidyjson::gather_array() %>%
-    tidyjson::spread_values(itemID = tidyjson::jstring("id")) %>%
-    tidyjson::enter_object("labels") %>%
-    tidyjson::gather_array(column.name = "label_idx") %>%
-    tidyjson::spread_values(name = tidyjson::jstring("name"), label = tidyjson::jstring("value")) %>%
-    dplyr::select_(~itemID, ~label_idx, ~name, ~label) %>%
-    dplyr::rename_("item_id" = "itemID")
+  # extract all sample points
+  allSamplePoints = unlist(lapply(jsonObj$levels, function(level){
+    allSamplePoints = sapply(level$items, function(it) {
+      if(is.null(it$samplePoint)){
+        return(NA)
+      }else{
+        return(it$samplePoint)
+      }
+    })
+  }))
+  if(is.null(allSamplePoints)) allSamplePoints = integer()
+  
+  # extract all sample start
+  allSampleStarts = unlist(lapply(jsonObj$levels, function(level){
+    allSampleStarts = sapply(level$items, function(it) {
+      if(is.null(it$sampleStart)){
+        return(NA)
+      }else{
+        return(it$sampleStart)
+      }
+    })
+  }))
+  if(is.null(allSampleStarts)) allSampleStarts = integer()
+  
+  # extract all sample durs
+  allSampleDurs = unlist(lapply(jsonObj$levels, function(level){
+    allSampleDurs = sapply(level$items, function(it) {
+      if(is.null(it$sampleDur)){
+        return(NA)
+      }else{
+        return(it$sampleDur)
+      }
+    })
+  }))
+  if(is.null(allSampleDurs)) allSampleDurs = integer()
+  
+  items = data.frame(item_id = allIds, level = allLevels, type = allTypes, 
+                     seq_idx = allSeqIdx, sample_rate = rep(jsonObj$sampleRate, length(allIds)),
+                     sample_point = allSamplePoints, sample_start = allSampleStarts,
+                     sample_dur = allSampleDurs, stringsAsFactors = F)
+  
+  ##############################
+  # extract links
+  
+  # extract all from ids
+  allFromIds = sapply(jsonObj$links, function(l) l$fromID)
+  if(is.null(allFromIds)) allFromIds = integer()
+  # extract all to ids
+  allToIds = sapply(jsonObj$links, function(l) l$toID)
+  if(is.null(allToIds)) allToIds = integer()
+  
+  links = data.frame(from_id = allFromIds, to_id = allToIds, stringsAsFactors = F)
+                     
+
+  ##############################
+  # extract labels
+
+  # extract all label item ids
+  allLabelItemIds = unlist(lapply(jsonObj$levels, function(level){
+    allLabelItemIds = lapply(level$items, function(it) {
+      allLabelItemIds = lapply(it$labels, function(l) it$id)
+    })
+  }))
+  if(is.null(allLabelItemIds)) allLabelItemIds = integer()
+  
+  # extract all label label idx
+  allLabelLabelIdx = unlist(lapply(jsonObj$levels, function(level){
+    allLabelLabelIdx = lapply(level$items, function(it) {
+      curIdx = 0
+      allLabelLabelIdx = lapply(it$labels, function(l) {
+        curIdx <<- curIdx + 1
+        curIdx
+      })
+    })
+  }))
+  if(is.null(allLabelLabelIdx)) allLabelLabelIdx = integer()
+  
+  # extract all label names
+  allLabelNames = unlist(lapply(jsonObj$levels, function(level){
+    allLabelNames = lapply(level$items, function(it) {
+      allLabelNames = lapply(it$labels, function(l) l$name)
+    })
+  }))
+  if(is.null(allLabelNames)) allLabelNames = character()
+  
+  # extract all label values
+  allLabelValues = unlist(lapply(jsonObj$levels, function(level){
+    allLabelValues = lapply(level$items, function(it) {
+      allLabelValues = lapply(it$labels, function(l) l$value)
+    })
+  }))
+  if(is.null(allLabelValues)) allLabelValues = character()
+  
+  labels = data.frame(item_id = allLabelItemIds, label_idx = allLabelLabelIdx, name = allLabelNames, label = allLabelValues, stringsAsFactors = F)
                  
-  return(list(name = tlData$name, annotates = tlData$annotates, sampleRate = tlData$sampleRate, items = items, links = links, labels = labels))
+  return(list(name = jsonObj$name, annotates = jsonObj$annotates, sampleRate = jsonObj$sampleRate, items = items, links = links, labels = labels))
   
 }
 
