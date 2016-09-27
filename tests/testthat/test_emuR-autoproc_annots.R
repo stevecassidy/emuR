@@ -109,3 +109,32 @@ test_that("duplicate_level works correctly", {
   # clean up
   unlink(path2db, recursive = T)
 })
+
+test_that("resample annots works correctly", {
+  
+  # delete, copy and load
+  unlink(path2db, recursive = T)
+  file.copy(path2orig, path2testData, recursive = T)
+  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
+  
+  # test_that("duplicate_level throws correct errors", {
+  #   
+  #   expect_error(duplicate_level(ae, levelName = "badName", duplicateLevelName = "bla"), regexp = "not a valid level name", ignore.case = T)
+  #   expect_error(duplicate_level(ae, levelName = "Phonetic", duplicateLevelName = "bla", duplicateLinks = T, linkDuplicates = T), regexp = "duplicateLinks & linkDuplicates", ignore.case = T)
+  #   
+  # })
+
+  test_that("correct updates are made to cache", {
+    
+    # resample_annots(ae, oldSampleRate = 20000, newSampleRate = 44100, verbose = TRUE)
+    
+  })
+
+  test_that("correct updates are made to annotation files", {
+    
+  })
+  
+    
+  # clean up
+  unlink(path2db, recursive = T)
+})

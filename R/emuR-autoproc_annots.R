@@ -283,6 +283,21 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
 
 }
 
+
+resample_annots <- function(emuDBhandle, oldSampleRate, newSampleRate, verbose = TRUE) {
+  
+  stop("not implemented yet!!!")
+  
+  DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE items ",
+                                                 "SET sample_rate =  ", newSampleRate, ", ",
+                                                 "sample_point = ROUND((sample_point / sample_rate) * ", newSampleRate, ") ",
+                                                 "sample_start = sample_start ", 
+                                                 "sample_dur = sample_dur ",
+                                                 "WHERE sample_rate = ", oldSampleRate))
+  
+  DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM items WHERE level = 'Tone'"))
+}
+
 # FOR DEVELOPMENT
 # library('testthat')
 # test_file('tests/testthat/test_emuR-autoproc_annots.R')
