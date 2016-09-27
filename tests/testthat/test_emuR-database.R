@@ -409,7 +409,9 @@ test_that("store works correctly",{
   aeStoredLinks=DBI::dbGetQuery(aeStored$connection,paste0("SELECT * FROM links WHERE db_uuid='",aeStored$UUID,"'"))
   
   # check that all tabels are the same
-  expect_equal(aeItems, aeStoredItems)
+  # expect_equal(aeItems, aeStoredItems) # new index on items table results in different seq. of items hence:
+  cres = compare(aeItems, aeStoredItems, allowAll = T)
+  expect_true(cres$result)
   expect_equal(aeLabels, aeStoredLabels)
   expect_equal(aeLinks, aeStoredLinks)
   
