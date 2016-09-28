@@ -90,7 +90,7 @@ database.DDL.emuDB_labels = 'CREATE TABLE labels (
   FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
 );'
 
-# database.DDL.emuDB_labels_idx1 = 'CREATE INDEX IF NOT EXISTS labels_idx1 ON labels(item_id, bundle, session, db_uuid)'
+database.DDL.emuDB_label_nameLabel_idx = 'CREATE INDEX IF NOT EXISTS label_nameLabel_idx ON labels(item_id, bundle, session, db_uuid)'
 
 database.DDL.emuDB_links = 'CREATE TABLE links (
   db_uuid VARCHAR(36) NOT NULL,
@@ -149,6 +149,7 @@ initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TR
 create_emuDBindicesDBI<-function(emuDBhandle){
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_links_both_ids_idx)
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_links_to_id_idx)
+  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_label_nameLabel_idx)
 }
 
 
