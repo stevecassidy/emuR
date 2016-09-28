@@ -4,7 +4,8 @@
 \alias{requery_hier}
 \title{Requery hierarchical context of a segment list in an emuDB}
 \usage{
-requery_hier(emuDBhandle, seglist, level, collapse = TRUE, verbose = TRUE)
+requery_hier(emuDBhandle, seglist, level, collapse = TRUE, noTimes = F,
+  verbose = TRUE)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
@@ -14,6 +15,9 @@ requery_hier(emuDBhandle, seglist, level, collapse = TRUE, verbose = TRUE)
 \item{level}{character string: name of target level}
 
 \item{collapse}{collapse the found items in the requested level to a sequence (concatenated with ->). If set to \code{FALSE} separate items as new entries in the emuRsegs object are returned.}
+
+\item{noTimes}{do not calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
+calculate the times for large nested hierarchies it can be turned of via this boolian parameter.}
 
 \item{verbose}{be verbose}
 }

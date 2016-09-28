@@ -5,7 +5,8 @@
 \title{Query emuDB}
 \usage{
 query(emuDBhandle, query, sessionPattern = ".*", bundlePattern = ".*",
-  queryLang = "EQL2", timeRefSegmentLevel = NULL, resultType = NULL)
+  queryLang = "EQL2", timeRefSegmentLevel = NULL, resultType = NULL,
+  noTimes = F)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle object (see \link{load_emuDB})}
@@ -21,6 +22,9 @@ query(emuDBhandle, query, sessionPattern = ".*", bundlePattern = ".*",
 \item{timeRefSegmentLevel}{set time derivation segment level}
 
 \item{resultType}{type (class name) of result}
+
+\item{noTimes}{do not calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
+calculate the times for large nested hierarchies it can be turned of via this boolian parameter.}
 }
 \value{
 result set object of class resultType (default: \link{emuRsegs}, compatible to legacy type \link{emusegs})

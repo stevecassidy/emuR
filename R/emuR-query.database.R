@@ -1116,7 +1116,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
 ## @export
 ## @keywords emuDB database query Emu EQL 
 ## 
-query_databaseWithEqlEmusegs<-function(emuDBhandle, query, timeRefSegmentLevel, filteredTablesSuffix){
+query_databaseWithEqlEmusegs<-function(emuDBhandle, query, timeRefSegmentLevel, filteredTablesSuffix, noTimes){
   # create "root" intermediate result tables
   create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = "root")
   # query emuDB
@@ -1124,13 +1124,13 @@ query_databaseWithEqlEmusegs<-function(emuDBhandle, query, timeRefSegmentLevel, 
   # escape singel quotes
   query = gsub("'", "''", query)
   DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE interm_res_meta_infos_tmp_root SET query_str = '", query, "'"))
-  emusegs=convert_queryResultToEmusegs(emuDBhandle, timeRefSegmentLevel,  filteredTablesSuffix)
+  emusegs=convert_queryResultToEmusegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix, noTimes)
   return(emusegs)
   
 }
 
 ####################
-query_databaseWithEqlEmuRsegs<-function(emuDBhandle, query, timeRefSegmentLevel, filteredTablesSuffix){
+query_databaseWithEqlEmuRsegs<-function(emuDBhandle, query, timeRefSegmentLevel, filteredTablesSuffix, noTimes){
   # create "root" intermediate result tables
   create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = "root")
   # query emuDB
@@ -1138,7 +1138,7 @@ query_databaseWithEqlEmuRsegs<-function(emuDBhandle, query, timeRefSegmentLevel,
   # escape singel quotes
   queryStr = gsub("'", "''", query)
   # DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE interm_res_meta_infos_tmp_root SET query_str = '", queryStr, "'"))
-  emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix, queryStr = queryStr)
+  emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix, queryStr = queryStr, noTimes)
   return(emuRsegs)
   
 }
@@ -1201,6 +1201,8 @@ query_databaseWithEql<-function(emuDBhandle, query, intermResTableSuffix, leftRi
 ##' @param queryLang query language used for evaluating the query string 
 ##' @param timeRefSegmentLevel set time derivation segment level
 ##' @param resultType type (class name) of result
+##' @param noTimes do not calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
+##' calculate the times for large nested hierarchies it can be turned of via this boolian parameter. 
 ##' @return result set object of class resultType (default: \link{emuRsegs}, compatible to legacy type \link{emusegs})
 ##' @export
 ##' @seealso \code{\link{load_emuDB}}
@@ -1234,7 +1236,7 @@ query_databaseWithEql<-function(emuDBhandle, query, intermResTableSuffix, leftRi
 ##' }
 ##' 
 
-query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*', queryLang = 'EQL2', timeRefSegmentLevel = NULL, resultType = NULL){
+query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*', queryLang = 'EQL2', timeRefSegmentLevel = NULL, resultType = NULL, noTimes = F){
   if(queryLang=='EQL2'){
     # create temp tables 
     drop_allTmpTablesDBI(emuDBhandle)
@@ -1276,12 +1278,12 @@ query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*
       filteredTablesSuffix = "_filtered_tmp"
     }
     if(is.null(resultType)){
-      emuRsegs = query_databaseWithEqlEmuRsegs(emuDBhandle,query,timeRefSegmentLevel, filteredTablesSuffix)
+      emuRsegs = query_databaseWithEqlEmuRsegs(emuDBhandle,query,timeRefSegmentLevel, filteredTablesSuffix, noTimes)
       drop_allTmpTablesDBI(emuDBhandle)
       return(emuRsegs)
     }else{
       if(resultType=='emuRsegs'){
-        emuRsegs = query_databaseWithEqlEmuRsegs(emuDBhandle,query,timeRefSegmentLevel, filteredTablesSuffix)
+        emuRsegs = query_databaseWithEqlEmuRsegs(emuDBhandle,query,timeRefSegmentLevel, filteredTablesSuffix, noTimes)
         drop_allTmpTablesDBI(emuDBhandle)
         return(emuRsegs)
       }else if(resultType=='emusegs'){
@@ -1289,7 +1291,7 @@ query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*
           # TODO 
           stop("Parameter timeRefSegmentLevel not yet supported for resultType 'emusegs'. Please use resultType 'emuRsegs' (default).")
         }
-        return(query_databaseWithEqlEmusegs(emuDBhandle, query, timeRefSegmentLevel, filteredTablesSuffix))
+        return(query_databaseWithEqlEmusegs(emuDBhandle, query, timeRefSegmentLevel, filteredTablesSuffix, noTimes))
       }else{
         stop("Unknown result type: '",resultType,"'. Supported result types: 'emuRsegs', emusegs'")
       }

@@ -1,4 +1,4 @@
-# emuR 0.1.9.9008
+# emuR 0.1.9.9009
 
 ## bug fixes
 
@@ -22,6 +22,7 @@
 * added attrDefNames column to list\_levelDefinitions() output
 * rewrite of annotJSONcharToBundleAnnotDFs() for faster loads emuDBs containing large annotJSONs
 * replaced tidyjson as annot.json parser with own solution at tidyjson didn't scale well on larger annotation files
+* noTimes parameter added to query() / requery\_seq() / requery\_hier() to make calculating times optional (extreme performance boost if no times have to be calculated)
 
 # emuR 0.1.9
 

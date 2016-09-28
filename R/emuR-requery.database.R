@@ -42,6 +42,8 @@ drop_requeryTmpTables <- function(emuDBhandle){
 ##' @param offsetRef reference item for offset: 'START' for first and 'END' for last item of segment
 ##' @param length item length of segments in the returned segment list
 ##' @param ignoreOutOfBounds ignore result segments that are out of bundle bounds
+##' @param noTimes do not calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
+##' calculate the times for large nested hierarchies it can be turned of via this boolian parameter. 
 ##' @return result set object of class 'emuRsegs' containing the requeried segments
 ##' @export
 ##' @seealso \code{\link{query}} \code{\link{requery_hier}} \code{\link{emuRsegs}}
@@ -89,7 +91,7 @@ drop_requeryTmpTables <- function(emuDBhandle){
 ##' requery_seq(ae, sl3, length = 3, ignoreOutOfBounds = TRUE)
 ##' 
 ##' }
-requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBounds=FALSE){
+requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBounds=FALSE, noTimes = F){
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter in the query() command; then the default resultType=emuRsegs will be used)")
   }
@@ -148,7 +150,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
     DBI::dbWriteTable(emuDBhandle$connection, "interm_res_items_tmp_root", he, overwrite=T)
     
     
-    trSl=convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel = NULL, filteredTablesSuffix = "", queryStr = "FROM REQUERY")
+    trSl=convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel = NULL, filteredTablesSuffix = "", queryStr = "FROM REQUERY", noTimes)
     drop_allTmpTablesDBI(emuDBhandle)
     
     return(trSl)
@@ -167,6 +169,8 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
 ##' @param seglist segment list to requery on (type: \link{emuRsegs})
 ##' @param level character string: name of target level
 ##' @param collapse collapse the found items in the requested level to a sequence (concatenated with ->). If set to \code{FALSE} separate items as new entries in the emuRsegs object are returned.
+##' @param noTimes do not calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
+##' calculate the times for large nested hierarchies it can be turned of via this boolian parameter. 
 ##' @param verbose be verbose
 ##' @return result set object of class \link{emuRsegs}
 ##' @export
@@ -206,7 +210,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
 ##' requery_seq(ae, requery_hier(ae, sl1, level = 'Phoneme'), offsetRef = 'END')
 ##' 
 ##' }
-requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE, verbose = TRUE){
+requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE, noTimes = F, verbose = TRUE){
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType will be used)")
   }
@@ -306,7 +310,7 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE, verbose = T
     DBI::dbGetQuery(emuDBhandle$connection,paste0("DROP TABLE IF EXISTS seq_idx_tmp"))
     
     # trSl=convert_queryResultToVariableEmuRsegs(emuDBhandle)
-    trSl=convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel = NULL, filteredTablesSuffix = "", queryStr = "FROM REQUERY")
+    trSl=convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel = NULL, filteredTablesSuffix = "", queryStr = "FROM REQUERY", noTimes)
     inSlLen=nrow(seglist)
     trSlLen=nrow(trSl)
     

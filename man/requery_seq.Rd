@@ -5,7 +5,7 @@
 \title{Requery sequential context of segment list in an emuDB}
 \usage{
 requery_seq(emuDBhandle, seglist, offset = 0, offsetRef = "START",
-  length = 1, ignoreOutOfBounds = FALSE)
+  length = 1, ignoreOutOfBounds = FALSE, noTimes = F)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
@@ -19,6 +19,9 @@ requery_seq(emuDBhandle, seglist, offset = 0, offsetRef = "START",
 \item{length}{item length of segments in the returned segment list}
 
 \item{ignoreOutOfBounds}{ignore result segments that are out of bundle bounds}
+
+\item{noTimes}{do not calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
+calculate the times for large nested hierarchies it can be turned of via this boolian parameter.}
 }
 \value{
 result set object of class 'emuRsegs' containing the requeried segments
