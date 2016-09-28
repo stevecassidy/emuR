@@ -68,7 +68,7 @@ database.DDL.emuDB_items = 'CREATE TABLE items (
   FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
 );'
 
-# database.DDL.emuDB_items_idx1 = 'CREATE INDEX IF NOT EXISTS items_idx1 ON items(item_id, bundle, session, db_uuid)'
+database.DDL.emuDB_items_level_seq_idx = "CREATE INDEX IF NOT EXISTS items_level_seq_idx ON items(db_uuid, session, bundle, level, seq_idx)"
 
 # Important note:
 # The primary key of items contains more columns then needed to identify a particular item.
@@ -104,7 +104,6 @@ database.DDL.emuDB_links = 'CREATE TABLE links (
 
 database.DDL.emuDB_links_both_ids_idx = 'CREATE INDEX IF NOT EXISTS links_both_ids_idx ON links(db_uuid, session, bundle, from_id, to_id)'
 database.DDL.emuDB_links_to_id_idx = 'CREATE INDEX IF NOT EXISTS links_to_id_idx ON links(db_uuid, session, bundle, to_id)'
-
 
 ####################################
 ######### DBI functions ############
@@ -147,6 +146,7 @@ initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TR
 }
 
 create_emuDBindicesDBI<-function(emuDBhandle){
+  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_items_level_seq_idx)
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_links_both_ids_idx)
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_links_to_id_idx)
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_label_nameLabel_idx)
