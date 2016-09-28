@@ -13,6 +13,7 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
   
   # add missing index to cache
   DBI::dbGetQuery(emuDBhandle$connection, "CREATE INDEX IF NOT EXISTS items_level_seq_idx ON items(db_uuid, session, bundle, level, seq_idx)")
+  DBI::dbGetQuery(emuDBhandle$connection, "CREATE INDEX IF NOT EXISTS label_nameLabel_idx ON labels(name, label)")
   
   # list sessions & bundles
   sessions = list_sessions(emuDBhandle)
