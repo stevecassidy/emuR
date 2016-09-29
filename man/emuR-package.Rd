@@ -47,7 +47,7 @@ Typical work-flow in emuR (emuDB required):
 }
 
 TIP: for a browsable overview of all the functions provided by emuR simply
-run the command \code{\link{help.start()}} -> click on packages -> click on emuR
+run the command \code{help.start()} -> click on packages -> click on emuR
 }
 \examples{
 \dontrun{
