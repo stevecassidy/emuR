@@ -39,6 +39,9 @@
 ##' \item Further analysis and statistical processing
 ##' }
 ##' 
+##' TIP: for a browsable overview of all the functions provided by emuR simply
+##' run the command \code{\link{help.start()}} -> click on packages -> click on emuR
+##' 
 ##' @name emuR-package
 ##' @aliases emuR emuR-package
 ##' 
