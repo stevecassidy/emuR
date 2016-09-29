@@ -71,8 +71,8 @@ create_intermResTmpQueryTablesDBI <- function(emuDBhandle, suffix = "root"){
                                                  "seq_start_id INTEGER,",
                                                  "seq_end_id INTEGER,",
                                                  "seq_len INTEGER,",
-                                                 "level TEXT,",
-                                                 "PRIMARY KEY (db_uuid, session, bundle, seq_start_id, seq_end_id)",
+                                                 "level TEXT",
+                                                 # "PRIMARY KEY (db_uuid, session, bundle, seq_start_id, seq_end_id)",
                                                  ");")
   
   database.DDL.emuDB_intermRes_itemsTmp_idx = paste0("CREATE INDEX interm_res_items_tmp_", suffix, "_idx ON interm_res_items_tmp_", suffix, "(db_uuid, session, bundle, seq_end_id)")
@@ -852,6 +852,7 @@ query_databaseHier <- function(emuDBhandle, firstLevelName, secondLevelName, lef
         # at the top of the trapeze:
         # extract leaf values as right values and hier_left/right_trapeze items as left values
         if(leftIsLeaf){
+          # TODO: to fix the long runtimes join astn with hltirt -> save in temp table -> create new needed index for table -> join temp table with hrtirt
           DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT OR IGNORE INTO lr_exp_res_tmp ",
                                                          "SELECT DISTINCT hltirt.db_uuid,  hltirt.session, hltirt.bundle, ",
                                                          "hrtirt.seq_start_id_leaf AS l_seq_start_id, hrtirt.seq_end_id_leaf AS l_seq_end_id, hrtirt.seq_len_leaf AS l_seq_len, hrtirt.level_leaf AS l_level, ",
