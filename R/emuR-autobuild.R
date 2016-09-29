@@ -63,6 +63,10 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
       levDefSuper = get_levelDefinition(emuDBhandle, ld$superlevelName)
       levDefSub = get_levelDefinition(emuDBhandle, ld$sublevelName)
       
+      if(levDefSuper$type == "ITEM" | levDefSub$type == "ITEM"){
+        stop("The super level type and sub level type can not be of type 'ITEM'. The super level type is: '", levDefSuper$type, "' and the sub level type is '", levDefSub$type, "'.")
+      }
+      
       if(levDefSuper$type == 'SEGMENT' && (levDefSub$type == 'SEGMENT' || levDefSub$type == 'EVENT')){
         found = TRUE
         foundSuperLevelDev = levDefSuper
@@ -72,6 +76,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, w
       }
     }
   }
+  
   
   if(!found){
     stop('Did not find linkDefintion for: ', superlevelName, '->', sublevelName, '. Defined linkDefinitions are: ', sapply(dbConfig$linkDefinitions, function(x){paste0(x$superlevelName, '->', x$sublevelName, '; ')}))

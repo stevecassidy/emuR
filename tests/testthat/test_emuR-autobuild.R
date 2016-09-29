@@ -28,7 +28,8 @@ test_that("autobuild_linkFromTimes works correctly", {
     expect_error(autobuild_linkFromTimes(ae, 'Phoneti', 'Tone'))
     expect_error(autobuild_linkFromTimes(ae, 'Phonetic', 'Ton'))
     expect_error(autobuild_linkFromTimes(ae, 'Phonetic', 'Tone'))
-    
+    expect_error(autobuild_linkFromTimes(ae, 'Phoneme', 'Phonetic'), regexp = "The super level type and.*") # super = ITEM
+    expect_error(autobuild_linkFromTimes(ae, 'Syllable', 'Phoneme'), regexp = "The super level type and.*") # super = ITEM
   })
   
   

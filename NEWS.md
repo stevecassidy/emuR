@@ -5,6 +5,7 @@
 * added missing example to export\_TextGridCollection()
 * fixed bad DBconfig gen on add_perspective
 * fixed list\_linkDefinitions() returning strings as factors
+* fixed bad error message when passing in ITEM levels to autobuild_links from times
 
 ## new features / performance tweaks / improvements
 
