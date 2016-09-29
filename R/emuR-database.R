@@ -699,20 +699,21 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, ve
   }else{
     cachePath = file.path(normalizePath(databaseDir), paste0(dbName, database.cache.suffix))
     # check for read only emuDB -> if so copy cache to tempdir() and open connection
-    if(any(file.access(c(basePath,cachePath), 2) == -1)){
-      if(verbose){
-        cat(paste0("INFO: Either emuDBcache or the emuDB dir have READ ONLY permissions! Moving emuDBcache to tempdir() directory...\n"))
+    if(file.exists(cachePath)){
+      if(any(file.access(c(basePath,cachePath), 2) == -1)){
+        if(verbose){
+          cat(paste0("INFO: Either emuDBcache or the emuDB dir have READ ONLY permissions! Moving emuDBcache to tempdir() directory...\n"))
+        }
+        tmpDirSubDir = file.path(tempdir(), "emuR_readOnlyCacheCopies")
+        if(!dir.exists(tmpDirSubDir)){
+          dir.create(tmpDirSubDir)
+        }
+        file.copy(cachePath, tmpDirSubDir, overwrite = T)
+        cacheCopyPath = file.path(normalizePath(tmpDirSubDir), paste0(dbName, database.cache.suffix))
+        Sys.chmod(cacheCopyPath, mode = "755")
+        connection = DBI::dbConnect(RSQLite::SQLite(), cacheCopyPath)
       }
-      tmpDirSubDir = file.path(tempdir(), "emuR_readOnlyCacheCopies")
-      if(!dir.exists(tmpDirSubDir)){
-        dir.create(tmpDirSubDir)
-      }
-      file.copy(cachePath, tmpDirSubDir, overwrite = T)
-      cacheCopyPath = file.path(normalizePath(tmpDirSubDir), paste0(dbName, database.cache.suffix))
-      Sys.chmod(cacheCopyPath, mode = "755")
-      connection = DBI::dbConnect(RSQLite::SQLite(), cacheCopyPath)
     }
-      
     if(is.null(connection)){
       dbHandle = emuDBhandle(dbName, basePath, dbUUID, cachePath)
     }else{
