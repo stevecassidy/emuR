@@ -1,4 +1,4 @@
-# emuR 0.1.9.9010
+# emuR 0.1.9.9011
 
 ## bug fixes
 
@@ -24,6 +24,7 @@
 * rewrite of annotJSONcharToBundleAnnotDFs() for faster loads emuDBs containing large annotJSONs
 * replaced tidyjson as annot.json parser with own solution at tidyjson didn't scale well on larger annotation files
 * noTimes parameter added to query() / requery\_seq() / requery\_hier() to make calculating times optional (extreme performance boost if no times have to be calculated)
+* can now deal with read only emuDBs by copying the cache to tempdir() and making it writable for the user
 
 # emuR 0.1.9
 

@@ -439,3 +439,29 @@ test_that("rename works correctly",{
   unlink(newPath, recursive = T)
 })
 
+test_that("load of read only emuDB works",{
+  skip_on_cran() # probably won't work on windows (because of mode) so skip on cran
+  
+  # delete, copy and load
+  unlink(path2db, recursive = T)
+  unlink(file.path(path2testData, "fromStore"), recursive = T)
+  file.copy(path2orig, path2testData, recursive = T)
+  
+  # change emuDB folder to r-x only for everyone
+  Sys.chmod(path2db, mode = "555")
+  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
+  sl = query(ae, "Phonetic == n")
+  expect_true("emuRsegs" %in% class(sl))
+  Sys.chmod(path2db, mode = "755") # change back
+  
+  # change emuDBcache.sqlite to 
+  Sys.chmod(file.path(path2db, "ae_emuDBcache.sqlite"), mode = "555")
+  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
+  sl = query(ae, "Phonetic == n")
+  expect_true("emuRsegs" %in% class(sl))
+  Sys.chmod(path2db, mode = "755") # change back
+  
+  # cleanup
+  unlink(path2db, recursive = T)
+})
+
