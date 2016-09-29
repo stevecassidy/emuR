@@ -258,7 +258,6 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE, noTimes = F
                                                      "AND erst.db_uuid = i_end.db_uuid AND erst.session = i_end.session AND erst.bundle = i_end.bundle AND erst.end_item_id = i_end.item_id "))
       
       
-      
       # don't need requery tmp tables any more -> drop them
       drop_requeryTmpTables(emuDBhandle)
       
@@ -306,7 +305,7 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE, noTimes = F
       }
       #extract according item_id#s
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_root ",
-                                                     "SELECT DISTINCT sit.db_uuid, sit.session, sit.bundle, i_min_idx.item_id AS seq_start_id, i_max_idx.item_id AS seq_end_id, (sit.max_seq_idx - sit.min_seq_idx) + 1 AS seq_len, '", reqAttrDef, "' AS level  ",
+                                                     "SELECT sit.db_uuid, sit.session, sit.bundle, i_min_idx.item_id AS seq_start_id, i_max_idx.item_id AS seq_end_id, (sit.max_seq_idx - sit.min_seq_idx) + 1 AS seq_len, '", reqAttrDef, "' AS level  ",
                                                      "FROM seq_idx_tmp AS sit, items AS i_min_idx, items AS i_max_idx ",
                                                      "WHERE sit.db_uuid = i_min_idx.db_uuid AND sit.session = i_min_idx.session AND sit.bundle = i_min_idx.bundle AND sit.level = i_min_idx.level AND sit.min_seq_idx = i_min_idx.seq_idx ",
                                                      "AND sit.db_uuid = i_max_idx.db_uuid AND sit.session = i_max_idx.session AND sit.bundle = i_max_idx.bundle AND sit.level = i_max_idx.level AND sit.max_seq_idx = i_max_idx.seq_idx",

@@ -168,11 +168,13 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
                                                      "lr_exp_res_tmp.db_uuid, lr_exp_res_tmp.session, lr_exp_res_tmp.bundle, lr_exp_res_tmp.r_seq_start_id AS start_item_id, lr_exp_res_tmp.r_seq_end_id AS end_item_id, ",
                                                      "'", resultAttrDef, "' AS level, '", ld$type, "' AS type, ",
                                                      "min(itl.sample_start + 0) AS sample_start, max(itr.sample_start + itr.sample_dur) AS sample_end, itl.sample_rate AS sample_rate ",
-                                                     "FROM lr_exp_res_tmp, ", itemsTableName, " AS itl, ", itemsTableName, " AS itr ", # items table left & right
-                                                     "WHERE lr_exp_res_tmp.db_uuid = itl.db_uuid AND lr_exp_res_tmp.session = itl.session AND lr_exp_res_tmp.bundle = itl.bundle AND lr_exp_res_tmp.l_seq_start_id = itl.item_id ",
+                                                     "FROM interm_res_items_tmp_root AS irit, lr_exp_res_tmp, ", itemsTableName, " AS itl, ", itemsTableName, " AS itr ", # items table left & right
+                                                     "WHERE irit.db_uuid = lr_exp_res_tmp.db_uuid AND irit.session = lr_exp_res_tmp.session AND irit.bundle = lr_exp_res_tmp.bundle AND irit.seq_start_id = lr_exp_res_tmp.r_seq_start_id AND irit.seq_end_id = lr_exp_res_tmp.r_seq_end_id ",
+                                                     "AND lr_exp_res_tmp.db_uuid = itl.db_uuid AND lr_exp_res_tmp.session = itl.session AND lr_exp_res_tmp.bundle = itl.bundle AND lr_exp_res_tmp.l_seq_start_id = itl.item_id ",
                                                      "AND lr_exp_res_tmp.db_uuid = itr.db_uuid AND lr_exp_res_tmp.session = itr.session AND lr_exp_res_tmp.bundle = itr.bundle AND lr_exp_res_tmp.l_seq_end_id = itr.item_id ",
-                                                     "GROUP BY lr_exp_res_tmp.db_uuid, lr_exp_res_tmp.session, lr_exp_res_tmp.bundle, r_seq_start_id, r_seq_end_id ",
-                                                     "ORDER BY lr_exp_res_tmp.db_uuid, lr_exp_res_tmp.session, lr_exp_res_tmp.bundle, min(itl.sample_start)"))
+                                                     "GROUP BY irit.rowid, irit.db_uuid, irit.session, irit.bundle, irit.seq_start_id, irit.seq_end_id ", # using irit.rowid to preserve duplicates (requery only)
+                                                     "ORDER BY lr_exp_res_tmp.db_uuid, lr_exp_res_tmp.session, lr_exp_res_tmp.bundle, min(itl.sample_start)",
+                                                     ""))
       
     }
     
@@ -189,7 +191,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
                                                              "AND iseq.seq_idx >= itl.seq_idx  AND iseq.seq_idx <= itr.seq_idx ", # join all seq. items
                                                              "AND iseq.db_uuid = labels.db_uuid AND iseq.session = labels.session AND iseq.bundle = labels.bundle AND iseq.item_id = labels.item_id ",
                                                              "AND labels.label_idx = ", labelIdx, " ",
-                                                             "GROUP BY emursegs_tmp.db_uuid, emursegs_tmp.session, emursegs_tmp.bundle, emursegs_tmp.start_item_id, emursegs_tmp.end_item_id",
+                                                             "GROUP BY emursegs_tmp.rowid, emursegs_tmp.db_uuid, emursegs_tmp.session, emursegs_tmp.bundle, emursegs_tmp.start_item_id, emursegs_tmp.end_item_id", # once again using rowid to preserve duplicates (requery only)
                                                              ""))
     
     # drop temp table
