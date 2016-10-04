@@ -77,14 +77,15 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
                                                    ");"))
     
     if(!calcTimes){ # no times are requested then that makes things a lot easier :-)
+      
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO emursegs_tmp ",
                                                      "SELECT DISTINCT'XXX' AS labels, ",
                                                      "NULL AS start, ",
                                                      "NULL AS end, ",
                                                      "interm_res_items_tmp_root.session || ':' || interm_res_items_tmp_root.bundle AS utts, ",
-                                                     "interm_res_items_tmp_root.db_uuid, interm_res_items_tmp_root.session, interm_res_items_tmp_root.bundle, interm_res_items_tmp_root.seq_start_id AS startItemID, interm_res_items_tmp_root.seq_end_id AS endItemID, ",
-                                                     "interm_res_items_tmp_root.level AS level, lr_exp_res_tmp.r_seq_start_seq_idx AS start_item_seq_idx, lr_exp_res_tmp.r_seq_end_seq_idx AS end_item_seq_idx items_seq_start.type AS type, ",
-                                                     "NULL AS sampleStart, NULL AS sampleEnd, items_seq_start.sample_rate AS sampleRate ",
+                                                     "interm_res_items_tmp_root.db_uuid, interm_res_items_tmp_root.session, interm_res_items_tmp_root.bundle, interm_res_items_tmp_root.seq_start_id AS start_item_id, interm_res_items_tmp_root.seq_end_id AS end_item_id, ",
+                                                     "interm_res_items_tmp_root.level AS level, interm_res_items_tmp_root.seq_start_seq_idx AS start_item_seq_idx, interm_res_items_tmp_root.seq_end_seq_idx AS end_item_seq_idx, items_seq_start.type AS type, ",
+                                                     "NULL AS sampleStart, NULL AS sample_end, items_seq_start.sample_rate AS sample_rate ",
                                                      "FROM interm_res_items_tmp_root, items AS items_seq_start, items AS items_seq_end, labels ",
                                                      "WHERE interm_res_items_tmp_root.db_uuid = items_seq_start.db_uuid AND interm_res_items_tmp_root.session = items_seq_start.session AND interm_res_items_tmp_root.bundle = items_seq_start.bundle AND interm_res_items_tmp_root.seq_start_id = items_seq_start.item_id ",
                                                      "AND interm_res_items_tmp_root.db_uuid = items_seq_end.db_uuid AND interm_res_items_tmp_root.session = items_seq_end.session AND interm_res_items_tmp_root.bundle = items_seq_end.bundle AND interm_res_items_tmp_root.seq_end_id = items_seq_end.item_id ",

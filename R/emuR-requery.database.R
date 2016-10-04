@@ -110,25 +110,25 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
     create_requeryTmpTables(emuDBhandle)
     # place in emuRsegsTmp table
     DBI::dbGetQuery(emuDBhandle$connection, "DELETE FROM emursegs_tmp;") # delete 
-
+    
     DBI::dbWriteTable(emuDBhandle$connection, "emursegs_tmp", as.data.frame(seglist), append=T, row.names = F) # append to make sure field names done't get overwritten
     
     # load config
     dbConfig=load_DBconfig(emuDBhandle)
     
     # query for sequential requeries
-    heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.item_id AS seq_start_id,ir.item_id AS seq_end_id,",length," AS seq_len,sl.level FROM emursegs_tmp sl,items sll, items slr,items il, items ir \
-                        WHERE \
-                         il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle AND \
-                         il.db_uuid=sl.db_uuid AND il.session=sl.session AND il.bundle=sl.bundle AND \
-                         sll.db_uuid=sl.db_uuid AND sll.session=sl.session AND sll.bundle=sl.bundle AND sl.start_item_id=sll.item_id AND \
-                         slr.db_uuid=sl.db_uuid AND slr.session=sl.session AND slr.bundle=sl.bundle AND sl.end_item_id=slr.item_id AND ")
+    heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.item_id AS seq_start_id, ir.item_id AS seq_end_id,",length," AS seq_len, sl.level, sl.start_item_seq_idx AS seq_start_seq_idx, sl.end_item_seq_idx AS seq_end_seq_idx ",
+                      "FROM emursegs_tmp sl,items sll, items slr,items il, items ir ",
+                      "WHERE il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle AND ",
+                      "il.db_uuid=sl.db_uuid AND il.session=sl.session AND il.bundle=sl.bundle AND ",
+                      "sll.db_uuid=sl.db_uuid AND sll.session=sl.session AND sll.bundle=sl.bundle AND sl.start_item_id=sll.item_id AND ",
+                      "slr.db_uuid=sl.db_uuid AND slr.session=sl.session AND slr.bundle=sl.bundle AND sl.end_item_id=slr.item_id AND ")
     if(offsetRef=='START'){
-      heQueryStr=paste0(heQueryStr,"il.level=sll.level AND il.seq_idx=sll.seq_idx+",offset," AND \
-                          ir.level=sll.level AND ir.seq_idx=sll.seq_idx+",offset+length-1)
+      heQueryStr=paste0(heQueryStr,"il.level=sll.level AND il.seq_idx=sll.seq_idx+",offset," AND ",
+                        "ir.level=sll.level AND ir.seq_idx=sll.seq_idx+",offset+length-1)
     }else if(offsetRef=='END'){
-      heQueryStr=paste0(heQueryStr,"il.level=slr.level AND il.seq_idx=slr.seq_idx+",offset," AND \
-                          ir.level=slr.level AND ir.seq_idx=slr.seq_idx+",offset+length-1)
+      heQueryStr=paste0(heQueryStr,"il.level=slr.level AND il.seq_idx=slr.seq_idx+",offset," AND ",
+                        "ir.level=slr.level AND ir.seq_idx=slr.seq_idx+",offset+length-1)
     }else{
       stop("Parameter offsetRef must be one of 'START' or 'END'\n")
     }
@@ -228,7 +228,7 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE, calcTimes =
     
     # place in emursegs_tmp table
     DBI::dbGetQuery(emuDBhandle$connection, "DELETE FROM emursegs_tmp;")
-
+    
     DBI::dbWriteTable(emuDBhandle$connection, "emursegs_tmp", as.data.frame(seglist), append=T, row.names = F) # append to avoid rewirte of col names
     
     # get level for attribute definition specified in seglist
