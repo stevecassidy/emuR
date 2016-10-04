@@ -46,12 +46,12 @@ test_that("requeries work on ae",{
     expect_that(nrow(sl1),equals(2))
     expect_that(nrow(rsl1),equals(2))
     expect_that('[.data.frame'(rsl1,1,'labels'),is_equivalent_to('l->@->n->t->l'))
-    expect_that('[.data.frame'(rsl1,1,'startItemID'),equals(144))
-    expect_that('[.data.frame'(rsl1,1,'endItemID'),equals(148))
+    expect_that('[.data.frame'(rsl1,1,'start_item_id'),equals(144))
+    expect_that('[.data.frame'(rsl1,1,'end_item_id'),equals(148))
     
     expect_that('[.data.frame'(rsl1,2,'labels'),is_equivalent_to('s->@->n->t->ei'))
-    expect_that('[.data.frame'(rsl1,2,'startItemID'),equals(101))
-    expect_that('[.data.frame'(rsl1,2,'endItemID'),equals(105))
+    expect_that('[.data.frame'(rsl1,2,'start_item_id'),equals(101))
+    expect_that('[.data.frame'(rsl1,2,'end_item_id'),equals(105))
     
     # Bug ID 42
     sl1=query(ae, "[[Phonetic=k -> Phonetic=~.*]->Phonetic=~.*]")
@@ -59,8 +59,8 @@ test_that("requeries work on ae",{
     # sl1w has sequence length 1
     sl1w2=requery_seq(ae, sl1w[1,])
     # Bug startItemID != endItemID, and label is not a sequence !!
-    expect_that('[.data.frame'(sl1w2,1,'startItemID'),equals(61))
-    expect_that('[.data.frame'(sl1w2,1,'endItemID'),equals(61))
+    expect_that('[.data.frame'(sl1w2,1,'start_item_id'),equals(61))
+    expect_that('[.data.frame'(sl1w2,1,'end_item_id'),equals(61))
     
   })
   
@@ -74,16 +74,16 @@ test_that("requeries work on ae",{
     expect_that(nrow(sl1),equals(3))
     expect_that(nrow(rsl1),equals(3))
     expect_that('[.data.frame'(rsl1,1,'labels'),is_equivalent_to('V->m->V->N->s->t'))
-    expect_that('[.data.frame'(rsl1,1,'startItemID'),equals(114))
-    expect_that('[.data.frame'(rsl1,1,'endItemID'),equals(119))
+    expect_that('[.data.frame'(rsl1,1,'start_item_id'),equals(114))
+    expect_that('[.data.frame'(rsl1,1,'end_item_id'),equals(119))
     
     expect_that('[.data.frame'(rsl1,2,'labels'),is_equivalent_to('E->n->i:'))
-    expect_that('[.data.frame'(rsl1,2,'startItemID'),equals(135))
-    expect_that('[.data.frame'(rsl1,2,'endItemID'),equals(137))
+    expect_that('[.data.frame'(rsl1,2,'start_item_id'),equals(135))
+    expect_that('[.data.frame'(rsl1,2,'end_item_id'),equals(137))
     
     expect_that('[.data.frame'(rsl1,3,'labels'),is_equivalent_to('@->n'))
-    expect_that('[.data.frame'(rsl1,3,'startItemID'),equals(102))
-    expect_that('[.data.frame'(rsl1,3,'endItemID'),equals(103))
+    expect_that('[.data.frame'(rsl1,3,'start_item_id'),equals(102))
+    expect_that('[.data.frame'(rsl1,3,'end_item_id'),equals(103))
     
   })
 

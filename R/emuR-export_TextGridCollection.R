@@ -44,7 +44,6 @@
 export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '.*', bundlePattern = '.*', 
                                       attributeDefinitionNames = NULL, verbose = TRUE) {
   
-  
   dbConfig = load_DBconfig(emuDBhandle)
   
   allAttrNames = get_allAttributeNames(emuDBhandle)
@@ -77,8 +76,9 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
   slAll = NULL
   for(i in 1:length(allAttrNames)){
     sl = query(emuDBhandle, paste0(allAttrNames[i], "=~ .*"))
-    slAll = rbind(slAll, sl)
+    slAll = dplyr::bind_rows(slAll, sl)
   }
+  
   # convert times to seconds
   slAll$start = slAll$start / 1000
   slAll$end = slAll$end / 1000
@@ -129,8 +129,8 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
       
       emptyRow = data.frame(labels = "", start = -1, end = -1, 
                             utts = "", db_uuid = "", session = "", bundle = "", 
-                            startItemID = "", endItemID = "", level = "", 
-                            type = "", sampleStart = "", sampleEnd = "", sampleRate = "", stringsAsFactors = F)
+                            start_item_id = "", end_item_id = "", level = "", start_item_seq_idx = "", end_item_seq_idx = "",
+                            type = "", sample_start = "", sample_end = "", sample_rate = "", stringsAsFactors = F)
       # tier header
       if(all(slTier$end == 0)){
         tierType = "TextTier"
@@ -162,8 +162,8 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
           # preallocate data.frame
           slTierTmp = data.frame(labels = character(slTierTmpNrow), start = integer(slTierTmpNrow), end = integer(slTierTmpNrow), 
                                  utts = character(slTierTmpNrow), db_uuid = character(slTierTmpNrow), session = character(slTierTmpNrow), bundle = character(slTierTmpNrow), 
-                                 startItemID = character(slTierTmpNrow), endItemID = character(slTierTmpNrow), level = character(slTierTmpNrow), 
-                                 type = character(slTierTmpNrow), sampleStart = integer(slTierTmpNrow), sampleEnd = integer(slTierTmpNrow), sampleRate = integer(slTierTmpNrow), stringsAsFactors = F)
+                                 start_item_id = character(slTierTmpNrow), end_item_id = character(slTierTmpNrow), level = character(slTierTmpNrow), start_item_seq_idx = integer(slTierTmpNrow), end_item_seq_idx = integer(slTierTmpNrow),
+                                 type = character(slTierTmpNrow), sampleStart = integer(slTierTmpNrow), sample_end = integer(slTierTmpNrow), sample_rate = integer(slTierTmpNrow), stringsAsFactors = F)
           
           slTierTmp[1,] = slTier[1,]
           curRowIdx = 2

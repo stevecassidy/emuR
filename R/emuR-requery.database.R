@@ -11,10 +11,12 @@ database.DDL.emuRsegsTmp = 'CREATE TEMP TABLE emursegs_tmp (
   start_item_id INTEGER,
   end_item_id INTEGER,
   level TEXT,
+  start_item_seq_idx INTEGER,
+  end_item_seq_idx INTEGER,
   type TEXT,
-  sampleStart INTEGER,
-  sampleEnd  INTEGER,
-  sampleRate FLOAT
+  sample_start INTEGER,
+  sample_end  INTEGER,
+  sample_rate FLOAT
 );'
 
 create_requeryTmpTables <- function(emuDBhandle){
@@ -42,7 +44,7 @@ drop_requeryTmpTables <- function(emuDBhandle){
 ##' @param offsetRef reference item for offset: 'START' for first and 'END' for last item of segment
 ##' @param length item length of segments in the returned segment list
 ##' @param ignoreOutOfBounds ignore result segments that are out of bundle bounds
-##' @param noTimes do not calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
+##' @param calcTimes calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
 ##' calculate the times for large nested hierarchies it can be turned of via this boolian parameter. 
 ##' @return result set object of class 'emuRsegs' containing the requeried segments
 ##' @export
@@ -91,7 +93,7 @@ drop_requeryTmpTables <- function(emuDBhandle){
 ##' requery_seq(ae, sl3, length = 3, ignoreOutOfBounds = TRUE)
 ##' 
 ##' }
-requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBounds=FALSE, noTimes = F){
+requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,ignoreOutOfBounds=FALSE, calcTimes = T){
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter in the query() command; then the default resultType=emuRsegs will be used)")
   }
@@ -108,15 +110,14 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
     create_requeryTmpTables(emuDBhandle)
     # place in emuRsegsTmp table
     DBI::dbGetQuery(emuDBhandle$connection, "DELETE FROM emursegs_tmp;") # delete 
-    colnames(seglist) = c("labels", "start", "end", "utts", "db_uuid", "session", "bundle", 
-                          "start_item_id", "end_item_id", "level", "type", "sampleStart", "sampleEnd", "sampleRate")
+
     DBI::dbWriteTable(emuDBhandle$connection, "emursegs_tmp", as.data.frame(seglist), append=T, row.names = F) # append to make sure field names done't get overwritten
     
     # load config
     dbConfig=load_DBconfig(emuDBhandle)
     
     # query for sequential requeries
-    heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.item_id AS seq_start_id,ir.item_id AS seq_end_id,",length," AS seq_len,sl.level FROM emursegs_tmp sl,items sll,items slr,items il, items ir \
+    heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.item_id AS seq_start_id,ir.item_id AS seq_end_id,",length," AS seq_len,sl.level FROM emursegs_tmp sl,items sll, items slr,items il, items ir \
                         WHERE \
                          il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle AND \
                          il.db_uuid=sl.db_uuid AND il.session=sl.session AND il.bundle=sl.bundle AND \
@@ -150,7 +151,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
     DBI::dbWriteTable(emuDBhandle$connection, "interm_res_items_tmp_root", he, overwrite=T)
     
     
-    trSl=convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel = NULL, filteredTablesSuffix = "", queryStr = "FROM REQUERY", noTimes)
+    trSl=convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel = NULL, filteredTablesSuffix = "", queryStr = "FROM REQUERY", calcTimes)
     drop_allTmpTablesDBI(emuDBhandle)
     
     return(trSl)
@@ -169,7 +170,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
 ##' @param seglist segment list to requery on (type: \link{emuRsegs})
 ##' @param level character string: name of target level
 ##' @param collapse collapse the found items in the requested level to a sequence (concatenated with ->). If set to \code{FALSE} separate items as new entries in the emuRsegs object are returned.
-##' @param noTimes do not calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
+##' @param noTimes calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
 ##' calculate the times for large nested hierarchies it can be turned of via this boolian parameter. 
 ##' @param verbose be verbose
 ##' @return result set object of class \link{emuRsegs}
@@ -210,7 +211,7 @@ requery_seq<-function(emuDBhandle, seglist, offset=0,offsetRef='START',length=1,
 ##' requery_seq(ae, requery_hier(ae, sl1, level = 'Phoneme'), offsetRef = 'END')
 ##' 
 ##' }
-requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE, noTimes = F, verbose = TRUE){
+requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE, calcTimes = T, verbose = TRUE){
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType will be used)")
   }
@@ -227,8 +228,7 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE, noTimes = F
     
     # place in emursegs_tmp table
     DBI::dbGetQuery(emuDBhandle$connection, "DELETE FROM emursegs_tmp;")
-    colnames(seglist) = c("labels", "start", "end", "utts", "db_uuid", "session", "bundle", 
-                          "start_item_id", "end_item_id", "level", "type", "sample_start", "sample_end", "sample_rate")
+
     DBI::dbWriteTable(emuDBhandle$connection, "emursegs_tmp", as.data.frame(seglist), append=T, row.names = F) # append to avoid rewirte of col names
     
     # get level for attribute definition specified in seglist
@@ -245,14 +245,14 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE, noTimes = F
     check_levelAttributeName(emuDBhandle, reqAttrDef) # check if valid attr. def
     
     reqAttrDefLn = get_levelNameForAttributeName(emuDBhandle, reqAttrDef)
-    
     if(segListLevel != reqAttrDefLn){
       
       # insert all original emuRsegs items new table
       origSeglistItemsTableSuffix = "orig_seglist_items"
       create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = origSeglistItemsTableSuffix)
+      
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_", origSeglistItemsTableSuffix, " ",
-                                                     "SELECT erst.db_uuid, erst.session, erst.bundle, erst.start_item_id AS seq_start_id, erst.end_item_id AS seq_end_id, (i_end.seq_idx - i_start.seq_idx) + 1 AS seq_len, '", level, "' AS level ",
+                                                     "SELECT erst.db_uuid, erst.session, erst.bundle, erst.start_item_id AS seq_start_id, erst.end_item_id AS seq_end_id, (i_end.seq_idx - i_start.seq_idx) + 1 AS seq_len, '", level, "' AS level, erst.start_item_seq_idx AS seq_start_seq_idx, erst.end_item_seq_idx AS seq_end_seq_idx ",
                                                      "FROM emursegs_tmp AS erst, items AS i_start, items AS i_end ",
                                                      "WHERE erst.db_uuid = i_start.db_uuid AND erst.session = i_start.session AND erst.bundle = i_start.bundle AND erst.start_item_id = i_start.item_id ", 
                                                      "AND erst.db_uuid = i_end.db_uuid AND erst.session = i_end.session AND erst.bundle = i_end.bundle AND erst.end_item_id = i_end.item_id "))
@@ -264,15 +264,16 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE, noTimes = F
       # insert all items from requested level into new table
       reqLevelItemsTableSuffix = "req_level_items"
       create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = reqLevelItemsTableSuffix)
+      
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_", reqLevelItemsTableSuffix, " ",
-                                                     "SELECT db_uuid, session, bundle, item_id AS start_item_id, item_id AS seq_end_id, 1 AS seq_len, level  FROM items ",
+                                                     "SELECT db_uuid, session, bundle, item_id AS start_item_id, item_id AS seq_end_id, 1 AS seq_len, level, seq_idx AS seq_start_seq_idx, seq_idx AS seq_end_seq_idx ",
+                                                     "FROM items ",
                                                      "WHERE db_uuid ='", emuDBhandle$UUID, "' AND level = '", reqAttrDefLn, "'"))
       
       query_databaseHier(emuDBhandle, firstLevelName = seglistAttrDefLn, secondLevelName = reqAttrDefLn, leftTableSuffix = origSeglistItemsTableSuffix, rightTableSuffix = reqLevelItemsTableSuffix, "") # result written to lr_exp_res_tmp table
       
       # move query_databaseHier results into interm_res_items_tmp_root 
       create_intermResTmpQueryTablesDBI(emuDBhandle)
-      
       # create temp table to insert 
       DBI::dbGetQuery(emuDBhandle$connection,paste0("CREATE TEMP TABLE IF NOT EXISTS seq_idx_tmp ( ",
                                                     "db_uuid VARCHAR(36), ",
@@ -305,7 +306,7 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE, noTimes = F
       }
       #extract according item_id#s
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_root ",
-                                                     "SELECT sit.db_uuid, sit.session, sit.bundle, i_min_idx.item_id AS seq_start_id, i_max_idx.item_id AS seq_end_id, (sit.max_seq_idx - sit.min_seq_idx) + 1 AS seq_len, '", reqAttrDef, "' AS level  ",
+                                                     "SELECT sit.db_uuid, sit.session, sit.bundle, i_min_idx.item_id AS seq_start_id, i_max_idx.item_id AS seq_end_id, (sit.max_seq_idx - sit.min_seq_idx) + 1 AS seq_len, '", reqAttrDef, "' AS level, sit.min_seq_idx AS seq_start_seq_idx, sit.max_seq_idx AS seq_end_seq_idx ",
                                                      "FROM seq_idx_tmp AS sit, items AS i_min_idx, items AS i_max_idx ",
                                                      "WHERE sit.db_uuid = i_min_idx.db_uuid AND sit.session = i_min_idx.session AND sit.bundle = i_min_idx.bundle AND sit.level = i_min_idx.level AND sit.min_seq_idx = i_min_idx.seq_idx ",
                                                      "AND sit.db_uuid = i_max_idx.db_uuid AND sit.session = i_max_idx.session AND sit.bundle = i_max_idx.bundle AND sit.level = i_max_idx.level AND sit.max_seq_idx = i_max_idx.seq_idx",
@@ -326,7 +327,7 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE, noTimes = F
       
     }
     # trSl=convert_queryResultToVariableEmuRsegs(emuDBhandle)
-    trSl=convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel = NULL, filteredTablesSuffix = "", queryStr = "FROM REQUERY", noTimes)
+    trSl=convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel = NULL, filteredTablesSuffix = "", queryStr = "FROM REQUERY", calcTimes)
     inSlLen=nrow(seglist)
     trSlLen=nrow(trSl)
     
