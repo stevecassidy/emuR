@@ -16,10 +16,10 @@ requery_hier(emuDBhandle, seglist, level, collapse = TRUE, calcTimes = T,
 
 \item{collapse}{collapse the found items in the requested level to a sequence (concatenated with ->). If set to \code{FALSE} separate items as new entries in the emuRsegs object are returned.}
 
-\item{verbose}{be verbose}
-
-\item{noTimes}{calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
+\item{calcTimes}{calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
 calculate the times for large nested hierarchies it can be turned of via this boolian parameter.}
+
+\item{verbose}{be verbose}
 }
 \value{
 result set object of class \link{emuRsegs}
