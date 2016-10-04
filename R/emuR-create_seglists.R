@@ -1,14 +1,14 @@
 
-convert_queryResultToEmusegs<-function(emuDBhandle, timeRefSegmentLevel=NULL, filteredTablesSuffix, noTimes = F){
+convert_queryResultToEmusegs<-function(emuDBhandle, timeRefSegmentLevel=NULL, filteredTablesSuffix, calcTimes = T){
   queryStr = DBI::dbGetQuery(emuDBhandle$connection, "SELECT query_str FROM interm_res_meta_infos_tmp_root")$query_str
-  emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix, queryStr = queryStr, noTimes)
+  emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix, queryStr = queryStr, calcTimes)
   emusegs = as.emusegs(emuRsegs)
   return(emusegs)
 }
 
 ##################################
 #
-convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL, filteredTablesSuffix, queryStr = "", noTimes = F){
+convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL, filteredTablesSuffix, queryStr = "", calcTimes = T){
   
   itemsTableName = paste0("items", filteredTablesSuffix)
   labelsTableName = paste0("labels", filteredTablesSuffix)
@@ -25,7 +25,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
     DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM interm_res_items_tmp_root"))
     DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_root ",
                                                    "SELECT DISTINCT db_uuid, session, bundle, ",
-                                                   "p_seq_start_id AS seq_start_id, p_seq_end_id AS seq_end_id, p_seq_len AS seq_len, p_level AS level ", 
+                                                   "p_seq_start_id AS seq_start_id, p_seq_end_id AS seq_end_id, p_seq_len AS seq_len, p_level AS level, p_seq_start_seq_idx AS seq_start_seq_idx, p_seq_end_seq_idx AS seq_end_seq_idx ", 
                                                    "FROM interm_res_proj_items_tmp_root"))
     
   }
@@ -68,20 +68,22 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
                                                    "start_item_id INTEGER, ",
                                                    "end_item_id INTEGER, ",
                                                    "level TEXT, ",
+                                                   "start_item_seq_idx INTEGER, ",
+                                                   "end_item_seq_idx INTEGER, ",
                                                    "type TEXT, ",
                                                    "sample_start INTEGER, ",
                                                    "sample_end INTEGER, ",
                                                    "sample_rate INTEGER",
                                                    ");"))
     
-    if(noTimes){ # no times are requested then that makes things a lot easier :-)
+    if(!calcTimes){ # no times are requested then that makes things a lot easier :-)
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO emursegs_tmp ",
                                                      "SELECT DISTINCT'XXX' AS labels, ",
                                                      "NULL AS start, ",
                                                      "NULL AS end, ",
                                                      "interm_res_items_tmp_root.session || ':' || interm_res_items_tmp_root.bundle AS utts, ",
                                                      "interm_res_items_tmp_root.db_uuid, interm_res_items_tmp_root.session, interm_res_items_tmp_root.bundle, interm_res_items_tmp_root.seq_start_id AS startItemID, interm_res_items_tmp_root.seq_end_id AS endItemID, ",
-                                                     "interm_res_items_tmp_root.level AS level, items_seq_start.type AS type, ",
+                                                     "interm_res_items_tmp_root.level AS level, lr_exp_res_tmp.r_seq_start_seq_idx AS start_item_seq_idx, lr_exp_res_tmp.r_seq_end_seq_idx AS end_item_seq_idx items_seq_start.type AS type, ",
                                                      "NULL AS sampleStart, NULL AS sampleEnd, items_seq_start.sample_rate AS sampleRate ",
                                                      "FROM interm_res_items_tmp_root, items AS items_seq_start, items AS items_seq_end, labels ",
                                                      "WHERE interm_res_items_tmp_root.db_uuid = items_seq_start.db_uuid AND interm_res_items_tmp_root.session = items_seq_start.session AND interm_res_items_tmp_root.bundle = items_seq_start.bundle AND interm_res_items_tmp_root.seq_start_id = items_seq_start.item_id ",
@@ -108,9 +110,9 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
                                                      " ELSE 'SIC!! Something went wrong' ",
                                                      "END AS end, ",
                                                      "interm_res_items_tmp_root.session || ':' || interm_res_items_tmp_root.bundle AS utts, ",
-                                                     "interm_res_items_tmp_root.db_uuid, interm_res_items_tmp_root.session, interm_res_items_tmp_root.bundle, interm_res_items_tmp_root.seq_start_id AS startItemID, interm_res_items_tmp_root.seq_end_id AS endItemID, ",
-                                                     "interm_res_items_tmp_root.level AS level, items_seq_start.type AS type, ",
-                                                     "items_seq_start.sample_start AS sampleStart, (items_seq_end.sample_start + items_seq_end.sample_dur) AS sampleEnd, items_seq_start.sample_rate AS sampleRate ",
+                                                     "interm_res_items_tmp_root.db_uuid, interm_res_items_tmp_root.session, interm_res_items_tmp_root.bundle, interm_res_items_tmp_root.seq_start_id AS start_item_id, interm_res_items_tmp_root.seq_end_id AS end_item_id, ",
+                                                     "interm_res_items_tmp_root.level AS level, interm_res_items_tmp_root.seq_start_seq_idx, interm_res_items_tmp_root.seq_end_seq_idx AS end_item_seq_idx, items_seq_start.type AS type, ",
+                                                     "items_seq_start.sample_start AS sample_start, (items_seq_end.sample_start + items_seq_end.sample_dur) AS sampleEnd, items_seq_start.sample_rate AS sample_rate ",
                                                      "FROM interm_res_items_tmp_root, items AS items_seq_start, items AS items_seq_end, labels ",
                                                      "WHERE interm_res_items_tmp_root.db_uuid = items_seq_start.db_uuid AND interm_res_items_tmp_root.session = items_seq_start.session AND interm_res_items_tmp_root.bundle = items_seq_start.bundle AND interm_res_items_tmp_root.seq_start_id = items_seq_start.item_id ",
                                                      "AND interm_res_items_tmp_root.db_uuid = items_seq_end.db_uuid AND interm_res_items_tmp_root.session = items_seq_end.session AND interm_res_items_tmp_root.bundle = items_seq_end.bundle AND interm_res_items_tmp_root.seq_end_id = items_seq_end.item_id ",
@@ -138,11 +140,11 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
       create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = timeItemsTableSuffix)
       
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_", timeItemsTableSuffix, " ",
-                                                     "SELECT db_uuid, session, bundle, item_id AS seq_start_id, item_id AS seq_end_id, 1 AS seq_len, level  FROM ", itemsTableName, " ",
+                                                     "SELECT db_uuid, session, bundle, item_id AS seq_start_id, item_id AS seq_end_id, 1 AS seq_len, level, seq_idx AS start_seq_idx, seq_idx AS end_seq_idx  FROM ", itemsTableName, " ",
                                                      "WHERE db_uuid ='", emuDBhandle$UUID, "' AND level = '", lnwt, "' ",
                                                      "AND session IN (SELECT session FROM interm_res_items_tmp_root) ",
-                                                     "AND bundle IN (SELECT bundle FROM interm_res_items_tmp_root) "
-      ))
+                                                     "AND bundle IN (SELECT bundle FROM interm_res_items_tmp_root) ",
+                                                     ""))
       
       
       query_databaseHier(emuDBhandle, firstLevelName = lnwt, secondLevelName = attrDefLn, leftTableSuffix = timeItemsTableSuffix, rightTableSuffix = "root", filteredTablesSuffix) # result written to lr_exp_res_tmp table
@@ -166,7 +168,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
                                                      "END AS end, ",
                                                      "lr_exp_res_tmp.session || ':' || lr_exp_res_tmp.bundle AS utts, ",
                                                      "lr_exp_res_tmp.db_uuid, lr_exp_res_tmp.session, lr_exp_res_tmp.bundle, lr_exp_res_tmp.r_seq_start_id AS start_item_id, lr_exp_res_tmp.r_seq_end_id AS end_item_id, ",
-                                                     "'", resultAttrDef, "' AS level, '", ld$type, "' AS type, ",
+                                                     "'", resultAttrDef, "' AS level, lr_exp_res_tmp.r_seq_start_seq_idx AS start_item_seq_idx, lr_exp_res_tmp.r_seq_end_seq_idx AS end_item_seq_idx, '", ld$type, "' AS type, ",
                                                      "min(itl.sample_start + 0) AS sample_start, max(itr.sample_start + itr.sample_dur) AS sample_end, itl.sample_rate AS sample_rate ",
                                                      "FROM interm_res_items_tmp_root AS irit, lr_exp_res_tmp, ", itemsTableName, " AS itl, ", itemsTableName, " AS itr ", # items table left & right
                                                      "WHERE irit.db_uuid = lr_exp_res_tmp.db_uuid AND irit.session = lr_exp_res_tmp.session AND irit.bundle = lr_exp_res_tmp.bundle AND irit.seq_start_id = lr_exp_res_tmp.r_seq_start_id AND irit.seq_end_id = lr_exp_res_tmp.r_seq_end_id ",
@@ -182,8 +184,8 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
     DBI::dbGetQuery(emuDBhandle$connection, paste0("CREATE INDEX IF NOT EXISTS emursegs_tmp_idx ON emursegs_tmp(db_uuid, session, bundle, start_item_id, end_item_id)"))
     
     seglist = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT GROUP_CONCAT(labels.label, '->') AS labels, emursegs_tmp.start, emursegs_tmp.end, emursegs_tmp.utts, emursegs_tmp.db_uuid, emursegs_tmp.session, emursegs_tmp.bundle, ",
-                                                             "emursegs_tmp.start_item_id AS startItemID, emursegs_tmp.end_item_id AS endItemID, emursegs_tmp.level, ",
-                                                             "emursegs_tmp.type, emursegs_tmp.sample_start AS sampleStart, emursegs_tmp.sample_end AS sampleEnd, emursegs_tmp.sample_rate AS sampleRate ",
+                                                             "emursegs_tmp.start_item_id, emursegs_tmp.end_item_id, emursegs_tmp.level, emursegs_tmp.start_item_seq_idx, emursegs_tmp.end_item_seq_idx, ",
+                                                             "emursegs_tmp.type, emursegs_tmp.sample_start, emursegs_tmp.sample_end, emursegs_tmp.sample_rate ",
                                                              "FROM emursegs_tmp, ", itemsTableName, " AS itl, ", itemsTableName, " AS itr, ", itemsTableName, " AS iseq, ", labelsTableName, " AS labels ", # items table left & right
                                                              "WHERE emursegs_tmp.db_uuid = itl.db_uuid AND emursegs_tmp.session = itl.session AND emursegs_tmp.bundle = itl.bundle AND emursegs_tmp.start_item_id = itl.item_id ",
                                                              "AND emursegs_tmp.db_uuid = itr.db_uuid AND emursegs_tmp.session = itr.session AND emursegs_tmp.bundle = itr.bundle AND emursegs_tmp.end_item_id = itr.item_id ",
@@ -193,14 +195,13 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
                                                              "AND labels.label_idx = ", labelIdx, " ",
                                                              "GROUP BY emursegs_tmp.rowid, emursegs_tmp.db_uuid, emursegs_tmp.session, emursegs_tmp.bundle, emursegs_tmp.start_item_id, emursegs_tmp.end_item_id", # once again using rowid to preserve duplicates (requery only)
                                                              ""))
-    
     # drop temp table
     DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS emursegs_tmp"))
   }else{
     seglist = data.frame(labels = character(), start = numeric(), end = numeric(), utts = character(),
                          db_uuid = character(), session = character(), bundle = character(),
-                         startItemID = numeric(), endItemID = numeric(), level = character(),
-                         type = character(), sampleStart = numeric(), sampleEnd = numeric(), sampleRate = numeric(),
+                         start_item_id = numeric(), end_item_id = numeric(), level = character(),
+                         type = character(), sample_start = numeric(), sample_end = numeric(), sample_rate = numeric(),
                          stringsAsFactors = F)
   }
   # set emusegs type attribute, default 'segment'

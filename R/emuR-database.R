@@ -90,7 +90,8 @@ database.DDL.emuDB_labels = 'CREATE TABLE labels (
   FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
 );'
 
-database.DDL.emuDB_label_nameLabel_idx = 'CREATE INDEX IF NOT EXISTS label_nameLabel_idx ON labels(item_id, bundle, session, db_uuid)'
+database.DDL.emuDB_label_nameLabel_idx = 'CREATE INDEX IF NOT EXISTS label_nameLabel_idx ON labels(db_uuid, bundle, session, item_id)'
+# database.DDL.emuDB_label_nameLabel_idx2 = "CREATE INDEX IF NOT EXISTS label_nameLabel_idx2 ON labels(db_uuid, session, bundle, item_id, name, label)"
 
 database.DDL.emuDB_links = 'CREATE TABLE links (
   db_uuid VARCHAR(36) NOT NULL,
@@ -150,6 +151,7 @@ create_emuDBindicesDBI<-function(emuDBhandle){
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_links_both_ids_idx)
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_links_to_id_idx)
   DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_label_nameLabel_idx)
+  # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_label_nameLabel_idx2)
 }
 
 
@@ -283,6 +285,7 @@ load_bundleAnnotDFsDBI <- function(emuDBhandle, sessionName, bundleName){
   
   return(list(name = bundleName, annotates = annotates, sampleRate = sampleRate, items = items, links = links, labels = labels))
 }
+
 
 
 remove_bundleAnnotDBI<-function(emuDBhandle, sessionName, bundleName){
