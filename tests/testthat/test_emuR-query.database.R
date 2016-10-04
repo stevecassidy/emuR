@@ -453,12 +453,7 @@ test_that("Load example database ae",{
   # 
   test_that("calcTimes works correctly",{
     skip_on_cran()
-    sl = query(ae, "[Syllable == W]")
-    sl = query(ae, "[Syllable == W]", timeRefSegmentLevel = "Phonetic")
-    duplicate_level(ae, "Phonetic", "Phonetic2", verbose = F)
-    expect_error(query(ae, "[Syllable == W]"), regexp = "The level is linked")
-    expect_error(query(ae, "[Syllable == W]", timeRefSegmentLevel = "badLevelName"), regexp = "Cannot resolve time information for result level")
-    query(ae, "[Syllable == W]", timeRefSegmentLevel = "Phonetic2")
+    sl = query(ae, "[Syllable == W]", calcTimes = F)
   })
   
   
