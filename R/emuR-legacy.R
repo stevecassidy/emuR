@@ -610,99 +610,107 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerate(),verbo
   
   
   bundlesCount=length(legacyBundleIDsList)
-
-  us=1:bundlesCount
-  if(verbose){
-    cat("INFO: Converting legacy EMU database containing",bundlesCount,"bundles...\n")
-    pb=utils::txtProgressBar(min=0,max=bundlesCount+2,initial=progress,style=3)
-    
-    utils::setTxtProgressBar(pb,progress)
-  }
-  linkDefsHashed=build_hashedLinkDefs(dbConfig[['linkDefinitions']])
-  for(ui in us){
-    legacyBundleID=legacyBundleIDsList[[ui]]
-    newBundleId=convert_legacyBundleId(legacyBundleID)
-    sessionName=newBundleId[1]
-    bundleName=newBundleId[2]
-    sDir=paste0(sessionName,session.suffix)
-    sfp=file.path(pp,sDir)
-    if(!file.exists(sfp)){
-      dir.create(sfp)
-    }
-    ptrFilePath=get_legacyFilePath(legacyBasePath,primaryBasePath,legacyBundleID,primaryFileExtension)
-
-    ptrFileBasename=basename(ptrFilePath)
-
-    cutLen=str_length(primaryFileExtension)+1L
-    cutPos=str_length(ptrFileBasename)-cutLen
-
-    bundle=load_annotationForLegacyBundle(dbConfig,legacyBundleID,legacyBasePath,encoding=mergedOptions[['sourceFileTextEncoding']])
-    bundle=remove_redundantBundleLinks(linkDefsHashed,bundle)
-
-    bDir=paste0(bundle[['name']],bundle.dir.suffix)
-    bfp=file.path(sfp,bDir)
-    dir.create(bfp)
-    # create new list that only contains relevant infos
-    bp = list(name = bundle$name, annotates = bundle$annotates, 
-              sampleRate = bundle$sampleRate, levels = bundle$levels, links = bundle$links)
-    # remove sample rate entries
-    for(i in 1:length(bp$levels)){
-      bp$levels[[i]]$sampleRate = NULL
-    }
-    # remove level names
-    names(bp$levels) = NULL
-    
-    # metadata (annotations)
-    ban=str_c(bundle[['name']],bundle.annotation.suffix,'.json')
-    baJSONPath=file.path(bfp,ban)
-    pbpJSON=jsonlite::toJSON(bp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-    writeLines(pbpJSON,baJSONPath)
-    
-    
-    for(sf in bundle[['signalpaths']]){
-      #cat("Signalpath: ",sf,"\n")
-      bn=basename(sf)
-      nsfp=file.path(bfp,bn)
-      # check if SSFF type
-      isSSFFFile=FALSE
-      for(ssffTrDef in dbConfig[['ssffTrackDefinitions']]){
-        ssffTrFileExt=ssffTrDef[['fileExtension']]
-        fileExtPatt=paste0('[.]',ssffTrFileExt,'$')
-        if(length(grep(fileExtPatt,sf))==1){
-          isSSFFFile=TRUE
-          break
-        }
-      }
-      if(file.exists(sf)){
-        if(mergedOptions[['symbolicLinkSignalFiles']]){
-          file.symlink(from=sf,to=nsfp)
-        }else if(mergedOptions[['rewriteSSFFTracks']] && isSSFFFile){
-          # is SSFF track
-          # read/write instead of copy to get rid of big endian encoded SSFF files (SPARC)
-          pfAssp=read.AsspDataObj(sf)
-          write.AsspDataObj(pfAssp,nsfp)
-        }else{
-          # media file (likely a wav file)
-          file.copy(from=sf,to=nsfp)
-        }
-      }else{
-        if(!mergedOptions[['ignoreMissingSSFFTrackFiles']]){
-          stop("SSFF track file :'",sf,"' does not exist!")
-        }
-      }
-    }
-    bundle[['levels']]=NULL
-    bundle[['links']]=NULL
-    
-    bName=bundle[['name']]
-    
-    progress=progress+1L
+  if(bundlesCount==0){
+    # This is likely an error in the template file or folder structure, inform the user
+    cat("WARNING: No bundles found!\n(Search pattern for primary files was: ",primaryBasePath,.Platform$file.sep,primaryFileSuffixPattern,")",sep='')
+  }else{
+    us=1:bundlesCount
     if(verbose){
+      cat("INFO: Converting legacy EMU database containing",bundlesCount,"bundles...\n")
+      pb=utils::txtProgressBar(min=0,max=bundlesCount+2,initial=progress,style=3)
+      
       utils::setTxtProgressBar(pb,progress)
     }
-  }
-  if(verbose){
-    utils::setTxtProgressBar(pb,progress)
-    cat("\n")
+    linkDefsHashed=build_hashedLinkDefs(dbConfig[['linkDefinitions']])
+    for(ui in us){
+      legacyBundleID=legacyBundleIDsList[[ui]]
+      newBundleId=convert_legacyBundleId(legacyBundleID)
+      sessionName=newBundleId[1]
+      bundleName=newBundleId[2]
+      sDir=paste0(sessionName,session.suffix)
+      sfp=file.path(pp,sDir)
+      if(!file.exists(sfp)){
+        dir.create(sfp)
+      }
+      ptrFilePath=get_legacyFilePath(legacyBasePath,primaryBasePath,legacyBundleID,primaryFileExtension)
+      
+      ptrFileBasename=basename(ptrFilePath)
+      
+      cutLen=str_length(primaryFileExtension)+1L
+      cutPos=str_length(ptrFileBasename)-cutLen
+      
+      bundle=load_annotationForLegacyBundle(dbConfig,legacyBundleID,legacyBasePath,encoding=mergedOptions[['sourceFileTextEncoding']])
+      bundle=remove_redundantBundleLinks(linkDefsHashed,bundle)
+      
+      bDir=paste0(bundle[['name']],bundle.dir.suffix)
+      bfp=file.path(sfp,bDir)
+      dir.create(bfp)
+      # create new list that only contains relevant infos
+      bp = list(name = bundle$name, annotates = bundle$annotates, 
+                sampleRate = bundle$sampleRate, levels = bundle$levels, links = bundle$links)
+      # remove sample rate entries
+      bLvlCnt=length(bp$levels)
+      if(bLvlCnt>0){
+        for(i in 1:bLvlCnt){
+          bp$levels[[i]]$sampleRate = NULL
+        }
+      }
+      # remove level names
+      names(bp$levels) = NULL
+      
+      # metadata (annotations)
+      ban=str_c(bundle[['name']],bundle.annotation.suffix,'.json')
+      baJSONPath=file.path(bfp,ban)
+      pbpJSON=jsonlite::toJSON(bp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+      writeLines(pbpJSON,baJSONPath)
+      
+      
+      for(sf in bundle[['signalpaths']]){
+        #cat("Signalpath: ",sf,"\n")
+        bn=basename(sf)
+        nsfp=file.path(bfp,bn)
+        # check if SSFF type
+        isSSFFFile=FALSE
+        for(ssffTrDef in dbConfig[['ssffTrackDefinitions']]){
+          ssffTrFileExt=ssffTrDef[['fileExtension']]
+          fileExtPatt=paste0('[.]',ssffTrFileExt,'$')
+          if(length(grep(fileExtPatt,sf))==1){
+            isSSFFFile=TRUE
+            break
+          }
+        }
+        if(file.exists(sf)){
+          if(mergedOptions[['symbolicLinkSignalFiles']]){
+            file.symlink(from=sf,to=nsfp)
+          }else if(mergedOptions[['rewriteSSFFTracks']] && isSSFFFile){
+            # is SSFF track
+            # read/write instead of copy to get rid of big endian encoded SSFF files (SPARC)
+            pfAssp=read.AsspDataObj(sf)
+            write.AsspDataObj(pfAssp,nsfp)
+          }else{
+            # media file (likely a wav file)
+            file.copy(from=sf,to=nsfp)
+          }
+        }else{
+          if(!mergedOptions[['ignoreMissingSSFFTrackFiles']]){
+            stop("SSFF track file :'",sf,"' does not exist!")
+          }
+        }
+      }
+      bundle[['levels']]=NULL
+      bundle[['links']]=NULL
+      
+      bName=bundle[['name']]
+      
+      progress=progress+1L
+      if(verbose){
+        utils::setTxtProgressBar(pb,progress)
+      }
+    }
+    
+    if(verbose){
+      utils::setTxtProgressBar(pb,progress)
+      cat("\n")
+    }
   }
 }
