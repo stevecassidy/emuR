@@ -1,4 +1,4 @@
-# emuR 0.1.9.9013
+# emuR 0.1.9.9014
 
 ## bug fixes
 
@@ -27,6 +27,7 @@
 * can now deal with read only emuDBs by copying the cache to tempdir() and making it writable for the user
 * added start\_item\_seq\_idx and end\_item\_seq\_idx to emuRsegs object
 * added start\_item\_seq\_idx and end\_item\_seq\_idx type values to all intermediate result tables
+* added optional function to reduce hierarchical query results to left and right most children only (large performance gain on calcTimes = T)
 
 # emuR 0.1.9
 

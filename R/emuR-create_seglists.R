@@ -12,7 +12,6 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
   
   itemsTableName = paste0("items", filteredTablesSuffix)
   labelsTableName = paste0("labels", filteredTablesSuffix)
-  
   projectionItemsN = 0 
   if(DBI::dbExistsTable(emuDBhandle$connection, "interm_res_proj_items_tmp_root")){
     projectionItemsN = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM interm_res_proj_items_tmp_root"))$n
@@ -148,7 +147,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
                                                      ""))
       
       
-      query_databaseHier(emuDBhandle, firstLevelName = lnwt, secondLevelName = attrDefLn, leftTableSuffix = timeItemsTableSuffix, rightTableSuffix = "root", filteredTablesSuffix) # result written to lr_exp_res_tmp table
+      query_databaseHier(emuDBhandle, firstLevelName = lnwt, secondLevelName = attrDefLn, leftTableSuffix = timeItemsTableSuffix, rightTableSuffix = "root", filteredTablesSuffix, minMaxSeqIdxLeafOnly = F) # result written to lr_exp_res_tmp table
       
       # calculate left and right times and store in tmp table
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO emursegs_tmp ",

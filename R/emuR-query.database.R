@@ -78,10 +78,13 @@ create_intermResTmpQueryTablesDBI <- function(emuDBhandle, suffix = "root"){
                                                  "level TEXT,",
                                                  "seq_start_seq_idx INTEGER,",
                                                  "seq_end_seq_idx INTEGER",
-                                                 # "PRIMARY KEY (db_uuid, session, bundle, seq_start_id, seq_end_id)",
+                                                 #"PRIMARY KEY (db_uuid, session, bundle, seq_start_id, seq_end_id)",
                                                  ");")
   
-  database.DDL.emuDB_intermRes_itemsTmp_idx = paste0("CREATE INDEX interm_res_items_tmp_", suffix, "_idx ON interm_res_items_tmp_", suffix, "(db_uuid, session, bundle, seq_end_id)")
+  database.DDL.emuDB_intermRes_itemsTmp_idx1 = paste0("CREATE INDEX interm_res_items_tmp_", suffix, "_idx1 ON interm_res_items_tmp_", suffix, "(db_uuid, session, bundle, seq_start_id, seq_end_id)")
+  database.DDL.emuDB_intermRes_itemsTmp_idx2 = paste0("CREATE INDEX interm_res_items_tmp_", suffix, "_idx2 ON interm_res_items_tmp_", suffix, "(db_uuid, session, bundle, seq_end_id)")
+  database.DDL.emuDB_intermRes_itemsTmp_idx3 = paste0("CREATE INDEX interm_res_items_tmp_", suffix, "_idx3 ON interm_res_items_tmp_", suffix, "(db_uuid, session, bundle, level, seq_start_seq_idx, seq_end_seq_idx)")
+  database.DDL.emuDB_intermRes_itemsTmp_idx4 = paste0("CREATE INDEX interm_res_items_tmp_", suffix, "_idx4 ON interm_res_items_tmp_", suffix, "(db_uuid, session, bundle, level, seq_end_seq_idx)")
   
   database.DDL.emuDB_intermRes_metaInfosTmp = paste0("CREATE TEMP TABLE interm_res_meta_infos_tmp_", suffix, " (",
                                                      "result_level TEXT,",
@@ -109,7 +112,10 @@ create_intermResTmpQueryTablesDBI <- function(emuDBhandle, suffix = "root"){
   
   if(!DBI::dbExistsTable(emuDBhandle$connection, paste0("interm_res_items_tmp_", suffix))){
     DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_itemsTmp)
-    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_itemsTmp_idx)
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_itemsTmp_idx1)
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_itemsTmp_idx2)
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_itemsTmp_idx3)
+    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_intermRes_itemsTmp_idx4)
   }else{
     DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM interm_res_items_tmp_", suffix))
   }
@@ -220,7 +226,6 @@ query_labels <- function(emuDBhandle, levelName, intermResTableSuffix, condition
     
   }else if(opr=='=~'){
     for(value in values){
-      
       sqlStr = paste0("SELECT it.db_uuid, it.session, it.bundle, it.item_id AS seq_start_id, it.item_id AS seq_end_id, 1 AS seq_len,'", levelName, "' AS level, it.seq_idx AS seq_start_seq_idx, it.seq_idx AS seq_end_seq_idx, lt.label ",
                       "FROM ", itemTableName, " AS it, ", labelTableName, " AS lt ",
                       "WHERE it.db_uuid = lt.db_uuid AND it.session = lt.session AND it.bundle = lt.bundle AND it.item_id = lt.item_id ",
@@ -230,6 +235,7 @@ query_labels <- function(emuDBhandle, levelName, intermResTableSuffix, condition
       ssl = emuR_regexprl(value,ldf[['label']])
       res = ldf[ssl,]
       DBI::dbWriteTable(emuDBhandle$connection, paste0("interm_res_items_tmp_", intermResTableSuffix), subset(res, select = -label), append = T, row.names = F) # label column is ignored by DBI::dbWriteTable
+      
     }
   }else if(opr=='!~'){
     for(value in values){
@@ -739,6 +745,7 @@ query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTableSuffix, filteredT
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labels_filtered_subset_tmp ",
                                                      "SELECT DISTINCT l.* FROM labels", filteredTablesSuffix, " l, interm_res_items_tmp_", intermResTableSuffix, " imr ",
                                                      "WHERE l.db_uuid=imr.db_uuid AND l.session=imr.session AND l.bundle=imr.bundle AND l.item_id=imr.seq_start_id"))
+      
       useSubsets = TRUE
       
     }
@@ -748,7 +755,38 @@ query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTableSuffix, filteredT
   DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE interm_res_meta_infos_tmp_", intermResTableSuffix, " SET result_level = '", resultLevel, "'"))
 }
 
-query_databaseHier <- function(emuDBhandle, firstLevelName, secondLevelName, leftTableSuffix, rightTableSuffix, filteredTablesSuffix) {
+# reduces the results stored in hier_left/right_trapeze_interm_res tables to min and max seq_idx of leafs
+reduce_hierTrapezeIntermRes_minMaxSeqIdx <- function(emuDBhandle){
+  # reduce hier_left_trapeze_interm_res_tmp to leftest leaf per parent group
+  hltirt_tmp = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT hltirt1.* ",
+                                                              "FROM  hier_left_trapeze_interm_res_tmp AS hltirt1 ",
+                                                              "LEFT OUTER JOIN hier_left_trapeze_interm_res_tmp AS hltirt2 ",
+                                                              " ON hltirt1.db_uuid = hltirt2.db_uuid AND hltirt1.session = hltirt2.session AND hltirt1.bundle = hltirt2.bundle AND hltirt1.seq_start_id = hltirt2.seq_start_id AND hltirt1.seq_end_id = hltirt2.seq_end_id ",
+                                                              " AND hltirt1.seq_start_seq_idx_leaf > hltirt2.seq_start_seq_idx_leaf ",
+                                                              "WHERE hltirt2.db_uuid IS NULL",
+                                                              ""))
+  
+  DBI::dbGetQuery(emuDBhandle$connection, "DELETE FROM hier_left_trapeze_interm_res_tmp")
+  
+  DBI::dbWriteTable(emuDBhandle$connection, "hier_left_trapeze_interm_res_tmp", hltirt_tmp, append = T, row.names = F)
+  
+  # reduce hier_right_trapeze_interm_res_tmp to rightest leaf per parent group
+  hrtirt_tmp = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT * ",
+                                                              "FROM  hier_right_trapeze_interm_res_tmp AS hrtirt1 ",
+                                                              "LEFT OUTER JOIN hier_right_trapeze_interm_res_tmp AS hrtirt2 ",
+                                                              " ON hrtirt1.db_uuid = hrtirt2.db_uuid AND hrtirt1.session = hrtirt2.session AND hrtirt1.bundle = hrtirt2.bundle AND hrtirt1.seq_start_id = hrtirt2.seq_start_id AND hrtirt1.seq_end_id = hrtirt2.seq_end_id ",
+                                                              " AND hrtirt1.seq_end_seq_idx_leaf < hrtirt2.seq_end_seq_idx_leaf ",
+                                                              "WHERE hrtirt2.db_uuid IS NULL",
+                                                              ""))
+  
+  DBI::dbGetQuery(emuDBhandle$connection, "DELETE FROM hier_right_trapeze_interm_res_tmp")
+  
+  DBI::dbWriteTable(emuDBhandle$connection, "hier_right_trapeze_interm_res_tmp", hltirt_tmp, append = T, row.names = F)
+  
+}
+
+
+query_databaseHier <- function(emuDBhandle, firstLevelName, secondLevelName, leftTableSuffix, rightTableSuffix, filteredTablesSuffix, minMaxSeqIdxLeafOnly = F) {
   
   # create temp tables for hier query (should maybe be moved to external functions)
   hier_left_trapeze_interm_res_tmp = paste0("CREATE TEMP TABLE IF NOT EXISTS hier_left_trapeze_interm_res_tmp (",
@@ -840,7 +878,7 @@ query_databaseHier <- function(emuDBhandle, firstLevelName, secondLevelName, lef
         # start at bottom of connectHierPath
         # walk up left side of trapeze
         DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO hier_left_trapeze_interm_res_tmp ",
-                                                       "SELECT lstn.db_uuid, lstn.session, lstn.bundle, ift.item_id AS seq_start_id, ift.item_id AS seq_end_id, 1 AS seq_len, ift.level, ift.seq_idx AS seq_start_seq_idx, ift.seq_idx AS seq_end_seq_idx, ",
+                                                       "SELECT DISTINCT lstn.db_uuid, lstn.session, lstn.bundle, ift.item_id AS seq_start_id, ift.item_id AS seq_end_id, 1 AS seq_len, ift.level, ift.seq_idx AS seq_start_seq_idx, ift.seq_idx AS seq_end_seq_idx, ",
                                                        "lstn.db_uuid AS db_uuid_leaf, lstn.session AS session_leaf, lstn.bundle AS bundle_leaf, lstn.seq_start_id AS seq_start_id_leaf, lstn.seq_end_id AS seq_end_id_leaf, lstn.seq_len AS seq_len_leaf, lstn.level AS level_leaf, lstn.seq_start_seq_idx AS seq_start_seq_idx, lstn.seq_end_seq_idx AS seq_end_seq_idx ",
                                                        "FROM ", leafSideTableName, " AS lstn, links", filteredTablesSuffix, " AS lft, items", filteredTablesSuffix, " AS ift ",
                                                        "WHERE lstn.db_uuid = lft.db_uuid AND lstn.session = lft.session AND lstn.bundle = lft.bundle AND lstn.seq_start_id = lft.to_id ",
@@ -849,12 +887,16 @@ query_databaseHier <- function(emuDBhandle, firstLevelName, secondLevelName, lef
         
         # walk up right side of trapeze
         DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO hier_right_trapeze_interm_res_tmp ",
-                                                       "SELECT lstn.db_uuid, lstn.session, lstn.bundle, ift.item_id AS seq_start_id, ift.item_id AS seq_end_id, 1 AS seq_len, ift.level, ift.seq_idx AS seq_start_seq_idx, ift.seq_idx AS seq_end_seq_idx, ",
+                                                       "SELECT DISTINCT lstn.db_uuid, lstn.session, lstn.bundle, ift.item_id AS seq_start_id, ift.item_id AS seq_end_id, 1 AS seq_len, ift.level, ift.seq_idx AS seq_start_seq_idx, ift.seq_idx AS seq_end_seq_idx, ",
                                                        "lstn.db_uuid AS db_uuid_leaf, lstn.session AS session_leaf, lstn.bundle AS bundle_leaf, lstn.seq_start_id AS seq_start_id_leaf, lstn.seq_end_id AS seq_end_id_leaf, lstn.seq_len AS seq_len_leaf, lstn.level AS level_leaf, lstn.seq_start_seq_idx AS seq_start_seq_idx, lstn.seq_end_seq_idx AS seq_end_seq_idx  ",
                                                        "FROM ", leafSideTableName, " AS lstn, links", filteredTablesSuffix, " AS lft, items", filteredTablesSuffix, " AS ift ",
                                                        "WHERE lstn.db_uuid = lft.db_uuid AND lstn.session = lft.session AND lstn.bundle = lft.bundle AND lstn.seq_end_id = lft.to_id ",
                                                        "AND lft.db_uuid = ift.db_uuid AND lft.session = ift.session AND lft.bundle = ift.bundle AND lft.from_id = ift.item_id",
                                                        ""))
+        
+        if(minMaxSeqIdxLeafOnly){
+          reduce_hierTrapezeIntermRes_minMaxSeqIdx(emuDBhandle)
+        }
         
       }else if(i != 1){
         
@@ -879,6 +921,10 @@ query_databaseHier <- function(emuDBhandle, firstLevelName, secondLevelName, lef
         
         DBI::dbWriteTable(emuDBhandle$connection, "hier_left_trapeze_interm_res_tmp", leftTrapezeTmp, append = T, row.names = F)
         DBI::dbWriteTable(emuDBhandle$connection, "hier_right_trapeze_interm_res_tmp", rightTrapezeTmp, append = T, row.names = F)
+        
+        if(minMaxSeqIdxLeafOnly){
+          reduce_hierTrapezeIntermRes_minMaxSeqIdx(emuDBhandle)
+        }
         
       }else{
         # at the top of the trapeze:
