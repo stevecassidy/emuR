@@ -5,7 +5,7 @@
 \title{Autobuild links between two levels using their time information}
 \usage{
 autobuild_linkFromTimes(emuDBhandle, superlevelName, sublevelName,
-  writeToFS = TRUE, convertSuperlevel = FALSE,
+  rewriteAllAnnots = TRUE, convertSuperlevel = FALSE,
   backupLevelAppendStr = "-autobuildBackup", verbose = TRUE)
 }
 \arguments{
@@ -15,7 +15,7 @@ autobuild_linkFromTimes(emuDBhandle, superlevelName, sublevelName,
 
 \item{sublevelName}{name of level to link to (link definition required in emuDB)}
 
-\item{writeToFS}{should changes be written to file system (_annot.json files) after completing autobuild process (intended for expert use only)}
+\item{rewriteAllAnnots}{should changes be written to file system (_annot.json files) after completing autobuild process (intended for expert use only)}
 
 \item{convertSuperlevel}{if set to TRUE a backup of the superlevel will be created and the actual
 superlevel will be converted to a level of type ITEM}

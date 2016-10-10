@@ -1,4 +1,4 @@
-# emuR 0.1.9.9015
+# emuR 0.1.9.9016
 
 ## bug fixes
 
@@ -6,6 +6,7 @@
 * fixed bad DBconfig gen on add_perspective
 * fixed list\_linkDefinitions() returning strings as factors
 * fixed bad error message when passing in ITEM levels to autobuild_links from times
+* fixed incorrect handling of DBconfig when writeToFS was set to FALSE (writeToFS is now called rewriteAllAnnots)
 
 ## new features / performance tweaks / improvements
 
