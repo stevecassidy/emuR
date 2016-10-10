@@ -18,7 +18,7 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
     stop("Argument hlbFilepath must not be NULL\n")
   }
   
-  # read
+  # read file contents
   if(is.null(encoding)){
     lines = try(readLines(hlbFilePath))
   }else{
@@ -54,6 +54,7 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
   for(lnr in 3:lineCount){
     line=lines[[lnr]]
     if(line==''){
+      # empty line marks beginning of new level 
       if(!is.null(currentTierName)){
         # look for already existing (labfile) tier
         tierExists=FALSE
@@ -182,11 +183,11 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
               
               ldAttrDef=NULL
               if(tk!=currentTierName){
-                # ALC db has not the same sequence of attributes in .tpl and .hlb files
+                # ALC db does not have the same sequence of attributes in .tpl and .hlb files
                 for(attrDef in td[['attributeDefinitions']]){
                   if(attrDef[['name']]==tk){
                     ldAttrDef=attrDef
-                    # create sequnece order of label names (keys) from HLB file 
+                    # create sequence order of label names (keys) from HLB file 
                     attrDefSeq=c(attrDefSeq,tk)
                     break
                   } 
