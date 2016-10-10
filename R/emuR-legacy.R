@@ -356,6 +356,13 @@ load_annotationForLegacyBundle=function(schema,legacyBundleID,basePath=NULL,enco
     
   }
   
+  # Initialize empty levels (see GitHub issue #127)
+  for( ld in schema[['levelDefinitions']]){
+    if(is.null(levels[[ld[['name']]]])){
+      levels[[ld[['name']]]] <- list(name=ld[['name']],type=ld[['type']],items=list())
+    }
+  }
+  
   bundleSampleRate=NULL
   for(l in levels){
     lvlSr=l[['sampleRate']]
