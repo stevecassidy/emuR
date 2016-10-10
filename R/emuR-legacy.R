@@ -274,7 +274,7 @@ load_annotationForLegacyBundle=function(schema,legacyBundleID,basePath=NULL,enco
   if(is.null(sampleRateReferenceFile)){
     stop("Could not determine media sample rate of bundle ID ",paste(legacyBundleID,collapse='_'),"\n")
   }else{
-    # TODO ASSP does not return good error messages if an IO error (not exist, permission dnied ,etc...) occurs
+    # TODO ASSP does not return good error messages if an IO error (not exist, permission denied ,etc...) occurs
     # TODO test file access first
     pfAssp=read.AsspDataObj(sampleRateReferenceFile,0,4000)
     sampleRate=attr(pfAssp,'sampleRate')
