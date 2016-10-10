@@ -215,7 +215,6 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE, calcTimes =
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType will be used)")
   }
-  
   if(nrow(seglist)==0){
     # empty seglist, return the empty list
     return(seglist)

@@ -64,7 +64,7 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
   }
   
   file_md5sums = tools::md5sum(allAnnotFps_onlyAnnots)
-  # browser()
+  
   files_sesBndlMd5DF = data.frame(session = bundles$session, name = bundles$name, md5_annot_json = file_md5sums, row.names = NULL, stringsAsFactors = F)
   cache_sesBndlMd5DF = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT session, name, md5_annot_json FROM bundle"))
   
