@@ -85,7 +85,8 @@ query(ae, "[Text !~ a.*]")
 ```
 
 
-**INFO: The above examples use three operators that are new to the EQL as of version 2. One beeing the "==" equal operator that has the same meaning as the "=" operator of the EQL1 (which is also still available) while providing a cleaner more precise syntax. The other two being the "=~" and "!~" which are the new matching and non-matching regular expression operators.**
+**INFO: The above examples use three operators that are new to the EQL as of version 2. One being the "==" equal operator that has the same meaning as the "=" operator of the EQL1 (which is also still available) while providing a cleaner more precise syntax. The other two being the "=~" and "!~" which are the new matching and non-matching regular expression operators. Further, if you wish to use parenthesis, blanks or characters that represent operands used by the EQL (see EBNF) as part of a label matching string (the string on the right hand side of one of the operands mentioned above), you must place this string in additional quotation marks. For example searching for the items containing the labels `O_&quot` on the Phonetic level could not be written as `"[Phonetic == O_&quot]"` but would have to be written either as `"[Phonetic == 'O_&quot']"` or `'[Phonetic == "O_&quot"]'` (notice the single vs the double outer quotation marks).**
+
 
 ## Sequence queries using the "->" sequence operator
 
@@ -107,7 +108,7 @@ query(ae, "[Phonetic == @ -> Phonetic == n]")
 query(ae, "[#Phonetic == @ -> Phonetic == n]")
 ```
 
-- **Q**: *Same as the first question but this time we are only interested in the ITEMs containing the label "I".*
+- **Q**: *Same as the first question but this time we are only interested in the ITEMs containing the label "n".*
 - **A**:
 ```{r results='hide', message=FALSE, warning=FALSE}
 # NOTE: all row entries in the resulting segment list have the start time of "n", the end time of "n" and their labels will also be "n"
@@ -123,7 +124,7 @@ Example **Q** & **A**'s:
 - **Q**: *What is the query to retrieve all sequences of ITEMs containing the labels "@", "n" and "s" on the "Phonetic" level?*
 - **A**:
 ```{r results='hide', message=FALSE, warning=FALSE}
-query(ae, "[[Phonetic == @ -> Phonetic == n ] -> Phonetic =~ s]")
+query(ae, "[[Phonetic == @ -> Phonetic == n ] -> Phonetic == s]")
 ```
 
 - **Q**: *What is the query to retrieve all sequences of ITEMs containing the labels "to", "offer" and "any" on the "Text" level?*
@@ -135,7 +136,7 @@ query(ae, "[[Text == to -> Text == offer ] -> Text == any]")
 - **Q**: *What is the query to retrieve all sequences of ITEMs containing labels "offer" followed by two arbitrary labels followed by "resistance"?*
 - **A**: ``
 ```{r results='hide', message=FALSE, warning=FALSE}
-query(ae, "[[[Text =~ offer -> Text =~ .*] -> Text =~ .* ] -> Text == resistance]")
+query(ae, "[[[Text == offer -> Text =~ .*] -> Text =~ .* ] -> Text == resistance]")
 ```
 
 **INFO: As the EQL1 didn't have a regular expression operator, users often resorted to using queries such as "[Phonetic != XXX]" (where XXX is a label that was not part of the label set of the "Phonetic" level) to match every label on the "Phonetic" level. Although this is still possible in the EQL2, we strongly recommend using regular expressions as they provide a much clearer and preciser syntax and are less error prone.**
@@ -143,7 +144,13 @@ query(ae, "[[[Text =~ offer -> Text =~ .*] -> Text =~ .* ] -> Text == resistance
 
 ## Conjunction operator &
 
-The syntax of a query string using the conjunction operator can schematically be written as: `"[L == A & L == B & L == C & L == D & ... & L == N]"` where all "A" ITEMs on level "L" also have the properties "B", "C", "D", ..., "N". Same as with the sequence operator all expressions must be on the same level (parallel attributeDefinitions of the same level may also be chosen).
+The syntax of a query string using the conjunction operator can schematically be written as: `"[L == A & L_a2 == B & L_a3 == C & L_a4 == D & ... & L_an == N]"` where ITEMs on level "L" have the label "A" (technically belonging to the first attribute of that level i.e. L_a1, which per default has the same name as it's level) also have the attributes "B", "C", "D", ..., "N". Same as with the sequence operator all expressions must be on the same level (i.e. parallel attributesDefinitions of the same level indicated by the `a2 - an` may to be chosen).
+
+The conjunction operator is used to combine query conditions on the same level. This makes sense in two cases:
+
+1. to combine different attributes of the same level: `"[phonetic == l & sonorant == T]"` when 'sonorant' is an additional attribute of level 'phonetic'.
+2. To combine a basic queries with a function (see sections Position and Count below): `"[phonetic == l & Start(word, phonetic) == 1]"`
+
 
 Example **Q** & **A**'s:
 
