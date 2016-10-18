@@ -5,7 +5,7 @@
 \title{Serve EMU database to EMU-webApp}
 \usage{
 serve(emuDBhandle, sessionPattern = ".*", bundlePattern = ".*",
-  host = "127.0.0.1", port = 17890,
+  seglist = NULL, host = "127.0.0.1", port = 17890,
   autoOpenURL = "http://ips-lmu.github.io/EMU-webApp/?autoConnect=true",
   debug = FALSE, debugLevel = 0)
 }
@@ -15,6 +15,8 @@ serve(emuDBhandle, sessionPattern = ".*", bundlePattern = ".*",
 \item{sessionPattern}{A regular expression pattern matching session names to be served}
 
 \item{bundlePattern}{A regular expression pattern matching bundle names to be served}
+
+\item{seglist}{segment list to use for times anchors and session + bunde restriction (type: \link{emuRsegs})}
 
 \item{host}{host IP to listen to (default: 127.0.0.1  (localhost))}
 

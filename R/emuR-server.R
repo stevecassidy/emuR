@@ -42,6 +42,7 @@ setServerHandle <- function(sh) {
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param sessionPattern A regular expression pattern matching session names to be served
 ##' @param bundlePattern A regular expression pattern matching bundle names to be served
+##' @param seglist segment list to use for times anchors and session + bunde restriction (type: \link{emuRsegs})
 ##' @param host host IP to listen to (default: 127.0.0.1  (localhost))
 ##' @param port the port number to listen on (default: 17890)
 ##' @param autoOpenURL URL passed to \code{\link{browseURL}} function. If NULL or an empty string are passed in
@@ -59,7 +60,7 @@ setServerHandle <- function(sh) {
 ##' serve(myDb)
 ##' }
 ##' 
-serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.0.0.1',port=17890, autoOpenURL = "http://ips-lmu.github.io/EMU-webApp/?autoConnect=true",  debug=FALSE,debugLevel=0){
+serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*', seglist = NULL  ,host='127.0.0.1', port=17890, autoOpenURL = "http://ips-lmu.github.io/EMU-webApp/?autoConnect=true",  debug=FALSE,debugLevel=0){
   if(debug && debugLevel==0){
     debugLevel=2
   }
@@ -67,8 +68,13 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.
   emuDBserverRunning=FALSE
   bundleCount=0
   DBconfig = load_DBconfig(emuDBhandle)
-
-  allBundlesDf=list_bundles(emuDBhandle)
+  if(is.null(seglist)){
+    allBundlesDf=list_bundles(emuDBhandle)
+  }else{
+    tmp = data.frame(session = seglist$session, bundle = seglist$bundle, stringsAsFactors = F)
+    allBundlesDf=unique(tmp)
+  }
+  
   bundlesDf=allBundlesDf
   if(!is.null(sessionPattern) && sessionPattern!='.*'){
     ssl=emuR_regexprl(sessionPattern,bundlesDf[['session']])
@@ -186,10 +192,22 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*',host='127.
         
         
       }else if(jr$type == 'GETBUNDLELIST'){
-        
         response=list(status=list(type='SUCCESS'),callbackID=jr$callbackID,dataType='uttList',data=bundlesDf)
+        # create time anchors
+        if(!is.null(seglist)){
+          dataWithTimeAnchors = list()
+          for(i in 1:nrow(response$data)){
+            sesBool = response$data[i,]$session == seglist$session 
+            bndlBool = response$data[i,]$bundle == seglist$bundle
+            dataWithTimeAnchors[[i]] = list(session = response$data[i,]$session, 
+                                            name = response$data[i,]$bundle,
+                                            timeAnchors = data.frame(sample_start = seglist[sesBool & bndlBool,]$sample_start,
+                                                                     sample_end = seglist[sesBool & bndlBool,]$sample_end))
+            
+          }
+          response$data = dataWithTimeAnchors
+        }
         responseJSON=jsonlite::toJSON(response,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-        
         if(debugLevel >= 5)cat(responseJSON,"\n")
         result=ws$send(responseJSON)
         if(debugLevel >= 2){
