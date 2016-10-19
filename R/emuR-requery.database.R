@@ -338,3 +338,4 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE, calcTimes =
     return(trSl)
   }
 }
+
