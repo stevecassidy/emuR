@@ -298,6 +298,142 @@ resample_annots <- function(emuDBhandle, oldSampleRate, newSampleRate, verbose =
   DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM items WHERE level = 'Tone'"))
 }
 
+##' Rename a level or attribute definition
+##'
+##' While renaming a level or attribute definition, emuR will (1) rewrite the
+##' levelDefinitions in DBconfig, (2) rewrite the linkDefinitions in DBconfig,
+##' (3) rewrite the perspectives in DBconfig, and (4) rewrite all _annot.json
+##' files. (4) May take quite a while, depending on the number of bundles in the
+##' database.
+##' 
+##' @param emuDBhandle emuDB handle object (see \link{load_emuDB})
+##' @param origAttrDef name of level/attribute definition in emuDB that is to be changed
+##' @param newAttrDef new name that shall be assigned to the level/attribute definition
+##' @param verbose if set to \code{TRUE}, more status messages are printed
+##'
+##' @export
+rename_attributeDefinition <- function(emuDBhandle, origAttrDef, newAttrDef, verbose = FALSE) {
+  
+  #############################
+  # check input parameters
+  
+  if(class(origAttrDef) != "character" | class(newAttrDef) != "character" | length(origAttrDef) != 1 | length(newAttrDef) != 1){
+    stop("origAttrDef and newAttrDef have to be character vectors with only one item!")  
+  }
+  
+  allAttrNames = get_allAttributeNames(emuDBhandle)
+  if(!origAttrDef %in% allAttrNames){
+    stop(paste0("Attribute definition: ", origAttrDef, " not found in emuDB! The available attribute definitions are: ", paste0(allAttrNames, collapse = "; ")))
+  }
+
+  if(newAttrDef %in% allAttrNames){
+    stop(paste0("Attribute definition: ", newAttrDef, " is already defined in emuDB! You need to specify unique names!"))
+  }
+  
+  #############################
+  # adjust DBconfig
+  
+  dbConfig = load_DBconfig(emuDBhandle)
+
+  
+  dbConfig$linkDefinitions = lapply (
+    dbConfig$linkDefinitions,
+    function (linkDef) {
+      if (linkDef$superlevelName == origAttrDef) {
+        linkDef$superlevelName = newAttrDef
+      }
+      if (linkDef$sublevelName == origAttrDef) {
+        linkDef$sublevelName = newAttrDef
+      }
+      
+      linkDef
+    }
+  )
+  
+  dbConfig$EMUwebAppConfig$perspectives = lapply (
+    dbConfig$EMUwebAppConfig$perspectives,
+    function (perspective) {
+      perspective$levelCanvases$order = lapply(
+        perspective$levelCanvases$order,
+        function (canvas) {
+          if (canvas == origAttrDef) {
+            newAttrDef
+          } else {
+            canvas
+          }
+        }
+      )
+      
+      ## @todo what about perspective$twoDimCanvases and perspectives$signalCanvases?
+      perspective
+    }
+  )
+  
+  dbConfig$levelDefinitions = lapply (
+    dbConfig$levelDefinitions,
+    
+    function (lvlDef) {
+      if (lvlDef$name == origAttrDef) {
+        lvlDef$name = newAttrDef
+        lvlDef$attributeDefinitions[[1]]$name = newAttrDef
+      } else {
+        lvlDef$attributeDefinitions = lapply(
+          lvlDef$attributeDefinitions,
+          function (attrDef) {
+            if (attrDef$name == origAttrDef) {
+              attrDef$name = newAttrDef
+            }
+            
+            attrDef
+          }
+        )
+      }
+      
+      # Return the (possibly modified) lvlDef so lapply knows the new value
+      lvlDef
+    }
+  )
+  
+
+  #
+  #############################
+  if(verbose){
+    cat("\n  INFO: creating temporary index...\n")
+  }
+
+  # create temp index
+  DBI::dbGetQuery(emuDBhandle$connection, paste0("CREATE INDEX IF NOT EXISTS level_rename_tmp_idx ON items(db_uuid, level)"))
+  
+
+  if(verbose){
+    cat("\n  INFO: renaming attribute definition\n")
+  }
+  
+  # transaction start
+  DBI::dbBegin(emuDBhandle$connection)
+  
+  DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE items SET level = '", newAttrDef, "' ",
+                                                 "WHERE db_uuid='", emuDBhandle$UUID, "' ",
+                                                 "AND level = '", origAttrDef, "'"))
+  
+  DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE labels SET name = '", newAttrDef, "' ",
+                                                 "WHERE db_uuid='", emuDBhandle$UUID, "' ",
+                                                 "AND name = '", origAttrDef, "'"))
+  
+  # transaction end
+  DBI::dbCommit(emuDBhandle$connection)
+
+  if(verbose){
+    cat("\n  INFO: removing temporary index...\n")
+  }  
+  # remove temp index
+  DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP INDEX IF EXISTS level_rename_tmp_idx"))
+  
+  store_DBconfig(emuDBhandle, dbConfig)
+  rewrite_allAnnots(emuDBhandle, verbose = verbose)
+}
+
+
 # FOR DEVELOPMENT
 # library('testthat')
 # test_file('tests/testthat/test_emuR-autoproc_annots.R')
