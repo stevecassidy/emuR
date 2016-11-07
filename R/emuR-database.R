@@ -457,7 +457,7 @@ rewrite_allAnnots <- function(emuDBhandle, verbose=TRUE){
     writeLines(annotJSONchar, annotFilePath)
     
     # (re-)calculate md5 sums 
-    newMD5sum = tools::md5sum(annotJSONfilePath)
+    newMD5sum = tools::md5sum(annotFilePath)
     DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE bundle SET md5_annot_json = '", newMD5sum, "' WHERE db_uuid ='", emuDBhandle$UUID, "' AND session='", bndl$session, "' AND name='", bndl$name, "'"))
 
     progress=progress+1L
