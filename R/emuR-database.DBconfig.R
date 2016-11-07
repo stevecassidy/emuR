@@ -357,12 +357,12 @@ remove_levelDefinition<-function(emuDBhandle, name, verbose = T){
 ##' As the only one of these operations, \code{rename_attributeDefinition} can
 ##' also be used to manipulate (i.e. rename) a level definition. It is therefore
 ##' not necessary to specify the name of the level that the attribute definition
-##' belongs to. While renaming a level or attribute definition, emuR will (1) rewrite the
-##' levelDefinitions in DBconfig, (2) rewrite the linkDefinitions in DBconfig,
-##' (3) rewrite the perspectives in DBconfig, (4) ..., and (5) rewrite all _annot.json
+##' belongs to. While renaming a level or attribute definition, emuR will
+##' (1) rewrite the levelDefinitions in DBconfig, (2) rewrite the
+##' linkDefinitions in DBconfig, (3) rewrite the perspectives in DBconfig,
+##' (4) rewrite the anagestConfig in DBconfig, and (5) rewrite all _annot.json
 ##' files. (5) May take quite a while, depending on the number of bundles in the
 ##' database.
-##' 
 ##' 
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param levelName name of level
@@ -523,10 +523,19 @@ rename_attributeDefinition <- function(emuDBhandle, origAttrDef, newAttrDef, ver
     dbConfig$levelDefinitions,
     
     function (lvlDef) {
+      # If lvlDef references the level to be renamed in its anagest config,
+      # adjust that
+      if (lvlDef$anagestConfig$autoLinkLevelName == origAttrDef) {
+        lvlDef$anagestConfig$autoLinkLevelName = newAttrDef
+      }
+      
+      # If lvlDef *is* the level to be renamed, adjust that
       if (lvlDef$name == origAttrDef) {
         lvlDef$name = newAttrDef
         lvlDef$attributeDefinitions[[1]]$name = newAttrDef
       } else {
+        # If lvlDef is not the level to be renamed, search lvlDef's attribute
+        # definitions. One of them may be the one to be renamed.
         lvlDef$attributeDefinitions = lapply(
           lvlDef$attributeDefinitions,
           function (attrDef) {
