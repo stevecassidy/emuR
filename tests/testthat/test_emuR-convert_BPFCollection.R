@@ -390,7 +390,7 @@ test_that("Correct call with necessary arguments",
             # Check that there is only one item (the utterance).
             expect_equal(sapply(dbAnnot$levels, function(x) length(x$items) > 0), c(T,F,F,F,F,F))
             
-            # Check that the utterance item has only nine labels (the utterance name + all the empty labels for the others (== "") ).
+            # Check that the utterance item has only nine labels (the utterance name + all the empty labels for the others).
             expect_equal(length(dbAnnot$levels[[1]]$items[[1]]$labels), 9)
             expect_equal(dbAnnot$levels[[1]]$items[[1]]$labels[[1]]$name, "Utterance")
             expect_equal(dbAnnot$levels[[1]]$items[[1]]$labels[[1]]$value, "msajc010")
