@@ -374,10 +374,10 @@ test_that("Correct call with necessary arguments",
             expect_equal(dbAnnot$levels[[5]]$items[[4]]$labels[[1]]$value, "@_end")
                                     
             # Check that labels on level 'ORT' are correct
-            expect_equal(sapply(dbAnnot$levels[[3]]$items[[2]]$labels, function(x) x$name), c("ABC", "XYZ"))
-            expect_equal(sapply(dbAnnot$levels[[3]]$items[[2]]$labels, function(x) x$value), c("ABC_label", "XYZ_label"))
-            expect_equal(sapply(dbAnnot$levels[[3]]$items[[3]]$labels, function(x) x$name), c("ORT"))
-            expect_equal(sapply(dbAnnot$levels[[3]]$items[[3]]$labels, function(x) x$value), c("friends"))
+            expect_equal(sapply(dbAnnot$levels[[3]]$items[[2]]$labels, function(x) x$name), c("ORT","ABC", "XYZ"))
+            expect_equal(sapply(dbAnnot$levels[[3]]$items[[2]]$labels, function(x) x$value), c("", "ABC_label", "XYZ_label"))
+            expect_equal(sapply(dbAnnot$levels[[3]]$items[[3]]$labels, function(x) x$name), c("ORT", "ABC", "XYZ"))
+            expect_equal(sapply(dbAnnot$levels[[3]]$items[[3]]$labels, function(x) x$value), c("friends", "", ""))
                                     
             # Check that the item on 'KAN' with the semicolon does not have an incoming link
             expect_true(all(unlist(sapply(dbAnnot$links, function(x) if(x$toID == 5) FALSE))))
