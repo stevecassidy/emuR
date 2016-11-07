@@ -219,6 +219,8 @@ store_DBconfig <- function(emuDBhandle, dbConfig, basePath = NULL){
 ##' Note that a level cannot be removed, if it contains instances of annotation items
 ##' or if it is linked to another level.
 ##' 
+##' Renaming a level definition can be done using \code{\link{rename_attributeDefinition}}.
+##' 
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param name name of level definition
 ##' @param type type of level definition ("SEGMENT","EVENT","ITEM")
@@ -403,7 +405,7 @@ NULL
 ##' @rdname AddListRenameRemoveAttributeDefinitions
 ##' @export
 add_attributeDefinition <- function(emuDBhandle, levelName, 
-                                    name, type = "STRING"){
+                                    name, type = "STRING", verbose=T){
   if(type != "STRING"){
     stop("Currently only attributeDefinition of type 'STRING' allowed")
   }
@@ -426,6 +428,7 @@ add_attributeDefinition <- function(emuDBhandle, levelName,
 
   # store changes
   store_DBconfig(emuDBhandle, dbConfig)
+  rewrite_allAnnots(emuDBhandle, verbose = verbose)
   
 }
 
@@ -463,7 +466,7 @@ list_attributeDefinitions <- function(emuDBhandle, levelName){
 
 ##' @rdname AddListRenameRemoveAttributeDefinitions
 ##' @export
-rename_attributeDefinition <- function(emuDBhandle, origAttrDef, newAttrDef, verbose = FALSE) {
+rename_attributeDefinition <- function(emuDBhandle, origAttrDef, newAttrDef, verbose=T) {
   
   #############################
   # check input parameters
@@ -597,7 +600,8 @@ rename_attributeDefinition <- function(emuDBhandle, origAttrDef, newAttrDef, ver
 ##' @export
 remove_attributeDefinition <- function(emuDBhandle, 
                                        levelName, 
-                                       name){
+                                       name,
+                                       verbose=T){
   
   if(levelName == name){
     stop("Can not remove primary attributeDefinition (attributeDefinition with same name as level)")
@@ -637,7 +641,7 @@ remove_attributeDefinition <- function(emuDBhandle,
   
   # store changes
   store_DBconfig(emuDBhandle, dbConfig)
-  
+  rewrite_allAnnots(emuDBhandle, verbose = verbose)
 }
 
 ###################################################
