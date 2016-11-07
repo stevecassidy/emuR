@@ -142,7 +142,7 @@ test_that("CRUD operations work for attributeDefinitions", {
   test_that("add = (C)RUD", {
     expect_error(add_attributeDefinition(ae, 'Word', 'Word')) # present attrDef
     
-    add_attributeDefinition(ae, 'Word', 'testAttrDef')
+    add_attributeDefinition(ae, 'Word', 'testAttrDef', verbose = F)
     df = list_attributeDefinitions(ae, 'Word')
     expect_true('testAttrDef' %in% df$name)
   })

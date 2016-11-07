@@ -257,7 +257,7 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
       add_attributeDefinition(emuDBhandle,
                               levelName = duplicateLevelName,
                               name = attrDefs[i,]$name,
-                              type = attrDefs[i,]$type)
+                              type = attrDefs[i,]$type, verbose = verbose)
     }
     # copy legalLabels
     ll = get_legalLabels(emuDBhandle, levelName, attrDefs[i,]$name)

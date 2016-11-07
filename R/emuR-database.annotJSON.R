@@ -156,7 +156,38 @@ bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
     levels[[length(levels) + 1]] = list(
       items = apply(levelItems, 1, function(r) {
       
-      labels = apply(dplyr::filter_(annotDFs$labels, ~(item_id == as.numeric(r[1]))), 1, function(r2) list(name = as.character(r2[3]), value = as.character(r2[4])))
+      dbLabels = apply(
+        dplyr::filter_(
+          annotDFs$labels,
+          ~(item_id == as.numeric(r[1]))
+        ),
+        1,
+        function(r2) {
+          list(name = as.character(r2[3]), value = as.character(r2[4]))
+        }
+      )
+      
+      
+      specifiedAttributes = sapply (dbLabels, function(l) l$name)
+      expectedAttributes = list_attributeDefinitions(emuDBhandle, l)$name
+      
+      labels = list()
+      
+      for (i in 1:length(expectedAttributes)) {
+        if(expectedAttributes[i] %in% specifiedAttributes){
+          labels [[length(labels) + 1 ]] = list(
+            name = expectedAttributes[i],
+            value = dbLabels[specifiedAttributes==expectedAttributes[i]][[1]]$value
+          )
+        }else{
+          labels [[length(labels) + 1 ]] = list(
+            name = expectedAttributes[i],
+            value = ""
+          )
+        }
+      }
+      
+      
       res = NULL
       if(r[3] == "ITEM"){
         res = list(id = as.numeric(r[1]),
