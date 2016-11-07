@@ -341,12 +341,11 @@ remove_levelDefinition<-function(emuDBhandle, name, verbose = T){
 ###################################################
 # CRUD operations for attributeDefinitions
 
-##' Add / List / Remove attribute definition to / of / from emuDB
+##' Add / List / Rename / Remove attribute definition to / of / from emuDB
 ##' 
-##' Add / List / Remove database operation functions for attribute definition 
-##' to / of / from an existing level definition
-##' of a emuDB. Attribute
-##' definitions can be viewed as definitions of
+##' Add / List / Rename / Remove database operation functions for attribute
+##' definition to / of / from an existing level definition of an emuDB.
+##' Attribute definitions can be viewed as definitions of
 ##' parallel labels for the annotational units (ITEMs) of the emuDB. 
 ##' Each level definition is required to have at least one 
 ##' default attribute definition that has the same name as the level definition
@@ -355,12 +354,25 @@ remove_levelDefinition<-function(emuDBhandle, name, verbose = T){
 ##' Note that as with level definitions, an attribute definition to a level cannot be removed,
 ##' if it contains labels in the emuDB.
 ##' 
+##' As the only one of these operations, \code{rename_attributeDefinition} can
+##' also be used to manipulate (i.e. rename) a level definition. It is therefore
+##' not necessary to specify the name of the level that the attribute definition
+##' belongs to. While renaming a level or attribute definition, emuR will (1) rewrite the
+##' levelDefinitions in DBconfig, (2) rewrite the linkDefinitions in DBconfig,
+##' (3) rewrite the perspectives in DBconfig, (4) ..., and (5) rewrite all _annot.json
+##' files. (5) May take quite a while, depending on the number of bundles in the
+##' database.
+##' 
+##' 
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param levelName name of level
 ##' @param name name of attributeDefinition
 ##' @param type type of attributeDefinition (currently only "STRING")
+##' @param origAttrDef name of level/attribute definition in emuDB that is to be changed
+##' @param newAttrDef new name that shall be assigned to the level/attribute definition
+##' @param verbose if set to \code{TRUE}, more status messages are printed
 ##' @keywords emuDB database DBconfig Emu 
-##' @name AddListRemoveAttributeDefinitions
+##' @name AddListRenameRemoveAttributeDefinitions
 ##' @examples 
 ##' \dontrun{
 ##' 
@@ -388,7 +400,7 @@ remove_levelDefinition<-function(emuDBhandle, name, verbose = T){
 ##' 
 NULL
 
-##' @rdname AddListRemoveAttributeDefinitions
+##' @rdname AddListRenameRemoveAttributeDefinitions
 ##' @export
 add_attributeDefinition <- function(emuDBhandle, levelName, 
                                     name, type = "STRING"){
@@ -418,7 +430,7 @@ add_attributeDefinition <- function(emuDBhandle, levelName,
 }
 
 
-##' @rdname AddListRemoveAttributeDefinitions
+##' @rdname AddListRenameRemoveAttributeDefinitions
 ##' @export
 list_attributeDefinitions <- function(emuDBhandle, levelName){
 
@@ -449,7 +461,130 @@ list_attributeDefinitions <- function(emuDBhandle, levelName){
 }
 
 
-##' @rdname AddListRemoveAttributeDefinitions
+##' @rdname AddListRenameRemoveAttributeDefinitions
+##' @export
+rename_attributeDefinition <- function(emuDBhandle, origAttrDef, newAttrDef, verbose = FALSE) {
+  
+  #############################
+  # check input parameters
+  
+  if(class(origAttrDef) != "character" | class(newAttrDef) != "character" | length(origAttrDef) != 1 | length(newAttrDef) != 1){
+    stop("origAttrDef and newAttrDef have to be character vectors with only one item!")  
+  }
+  
+  allAttrNames = get_allAttributeNames(emuDBhandle)
+  if(!origAttrDef %in% allAttrNames){
+    stop(paste0("Attribute definition: ", origAttrDef, " not found in emuDB! The available attribute definitions are: ", paste0(allAttrNames, collapse = "; ")))
+  }
+  
+  if(newAttrDef %in% allAttrNames){
+    stop(paste0("Attribute definition: ", newAttrDef, " is already defined in emuDB! You need to specify unique names!"))
+  }
+  
+  #############################
+  # adjust DBconfig
+  
+  dbConfig = load_DBconfig(emuDBhandle)
+  
+  
+  dbConfig$linkDefinitions = lapply (
+    dbConfig$linkDefinitions,
+    function (linkDef) {
+      if (linkDef$superlevelName == origAttrDef) {
+        linkDef$superlevelName = newAttrDef
+      }
+      if (linkDef$sublevelName == origAttrDef) {
+        linkDef$sublevelName = newAttrDef
+      }
+      
+      linkDef
+    }
+  )
+  
+  dbConfig$EMUwebAppConfig$perspectives = lapply (
+    dbConfig$EMUwebAppConfig$perspectives,
+    function (perspective) {
+      perspective$levelCanvases$order = lapply(
+        perspective$levelCanvases$order,
+        function (canvas) {
+          if (canvas == origAttrDef) {
+            newAttrDef
+          } else {
+            canvas
+          }
+        }
+      )
+      
+      perspective
+    }
+  )
+  
+  dbConfig$levelDefinitions = lapply (
+    dbConfig$levelDefinitions,
+    
+    function (lvlDef) {
+      if (lvlDef$name == origAttrDef) {
+        lvlDef$name = newAttrDef
+        lvlDef$attributeDefinitions[[1]]$name = newAttrDef
+      } else {
+        lvlDef$attributeDefinitions = lapply(
+          lvlDef$attributeDefinitions,
+          function (attrDef) {
+            if (attrDef$name == origAttrDef) {
+              attrDef$name = newAttrDef
+            }
+            
+            attrDef
+          }
+        )
+      }
+      
+      # Return the (possibly modified) lvlDef so lapply knows the new value
+      lvlDef
+    }
+  )
+  
+  
+  #
+  #############################
+  if(verbose){
+    cat("\n  INFO: creating temporary index...\n")
+  }
+  
+  # create temp index
+  DBI::dbGetQuery(emuDBhandle$connection, paste0("CREATE INDEX IF NOT EXISTS level_rename_tmp_idx ON items(db_uuid, level)"))
+  
+  
+  if(verbose){
+    cat("\n  INFO: renaming attribute definition\n")
+  }
+  
+  # transaction start
+  DBI::dbBegin(emuDBhandle$connection)
+  
+  DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE items SET level = '", newAttrDef, "' ",
+                                                 "WHERE db_uuid='", emuDBhandle$UUID, "' ",
+                                                 "AND level = '", origAttrDef, "'"))
+  
+  DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE labels SET name = '", newAttrDef, "' ",
+                                                 "WHERE db_uuid='", emuDBhandle$UUID, "' ",
+                                                 "AND name = '", origAttrDef, "'"))
+  
+  # transaction end
+  DBI::dbCommit(emuDBhandle$connection)
+  
+  if(verbose){
+    cat("\n  INFO: removing temporary index...\n")
+  }  
+  # remove temp index
+  DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP INDEX IF EXISTS level_rename_tmp_idx"))
+  
+  store_DBconfig(emuDBhandle, dbConfig)
+  rewrite_allAnnots(emuDBhandle, verbose = verbose)
+}
+
+
+##' @rdname AddListRenameRemoveAttributeDefinitions
 ##' @export
 remove_attributeDefinition <- function(emuDBhandle, 
                                        levelName, 
