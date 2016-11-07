@@ -140,7 +140,7 @@ test_that("CRUD operations work for attributeDefinitions", {
   
   
   test_that("add = (C)RUD", {
-    expect_error(add_attributeDefinition(ae, 'Word', 'Word')) # present attrDef
+    expect_error(add_attributeDefinition(ae, 'Word', 'Word', verbose = F)) # present attrDef
     
     add_attributeDefinition(ae, 'Word', 'testAttrDef', verbose = F)
     df = list_attributeDefinitions(ae, 'Word')
@@ -157,9 +157,9 @@ test_that("CRUD operations work for attributeDefinitions", {
   
 
   test_that("remove = CRU(D)", {
-    expect_error(remove_attributeDefinition(ae, 'Word', 'Word'))
-    expect_error(remove_attributeDefinition(ae, 'Word', 'Accent'))
-    remove_attributeDefinition(ae, 'Word', 'testAttrDef')
+    expect_error(remove_attributeDefinition(ae, 'Word', 'Word', verbose = F))
+    expect_error(remove_attributeDefinition(ae, 'Word', 'Accent', verbose = F))
+    remove_attributeDefinition(ae, 'Word', 'testAttrDef', verbose = F)
     df = list_attributeDefinitions(ae, 'Word')
     expect_equal(nrow(df), 3)
   })
