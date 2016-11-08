@@ -29,6 +29,8 @@
 * added start\_item\_seq\_idx and end\_item\_seq\_idx to emuRsegs object
 * added start\_item\_seq\_idx and end\_item\_seq\_idx type values to all intermediate result tables
 * added optional function to reduce hierarchical query results to left and right most children only (large performance gain on calcTimes = T)
+* rewriting annot.json files now updates MD5 sums as well (avoids uneccesary reload on next load\_emuDB)
+* rewriting annot.json files now writes all (including empty / missing) attributeDef. labels
 
 # emuR 0.1.9
 
