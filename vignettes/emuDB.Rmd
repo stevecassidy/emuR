@@ -21,7 +21,7 @@ This document describes the emuDB format that is used by the `emuR` package and 
 
 The database structure is basically a set of files and folders that adhere to a certain structure and naming convention (see Figure below).
 
-![Alt text](pics/db_structure.svg) 
+![emuDB file & folder structure](pics/db_structure.svg) 
 
 The database root directory must contain a single `_DBconfig.json` file which, as the name implies, contains the configuration options of the database such as its level definitions, how these levels are linked in the database hierarchy and what is displayed in the EMU-webApp. The database root folder also contains arbitrarily named session folders ending with `_ses`, e.g. `0000_ses`. These session folders can be used to logically group the recordings of a database. All files belonging to a single recording are contained in a so called bundle folder described below. A possible grouping into sessions could for instance be that all recordings of a speaker `AAA` are contained in one session called `AAA_ses`.
 
@@ -227,7 +227,7 @@ An essential and very powerful conceptual and structural element of any emuDB is
 
 As the names imply these links specify the permitted relationships between instances of annotation items of one level and those of another. The structure of the hierarchy of the 'ae' demo database that comes with the `emuR` package can be seen below. This hierarchy demonstrates a reasonably complex hierarchy including how hierarchical annotation structures can be used to accurately model data. "ITEM" levels that do not contain time information inherit their time information from the levels they are linked to. This de-referencing of time information is provided by the querying mechanism that the `emuR` package provides.
 
-![Alt text](pics/aeGraph.svg)
+![Hierarchical structure of 'ae' emuDB](pics/aeGraph.svg)
 
 Let us now add a link definition to link the 'Phonetic' level to the 'Word' level created above:
 
@@ -241,7 +241,7 @@ add_linkDefinition(dbHandle,
 
 The simple hierarchical structure of our 'fromScratchDB' now looks like this:
 
-![Alt text](pics/fromScratchDBgraph.svg)
+![Hierarchical structure of 'fromScratchDB' emuDB](pics/fromScratchDBgraph.svg)
 
 ## File handling
 
@@ -418,11 +418,11 @@ list_ssffTrackDefinitions(dbHandle)
 
 As it is a very laborious task to manually link ITEMs together using the EMU-webApp and the hierarchical information is already implicitly contained in the time information of the SEGMENTs and EVENTs of each level (see figure below), the `emuR` package provides a function to build these hierarchical structures from this information.
 
-![Alt text](pics/msajc003tg.png)
+![Example annotation structure after `convert_TextGridCollection()`](pics/msajc003tg.png)
 
 For the sake of brevity let's focus on just three of the eleven levels. We will use the `autobuild_linkFromTimes()` function to build the following hierarchical structure:
 
-![Alt text](pics/autobuild_linkFromTimesGraph.svg)
+![Hierarchical structure to be produced by `autobuild_linkFromTimes()`](pics/autobuild_linkFromTimesGraph.svg)
 
 
 The `convertSuperlevel` argument of the `autobuild_linkFromTimes()` function, that we will set to `TRUE` in the example below, tells the function to convert the super level to a level of type `ITEM`. As this is a very risky procedure as all the time information will be deleted from the "Syllable" level, the function automatically creates a backup of the level called "Syllable-autobuildBackup". Before we can invoke the autobuild function we must however first add a `linkDefinition` to our emuDB that specifies the type of relationship that our level have:
@@ -436,11 +436,12 @@ add_linkDefinition(dbHandle, type = "ONE_TO_MANY",
 # list
 list_linkDefinitions(dbHandle)
 
-# envoke autobuild function
+# invoke autobuild function
 autobuild_linkFromTimes(dbHandle,
                        superlevelName = "Syllable",
                        sublevelName = "Phoneme",
-                       convertSuperlevel = TRUE)
+                       convertSuperlevel = TRUE,
+                       verbose = FALSE)
 
 # list
 list_levelDefinitions(dbHandle)
@@ -461,7 +462,8 @@ list_linkDefinitions(dbHandle)
 autobuild_linkFromTimes(dbHandle,
                        superlevelName = "Phoneme",
                        sublevelName = "Phonetic",
-                       convertSuperlevel = TRUE)
+                       convertSuperlevel = TRUE,
+                       verbose = FALSE)
 
 # list
 list_levelDefinitions(dbHandle)
@@ -522,8 +524,8 @@ The `_DBconfig.json` file contains the following fields:
 - `"maxConstrictionLabel"` string maximum constriction specifying label
 - `"linkDefinitions"` an array of definitions defining the links between levels of the database. The combination of all link definitions specifies the hierarchy of the database. Each linkDefinition consists of:
 - `"type"` specifying the type of link (either `"ONE_TO_MANY"` | `"MANY_TO_MANY"` | `"ONE_TO_ONE"`).
-- `"superlevelName"` specifies the name of the superlevel
-- `"sublevelName"` specifies the name of the sublevel
+- `"superlevelName"` specifies the name of the super-level
+- `"sublevelName"` specifies the name of the sub-level
 - `"labelGroups"` an (optional) array containing label group definitions. These can be used as a shorthand notation for querying certain groups of labels. Compared to the `"labelGroups"` that can be defined within an attributeDefinition the labelGroups defined here are globally defined for the entire database.
 - `"name"` name of label group
 - `"values"` array of strings containing labels
@@ -534,9 +536,9 @@ The `_DBconfig.json` file contains the following fields:
 - `"serverTimeoutInterval"`: the maximum amount of time the EMU-webApp waits (in milliseconds) for the server to respond. 
 - `"comMode"`: communication mode that the EMU-webApp is in. Currently the only option that is available is `"WS"` (websocket).
 - `"catchMouseForKeyBinding"`: check if mouse has to be in labeler for key bindings to work
-- `"keyMappings"` keyboard shortcut definitions. For the sake of brevity not every keycode is shown (see schema for extensive list)
-- `"toggleSideBarLeft"` integer value that represents the keycode that toggles the left side bar (== bundleList side bar)
-- `"toggleSideBarRight"` integer value that represents the keycode that toggles the right side bar (== perspective side bar)
+- `"keyMappings"` keyboard shortcut definitions. For the sake of brevity not every key-code is shown (see schema for extensive list)
+- `"toggleSideBarLeft"` integer value that represents the key-code that toggles the left side bar (== bundleList side bar)
+- `"toggleSideBarRight"` integer value that represents the key-code that toggles the right side bar (== perspective side bar)
 - ...
 - `"spectrogramSettings"` specifies the default settings of the spectrogram. The possible settings are:
 - `"windowSizeInSecs"` specifies the window size in seconds
@@ -595,8 +597,8 @@ The `_DBconfig.json` file contains the following fields:
 - `"connect"` boolean value that specifies if to connect the static dots with lines
 - `"color"` rgb string specifying color of static contour
 - `"labelCanvasConfig"` configuration options for the label canvases
-- `"addTimeMode"` mode to add / subtrakt time to boundaries 
-- `"addTimeValue"`: amount of samples added / subtrakted to boundaries
+- `"addTimeMode"` mode to add / subtract time to boundaries 
+- `"addTimeValue"`: amount of samples added / subtracted to boundaries
 - `"newSegmentName"` value given to default label if a new SEGMENT is added (default is "" == empty string) 
 - `"newEventName"` value given to default label if a new EVENT is added (default is "" == empty string) 
 - `"restrictions"`
@@ -632,7 +634,7 @@ The `_DBconfig.json` file contains the following fields:
 - `"openMenu"` boolean value specifying whether open bundle list side bar button (== ☰) is displayed
 - `"showHierarchy"` boolean value specifying whether to show the "show hierarchy"" button
 - `"editEMUwebAppConfig"` boolean value specifying whether to show "edit EMUwebAppConfig" button
-- `"demoDBs"` array of strings specifying which demoDBs to display in the `open demo` dropdown menu. Currently available demo databases are `["ae", "ema", "epgdorsal"]`
+- `"demoDBs"` array of strings specifying which demoDBs to display in the `open demo` drop-down menu. Currently available demo databases are `["ae", "ema", "epgdorsal"]`
 
 
 ## _annot.json
@@ -655,8 +657,8 @@ The `_annot.json` file contains the following fields:
 - `"name"` specifying the `"attributeDefinition"` that this label is for
 - `"value"` specifying the label value
 - `"links"` array containing links between two items. These links have to adhere to the links specified in `"linkDefinitions"` of the according emuDB. Each link consists of:
-- `"fromID"` ID value of item to link from (i.e. item in superlevel)
-- `"toID"` ID value of item to link to (i.e. item in sublevel)
+- `"fromID"` ID value of item to link from (i.e. item in super-level)
+- `"toID"` ID value of item to link to (i.e. item in sub-level)
 
 
 # References
