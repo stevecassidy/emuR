@@ -29,7 +29,7 @@
 * added start\_item\_seq\_idx and end\_item\_seq\_idx to emuRsegs object
 * added start\_item\_seq\_idx and end\_item\_seq\_idx type values to all intermediate result tables
 * added optional function to reduce hierarchical query results to left and right most children only (large performance gain on calcTimes = T)
-* rewriting annot.json files now updates MD5 sums as well (avoids uneccesary reload on next load\_emuDB)
+* rewriting annot.json files now updates MD5 sums as well (avoids unnecessary reload on next load\_emuDB)
 * rewriting annot.json files now writes all (including empty / missing) attributeDef. labels
 
 # emuR 0.1.9
@@ -38,7 +38,7 @@
 
 * fixed problem in conversion to JSON with empty items array (object '{}' vs array '[]')
 * fixed problem of keywords "number" | "time" | "xmin" | ... in labels causing TextGrid parser to fail
-* fixed problem with to lax regex in TextGrid parser
+* fixed problem with to lax RegEx in TextGrid parser
 * fixed validation problem with missing levels regarding types
 
 ## new features / performance tweaks / improvements
@@ -47,7 +47,7 @@
 * "levels of type 'EVENT' are not allowed to be super levels (== parents) in a domination relationship" constraint enforced in add_linkDefinition
 * added "MEDIAFILE\_SAMPLES" as constant name to access audio samples to get\_trackdata() function
 * improved error message to include tgPath in create_DBconfigFromTextGrid function
-* no integer return value returned by create_emuRdemoData() any more! It was implicitaly returned from wrassp function call...
+* no integer return value returned by create_emuRdemoData() any more! It was implicitly returned from wrassp function call...
 * improved the slow overlap checking function in the BPF parser (is now O(n) instead of O(n^2))
 * fixed col naming problems for new (unreleased) RSQLite version
 * added export_TextGridCollection() function
@@ -104,7 +104,7 @@ of either -> or ^ operand (e.g. query (ae ,  "[[[Phonetic = n -> Phonetic =z] ->
 
 # emuR 0.1.2.9000
 
-* multiple check fixes on various plattforms
+* multiple check fixes on various platforms
 
 # emuR 0.1.1.9000
 
