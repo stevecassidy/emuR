@@ -217,9 +217,8 @@ store_DBconfig <- function(emuDBhandle, dbConfig, basePath = NULL){
 ##' if they are of the type "ITEM". For more information 
 ##' on the structural elements of an emuDB see \code{vignette(emuDB)}.
 ##' Note that a level cannot be removed, if it contains instances of annotation items
-##' or if it is linked to another level.
-##' 
-##' Renaming a level definition can be done using \code{\link{rename_attributeDefinition}}.
+##' or if it is linked to another level. Further note, renaming a level definition 
+##' can be done using \code{\link{rename_attributeDefinition}}.
 ##' 
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param name name of level definition
@@ -345,7 +344,7 @@ remove_levelDefinition<-function(emuDBhandle, name, verbose = T){
 
 ##' Add / List / Rename / Remove attribute definition to / of / from emuDB
 ##' 
-##' Add / List / Rename / Remove database operation functions for attribute
+##' @description Add / List / Rename / Remove database operation functions for attribute
 ##' definition to / of / from an existing level definition of an emuDB.
 ##' Attribute definitions can be viewed as definitions of
 ##' parallel labels for the annotational units (ITEMs) of the emuDB. 

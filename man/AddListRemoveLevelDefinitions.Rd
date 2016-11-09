@@ -32,10 +32,8 @@ type "EVENT" or of the type "SEGMENT" but are timeless
 if they are of the type "ITEM". For more information 
 on the structural elements of an emuDB see \code{vignette(emuDB)}.
 Note that a level cannot be removed, if it contains instances of annotation items
-or if it is linked to another level.
-}
-\details{
-Renaming a level definition can be done using \code{\link{rename_attributeDefinition}}.
+or if it is linked to another level. Further note, renaming a level definition 
+can be done using \code{\link{rename_attributeDefinition}}.
 }
 \examples{
 \dontrun{
