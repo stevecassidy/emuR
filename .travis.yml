@@ -6,6 +6,7 @@
 
 language: r
 cache: packages
+sudo: required
 
 
 after_success:
