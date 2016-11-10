@@ -1,4 +1,4 @@
-# emuR 0.1.9.9017
+# emuR 0.2.0
 
 ## bug fixes
 
