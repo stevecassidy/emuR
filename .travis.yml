@@ -5,7 +5,8 @@
 #   https://github.com/craigcitro/r-travis/wiki
 
 language: r
-sudo: required
+cache: packages
+
 
 after_success:
   - Rscript -e 'library(covr);coveralls()'
