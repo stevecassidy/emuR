@@ -462,6 +462,6 @@ test_that("Load example database ae",{
     all(round(sl$start, 3) == round(c(256.925, 571.925, 379.525, 425.375, 299.975, 513.925, 475.775), 3))
     all(round(sl$end, 3) == round(c(2604.425, 2753.975, 2692.325, 3456.825, 2469.525, 2554.175, 2794.925), 3))
   })
-  
-  
+  # clean up (also causes disconnect)
+  ae = NULL
 })

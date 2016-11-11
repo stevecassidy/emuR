@@ -77,7 +77,7 @@ test_that("database functions work", {
     t1BasePath=file.path(path2testData,'create_emuDB_test1_emuDB')
     t1=load_emuDB(t1BasePath)
     expect_that(t1$dbName,is_equivalent_to('create_emuDB_test1'))
-    DBI::dbDisconnect(t1$connection)
+    t1 = NULL
     unlink(t1BasePath,recursive = T)
   })
   
@@ -387,10 +387,9 @@ test_that("database functions work", {
   ######################
   # cleanup
   
-  # disconnect to avoid file locking to sqliteDB that causes unlink
-  # to fail under windows
-  DBI::dbDisconnect(ae$connection)
-  DBI::dbDisconnect(aeFromLegacy$connection)
+  # delete vars to be safe (& to diconnect)
+  ae = NULL
+  aeFromLegacy = NULL
   
   unlink(file.path(path2testData, "fromLegacy"), recursive = T)
   unlink(unlink(path2db, recursive = T), recursive = T)
@@ -427,10 +426,8 @@ test_that("store works correctly",{
   ####################
   # cleanup
   
-  # disconnect to avoid file locking to sqliteDB that causes unlink
-  # to fail under windows
-  DBI::dbDisconnect(ae$connection)
-  DBI::dbDisconnect(aeStored$connection)
+  # delete vars to be safe (& to diconnect  ae = NULL
+  aeStored = NULL
   
   unlink(file.path(path2testData, "fromStore"), recursive = T)
 })
