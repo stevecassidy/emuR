@@ -352,7 +352,7 @@ rename_emuDB <- function(databaseDir, newName){
   }
   
   con <- DBI::dbConnect(RSQLite::SQLite(), cachePath_new)
-  DBI::dbGetQuery(con, paste0("UPDATE emu_db SET name='", newName, "'"))
+  DBI::dbGetQuery(con, paste0("UPDATE emu_db SET name = '", newName, "' WHERE uuid = '", dbConfig$UUID, "'"))
   con = NULL # delete -> disconnect
   
   ############################
