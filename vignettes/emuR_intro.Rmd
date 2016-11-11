@@ -9,34 +9,34 @@ vignette: >
   %\VignetteIndexEntry{emuR introduction}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
-  ---
+---
+
+# Introduction
   
-  # Introduction
+This document is an introduction to the `emuR` package and provides an overview of what the package is capable of and how it interacts with the other components of the EMU Speech Database Management System (EMU-SDMS). It is by no means a complete guide to the EMU-SDMS but rather tries to give an outline of what it is like working with and analyzing speech databases in the EMU-SDMS by walking you through a few typical use cases.
   
-  This document is an introduction to the `emuR` package and provides an overview of what the package is capable of and how it interacts with the other components of the EMU Speech Database Management System (EMU-SDMS). It is by no means a complete guide to the EMU-SDMS but rather tries to give an outline of what it is like working with and analyzing speech databases in the EMU-SDMS by walking you through a few typical use cases.
+The `emuR` package can be viewed as the main component of the EMU-SDMS as it acts as the central instance that is able to interact with every component of the system. It takes care of database managing duties by being able to interact with a speech database that is stored in the `emuDB` format (see `emuDB` vignette for further details). Further, it has easy to understand and learn yet expressive and powerful querying mechanics that allow the user to easily query the annotation structures of the database (see `EQL` vignette for further details). Finally it provides easy data extraction capabilities that extracts data (e.g. formant values) which corresponds to the result of a query.
   
-  The `emuR` package can be viewed as the main component of the EMU-SDMS as it acts as the central instance that is able to interact with every component of the system. It takes care of database managing duties by being able to interact with a speech database that is stored in the `emuDB` format (see `emuDB` vignette for further details). Further, it has easy to understand and learn yet expressive and powerful querying mechanics that allow the user to easily query the annotation structures of the database (see `EQL` vignette for further details). Finally it provides easy data extraction capabilities that extracts data (e.g. formant values) which corresponds to the result of a query.
+If a database in the `emuDB` format is present, the typical work-flow in `emuR` is usually something like this:
   
-  If a database in the `emuDB` format is present, the typical work-flow in `emuR` is usually something like this:
+1. Load database into current R session - `load_emuDB`
+2. Database annotation / visual inspection - `serve` and connect the EMU-webApp to the local server
+3. Query database - `query` (sometimes followed by `requery_hier` or `requery_seq`)
+4. Get trackdata (e.g. formant values) for the result of a query - `get_trackdata`
+5. Data preparation
+6. Visual data inspection
+7. Further analysis and statistical processing
   
-  1. Load database into current R session - `load_emuDB`
-  2. Database annotation / visual inspection - `serve` and connect the EMU-webApp to the local server
-  3. Query database - `query` (sometimes followed by `requery_hier` or `requery_seq`)
-  4. Get trackdata (e.g. formant values) for the result of a query - `get_trackdata`
-  5. Data preparation
-  6. Visual data inspection
-  7. Further analysis and statistical processing
+# Converting existing databases
   
-  # Converting existing databases
+As most people that are starting to use the EMU-SDMS will probably already have some form of annotated data, we will initially show how to easily convert this existing data to the `emuDB` format (for a guide on how to create an `emuDB` from scratch and for information about this format see the `emuDB` vignette).
   
-  As most people that are starting to use the EMU-SDMS will probably already have some form of annotated data, we will initially show how to easily convert this existing data to the `emuDB` format (for a guide on how to create an `emuDB` from scratch and for information about this format see the `emuDB` vignette).
+## legacy EMU databases
   
-  ## legacy EMU databases
-  
-  For people transitioning to `emuR` from the legacy EMU system, `emuR` provides a function for converting existing legacyEmuDBs to the new `emuDB` format. Here is an example of how to use this function:
+For people transitioning to `emuR` from the legacy EMU system, `emuR` provides a function for converting existing legacyEmuDBs to the new `emuDB` format. Here is an example of how to use this function:
   
   
-  ```{r results='hide', message=FALSE, warning=FALSE}
+```{r results='hide', message=FALSE, warning=FALSE}
 # load the package
 library(emuR)
 
@@ -49,10 +49,10 @@ tplPath = file.path(tempdir(), "emuR_demoData", "legacy_ae", "ae.tpl")
 # convert this legacyEmuDB to the emuDB format
 convert_legacyEmuDB(emuTplPath = tplPath, targetDir = tempdir())
 ```
-
+  
 This will create a new `emuDB` in a temporary folder that is provided by the `R` function `tempdir()` containing all the information specified in the `.tpl` file. The name of the new `emuDB` is the same as the basename of the `.tpl` file from which it was generated. In other words, if the template file of your legacyEmuDB has the path `A` and the directory to which the converted database is to be written has the path `B`, then  `convert_legacyEmuDB("A", targetdir = "B")` will perform the conversion.
-
-
+  
+  
 ```{r}
 # remove the newly generated emuDB as we will not be needing it 
 # throughout the rest of this vignette
@@ -251,19 +251,15 @@ class(td)
 As we are dealing with a `data.table` / `data.frame` we can now simply use a package like `ggplot2` to visualize our F1/F2 distribution:
 
 ```{r, fig.height = 5, fig.width = 5}
-# check if ggplot2 package is available (install separately with 
-# install.packages("ggplot2") if not available on your system)
-if (requireNamespace("ggplot2", quietly = TRUE)) {
-  # load package
-  library(ggplot2)
-  
-  # scatter plot of F1 and F2 values using ggplot
-  ggplot(td, aes(x=T2, y=T1, label=td$labels)) + 
-    geom_text(aes(colour=factor(labels))) + 
-    scale_y_reverse() + scale_x_reverse() + 
-    labs(x = "F2(Hz)", y = "F1(Hz)") +
-    guides(colour=FALSE)
-}
+# load package
+library(ggplot2)
+
+# scatter plot of F1 and F2 values using ggplot
+ggplot(td, aes(x=T2, y=T1, label=td$labels)) + 
+  geom_text(aes(colour=factor(labels))) + 
+  scale_y_reverse() + scale_x_reverse() + 
+  labs(x = "F2(Hz)", y = "F1(Hz)") +
+  guides(colour=FALSE)
 ```
 
 ## 3.) What words do the phonetic segments that carry the labels s, z, S or Z in the 'ae' emuDB occur in and what is their preceding phonetic context?
