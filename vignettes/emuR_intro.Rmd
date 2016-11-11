@@ -251,15 +251,19 @@ class(td)
 As we are dealing with a `data.table` / `data.frame` we can now simply use a package like `ggplot2` to visualize our F1/F2 distribution:
 
 ```{r, fig.height = 5, fig.width = 5}
-# load package
-library(ggplot2)
+# check if ggplot2 package is available (install separately with 
+# install.packages("ggplot2") if not available on your system)
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  # load package
+  library(ggplot2)
 
-# scatter plot of F1 and F2 values using ggplot
-ggplot(td, aes(x=T2, y=T1, label=td$labels)) + 
-  geom_text(aes(colour=factor(labels))) + 
-  scale_y_reverse() + scale_x_reverse() + 
-  labs(x = "F2(Hz)", y = "F1(Hz)") +
-  guides(colour=FALSE)
+  # scatter plot of F1 and F2 values using ggplot
+  ggplot(td, aes(x=T2, y=T1, label=td$labels)) + 
+    geom_text(aes(colour=factor(labels))) + 
+    scale_y_reverse() + scale_x_reverse() + 
+    labs(x = "F2(Hz)", y = "F1(Hz)") +
+    guides(colour=FALSE)
+}
 ```
 
 ## 3.) What words do the phonetic segments that carry the labels s, z, S or Z in the 'ae' emuDB occur in and what is their preceding phonetic context?
