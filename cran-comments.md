@@ -1,6 +1,6 @@
 ## Test environments
-* local OS X install, R Under development (unstable) (2016-08-02 r71022) -- "Unsuffered Consequences"
-* ubuntu 12.04 (on travis-ci), R 3.2.5
+* local OS X install, R Under development (unstable) (2016-10-26 r71594) -- "Unsuffered Consequences"
+* Ubuntu 12.04.5 LTS (on travis-ci), R 3.3.1
 * win-builder (devel and release)
 
 ## R CMD check results
