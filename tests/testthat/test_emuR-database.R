@@ -428,8 +428,9 @@ test_that("store works correctly",{
   
   # delete vars to be safe (& to diconnect  ae = NULL
   aeStored = NULL
-  
+  ae = NULL
   unlink(file.path(path2testData, "fromStore"), recursive = T)
+  unlink(path2db, recursive = T)
 })
 
 test_that("rename works correctly",{
