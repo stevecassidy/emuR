@@ -389,7 +389,7 @@ test_that("database functions work", {
   # disconnect to avoid file locking to sqliteDB that causes unlink
   # to fail under windows
   DBI::dbDisconnect(ae$connection)
-  
+  DBI::dbDisconnect(aeFromLegacy$connection)
   
   unlink(file.path(path2testData, "fromLegacy"), recursive = T)
   unlink(unlink(path2db, recursive = T), recursive = T)
@@ -422,11 +422,13 @@ test_that("store works correctly",{
   expect_true(cres$result)
   expect_equal(aeLabels, aeStoredLabels)
   expect_equal(aeLinks, aeStoredLinks)
+  
   ####################
   # cleanup
   
   # disconnect to avoid file locking to sqliteDB that causes unlink
   # to fail under windows
+  DBI::dbDisconnect(ae$connection)
   DBI::dbDisconnect(aeStored$connection)
   
   unlink(file.path(path2testData, "fromStore"), recursive = T)
