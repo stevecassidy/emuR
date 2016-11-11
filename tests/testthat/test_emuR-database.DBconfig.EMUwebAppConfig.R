@@ -54,6 +54,10 @@ test_that("CRUD operations work for perspectives", {
     expect_equal(nrow(df), 1)
   })
   
+  # clean up
+  DBI::dbDisconnect(ae$connection)
+  ae = NULL
+  
 })
 
 ##############################
@@ -91,6 +95,10 @@ test_that("CRUD operations work for signalCanvasesOrder", {
   test_that("remove = CRU(D)", {
     # currently not implemented
   })
+  
+  # clean up
+  DBI::dbDisconnect(ae$connection)
+  ae = NULL
   
 })
 
@@ -133,6 +141,10 @@ test_that("CRUD operations work for levelCanvasesOrder", {
   test_that("remove = CRU(D)", {
     # currently not implemented
   })
+  
+  # clean up
+  DBI::dbDisconnect(ae$connection)
+  ae = NULL
   
 })
 

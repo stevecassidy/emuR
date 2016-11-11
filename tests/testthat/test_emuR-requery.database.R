@@ -98,6 +98,7 @@ test_that("requeries work on ae",{
   })
   
   # clean up (also disconnects)
+  DBI::dbDisconnect(ae$connection)
   ae = NULL
   unlink(.test_emu_ae_db_dir, recursive = T)
     

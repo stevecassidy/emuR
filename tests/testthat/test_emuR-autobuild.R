@@ -30,6 +30,10 @@ test_that("autobuild_linkFromTimes works correctly", {
     expect_error(autobuild_linkFromTimes(ae, 'Phonetic', 'Tone'))
     expect_error(autobuild_linkFromTimes(ae, 'Phoneme', 'Phonetic'), regexp = "The super level type and.*") # super = ITEM
     expect_error(autobuild_linkFromTimes(ae, 'Syllable', 'Phoneme'), regexp = "The super level type and.*") # super = ITEM
+    
+    # clean up
+    DBI::dbDisconnect(ae$connection)
+    ae = NULL
   })
   
   
@@ -63,6 +67,10 @@ test_that("autobuild_linkFromTimes works correctly", {
     expect_equal(qr$from_id, 156) # redundant
     expect_equal(qr$to_id, 182) # redundant
     
+    # clean up
+    DBI::dbDisconnect(ae$connection)
+    ae = NULL
+    
   })
   
   #############################
@@ -93,6 +101,10 @@ test_that("autobuild_linkFromTimes works correctly", {
     qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='", ae$UUID,"'"))
     
     expect_equal(dim(qr)[1], 840)
+    
+    # clean up
+    DBI::dbDisconnect(ae$connection)
+    ae = NULL
     
   })
   
@@ -153,6 +165,10 @@ test_that("autobuild_linkFromTimes works correctly", {
     qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM links WHERE db_uuid='", ae$UUID,"'",
                                                " AND to_id = 984"))
     expect_equal(dim(qr)[1], 0)
+    
+    # clean up
+    DBI::dbDisconnect(ae$connection)
+    ae = NULL
     
   })
   
@@ -219,6 +235,9 @@ test_that("autobuild_linkFromTimes works correctly", {
                                                " AND to_id = 984"))
     expect_equal(dim(qr)[1], 0)
     
+    # clean up
+    DBI::dbDisconnect(ae$connection)
+    ae = NULL
     
   })
   
@@ -282,6 +301,9 @@ test_that("autobuild_linkFromTimes works correctly", {
                                                " AND to_id = 984"))
     expect_equal(dim(qr)[1], 0)
     
+    # clean up
+    DBI::dbDisconnect(ae$connection)
+    ae = NULL
     
   })
   
@@ -334,6 +356,10 @@ test_that("autobuild_linkFromTimes works correctly", {
     expect_equal(dbConfig$levelDefinitions[[length(dbConfig$levelDefinitions)]]$name, 'Phonetic-autobuildBackup')
     expect_equal(dbConfig$levelDefinitions[[length(dbConfig$levelDefinitions)]]$type, 'SEGMENT')
     
+    # clean up
+    DBI::dbDisconnect(ae$connection)
+    ae = NULL
+    
   })
   
   ##############################
@@ -372,6 +398,10 @@ test_that("autobuild_linkFromTimes works correctly", {
     lastLvlName=annotJson$levels[[11]]$name
     expect_equal(lastLvlName, "Phonetic-autobuildBackup")
     
+    # clean up
+    DBI::dbDisconnect(ae$connection)
+    ae = NULL
+    
   })
   
   ##############################
@@ -402,6 +432,10 @@ test_that("autobuild_linkFromTimes works correctly", {
       expect_equal(curMd5sum, bundleDF$md5_annot_json)
       
     })
+    
+    # clean up
+    DBI::dbDisconnect(tgCol$connection)
+    tgCol = NULL
     
   })
   

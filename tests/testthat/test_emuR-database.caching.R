@@ -92,6 +92,8 @@ test_that("update_cache works", {
   })
   
   # clean up
+  DBI::dbDisconnect(ae$connection)
+  ae = NULL
   unlink(path2db, recursive = T)
 
 })

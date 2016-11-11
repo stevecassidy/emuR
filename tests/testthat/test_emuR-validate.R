@@ -21,6 +21,11 @@ test_that("unaltered bundle (sqlTableRep) validates successfully", {
   res = validate_bundleDBI(ae, session = "0000", bundle = "msajc003")
   expect_equal(res$type, 'SUCCESS')
   expect_equal(res$message, '')
+  
+  # clean up
+  DBI::dbDisconnect(ae$connection)
+  ae = NULL
+  
 })
 
 

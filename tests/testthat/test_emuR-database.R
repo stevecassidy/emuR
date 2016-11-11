@@ -388,6 +388,8 @@ test_that("database functions work", {
   # cleanup
   
   # delete vars to be safe (& to diconnect)
+  DBI::dbDisconnect(ae$connection)
+  DBI::dbDisconnect(aeFromLegacy$connection)
   ae = NULL
   aeFromLegacy = NULL
   
@@ -427,6 +429,8 @@ test_that("store works correctly",{
   # cleanup
   
   # delete vars to be safe (& to diconnect  ae = NULL
+  DBI::dbDisconnect(aeStored$connection)
+  DBI::dbDisconnect(ae$connection)
   aeStored = NULL
   ae = NULL
   unlink(file.path(path2testData, "fromStore"), recursive = T)
@@ -477,6 +481,7 @@ test_that("load of read only emuDB works",{
   Sys.chmod(path2db, mode = "755") # change back
   
   # cleanup
+  DBI::dbDisconnect(ae$connection)
   ae = NULL
   unlink(path2db, recursive = T)
 })

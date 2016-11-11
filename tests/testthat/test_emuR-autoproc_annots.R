@@ -43,6 +43,10 @@ test_that("replace_itemLabels works correctly", {
     expect_equal(nrow(sl), 2)
   })
   
+  # clean up
+  DBI::dbDisconnect(ae$connection)
+  ae = NULL
+  
 })
 
 
@@ -107,6 +111,8 @@ test_that("duplicate_level works correctly", {
   })
   
   # clean up
+  DBI::dbDisconnect(ae$connection)
+  ae = NULL
   unlink(path2db, recursive = T)
 })
 
@@ -136,5 +142,7 @@ test_that("resample annots works correctly", {
   
     
   # clean up
+  DBI::dbDisconnect(ae$connection)
+  ae = NULL
   unlink(path2db, recursive = T)
 })

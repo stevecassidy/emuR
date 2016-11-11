@@ -60,5 +60,9 @@ test_that("file operations work", {
     
     
   })
-
+  
+  # clean up
+  DBI::dbDisconnect(ae$connection)
+  ae = NULL
+  
 })
