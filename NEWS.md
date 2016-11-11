@@ -2,14 +2,17 @@
 
 ## bug fixes
 
-* added missing example to export\_TextGridCollection()
-* fixed bad DBconfig gen on add_perspective
+* fixed bad DBconfig gen. on add_perspective
 * fixed list\_linkDefinitions() returning strings as factors
-* fixed bad error message when passing in ITEM levels to autobuild_links from times
+* fixed bad error message when passing in ITEM levels to autobuild\_linkFromTimes()
 * fixed incorrect handling of DBconfig when writeToFS was set to FALSE (writeToFS is now called rewriteAllAnnots)
 
 ## new features / performance tweaks / improvements
 
+* rewrite of query engine to not require links_ext table any more (== redundant links)
+* calcTimes parameter added to query() / requery\_seq() / requery\_hier() to make calculating times optional (extreme performance boost if no times have to be calculated)
+* rewrite of annotJSONcharToBundleAnnotDFs() for faster loads emuDBs containing large annotJSONs
+* replaced tidyjson as annot.json parser with own solution at tidyjson didn't scale well on larger annotation files
 * added verbose parameter to export\_TextGridCollection()
 * improved pre-check of dir exists in export\_TextGridCollection()
 * added new replace\_itemLabels function
@@ -20,11 +23,7 @@
 * implemented linkDuplicates parameter in duplicate\_level()
 * autobuild\_linkFromTimes() speed improvements
 * FUNCQ queries (start(),end(), medial()) now additionally support TRUE & FALSE and T & F values (vs. 0 & 1) 
-* rewrite of query engine to not require links_ext table any more (== redundant links)
 * added attrDefNames column to list\_levelDefinitions() output
-* rewrite of annotJSONcharToBundleAnnotDFs() for faster loads emuDBs containing large annotJSONs
-* replaced tidyjson as annot.json parser with own solution at tidyjson didn't scale well on larger annotation files
-* calcTimes parameter added to query() / requery\_seq() / requery\_hier() to make calculating times optional (extreme performance boost if no times have to be calculated)
 * can now deal with read only emuDBs by copying the cache to tempdir() and making it writable for the user
 * added start\_item\_seq\_idx and end\_item\_seq\_idx to emuRsegs object
 * added start\_item\_seq\_idx and end\_item\_seq\_idx type values to all intermediate result tables
