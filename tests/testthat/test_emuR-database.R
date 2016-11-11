@@ -442,8 +442,8 @@ test_that("rename works correctly",{
   
   rename_emuDB(path2db, "aeRename")
   newPath = file.path(path2testData, paste0("aeRename", "_emuDB"))
-  jsonChar = readChar(file.path(newPath, "aeRename_DBconfig.json"))
-  DBconfig = jsonlite::fromJSON(jsonChar, simplifyVector=FALSE)
+  
+  DBconfig = jsonlite::fromJSON(file.path(newPath, "aeRename_DBconfig.json"), simplifyVector=FALSE)
   expect_equal(DBconfig$name, "aeRename")
   
   expect_true("aeRename_emuDB" %in% list.files(path2testData))
