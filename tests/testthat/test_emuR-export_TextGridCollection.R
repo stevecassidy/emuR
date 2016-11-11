@@ -87,5 +87,10 @@ test_that("export_TextGridCollection works correctly", {
     
     expect_equal(length(grep("Phonetic",tgLines)), 1)
   })
-    
+  
+  # clean up (and disconnect)
+  ae = NULL
+  unlink(path2db, recursive = T)
+  
+  
   })
