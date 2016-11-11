@@ -77,6 +77,7 @@ test_that("database functions work", {
     t1BasePath=file.path(path2testData,'create_emuDB_test1_emuDB')
     t1=load_emuDB(t1BasePath)
     expect_that(t1$dbName,is_equivalent_to('create_emuDB_test1'))
+    DBI::dbDisconnect(t1$connection)
     unlink(t1BasePath,recursive = T)
   })
   
