@@ -463,5 +463,6 @@ test_that("Load example database ae",{
     all(round(sl$end, 3) == round(c(2604.425, 2753.975, 2692.325, 3456.825, 2469.525, 2554.175, 2794.925), 3))
   })
   # clean up (also causes disconnect)
+  unlink(.test_emu_ae_db_dir, recursive = T)
   ae = NULL
 })
