@@ -31,6 +31,10 @@ test_that("correct classes are returned", {
   
 })
 
+# clean up
+DBI::dbDisconnect(ae$connection)
+unlink(path2db, recursive = T)
+
 ##############################
 # test_that("cut works correctly", {
 #   
