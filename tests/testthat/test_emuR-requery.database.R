@@ -97,5 +97,8 @@ test_that("requeries work on ae",{
     expect_equal(allLabels, "V->m->V->N->s->t->H->E->n->i:->@->n")
   })
   
+  # clean up (also disconnects)
+  ae = NULL
+  unlink(.test_emu_ae_db_dir, recursive = T)
     
 })
