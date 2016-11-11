@@ -455,6 +455,7 @@ test_that("rename works correctly",{
 
 test_that("load of read only emuDB works",{
   skip_on_cran() # probably won't work on windows (because of mode) so skip on cran
+  skip_on_os("windows")
   
   # delete, copy and load
   unlink(path2db, recursive = T)
@@ -476,6 +477,7 @@ test_that("load of read only emuDB works",{
   Sys.chmod(path2db, mode = "755") # change back
   
   # cleanup
+  ae = NULL
   unlink(path2db, recursive = T)
 })
 
