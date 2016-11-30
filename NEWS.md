@@ -4,6 +4,7 @@
 
 ## new features / performance tweaks / improvements
 
+* added new `EMUwebAppConfig -> perspectives -> signalCanvases -> minMaxValLims` config option to emuDB vignette
 
 # emuR 0.2.0
 

@@ -557,6 +557,10 @@ The `_DBconfig.json` file contains the following fields:
 - `"assign"` array of configuration options to assign one ssffTrack to another effectively creating a visual overlay of one track over another. Each array element consists of:
 - `"signalCanvasName"` name of signal specified in the `"order"` array
 - `"ssffTrackName"` name of ssffTrack to overlay onto `"signalCanvasName"`
+- `"minMaxValLims"` array of configuration options to limit the y-axis range that is displayed for a specified SSFF track
+- `"ssffTrackName"`: name specifying which ssffTrack should be limited
+- `"minVal"`: minimum value which defines the lower y-axis limit
+- `"maxVal"`: maximum value which defines the lower y-axis limit
 - `"contourLims"` array containing contour limit values that specify an index range that is to be displayed. As a track / column can contain multi-dimensional data (e.g. 4 formant values per time stamp / 256 DFT values per time stamp / ...) it is possible to specify an index range that specifies which values should be displayed (e.g. display formant 2 through 4).
 - `"ssffTrackName"` name specifying which ssffTrack should be limited
 - `"minContourIdx"` minimum contour index to display (starts at index 0)
