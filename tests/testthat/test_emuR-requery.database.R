@@ -96,7 +96,45 @@ test_that("requeries work on ae",{
     allLabels = paste0(rsl1$labels, collapse = "->")
     expect_equal(allLabels, "V->m->V->N->s->t->H->E->n->i:->@->n")
   })
+
+  test_that("hierarchical requery on same attrDef without times calculates missing times",{
+    
+    slTimes=query(ae, "Word=~.*", calcTimes = T)
+    slNoTime=query(ae, "Word=~.*", calcTimes = F)
+    
+    # requery to same attrDef
+    slRq = requery_hier(ae, slNoTime, level='Word')
+    
+    # overwrite attr
+    attr(slTimes, "query") = ""
+    attr(slRq, "query") = ""
+    
+    cres = compare::compare(slTimes, slRq, allowAll = T)
+    expect_true(cres$result)
+  })
+
+  test_that("hierarchical requery on parallel attrDef works",{
+    
+    # Text beginning with 'a'
+    sl1 = query(ae, "Text=~'a[mn].*'")
+    
+    # requery to same attrDef
+    slRq = requery_hier(ae, sl1, level = 'Word')
+    
+    expect_equal(paste0(sl1$labels, collapse = "; "), "amongst; any; and")
+    
+    expect_equal(sl1$start, slRq$start)
+    expect_equal(sl1$end, slRq$end)
+    expect_equal(sl1$sample_start, slRq$sample_start)
+    expect_equal(sl1$sample_end, slRq$sample_end)
+    expect_equal(sl1$start_item_id, slRq$start_item_id)
+    expect_equal(sl1$end_item_id, slRq$end_item_id)
+    expect_equal(sl1$start_item_seq_idx, slRq$end_item_seq_idx)
+    expect_equal(sl1$end_item_seq_idx, slRq$end_item_seq_idx)
+    
+  })
   
+    
   # clean up (also disconnects)
   DBI::dbDisconnect(ae$connection)
   ae = NULL

@@ -234,17 +234,18 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE, calcTimes =
     segListLevel = DBI::dbGetQuery(emuDBhandle$connection, "SELECT DISTINCT level FROM emursegs_tmp;")$level
     
     if(length(segListLevel) > 1){
-      stop("Multiple levels found in seglist! This is not supported!")
+      stop("Multiple levels found in seglist! This is not supported by requery_hier()!")
     }
     
-    seglistAttrDefLn = get_levelNameForAttributeName(emuDBhandle, segListLevel)
     
+    seglistAttrDefLn = get_levelNameForAttributeName(emuDBhandle, segListLevel)
     # get level for req level (which is actually a attribute definition)
     reqAttrDef = level
     check_levelAttributeName(emuDBhandle, reqAttrDef) # check if valid attr. def
     
     reqAttrDefLn = get_levelNameForAttributeName(emuDBhandle, reqAttrDef)
-    if(segListLevel != reqAttrDefLn){
+    
+    if(seglistAttrDefLn != reqAttrDefLn){
       
       # insert all original emuRsegs items new table
       origSeglistItemsTableSuffix = "orig_seglist_items"
@@ -316,8 +317,9 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE, calcTimes =
     }else{
       # just reset level as convert_queryResultToEmuRsegs does the rest!
       create_intermResTmpQueryTablesDBI(emuDBhandle)
+      
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_root ",
-                                                     "SELECT erst.db_uuid, erst.session, erst.bundle, erst.start_item_id AS seq_start_id, erst.end_item_id AS seq_end_id, (i_end.seq_idx - i_start.seq_idx) + 1 AS seq_len, '", level, "' AS level ",
+                                                     "SELECT erst.db_uuid, erst.session, erst.bundle, erst.start_item_id AS seq_start_id, erst.end_item_id AS seq_end_id, (i_end.seq_idx - i_start.seq_idx) + 1 AS seq_len, '", level, "' AS level, erst.start_item_seq_idx AS seq_start_seq_idx, erst.end_item_seq_idx AS seq_end_seq_idx ",
                                                      "FROM emursegs_tmp AS erst, items AS i_start, items AS i_end ",
                                                      "WHERE erst.db_uuid = i_start.db_uuid AND erst.session = i_start.session AND erst.bundle = i_start.bundle AND erst.start_item_id = i_start.item_id ", 
                                                      "AND erst.db_uuid = i_end.db_uuid AND erst.session = i_end.session AND erst.bundle = i_end.bundle AND erst.end_item_id = i_end.item_id "))

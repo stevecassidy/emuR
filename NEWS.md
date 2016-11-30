@@ -2,6 +2,10 @@
 
 ## bug fixes
 
+* fixed requery\_hier() bug of requery on same attribute definition
+* fixed requery\_hier() bug of requery on same level but different attribute definition
+
+
 ## new features / performance tweaks / improvements
 
 * added new `EMUwebAppConfig -> perspectives -> signalCanvases -> minMaxValLims` config option to emuDB vignette
