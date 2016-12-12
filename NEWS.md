@@ -9,6 +9,7 @@
 ## new features / performance tweaks / improvements
 
 * added new `EMUwebAppConfig -> perspectives -> signalCanvases -> minMaxValLims` config option to emuDB vignette
+* requery_hier + requery_seq now implement the same timeRefSegmentLevel parameter as query (#135)
 
 # emuR 0.2.0
 

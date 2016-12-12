@@ -1279,7 +1279,7 @@ query_databaseWithEql<-function(emuDBhandle, query, intermResTableSuffix, leftRi
 ##' @param sessionPattern A regular expression pattern matching session names to be searched from the database
 ##' @param bundlePattern A regular expression pattern matching bundle names to be searched from the database
 ##' @param queryLang query language used for evaluating the query string 
-##' @param timeRefSegmentLevel set time derivation segment level
+##' @param timeRefSegmentLevel set time segment level from which to derive time information. It is only necessary to set this parameter if more than one child level contains time information and the queried parent level is of type ITEM.
 ##' @param resultType type (class name) of result
 ##' @param calcTimes calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
 ##' calculate the times for large nested hierarchies it can be turned of via this boolian parameter. 

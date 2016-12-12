@@ -19,7 +19,7 @@ query(emuDBhandle, query, sessionPattern = ".*", bundlePattern = ".*",
 
 \item{queryLang}{query language used for evaluating the query string}
 
-\item{timeRefSegmentLevel}{set time derivation segment level}
+\item{timeRefSegmentLevel}{set time segment level from which to derive time information. It is only necessary to set this parameter if more than one child level contains time information and the queried parent level is of type ITEM.}
 
 \item{resultType}{type (class name) of result}
 

@@ -19,9 +19,9 @@ get_trackdata(emuDBhandle, seglist = NULL, ssffTrackName = NULL,
 \code{\link{list_ssffTrackDefinitions}} for the defined ssffTracks of the 
 emuDB). If the parameter \code{onTheFlyFunctionName} is set, then 
 this corresponds to the column name af the AsspDataObj (see
-\code{wrasspOutputInfos[[onTheFlyFunctionName]]$tracks} and \code{\link{wrasspOutputInfos}}). 
+\code{wrassp::wrasspOutputInfos[[onTheFlyFunctionName]]$tracks} and \code{\link{wrasspOutputInfos}} - NOTE: \code{library(wrassp)} might be necessary to access the \code{wrasspOutputInfos} object without the \code{wrassp::} prefix). 
 If the parameter \code{onTheFlyFunctionName} is set and this one isn't, then per default
-the first track listed in the \code{wrasspOutputInfos} is chosen (\code{wrasspOutputInfos[[onTheFlyFunctionName]]$tracks[1]}).
+the first track listed in the \code{wrassp::wrasspOutputInfos} is chosen (\code{wrassp::wrasspOutputInfos[[onTheFlyFunctionName]]$tracks[1]}).
 
 \code{get_trackdata} has so called constant track names that are always available for every emuDB. The constant track names are:
 
@@ -39,7 +39,7 @@ samples are centered around the cut-time-sample; if not, they are skewed to the
 right by one sample.}
 
 \item{onTheFlyFunctionName}{Name of wrassp function that will perform the on-the-fly 
-calculation (see \code{names(wrasspOutputInfos)} for a list of all the signal processing functions wrassp provides)}
+calculation (see \code{?wrassp} for a list of all the signal processing functions wrassp provides)}
 
 \item{onTheFlyParams}{A \code{pairlist} of parameters that will be given to the function 
 passed in by the \code{onTheFlyFunctionName} parameter. This list can easily be 

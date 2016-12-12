@@ -5,7 +5,7 @@
 \title{Requery hierarchical context of a segment list in an emuDB}
 \usage{
 requery_hier(emuDBhandle, seglist, level, collapse = TRUE, calcTimes = T,
-  verbose = TRUE)
+  timeRefSegmentLevel = NULL, verbose = TRUE)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
@@ -18,6 +18,8 @@ requery_hier(emuDBhandle, seglist, level, collapse = TRUE, calcTimes = T,
 
 \item{calcTimes}{calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
 calculate the times for large nested hierarchies it can be turned of via this boolian parameter.}
+
+\item{timeRefSegmentLevel}{set time segment level from which to derive time information. It is only necessary to set this parameter if more than one child level contains time information and the queried parent level is of type ITEM.}
 
 \item{verbose}{be verbose}
 }
