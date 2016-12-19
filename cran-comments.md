@@ -1,5 +1,5 @@
 ## Test environments
-* local OS X install, R Under development (unstable) (2016-10-26 r71594) -- "Unsuffered Consequences"
+* local OS X (x86_64-apple-darwin13.4.0) install, R Under development (unstable) (2016-10-26 r71594) -- "Unsuffered Consequences"
 * Ubuntu 12.04.5 LTS (on travis-ci), R 3.3.1
 * win-builder (devel and release)
 

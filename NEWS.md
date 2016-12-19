@@ -1,4 +1,7 @@
-# emuR 0.2.0.9001
+# emuR 0.2.1
+
+## new features / performance tweaks / improvements
+* requery\_hier() and requery\_seq() now implement `timeRefSegmentLevel` parameter
 
 ## bug fixes
 
