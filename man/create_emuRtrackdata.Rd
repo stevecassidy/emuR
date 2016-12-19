@@ -17,11 +17,11 @@ emuRtrackdata object
 \description{
 Joins \code{\link{emuRsegs}} and \code{\link{trackdata}} objects
 to create an \code{\link{emuRtrackdata}} object that is a sub-class of
-a \code{\link[data.table]{data.table}} (and \code{\link{data.frame}}) object. This object 
+a \code{data.table} (and \code{\link{data.frame}}) object. This object 
 can be viewed as a flat version of a \code{\link{trackdata}} object that also 
 contains all the information of a \code{\link{emuRsegs}} object. It is meant to
 ease integration with other packages as it is based on the well known 
-\code{\link[data.table]{data.table}} and \code{\link{data.frame}} objects.
+\code{data.table} and \code{\link{data.frame}} objects.
 }
 \examples{
 \dontrun{
