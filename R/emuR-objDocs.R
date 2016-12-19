@@ -170,14 +170,14 @@ NULL
 ##' A emuR track data object is the result of \code{\link{get_trackdata}} if the 
 ##' \code{resultType} parameter is set to \code{"emuRtrackdata"} or the result of 
 ##' an explicit call to \code{\link{create_emuRtrackdata}}. Compared to 
-##' the \code{\link{trackdata}} object it is a sub-class of a \code{\link{data.table}}
+##' the \code{\link{trackdata}} object it is a sub-class of a \code{\link[data.table]{data.table}}
 ##' / \code{\link{data.frame}} which is meant to ease integration with other
 ##' packages for further processing. It can be viewed as an amalgamation of
 ##' a \code{\link{emuRsegs}} and a \code{\link{trackdata}} object as it
 ##' contains the information stored in both objects.
 ##' 
 ##' 
-##' @format The \code{\link{data.table}} / \code{\link{data.frame}} has the following columns:
+##' @format The \code{\link[data.table]{data.table}} / \code{\link{data.frame}} has the following columns:
 ##' 
 ##' \describe{
 ##'   \item{$sl_rowIdx}{column to indicate \code{\link{emuRsegs}} row index that 
