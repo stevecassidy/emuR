@@ -9,11 +9,10 @@ requireNamespace("dplyr", quietly = T)
 ##' can be viewed as a flat version of a \code{\link{trackdata}} object that also 
 ##' contains all the information of a \code{\link{emuRsegs}} object. It is meant to
 ##' ease integration with other packages as it is based on the well known 
-##' \code{\link{data.table}} and \code{\link{data.frame}} objects.
+##' \code{\link[data.table]{data.table}} and \code{\link{data.frame}} objects.
 ##' @param sl seglist of class \code{\link{emuRsegs}}
 ##' @param td \code{\link{trackdata}} object generated from sl
 ##' @return emuRtrackdata object
-##' @import data.table
 ##' @export
 ##' @examples
 ##' \dontrun{
@@ -59,7 +58,7 @@ create_emuRtrackdata <- function(sl, td){
   start.time = rep(start(td), nframes)
   n.time = times - start.time
   rownames(td$data) = NULL
-  res = data.table(sl_rowIdx = inds, expSl, times_rel = n.time, times_orig = times, td$data)
+  res = data.table::data.table(sl_rowIdx = inds, expSl, times_rel = n.time, times_orig = times, td$data)
   class(res) <- c("emuRtrackdata", class(res))
   return(res)
 }

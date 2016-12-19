@@ -1,9 +1,8 @@
-requireNamespace("stringr", quietly = T)
-requireNamespace("uuid", quietly = T)
-requireNamespace("wrassp", quietly = T)
-requireNamespace("DBI", quietly = T)
-requireNamespace("tidyjson", quietly = T)
-requireNamespace("dplyr", quietly = T)
+# requireNamespace("stringr", quietly = T)
+# requireNamespace("uuid", quietly = T)
+# requireNamespace("DBI", quietly = T)
+# requireNamespace("tidyjson", quietly = T)
+# requireNamespace("dplyr", quietly = T)
 
 # constants
 

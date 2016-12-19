@@ -53,7 +53,7 @@
 ##' @return If the \code{cut} parameter is not set (the default) an object of type \code{\link{trackdata}} or \code{\link{emuRtrackdata}} 
 ##' is returned. If \code{cut} is set and \code{npoints} is not, or the seglist 
 ##' is of type event and npoints is not set, a \code{\link{data.frame}} is returned.
-##' @seealso \code{\link{formals}}, \code{\link{wrasspOutputInfos}}, \code{\link{trackdata}}, \code{\link{emuRtrackdata}}
+##' @seealso \code{\link{formals}}, \code{\link[wrassp]{wrasspOutputInfos}}, \code{\link{trackdata}}, \code{\link{emuRtrackdata}}
 ##' @keywords misc
 ##' @import wrassp
 ##' @aliases emu.track

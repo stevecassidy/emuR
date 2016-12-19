@@ -1129,7 +1129,6 @@ remove_linkDefinition <- function(emuDBhandle,
 ##' @param deleteFiles delete files that belong to ssffTrackDefinition on removal
 ##' @param verbose Show progress bars and further information
 ##' @param interactive ask user for confirmation
-##' @seealso wrasspOutputInfos
 ##' @name AddListRemoveSsffTrackDefinition
 ##' @examples 
 ##' \dontrun{

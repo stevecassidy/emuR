@@ -105,7 +105,7 @@ td = get_trackdata(emuDBhandle = ae,
 
 }
 \seealso{
-\code{\link{formals}}, \code{\link{wrasspOutputInfos}}, \code{\link{trackdata}}, \code{\link{emuRtrackdata}}
+\code{\link{formals}}, \code{\link[wrassp]{wrasspOutputInfos}}, \code{\link{trackdata}}, \code{\link{emuRtrackdata}}
 }
 \keyword{misc}
 
