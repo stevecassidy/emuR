@@ -320,7 +320,7 @@ TextGridToBundleAnnotDFs <- function(tgPath, sampleRate, name, annotates){
   FILE_TYPE_KEY="File type"
   OBJECT_CLASS_KEY="Object class"
   
-  tgChar = readChar(tgPath, file.info(tgPath)$size)
+  tgChar = enc2utf8(readChar(tgPath, file.info(tgPath)$size)) # wrapped in enc2utf8 as readChar respects the system default (windows iso 88591)
   lines = unlist(strsplit(tgChar, "\n"))
   
   if(!grepl(paste0("^", FILE_TYPE_KEY), lines[1]) & !grepl(paste0("^", OBJECT_CLASS_KEY), lines[2])){

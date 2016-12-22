@@ -1,6 +1,8 @@
-# emuR 0.2.1.9000
+# emuR 0.2.1.9001
 
 ## bug fixes
+
+* wrapped `readChar`s in `enc2utf8` to avoid encodings issues on windows
 
 ## new features / performance tweaks / improvements
 

@@ -106,7 +106,7 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
       # extract MD5 sum of bundle annotJSON
       newMD5annotJSON = files_sesBndlMd5DF[files_sesBndlMd5DF$session == bndl$session & files_sesBndlMd5DF$name == bndl$name,]$md5_annot_json
       # read annotJSON as charac 
-      annotJSONchar = readChar(annotFilePath, file.info(annotFilePath)$size)
+      annotJSONchar = enc2utf8(readChar(annotFilePath, file.info(annotFilePath)$size)) # wrapped in enc2utf8 as readChar respects the system default (windows iso 88591)
       # convert to bundleAnnotDFs
       bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(annotJSONchar)
       # removing old bundle entry
