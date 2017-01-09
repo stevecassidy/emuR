@@ -3,7 +3,7 @@ requireNamespace("RSQLite", quietly = T)
 ##' Convert a Bas Partitur File Collection (audio and BAS Partitur files) to an emuDB
 ##' 
 ##' Converts a Bas Partitur File Collection to an emuDB. Expects a collection of the following form:
-##' One master directory <targetDir> containing any number of file pairs (= bundles). A file pair 
+##' One master directory <sourceDir> containing any number of file pairs (= bundles). A file pair 
 ##' consists of an audio file with the extension <audioExt> and a BPF file with the extension <bpfExt>. 
 ##' Apart from extensions, the names of corresponding audio and BPF files must be identical. Each BPF 
 ##' file is converted into an emuDB annot file. An emuDB config file matching the data base is created 
