@@ -1,4 +1,22 @@
-##
+##' Exports an emuDB into a Bas Partitur File Collection (BAS Partitur files)
+##' 
+##' 
+##' @param handle handle to the emuDB
+##' @param targetDir directory where the BPF collection should be saved
+##' @param extractLevels list containing the names of labels (not levels!) that should be extracted, and their
+##' matching BPF keys, e.g. extractLevels = list(SampleRate="SAM", Text="ORT", Phonemes="SAP")
+##' @param refLevel optional name of level (not label!) used as reference for symbolic links. If NULL (the default), a link-less BPF collection is created.
+##' @param newLevels optional vector containing names of levels in the BPF collection that are not part of the standard 
+##' BPF levels. See \url{http://www.bas.uni-muenchen.de/forschung/Bas/BasFormatseng.html#Partitur_tiersdef} for details on 
+##' standard BPF levels.
+##' @param newLevelClasses optional vector containing the classes of levels in the newLevels vector as integers. 
+##' Must have the same length and order as newLevels.
+##' @param copyAudio if true, audio files are copied to the new BPF collection
+##' @param verbose display infos, warnings and show progress bar
+##' @return NULL
+##' @export
+##' @seealso export_TextGridCollection
+##' 
 export_BPFCollection <- function(handle,
                                  targetDir,
                                  extractLevels,
@@ -285,7 +303,7 @@ build_skeleton <- function(handle, targetDir, copyAudio, verbose)
     for(bundle in list_bundles(handle, session = session)$name)
     {
       queryTxt = paste0("SELECT annotates FROM bundle", 
-                        basic_cond(handle, session, bundle, bundename="name"))
+                        basic_cond(handle, session, bundle, bundlename="name"))
       
       annotates = DBI::dbGetQuery(handle$connection, queryTxt)[1,1]
         
@@ -357,7 +375,7 @@ infer_temporal_info <- function(handle, session, bundle, item_id, type="SEGMENT"
     {
       queryTxt = paste0("SELECT ", needed_as_set, " FROM items", basic_cond(handle, session, bundle),
                         "AND type='", t, "' AND item_id in ", ids_as_set, " ORDER by ", needed[1])
-      tmp = DBI::bGetQuery(handle$connectio, queryTxt)
+      tmp = DBI::dbGetQuery(handle$connection, queryTxt)
       
       if(nrow(tmp) > 0)
       {
