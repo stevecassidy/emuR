@@ -64,34 +64,7 @@ convert_BPFCollection <- function(sourceDir,
                                   unifyLevels = NULL,
                                   verbose = TRUE)
 {
-  # ---------------------------------------------------------------------------
-  # ------------------------ Standard BPF levels ------------------------------
-  # ---------------------------------------------------------------------------
-  
-  # To add a new level type to the BPF format:
-  
-  # - add new level name (three character string) to STANDARD_LEVELS
-  # - add its class (integer in range 1-5) to STANDARD_LEVEL_CLASSES
-  # - the order of both vectors must match (i.e. if you add the name at position 10, add the class at position 10 as well)
-  
-  # If you do not wish to extend the format directly in the source code, use newLevels and newLevelClasses arguments.
-  STANDARD_LEVELS = c(
-    "KAN", "KAS", "PTR", "ORT", "TRL", "TR2", "SUP", "DAS", "PRS", "NOI", 
-    "POS", "LMA", "TRS", "TRW", "PRO", "SYN", "FUN", "LEX", "TLN",
-    "IPA", "GES", "USH", "USM", "OCC",
-    "PRM", "LBG", "LBP",
-    "SAP", "MAU", "WOR", "PHO", "MAS", "USP", "TRN",
-    "PRB"
-  )
-  
-  STANDARD_LEVEL_CLASSES = c(
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1,
-    2, 2, 2, 2, 2,
-    3, 3, 3,
-    4, 4, 4, 4, 4, 4, 4,
-    5
-  )
+
   
   # ---------------------------------------------------------------------------
   # -------------------------- Get directories --------------------------------
@@ -115,7 +88,7 @@ convert_BPFCollection <- function(sourceDir,
                                        basePath = basePath,
                                        newLevels = newLevels,
                                        newLevelClasses = newLevelClasses,
-                                       standardLevels = STANDARD_LEVELS,
+                                       standardLevels = BPF_STANDARD_LEVELS,
                                        verbose = verbose,
                                        refLevel = refLevel,
                                        audioExt = audioExt,
@@ -125,8 +98,8 @@ convert_BPFCollection <- function(sourceDir,
   # ---------------- Combine standard and new level classes -------------------
   # ---------------------------------------------------------------------------
   
-  levelClasses = as.list(STANDARD_LEVEL_CLASSES)
-  names(levelClasses) = STANDARD_LEVELS
+  levelClasses = as.list(BPF_STANDARD_LEVEL_CLASSES)
+  names(levelClasses) = BPF_STANDARD_LEVELS
   levelClasses[newLevels] = newLevelClasses
   
   # ---------------------------------------------------------------------------
@@ -1348,7 +1321,33 @@ display_bpfSemicolonWarnings <- function(warningsTracker)
   }
 }
 
-# FOR DEVELOPMENT
-# library(testthat)
-# test_file("tests/testthat/test_aaa_initData.R")
-# test_file("tests/testthat/test_emuR-convert_BPFCollection.R")
+
+# ---------------------------------------------------------------------------
+# ------------------------ Standard BPF levels ------------------------------
+# ---------------------------------------------------------------------------
+
+# To add a new level type to the BPF format:
+
+# - add new level name (three character string) to BPF_STANDARD_LEVELS
+# - add its class (integer in range 1-5) to BPF_STANDARD_LEVEL_CLASSES
+# - the order of both vectors must match (i.e. if you add the name at position 10, add the class at position 10 as well)
+
+# If you do not wish to extend the format directly in the source code, use newLevels and newLevelClasses arguments.
+
+BPF_STANDARD_LEVELS = c(
+  "KAN", "KAS", "PTR", "ORT", "TRL", "TR2", "SUP", "DAS", "PRS", "NOI", 
+  "POS", "LMA", "TRS", "TRW", "PRO", "SYN", "FUN", "LEX", "TLN",
+  "IPA", "GES", "USH", "USM", "OCC",
+  "PRM", "LBG", "LBP",
+  "SAP", "MAU", "WOR", "PHO", "MAS", "USP", "TRN",
+  "PRB"
+)
+
+BPF_STANDARD_LEVEL_CLASSES = c(
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+  1, 1, 1, 1, 1, 1, 1, 1, 1,
+  2, 2, 2, 2, 2,
+  3, 3, 3,
+  4, 4, 4, 4, 4, 4, 4,
+  5
+)
