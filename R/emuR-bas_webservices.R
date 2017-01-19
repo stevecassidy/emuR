@@ -1,517 +1,314 @@
-#####################################################################
-############################# MAUS ##################################
-#####################################################################
 
-bas_run_maus_from_transcription <- function(handle,
-                                            transcriptionLabel,
-                                            language,
-                                            mauLabel = "MAU",
-                                            orthoLabel = "ORT",
-                                            canoLabel = "KAN",
-                                            orthoLevel = NULL,
-                                            mauLevel = NULL,
-                                            perspective = "default",
-                                            verbose = TRUE)
+
+BAS_ITEMS_TMP_TABLE = "bas_items_tmp"
+BAS_LINKS_TMP_TABLE = "bas_links_tmp"
+BAS_LABELS_TMP_TABLE = "bas_labels_tmp"
+BAS_WORKDIR = file.path(tempdir(), "emuR_bas_workdir")
+BAS_ADDRESS = "https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/"
+
+bas_run_maus_from_transcription <- function(
+  handle,
+  transcriptionLabel,
+  language,
+  canoLabel = "KAN",
+  orthoLabel = "ORT",
+  mauLabel = "MAU",
+  wordLevel = NULL,
+  mauLevel = NULL,
+  verbose = TRUE
+  )
 {
+  drop_allTmpTablesDBI(handle)
+  bas_create_tmp_tables(handle)
+  dir.create(BAS_WORKDIR)
+  
   transcriptionLevel = get_levelNameForAttributeName(handle, transcriptionLabel)
-  if (is.null(transcriptionLevel)) {
-    stop("Could not find a level for label", transcriptionLabel)
-  }
+
+  if(is.null(wordLevel)) { wordLevel = orthoLabel }
+  if(is.null(mauLevel)) { mauLevel = mauLabel }
   
-  if (is.null(orthoLevel)) {
-    orthoLevel = orthoLabel
-  }
-  if (is.null(mauLevel)) {
-    mauLevel = mauLabel
-  }
   
-  if (!is.null(get_levelDefinition(handle, orthoLevel))) {
-    stop("Level", orthoLevel, "already exists!")
-  }
-  if (!is.null(get_levelDefinition(handle, mauLevel))) {
-    stop("Level", mauLevel, "already exists!")
-  }
   
-  trnLevel = NULL
-  if(get_levelDefinition(handle, transcriptionLevel)$type == "SEGMENT")
+  bas_run_maus_from_transcription_dbi(handle = handle,
+                                      transcriptionLabel = transcriptionLabel,
+                                      canoLabel = canoLabel,
+                                      orthoLabel = orthoLabel,
+                                      mauLabel = mauLabel,
+                                      transcriptionLevel = transcriptionLevel,
+                                      wordLevel = wordLevel,
+                                      mauLevel = mauLevel,
+                                      language = language,
+                                      verbose = verbose)
+  
+  add_levelDefinition(handle, wordLevel, "ITEM")
+  add_levelDefinition(handle, mauLevel, "SEGMENT")
+  add_attributeDefinition(handle, wordLevel, canoLabel)
+  add_attributeDefinition(handle, wordLevel, orthoLabel)
+  add_attributeDefinition(handle, mauLevel, mauLabel)
+  add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, wordLevel)
+  add_linkDefinition(handle, "ONE_TO_MANY", wordLevel, mauLevel)
+  
+  unlink(BAS_WORKDIR, recursive = TRUE)
+}
+
+
+bas_create_tmp_tables <- function(handle)
+{
+  queryTxt = paste0("CREATE TEMP TABLE ", BAS_ITEMS_TMP_TABLE, " (",
+                    "db_uuid VARCHAR(36),",
+                    "session TEXT,",
+                    "bundle TEXT,",
+                    "seq_start_id INTEGER,",
+                    "seq_end_id INTEGER,",
+                    "p_seq_start_id INTEGER,",
+                    "p_seq_end_id INTEGER,",
+                    "p_seq_len INTEGER,",
+                    "p_level TEXT,",
+                    "p_seq_start_seq_idx INTEGER,",
+                    "p_seq_end_seq_idx INTEGER",
+                    ");")
+  DBI::getQuery(handle$connection, queryTxt)
+  
+  queryTxt = paste0("CREATE TEMP TABLE ", BAS_LINKS_TMP_TABLE, " (",
+                    "db_uuid VARCHAR(36),",
+                    "session TEXT,",
+                    "bundle TEXT,",
+                    "from_id INTEGER,",
+                    "to_id INTEGER,",
+                    "label TEXT",
+                    ");")
+  DBI::getQuery(handle$connection, queryTxt)
+  
+  queryTxt = paste0("CREATE TEMP TABLE ", BAS_LABELS_TMP_TABLE, " (",
+                    "db_uuid VARCHAR(36),",
+                    "session TEXT,",
+                    "bundle TEXT,",
+                    "item_id INTEGER,",
+                    "label_idx INTEGER,",
+                    "name TEXT,",
+                    "label TEXT",
+                    ");")
+  DBI::getQuery(handle$connection, queryTxt)
+}
+
+bas_run_maus_from_transcription_dbi <- function(
+  handle,
+  transcriptionLabel,
+  canoLabel,
+  orthoLabel,
+  mauLabel,
+  transcriptionLevel,
+  wordLevel,
+  mauLevel,
+  language,
+  verbose
+)
+{
+  bas_run_g2p_from_transcription_dbi(
+    handle = handle,
+    transcriptionLabel = transcriptionLabel,
+    canoLabel = canoLabel,
+    orthoLabel = orthoLabel,
+    wordLevel = wordLevel,
+    language = language,
+    verbose = verbose
+  )
+  
+  if(TRUE) # NEED TRN check
+  
+  bas_run_maus_from_cano_dbi(
+    handle = handle,
+    canoLabel = canoLabel,
+    mauLabel = mauLabel,
+    mauLevel = mauLevel,
+    language = language,
+    verbose = verbose
+  )
+}
+
+bas_run_g2p_from_transcription_dbi <- function(
+  handle,
+  transcriptionLabel,
+  canoLabel,
+  orthoLabel,
+  transcriptionLevel,
+  wordLevel,
+  language,
+  verbose
+)
+{
+  bundles_list = list_bundles(handle)
+  if(nrow(bundles_list) > 0)
   {
-    trnLevel = transcriptionLevel
-  }
-  else
-  {
-    queryTxt = paste0(
-      "SELECT count(*) FROM items WHERE", basic_cond(handle, session, bundle), "AND level==", transcriptionLevel
-    )
-    nbItems = DBI::dbGetQuery(handle$connection, queryTxt)[1,1]
-    if (nbItems > 1)
+    for(bundle_idx in 1:nrow(bundles_list))
     {
-      stop(
-        "The transcription level", transcriptionLevel, "is an ITEM level but contains more than one item."
-      )
+      bundle = bundles_list[idx, "name"]
+      session = bundles_list[idx, "session"]
+
+      emuQueryTxt = paste0("[", transcriptionLabel, "=~.*]")
+      labels_list = query(handle, emuQueryTxt, 
+                          sessionPattern = session, bundlePattern = bundle, calcTimes = F)
+      
+      if(nrow(labels_list) > 0)
+      {
+        seq_idx = 1
+        max_id = bas_get_max_id(handle, session, bundle)
+        
+        for(label_idx in 1:nrow(labels_list))
+        {
+          transcription_label = str_trim(labels_list[label_idx, "labels"])
+          transcription_item_id = labels_list[label_idx, "start_item_id"]
+          
+          if(str_length(transcription_label) > 0)
+          {
+            textfile = file.path(BAS_WORKDIR, paste0(bundle, toString(word_seq_idx), ".txt"))
+            g2pfile = file.path(BAS_WORKDIR, paste0(bundle, toString(word_seq_idx), ".g2p.par"))
+            
+            write(transcription_label, file = textfile)
+            
+            address = paste0(BAS_ADDRESS, "runG2P")
+            res = RCurl::postForm(address, language = language, iform = "txt", nrm = "yes",
+                                  oform = "bpf", i = RCurl::fileUpload(textFile), style = "HTTPPOST")
+            
+            g2pLines = bas_read_download(res, g2pfile)
+            
+            if(length(g2pLines) > 0)
+            {
+              for(line_idx in 1:length(g2pLines))
+              {
+                line = g2pLines[idx]
+                if(stringr::str_detect(line, "^KAN:") || stringr::str_detect(line, "^ORT:"))
+                {
+                  splitline = stringr::str_split_fixed(line, "\\s+", n = 3)
+                  item_id = max_id + 1 + as.integer(splitline[2])
+                  label = str_replace_all(splitline[3], "'", "''")
+                  
+                  if(stringr::str_detect(line, "^ORT:"))
+                  {
+                    bas_add_item(handle=handle, session=session, bundle=bundle, 
+                      seq_idx=seq_idx, item_id=item_id, level=wordLevel, type="ITEM")
+                    
+                    seq_idx = seq_idx + 1
+                    
+                    bas_add_label(handle=handle, session=session, bundle=bundle, 
+                                  item_id=item_id, label_idx=1, label_name=orthoLabel,
+                                  label=label)
+                    
+                    bas_add_link(handle=handle, session=session, bundle=bundle,
+                                 from_id=transcription_item_id, to_id=item_id)
+                  }
+                  else
+                  {
+                    bas_add_label(handle=handle, session=session, bundle=bundle,
+                                  item_id=item_id, label_idx=2, label_name=canoLabel,
+                                  label=label)
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
-  
-  
-  bas_prepare(handle)
-  
-  bas_run_g2p_for_tokenization_dbi(
-    handle = handle,
-    transcriptionLabel = transcriptionLabel,
-    orthoLabel = orthoLabel,
-    orthoLevel = orthoLevel,
-    language = language,
-    verbose = verbose
-  )
-  
-  bas_run_g2p_from_ortho_dbi(
-    handle = handle,
-    orthoLevel = orthoLevel,
-    orthoLabel = orthoLabel,
-    canoLabel = canoLabel,
-    language = language,
-    verbose = verbose,
-    embedded = TRUE
-  )
-  
-  bas_run_maus_from_cano_dbi(
-    handle = handle,
-    canoLevel = orthoLevel,
-    canoLabel = canoLabel,
-    language = language,
-    verbose = verbose,
-    trnLevel = trnLevel,
-    mauLabel = mauLabel,
-    mauLevel = mauLevel,
-    embedded = TRUE
-  )
-  
-  bas_clear(handle)
-  
-  add_levelDefinition(handle, orthoLevel, "ITEM", verbose = verbose)
-  add_levelDefinition(handle, mauLevel, "SEGMENT", verbose = verbose)
-  if (orthoLevel != canoLabel) {
-    add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = verbose)
-  }
-  if (orthoLevel != orthoLabel) {
-    add_attributeDefinition(handle, orthoLevel, orthoLabel, verbose = verbose)
-  }
-  if (mauLevel != mauLabel) {
-    add_attributeDefinition(handle, mauLevel, mauLabel, verbose = verbose)
-  }
-  add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, orthoLevel)
-  add_linkDefinition(handle, "ONE_TO_MANY", orthoLevel, mauLevel)
-  
-  bas_new_canvas(handle, perspective, mauLevel)
-  rewrite_allAnnots(handle, verbose = verbose)
 }
 
-bas_run_maus_from_orth <- function(handle,
-                                   orthoLabel,
-                                   language,
-                                   canoLabel = "KAN",
-                                   mauLabel = "MAU",
-                                   mauLevel = NULL,
-                                   trnLevel = NULL,
-                                   verbose = TRUE,
-                                   perspective = "default")
+bas_add_item <- function(
+  handle, 
+  session, 
+  bundle, 
+  item_id, 
+  level, 
+  type, 
+  seq_idx, 
+  sample_start = NA,
+  sample_end = NA,
+  sample_point = NA
+)
 {
-  if (is.null(mauLevel)) {
-    mauLevel = mauLabel
-  }
-  if (!is.null(get_levelDefinition(handle, mauLevel))) {
-    stop("Level", mauLevel, "already exists!")
-  }
+  queryTxt = paste0("SELECT samplerate FROM bundles WHERE db_uuid=='", handle$UUID, 
+                    "' AND session=='", session, "' AND bundle=='", bundle)
   
-  orthLevel = get_levelNameForAttributeName(handle, orthLabel)
-  if (is.null(orthLevel)) {
-    stop("Could not find a level for label", orthLabel)
-  }
+  samplerate = DBI::dbGetQuery(dbHandle$connection, queryTxt)[1,1]
   
-  if (is.null(trnLevel) &&
-      get_levelDefinition(handle, orthLevel)$type == "SEGMENT") {
-    trnLevel = orthLevel
-  }
-  
-  bas_prepare(handle)
-  
-  bas_run_g2p_from_ortho_dbi(
-    handle = handle,
-    orthLabel = orthLabel,
-    orthLevel = orthLevel,
-    language = language,
-    canoLabel = canoLabel,
-    verbose = verbose
-  )
-  
-  bas_run_maus_from_cano_dbi(
-    handle = handle,
-    canoLabel = canoLabel,
-    canoLevel = orthLevel,
-    language = language,
-    mauLabel = mauLabel,
-    trnLevel = trnLevel,
-    verbose = verbose,
-    mauLevel = mauLevel
-  )
-  
-  bas_clear(handle)
-  
-  add_levelDefinition(handle, mauLevel, "SEGMENT", verbose = verbose)
-  if (mauLevel != mauLabel) {
-    add_attributeDefinition(handle, mauLevel, mauLabel, verbose = verbose)
-  }
-  add_linkDefinition(handle, "ONE_TO_MANY", orthLevel, mauLevel)
-  bas_new_canvas(handle, perspective, mauLevel)
-  rewrite_allAnnots(handle, verbose = verbose)
+  queryTxt = paste0("INSERT INTO ", BAS_ITEMS_TMP_TABLE, " VALUES('", handle$UUID, 
+                    "','", session, "','", bundle, 
+                    "',", item_id, ",'", wordLevel, "','ITEM', ", 
+                    seq_idx, ",", samplerate, ",", sample_start, ",", 
+                    sample_end, ",", sample_point, ")")
+  DBI::dbGetQuery(dbHandle$connection, queryTxt)
 }
 
-bas_run_maus_from_cano <- function(handle,
-                                   canoLabel,
-                                   canoLevel = NULL,
-                                   language,
-                                   mauLabel = "MAU",
-                                   trnLevel = NULL,
-                                   mauLevel = NULL,
-                                   verbose = TRUE,
-                                   perspective = "default")
+bas_add_label <- function(
+  handle, 
+  session, 
+  bundle, 
+  item_id,
+  label_idx,
+  label_name,
+  label
+)
 {
-  if (is.null(mauLevel)) {
-    mauLevel = mauLabel
-  }
-  if (!is.null(get_levelDefinition(handle, mauLevel))) {
-    stop("Level", mauLevel, "already exists!")
-  }
-  
-  canoLevel = get_levelNameForAttributeName(handle, canoLabel)
-  if (is.null(canoLevel)) {
-    stop("Could not find a level for label", canoLabel)
-  }
-  
-  if (is.null(trnLevel) &&
-      get_levelDefinition(handle, canoLevel)$type == "SEGMENT") {
-    trnLevel = canoLevel
-  }
-  
-  bas_prepare(handle)
-  
-  bas_run_maus_from_cano_dbi(
-    handle = handle,
-    canoLabel = canoLabel,
-    canoLevel = canoLevel,
-    mauLabel = mauLabel,
-    mauLevel = mauLevel,
-    language = language,
-    verbose = verbose,
-    trnLevel = trnLevel
-  )
-  
-  
-  bas_clear(handle)
-  
-  add_levelDefinition(handle, mauLevel, "SEGMENT", verbose = verbose)
-  if (mauLevel != mauLabel) {
-    add_attributeDefinition(handle, mauLevel, mauLabel, verbose = verbose)
-  }
-  add_linkDefinition(handle, "ONE_TO_MANY", canoLevel, mauLevel)
-  
-  bas_new_canvas(handle, perspective, mauLevel)
-  rewrite_allAnnots(handle, verbose = verbose)
+  queryTxt = paste0("INSERT INTO ", BAS_LABELS_TMP_TABLE, " VALUES('", handle$UUID, 
+                    "', '", session, "', '", bundle, 
+                    "', ", item_id, ", ", label_idx,
+                    ", '", label_name, "', '", label, "')")
+  DBI::dbGetQuery(dbHandle$connection, queryTxt)
 }
 
-
-#####################################################################
-############################## G2P ##################################
-#####################################################################
-
-bas_run_g2p_from_ortho <- function(handle,
-                                   orthoLabel,
-                                   orthoLevel = NULL,
-                                   language,
-                                   canoLabel = "KAN",
-                                   verbose = TRUE)
+bas_add_link <- function(
+  handle, 
+  session, 
+  bundle,
+  from_id,
+  to_id
+)
 {
-  orthoLevel = get_levelNameForAttributeName(handle, orthoLabel)
-  if (is.null(orthoLevel)) {
-    stop("Could not find a level for label ", orthoLabel)
-  }
-  
-  canoLevel = get_levelNameForAttributeName(handle, canoLabel)
-  if (!is.null(canoLevel)) {
-    stop("There is aleady a level with the label ", canoLabel)
-  }
-  
-  bas_prepare(handle)
-  
-  
-  bas_run_g2p_from_ortho_dbi(
-    handle = handle,
-    orthoLabel = orthoLabel,
-    orthoLevel = orthoLevel,
-    language = language,
-    canoLabel = canoLabel,
-    verbose = verbose
-  )
-  
-  bas_clear(handle)
-  
-  if (orthoLevel != canoLabel) {
-    add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = verbose)
-  }
-  rewrite_allAnnots(handle, verbose = verbose)
+  queryTxt = paste0("INSERT INTO ", BAS_LINKS_TMP_TABLE, " VALUES('", handle$UUID, 
+                    "', '", session, "', '", bundle, 
+                    "', ", from_id, ", ", to_id,
+                    ", NA)")
+  DBI::dbGetQuery(dbHandle$connection, queryTxt)
 }
 
-
-bas_run_g2p_from_transcription <- function(handle,
-                                           transcriptionLabel,
-                                           language,
-                                           canoMode = "label",
-                                           canoLabel = "KAN",
-                                           orthoLabel = "ORT",
-                                           orthoLevel = NULL,
-                                           verbose = TRUE)
+bas_get_max_id <- function(handle, session, bundle)
 {
-  transcriptionLevel = get_levelNameForAttributeName(handle, transcriptionLabel)
-  if (is.null(transcriptionLevel)) {
-    stop("Could not find a level for label", transcriptionLabel)
-  }
-  
-  if (is.null(orthoLevel)) {
-    orthoLevel = orthoLabel
-  }
-  if (!is.null(get_levelDefinition(handle, orthoLevel))) {
-    stop("Level", orthoLevel, "already exists!")
-  }
-  
-  bas_prepare(handle)
-  
-  bas_run_g2p_for_tokenization_dbi(
-    handle = handle,
-    transcriptionLabel = transcriptionLabel,
-    orthoLabel = orthoLabel,
-    orthoLevel = orthoLevel,
-    language = language,
-    verbose = verbose
-  )
-  
-  bas_run_g2p_from_ortho_dbi(
-    handle = handle,
-    orthoLevel = orthoLevel,
-    orthoLabel = orthoLabel,
-    canoLabel = canoLabel,
-    language = language,
-    verbose = verbose
-  )
-  
-  
-  bas_clear(handle)
-  
-  add_levelDefinition(handle, orthoLevel, "ITEM", verbose = verbose)
-  if (orthoLevel != orthoLabel) {
-    add_attributeDefinition(handle, orthoLevel, orthoLabel, verbose = verbose)
-  }
-  if (orthoLevel != canoLabel) {
-    add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = verbose)
-  }
-  add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, orthoLevel)
-  rewrite_allAnnots(handle, verbose = verbose)
-}
-
-#####################################################################
-########################### CHUNKER #################################
-#####################################################################
-
-bas_run_chunker_from_cano <- function(handle,
-                                      canoLabel,
-                                      language,
-                                      trnLabel = "TRN",
-                                      trnLevel = NULL,
-                                      verbose = TRUE,
-                                      perspective = "default",
-                                      topLevel = NULL)
-{
-  if (is.null(trnLevel)) {
-    trnLevel = trnLabel
-  }
-  if (!is.null(get_levelDefinition(handle, trnLevel))) {
-    stop("Level", trnLevel, "already exists!")
-  }
-  
-  canoLevel = get_levelNameForAttributeName(handle, canoLabel)
-  if (is.null(canoLevel)) {
-    stop("Could not find a level for label", canoLabel)
-  }
-  
-  if ((!is.null(topLevel)) &&
-      is.null(get_levelDefinition(handle, topLevel)))
+  queryTxt = paste0("SELECT max(item_id) FROM items WHERE db_uuid=='", handle$UUID, 
+                    "' AND session=='", session, "' AND bundle=='", bundle)
+  res = DBI::dbGetQuery(handle$connection, queryTxt)
+  if(nrow(res) > 0)
   {
-    stop("Top level", topLevel, "does not exist")
+    return(res[1,1])
   }
-  
-  bas_prepare(handle)
-  
-  bas_run_chunker_from_cano_dbi(
-    handle = handle,
-    canoLabel = canoLabel,
-    canoLevel = canoLevel,
-    trnLabel = trnLabel,
-    language = language,
-    verbose = verbose,
-    trnLevel = trnLevel,
-    topLevel = topLevel
-  )
-  
-  
-  bas_clear(handle)
-  
-  add_levelDefinition(handle, trnLevel, "SEGMENT", verbose = verbose)
-  if (trnLevel != trnLabel) {
-    add_attributeDefinition(handle, trnLevel, trnLabel, verbose = verbose)
-  }
-  add_linkDefinition(handle, "ONE_TO_MANY", trnLevel, canoLevel)
-  bas_new_canvas(handle, perspective, trnLevel)
-  rewrite_allAnnots(handle, verbose = verbose)
+  return(NULL)
 }
 
-
-
-
-#####################################################################
-############################ MINNI ##################################
-#####################################################################
-
-bas_run_minni <- function(handle,
-                          language,
-                          minniLabel = "MINNI",
-                          minniLevel = NULL,
-                          verbose = TRUE,
-                          topLevel = NULL,
-                          perspective = "default")
+bas_read_download <- function(result, target)
 {
-  if (is.null(minniLevel)) {
-    minniLevel = minniLabel
-  }
-  if (!is.null(get_levelDefinition(handle, minniLevel))) {
-    stop("Level", minniLevel, "already exists!")
-  }
   
-  if ((!is.null(topLevel)) &&
-      is.null(get_levelDefinition(handle, topLevel)))
+  if(stringr::str_detect(result, "<success>false</success>"))
   {
-    stop("Top level", topLevel, "does not exist")
+    stop("Unsuccessful webservice call: ", result)
   }
   
-  bas_prepare(handle)
+  downloadLink = stringr::str_match(result, "<downloadLink>(.*)</downloadLink>")[1,2]
+  download.file(downloadLink, target, method="auto", quiet = T, 
+                mode = "w", cacheOK = TRUE)
   
-  bas_run_minni_dbi(
-    handle = handle,
-    language = language,
-    minniLabel = minniLabel,
-    minniLevel = minniLevel,
-    verbose = verbose,
-    topLevel = topLevel
-  )
-  bas_clear(handle)
+  lines = try(readLines(target))
   
-  add_levelDefinition(handle, minniLevel, "SEGMENT", verbose = verbose)
-  if (minniLevel != minniLabel) {
-    add_attributeDefinition(handle, minniLevel, minniLabel, verbose = verbose)
-  }
-  if(!is.null(topLevel))
+  if(class(lines) == "try-error") 
   {
-    add_linkDefinition(handle, "ONE_TO_MANY", topLevel, minniLevel)
+    stop("Cannot read from G2P output ", target)
   }
-  bas_new_canvas(handle, perspective, minniLevel)
-  rewrite_allAnnots(handle, verbose = verbose)
+  
+  if(length(lines) == 0)
+  {
+    stop("Zero line output from webservice: ", target)
+  }
+  
+  return(lines)
 }
 
 
-#####################################################################
-########################### PHO2SYL #################################
-#####################################################################
-
-bas_run_pho2syl_from_cano <- function(handle,
-                                      canoLabel,
-                                      language,
-                                      verbose,
-                                      kasLabel = "KAS",
-                                      mode = "label",
-                                      kasLevel = NULL)
-{
-  canoLevel = get_levelNameForAttributeName(handle, canoLabel)
-  if (is.null(canoLevel)) {
-    stop("Could not find a level for label", canoLabel)
-  }
-  
-  kasLevel = get_levelNameForAttributeName(handle, kasLabel)
-  if (!is.null(kasLevel)) {
-    stop("There is aleady a level with the label ", kasLabel)
-  }
-  
-  bas_prepare(handle)
-  
-  bas_run_pho2syl_from_cano_dbi(
-    handle = handle,
-    canoLabel = canoLabel,
-    canoLevel = canoLevel,
-    language = language,
-    verbose = verbose,
-    kasLabel = kasLabel
-  )
-  
-  bas_clear(handle)
-  
-  if (canoLevel != kasLabel) {
-    add_attributeDefinition(handle, canoLevel, kasLabel, verbose = verbose)
-  }
-  rewrite_allAnnots(handle)
-}
-
-bas_run_pho2syl_from_mau <- function(handle,
-                                     mauLabel,
-                                     language,
-                                     verbose,
-                                     masLabel = "MAS",
-                                     perspective = "default",
-                                     masLevel = NULL)
-{
-  if (is.null(masLevel)) {
-    masLevel = masLabel
-  }
-  if (!is.null(get_levelDefinition(handle, masLevel))) {
-    stop("Level", masLevel, "already exists!")
-  }
-  
-  mauLevel = get_levelNameForAttributeName(handle, mauLabel)
-  if (is.null(mauLevel)) {
-    stop("Could not find a level for label", mauLabel)
-  }
-  if (get_levelDefinition(handle, mauLevel)$type != "SEGMENT")
-  {
-    stop(mauLevel, "must be a segment tier in order to run pho2syl from segment")
-  }
-  
-  bas_prepare(handle)
-  
-  bas_run_pho2syl_from_mau_dbi(
-    handle = handle,
-    mauLabel = mauLabel,
-    mauLevel = mauLevel,
-    language = language,
-    verbose = verbose,
-    masLabel = masLabel,
-    masLevel = masLevel
-  )
-  
-  bas_clear(handle)
-  
-  add_levelDefinition(handle, masLevel, "SEGMENT", verbose = verbose)
-  if (masLevel != masLabel) {
-    add_attributeDefinition(handle, masLevel, masLabel, verbose = verbose)
-  }
-  
-  add_linkDefinition(handle, "MANY_TO_MANY", canoLevel, masLevel)
-  autobuild_linkFromTimes(handle, masLevel, mauLevel, convertSuperlevel = TRUE, verbose = verbose)
-  bas_new_canvas(handle, perspective, masLevel)
-  rewrite_allAnnots(handle, verbose = verbose)
-}
 
