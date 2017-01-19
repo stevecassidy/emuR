@@ -225,7 +225,7 @@ make_link_map <- function(handle, session, bundle, refLevel)
   return(link_map)
 }
 
-get_links <- function(handle, session, bundle, ref_id, direction="all")
+get_links <- function(handle, session, bundle, ref_id, direction="all", level=NULL)
 {
   links = c(ref_id)
   
@@ -251,13 +251,22 @@ get_links <- function(handle, session, bundle, ref_id, direction="all")
     while(length(current_anchors) > 0)
     {
       id_set_string = paste0("(", paste(current_anchors, collapse = "," ) ,")")
-      queryTxt = paste0("SELECT ", this, " FROM links", basic_cond(handle, session, bundle), "
-                        AND ", other, " in ", id_set_string)
+      queryTxt = paste0("SELECT ", this, " FROM links", basic_cond(handle, session, bundle), 
+                        "AND ", other, " in ", id_set_string)
 
       current_anchors = DBI::dbGetQuery(handle$connection, queryTxt)[[this]]
       links = c(links, current_anchors)
     }
   }
+  
+  if(!is.null(level))
+  {
+    id_set_string = paste0("(", paste(links, collapse = "," ) ,")")
+    queryTxt = paste0("SELECT item_id FROM items", basic_cond(handle, session, bundle), "AND level=='", level,
+                      "' AND item_id in ", id_set_string) 
+    links = DBI::dbGetQuery(handle$connection, queryTxt)[["item_id"]]
+  }
+  
   return(links)
 }
 
