@@ -1,5 +1,3 @@
-requireNamespace("stringr", quietly = T)
-
 ###########################################################################
 # create table / index definitions for DBI that are used at query time
 
@@ -185,9 +183,7 @@ check_levelAttributeName<-function(emuDBhandle,name){
 #################################
 # actual query functions
 
-## @param emuDBhandle
-## @param levelName
-## @param intermResTablePrefix "left" or "right" 
+#################################
 query_labels <- function(emuDBhandle, levelName, intermResTableSuffix, conditionText, useSubsets, filteredTablesSuffix){
   
   if(useSubsets){
@@ -258,9 +254,9 @@ query_labels <- function(emuDBhandle, levelName, intermResTableSuffix, condition
                                                  "VALUES ('", levelName, "')"))
 }
 
-
-query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubsets, filteredTablesSuffix){
-  # BNF: FUNCQ = POSQ | NUMQ;
+##############################
+query_databaseEqlFUNCQ <- function(emuDBhandle, q, intermResTableSuffix, useSubsets, filteredTablesSuffix){
+  # EBNF: FUNCQ = POSQ | NUMQ;
   qTrim=stringr::str_trim(q)
   if(useSubsets){
     itemsTableName = "items_filtered_subset_tmp"
@@ -315,7 +311,7 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
       
       
       funcName=stringr::str_trim(substr(qTrim,1,prbOpen-1))
-      # BNF: POSA = POSFKT,'(',EBENE,',',EBENE,')','=','0'| '1';
+      # EBNF: POSQ = POSFCT,'(',Level,',',Level,')','=','0'| '1';
       itemsAsSeqs=NULL
       
       level1=get_levelNameForAttributeName(emuDBhandle, param1)
@@ -375,7 +371,7 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
                                                      ""))
       
       
-      # BNF: VOP = '=' | '!=' | '>' | '<' | '<=' | '>=';
+      # EBNF: COP = '=' | '!=' | '>' | '<' | '<=' | '>=';
       if(funcName=='Start' | funcName=='End' | funcName=='Medial'){
         
         if(funcValueTerm!=''){
@@ -490,7 +486,7 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
           sqlFuncOpr=funcOpr
         }
         
-        # BNF: NUMA = 'Num','(',EBENE,',',EBENE,')',VOP,INTPN;
+        # EBNF: NUMQ = 'Num','(',Level,',',Level,')',COP,INTPN;
         # NOTE: return value level is param1 here
         DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items_as_seqs_tmp ",
                                                        "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, '", param1, "' AS level ",
@@ -526,33 +522,9 @@ query_databaseEqlFUNCQ<-function(emuDBhandle, q, intermResTableSuffix, useSubset
   }
 }
 
-query_databaseEqlSQ <- function(emuDBhandle, q, intermResTableSuffix, useSubsets, filteredTablesSuffix){
-  # BNF: SQ = LABELQ | FUNCQ;
-  qTrim=stringr::str_trim(q)
-  res=NULL
-  # detect function calls by existence of round brackets
-  prbOpen=get_stringPosition(string=qTrim,searchStr='(',literalQuote="'")
-  if(prbOpen!=-1){
-    prbClose=get_stringPosition(string=qTrim,searchStr=')',literalQuote="'")
-    if(prbClose==-1){
-      stop("Syntax error: Missing closing round bracket ')' in '",q,"'\n")
-    }else{
-      if(prbOpen>prbClose){
-        stop("Syntax error: Expected opening round bracket '(' before closing round bracket in '",q,"'\n")
-      }
-      if(prbOpen==1){
-        stop("Syntax error: Expected function name in '",q,"'\n")
-      }
-      query_databaseEqlFUNCQ(emuDBhandle, qTrim, intermResTableSuffix, useSubsets, filteredTablesSuffix)
-    }
-  }else{
-    # No round brackets, assuming a level query
-    query_databaseEqlLABELQ(emuDBhandle, qTrim, useSubsets, intermResTableSuffix = intermResTableSuffix, filteredTablesSuffix)
-  }
-}
-
+###########################
 query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTableSuffix, filteredTablesSuffix){
-  # BNF: ETIKETTA = ['#'],EBENE,('=' | '!='),ETIKETTALTERNATIVEN;
+  # EBNF: LABELQ = ['#'],LEVEL,("=" | "==" | "!=" | "=~" | "!~"),LABELALTERNATIVES;
   
   qTrim=stringr::str_trim(q)
   dbConfig = load_DBconfig(emuDBhandle)
@@ -566,7 +538,7 @@ query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTableSu
       lvlName=lvlTrim
       if(grepl('^#',lvlTrim)){
         # projection marker
-        # the BNF does not allow white space between '#' and level string
+        # the EBNF does not allow white space between '#' and level string
         # but the implementation of Emu does, so we allow it here too
         
         lvlName=stringr::str_trim(substring(lvlTrim,2))
@@ -590,7 +562,7 @@ query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTableSu
         }
       }
       
-      # BNF: ETIKETTALTERNATIVEN = ETIKETT , {'|',ETIKETT};
+      # EBNF: LABELALTERNATIVES = LABEL , {'|',LABEL};
       # parse alternatives
       labelAlts=c()
       lp=1
@@ -614,11 +586,11 @@ query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTableSu
       
       labelAltsUq=c()
       # unquote labels
-      # BNF: ETIKETT = ETIKETTIERUNG | ("'",ETIKETTIERUNG,"'");
+      # EBNF: LABEL = LABELING | ("'",LABELING,"'");
       # Suggestion for improvement:
       # labelGroups (legacy EMU 'legal' directive) MUST NOT be quoted, to distinguish labelGroups from ordinary label or label pattern:
-      # BNF__:ETIKETT = LABEL_GROUP_NAME | ETIKETTIERUNG | ("'",ETIKETTIERUNG,"'");
-      #        ETIKETTIERUNG = {ALPHA|DIGIT}
+      # EBNF: LABEL = LABEL_GROUP_NAME | LABELING | ("'",LABELING,"'");
+      #        LABELING = {ALPHA|DIGIT}
       
       for(labelAlt in labelAlts){
         label=NULL
@@ -686,8 +658,33 @@ query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTableSu
   stop("Syntax error: No operator found.")
 }
 
+query_databaseEqlSQ <- function(emuDBhandle, q, intermResTableSuffix, useSubsets, filteredTablesSuffix){
+  # EBNF: SQ = LABELQ | FUNCQ;
+  qTrim=stringr::str_trim(q)
+  res=NULL
+  # detect function calls by existence of round brackets
+  prbOpen=get_stringPosition(string=qTrim,searchStr='(',literalQuote="'")
+  if(prbOpen!=-1){
+    prbClose=get_stringPosition(string=qTrim,searchStr=')',literalQuote="'")
+    if(prbClose==-1){
+      stop("Syntax error: Missing closing round bracket ')' in '",q,"'\n")
+    }else{
+      if(prbOpen>prbClose){
+        stop("Syntax error: Expected opening round bracket '(' before closing round bracket in '",q,"'\n")
+      }
+      if(prbOpen==1){
+        stop("Syntax error: Expected function name in '",q,"'\n")
+      }
+      query_databaseEqlFUNCQ(emuDBhandle, qTrim, intermResTableSuffix, useSubsets, filteredTablesSuffix)
+    }
+  }else{
+    # No round brackets, assuming a level query
+    query_databaseEqlLABELQ(emuDBhandle, qTrim, useSubsets, intermResTableSuffix = intermResTableSuffix, filteredTablesSuffix)
+  }
+}
+
 query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTableSuffix, filteredTablesSuffix){
-  # BNF: CONJQ = SQ,{'&',SQ};
+  # EBNF: CONJQ = SQ,{'&',SQ};
   qTrim=stringr::str_trim(q)
   conditions=list()
   # initialize with empty result
@@ -785,7 +782,7 @@ reduce_hierTrapezeIntermRes_minMaxSeqIdx <- function(emuDBhandle){
   
 }
 
-
+##########################
 query_databaseHier <- function(emuDBhandle, firstLevelName, secondLevelName, leftTableSuffix, rightTableSuffix, filteredTablesSuffix, minMaxSeqIdxLeafOnly = F) {
   
   # create temp tables for hier query (should maybe be moved to external functions)
@@ -1188,52 +1185,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
   }
 }
 
-## Query EMU database
-## 
-## @param database object of class emuDB
-## @param query EQL query string
-## @return EMU seglist
-## @export
-## @keywords emuDB database query Emu EQL 
-## 
-query_databaseWithEqlEmusegs<-function(emuDBhandle, query, timeRefSegmentLevel, filteredTablesSuffix, calcTimes){
-  # create "root" intermediate result tables
-  create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = "root")
-  # query emuDB
-  query_databaseWithEql(emuDBhandle, query, intermResTableSuffix = "root", leftRightTableNrCounter = 0, filteredTablesSuffix)
-  # escape singel quotes
-  query = gsub("'", "''", query)
-  DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE interm_res_meta_infos_tmp_root SET query_str = '", query, "'"))
-  emusegs=convert_queryResultToEmusegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix, calcTimes)
-  return(emusegs)
-  
-}
-
-####################
-query_databaseWithEqlEmuRsegs<-function(emuDBhandle, query, timeRefSegmentLevel, filteredTablesSuffix, calcTimes){
-  # create "root" intermediate result tables
-  create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = "root")
-  # query emuDB
-  query_databaseWithEql(emuDBhandle, query, intermResTableSuffix = "root", leftRightTableNrCounter = 0, filteredTablesSuffix)
-  # escape singel quotes
-  queryStr = gsub("'", "''", query)
-  # DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE interm_res_meta_infos_tmp_root SET query_str = '", queryStr, "'"))
-  emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix, queryStr = queryStr, calcTimes)
-  return(emuRsegs)
-  
-}
-
-
-
-
-## Query EMU database
-## 
-## @param database object of class emuDB
-## @param query EQL query string
-## @return result set object
-## @export
-## @keywords emuDB database query Emu EQL 
-## 
+###################
 query_databaseWithEql<-function(emuDBhandle, query, intermResTableSuffix, leftRightTableNrCounter, filteredTablesSuffix){
   parseRes=list()
   qTrim=stringr::str_trim(query)
@@ -1264,6 +1216,35 @@ query_databaseWithEql<-function(emuDBhandle, query, intermResTableSuffix, leftRi
   }
   stop("Unknown syntax error.")
 }
+
+####################
+query_databaseWithEqlEmusegs<-function(emuDBhandle, query, timeRefSegmentLevel, filteredTablesSuffix, calcTimes){
+  # create "root" intermediate result tables
+  create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = "root")
+  # query emuDB
+  query_databaseWithEql(emuDBhandle, query, intermResTableSuffix = "root", leftRightTableNrCounter = 0, filteredTablesSuffix)
+  # escape singel quotes
+  query = gsub("'", "''", query)
+  DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE interm_res_meta_infos_tmp_root SET query_str = '", query, "'"))
+  emusegs=convert_queryResultToEmusegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix, calcTimes)
+  return(emusegs)
+  
+}
+
+####################
+query_databaseWithEqlEmuRsegs<-function(emuDBhandle, query, timeRefSegmentLevel, filteredTablesSuffix, calcTimes){
+  # create "root" intermediate result tables
+  create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = "root")
+  # query emuDB
+  query_databaseWithEql(emuDBhandle, query, intermResTableSuffix = "root", leftRightTableNrCounter = 0, filteredTablesSuffix)
+  # escape single quotes
+  queryStr = gsub("'", "''", query)
+  # DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE interm_res_meta_infos_tmp_root SET query_str = '", queryStr, "'"))
+  emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix, queryStr = queryStr, calcTimes)
+  return(emuRsegs)
+  
+}
+
 
 ##' Query emuDB
 ##' @description Function to query an emuDB
