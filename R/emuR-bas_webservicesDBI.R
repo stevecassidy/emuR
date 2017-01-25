@@ -1763,3 +1763,21 @@ bas_ping <- function()
     .opts = RCurl::curlOptions(connecttimeout = 10, timeout = 30)
   )
 }
+
+
+bas_long_enough_for_chunker <- function(handle)
+{
+  bundles = list_bundles(handle)
+  if (nrow(bundles) > 0)
+  {
+    for (bundle_idx in nrow(bundles))
+    {
+      annotates = bas_get_signal_path(handle, session = bundles[bundle_idx, "session"], bundles[bundle_idx, "name"])
+      obj = wrassp::read.AsspDataObj(annotates)
+      if ((attr(obj, "endRecord") / attr(obj, "sampleRate")) > 60)
+      {
+        return (TRUE)
+      }
+    }
+  }
+}

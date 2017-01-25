@@ -14,10 +14,10 @@ runBASwebservice_all(handle, transcriptionLabel, language, mausLabel = "MAU",
 
 \item{transcriptionLabel}{name of the label (not level!) containing an orthographic transcription.}
 
-\item{language}{language to be used. Must be accepted by all webservices. If you want to use different 
+\item{language}{language to be used. Must be accepted by all webservices. If you want to use different
 languages for different services, you will need to run the webservices separately. In this case,
 it is your responsibility to ensure that SAMPA inventories are compatible between webservices.
-Up-to-date lists of the languages accepted by all webservices can be found here: 
+Up-to-date lists of the languages accepted by all webservices can be found here:
 https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}
 
 \item{mausLabel}{label name for the MAUS segmentation. Default: MAU}
@@ -39,8 +39,8 @@ audio files beyond the one minute mark.}
 \item{verbose}{Display progress bars and other information}
 
 \item{resume}{If a previous call to this function has failed (and you think you have fixed the issue
-that caused the error), you can set resume=TRUE to recover any progress made up to that point. This 
-will only work if you have not run any other emuR functions (such as the query function or other 
+that caused the error), you can set resume=TRUE to recover any progress made up to that point. This
+will only work if you have not run any other emuR functions (such as the query function or other
 webservice functions) in the meantime, as they are likely to delete your temporary data.}
 }
 \description{
@@ -48,14 +48,14 @@ This function calls the BAS webservices G2P, MAUS, Pho2Syl, MINNI and (if necess
 Starting from an orthographic transcription, it derives a tokenized orthographical word tier
 using the G2P tool. It also derives canonical pronunciations (in SAMPA) for the words.
 If the audio file is longer than 60 seconds, the function then calls the Chunker webservice
-to presegment the recording. Subsequently, the webservice MAUS is called to derive a phonetic 
-segmentation. A second, rough segmentation is created by running the phoneme decoder MINNI. 
-Finally, syllabification is performed by calling Pho2Syl. All necessary level, attribute and link 
+to presegment the recording. Subsequently, the webservice MAUS is called to derive a phonetic
+segmentation. A second, rough segmentation is created by running the phoneme decoder MINNI.
+Finally, syllabification is performed by calling Pho2Syl. All necessary level, attribute and link
 definitions are created in the process. This function requires an internet connection.
 }
 \details{
-Note that this function will run all BAS webservices in default mode. If you wish to change individual 
-options, you may use the individual runBASwebservices_* functions. This will also allow you to carry 
+Note that this function will run all BAS webservices in default mode. If you wish to change individual
+options, you may use the individual runBASwebservices_* functions. This will also allow you to carry
 out manual corrections in between the individual steps.
 }
 
