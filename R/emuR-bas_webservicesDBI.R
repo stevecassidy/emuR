@@ -298,11 +298,12 @@ bas_run_minni_dbi <- function(handle,
         OUTFORMAT = "mau",
         SIGNAL = RCurl::fileUpload(signalfile)
       )
+      
       res = RCurl::postForm(
-        paste0(BAS_ADDRESS, "runMINNI"),
+        uri = paste0(BAS_ADDRESS, "runMINNI"),
         .params = params,
         style = "HTTPPOST",
-        .opts =
+        .opts = bas_get_options()
       )
       
       minniLines = bas_download(res, minnifile)
@@ -468,10 +469,9 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
             params = list(
               lng = language,
               iform = "txt",
-              nrm = normalize,
               oform = "bpfs",
               i = RCurl::fileUpload(textfile)
-            )
+           )
             
             if (!is.null(normalize))
             {
@@ -481,10 +481,12 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
             address = paste0(BAS_ADDRESS, "runG2P")
             res = RCurl::postForm(
               uri = address,
-              .params = params,
+              lng = language,
+              iform = "txt",
+              oform = "bpfs",
+              i = RCurl::fileUpload(textfile),
               style = "HTTPPOST",
-              .opts = RCurl::curlOptions(connecttimeout = 10, timeout =
-                                           2400)
+              .opts = bas_get_options()
             )
             
             g2pLines = bas_download(res, g2pfile)
