@@ -255,7 +255,7 @@ query_labels <- function(emuDBhandle, levelName, intermResTableSuffix, condition
 }
 
 ##############################
-query_databaseEqlFUNCQ <- function(emuDBhandle, q, intermResTableSuffix, useSubsets, filteredTablesSuffix){
+query_databaseEqlFUNCQ <- function(emuDBhandle, q, intermResTableSuffix, useSubsets, filteredTablesSuffix, verbose){
   # EBNF: FUNCQ = POSQ | NUMQ;
   qTrim=stringr::str_trim(q)
   if(useSubsets){
@@ -335,7 +335,7 @@ query_databaseEqlFUNCQ <- function(emuDBhandle, q, intermResTableSuffix, useSubs
       
       
       query_databaseHier(emuDBhandle, firstLevelName = level1, secondLevelName = level2, 
-                         leftTableSuffix = level1ItemsTableSuffix, rightTableSuffix = level2ItemsTableSuffix, filteredTablesSuffix = filteredTablesSuffix) # result written to lr_exp_res_tmp table
+                         leftTableSuffix = level1ItemsTableSuffix, rightTableSuffix = level2ItemsTableSuffix, filteredTablesSuffix = filteredTablesSuffix, verbose = verbose) # result written to lr_exp_res_tmp table
       
       
       # create temp table to insert 
@@ -658,7 +658,7 @@ query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTableSu
   stop("Syntax error: No operator found.")
 }
 
-query_databaseEqlSQ <- function(emuDBhandle, q, intermResTableSuffix, useSubsets, filteredTablesSuffix){
+query_databaseEqlSQ <- function(emuDBhandle, q, intermResTableSuffix, useSubsets, filteredTablesSuffix, verbose){
   # EBNF: SQ = LABELQ | FUNCQ;
   qTrim=stringr::str_trim(q)
   res=NULL
@@ -675,7 +675,7 @@ query_databaseEqlSQ <- function(emuDBhandle, q, intermResTableSuffix, useSubsets
       if(prbOpen==1){
         stop("Syntax error: Expected function name in '",q,"'\n")
       }
-      query_databaseEqlFUNCQ(emuDBhandle, qTrim, intermResTableSuffix, useSubsets, filteredTablesSuffix)
+      query_databaseEqlFUNCQ(emuDBhandle, qTrim, intermResTableSuffix, useSubsets, filteredTablesSuffix, verbose = verbose)
     }
   }else{
     # No round brackets, assuming a level query
@@ -683,7 +683,7 @@ query_databaseEqlSQ <- function(emuDBhandle, q, intermResTableSuffix, useSubsets
   }
 }
 
-query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTableSuffix, filteredTablesSuffix){
+query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTableSuffix, filteredTablesSuffix, verbose){
   # EBNF: CONJQ = SQ,{'&',SQ};
   qTrim=stringr::str_trim(q)
   conditions=list()
@@ -716,7 +716,7 @@ query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTableSuffix, filteredT
       }
     }
     # execute query on term
-    query_databaseEqlSQ(emuDBhandle, condStr, intermResTableSuffix, useSubsets = useSubsets, filteredTablesSuffix)
+    query_databaseEqlSQ(emuDBhandle, condStr, intermResTableSuffix, useSubsets = useSubsets, filteredTablesSuffix, verbose = verbose)
     # set resultLevel of first term
     if(is.null(resultLevel)){
       termResLevel = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM interm_res_meta_infos_tmp_", intermResTableSuffix))$result_level
@@ -783,7 +783,7 @@ reduce_hierTrapezeIntermRes_minMaxSeqIdx <- function(emuDBhandle){
 }
 
 ##########################
-query_databaseHier <- function(emuDBhandle, firstLevelName, secondLevelName, leftTableSuffix, rightTableSuffix, filteredTablesSuffix, minMaxSeqIdxLeafOnly = F) {
+query_databaseHier <- function(emuDBhandle, firstLevelName, secondLevelName, leftTableSuffix, rightTableSuffix, filteredTablesSuffix, minMaxSeqIdxLeafOnly = F, verbose = F) {
   
   # create temp tables for hier query (should maybe be moved to external functions)
   hier_left_trapeze_interm_res_tmp = paste0("CREATE TEMP TABLE IF NOT EXISTS hier_left_trapeze_interm_res_tmp (",
@@ -840,6 +840,19 @@ query_databaseHier <- function(emuDBhandle, firstLevelName, secondLevelName, lef
   
   # get hierarchy paths
   connectHierPaths = get_hierPathsConnectingLevels(emuDBhandle, firstLevelName, secondLevelName)
+  
+  if(verbose & length(connectHierPaths) >= 2){
+
+    cat(paste0("More than one path connecting: '", firstLevelName, "' and '", secondLevelName, "' was found! The paths were: \n" ))
+    for(i in 1:length(connectHierPaths)){
+      cat(paste0(i, ".) ", paste0(connectHierPaths[[i]], collapse = "->")), "\n")
+    }
+    idx <- readline(prompt="Choose a path by selecting its number (note that comma seperated numbers (e.g., 1, 2, 3) works to select multiple paths): ")
+
+    idx = as.integer(stringr::str_split(idx, ",\\s*", simplify = T))
+
+    connectHierPaths = connectHierPaths[idx]
+  }
   
   # loop through multiple paths
   for(connectHierPath in connectHierPaths){
@@ -975,7 +988,7 @@ query_databaseHier <- function(emuDBhandle, firstLevelName, secondLevelName, lef
 
 
 ##################################
-query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftRightTableNrCounter = 0, filteredTablesSuffix){
+query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftRightTableNrCounter = 0, filteredTablesSuffix, verbose){
   parseRes=list()
   qTrim=stringr::str_trim(q)
   # parse SEQQ or DOMQ
@@ -1001,8 +1014,8 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
     create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = leftTableSuffix)
     create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = rightTableSuffix)
     
-    query_databaseWithEql(emuDBhandle, left, intermResTableSuffix = leftTableSuffix, leftRightTableNrCounter, filteredTablesSuffix)
-    query_databaseWithEql(emuDBhandle, right, intermResTableSuffix = rightTableSuffix, leftRightTableNrCounter + 1, filteredTablesSuffix)
+    query_databaseWithEql(emuDBhandle, left, intermResTableSuffix = leftTableSuffix, leftRightTableNrCounter, filteredTablesSuffix, verbose)
+    query_databaseWithEql(emuDBhandle, right, intermResTableSuffix = rightTableSuffix, leftRightTableNrCounter + 1, filteredTablesSuffix, verbose)
     
     # check if left or right side results are empty -> clear tabels and return
     nLeftResIts = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n FROM interm_res_items_tmp_", leftTableSuffix))$n
@@ -1052,7 +1065,7 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
         return()
       }
       
-      query_databaseHier(emuDBhandle, lResLvl, rResLvl, leftTableSuffix, rightTableSuffix, filteredTablesSuffix) # result written to lr_exp_res_tmp
+      query_databaseHier(emuDBhandle, lResLvl, rResLvl, leftTableSuffix, rightTableSuffix, filteredTablesSuffix, verbose = verbose) # result written to lr_exp_res_tmp
       
       nLrExpRes = DBI::dbGetQuery(emuDBhandle$connection, "SELECT COUNT(*) AS n FROM lr_exp_res_tmp")$n
       if(nLrExpRes>0){
@@ -1065,11 +1078,6 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
           DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM interm_res_proj_items_tmp_", intermResTableSuffix))
           DBI::dbWriteTable(emuDBhandle$connection, paste0("interm_res_proj_items_tmp_", intermResTableSuffix), reducedPI, append = T, row.names = F)
           
-          # move meta infos to correct table
-          # allMeta = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM interm_res_meta_infos_tmp_", leftTableSuffix))
-          # DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM interm_res_meta_infos_tmp_", intermResTableSuffix))
-          # DBI::dbWriteTable(emuDBhandle$connection, paste0("interm_res_meta_infos_tmp_", intermResTableSuffix), allMeta, append = T)
-          
         }
         
         if(nRightProjItems != 0){
@@ -1081,20 +1089,13 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
           DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM interm_res_proj_items_tmp_", intermResTableSuffix))
           DBI::dbWriteTable(emuDBhandle$connection, paste0("interm_res_proj_items_tmp_", intermResTableSuffix), reducedPI, append = T, row.names = F)
           
-          # move meta infos to correct table
-          # allMeta = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM interm_res_meta_infos_tmp_", rightTableSuffix))
-          # DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM interm_res_meta_infos_tmp_", intermResTableSuffix))
-          # DBI::dbWriteTable(emuDBhandle$connection, paste0("interm_res_meta_infos_tmp_", intermResTableSuffix), allMeta, append = T)
-          
         }
       }
       
-      # if(nRightProjItems == 0 & nRightProjItems == 0){
       # if no projItems -> place left Meta infos in result table
       allMeta = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM interm_res_meta_infos_tmp_", leftTableSuffix))
       DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM interm_res_meta_infos_tmp_", intermResTableSuffix))
       DBI::dbWriteTable(emuDBhandle$connection, paste0("interm_res_meta_infos_tmp_", intermResTableSuffix), allMeta, append = T, row.names = F)
-      # }
       
       # place result in correct table
       resItems = DBI::dbGetQuery(emuDBhandle$connection, "SELECT DISTINCT db_uuid, session, bundle, l_seq_start_id AS seq_start_id, l_seq_end_id AS seq_end_id, l_seq_len AS seq_len, l_level AS level, l_seq_start_seq_idx AS seq_start_seq_idx, l_seq_end_seq_idx AS seq_end_seq_idx FROM lr_exp_res_tmp")
@@ -1181,17 +1182,17 @@ query_databaseEqlInBracket<-function(emuDBhandle, q, intermResTableSuffix, leftR
     }
     return()
   }else{
-    query_databaseWithEql(emuDBhandle, qTrim, intermResTableSuffix, leftRightTableNrCounter, filteredTablesSuffix)
+    query_databaseWithEql(emuDBhandle, qTrim, intermResTableSuffix, leftRightTableNrCounter, filteredTablesSuffix, verbose = verbose)
   }
 }
 
 ###################
-query_databaseWithEql<-function(emuDBhandle, query, intermResTableSuffix, leftRightTableNrCounter, filteredTablesSuffix){
+query_databaseWithEql<-function(emuDBhandle, query, intermResTableSuffix, leftRightTableNrCounter, filteredTablesSuffix, verbose){
   parseRes=list()
   qTrim=stringr::str_trim(query)
   brOpenPos=get_charPosition(qTrim,'[',literalQuote="'")
   if(brOpenPos==-1){
-    query_databaseEqlCONJQ(emuDBhandle, qTrim, intermResTableSuffix = intermResTableSuffix, filteredTablesSuffix)
+    query_databaseEqlCONJQ(emuDBhandle, qTrim, intermResTableSuffix = intermResTableSuffix, filteredTablesSuffix, verbose)
     return()
   }else{
     
@@ -1210,7 +1211,7 @@ query_databaseWithEql<-function(emuDBhandle, query, intermResTableSuffix, leftRi
     
     #parse string in bracket
     inBr=substr(qTrim,brOpenPos+1,brClosePos-1)
-    query_databaseEqlInBracket(emuDBhandle, inBr, intermResTableSuffix, leftRightTableNrCounter, filteredTablesSuffix)
+    query_databaseEqlInBracket(emuDBhandle, inBr, intermResTableSuffix, leftRightTableNrCounter, filteredTablesSuffix, verbose = verbose)
     return()
     
   }
@@ -1218,29 +1219,29 @@ query_databaseWithEql<-function(emuDBhandle, query, intermResTableSuffix, leftRi
 }
 
 ####################
-query_databaseWithEqlEmusegs<-function(emuDBhandle, query, timeRefSegmentLevel, filteredTablesSuffix, calcTimes){
+query_databaseWithEqlEmusegs<-function(emuDBhandle, query, timeRefSegmentLevel, filteredTablesSuffix, calcTimes, verbose){
   # create "root" intermediate result tables
   create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = "root")
   # query emuDB
-  query_databaseWithEql(emuDBhandle, query, intermResTableSuffix = "root", leftRightTableNrCounter = 0, filteredTablesSuffix)
+  query_databaseWithEql(emuDBhandle, query, intermResTableSuffix = "root", leftRightTableNrCounter = 0, filteredTablesSuffix, verbose)
   # escape singel quotes
   query = gsub("'", "''", query)
   DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE interm_res_meta_infos_tmp_root SET query_str = '", query, "'"))
-  emusegs=convert_queryResultToEmusegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix, calcTimes)
+  emusegs=convert_queryResultToEmusegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix, calcTimes, verbose)
   return(emusegs)
   
 }
 
 ####################
-query_databaseWithEqlEmuRsegs<-function(emuDBhandle, query, timeRefSegmentLevel, filteredTablesSuffix, calcTimes){
+query_databaseWithEqlEmuRsegs<-function(emuDBhandle, query, timeRefSegmentLevel, filteredTablesSuffix, calcTimes, verbose){
   # create "root" intermediate result tables
   create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = "root")
   # query emuDB
-  query_databaseWithEql(emuDBhandle, query, intermResTableSuffix = "root", leftRightTableNrCounter = 0, filteredTablesSuffix)
+  query_databaseWithEql(emuDBhandle, query, intermResTableSuffix = "root", leftRightTableNrCounter = 0, filteredTablesSuffix, verbose = verbose)
   # escape single quotes
   queryStr = gsub("'", "''", query)
   # DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE interm_res_meta_infos_tmp_root SET query_str = '", queryStr, "'"))
-  emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix, queryStr = queryStr, calcTimes)
+  emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix, queryStr = queryStr, calcTimes, verbose)
   return(emuRsegs)
   
 }
@@ -1264,6 +1265,7 @@ query_databaseWithEqlEmuRsegs<-function(emuDBhandle, query, timeRefSegmentLevel,
 ##' @param resultType type (class name) of result
 ##' @param calcTimes calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
 ##' calculate the times for large nested hierarchies it can be turned of via this boolian parameter. 
+##' @param verbose be verbose. Set this to \code{TRUE} if you wish to choose which path to traverse on intersecting hierarchies. If set to \code{FALSE} (the default) all paths will be traversed (= legacy EMU bahaviour).
 ##' @return result set object of class resultType (default: \link{emuRsegs}, compatible to legacy type \link{emusegs})
 ##' @export
 ##' @seealso \code{\link{load_emuDB}}
@@ -1296,7 +1298,10 @@ query_databaseWithEqlEmuRsegs<-function(emuDBhandle, query, timeRefSegmentLevel,
 ##' 
 ##' }
 ##' 
-query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*', queryLang = 'EQL2', timeRefSegmentLevel = NULL, resultType = NULL, calcTimes = T){
+query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*', 
+                  queryLang = 'EQL2', timeRefSegmentLevel = NULL, resultType = NULL, 
+                  calcTimes = TRUE, verbose = FALSE){
+  
   if(queryLang=='EQL2'){
     # create temp tables 
     drop_allTmpTablesDBI(emuDBhandle)
@@ -1338,12 +1343,12 @@ query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*
       filteredTablesSuffix = "_filtered_tmp"
     }
     if(is.null(resultType)){
-      emuRsegs = query_databaseWithEqlEmuRsegs(emuDBhandle,query,timeRefSegmentLevel, filteredTablesSuffix, calcTimes)
+      emuRsegs = query_databaseWithEqlEmuRsegs(emuDBhandle,query,timeRefSegmentLevel, filteredTablesSuffix, calcTimes, verbose = verbose)
       drop_allTmpTablesDBI(emuDBhandle)
       return(emuRsegs)
     }else{
       if(resultType=='emuRsegs'){
-        emuRsegs = query_databaseWithEqlEmuRsegs(emuDBhandle,query,timeRefSegmentLevel, filteredTablesSuffix, calcTimes)
+        emuRsegs = query_databaseWithEqlEmuRsegs(emuDBhandle,query,timeRefSegmentLevel, filteredTablesSuffix, calcTimes, verbose)
         drop_allTmpTablesDBI(emuDBhandle)
         return(emuRsegs)
       }else if(resultType=='emusegs'){
@@ -1351,7 +1356,7 @@ query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*
           # TODO 
           stop("Parameter timeRefSegmentLevel not yet supported for resultType 'emusegs'. Please use resultType 'emuRsegs' (default).")
         }
-        return(query_databaseWithEqlEmusegs(emuDBhandle, query, timeRefSegmentLevel, filteredTablesSuffix, calcTimes))
+        return(query_databaseWithEqlEmusegs(emuDBhandle, query, timeRefSegmentLevel, filteredTablesSuffix, calcTimes, verbose))
       }else{
         stop("Unknown result type: '",resultType,"'. Supported result types: 'emuRsegs', emusegs'")
       }

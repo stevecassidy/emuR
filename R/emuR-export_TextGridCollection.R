@@ -75,7 +75,7 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
   
   slAll = NULL
   for(i in 1:length(allAttrNames)){
-    sl = query(emuDBhandle, paste0(allAttrNames[i], "=~ .*"))
+    sl = query(emuDBhandle, paste0(allAttrNames[i], "=~ .*"), verbose = verbose)
     slAll = dplyr::bind_rows(slAll, sl)
   }
   

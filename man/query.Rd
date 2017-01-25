@@ -6,7 +6,7 @@
 \usage{
 query(emuDBhandle, query, sessionPattern = ".*", bundlePattern = ".*",
   queryLang = "EQL2", timeRefSegmentLevel = NULL, resultType = NULL,
-  calcTimes = T)
+  calcTimes = TRUE, verbose = FALSE)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle object (see \link{load_emuDB})}
@@ -25,6 +25,8 @@ query(emuDBhandle, query, sessionPattern = ".*", bundlePattern = ".*",
 
 \item{calcTimes}{calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
 calculate the times for large nested hierarchies it can be turned of via this boolian parameter.}
+
+\item{verbose}{be verbose. Set this to \code{TRUE} if you wish to choose which path to traverse on intersecting hierarchies. If set to \code{FALSE} (the default) all paths will be traversed (= legacy EMU bahaviour).}
 }
 \value{
 result set object of class resultType (default: \link{emuRsegs}, compatible to legacy type \link{emusegs})

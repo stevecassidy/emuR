@@ -5,8 +5,8 @@
 \title{Requery sequential context of segment list in an emuDB}
 \usage{
 requery_seq(emuDBhandle, seglist, offset = 0, offsetRef = "START",
-  length = 1, ignoreOutOfBounds = FALSE, calcTimes = T,
-  timeRefSegmentLevel = NULL)
+  length = 1, ignoreOutOfBounds = FALSE, calcTimes = TRUE,
+  timeRefSegmentLevel = NULL, verbose = FALSE)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
@@ -25,6 +25,8 @@ requery_seq(emuDBhandle, seglist, offset = 0, offsetRef = "START",
 calculate the times for large nested hierarchies it can be turned of via this boolian parameter.}
 
 \item{timeRefSegmentLevel}{set time segment level from which to derive time information. It is only necessary to set this parameter if more than one child level contains time information and the queried parent level is of type ITEM.}
+
+\item{verbose}{be verbose. Set this to \code{TRUE} if you wish to choose which path to traverse on intersecting hierarchies. If set to \code{FALSE} (the default) all paths will be traversed (= legacy EMU bahaviour).}
 }
 \value{
 result set object of class 'emuRsegs' containing the requeried segments

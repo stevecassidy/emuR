@@ -1,14 +1,14 @@
 
-convert_queryResultToEmusegs<-function(emuDBhandle, timeRefSegmentLevel=NULL, filteredTablesSuffix, calcTimes = T){
+convert_queryResultToEmusegs<-function(emuDBhandle, timeRefSegmentLevel=NULL, filteredTablesSuffix, calcTimes = T, verbose){
   queryStr = DBI::dbGetQuery(emuDBhandle$connection, "SELECT query_str FROM interm_res_meta_infos_tmp_root")$query_str
-  emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix, queryStr = queryStr, calcTimes)
+  emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix, queryStr = queryStr, calcTimes, verbose)
   emusegs = as.emusegs(emuRsegs)
   return(emusegs)
 }
 
 ##################################
 #
-convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL, filteredTablesSuffix, queryStr = "", calcTimes = T){
+convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL, filteredTablesSuffix, queryStr = "", calcTimes = T, verbose){
   
   itemsTableName = paste0("items", filteredTablesSuffix)
   labelsTableName = paste0("labels", filteredTablesSuffix)
@@ -147,7 +147,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
                                                      ""))
       
       
-      query_databaseHier(emuDBhandle, firstLevelName = lnwt, secondLevelName = attrDefLn, leftTableSuffix = timeItemsTableSuffix, rightTableSuffix = "root", filteredTablesSuffix, minMaxSeqIdxLeafOnly = F) # result written to lr_exp_res_tmp table
+      query_databaseHier(emuDBhandle, firstLevelName = lnwt, secondLevelName = attrDefLn, leftTableSuffix = timeItemsTableSuffix, rightTableSuffix = "root", filteredTablesSuffix, minMaxSeqIdxLeafOnly = F, verbose = verbose) # result written to lr_exp_res_tmp table
       
       # calculate left and right times and store in tmp table
       DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO emursegs_tmp ",

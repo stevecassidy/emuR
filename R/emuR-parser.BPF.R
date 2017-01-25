@@ -1,5 +1,5 @@
 requireNamespace("RSQLite", quietly = T)
-requireNamespace("stringr", quietly = T)
+# requireNamespace("stringr", quietly = T)
 
 ## EmuDB Parser for Bas Partitur Files
 ## 
@@ -252,23 +252,23 @@ parse_bpfHeader <- function(bpfLines,
   for (idx in 1:length(bpfLines))
   {
     # Skip empty lines.
-    if(str_length(bpfLines[idx]) == 0)
+    if(stringr::str_length(bpfLines[idx]) == 0)
     {
       next
     }
     
     # Check line's format.
-    if (!str_detect(bpfLines[idx], GLOBAL_REGEX))
+    if (!stringr::str_detect(bpfLines[idx], GLOBAL_REGEX))
     {
       stop("Line ", idx, " of the following BPF does not conform to BPF specifications: ", bpfPath)
     }
     
     # Get key value pair.
-    splitline = str_split_fixed(bpfLines[idx], ":", 2)
+    splitline = stringr::str_split_fixed(bpfLines[idx], ":", 2)
     key = splitline[1]
     
     # Remove trailing white space and escape single quotes (compatibility with SQL).
-    value = str_replace(str_replace_all(splitline[2], "'", "''"), "^\\s+", "")
+    value = stringr::str_replace(str_replace_all(splitline[2], "'", "''"), "^\\s+", "")
     
     # Once the body start key is found, remember its position and break.
     if(key == BODY_START_KEY)
@@ -492,19 +492,19 @@ parse_bpfBody <- function(bpfLines,
   for(idx in (bsKeyPosition+1):length(bpfLines))
   {
     # Skip empty lines.
-    if(str_length(bpfLines[idx]) == 0)
+    if(stringr::str_length(bpfLines[idx]) == 0)
     {
       next
     }
     
     # Throw an exception if a line does not match the global regular expression.
-    if (!str_detect(bpfLines[idx], GLOBAL_REGEX))
+    if (!stringr::str_detect(bpfLines[idx], GLOBAL_REGEX))
     {
       stop("Line ", idx, " of the following BPF does not conform to BPF specification: ", bpfPath)
     }
     
     # Get level name (first three characters)
-    key = str_sub(bpfLines[idx], start = 1, end = 3)
+    key = stringr::str_sub(bpfLines[idx], start = 1, end = 3)
     
     # If only a subset of levels should be extracted, and this level is not one of them, next.
     if(!is.null(extractLevels))
@@ -527,14 +527,14 @@ parse_bpfBody <- function(bpfLines,
     
     # Throw an exception if the line does not conform to the regular expression of its class.
     # WARNING: Cannot detect all errors!
-    if(!str_detect(bpfLines[idx], CLASS_REGEXES[levelClasses[[key]]]))
+    if(!stringr::str_detect(bpfLines[idx], CLASS_REGEXES[levelClasses[[key]]]))
     {
       stop("Line ", idx, " in the following BPF does not match the Bas Partitur File Specifications: ", bpfPath,
            ". Level '", key, "' should be of class ", levelClasses[[key]], ".")
     }
     
     # Split the line according to its class.
-    splitline = str_split_fixed(bpfLines[idx], "\\s+", CLASS_SPLITNUMS[levelClasses[[key]]])
+    splitline = stringr::str_split_fixed(bpfLines[idx], "\\s+", CLASS_SPLITNUMS[levelClasses[[key]]])
     
     # Assign and increment global index.
     if(!key %in% unifyLevels)
@@ -665,7 +665,7 @@ parse_bpfLine <- function(levelClass,
     point = "NULL"
     
     # Escape single quotes with double quotes (conformity with SQL).
-    labelString = str_replace_all(splitline[3], "'", "''")
+    labelString = stringr::str_replace_all(splitline[3], "'", "''")
     linksString = splitline[2]
   }
   
@@ -674,7 +674,7 @@ parse_bpfLine <- function(levelClass,
     start = as.integer(splitline[2])
     duration = as.integer(splitline[3])
     point = "NULL"
-    labelString = str_replace_all(splitline[4], "'", "''")
+    labelString = stringr::str_replace_all(splitline[4], "'", "''")
     linksString = NA
   }
   
@@ -683,7 +683,7 @@ parse_bpfLine <- function(levelClass,
     start = "NULL"
     duration = "NULL"
     point = as.integer(splitline[2])
-    labelString = str_replace_all(splitline[3], "'", "''")
+    labelString = stringr::str_replace_all(splitline[3], "'", "''")
     linksString = NA
   }
   
@@ -692,7 +692,7 @@ parse_bpfLine <- function(levelClass,
     start = as.integer(splitline[2])
     duration = as.integer(splitline[3])
     point = "NULL"
-    labelString = str_replace_all(splitline[5], "'", "''")
+    labelString = stringr::str_replace_all(splitline[5], "'", "''")
     linksString = splitline[4]
   }
   
@@ -701,7 +701,7 @@ parse_bpfLine <- function(levelClass,
     start = "NULL"
     duration = "NULL"
     point = as.integer(splitline[2])
-    labelString = str_replace_all(splitline[4], "'", "''")
+    labelString = stringr::str_replace_all(splitline[4], "'", "''")
     linksString = splitline[3]
   }
   
@@ -740,13 +740,13 @@ evaluate_bpfLabelString <- function(labelString,
   
   labels = list()
   
-  if(str_detect(labelString, paste0("^[", UPPER, DIGITS, "]{3}:\\s+.*;")) &&
-     str_detect(labelString, paste0(";\\s*[", UPPER, DIGITS, "]{3}:\\s+.*$")))
+  if(stringr::str_detect(labelString, paste0("^[", UPPER, DIGITS, "]{3}:\\s+.*;")) &&
+     stringr::str_detect(labelString, paste0(";\\s*[", UPPER, DIGITS, "]{3}:\\s+.*$")))
   {
-    extractedLabels = str_split(labelString, "\\s*;\\s*")[[1]]
+    extractedLabels = stringr::str_split(labelString, "\\s*;\\s*")[[1]]
     for(extractedLabel in extractedLabels)
     {
-      splitLabel = str_split(extractedLabel, ":\\s+", n=2)[[1]]
+      splitLabel = stringr::str_split(extractedLabel, ":\\s+", n=2)[[1]]
       
       labels[[splitLabel[1]]] = splitLabel[2]
     }
@@ -785,13 +785,13 @@ evaluate_bpfLinksString <- function(linksString,
   semicolon = FALSE
   
   # If there was no link entry in the first place, or the link was '-1' -> no link information.
-  if(is.na(linksString) || str_detect(linksString, "-1"))
+  if(is.na(linksString) || stringr::str_detect(linksString, "-1"))
   {
     links = NA
   }
   
   # Ignore links containing the ';' operator.
-  else if(str_detect(linksString, ";"))
+  else if(stringr::str_detect(linksString, ";"))
   {
     semicolon = TRUE
     links = NA
@@ -800,7 +800,7 @@ evaluate_bpfLinksString <- function(linksString,
   # Store links as a vector of integers. 
   else
   {
-    links = as.integer(unlist(str_split(linksString, ",")))
+    links = as.integer(unlist(stringr::str_split(linksString, ",")))
     
     # Throw an exception if an item links to the same item more than once.
     for(link in links)

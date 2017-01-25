@@ -6,6 +6,8 @@
 
 ## new features / performance tweaks / improvements
 
+* choosing explicit paths with intersecting hierarchies now possible
+
 # emuR 0.2.1
 
 ## bug fixes
