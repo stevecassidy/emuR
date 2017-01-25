@@ -8,6 +8,8 @@ BAS_ADDRESS = "https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/"
 ############################# MAUS ##################################
 #####################################################################
 
+
+
 bas_run_maus_from_cano_dbi <- function(handle,
                                        canoLabel,
                                        canoLevel,
@@ -16,6 +18,7 @@ bas_run_maus_from_cano_dbi <- function(handle,
                                        language,
                                        chunkLevel,
                                        verbose,
+                                       mausParams,
                                        resume)
 {
   bas_ping()
@@ -89,10 +92,10 @@ bas_run_maus_from_cano_dbi <- function(handle,
         
         for (label_idx in 1:nrow(labels_list))
         {
-          cano_label = str_trim(labels_list[label_idx, "label"])
+          cano_label = stringr::str_trim(labels_list[label_idx, "label"])
           cano_item_id = labels_list[label_idx, "item_id"]
           
-          if (str_length(cano_label) > 0)
+          if (stringr::str_length(cano_label) > 0)
           {
             write(paste0("KAN: ", bas_id, " ", cano_label),
                   kancon)
@@ -126,7 +129,8 @@ bas_run_maus_from_cano_dbi <- function(handle,
               turn_start = turn_list[turn_idx, "sample_start"]
               turn_duration = turn_list[turn_idx, "sample_dur"]
               links = get_links(handle, session, bundle, turn_item_id, level =
-                                  canoLevel)
+                                  canoLevel, link_table = BAS_LINKS_TMP_TABLE,
+                                item_table = BAS_ITEMS_TMP_TABLE)
               linkstrings = c()
               for (link in links)
               {
@@ -154,6 +158,14 @@ bas_run_maus_from_cano_dbi <- function(handle,
           BPF = RCurl::fileUpload(kanfile)
         )
         
+        for(key in names(mausParams))
+        {
+          if(!(key %in% names(params)))
+          {
+            params[[key]] = mausParams[[key]]
+          }
+        }
+        
         res = RCurl::postForm(
           paste0(BAS_ADDRESS, "runMAUS"),
           .params = params,
@@ -174,7 +186,7 @@ bas_run_maus_from_cano_dbi <- function(handle,
               start = as.integer(splitline[2])
               duration = as.integer(splitline[3])
               item_id = max_id + seq_idx
-              label = str_replace_all(str_trim(splitline[5]), "'", "''")
+              label = stringr::str_replace_all(stringr::str_trim(splitline[5]), "'", "''")
               
               bas_id = splitline[[4]]
               if (as.integer(bas_id) >= 0)
@@ -242,6 +254,7 @@ bas_run_minni_dbi <- function(handle,
                               minniLevel,
                               verbose,
                               topLevel,
+                              minniParams,
                               resume)
 {
   bas_ping()
@@ -299,6 +312,15 @@ bas_run_minni_dbi <- function(handle,
         SIGNAL = RCurl::fileUpload(signalfile)
       )
       
+      for(key in names(minniParams))
+      {
+        if(!(key %in% names(params)))
+        {
+          params[[key]] = minniParams[[key]]
+        }
+      }
+      
+      
       res = RCurl::postForm(
         uri = paste0(BAS_ADDRESS, "runMINNI"),
         .params = params,
@@ -317,7 +339,7 @@ bas_run_minni_dbi <- function(handle,
           {
             splitline = stringr::str_split_fixed(line, "\\s+", n = 5)
             item_id = max_id + seq_idx
-            label = str_replace_all(str_trim(splitline[5]), "'", "''")
+            label = stringr::str_replace_all(stringr::str_trim(splitline[5]), "'", "''")
             
             bas_id = splitline[[4]]
             if (as.integer(bas_id) >= 0)
@@ -388,8 +410,8 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
                                              orthoLevel,
                                              language,
                                              verbose,
-                                             normalize,
-                                             resume)
+                                             resume,
+                                             g2pParams)
 {
   bas_ping()
   bundles_list = list_bundles(handle)
@@ -451,10 +473,10 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
         
         for (label_idx in 1:nrow(labels_list))
         {
-          transcription_label = str_trim(labels_list[label_idx, "label"])
+          transcription_label = stringr::str_trim(labels_list[label_idx, "label"])
           transcription_item_id = labels_list[label_idx, "item_id"]
           
-          if (str_length(transcription_label) > 0)
+          if (stringr::str_length(transcription_label) > 0)
           {
             textfile = file.path(BAS_WORKDIR, paste0(bundle, toString(transcription_item_id), ".txt"))
             g2pfile = file.path(BAS_WORKDIR,
@@ -473,9 +495,12 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
               i = RCurl::fileUpload(textfile)
            )
             
-            if (!is.null(normalize))
+            for(key in names(g2pParams))
             {
-              params[["nrm"]] = normalize
+              if(!(key %in% names(params)))
+              {
+                params[[key]] = g2pParams[[key]]
+              }
             }
             
             address = paste0(BAS_ADDRESS, "runG2P")
@@ -500,7 +525,7 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
                 {
                   splitline = stringr::str_split_fixed(line, "\\s+", n = 3)
                   item_id = max_id + seq_idx
-                  label = str_replace_all(splitline[3], "'", "''")
+                  label = stringr::str_replace_all(splitline[3], "'", "''")
                   
                   bas_add_item(
                     handle = handle,
@@ -560,7 +585,8 @@ bas_run_g2p_from_ortho_dbi <- function(handle,
                                        canoLabel,
                                        language,
                                        verbose,
-                                       resume)
+                                       resume,
+                                       g2pParams)
 {
   bas_ping()
   bundles_list = list_bundles(handle)
@@ -632,10 +658,10 @@ bas_run_g2p_from_ortho_dbi <- function(handle,
         
         for (label_idx in 1:nrow(labels_list))
         {
-          ortho_label = str_trim(labels_list[label_idx, "label"])
+          ortho_label = stringr::str_trim(labels_list[label_idx, "label"])
           ortho_item_id = labels_list[label_idx, "item_id"]
           
-          if (str_length(ortho_label) > 0)
+          if (stringr::str_length(ortho_label) > 0)
           {
             write(paste("ORT:", bas_id, ortho_label), orthoCon)
             bas_id_to_item_id[[toString(bas_id)]] = ortho_item_id
@@ -651,6 +677,15 @@ bas_run_g2p_from_ortho_dbi <- function(handle,
           oform = "bpfs",
           i = RCurl::fileUpload(orthofile)
         )
+        
+        for(key in names(g2pParams))
+        {
+          if(!(key %in% names(params)))
+          {
+            params[[key]] = g2pParams[[key]]
+          }
+        }
+        
         
         res = RCurl::postForm(
           uri = paste0(BAS_ADDRESS, "runG2P"),
@@ -670,7 +705,7 @@ bas_run_g2p_from_ortho_dbi <- function(handle,
             {
               splitline = stringr::str_split_fixed(line, "\\s+", n = 3)
               item_id = bas_id_to_item_id[[splitline[2]]]
-              label = str_replace_all(splitline[3], "'", "''")
+              label = stringr::str_replace_all(stringr::str_trim(splitline[3]), "'", "''")
               
               bas_add_label(
                 handle = handle,
@@ -711,9 +746,7 @@ bas_run_chunker_from_cano_dbi <- function(handle,
                                           chunkLevel,
                                           topLevel,
                                           ortLabel,
-                                          minChunkDuration,
-                                          minAnchorLength,
-                                          minSilenceDuration,
+                                          chunkerParams,
                                           resume)
 {
   bas_ping()
@@ -790,10 +823,10 @@ bas_run_chunker_from_cano_dbi <- function(handle,
         
         for (label_idx in 1:nrow(labels_list))
         {
-          cano_label = str_trim(labels_list[label_idx, "label"])
+          cano_label = stringr::str_trim(labels_list[label_idx, "label"])
           cano_item_id = labels_list[label_idx, "item_id"]
           
-          if (str_length(cano_label) > 0)
+          if (stringr::str_length(cano_label) > 0)
           {
             if (!is.null(orthoLevel))
             {
@@ -838,19 +871,12 @@ bas_run_chunker_from_cano_dbi <- function(handle,
           bpf = RCurl::fileUpload(kanfile)
         )
         
-        if (!is.null(minChunkDuration))
+        for(key in names(chunkerParams))
         {
-          params[["minChunkDuration"]] = toString(minChunkDuration)
-        }
-        
-        if (!is.null(minAnchorLength))
-        {
-          params[["minAnchorLength"]] = toString(minAnchorLength)
-        }
-        
-        if (!is.null(minSilenceDuration))
-        {
-          params[["minSilenceDuration"]] = toString(minSilenceDuration)
+          if(!(key %in% names(params)))
+          {
+            params[[key]] = chunkerParams[[key]]
+          }
         }
         
         res = RCurl::postForm(
@@ -873,7 +899,7 @@ bas_run_chunker_from_cano_dbi <- function(handle,
               start = as.integer(splitline[2])
               duration = as.integer(splitline[3])
               item_id = max_id + seq_idx
-              label = str_replace_all(str_trim(splitline[5]), "'", "''")
+              label = stringr::str_replace_all(stringr::str_trim(splitline[5]), "'", "''")
               
               bas_ids = splitline[[4]]
               bas_ids_split = stringr::str_split(bas_ids, ",")[[1]]
@@ -958,7 +984,8 @@ bas_run_pho2syl_from_cano_dbi <- function(handle,
                                           language,
                                           verbose,
                                           canoSylLabel,
-                                          resume)
+                                          resume,
+                                          pho2sylParams)
 {
   bas_ping()
   bundles_list = list_bundles(handle)
@@ -1032,10 +1059,10 @@ bas_run_pho2syl_from_cano_dbi <- function(handle,
         
         for (label_idx in 1:nrow(labels_list))
         {
-          cano_label = str_trim(labels_list[label_idx, "label"])
+          cano_label = stringr::str_trim(labels_list[label_idx, "label"])
           cano_item_id = labels_list[label_idx, "item_id"]
           
-          if (str_length(cano_label) > 0)
+          if (stringr::str_length(cano_label) > 0)
           {
             write(paste0("KAN: ", bas_id, " ", cano_label),
                   kancon)
@@ -1052,6 +1079,14 @@ bas_run_pho2syl_from_cano_dbi <- function(handle,
           tier = "KAN",
           oform = "bpf"
         )
+        
+        for(key in names(pho2sylParams))
+        {
+          if(!(key %in% names(params)))
+          {
+            params[[key]] = pho2sylParams[[key]]
+          }
+        }
         
         res = RCurl::postForm(
           paste0(BAS_ADDRESS, "runPho2Syl"),
@@ -1071,7 +1106,7 @@ bas_run_pho2syl_from_cano_dbi <- function(handle,
             {
               splitline = stringr::str_split_fixed(line, "\\s+", n = 3)
               item_id = max_id + seq_idx
-              label = str_replace_all(str_trim(splitline[3]), "'", "''")
+              label = stringr::str_replace_all(stringr::str_trim(splitline[3]), "'", "''")
               
               bas_id = splitline[[2]]
               if (as.integer(bas_id) >= 0)
@@ -1113,7 +1148,8 @@ bas_run_pho2syl_from_mau_dbi <- function(handle,
                                          sylLabel,
                                          sylLevel,
                                          canoLevel,
-                                         resume)
+                                         resume,
+                                         pho2sylParams)
 {
   bas_ping()
   bundles_list = list_bundles(handle)
@@ -1183,7 +1219,8 @@ bas_run_pho2syl_from_mau_dbi <- function(handle,
         {
           cano_item_id = cano_items[cano_idx, "item_id"]
           links = get_links(handle, session, bundle, cano_item_id, level =
-                              mausLevel)
+                              mausLevel, link_table = BAS_LINKS_TMP_TABLE,
+                            item_table = BAS_ITEMS_TMP_TABLE)
           
           link_string = paste0("(", paste(links, collapse = ","), ")")
           
@@ -1211,11 +1248,11 @@ bas_run_pho2syl_from_mau_dbi <- function(handle,
           {
             for (mau_idx in 1:nrow(mau_labels))
             {
-              mau_label = str_trim(mau_labels[mau_idx, "label"])
+              mau_label = stringr::str_trim(mau_labels[mau_idx, "label"])
               mau_start = mau_labels[mau_idx, "sample_start"]
               mau_dur = mau_labels[mau_idx, "sample_dur"]
               
-              if (str_length(mau_label) > 0)
+              if (stringr::str_length(mau_label) > 0)
               {
                 write(
                   paste0(
@@ -1250,6 +1287,15 @@ bas_run_pho2syl_from_mau_dbi <- function(handle,
           oform = "bpf",
           i = RCurl:::fileUpload(maufile)
         )
+        
+        for(key in names(pho2sylParams))
+        {
+          if(!(key %in% names(params)))
+          {
+            params[[key]] = pho2sylParams[[key]]
+          }
+        }
+        
         res = RCurl::postForm(
           paste0(BAS_ADDRESS, "runPho2Syl"),
           .params = params,
@@ -1270,7 +1316,7 @@ bas_run_pho2syl_from_mau_dbi <- function(handle,
               item_id = max_id + seq_idx
               start = as.integer(splitline[[2]])
               dur = as.integer(splitline[[3]])
-              label = str_replace_all(str_trim(splitline[[5]]), "'", "''")
+              label = stringr::str_replace_all(stringr::str_trim(splitline[[5]]), "'", "''")
               
               bas_ids = splitline[[4]]
               bas_ids_split = stringr::str_split(bas_ids, ",")[[1]]
@@ -1592,7 +1638,7 @@ bas_get_signal_path <- function(handle, session, bundle)
     basic_cond(handle, session, bundle, bundlename =
                  "name")
   )
-  res = dbGetQuery(handle$connection, queryTxt)
+  res = DBI::dbGetQuery(handle$connection, queryTxt)
   if (nrow(res) > 0)
   {
     return(file.path(
@@ -1612,7 +1658,7 @@ bas_get_samplerate <- function(handle, session, bundle)
     basic_cond(handle, session, bundle, bundlename =
                  "name")
   )
-  res = dbGetQuery(handle$connection, queryTxt)
+  res = DBI::dbGetQuery(handle$connection, queryTxt)
   if (nrow(res) > 0)
   {
     return(res[1, 1])
@@ -1712,10 +1758,8 @@ bas_get_options <- function()
 bas_ping <- function()
 {
   cat("Sending ping to webservices provider.\n")
-  h = RCurl::basicTextGatherer()
-  res = RCurl::curlPerform(
+  res = RCurl::getURL(
     url = paste0(BAS_ADDRESS, "help"),
-    writefunction = h$update,
     .opts = RCurl::curlOptions(connecttimeout = 10, timeout = 30)
   )
 }
