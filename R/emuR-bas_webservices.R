@@ -190,30 +190,25 @@ runBASwebservice_all <- function(handle,
   
   bas_clear(handle)
   
-  add_levelDefinition(handle, orthoLevel, "ITEM", verbose = verbose)
+  add_levelDefinition(handle, orthoLevel, "ITEM", verbose = FALSE, rewriteAllAnnots = FALSE)
   
-  if (running_chunker)
-  {
-
-  }
+  add_levelDefinition(handle, sylLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
   
-  add_levelDefinition(handle, sylLevel, "SEGMENT", verbose = verbose)
-  
-  add_levelDefinition(handle, mausLevel, "SEGMENT", verbose = verbose)
+  add_levelDefinition(handle, mausLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
   bas_new_canvas(handle, "default", mausLevel)
   
-  add_levelDefinition(handle, minniLevel, "SEGMENT", verbose = verbose)
+  add_levelDefinition(handle, minniLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
   bas_new_canvas(handle, "default", minniLevel)
   
-  add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = verbose)
-  add_attributeDefinition(handle, orthoLevel, canoSylLabel, verbose = verbose)
+  add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = FALSE, rewriteAllAnnots = FALSE)
+  add_attributeDefinition(handle, orthoLevel, canoSylLabel, verbose = FALSE, rewriteAllAnnots = FALSE)
   
   
   if (running_chunker)
   {
     # we turn the chunk tier into an item tier, as its temporal information can now be inferred from the MAUS tier
     bas_segment_to_item_level_dbi(handle, chunkLevel)
-    add_levelDefinition(handle, chunkLevel, "ITEM", verbose = verbose)
+    add_levelDefinition(handle, chunkLevel, "ITEM", verbose = FALSE, rewriteAllAnnots = FALSE)
     
     # if we ran the chunker, our path is transcription -> chunk -> word
     add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, chunkLevel)
@@ -339,7 +334,7 @@ runBASwebservice_maus <- function(handle,
     bas_segment_to_item_level(handle, chunkLevel)
   }
   
-  add_levelDefinition(handle, mausLevel, "SEGMENT", verbose = verbose)
+  add_levelDefinition(handle, mausLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
   
   add_linkDefinition(handle, "ONE_TO_MANY", canoLevel, mausLevel)
   
@@ -403,7 +398,7 @@ runBASwebservice_g2pForTokenization <- function(handle,
   bas_clear(handle)
   
   
-  add_levelDefinition(handle, orthoLevel, "ITEM", verbose = verbose)
+  add_levelDefinition(handle, orthoLevel, "ITEM", verbose = FALSE, rewriteAllAnnots = FALSE)
   
   add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, orthoLevel)
   rewrite_allAnnots(handle, verbose = verbose)
@@ -459,7 +454,7 @@ runBASwebservice_g2pForPronunciation <- function(handle,
   
   bas_clear(handle)
   
-  add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = verbose)
+  add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = FALSE, rewriteAllAnnots = FALSE)
   rewrite_allAnnots(handle, verbose = verbose)
 }
 
@@ -534,7 +529,7 @@ runBASwebservice_chunker <- function(handle,
   
   bas_clear(handle)
   
-  add_levelDefinition(handle, chunkLevel, "SEGMENT", verbose = verbose)
+  add_levelDefinition(handle, chunkLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
   add_linkDefinition(handle, "ONE_TO_MANY", chunkLevel, canoLevel)
   
   if (!is.null(rootLevel)) {
@@ -602,7 +597,7 @@ runBASwebservice_minni <- function(handle,
   
   bas_clear(handle)
   
-  add_levelDefinition(handle, minniLevel, "SEGMENT", verbose = verbose)
+  add_levelDefinition(handle, minniLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
   if (!is.null(rootLevel)) {
     add_linkDefinition(handle, "ONE_TO_MANY", rootLevel, minniLevel)
   }
@@ -661,7 +656,7 @@ runBASwebservice_pho2sylCanonical <- function(handle,
   
   bas_clear(handle)
   
-  add_attributeDefinition(handle, canoLevel, canoSylLabel, verbose = verbose)
+  add_attributeDefinition(handle, canoLevel, canoSylLabel, verbose = FALSE, rewriteAllAnnots = FALSE)
   rewrite_allAnnots(handle)
 }
 
@@ -728,7 +723,7 @@ runBASwebservice_pho2sylSegmental <- function(handle,
   
   bas_clear(handle)
   
-  add_levelDefinition(handle, sylLevel, "SEGMENT", verbose = verbose)
+  add_levelDefinition(handle, sylLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
   
   add_linkDefinition(handle, "MANY_TO_MANY", wordLevel, sylLevel)
   add_linkDefinition(handle, "ONE_TO_MANY", sylLevel, mausLevel)
