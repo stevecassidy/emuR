@@ -1,7 +1,26 @@
+##' Converts a collection of audio files and plain text transcriptions into an emuDB
 ##' 
+##' This function takes as input pairs of media files (i.e. wav files) and plain text
+##' transcriptions files. It creates a new emuDB with one bundle per media file, and
+##' turns the associated transcription into an item in that bundle. For this purpose,
+##' media files and text files belonging to the same bundle must be named identically
+##' (with the exception of their respective file extensions). The newly created
+##' emuDB is stored in the target directory, and its handle is returned.
+##' 
+##' @param dbName name of the new emuDB
+##' @param sourceDirTxt directory containing the plain text transcription files
+##' @param sourceDirMedia directory containing the media files (may be identical to sourceDirTxt)
+##' @param targetDir directory where the new emuDB will be stored
+##' @param txtExtension file extension of transcription files
+##' @param mediaFileExtension file extension of media files
+##' @param transcriptionLevel level name of the transcription level
+##' @param transcriptionLabel label name of the transcription items
+##' @param cleanWhitespaces if true, any sequence of whitespaces in the transcription (including newlines and tabs)
+##' is transformed into a single blank
+##' @param verbose display progress bar
 ##' 
 ##' @export
-##' @seealso
+##' @seealso convert_BPFCollection, convert_TextGridCollection
 
 convert_PlainTextCollection <- function(dbName,
                                         sourceDirTxt,
