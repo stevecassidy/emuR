@@ -499,7 +499,7 @@ remove_redundantBundleLinks<-function(linkDefsHashed,bundle){
 ##' 
 ##' }
 ##' 
-convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerate(),verbose=TRUE, ...){
+convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=uuid::UUIDgenerate(),verbose=TRUE, ...){
   # get ... options
   options = list(...)
   
@@ -523,6 +523,7 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerate(),verbo
     }
   }
   legacyBasePath=dirname(emuTplPath)
+
   # load database schema and metadata to get db name
   dbConfig=load_dbConfigFromEmuTemplate(emuTplPath,dbUUID=dbUUID,encoding=mergedOptions[['sourceFileTextEncoding']])
   # database dir
@@ -643,8 +644,8 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerate(),verbo
       
       ptrFileBasename=basename(ptrFilePath)
       
-      cutLen=str_length(primaryFileExtension)+1L
-      cutPos=str_length(ptrFileBasename)-cutLen
+      cutLen=stringr::str_length(primaryFileExtension)+1L
+      cutPos=stringr::str_length(ptrFileBasename)-cutLen
       
       bundle=load_annotationForLegacyBundle(dbConfig,legacyBundleID,legacyBasePath,encoding=mergedOptions[['sourceFileTextEncoding']])
       bundle=remove_redundantBundleLinks(linkDefsHashed,bundle)
@@ -666,7 +667,7 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerate(),verbo
       names(bp$levels) = NULL
       
       # metadata (annotations)
-      ban=str_c(bundle[['name']],bundle.annotation.suffix,'.json')
+      ban=stringr::str_c(bundle[['name']],bundle.annotation.suffix,'.json')
       baJSONPath=file.path(bfp,ban)
       pbpJSON=jsonlite::toJSON(bp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
       writeLines(pbpJSON,baJSONPath)

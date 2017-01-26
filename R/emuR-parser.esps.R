@@ -59,7 +59,7 @@ parse_espsLabelFile <- function(labFilePath=NULL,tierName,tierType=NULL,sampleRa
         # ignore other headers
       }
     }else{
-      lineTokensLst=str_split(trimmedLine,'[[:space:]]+',3)
+      lineTokensLst=stringr::str_split(trimmedLine,'[[:space:]]+',3)
       lineTokens=lineTokensLst[[1]]
       lineTokenCount=length(lineTokens);
       if(lineTokenCount>=2){

@@ -223,6 +223,7 @@ store_DBconfig <- function(emuDBhandle, dbConfig, basePath = NULL){
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param name name of level definition
 ##' @param type type of level definition ("SEGMENT","EVENT","ITEM")
+##' @param rewriteAllAnnots should changes be written to file system (_annot.json files) (intended for expert use only)
 ##' @param verbose Show progress bars and further information
 ##' @keywords emuDB database schema Emu
 ##' @name AddListRemoveLevelDefinitions
@@ -252,7 +253,7 @@ NULL
 ##' @rdname AddListRemoveLevelDefinitions
 ##' @export
 add_levelDefinition<-function(emuDBhandle, name,
-                              type, verbose = T){
+                              type, rewriteAllAnnots = TRUE, verbose = TRUE){
   allowedTypes = c('ITEM', 'SEGMENT', 'EVENT')
   # precheck type 
   if(!(type %in% allowedTypes)){
@@ -272,8 +273,9 @@ add_levelDefinition<-function(emuDBhandle, name,
   
   store_DBconfig(emuDBhandle, dbConfig)
   
-  rewrite_allAnnots(emuDBhandle, verbose = verbose)
-  
+  if(rewriteAllAnnots){
+    rewrite_allAnnots(emuDBhandle, verbose = verbose)
+  }
   invisible(NULL)
 }
 
@@ -300,7 +302,7 @@ list_levelDefinitions <- function(emuDBhandle){
 
 ##' @rdname AddListRemoveLevelDefinitions
 ##' @export
-remove_levelDefinition<-function(emuDBhandle, name, verbose = T){
+remove_levelDefinition<-function(emuDBhandle, name, rewriteAllAnnots = TRUE, verbose = TRUE){
   
   dbConfig = load_DBconfig(emuDBhandle)
   # check if level definition (name)exists 
@@ -334,7 +336,9 @@ remove_levelDefinition<-function(emuDBhandle, name, verbose = T){
   
   store_DBconfig(emuDBhandle, dbConfig)
   
-  rewrite_allAnnots(emuDBhandle, verbose = verbose)
+  if(rewriteAllAnnots){
+    rewrite_allAnnots(emuDBhandle, verbose = verbose)
+  }
   
   return(invisible(NULL))
 }

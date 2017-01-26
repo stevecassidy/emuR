@@ -4,7 +4,7 @@
 \alias{convert_legacyEmuDB}
 \title{Convert legacy EMU database to the emuDB format}
 \usage{
-convert_legacyEmuDB(emuTplPath, targetDir, dbUUID = UUIDgenerate(),
+convert_legacyEmuDB(emuTplPath, targetDir, dbUUID = uuid::UUIDgenerate(),
   verbose = TRUE, ...)
 }
 \arguments{

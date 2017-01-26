@@ -159,9 +159,9 @@ parse_lineToKeyValue = function(line, separator = '=', doubleQuoted = FALSE, ini
   if(eqSignI==-1){
     return(NULL)
   }
-  left=str_sub(line,end=eqSignI-1)
+  left=stringr::str_sub(line,end=eqSignI-1)
   key=stringr::str_trim(left)
-  right=str_sub(line,start=eqSignI+1)
+  right=stringr::str_sub(line,start=eqSignI+1)
   value=stringr::str_trim(right)
   if(doubleQuoted){
     value=sub('^\"','',value);
