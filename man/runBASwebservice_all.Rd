@@ -2,7 +2,7 @@
 % Please edit documentation in R/emuR-bas_webservices.R
 \name{runBASwebservice_all}
 \alias{runBASwebservice_all}
-\title{Runs a number of BAS webservices in default mode, starting from an orthographic transcription.}
+\title{Runs several BAS webservices with default options, starting from an orthographic transcription}
 \usage{
 runBASwebservice_all(handle, transcriptionLabel, language, mausLabel = "MAU",
   orthoLabel = "ORT", canoLabel = "KAN", sylLabel = "MAS",
@@ -14,25 +14,22 @@ runBASwebservice_all(handle, transcriptionLabel, language, mausLabel = "MAU",
 
 \item{transcriptionLabel}{name of the label (not level!) containing an orthographic transcription.}
 
-\item{language}{language to be used. Must be accepted by all webservices. If you want to use different
-languages for different services, you will need to run the webservices separately. In this case,
-it is your responsibility to ensure that SAMPA inventories are compatible between webservices.
-Up-to-date lists of the languages accepted by all webservices can be found here:
-https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}
+\item{language}{language to be used. Up-to-date lists of the languages accepted by all webservices can be found here:
+\url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}}
 
-\item{mausLabel}{label name for the MAUS segmentation. Default: MAU}
+\item{mausLabel}{label name for the MAUS segmentation}
 
-\item{orthoLabel}{label name for orthographic words. Default: ORT}
+\item{orthoLabel}{label name for orthographic words}
 
-\item{canoLabel}{label name for canonical pronunciations of words. Default: KAN}
+\item{canoLabel}{label name for canonical pronunciations of words}
 
-\item{sylLabel}{label name for syllable segmentation. Default: MAS}
+\item{sylLabel}{label name for syllable segmentation}
 
-\item{canoSylLabel}{label name for syllabified canonical pronunciations of words. Default: KAS}
+\item{canoSylLabel}{label name for syllabified canonical pronunciations of words}
 
-\item{minniLabel}{label name for the MINNI segmentation. Default: MINNI}
+\item{minniLabel}{label name for the MINNI segmentation}
 
-\item{chunkLabel}{label name for the chunk segmentation. Default: TRN.
+\item{chunkLabel}{label name for the chunk segmentation
 Please note that the chunk segmentation will only be generated if your emuDB contains
 audio files beyond the one minute mark.}
 
@@ -51,11 +48,21 @@ If the audio file is longer than 60 seconds, the function then calls the Chunker
 to presegment the recording. Subsequently, the webservice MAUS is called to derive a phonetic
 segmentation. A second, rough segmentation is created by running the phoneme decoder MINNI.
 Finally, syllabification is performed by calling Pho2Syl. All necessary level, attribute and link
-definitions are created in the process. This function requires an internet connection.
+definitions are created in the process. \strong{This function requires an internet connection.}
 }
 \details{
-Note that this function will run all BAS webservices in default mode. If you wish to change individual
-options, you may use the individual runBASwebservices_* functions. This will also allow you to carry
-out manual corrections in between the individual steps.
+Note that this function will run all BAS webservices in default mode. If you wish to change
+options, you must use the individual runBASwebservices functions. This will also allow you to carry
+out manual corrections in between the individual steps, or to use different languages for different
+webservices.
+}
+\seealso{
+Other BAS.webservice.functions: \code{\link{runBASwebservice_chunker}},
+  \code{\link{runBASwebservice_g2pForPronunciation}},
+  \code{\link{runBASwebservice_g2pForTokenization}},
+  \code{\link{runBASwebservice_maus}},
+  \code{\link{runBASwebservice_minni}},
+  \code{\link{runBASwebservice_pho2sylCanonical}},
+  \code{\link{runBASwebservice_pho2sylSegmental}}
 }
 
