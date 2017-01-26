@@ -5,13 +5,16 @@
 \title{Creates a rough phonetic segmentation by running the phoneme decoder webservice MINNI.}
 \usage{
 runBASwebservice_minni(handle, language, minniLabel = "MINNI",
-  rootLevel = NULL, minniLevel = NULL, params = list(), verbose = TRUE,
-  perspective = "default", resume = FALSE)
+  rootLevel = NULL, params = list(), perspective = "default",
+  resume = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{handle}{emuDB handle}
 
-\item{language}{language to be used. Up-to-date lists of the languages accepted by all webservices can be found here:
+\item{language}{language(s) to be used. If you pass a single string (e.g. "deu-DE"), this language will be used for all bundles.
+Alternatively, you can select the language for every bundle individually. To do so, you must pass a data frame with the columns
+session, bundle, language. This data frame must contain one row for every bundle in your emuDB. 
+Up-to-date lists of the languages accepted by all webservices can be found here:
 \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}}
 
 \item{minniLabel}{label name for the MINNI segmentation}
@@ -24,8 +27,6 @@ ensure that these parameters are compatible with the webservice API
 Some options accepted by the API (e.g. output format) cannot be set when calling a webservice from within emuR,
 and will be overridden.}
 
-\item{verbose}{Display progress bars and other information}
-
 \item{perspective}{the webApp perspective that the new level will be added to.
 If NULL, the new level is not added to any perspectives.}
 
@@ -33,6 +34,8 @@ If NULL, the new level is not added to any perspectives.}
 that caused the error), you can set resume=TRUE to recover any progress made up to that point. This
 will only work if you have not run any other emuR functions (such as the query function or other
 webservice functions) in the meantime, as they are likely to delete your temporary data.}
+
+\item{verbose}{Display progress bars and other information}
 }
 \description{
 Creates a rough phonetic segmentation by running the phoneme decoder webservice MINNI.

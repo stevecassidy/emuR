@@ -15,14 +15,15 @@ bas_run_maus_dbi <- function(handle,
                              canoLevel,
                              mausLabel,
                              mausLevel,
-                             language,
+                             languages,
                              chunkLevel,
                              verbose,
                              params,
                              resume)
 {
+  bundles_list = languages
   bas_ping()
-  bundles_list = list_bundles(handle)
+
   if (nrow(bundles_list) > 0)
   {
     if (verbose)
@@ -42,8 +43,10 @@ bas_run_maus_dbi <- function(handle,
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
-      bundle = bundles_list[bundle_idx, "name"]
+      bundle = bundles_list[bundle_idx, "bundle"]
       session = bundles_list[bundle_idx, "session"]
+      language = bundles_list[bundle_idx, "language"]
+      
       samplerate = bas_get_samplerate(handle, session, bundle)
       
       if (resume &&
@@ -104,6 +107,7 @@ bas_run_maus_dbi <- function(handle,
             bas_id = bas_id + 1
           }
         }
+      
         usetrn = "false"
         if (!is.null(chunkLevel))
         {
@@ -118,6 +122,7 @@ bas_run_maus_dbi <- function(handle,
           turn_list = DBI::dbGetQuery(handle$connection, queryTxt)
           if (nrow(turn_list) > 0)
           {
+            usetrn = "true"
             for (turn_idx in 1:nrow(turn_list))
             {
               turn_item_id = turn_list[turn_idx, "item_id"]
@@ -257,7 +262,7 @@ bas_run_maus_dbi <- function(handle,
 
 
 bas_run_minni_dbi <- function(handle,
-                              language,
+                              languages,
                               minniLabel,
                               minniLevel,
                               verbose,
@@ -266,7 +271,7 @@ bas_run_minni_dbi <- function(handle,
                               resume)
 {
   bas_ping()
-  bundles_list = list_bundles(handle)
+  bundles_list = languages
   if (nrow(bundles_list) > 0)
   {
     if (verbose)
@@ -286,8 +291,10 @@ bas_run_minni_dbi <- function(handle,
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
-      bundle = bundles_list[bundle_idx, "name"]
+      bundle = bundles_list[bundle_idx, "bundle"]
       session = bundles_list[bundle_idx, "session"]
+      language = bundles_list[bundle_idx, "language"]
+      
       samplerate = bas_get_samplerate(handle, session, bundle)
       signalfile = bas_get_signal_path(handle, session, bundle)
       
@@ -416,13 +423,13 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
                                              orthoLabel,
                                              transcriptionLevel,
                                              orthoLevel,
-                                             language,
+                                             languages,
                                              verbose,
                                              resume,
                                              params)
 {
   bas_ping()
-  bundles_list = list_bundles(handle)
+  bundles_list = languages
   if (nrow(bundles_list) > 0)
   {
     if (verbose)
@@ -443,8 +450,10 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
     }
     for (bundle_idx in 1:nrow(bundles_list))
     {
-      bundle = bundles_list[bundle_idx, "name"]
+      bundle = bundles_list[bundle_idx, "bundle"]
       session = bundles_list[bundle_idx, "session"]
+      language = bundles_list[bundle_idx, "language"]
+      
       samplerate = bas_get_samplerate(handle, session, bundle)
       
       if (resume &&
@@ -591,13 +600,13 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
                                               orthoLabel,
                                               orthoLevel,
                                               canoLabel,
-                                              language,
+                                              languages,
                                               verbose,
                                               resume,
                                               params)
 {
   bas_ping()
-  bundles_list = list_bundles(handle)
+  bundles_list = languages
   if (nrow(bundles_list) > 0)
   {
     if (verbose)
@@ -617,8 +626,10 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
-      bundle = bundles_list[bundle_idx, "name"]
+      bundle = bundles_list[bundle_idx, "bundle"]
       session = bundles_list[bundle_idx, "session"]
+      language = bundles_list[bundle_idx, "language"]
+      
       samplerate = bas_get_samplerate(handle, session, bundle)
       
       if (resume &&
@@ -749,7 +760,7 @@ bas_run_chunker_dbi <- function(handle,
                                 canoLabel,
                                 canoLevel,
                                 chunkLabel,
-                                language,
+                                languages,
                                 verbose,
                                 chunkLevel,
                                 topLevel,
@@ -759,7 +770,7 @@ bas_run_chunker_dbi <- function(handle,
 {
   bas_ping()
   
-  bundles_list = list_bundles(handle)
+  bundles_list = languages
   if (nrow(bundles_list) > 0)
   {
     if (verbose)
@@ -781,8 +792,10 @@ bas_run_chunker_dbi <- function(handle,
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
-      bundle = bundles_list[bundle_idx, "name"]
+      bundle = bundles_list[bundle_idx, "bundle"]
       session = bundles_list[bundle_idx, "session"]
+      language = bundles_list[bundle_idx, "language"]
+      
       samplerate = bas_get_samplerate(handle, session, bundle)
       
       if (resume &&
@@ -992,14 +1005,14 @@ bas_run_chunker_dbi <- function(handle,
 bas_run_pho2syl_canonical_dbi <- function(handle,
                                           canoLabel,
                                           canoLevel,
-                                          language,
+                                          languages,
                                           verbose,
                                           canoSylLabel,
                                           resume,
                                           params)
 {
   bas_ping()
-  bundles_list = list_bundles(handle)
+  bundles_list = languages
   if (nrow(bundles_list) > 0)
   {
     if (verbose)
@@ -1021,8 +1034,10 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
-      bundle = bundles_list[bundle_idx, "name"]
+      bundle = bundles_list[bundle_idx, "bundle"]
       session = bundles_list[bundle_idx, "session"]
+      language = bundles_list[bundle_idx, "language"]
+      
       samplerate = bas_get_samplerate(handle, session, bundle)
       
       if (resume &&
@@ -1154,7 +1169,7 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
 bas_run_pho2syl_segmental_dbi <- function(handle,
                                           mausLabel,
                                           mausLevel,
-                                          language,
+                                          languages,
                                           verbose,
                                           sylLabel,
                                           sylLevel,
@@ -1163,7 +1178,7 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
                                           params)
 {
   bas_ping()
-  bundles_list = list_bundles(handle)
+  bundles_list = languages
   if (nrow(bundles_list) > 0)
   {
     if (verbose)
@@ -1185,8 +1200,10 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
-      bundle = bundles_list[bundle_idx, "name"]
+      bundle = bundles_list[bundle_idx, "bundle"]
       session = bundles_list[bundle_idx, "session"]
+      language = bundles_list[bundle_idx, "language"]
+      
       samplerate = bas_get_samplerate(handle, session, bundle)
       
       if (resume &&
@@ -1820,7 +1837,7 @@ bas_segment_to_item_level <- function(handle, segmentLevel)
 
 bas_segment_to_item_level_dbi <- function(handle, segmentLevel, items_table = "items")
 {
-  queryTxt = paste0("UPDATE ", items_table, " SET type='ITEM', sample_start = NULL, sample_end = NULL WHERE level=='", segmentLevel,
+  queryTxt = paste0("UPDATE ", items_table, " SET type='ITEM', sample_point = NULL, sample_start = NULL, sample_dur = NULL WHERE level=='", segmentLevel,
                     "' AND db_uuid=='", handle$UUID, "'")
   
   DBI::dbGetQuery(handle$connection, queryTxt)
@@ -1834,5 +1851,36 @@ bas_check_this_is_a_new_label <- function(handle, label)
   
   if (!is.null(get_levelDefinition(handle, label))) {
     stop("Level ", label, " already exists!")
+  }
+}
+
+
+bas_evaluate_language_option <- function(handle, language)
+{
+  bundles = list_bundles(handle)
+  names(bundles)[names(bundles)=="name"] <- "bundle"
+  
+  if(is.data.frame(language))
+  {
+    if(nrow(language) != nrow(bundles))
+    {
+      stop("You have provided a dataframe as language option. This dataframe must contain the same number of bundles as your emuDB. ",
+           "Currently, your emuDB contains ", nrow(bundles), " bundles, and the language dataframe ", nrow(language), " bundles.")
+    }
+    if(unique(language$bundle) != unique(bundles$bundle))
+    {
+      stop("Your language dataframe must contain the same bundles as your emuDB.")
+    }
+    return(language)
+  }
+  else
+  {
+    if(!is.character(language))
+    {
+      stop("Language option must either be a string or a dataframe.")
+    }
+    languages = bundles
+    languages$language = language
+    return(languages)
   }
 }

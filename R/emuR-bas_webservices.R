@@ -19,7 +19,10 @@
 ##' @export
 ##' @param handle emuDB handle
 ##' @param transcriptionLabel name of the label (not level!) containing an orthographic transcription.
-##' @param language language to be used. Up-to-date lists of the languages accepted by all webservices can be found here:
+##' @param language language(s) to be used. If you pass a single string (e.g. "deu-DE"), this language will be used for all bundles.
+##' Alternatively, you can select the language for every bundle individually. To do so, you must pass a data frame with the columns
+##' session, bundle, language. This data frame must contain one row for every bundle in your emuDB. 
+##' Up-to-date lists of the languages accepted by all webservices can be found here:
 ##' \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}
 ##'
 ##' @param orthoLabel label name for orthographic words
@@ -42,12 +45,12 @@ runBASwebservice_all <- function(handle,
                                  transcriptionLabel,
                                  language,
                                  
-                                 mausLabel = "MAU",
                                  orthoLabel = "ORT",
                                  canoLabel = "KAN",
+                                 mausLabel = "MAU",
+                                 minniLabel = "MINNI",
                                  sylLabel = "MAS",
                                  canoSylLabel = "KAS",
-                                 minniLabel = "MINNI",
                                  chunkLabel = "TRN",
                                  
                                  resume = FALSE,
@@ -91,6 +94,8 @@ runBASwebservice_all <- function(handle,
     chunkLevel = chunkLabel
   }
   
+  languages = bas_evaluate_language_option(handle = handle, language = language)
+  
   if (!resume) {
     bas_prepare(handle)
   }
@@ -100,7 +105,7 @@ runBASwebservice_all <- function(handle,
     transcriptionLabel = transcriptionLabel,
     orthoLabel = orthoLabel,
     orthoLevel = orthoLevel,
-    language = language,
+    languages = languages,
     verbose = verbose,
     resume = resume,
     params = list()
@@ -111,7 +116,7 @@ runBASwebservice_all <- function(handle,
     orthoLevel = orthoLevel,
     orthoLabel = orthoLabel,
     canoLabel = canoLabel,
-    language = language,
+    languages = languages,
     verbose = verbose,
     resume = resume,
     params = list()
@@ -131,7 +136,7 @@ runBASwebservice_all <- function(handle,
       params = list(),
       resume = resume,
       verbose = verbose,
-      language = language
+      languages = languages
     )
   }
   
@@ -139,7 +144,7 @@ runBASwebservice_all <- function(handle,
     handle = handle,
     canoLevel = orthoLevel,
     canoLabel = canoLabel,
-    language = language,
+    languages = languages,
     chunkLevel = chunkLevel,
     mausLabel = mausLabel,
     mausLevel = mausLevel,
@@ -150,7 +155,7 @@ runBASwebservice_all <- function(handle,
   
   bas_run_minni_dbi(
     handle = handle,
-    language = language,
+    languages = languages,
     minniLabel = minniLabel,
     minniLevel = minniLevel,
     topLevel = transcriptionLevel,
@@ -164,7 +169,7 @@ runBASwebservice_all <- function(handle,
     canoLabel = canoLabel,
     canoSylLabel = canoSylLabel,
     canoLevel = orthoLevel,
-    language = language,
+    languages = languages,
     verbose = verbose,
     params = list(),
     resume = resume
@@ -174,7 +179,7 @@ runBASwebservice_all <- function(handle,
     handle = handle,
     mausLabel = mausLabel,
     mausLevel = mausLevel,
-    language = language,
+    languages = languages,
     sylLabel = sylLabel,
     sylLevel = sylLevel,
     wordLevel = orthoLevel,
@@ -189,8 +194,7 @@ runBASwebservice_all <- function(handle,
   
   if (running_chunker)
   {
-    add_levelDefinition(handle, chunkLevel, "SEGMENT", verbose = verbose)
-    bas_segment_to_item_level_dbi(handle, chunkLevel)
+
   }
   
   add_levelDefinition(handle, sylLevel, "SEGMENT", verbose = verbose)
@@ -204,15 +208,21 @@ runBASwebservice_all <- function(handle,
   add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = verbose)
   add_attributeDefinition(handle, orthoLevel, canoSylLabel, verbose = verbose)
   
-  # if we ran the chunker, our path is transcription -> chunk -> word
+  
   if (running_chunker)
   {
+    # we turn the chunk tier into an item tier, as its temporal information can now be inferred from the MAUS tier
+    bas_segment_to_item_level_dbi(handle, chunkLevel)
+    add_levelDefinition(handle, chunkLevel, "ITEM", verbose = verbose)
+    
+    # if we ran the chunker, our path is transcription -> chunk -> word
     add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, chunkLevel)
     add_linkDefinition(handle, "ONE_TO_MANY", chunkLevel, orthoLevel)
   }
-  # else, it is transcription -> word
+
   else
   {
+    # if we did not run the chunker, the path goes straight transcription -> word
     add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, orthoLevel)
   }
   
@@ -303,6 +313,8 @@ runBASwebservice_maus <- function(handle,
     }
   }
   
+  languages = bas_evaluate_language_option(handle = handle, language = language)
+  
   if (!resume)
   {
     bas_prepare(handle)
@@ -314,7 +326,7 @@ runBASwebservice_maus <- function(handle,
     canoLevel = canoLevel,
     mausLabel = mausLabel,
     mausLevel = mausLevel,
-    language = language,
+    languages = languages,
     chunkLevel = chunkLevel,
     verbose = verbose,
     resume = resume,
@@ -370,6 +382,8 @@ runBASwebservice_g2pForTokenization <- function(handle,
     stop("Could not find a level for label ", transcriptionLabel)
   }
   
+  languages = bas_evaluate_language_option(handle = handle, language = language)
+  
   if (!resume) {
     bas_prepare(handle)
   }
@@ -379,7 +393,7 @@ runBASwebservice_g2pForTokenization <- function(handle,
     transcriptionLabel = transcriptionLabel,
     orthoLabel = orthoLabel,
     orthoLevel = orthoLevel,
-    language = language,
+    languages = languages,
     normalize = normalize,
     verbose = verbose,
     resume = resume,
@@ -424,6 +438,8 @@ runBASwebservice_g2pForPronunciation <- function(handle,
   
   bas_check_this_is_a_new_label(handle, canoLabel)
   
+  languages = bas_evaluate_language_option(handle = handle, language = language)
+  
   if (!resume)
   {
     bas_prepare(handle)
@@ -434,7 +450,7 @@ runBASwebservice_g2pForPronunciation <- function(handle,
     handle = handle,
     orthoLabel = orthoLabel,
     orthoLevel = orthoLevel,
-    language = language,
+    languages = languages,
     canoLabel = canoLabel,
     verbose = verbose,
     resume = resume,
@@ -494,6 +510,8 @@ runBASwebservice_chunker <- function(handle,
     stop("Root level ", rootLevel, " does not exist")
   }
   
+  languages = bas_evaluate_language_option(handle = handle, language = language)
+  
   if (!resume)
   {
     bas_prepare(handle)
@@ -504,7 +522,7 @@ runBASwebservice_chunker <- function(handle,
     canoLabel = canoLabel,
     canoLevel = canoLevel,
     chunkLabel = chunkLabel,
-    language = language,
+    languages = languages,
     verbose = verbose,
     chunkLevel = chunkLevel,
     topLevel = rootLevel,
@@ -564,6 +582,8 @@ runBASwebservice_minni <- function(handle,
     stop("Root level ", rootLevel, " does not exist")
   }
   
+  languages = bas_evaluate_language_option(handle = handle, language = language)
+  
   if (!resume)
   {
     bas_prepare(handle)
@@ -571,7 +591,7 @@ runBASwebservice_minni <- function(handle,
   
   bas_run_minni_dbi(
     handle = handle,
-    language = language,
+    languages = languages,
     minniLabel = minniLabel,
     minniLevel = minniLevel,
     verbose = verbose,
@@ -621,6 +641,8 @@ runBASwebservice_pho2sylCanonical <- function(handle,
   
   bas_check_this_is_a_new_label(handle, canoSylLabel)
   
+  languages = bas_evaluate_language_option(handle = handle, language = language)
+  
   if (!resume)
   {
     bas_prepare(handle)
@@ -630,7 +652,7 @@ runBASwebservice_pho2sylCanonical <- function(handle,
     handle = handle,
     canoLabel = canoLabel,
     canoLevel = canoLevel,
-    language = language,
+    languages = languages,
     verbose = verbose,
     canoSylLabel = canoSylLabel,
     resume = resume,
@@ -684,6 +706,8 @@ runBASwebservice_pho2sylSegmental <- function(handle,
     stop("Could not find a level for label ", wordLevel)
   }
   
+  languages = bas_evaluate_language_option(handle = handle, language = language)
+  
   if (!resume)
   {
     bas_prepare(handle)
@@ -693,7 +717,7 @@ runBASwebservice_pho2sylSegmental <- function(handle,
     handle = handle,
     mausLabel = segmentLabel,
     mausLevel = segmentLevel,
-    language = language,
+    languages = languages,
     verbose = verbose,
     sylLabel = sylLabel,
     sylLevel = sylLevel,

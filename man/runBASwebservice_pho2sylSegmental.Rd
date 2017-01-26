@@ -5,8 +5,8 @@
 \title{Creates a syllable segmentation on the basis of a phonetic segmentation.}
 \usage{
 runBASwebservice_pho2sylSegmental(handle, segmentLabel, wordLevel, language,
-  sylLabel = "MAS", sylLevel = NULL, params = list(),
-  perspective = "default", resume = FALSE, verbose = TRUE)
+  sylLabel = "MAS", params = list(), perspective = "default",
+  resume = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{handle}{emuDB handle}
@@ -15,12 +15,13 @@ runBASwebservice_pho2sylSegmental(handle, segmentLabel, wordLevel, language,
 
 \item{wordLevel}{name of word level. Must be a parent lavel of the segmentation level.}
 
-\item{language}{language to be used. Up-to-date lists of the languages accepted by all webservices can be found here:
+\item{language}{language(s) to be used. If you pass a single string (e.g. "deu-DE"), this language will be used for all bundles.
+Alternatively, you can select the language for every bundle individually. To do so, you must pass a data frame with the columns
+session, bundle, language. This data frame must contain one row for every bundle in your emuDB. 
+Up-to-date lists of the languages accepted by all webservices can be found here:
 \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}}
 
 \item{sylLabel}{label name for syllable segmentation}
-
-\item{sylLevel}{name of the new syllabification level. Defaults to the value of sylLabel.}
 
 \item{params}{named list of parameters to be passed on to the webservice. It is your own reponsibility to
 ensure that these parameters are compatible with the webservice API
