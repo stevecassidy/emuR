@@ -499,7 +499,7 @@ remove_redundantBundleLinks<-function(linkDefsHashed,bundle){
 ##' 
 ##' }
 ##' 
-convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=UUIDgenerate(),verbose=TRUE, ...){
+convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=uuid::UUIDgenerate(),verbose=TRUE, ...){
   # get ... options
   options = list(...)
   
