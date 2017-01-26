@@ -10,16 +10,16 @@ BAS_ADDRESS = "https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/"
 
 
 
-bas_run_maus_from_cano_dbi <- function(handle,
-                                       canoLabel,
-                                       canoLevel,
-                                       mausLabel,
-                                       mausLevel,
-                                       language,
-                                       chunkLevel,
-                                       verbose,
-                                       mausParams,
-                                       resume)
+bas_run_maus_dbi <- function(handle,
+                             canoLabel,
+                             canoLevel,
+                             mausLabel,
+                             mausLevel,
+                             language,
+                             chunkLevel,
+                             verbose,
+                             params,
+                             resume)
 {
   bas_ping()
   bundles_list = list_bundles(handle)
@@ -29,7 +29,7 @@ bas_run_maus_from_cano_dbi <- function(handle,
     {
       cat("INFO: Running MAUS on emuDB containing",
           nrow(bundles_list),
-          "bundles...\n")
+          "bundle(s) ...\n")
       progress = 0
       pb = utils::txtProgressBar(
         min = 0,
@@ -107,13 +107,8 @@ bas_run_maus_from_cano_dbi <- function(handle,
         usetrn = "false"
         if (!is.null(chunkLevel))
         {
-          usetrn = "true"
-          if (get_levelDefinition(handle, chunkLevel)$type != "SEGMENT")
-          {
-            stop("TRN level", chunkLevel, "must be a segment level")
-          }
           queryTxt = paste0(
-            "SELECT item_id, sample_start, sample_dur FROM ",
+            "SELECT item_id, sample_start, sample_dur, type FROM ",
             BAS_ITEMS_TMP_TABLE,
             basic_cond(handle, session, bundle),
             "AND level=='",
@@ -128,9 +123,22 @@ bas_run_maus_from_cano_dbi <- function(handle,
               turn_item_id = turn_list[turn_idx, "item_id"]
               turn_start = turn_list[turn_idx, "sample_start"]
               turn_duration = turn_list[turn_idx, "sample_dur"]
-              links = get_links(handle, session, bundle, turn_item_id, level =
-                                  canoLevel, link_table = BAS_LINKS_TMP_TABLE,
-                                item_table = BAS_ITEMS_TMP_TABLE)
+              type = turn_list[turn_idx, "type"]
+              if (type != "SEGMENT")
+              {
+                stop("Chunk segmentation must be of type SEGMENT")
+              }
+              
+              links = get_links(
+                handle,
+                session,
+                bundle,
+                turn_item_id,
+                level =
+                  canoLevel,
+                link_table = BAS_LINKS_TMP_TABLE,
+                item_table = BAS_ITEMS_TMP_TABLE
+              )
               linkstrings = c()
               for (link in links)
               {
@@ -158,11 +166,11 @@ bas_run_maus_from_cano_dbi <- function(handle,
           BPF = RCurl::fileUpload(kanfile)
         )
         
-        for(key in names(mausParams))
+        for (key in names(params))
         {
-          if(!(key %in% names(params)))
+          if (!(key %in% names(params)))
           {
-            params[[key]] = mausParams[[key]]
+            params[[key]] = params[[key]]
           }
         }
         
@@ -254,7 +262,7 @@ bas_run_minni_dbi <- function(handle,
                               minniLevel,
                               verbose,
                               topLevel,
-                              minniParams,
+                              params,
                               resume)
 {
   bas_ping()
@@ -265,7 +273,7 @@ bas_run_minni_dbi <- function(handle,
     {
       cat("INFO: Running MINNI on emuDB containing",
           nrow(bundles_list),
-          "bundles...\n")
+          "bundle(s) ...\n")
       progress = 0
       pb = utils::txtProgressBar(
         min = 0,
@@ -312,11 +320,11 @@ bas_run_minni_dbi <- function(handle,
         SIGNAL = RCurl::fileUpload(signalfile)
       )
       
-      for(key in names(minniParams))
+      for (key in names(params))
       {
-        if(!(key %in% names(params)))
+        if (!(key %in% names(params)))
         {
-          params[[key]] = minniParams[[key]]
+          params[[key]] = params[[key]]
         }
       }
       
@@ -411,7 +419,7 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
                                              language,
                                              verbose,
                                              resume,
-                                             g2pParams)
+                                             params)
 {
   bas_ping()
   bundles_list = list_bundles(handle)
@@ -422,7 +430,7 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
       cat(
         "INFO: Running G2P tokenizer on emuDB containing",
         nrow(bundles_list),
-        "bundles...\n"
+        "bundle(s) ...\n"
       )
       progress = 0
       pb = utils::txtProgressBar(
@@ -493,13 +501,13 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
               iform = "txt",
               oform = "bpfs",
               i = RCurl::fileUpload(textfile)
-           )
+            )
             
-            for(key in names(g2pParams))
+            for (key in names(params))
             {
-              if(!(key %in% names(params)))
+              if (!(key %in% names(params)))
               {
-                params[[key]] = g2pParams[[key]]
+                params[[key]] = params[[key]]
               }
             }
             
@@ -579,14 +587,14 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
 }
 
 
-bas_run_g2p_from_ortho_dbi <- function(handle,
-                                       orthoLabel,
-                                       orthoLevel,
-                                       canoLabel,
-                                       language,
-                                       verbose,
-                                       resume,
-                                       g2pParams)
+bas_run_g2p_for_pronunciation_dbi <- function(handle,
+                                              orthoLabel,
+                                              orthoLevel,
+                                              canoLabel,
+                                              language,
+                                              verbose,
+                                              resume,
+                                              params)
 {
   bas_ping()
   bundles_list = list_bundles(handle)
@@ -596,7 +604,7 @@ bas_run_g2p_from_ortho_dbi <- function(handle,
     {
       cat("INFO: Running G2P on emuDB containing",
           nrow(bundles_list),
-          "bundles...\n")
+          "bundle(s) ...\n")
       progress = 0
       pb = utils::txtProgressBar(
         min = 0,
@@ -678,11 +686,11 @@ bas_run_g2p_from_ortho_dbi <- function(handle,
           i = RCurl::fileUpload(orthofile)
         )
         
-        for(key in names(g2pParams))
+        for (key in names(params))
         {
-          if(!(key %in% names(params)))
+          if (!(key %in% names(params)))
           {
-            params[[key]] = g2pParams[[key]]
+            params[[key]] = params[[key]]
           }
         }
         
@@ -737,17 +745,17 @@ bas_run_g2p_from_ortho_dbi <- function(handle,
 ############################ CHUNKER ################################
 #####################################################################
 
-bas_run_chunker_from_cano_dbi <- function(handle,
-                                          canoLabel,
-                                          canoLevel,
-                                          chunkLabel,
-                                          language,
-                                          verbose,
-                                          chunkLevel,
-                                          topLevel,
-                                          ortLabel,
-                                          chunkerParams,
-                                          resume)
+bas_run_chunker_dbi <- function(handle,
+                                canoLabel,
+                                canoLevel,
+                                chunkLabel,
+                                language,
+                                verbose,
+                                chunkLevel,
+                                topLevel,
+                                orthoLabel,
+                                params,
+                                resume)
 {
   bas_ping()
   
@@ -756,9 +764,11 @@ bas_run_chunker_from_cano_dbi <- function(handle,
   {
     if (verbose)
     {
-      cat("INFO: Running Chunker on emuDB containing",
-          nrow(bundles_list),
-          "bundles...\n")
+      cat(
+        "INFO: Running Chunker on emuDB containing",
+        nrow(bundles_list),
+        "bundle(s) ...\n"
+      )
       progress = 0
       pb = utils::txtProgressBar(
         min = 0,
@@ -828,7 +838,7 @@ bas_run_chunker_from_cano_dbi <- function(handle,
           
           if (stringr::str_length(cano_label) > 0)
           {
-            if (!is.null(orthoLevel))
+            if (!is.null(orthoLabel))
             {
               queryTxt = paste0(
                 "SELECT ",
@@ -839,7 +849,7 @@ bas_run_chunker_from_cano_dbi <- function(handle,
                 "AND ",
                 BAS_LABELS_TMP_TABLE,
                 ".name=='",
-                ortLabel,
+                orthoLabel,
                 "' AND ",
                 BAS_LABELS_TMP_TABLE,
                 ".item_id==",
@@ -849,8 +859,9 @@ bas_run_chunker_from_cano_dbi <- function(handle,
               res = DBI::dbGetQuery(handle$connection, queryTxt)
               if (nrow(res) > 0)
               {
-                ort_label = res[1, 1]
-                write(paste0("ORT: ", bas_id, " ", ort_label))
+                ortho_label = res[1, 1]
+                write(paste0("ORT: ", bas_id, " ", ortho_label),
+                      kancon)
               }
             }
             
@@ -871,11 +882,11 @@ bas_run_chunker_from_cano_dbi <- function(handle,
           bpf = RCurl::fileUpload(kanfile)
         )
         
-        for(key in names(chunkerParams))
+        for (key in names(params))
         {
-          if(!(key %in% names(params)))
+          if (!(key %in% names(params)))
           {
-            params[[key]] = chunkerParams[[key]]
+            params[[key]] = params[[key]]
           }
         }
         
@@ -978,14 +989,14 @@ bas_run_chunker_from_cano_dbi <- function(handle,
 ############################ PHO2SYL ################################
 #####################################################################
 
-bas_run_pho2syl_from_cano_dbi <- function(handle,
+bas_run_pho2syl_canonical_dbi <- function(handle,
                                           canoLabel,
                                           canoLevel,
                                           language,
                                           verbose,
                                           canoSylLabel,
                                           resume,
-                                          pho2sylParams)
+                                          params)
 {
   bas_ping()
   bundles_list = list_bundles(handle)
@@ -996,7 +1007,7 @@ bas_run_pho2syl_from_cano_dbi <- function(handle,
       cat(
         "INFO: Running Pho2Syl (canonical) on emuDB containing",
         nrow(bundles_list),
-        "bundles...\n"
+        "bundle(s) ...\n"
       )
       progress = 0
       pb = utils::txtProgressBar(
@@ -1080,11 +1091,11 @@ bas_run_pho2syl_from_cano_dbi <- function(handle,
           oform = "bpf"
         )
         
-        for(key in names(pho2sylParams))
+        for (key in names(params))
         {
-          if(!(key %in% names(params)))
+          if (!(key %in% names(params)))
           {
-            params[[key]] = pho2sylParams[[key]]
+            params[[key]] = params[[key]]
           }
         }
         
@@ -1140,16 +1151,16 @@ bas_run_pho2syl_from_cano_dbi <- function(handle,
   }
 }
 
-bas_run_pho2syl_from_mau_dbi <- function(handle,
-                                         mausLabel,
-                                         mausLevel,
-                                         language,
-                                         verbose,
-                                         sylLabel,
-                                         sylLevel,
-                                         canoLevel,
-                                         resume,
-                                         pho2sylParams)
+bas_run_pho2syl_segmental_dbi <- function(handle,
+                                          mausLabel,
+                                          mausLevel,
+                                          language,
+                                          verbose,
+                                          sylLabel,
+                                          sylLevel,
+                                          wordLevel,
+                                          resume,
+                                          params)
 {
   bas_ping()
   bundles_list = list_bundles(handle)
@@ -1160,7 +1171,7 @@ bas_run_pho2syl_from_mau_dbi <- function(handle,
       cat(
         "INFO: Running Pho2Syl (segmental) on emuDB containing",
         nrow(bundles_list),
-        "bundles...\n"
+        "bundle(s) ...\n"
       )
       progress = 0
       pb = utils::txtProgressBar(
@@ -1195,12 +1206,12 @@ bas_run_pho2syl_from_mau_dbi <- function(handle,
         BAS_ITEMS_TMP_TABLE,
         basic_cond(handle, session, bundle),
         "AND level=='",
-        canoLevel,
+        wordLevel,
         "' ORDER BY seq_idx"
       )
-      cano_items = DBI::dbGetQuery(handle$connection, queryTxt)
+      word_items = DBI::dbGetQuery(handle$connection, queryTxt)
       
-      if (nrow(cano_items) > 0)
+      if (nrow(word_items) > 0)
       {
         seq_idx = 1
         max_id = bas_get_max_id(handle, session, bundle)
@@ -1213,14 +1224,23 @@ bas_run_pho2syl_from_mau_dbi <- function(handle,
         write(paste0("SAM: ", samplerate, "\nLBD:"), maucon)
         
         bas_id = 0
-        bas_id_to_cano_item_id = new.env(hash = TRUE)
+        bas_id_to_word_item_id = new.env(hash = TRUE)
         
-        for (cano_idx in 1:nrow(cano_items))
+        written_anything = FALSE
+        
+        for (word_idx in 1:nrow(word_items))
         {
-          cano_item_id = cano_items[cano_idx, "item_id"]
-          links = get_links(handle, session, bundle, cano_item_id, level =
-                              mausLevel, link_table = BAS_LINKS_TMP_TABLE,
-                            item_table = BAS_ITEMS_TMP_TABLE)
+          word_item_id = word_items[word_idx, "item_id"]
+          links = get_links(
+            handle,
+            session,
+            bundle,
+            word_item_id,
+            level =
+              mausLevel,
+            link_table = BAS_LINKS_TMP_TABLE,
+            item_table = BAS_ITEMS_TMP_TABLE
+          )
           
           link_string = paste0("(", paste(links, collapse = ","), ")")
           
@@ -1242,7 +1262,7 @@ bas_run_pho2syl_from_mau_dbi <- function(handle,
           
           mau_labels = DBI::dbGetQuery(handle$connection, queryTxt)
           
-          written_something = FALSE
+          written_mau = FALSE
           
           if (nrow(mau_labels) > 0)
           {
@@ -1267,100 +1287,103 @@ bas_run_pho2syl_from_mau_dbi <- function(handle,
                   ),
                   maucon
                 )
-                written_something = TRUE
+                written_mau = TRUE
+                written_anything = TRUE
               }
             }
-            if (written_something)
+            if (written_mau)
             {
-              bas_id_to_cano_item_id[[toString(bas_id)]] = cano_item_id
+              bas_id_to_word_item_id[[toString(bas_id)]] = word_item_id
               bas_id = bas_id + 1
             }
           }
-          
         }
         
         close(maucon)
         
-        params = list(
-          lng = language,
-          tier = "MAU",
-          oform = "bpf",
-          i = RCurl:::fileUpload(maufile)
-        )
-        
-        for(key in names(pho2sylParams))
+        if (written_anything)
         {
-          if(!(key %in% names(params)))
+          params = list(
+            lng = language,
+            tier = "MAU",
+            oform = "bpf",
+            i = RCurl:::fileUpload(maufile)
+          )
+          
+          for (key in names(params))
           {
-            params[[key]] = pho2sylParams[[key]]
-          }
-        }
-        
-        res = RCurl::postForm(
-          paste0(BAS_ADDRESS, "runPho2Syl"),
-          .params = params,
-          style = "HTTPPOST",
-          .opts = bas_get_options()
-        )
-        
-        masLines = bas_download(res, masfile)
-        
-        if (length(masLines) > 0)
-        {
-          for (line_idx in 1:length(masLines))
-          {
-            line = masLines[line_idx]
-            if (stringr::str_detect(line, "^MAS:"))
+            if (!(key %in% names(params)))
             {
-              splitline = stringr::str_split_fixed(line, "\\s+", n = 5)
-              item_id = max_id + seq_idx
-              start = as.integer(splitline[[2]])
-              dur = as.integer(splitline[[3]])
-              label = stringr::str_replace_all(stringr::str_trim(splitline[[5]]), "'", "''")
-              
-              bas_ids = splitline[[4]]
-              bas_ids_split = stringr::str_split(bas_ids, ",")[[1]]
-              
-              if (as.integer(bas_ids_split[1]) >= 0)
+              params[[key]] = params[[key]]
+            }
+          }
+          
+          res = RCurl::postForm(
+            paste0(BAS_ADDRESS, "runPho2Syl"),
+            .params = params,
+            style = "HTTPPOST",
+            .opts = bas_get_options()
+          )
+          
+          masLines = bas_download(res, masfile)
+          
+          if (length(masLines) > 0)
+          {
+            for (line_idx in 1:length(masLines))
+            {
+              line = masLines[line_idx]
+              if (stringr::str_detect(line, "^MAS:"))
               {
-                bas_add_item(
-                  handle = handle,
-                  session = session,
-                  bundle = bundle,
-                  item_id = item_id,
-                  level = sylLevel,
-                  type = "SEGMENT",
-                  seq_idx = seq_idx,
-                  sample_start = start,
-                  sample_dur = dur,
-                  samplerate = samplerate
-                )
+                splitline = stringr::str_split_fixed(line, "\\s+", n = 5)
+                item_id = max_id + seq_idx
+                start = as.integer(splitline[[2]])
+                dur = as.integer(splitline[[3]])
+                label = stringr::str_replace_all(stringr::str_trim(splitline[[5]]), "'", "''")
                 
-                seq_idx = seq_idx + 1
+                bas_ids = splitline[[4]]
+                bas_ids_split = stringr::str_split(bas_ids, ",")[[1]]
                 
-                bas_add_label(
-                  handle = handle,
-                  session = session,
-                  bundle = bundle,
-                  item_id = item_id,
-                  label_idx = 1,
-                  label_name =
-                    sylLabel,
-                  label = label
-                )
-                
-                for (split_idx in 1:length(bas_ids_split))
+                if (as.integer(bas_ids_split[1]) >= 0)
                 {
-                  cano_item_id = bas_id_to_cano_item_id[[bas_ids_split[split_idx]]]
-                  
-                  
-                  bas_add_link(
+                  bas_add_item(
                     handle = handle,
                     session = session,
                     bundle = bundle,
-                    from_id = cano_item_id,
-                    to_id = item_id
+                    item_id = item_id,
+                    level = sylLevel,
+                    type = "SEGMENT",
+                    seq_idx = seq_idx,
+                    sample_start = start,
+                    sample_dur = dur,
+                    samplerate = samplerate
                   )
+                  
+                  seq_idx = seq_idx + 1
+                  
+                  bas_add_label(
+                    handle = handle,
+                    session = session,
+                    bundle = bundle,
+                    item_id = item_id,
+                    label_idx = 1,
+                    label_name =
+                      sylLabel,
+                    label = label
+                  )
+                  
+                  for (split_idx in 1:length(bas_ids_split))
+                  {
+                    word_item_id = bas_id_to_word_item_id[[bas_ids_split[split_idx]]]
+                    
+                    
+                    bas_add_link(
+                      handle = handle,
+                      session = session,
+                      bundle = bundle,
+                      from_id = word_item_id,
+                      to_id = item_id
+                    )
+                  }
                 }
               }
             }
@@ -1758,6 +1781,7 @@ bas_get_options <- function()
 bas_ping <- function()
 {
   cat("Sending ping to webservices provider.\n")
+  
   res = RCurl::getURL(
     url = paste0(BAS_ADDRESS, "help"),
     .opts = RCurl::curlOptions(connecttimeout = 10, timeout = 30)
@@ -1780,4 +1804,24 @@ bas_long_enough_for_chunker <- function(handle)
       }
     }
   }
+}
+
+bas_segment_to_item_level <- function(handle, segmentLevel)
+{
+  bas_segment_to_item_level_dbi(handle, segmentLevel)
+  get_levelDefinition(handle, segmentLevel)$type = "ITEM"
+  for(perspective in list_perspectives(handle))
+  {
+    oldOrder = get_levelCanvasesOrder(handle, perspective)
+    set_levelCanvasesOrder(handle, perspective, oldOrder[oldOrder != segmentLevel])
+  }
+}
+
+
+bas_segment_to_item_level_dbi <- function(handle, segmentLevel, items_table = "items")
+{
+  queryTxt = paste0("UPDATE ", items_table, " SET type='ITEM', sample_start = NULL, sample_end = NULL WHERE level=='", segmentLevel,
+                    "' AND db_uuid=='", handle$UUID, "'")
+  
+  DBI::dbGetQuery(handle$connection, queryTxt)
 }
