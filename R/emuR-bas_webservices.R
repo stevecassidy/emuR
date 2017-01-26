@@ -67,10 +67,7 @@ runBASwebservice_all <- function(handle,
                   minniLabel,
                   chunkLabel))
   {
-    if (!is.null(get_levelNameForAttributeName(handle, label)))
-    {
-      stop("There is already a level with label ", label)
-    }
+    bas_check_this_is_a_new_label(handle, label)
   }
   
   
@@ -254,7 +251,7 @@ runBASwebservice_all <- function(handle,
 ##' @param mausLevel name of the level for the MAUS segmentation. Defaults to the value of mausLabel.
 ##' @param chunkLevel if you have a chunk segmentation level, you can provide it to improve the speed and accuracy
 ##' of MAUS. The chunk segmentation level must be a segment level, and it must link to the level of orthoLabel.
-##' @param chunkLevelToItem if TRUE, and if a chunk level is provided, the chunk level is converted into an ITEM level after segmentation
+##' @param turnChunkLevelIntoItemLevel if TRUE, and if a chunk level is provided, the chunk level is converted into an ITEM level after segmentation
 ##' @param params named list of parameters to be passed on to the webservice. It is your own reponsibility to
 ##' ensure that these parameters are compatible with the webservice API
 ##' (see \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}).
@@ -272,8 +269,7 @@ runBASwebservice_maus <- function(handle,
                                   mausLabel = "MAU",
                                   
                                   chunkLevel = NULL,
-                                  chunkLevelToItem = TRUE,
-                                  mausLevel = NULL,
+                                  turnChunkLevelIntoItemLevel = TRUE,
                                   
                                   params = NULL,
                                   
@@ -281,12 +277,9 @@ runBASwebservice_maus <- function(handle,
                                   resume = FALSE,
                                   verbose = TRUE)
 {
-  if (is.null(mausLevel)) {
-    mausLevel = mausLabel
-  }
-  if (!is.null(get_levelDefinition(handle, mausLevel))) {
-    stop("Level", mausLevel, "already exists!")
-  }
+  mausLevel = mausLabel
+  
+  bas_check_this_is_a_new_label(handle, mausLabel)
   
   canoLevel = get_levelNameForAttributeName(handle, canoLabel)
   if (is.null(canoLevel)) {
@@ -330,15 +323,12 @@ runBASwebservice_maus <- function(handle,
   
   bas_clear(handle)
   
-  if(chunkLevelToItem && !is.null(chunkLevel))
-  {
+  if(chunkLevelToItem && !is.null(chunkLevel)) {
     bas_segment_to_item_level(handle, chunkLevel)
   }
   
   add_levelDefinition(handle, mausLevel, "SEGMENT", verbose = verbose)
-  if (mausLevel != mausLabel) {
-    add_attributeDefinition(handle, mausLevel, mausLabel, verbose = verbose)
-  }
+  
   add_linkDefinition(handle, "ONE_TO_MANY", canoLevel, mausLevel)
   
   bas_new_canvas(handle, perspective, mausLevel)
@@ -368,30 +358,19 @@ runBASwebservice_g2pForTokenization <- function(handle,
                                                 
                                                 params = list(),
                                                 
-                                                orthoLevel = NULL,
-                                                verbose = TRUE,
-                                                resume = FALSE)
+                                                resume = FALSE,
+                                                verbose = TRUE)
 {
+  orthoLevel = orthoLabel
+  
+  bas_check_this_is_a_new_label(handle, orthoLabel)
+  
   transcriptionLevel = get_levelNameForAttributeName(handle, transcriptionLabel)
   if (is.null(transcriptionLevel)) {
     stop("Could not find a level for label ", transcriptionLabel)
   }
   
-  if (!is.null(get_levelNameForAttributeName(handle, orthoLabel)))
-  {
-    stop("There is already a level with label", orthoLabel)
-  }
-  
-  if (is.null(orthoLevel)) {
-    orthoLevel = orthoLabel
-  }
-  
-  if (!is.null(get_levelDefinition(handle, orthoLevel))) {
-    stop("Level ", orthoLevel, " already exists!")
-  }
-  
-  if (!resume)
-  {
+  if (!resume) {
     bas_prepare(handle)
   }
   
@@ -411,10 +390,6 @@ runBASwebservice_g2pForTokenization <- function(handle,
   
   
   add_levelDefinition(handle, orthoLevel, "ITEM", verbose = verbose)
-  
-  if (orthoLevel != orthoLabel) {
-    add_attributeDefinition(handle, orthoLevel, orthoLabel, verbose = verbose)
-  }
   
   add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, orthoLevel)
   rewrite_allAnnots(handle, verbose = verbose)
@@ -438,19 +413,16 @@ runBASwebservice_g2pForPronunciation <- function(handle,
                                                  canoLabel = "KAN",
                                                  
                                                  params = list(),
-                                                 
-                                                 verbose = TRUE,
-                                                 resume = FALSE)
+
+                                                 resume = FALSE,
+                                                 verbose = TRUE)
 {
   orthoLevel = get_levelNameForAttributeName(handle, orthoLabel)
   if (is.null(orthoLevel)) {
     stop("Could not find a level for label ", orthoLabel)
   }
   
-  canoLevel = get_levelNameForAttributeName(handle, canoLabel)
-  if (!is.null(canoLevel)) {
-    stop("There is aleady a level with the label ", canoLabel)
-  }
+  bas_check_this_is_a_new_label(handle, canoLabel)
   
   if (!resume)
   {
@@ -471,9 +443,7 @@ runBASwebservice_g2pForPronunciation <- function(handle,
   
   bas_clear(handle)
   
-  if (orthoLevel != canoLabel) {
-    add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = verbose)
-  }
+  add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = verbose)
   rewrite_allAnnots(handle, verbose = verbose)
 }
 
@@ -492,7 +462,6 @@ runBASwebservice_g2pForPronunciation <- function(handle,
 ##' @param orthoLabel if provided, chunk labels will contain orthographic instead of SAMPA strings.
 ##' Must be paired with the canonical pronunciation labels in canoLabel.
 ##' @param chunkLabel label name for the chunk segmentation
-##' @param chunkLevel name of the level for the chunk segmentation. Defaults to the value of chunkLabel
 ##'
 ##' @inheritParams runBASwebservice_all
 ##' @inheritParams runBASwebservice_maus
@@ -503,22 +472,16 @@ runBASwebservice_chunker <- function(handle,
                                      
                                      chunkLabel = "TRN",
                                      rootLevel = NULL,
-                                     
-                                     chunkLevel = NULL,
                                      orthoLabel = NULL,
                                      
                                      params = list(),
                                      
-                                     verbose = TRUE,
                                      perspective = "default",
-                                     resume = FALSE)
+                                     resume = FALSE,
+                                     verbose = TRUE)
 {
-  if (is.null(chunkLevel)) {
-    chunkLevel = chunkLabel
-  }
-  if (!is.null(get_levelDefinition(handle, chunkLevel))) {
-    stop("Level ", chunkLevel, " already exists!")
-  }
+  chunkLevel = chunkLabel
+  bas_check_this_is_a_new_label(handle, chunkLabel)
   
   canoLevel = get_levelNameForAttributeName(handle, canoLabel)
   if (is.null(canoLevel)) {
@@ -554,12 +517,9 @@ runBASwebservice_chunker <- function(handle,
   bas_clear(handle)
   
   add_levelDefinition(handle, chunkLevel, "SEGMENT", verbose = verbose)
-  if (chunkLevel != chunkLabel) {
-    add_attributeDefinition(handle, chunkLevel, chunkLabel, verbose = verbose)
-  }
   add_linkDefinition(handle, "ONE_TO_MANY", chunkLevel, canoLevel)
-  if (!is.null(rootLevel))
-  {
+  
+  if (!is.null(rootLevel)) {
     add_linkDefinition(handle, "ONE_TO_MANY", rootLevel, chunkLevel)
   }
   bas_new_canvas(handle, perspective, chunkLevel)
@@ -589,20 +549,14 @@ runBASwebservice_minni <- function(handle,
                                    minniLabel = "MINNI",
                                    rootLevel = NULL,
                                    
-                                   minniLevel = NULL,
-                                   
                                    params = list(),
                                    
-                                   verbose = TRUE,
                                    perspective = "default",
-                                   resume = FALSE)
+                                   resume = FALSE,
+                                   verbose = TRUE)
 {
-  if (is.null(minniLevel)) {
-    minniLevel = minniLabel
-  }
-  if (!is.null(get_levelDefinition(handle, minniLevel))) {
-    stop("Level ", minniLevel, " already exists!")
-  }
+  minniLevel = minniLabel
+  bas_check_this_is_a_new_label(handle, minniLabel)
   
   if ((!is.null(rootLevel)) &&
       is.null(get_levelDefinition(handle, rootLevel)))
@@ -629,11 +583,7 @@ runBASwebservice_minni <- function(handle,
   bas_clear(handle)
   
   add_levelDefinition(handle, minniLevel, "SEGMENT", verbose = verbose)
-  if (minniLevel != minniLabel) {
-    add_attributeDefinition(handle, minniLevel, minniLabel, verbose = verbose)
-  }
-  if (!is.null(rootLevel))
-  {
+  if (!is.null(rootLevel)) {
     add_linkDefinition(handle, "ONE_TO_MANY", rootLevel, minniLevel)
   }
   bas_new_canvas(handle, perspective, minniLevel)
@@ -661,18 +611,15 @@ runBASwebservice_pho2sylCanonical <- function(handle,
                                               
                                               params = list(),
                                               
-                                              verbose = TRUE,
-                                              resume = FALSE)
+                                              resume = FALSE,
+                                              verbose = TRUE)
 {
   canoLevel = get_levelNameForAttributeName(handle, canoLabel)
   if (is.null(canoLevel)) {
     stop("Could not find a level for label ", canoLabel)
   }
   
-  canoSylLevel = get_levelNameForAttributeName(handle, canoSylLabel)
-  if (!is.null(canoSylLevel)) {
-    stop("There is aleady a level with the label ", canoSylLabel)
-  }
+  bas_check_this_is_a_new_label(handle, canoSylLabel)
   
   if (!resume)
   {
@@ -692,9 +639,7 @@ runBASwebservice_pho2sylCanonical <- function(handle,
   
   bas_clear(handle)
   
-  if (canoLevel != canoSylLabel) {
-    add_attributeDefinition(handle, canoLevel, canoSylLabel, verbose = verbose)
-  }
+  add_attributeDefinition(handle, canoLevel, canoSylLabel, verbose = verbose)
   rewrite_allAnnots(handle)
 }
 
@@ -704,7 +649,6 @@ runBASwebservice_pho2sylCanonical <- function(handle,
 ##' @export
 ##' @param segmentLabel name of the label (not level!) containing a phonetic segmentation.
 ##' @param wordLevel name of word level. Must be a parent lavel of the segmentation level.
-##' @param sylLevel name of the new syllabification level. Defaults to the value of sylLabel.
 ##'
 ##' @inheritParams runBASwebservice_all
 ##' @inheritParams runBASwebservice_maus
@@ -715,7 +659,6 @@ runBASwebservice_pho2sylSegmental <- function(handle,
                                               language,
                                               
                                               sylLabel = "MAS",
-                                              sylLevel = NULL,
                                               
                                               params = list(),
                                               
@@ -723,26 +666,17 @@ runBASwebservice_pho2sylSegmental <- function(handle,
                                               resume = FALSE,
                                               verbose = TRUE)
 {
-  if (!is.null(get_levelNameForAttributeName(handle, sylLabel)))
-  {
-    stop("There is already a level with label ", sylLabel)
-  }
+  sylLevel = sylLabel
   
-  if (is.null(sylLevel)) {
-    sylLevel = sylLabel
-  }
-  
-  if (!is.null(get_levelDefinition(handle, sylLevel))) {
-    stop("Level ", sylLevel, " already exists!")
-  }
+  bas_check_this_is_a_new_label(handle, sylLabel)
   
   segmentLevel = get_levelNameForAttributeName(handle, segmentLabel)
   if (is.null(segmentLevel)) {
     stop("Could not find a level for label ", segmentLevel)
   }
-  if (get_levelDefinition(handle, mausLevel)$type != "SEGMENT")
-  {
-    stop(segmentLabel,
+  
+  if (get_levelDefinition(handle, segmentLevel)$type != "SEGMENT") {
+    stop(segmentLevel,
          " must be a segment tier in order to run pho2syl from segment")
   }
   
@@ -771,9 +705,6 @@ runBASwebservice_pho2sylSegmental <- function(handle,
   bas_clear(handle)
   
   add_levelDefinition(handle, sylLevel, "SEGMENT", verbose = verbose)
-  if (sylLevel != sylLabel) {
-    add_attributeDefinition(handle, sylLevel, sylLabel, verbose = verbose)
-  }
   
   add_linkDefinition(handle, "MANY_TO_MANY", wordLevel, sylLevel)
   add_linkDefinition(handle, "ONE_TO_MANY", sylLevel, mausLevel)

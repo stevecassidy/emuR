@@ -1825,3 +1825,14 @@ bas_segment_to_item_level_dbi <- function(handle, segmentLevel, items_table = "i
   
   DBI::dbGetQuery(handle$connection, queryTxt)
 }
+
+bas_check_this_is_a_new_label <- function(handle, label)
+{
+  if (!is.null(get_levelNameForAttributeName(handle, label))) {
+    stop("There is already a level with label", label)
+  }
+  
+  if (!is.null(get_levelDefinition(handle, label))) {
+    stop("Level ", label, " already exists!")
+  }
+}
