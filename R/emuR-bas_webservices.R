@@ -200,8 +200,8 @@ runBASwebservice_all <- function(handle,
   add_levelDefinition(handle, minniLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
   bas_new_canvas(handle, "default", minniLevel)
   
-  add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = FALSE, rewriteAllAnnots = FALSE)
-  add_attributeDefinition(handle, orthoLevel, canoSylLabel, verbose = FALSE, rewriteAllAnnots = FALSE)
+  add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = FALSE)
+  add_attributeDefinition(handle, orthoLevel, canoSylLabel, verbose = FALSE)
   
   
   if (running_chunker)
@@ -389,7 +389,6 @@ runBASwebservice_g2pForTokenization <- function(handle,
     orthoLabel = orthoLabel,
     orthoLevel = orthoLevel,
     languages = languages,
-    normalize = normalize,
     verbose = verbose,
     resume = resume,
     params = params
@@ -454,7 +453,7 @@ runBASwebservice_g2pForPronunciation <- function(handle,
   
   bas_clear(handle)
   
-  add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = FALSE, rewriteAllAnnots = FALSE)
+  add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = FALSE)
   rewrite_allAnnots(handle, verbose = verbose)
 }
 
@@ -656,7 +655,7 @@ runBASwebservice_pho2sylCanonical <- function(handle,
   
   bas_clear(handle)
   
-  add_attributeDefinition(handle, canoLevel, canoSylLabel, verbose = FALSE, rewriteAllAnnots = FALSE)
+  add_attributeDefinition(handle, canoLevel, canoSylLabel, verbose = FALSE)
   rewrite_allAnnots(handle)
 }
 

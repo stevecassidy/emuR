@@ -105,7 +105,7 @@ convert_PlainTextCollection <- function(dbName,
   
   add_levelDefinition(handle, transcriptionLevel, "ITEM", verbose = FALSE, rewriteAllAnnot = FALSE)
   if (transcriptionLabel != transcriptionLevel) {
-    add_attributeDefinition(handle, transcriptionLevel, transcriptionLabel, verbose = FALSE, rewriteAllAnnot = FALSE)
+    add_attributeDefinition(handle, transcriptionLevel, transcriptionLabel, verbose = FALSE)
   }
   
   rewrite_allAnnots(handle, verbose = verbose)
