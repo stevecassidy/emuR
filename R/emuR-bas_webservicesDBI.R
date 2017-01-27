@@ -1,14 +1,12 @@
-BAS_ITEMS_TMP_TABLE = "bas_items_tmp"
-BAS_LINKS_TMP_TABLE = "bas_links_tmp"
-BAS_LABELS_TMP_TABLE = "bas_labels_tmp"
 BAS_WORKDIR = file.path(tempdir(), "emuR_bas_workdir")
+BAS_TMPDB = file.path(tempdir(), "BASTMP_emuDB")
+BAS_TMPCACHE = file.path(BAS_TMPDB, "BAS_cache.sqlite")
+
 BAS_ADDRESS = "https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/"
 
 #####################################################################
 ############################# MAUS ##################################
 #####################################################################
-
-
 
 bas_run_maus_dbi <- function(handle,
                              canoLabel,
@@ -16,16 +14,18 @@ bas_run_maus_dbi <- function(handle,
                              mausLabel,
                              mausLevel,
                              languages,
-                             chunkLevel,
+                             chunkLabel,
                              verbose,
                              params,
-                             resume)
+                             resume,
+                             oldBasePath)
 {
   bundles_list = languages
-  bas_ping()
-
+  
   if (nrow(bundles_list) > 0)
   {
+    bas_ping()
+    
     if (verbose)
     {
       cat("INFO: Running MAUS on emuDB containing",
@@ -41,6 +41,27 @@ bas_run_maus_dbi <- function(handle,
       utils::setTxtProgressBar(pb, progress)
     }
     
+    queryTxt = paste0("[", canoLabel,"=~.*\\S.*]")
+    cano_items = query(handle, queryTxt, calcTimes = F)
+    
+    if (!is.null(chunkLabel))
+    {
+      queryTxt = paste0("[", chunkLabel, "=~.*]")
+      trn_items_tmp = query(handle, queryTxt, calcTimes = F)
+      
+      if (nrow(trn_items_tmp) > 0)
+      {
+        if (trn_items_tmp[1,"type"] != "SEGMENT")
+        {
+          stop("Chunk segmentation must be of type SEGMENT")
+        }
+      }
+      
+      queryTxt = paste0("[", chunkLabel, "=~.*]")
+      trn_items = query(handle, queryTxt)
+    }
+    
+    
     for (bundle_idx in 1:nrow(bundles_list))
     {
       bundle = bundles_list[bundle_idx, "bundle"]
@@ -54,36 +75,23 @@ bas_run_maus_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat("Skipping bundle ", bundle)
+          cat("Skipping bundle", bundle)
           utils::setTxtProgressBar(pb, bundle_idx)
         }
         next
       }
       
-      queryTxt = paste0(
-        "SELECT ",
-        BAS_LABELS_TMP_TABLE,
-        ".label as label, ",
-        BAS_ITEMS_TMP_TABLE,
-        ".item_id as item_id FROM ",
-        bas_label_item_join(BAS_LABELS_TMP_TABLE, BAS_ITEMS_TMP_TABLE),
-        basic_cond(handle, session, bundle, prefix = BAS_ITEMS_TMP_TABLE),
-        "AND ",
-        BAS_LABELS_TMP_TABLE,
-        ".name=='",
-        canoLabel,
-        "'"
-      )
-      labels_list = DBI::dbGetQuery(handle$connection, queryTxt)
+      cano_items_bundle = cano_items[cano_items$bundle == bundle &
+                                       cano_items$session == session,]
       
-      if (nrow(labels_list) > 0)
+      if (nrow(cano_items_bundle) > 0)
       {
         seq_idx = 1
         max_id = bas_get_max_id(handle, session, bundle)
         
         kanfile = file.path(BAS_WORKDIR, paste0(bundle, ".kan.par"))
         maufile = file.path(BAS_WORKDIR, paste0(bundle, ".mau.par"))
-        signalfile = bas_get_signal_path(handle, session, bundle)
+        signalfile = bas_get_signal_path(handle, session, bundle, oldBasePath)
         
         kancon <- file(kanfile)
         open(kancon, "w")
@@ -93,70 +101,50 @@ bas_run_maus_dbi <- function(handle,
         item_id_to_bas_id = new.env(hash = TRUE)
         bas_id_to_item_id = new.env(hash = TRUE)
         
-        for (label_idx in 1:nrow(labels_list))
+        for (label_idx in 1:nrow(cano_items_bundle))
         {
-          cano_label = stringr::str_trim(labels_list[label_idx, "label"])
-          cano_item_id = labels_list[label_idx, "item_id"]
+          cano_label = stringr::str_trim(cano_items_bundle[label_idx, "labels"])
+          cano_item_id = cano_items_bundle[label_idx, "start_item_id"]
           
-          if (stringr::str_length(cano_label) > 0)
-          {
-            write(paste0("KAN: ", bas_id, " ", cano_label),
-                  kancon)
-            item_id_to_bas_id[[toString(cano_item_id)]] = bas_id
-            bas_id_to_item_id[[toString(bas_id)]] = cano_item_id
-            bas_id = bas_id + 1
-          }
+          kanline = paste0("KAN: ", bas_id, " ", cano_label)
+          write(kanline, kancon)
+          
+          item_id_to_bas_id[[toString(cano_item_id)]] = bas_id
+          bas_id_to_item_id[[toString(bas_id)]] = cano_item_id
+          bas_id = bas_id + 1
         }
-      
+        
         usetrn = "false"
-        if (!is.null(chunkLevel))
+        if (!is.null(chunkLabel))
         {
-          queryTxt = paste0(
-            "SELECT item_id, sample_start, sample_dur, type FROM ",
-            BAS_ITEMS_TMP_TABLE,
-            basic_cond(handle, session, bundle),
-            "AND level=='",
-            chunkLevel,
-            "'"
-          )
-          turn_list = DBI::dbGetQuery(handle$connection, queryTxt)
-          if (nrow(turn_list) > 0)
+          trn_items_bundle = trn_items[trn_items$bundle == bundle &
+                                         trn_items$session == session,]
+          if (nrow(trn_items_bundle) > 0)
           {
             usetrn = "true"
-            for (turn_idx in 1:nrow(turn_list))
+            for (turn_idx in 1:nrow(trn_items_bundle))
             {
-              turn_item_id = turn_list[turn_idx, "item_id"]
-              turn_start = turn_list[turn_idx, "sample_start"]
-              turn_duration = turn_list[turn_idx, "sample_dur"]
-              type = turn_list[turn_idx, "type"]
-              if (type != "SEGMENT")
-              {
-                stop("Chunk segmentation must be of type SEGMENT")
-              }
+              turn_item_id = trn_items_bundle[turn_idx, "start_item_id"]
+              turn_start = trn_items_bundle[turn_idx, "sample_start"]
+              turn_end = trn_items_bundle[turn_idx, "sample_end"]
               
-              links = get_links(
-                handle,
-                session,
-                bundle,
-                turn_item_id,
-                level =
-                  canoLevel,
-                link_table = BAS_LINKS_TMP_TABLE,
-                item_table = BAS_ITEMS_TMP_TABLE
-              )
-              linkstrings = c()
-              for (link in links)
+              linked_ids = requery_hier(
+                handle, trn_items_bundle[turn_idx,], canoLabel, calcTimes = F, collapse = F
+              )$start_item_id
+              
+              if (length(linked_ids) > 0)
               {
-                linkstrings = c(linkstrings, item_id_to_bas_id[[toString(link)]])
+                bas_ids = sapply(linked_ids, function(x)
+                  item_id_to_bas_id[[toString(x)]])
+                
+                
+                trnline = paste(
+                  "TRN:", turn_start, turn_end - turn_start,
+                  paste0(bas_ids, collapse = ","),"_"
+                )
+                
+                write(trnline, kancon)
               }
-              write(paste(
-                "TRN:",
-                turn_start,
-                turn_duration,
-                paste0(linkstrings, collapse = ","),
-                "<NA>"
-              ),
-              kancon)
             }
           }
         }
@@ -268,12 +256,14 @@ bas_run_minni_dbi <- function(handle,
                               verbose,
                               topLevel,
                               params,
-                              resume)
+                              resume,
+                              oldBasePath)
 {
-  bas_ping()
   bundles_list = languages
   if (nrow(bundles_list) > 0)
   {
+    bas_ping()
+    
     if (verbose)
     {
       cat("INFO: Running MINNI on emuDB containing",
@@ -289,6 +279,7 @@ bas_run_minni_dbi <- function(handle,
       utils::setTxtProgressBar(pb, progress)
     }
     
+    
     for (bundle_idx in 1:nrow(bundles_list))
     {
       bundle = bundles_list[bundle_idx, "bundle"]
@@ -296,14 +287,14 @@ bas_run_minni_dbi <- function(handle,
       language = bundles_list[bundle_idx, "language"]
       
       samplerate = bas_get_samplerate(handle, session, bundle)
-      signalfile = bas_get_signal_path(handle, session, bundle)
+      signalfile = bas_get_signal_path(handle, session, bundle, oldBasePath)
       
       if (resume &&
           bas_label_exists_in_bundle(handle, session, bundle, minniLabel))
       {
         if (verbose)
         {
-          cat("Skipping bundle ", bundle)
+          cat("Skipping bundle", bundle)
           utils::setTxtProgressBar(pb, bundle_idx)
         }
         next
@@ -428,10 +419,11 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
                                              resume,
                                              params)
 {
-  bas_ping()
   bundles_list = languages
   if (nrow(bundles_list) > 0)
   {
+    bas_ping()
+    
     if (verbose)
     {
       cat(
@@ -448,6 +440,10 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
       )
       utils::setTxtProgressBar(pb, progress)
     }
+    
+    queryTxt = paste0("[", transcriptionLabel,"=~.*\\S.*]")
+    transcription_items = query(handle, queryTxt, calcTimes = F)
+    
     for (bundle_idx in 1:nrow(bundles_list))
     {
       bundle = bundles_list[bundle_idx, "bundle"]
@@ -461,123 +457,106 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat("Skipping bundle ", bundle)
+          cat("Skipping bundle", bundle)
           utils::setTxtProgressBar(pb, bundle_idx)
         }
         next
       }
       
-      queryTxt = paste0(
-        "SELECT ",
-        BAS_LABELS_TMP_TABLE,
-        ".label as label, ",
-        BAS_ITEMS_TMP_TABLE,
-        ".item_id as item_id FROM ",
-        bas_label_item_join(BAS_LABELS_TMP_TABLE, BAS_ITEMS_TMP_TABLE),
-        basic_cond(handle, session, bundle, prefix = BAS_ITEMS_TMP_TABLE),
-        "AND ",
-        BAS_LABELS_TMP_TABLE,
-        ".name=='",
-        transcriptionLabel,
-        "'"
-      )
-      labels_list = DBI::dbGetQuery(handle$connection, queryTxt)
+      transcription_items_bundle = transcription_items[transcription_items$bundle == bundle &
+                                                         transcription_items$session == session,]
       
-      if (nrow(labels_list) > 0)
+      if (nrow(transcription_items_bundle) > 0)
       {
         seq_idx = 1
         max_id = bas_get_max_id(handle, session, bundle)
         
-        for (label_idx in 1:nrow(labels_list))
+        for (label_idx in 1:nrow(transcription_items_bundle))
         {
-          transcription_label = stringr::str_trim(labels_list[label_idx, "label"])
-          transcription_item_id = labels_list[label_idx, "item_id"]
+          transcription_label = stringr::str_trim(transcription_items_bundle [label_idx, "labels"])
+          transcription_item_id = transcription_items_bundle [label_idx, "start_item_id"]
           
-          if (stringr::str_length(transcription_label) > 0)
+          textfile = file.path(BAS_WORKDIR, paste0(bundle, ".", toString(transcription_item_id), ".txt"))
+          g2pfile = file.path(BAS_WORKDIR,
+                              paste0(bundle,
+                                     ".",
+                                     toString(transcription_item_id),
+                                     ".g2p.par"))
+          
+          write(transcription_label, file = textfile)
+          
+          params = list(
+            lng = language,
+            iform = "txt",
+            oform = "bpfs",
+            i = RCurl::fileUpload(textfile)
+          )
+          
+          for (key in names(params))
           {
-            textfile = file.path(BAS_WORKDIR, paste0(bundle, toString(transcription_item_id), ".txt"))
-            g2pfile = file.path(BAS_WORKDIR,
-                                paste0(
-                                  bundle,
-                                  toString(transcription_item_id),
-                                  ".g2p.par"
-                                ))
-            
-            write(transcription_label, file = textfile)
-            
-            params = list(
-              lng = language,
-              iform = "txt",
-              oform = "bpfs",
-              i = RCurl::fileUpload(textfile)
-            )
-            
-            for (key in names(params))
+            if (!(key %in% names(params)))
             {
-              if (!(key %in% names(params)))
-              {
-                params[[key]] = params[[key]]
-              }
+              params[[key]] = params[[key]]
             }
-            
-            address = paste0(BAS_ADDRESS, "runG2P")
-            res = RCurl::postForm(
-              uri = address,
-              lng = language,
-              iform = "txt",
-              oform = "bpfs",
-              i = RCurl::fileUpload(textfile),
-              style = "HTTPPOST",
-              .opts = bas_get_options()
-            )
-            
-            g2pLines = bas_download(res, g2pfile)
-            
-            if (length(g2pLines) > 0)
+          }
+          
+          address = paste0(BAS_ADDRESS, "runG2P")
+          res = RCurl::postForm(
+            uri = address,
+            lng = language,
+            iform = "txt",
+            oform = "bpfs",
+            i = RCurl::fileUpload(textfile),
+            style = "HTTPPOST",
+            .opts = bas_get_options()
+          )
+          
+          g2pLines = bas_download(res, g2pfile)
+          
+          if (length(g2pLines) > 0)
+          {
+            for (line_idx in 1:length(g2pLines))
             {
-              for (line_idx in 1:length(g2pLines))
+              line = g2pLines[line_idx]
+              if (stringr::str_detect(line, "^ORT:"))
               {
-                line = g2pLines[line_idx]
-                if (stringr::str_detect(line, "^ORT:"))
-                {
-                  splitline = stringr::str_split_fixed(line, "\\s+", n = 3)
-                  item_id = max_id + seq_idx
-                  label = stringr::str_replace_all(splitline[3], "'", "''")
-                  
-                  bas_add_item(
-                    handle = handle,
-                    session = session,
-                    bundle = bundle,
-                    seq_idx = seq_idx,
-                    item_id = item_id,
-                    level =
-                      orthoLevel,
-                    samplerate = samplerate,
-                    type = "ITEM"
-                  )
-                  
-                  seq_idx = seq_idx + 1
-                  
-                  bas_add_label(
-                    handle = handle,
-                    session = session,
-                    bundle = bundle,
-                    item_id = item_id,
-                    label_idx = 1,
-                    label_name =
-                      orthoLabel,
-                    label = label
-                  )
-                  
-                  bas_add_link(
-                    handle = handle,
-                    session = session,
-                    bundle = bundle,
-                    from_id = transcription_item_id,
-                    to_id =
-                      item_id
-                  )
-                }
+                splitline = stringr::str_split_fixed(line, "\\s+", n = 3)
+                item_id = max_id + seq_idx
+                label = stringr::str_replace_all(splitline[3], "'", "''")
+                
+                bas_add_item(
+                  handle = handle,
+                  session = session,
+                  bundle = bundle,
+                  seq_idx = seq_idx,
+                  item_id = item_id,
+                  level =
+                    orthoLevel,
+                  samplerate = samplerate,
+                  type = "ITEM"
+                )
+                
+                seq_idx = seq_idx + 1
+                
+                bas_add_label(
+                  handle = handle,
+                  session = session,
+                  bundle = bundle,
+                  item_id = item_id,
+                  label_idx = 1,
+                  label_name =
+                    orthoLabel,
+                  label = label
+                )
+                
+                bas_add_link(
+                  handle = handle,
+                  session = session,
+                  bundle = bundle,
+                  from_id = transcription_item_id,
+                  to_id =
+                    item_id
+                )
               }
             }
           }
@@ -605,10 +584,11 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
                                               resume,
                                               params)
 {
-  bas_ping()
   bundles_list = languages
   if (nrow(bundles_list) > 0)
   {
+    bas_ping()
+    
     if (verbose)
     {
       cat("INFO: Running G2P on emuDB containing",
@@ -624,6 +604,9 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
       utils::setTxtProgressBar(pb, progress)
     }
     
+    queryTxt = paste0("[", orthoLabel,"=~.*\\S.*]")
+    ortho_items = query(handle, queryTxt, calcTimes = F)
+    
     for (bundle_idx in 1:nrow(bundles_list))
     {
       bundle = bundles_list[bundle_idx, "bundle"]
@@ -637,29 +620,16 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat("Skipping bundle ", bundle)
+          cat("Skipping bundle", bundle)
           utils::setTxtProgressBar(pb, bundle_idx)
         }
         next
       }
       
-      queryTxt = paste0(
-        "SELECT ",
-        BAS_LABELS_TMP_TABLE,
-        ".label as label, ",
-        BAS_ITEMS_TMP_TABLE,
-        ".item_id as item_id FROM ",
-        bas_label_item_join(BAS_LABELS_TMP_TABLE, BAS_ITEMS_TMP_TABLE),
-        basic_cond(handle, session, bundle, prefix = BAS_ITEMS_TMP_TABLE),
-        "AND ",
-        BAS_LABELS_TMP_TABLE,
-        ".name=='",
-        orthoLabel,
-        "'"
-      )
-      labels_list = DBI::dbGetQuery(handle$connection, queryTxt)
+      ortho_items_bundle = ortho_items[ortho_items$bundle == bundle &
+                                         ortho_items$session == session,]
       
-      if (nrow(labels_list) > 0)
+      if (nrow(ortho_items_bundle) > 0)
       {
         seq_idx = 1
         max_id = bas_get_max_id(handle, session, bundle)
@@ -675,17 +645,14 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
         
         bas_id_to_item_id = new.env(hash = TRUE)
         
-        for (label_idx in 1:nrow(labels_list))
+        for (label_idx in 1:nrow(ortho_items_bundle))
         {
-          ortho_label = stringr::str_trim(labels_list[label_idx, "label"])
-          ortho_item_id = labels_list[label_idx, "item_id"]
+          ortho_label = stringr::str_trim(ortho_items_bundle[label_idx, "labels"])
+          ortho_item_id = ortho_items_bundle[label_idx, "start_item_id"]
           
-          if (stringr::str_length(ortho_label) > 0)
-          {
-            write(paste("ORT:", bas_id, ortho_label), orthoCon)
-            bas_id_to_item_id[[toString(bas_id)]] = ortho_item_id
-            bas_id = bas_id + 1
-          }
+          write(paste("ORT:", bas_id, ortho_label), orthoCon)
+          bas_id_to_item_id[[toString(bas_id)]] = ortho_item_id
+          bas_id = bas_id + 1
         }
         
         close(orthoCon)
@@ -766,13 +733,13 @@ bas_run_chunker_dbi <- function(handle,
                                 topLevel,
                                 orthoLabel,
                                 params,
-                                resume)
+                                resume,
+                                oldBasePath)
 {
-  bas_ping()
-  
   bundles_list = languages
   if (nrow(bundles_list) > 0)
   {
+    bas_ping()
     if (verbose)
     {
       cat(
@@ -790,6 +757,9 @@ bas_run_chunker_dbi <- function(handle,
       utils::setTxtProgressBar(pb, progress)
     }
     
+    queryTxt = paste0("[", canoLabel,"=~.*\\S.*]")
+    cano_items = query(handle, queryTxt, calcTimes = F)
+    
     for (bundle_idx in 1:nrow(bundles_list))
     {
       bundle = bundles_list[bundle_idx, "bundle"]
@@ -803,38 +773,25 @@ bas_run_chunker_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat("Skipping bundle ", bundle)
+          cat("Skipping bundle", bundle)
           utils::setTxtProgressBar(pb, bundle_idx)
         }
         next
       }
       
+      cano_items_bundle = cano_items[cano_items$bundle == bundle &
+                                       cano_items$session == session,]
+      
       top_id = bas_get_top_id(handle, session, bundle, topLevel)
       
-      queryTxt = paste0(
-        "SELECT ",
-        BAS_LABELS_TMP_TABLE,
-        ".label as label, ",
-        BAS_ITEMS_TMP_TABLE,
-        ".item_id as item_id FROM ",
-        bas_label_item_join(BAS_LABELS_TMP_TABLE, BAS_ITEMS_TMP_TABLE),
-        basic_cond(handle, session, bundle, prefix = BAS_ITEMS_TMP_TABLE),
-        "AND ",
-        BAS_LABELS_TMP_TABLE,
-        ".name=='",
-        canoLabel,
-        "'"
-      )
-      labels_list = DBI::dbGetQuery(handle$connection, queryTxt)
-      
-      if (nrow(labels_list) > 0)
+      if (nrow(cano_items_bundle) > 0)
       {
         seq_idx = 1
         max_id = bas_get_max_id(handle, session, bundle)
         
         kanfile = file.path(BAS_WORKDIR, paste0(bundle, ".kan.par"))
         trnfile = file.path(BAS_WORKDIR, paste0(bundle, ".trn.par"))
-        signalfile = bas_get_signal_path(handle, session, bundle)
+        signalfile = bas_get_signal_path(handle, session, bundle, oldBasePath)
         
         kancon <- file(kanfile)
         open(kancon, "w")
@@ -844,46 +801,28 @@ bas_run_chunker_dbi <- function(handle,
         item_id_to_bas_id = new.env(hash = TRUE)
         bas_id_to_item_id = new.env(hash = TRUE)
         
-        for (label_idx in 1:nrow(labels_list))
+        for (label_idx in 1:nrow(cano_items_bundle))
         {
-          cano_label = stringr::str_trim(labels_list[label_idx, "label"])
-          cano_item_id = labels_list[label_idx, "item_id"]
+          cano_label = stringr::str_trim(cano_items_bundle[label_idx, "labels"])
+          cano_item_id = cano_items_bundle[label_idx, "start_item_id"]
           
-          if (stringr::str_length(cano_label) > 0)
+          if (!is.null(orthoLabel))
           {
-            if (!is.null(orthoLabel))
-            {
-              queryTxt = paste0(
-                "SELECT ",
-                BAS_LABELS_TMP_TABLE,
-                ".label as label FROM ",
-                bas_label_item_join(BAS_LABELS_TMP_TABLE, BAS_ITEMS_TMP_TABLE),
-                basic_cond(handle, session, bundle, prefix = BAS_ITEMS_TMP_TABLE),
-                "AND ",
-                BAS_LABELS_TMP_TABLE,
-                ".name=='",
-                orthoLabel,
-                "' AND ",
-                BAS_LABELS_TMP_TABLE,
-                ".item_id==",
-                cano_item_id
-              )
-              
-              res = DBI::dbGetQuery(handle$connection, queryTxt)
-              if (nrow(res) > 0)
-              {
-                ortho_label = res[1, 1]
-                write(paste0("ORT: ", bas_id, " ", ortho_label),
-                      kancon)
-              }
-            }
+            ortho_labels = requery_hier(
+              handle, seglist = cano_items_bundle[label_idx,], level = orthoLabel, calcTimes = F
+            )
             
-            write(paste0("KAN: ", bas_id, " ", cano_label),
-                  kancon)
-            item_id_to_bas_id[[toString(cano_item_id)]] = bas_id
-            bas_id_to_item_id[[toString(bas_id)]] = cano_item_id
-            bas_id = bas_id + 1
+            if (length(ortho_labels) > 0)
+            {
+              write(paste0("ORT: ", bas_id, " ", ortho_labels[1, "labels"]), kancon)
+            }
           }
+            
+          write(paste0("KAN: ", bas_id, " ", cano_label),
+                kancon)
+          item_id_to_bas_id[[toString(cano_item_id)]] = bas_id
+          bas_id_to_item_id[[toString(bas_id)]] = cano_item_id
+          bas_id = bas_id + 1
         }
         
         close(kancon)
@@ -1011,10 +950,10 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
                                           resume,
                                           params)
 {
-  bas_ping()
   bundles_list = languages
   if (nrow(bundles_list) > 0)
   {
+    bas_ping()
     if (verbose)
     {
       cat(
@@ -1032,6 +971,9 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
       utils::setTxtProgressBar(pb, progress)
     }
     
+    queryTxt = paste0("[", canoLabel,"=~.*\\S.*]")
+    cano_items = query(handle, queryTxt, calcTimes = F)
+    
     for (bundle_idx in 1:nrow(bundles_list))
     {
       bundle = bundles_list[bundle_idx, "bundle"]
@@ -1045,30 +987,17 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat("Skipping bundle ", bundle)
+          cat("Skipping bundle", bundle)
           utils::setTxtProgressBar(pb, bundle_idx)
         }
         next
       }
       
+      cano_items_bundle = cano_items[cano_items$bundle == bundle &
+                                       cano_items$session == session,]
       
-      queryTxt = paste0(
-        "SELECT ",
-        BAS_LABELS_TMP_TABLE,
-        ".label as label, ",
-        BAS_ITEMS_TMP_TABLE,
-        ".item_id as item_id FROM ",
-        bas_label_item_join(BAS_LABELS_TMP_TABLE, BAS_ITEMS_TMP_TABLE),
-        basic_cond(handle, session, bundle, prefix = BAS_ITEMS_TMP_TABLE),
-        "AND ",
-        BAS_LABELS_TMP_TABLE,
-        ".name=='",
-        canoLabel,
-        "'"
-      )
-      labels_list = DBI::dbGetQuery(handle$connection, queryTxt)
       
-      if (nrow(labels_list) > 0)
+      if (nrow(cano_items_bundle) > 0)
       {
         seq_idx = 1
         max_id = bas_get_max_id(handle, session, bundle)
@@ -1083,18 +1012,16 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
         bas_id = 0
         bas_id_to_item_id = new.env(hash = TRUE)
         
-        for (label_idx in 1:nrow(labels_list))
+        for (label_idx in 1:nrow(cano_items_bundle))
         {
-          cano_label = stringr::str_trim(labels_list[label_idx, "label"])
-          cano_item_id = labels_list[label_idx, "item_id"]
+          cano_label = stringr::str_trim(cano_items_bundle[label_idx, "labels"])
+          cano_item_id = cano_items_bundle[label_idx, "start_item_id"]
           
-          if (stringr::str_length(cano_label) > 0)
-          {
-            write(paste0("KAN: ", bas_id, " ", cano_label),
-                  kancon)
-            bas_id_to_item_id[[toString(bas_id)]] = cano_item_id
-            bas_id = bas_id + 1
-          }
+          kanline = paste0("KAN: ", bas_id, " ", cano_label)
+          write(kanline, kancon)
+          
+          bas_id_to_item_id[[toString(bas_id)]] = cano_item_id
+          bas_id = bas_id + 1
         }
         
         close(kancon)
@@ -1173,14 +1100,14 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
                                           verbose,
                                           sylLabel,
                                           sylLevel,
-                                          wordLevel,
+                                          wordLabel,
                                           resume,
                                           params)
 {
-  bas_ping()
   bundles_list = languages
   if (nrow(bundles_list) > 0)
   {
+    bas_ping()
     if (verbose)
     {
       cat(
@@ -1198,6 +1125,10 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
       utils::setTxtProgressBar(pb, progress)
     }
     
+    
+    queryTxt = paste0("[", wordLabel,"=~.*]")
+    word_items = query(handle, queryTxt, calcTimes = F)
+    
     for (bundle_idx in 1:nrow(bundles_list))
     {
       bundle = bundles_list[bundle_idx, "bundle"]
@@ -1211,24 +1142,16 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat("Skipping bundle ", bundle)
+          cat("Skipping bundle", bundle)
           utils::setTxtProgressBar(pb, bundle_idx)
         }
         next
       }
       
+      word_items_bundle = word_items[word_items$bundle == bundle &
+                                       word_items$session == session,]
       
-      queryTxt = paste0(
-        "SELECT item_id FROM ",
-        BAS_ITEMS_TMP_TABLE,
-        basic_cond(handle, session, bundle),
-        "AND level=='",
-        wordLevel,
-        "' ORDER BY seq_idx"
-      )
-      word_items = DBI::dbGetQuery(handle$connection, queryTxt)
-      
-      if (nrow(word_items) > 0)
+      if (nrow(word_items_bundle) > 0)
       {
         seq_idx = 1
         max_id = bas_get_max_id(handle, session, bundle)
@@ -1245,49 +1168,19 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
         
         written_anything = FALSE
         
-        for (word_idx in 1:nrow(word_items))
+        for (word_idx in 1:nrow(word_items_bundle))
         {
-          word_item_id = word_items[word_idx, "item_id"]
-          links = get_links(
-            handle,
-            session,
-            bundle,
-            word_item_id,
-            level =
-              mausLevel,
-            link_table = BAS_LINKS_TMP_TABLE,
-            item_table = BAS_ITEMS_TMP_TABLE
-          )
-          
-          link_string = paste0("(", paste(links, collapse = ","), ")")
-          
-          queryTxt = paste0(
-            "SELECT ",
-            BAS_LABELS_TMP_TABLE,
-            ".label as label, ",
-            BAS_ITEMS_TMP_TABLE,
-            ".sample_start as sample_start, ",
-            BAS_ITEMS_TMP_TABLE,
-            ".sample_dur as sample_dur FROM",
-            bas_label_item_join(BAS_LABELS_TMP_TABLE, BAS_ITEMS_TMP_TABLE),
-            basic_cond(handle, session, bundle, prefix = BAS_ITEMS_TMP_TABLE),
-            "AND ",
-            BAS_ITEMS_TMP_TABLE,
-            ".item_id in ",
-            link_string
-          )
-          
-          mau_labels = DBI::dbGetQuery(handle$connection, queryTxt)
-          
+          word_item_id = word_items_bundle[word_idx, "start_item_id"]
+          maus_items = requery_hier(handle, word_items_bundle[word_idx,], mausLabel, collapse = F)
           written_mau = FALSE
           
-          if (nrow(mau_labels) > 0)
+          if (nrow(maus_items) > 0)
           {
-            for (mau_idx in 1:nrow(mau_labels))
+            for (mau_idx in 1:nrow(maus_items))
             {
-              mau_label = stringr::str_trim(mau_labels[mau_idx, "label"])
-              mau_start = mau_labels[mau_idx, "sample_start"]
-              mau_dur = mau_labels[mau_idx, "sample_dur"]
+              mau_label = stringr::str_trim(maus_items[mau_idx, "labels"])
+              mau_start = maus_items[mau_idx, "sample_start"]
+              mau_end = maus_items[mau_idx, "sample_end"]
               
               if (stringr::str_length(mau_label) > 0)
               {
@@ -1296,7 +1189,7 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
                     "MAU: ",
                     mau_start,
                     " ",
-                    mau_dur,
+                    mau_end - mau_start,
                     " ",
                     bas_id,
                     " ",
@@ -1422,91 +1315,50 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
 #####################################################################
 ############################ HELPERS ################################
 #####################################################################
-bas_prepare <- function(handle)
+bas_prepare <- function(handle, resume)
 {
-  drop_allTmpTablesDBI(handle)
-  bas_create_tmp_tables(handle)
-  dir.create(BAS_WORKDIR, recursive = TRUE)
+  dbConfig = load_DBconfig(handle)
+  oldBasePath = handle$basePath
+  
+  handle$basePath <- BAS_TMPDB
+  
+  if(!(resume && dir.exists(BAS_TMPDB) && file.exists(BAS_TMPCACHE)))
+  {
+    cat("INFO: Preparing temporary database. This may take a while...\n")
+    if(dir.exists(BAS_TMPDB))
+    {
+      unlink(BAS_TMPDB, recursive = "TRUE")
+    }
+    
+    dir.create(BAS_WORKDIR, recursive = TRUE)
+    dir.create(BAS_TMPDB, recursive = TRUE)
+    file.copy(file.path(oldBasePath, paste0(handle$dbName, database.cache.suffix)), BAS_TMPCACHE)
+    
+    store_DBconfig(handle, dbConfig)
+  }
+  
+  handle$connection <- DBI::dbConnect(RSQLite::SQLite(), BAS_TMPCACHE)
+  return(handle)
 }
 
-bas_create_tmp_tables <- function(handle)
+bas_clear <- function(handle, oldBasePath)
 {
-  queryTxt = paste0(
-    "CREATE TEMP TABLE ",
-    BAS_ITEMS_TMP_TABLE,
-    " (",
-    "db_uuid VARCHAR(36),",
-    "session TEXT,",
-    "bundle TEXT,",
-    "item_id INTEGER,",
-    "level TEXT,",
-    "type TEXT,",
-    "seq_idx INTEGER,",
-    "sample_rate INTEGER,",
-    "sample_point INTEGER,",
-    "sample_start INTEGER,",
-    "sample_dur INTEGER,",
-    "PRIMARY KEY (db_uuid, session, bundle, item_id)",
-    ");"
-  )
-  DBI::dbGetQuery(handle$connection, queryTxt)
   
-  queryTxt = paste0(
-    "CREATE TEMP TABLE ",
-    BAS_LINKS_TMP_TABLE,
-    " (",
-    "db_uuid VARCHAR(36),",
-    "session TEXT,",
-    "bundle TEXT,",
-    "from_id INTEGER,",
-    "to_id INTEGER,",
-    "label TEXT",
-    ");"
-  )
-  DBI::dbGetQuery(handle$connection, queryTxt)
+  oldCache = file.path(oldBasePath, paste0(handle$dbName, database.cache.suffix))
   
-  queryTxt = paste0(
-    "CREATE TEMP TABLE ",
-    BAS_LABELS_TMP_TABLE,
-    " (",
-    "db_uuid VARCHAR(36),",
-    "session TEXT,",
-    "bundle TEXT,",
-    "item_id INTEGER,",
-    "label_idx INTEGER,",
-    "name TEXT,",
-    "label TEXT,",
-    "PRIMARY KEY (db_uuid, session, bundle, item_id, label_idx)",
-    ");"
-  )
-  DBI::dbGetQuery(handle$connection, queryTxt)
+  file.copy(BAS_TMPCACHE, oldCache, overwrite = TRUE)
   
-  queryTxt = paste0("INSERT INTO ", BAS_ITEMS_TMP_TABLE, " SELECT * FROM items")
-  DBI::dbGetQuery(handle$connection, queryTxt)
-  queryTxt = paste0("INSERT INTO ", BAS_LABELS_TMP_TABLE, " SELECT * FROM labels")
-  DBI::dbGetQuery(handle$connection, queryTxt)
-  queryTxt = paste0("INSERT INTO ", BAS_LINKS_TMP_TABLE, " SELECT * FROM links")
-  DBI::dbGetQuery(handle$connection, queryTxt)
-}
-
-bas_clear <- function(handle)
-{
-  bas_join_tmp_tables(handle)
-  drop_allTmpTablesDBI(handle)
+  dbConfig = load_DBconfig(handle)
+  
+  handle$basePath <- oldBasePath
+  store_DBconfig(handle, dbConfig)
+  
   unlink(BAS_WORKDIR, recursive = TRUE)
-}
-
-bas_join_tmp_tables <- function(handle)
-{
-  queryTxt = paste0("INSERT OR IGNORE INTO items SELECT * FROM ", BAS_ITEMS_TMP_TABLE)
-  DBI::dbGetQuery(handle$connection, queryTxt)
+  unlink(BAS_TMPDB)
   
-  queryTxt = paste0("INSERT OR IGNORE INTO links SELECT * FROM ", BAS_LINKS_TMP_TABLE)
-  DBI::dbGetQuery(handle$connection, queryTxt)
+  handle$connection <- DBI::dbConnect(RSQLite::SQLite(), oldCache)
   
-  queryTxt = paste0("INSERT OR IGNORE INTO labels SELECT * FROM ",
-                    BAS_LABELS_TMP_TABLE)
-  DBI::dbGetQuery(handle$connection, queryTxt)
+  return(handle)
 }
 
 bas_evaluate_result <- function (result)
@@ -1549,23 +1401,19 @@ bas_download <- function(result, target)
 bas_get_max_label_idx <- function(handle, session, bundle, item_id)
 {
   queryTxt = paste0(
-    "SELECT max(label_idx) FROM ",
-    BAS_LABELS_TMP_TABLE,
+    "SELECT max(label_idx) FROM labels",
     basic_cond(handle, session, bundle),
     "AND item_id==",
     item_id
   )
   
-  return(label_idx = DBI::dbGetQuery(handle$connection, queryTxt)[1, 1])
+  return(DBI::dbGetQuery(handle$connection, queryTxt)[1, 1])
 }
 
 bas_get_max_id <- function(handle, session, bundle)
 {
-  queryTxt = paste0(
-    "SELECT max(item_id) FROM ",
-    BAS_ITEMS_TMP_TABLE,
-    basic_cond(handle, session, bundle)
-  )
+  queryTxt = paste0("SELECT max(item_id) FROM items", basic_cond(handle, session, bundle))
+  
   res = DBI::dbGetQuery(handle$connection, queryTxt)
   if (nrow(res) == 0 || is.na(res[1, 1]) || is.null(res[1, 1]))
   {
@@ -1587,9 +1435,7 @@ bas_add_item <- function(handle,
                          sample_point = "NULL")
 {
   queryTxt = paste0(
-    "INSERT INTO ",
-    BAS_ITEMS_TMP_TABLE,
-    " VALUES('",
+    "INSERT INTO items VALUES('",
     handle$UUID,
     "','",
     session,
@@ -1626,9 +1472,7 @@ bas_add_label <- function(handle,
                           label)
 {
   queryTxt = paste0(
-    "INSERT INTO ",
-    BAS_LABELS_TMP_TABLE,
-    " VALUES('",
+    "INSERT INTO labels VALUES('",
     handle$UUID,
     "', '",
     session,
@@ -1654,9 +1498,7 @@ bas_add_link <- function(handle,
                          to_id)
 {
   queryTxt = paste0(
-    "INSERT INTO ",
-    BAS_LINKS_TMP_TABLE,
-    " VALUES('",
+    "INSERT INTO links VALUES('",
     handle$UUID,
     "', '",
     session,
@@ -1671,7 +1513,7 @@ bas_add_link <- function(handle,
   DBI::dbGetQuery(handle$connection, queryTxt)
 }
 
-bas_get_signal_path <- function(handle, session, bundle)
+bas_get_signal_path <- function(handle, session, bundle, basePath)
 {
   queryTxt = paste0(
     "SELECT annotates FROM bundle",
@@ -1682,7 +1524,7 @@ bas_get_signal_path <- function(handle, session, bundle)
   if (nrow(res) > 0)
   {
     return(file.path(
-      handle$basePath,
+      basePath,
       paste0(session, session.suffix),
       paste0(bundle, bundle.dir.suffix),
       res[1, 1]
@@ -1709,8 +1551,7 @@ bas_get_samplerate <- function(handle, session, bundle)
 bas_get_top_id <- function(handle, session, bundle, topLevel)
 {
   queryTxt = paste0(
-    "SELECT item_id FROM ",
-    BAS_ITEMS_TMP_TABLE,
+    "SELECT item_id FROM items",
     basic_cond(handle, session, bundle),
     "AND level=='",
     topLevel,
@@ -1780,8 +1621,7 @@ bas_label_exists_in_bundle <-
   function(handle, session, bundle, labelName)
   {
     queryTxt = paste0(
-      "SELECT count(*) FROM ",
-      BAS_LABELS_TMP_TABLE,
+      "SELECT count(*) FROM labels",
       basic_cond(handle, session, bundle),
       "AND name=='",
       labelName,
@@ -1806,14 +1646,14 @@ bas_ping <- function()
 }
 
 
-bas_long_enough_for_chunker <- function(handle)
+bas_long_enough_for_chunker <- function(handle, basePath)
 {
   bundles = list_bundles(handle)
   if (nrow(bundles) > 0)
   {
     for (bundle_idx in nrow(bundles))
     {
-      annotates = bas_get_signal_path(handle, session = bundles[bundle_idx, "session"], bundles[bundle_idx, "name"])
+      annotates = bas_get_signal_path(handle, session = bundles[bundle_idx, "session"], bundles[bundle_idx, "name"], basePath = basePath)
       obj = wrassp::read.AsspDataObj(annotates)
       if ((attr(obj, "endRecord") / attr(obj, "sampleRate")) > 60)
       {
@@ -1821,27 +1661,47 @@ bas_long_enough_for_chunker <- function(handle)
       }
     }
   }
+  return (FALSE)
 }
 
 bas_segment_to_item_level <- function(handle, segmentLevel)
 {
   bas_segment_to_item_level_dbi(handle, segmentLevel)
-  get_levelDefinition(handle, segmentLevel)$type = "ITEM"
-  for(perspective in list_perspectives(handle))
+  
+  dbConfig = load_DBconfig(handle)
+  
+  for (i in 1:length(dbConfig$levelDefinitions)) {
+    if(dbConfig$levelDefinitions[[i]]$name == segmentLevel) {
+      dbConfig$levelDefinitions[[i]]$type = 'ITEM'
+    }
+  }
+  
+  store_DBconfig(handle, dbConfig)
+  
+  perspectives = list_perspectives(handle)
+  if(nrow(perspectives) > 0)
   {
-    oldOrder = get_levelCanvasesOrder(handle, perspective)
-    set_levelCanvasesOrder(handle, perspective, oldOrder[oldOrder != segmentLevel])
+    for (perspective_idx in 1:nrow(perspectives))
+    {
+      perspective = perspectives[perspective_idx, "name"]
+      oldOrder = get_levelCanvasesOrder(handle, perspective)
+      print(oldOrder)
+      set_levelCanvasesOrder(handle, perspective, oldOrder[oldOrder != segmentLevel])
+    }
   }
 }
 
 
-bas_segment_to_item_level_dbi <- function(handle, segmentLevel, items_table = "items")
-{
-  queryTxt = paste0("UPDATE ", items_table, " SET type='ITEM', sample_point = NULL, sample_start = NULL, sample_dur = NULL WHERE level=='", segmentLevel,
-                    "' AND db_uuid=='", handle$UUID, "'")
-  
-  DBI::dbGetQuery(handle$connection, queryTxt)
-}
+bas_segment_to_item_level_dbi <-
+  function(handle, segmentLevel, items_table = "items")
+  {
+    queryTxt = paste0(
+      "UPDATE ", items_table, " SET type='ITEM', sample_point = NULL, sample_start = NULL, sample_dur = NULL WHERE level=='", segmentLevel,
+      "' AND db_uuid=='", handle$UUID, "'"
+    )
+    
+    DBI::dbGetQuery(handle$connection, queryTxt)
+  }
 
 bas_check_this_is_a_new_label <- function(handle, label)
 {
@@ -1858,16 +1718,18 @@ bas_check_this_is_a_new_label <- function(handle, label)
 bas_evaluate_language_option <- function(handle, language)
 {
   bundles = list_bundles(handle)
-  names(bundles)[names(bundles)=="name"] <- "bundle"
+  names(bundles)[names(bundles) == "name"] <- "bundle"
   
-  if(is.data.frame(language))
+  if (is.data.frame(language))
   {
-    if(nrow(language) != nrow(bundles))
+    if (nrow(language) != nrow(bundles))
     {
-      stop("You have provided a dataframe as language option. This dataframe must contain the same number of bundles as your emuDB. ",
-           "Currently, your emuDB contains ", nrow(bundles), " bundles, and the language dataframe ", nrow(language), " bundles.")
+      stop(
+        "You have provided a dataframe as language option. This dataframe must contain the same number of bundles as your emuDB. ",
+        "Currently, your emuDB contains ", nrow(bundles), " bundles, and the language dataframe ", nrow(language), " bundles."
+      )
     }
-    if(unique(language$bundle) != unique(bundles$bundle))
+    if (unique(language$bundle) != unique(bundles$bundle))
     {
       stop("Your language dataframe must contain the same bundles as your emuDB.")
     }
@@ -1875,7 +1737,7 @@ bas_evaluate_language_option <- function(handle, language)
   }
   else
   {
-    if(!is.character(language))
+    if (!is.character(language))
     {
       stop("Language option must either be a string or a dataframe.")
     }

@@ -163,8 +163,6 @@ import_transcriptionFiles <- function(handle,
       stop()
     }
     
-    bas_prepare(handle)
-    
     for (txtfile in txtList)
     {
       path = file.path(source, txtfile)
@@ -184,9 +182,7 @@ import_transcriptionFiles <- function(handle,
       
       item_id = bas_get_max_id(handle, session, bundle) + 1
       queryTxt = paste0(
-        "INSERT INTO ",
-        BAS_ITEMS_TMP_TABLE,
-        " VALUES('",
+        "INSERT INTO items VALUES('",
         handle$UUID,
         "','",
         session,
@@ -203,9 +199,7 @@ import_transcriptionFiles <- function(handle,
       DBI::dbGetQuery(handle$connection, queryTxt)
       
       queryTxt = paste0(
-        "INSERT INTO ",
-        BAS_LABELS_TMP_TABLE,
-        " VALUES('",
+        "INSERT INTO labels VALUES('",
         handle$UUID,
         "','",
         session,
@@ -228,7 +222,6 @@ import_transcriptionFiles <- function(handle,
       }
     }
   }
-  bas_clear(handle)
   
   if(changeDBConfig)
   {

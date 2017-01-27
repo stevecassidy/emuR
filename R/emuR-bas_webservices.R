@@ -58,6 +58,8 @@ runBASwebservice_all <- function(handle,
 {
   transcriptionLevel = get_levelNameForAttributeName(handle, transcriptionLabel)
   
+  oldBasePath = handle$basePath
+  
   if (is.null(transcriptionLevel)) {
     stop("Could not find a level for label ", transcriptionLabel)
   }
@@ -74,7 +76,6 @@ runBASwebservice_all <- function(handle,
   }
   
   
-  
   orthoLevel = orthoLabel
   mausLevel = mausLabel
   sylLevel = sylLabel
@@ -86,18 +87,30 @@ runBASwebservice_all <- function(handle,
   # if our transcription is a segment level, we assume it is a manual chunk segmentation
   if (get_levelDefinition(handle, transcriptionLevel)$type == "SEGMENT") {
     chunkLevel = transcriptionLevel
+    chunkLabel = transcriptionLabel
   }
   
   # else, we check if we will need to perform automatic chunk segmentation
-  else if (bas_long_enough_for_chunker(handle)) {
+  else if (bas_long_enough_for_chunker(handle, oldBasePath)) {
     running_chunker = TRUE
     chunkLevel = chunkLabel
   }
   
+  else
+  {
+    chunkLabel = NULL
+  }
+  
   languages = bas_evaluate_language_option(handle = handle, language = language)
   
-  if (!resume) {
-    bas_prepare(handle)
+  
+  handle = bas_prepare(handle, resume)
+
+  add_levelDefinition(handle, orthoLevel, "ITEM", verbose = FALSE, rewriteAllAnnots = FALSE)
+  
+  if(!running_chunker)
+  {
+    add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, orthoLevel)
   }
   
   bas_run_g2p_for_tokenization_dbi(
@@ -110,6 +123,8 @@ runBASwebservice_all <- function(handle,
     resume = resume,
     params = list()
   )
+  
+  add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = FALSE)
   
   bas_run_g2p_for_pronunciation_dbi(
     handle = handle,
@@ -125,6 +140,10 @@ runBASwebservice_all <- function(handle,
   # if we previously decided to run automatic chunk segmentation
   if (running_chunker)
   {
+    add_levelDefinition(handle, chunkLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
+    add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, chunkLevel)
+    add_linkDefinition(handle, "ONE_TO_MANY", chunkLevel, orthoLevel)
+    
     bas_run_chunker_dbi(
       handle = handle,
       canoLabel = canoLabel,
@@ -136,22 +155,38 @@ runBASwebservice_all <- function(handle,
       params = list(),
       resume = resume,
       verbose = verbose,
-      languages = languages
+      languages = languages,
+      oldBasePath = oldBasePath
     )
   }
+
+  
+  add_levelDefinition(handle, mausLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
+  bas_new_canvas(handle, "default", mausLevel)
+  add_linkDefinition(handle, "ONE_TO_MANY", orthoLevel, mausLevel)
   
   bas_run_maus_dbi(
     handle = handle,
     canoLevel = orthoLevel,
     canoLabel = canoLabel,
     languages = languages,
-    chunkLevel = chunkLevel,
+    chunkLabel = chunkLabel,
     mausLabel = mausLabel,
     mausLevel = mausLevel,
     verbose = verbose,
     resume = resume,
-    params = list()
+    params = list(),
+    oldBasePath = oldBasePath
   )
+  
+  if(running_chunker)
+  {
+    bas_segment_to_item_level(handle, chunkLevel)
+  }
+  
+  add_levelDefinition(handle, minniLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
+  bas_new_canvas(handle, "default", minniLevel)
+  add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, minniLevel)
   
   bas_run_minni_dbi(
     handle = handle,
@@ -161,8 +196,11 @@ runBASwebservice_all <- function(handle,
     topLevel = transcriptionLevel,
     verbose = verbose,
     resume = resume,
-    params = list()
+    params = list(),
+    oldBasePath = oldBasePath
   )
+  
+  add_attributeDefinition(handle, orthoLevel, canoSylLabel, verbose = FALSE)
   
   bas_run_pho2syl_canonical_dbi(
     handle = handle,
@@ -175,6 +213,9 @@ runBASwebservice_all <- function(handle,
     resume = resume
   )
   
+  add_levelDefinition(handle, sylLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
+  add_linkDefinition(handle, "MANY_TO_MANY", orthoLevel, sylLevel)
+  
   bas_run_pho2syl_segmental_dbi(
     handle = handle,
     mausLabel = mausLabel,
@@ -182,49 +223,11 @@ runBASwebservice_all <- function(handle,
     languages = languages,
     sylLabel = sylLabel,
     sylLevel = sylLevel,
-    wordLevel = orthoLevel,
+    wordLabel = orthoLabel,
     resume = resume,
     params = list(),
     verbose = verbose
   )
-  
-  bas_clear(handle)
-  
-  add_levelDefinition(handle, orthoLevel, "ITEM", verbose = FALSE, rewriteAllAnnots = FALSE)
-  
-  add_levelDefinition(handle, sylLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
-  
-  add_levelDefinition(handle, mausLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
-  bas_new_canvas(handle, "default", mausLevel)
-  
-  add_levelDefinition(handle, minniLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
-  bas_new_canvas(handle, "default", minniLevel)
-  
-  add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = FALSE)
-  add_attributeDefinition(handle, orthoLevel, canoSylLabel, verbose = FALSE)
-  
-  
-  if (running_chunker)
-  {
-    # we turn the chunk tier into an item tier, as its temporal information can now be inferred from the MAUS tier
-    bas_segment_to_item_level_dbi(handle, chunkLevel)
-    add_levelDefinition(handle, chunkLevel, "ITEM", verbose = FALSE, rewriteAllAnnots = FALSE)
-    
-    # if we ran the chunker, our path is transcription -> chunk -> word
-    add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, chunkLevel)
-    add_linkDefinition(handle, "ONE_TO_MANY", chunkLevel, orthoLevel)
-  }
-
-  else
-  {
-    # if we did not run the chunker, the path goes straight transcription -> word
-    add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, orthoLevel)
-  }
-  
-  add_linkDefinition(handle, "MANY_TO_MANY", orthoLevel, sylLevel)
-  add_linkDefinition(handle, "ONE_TO_MANY", orthoLevel, mausLevel)
-  
-  add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, minniLevel)
   
   add_linkDefinition(handle, "ONE_TO_MANY", sylLevel, mausLevel)
   
@@ -235,6 +238,9 @@ runBASwebservice_all <- function(handle,
     rewriteAllAnnots = FALSE,
     convertSuperlevel = TRUE
   )
+
+  
+  handle = bas_clear(handle, oldBasePath)
   
   rewrite_allAnnots(handle, verbose = verbose)
 }
@@ -254,7 +260,7 @@ runBASwebservice_all <- function(handle,
 ##' If this label resides on a segment level, the segment time information is used as a presegmentation.
 ##' If it is an item level, no assumption is made about the temporal position of segments.
 ##' @param mausLevel name of the level for the MAUS segmentation. Defaults to the value of mausLabel.
-##' @param chunkLevel if you have a chunk segmentation level, you can provide it to improve the speed and accuracy
+##' @param chunkLabel if you have a chunk segmentation level, you can provide one of its labels to improve the speed and accuracy
 ##' of MAUS. The chunk segmentation level must be a segment level, and it must link to the level of orthoLabel.
 ##' @param turnChunkLevelIntoItemLevel if TRUE, and if a chunk level is provided, the chunk level is converted into an ITEM level after segmentation
 ##' @param params named list of parameters to be passed on to the webservice. It is your own reponsibility to
@@ -273,7 +279,7 @@ runBASwebservice_maus <- function(handle,
                                   
                                   mausLabel = "MAU",
                                   
-                                  chunkLevel = NULL,
+                                  chunkLabel = NULL,
                                   turnChunkLevelIntoItemLevel = TRUE,
                                   
                                   params = NULL,
@@ -291,17 +297,19 @@ runBASwebservice_maus <- function(handle,
     stop("Could not find a level for label", canoLabel)
   }
   
-  if (is.null(chunkLevel) &&
+  if (is.null(chunkLabel) &&
       get_levelDefinition(handle, canoLevel)$type == "SEGMENT") {
-    chunkLevel = canoLevel
+    chunkLabel = canoLabel
   }
   
-  if (!is.null(chunkLevel))
+  if (!is.null(chunkLabel))
   {
-    if (is.null(get_levelDefinition(handle, chunkLevel)))
+    chunkLevel = get_levelNameForAttributeName(handle, chunkLabel)
+    if (is.null(chunkLevel))
     {
       stop("Could not find level ", chunkLevel)
     }
+    
     if (get_levelDefinition(handle, chunkLevel)$type != "SEGMENT")
     {
       stop("Chunk level ", chunkLevel, " must be a segment level")
@@ -310,10 +318,12 @@ runBASwebservice_maus <- function(handle,
   
   languages = bas_evaluate_language_option(handle = handle, language = language)
   
-  if (!resume)
-  {
-    bas_prepare(handle)
-  }
+  oldBasePath = handle$basePath
+  handle = bas_prepare(handle, resume)
+  
+  add_levelDefinition(handle, mausLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
+  bas_new_canvas(handle, perspective, mausLevel)
+  add_linkDefinition(handle, "ONE_TO_MANY", canoLevel, mausLevel)
   
   bas_run_maus_dbi(
     handle = handle,
@@ -322,23 +332,21 @@ runBASwebservice_maus <- function(handle,
     mausLabel = mausLabel,
     mausLevel = mausLevel,
     languages = languages,
-    chunkLevel = chunkLevel,
+    chunkLabel = chunkLabel,
     verbose = verbose,
     resume = resume,
-    params = params
+    params = params,
+    oldBasePath = oldBasePath
   )
   
-  bas_clear(handle)
-  
-  if(chunkLevelToItem && !is.null(chunkLevel)) {
+  if(turnChunkLevelIntoItemLevel && !is.null(chunkLevel)) {
     bas_segment_to_item_level(handle, chunkLevel)
   }
   
-  add_levelDefinition(handle, mausLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
   
-  add_linkDefinition(handle, "ONE_TO_MANY", canoLevel, mausLevel)
   
-  bas_new_canvas(handle, perspective, mausLevel)
+  handle = bas_clear(handle, oldBasePath)
+  
   rewrite_allAnnots(handle, verbose = verbose)
 }
 
@@ -379,9 +387,11 @@ runBASwebservice_g2pForTokenization <- function(handle,
   
   languages = bas_evaluate_language_option(handle = handle, language = language)
   
-  if (!resume) {
-    bas_prepare(handle)
-  }
+  oldBasePath = handle$basePath
+  handle = bas_prepare(handle, resume)
+  
+  add_levelDefinition(handle, orthoLevel, "ITEM", verbose = FALSE, rewriteAllAnnots = FALSE)
+  add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, orthoLevel)
   
   bas_run_g2p_for_tokenization_dbi(
     handle = handle,
@@ -393,13 +403,10 @@ runBASwebservice_g2pForTokenization <- function(handle,
     resume = resume,
     params = params
   )
+
   
-  bas_clear(handle)
+  handle = bas_clear(handle, oldBasePath)
   
-  
-  add_levelDefinition(handle, orthoLevel, "ITEM", verbose = FALSE, rewriteAllAnnots = FALSE)
-  
-  add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, orthoLevel)
   rewrite_allAnnots(handle, verbose = verbose)
 }
 
@@ -434,11 +441,10 @@ runBASwebservice_g2pForPronunciation <- function(handle,
   
   languages = bas_evaluate_language_option(handle = handle, language = language)
   
-  if (!resume)
-  {
-    bas_prepare(handle)
-  }
+  oldBasePath = handle$basePath
+  handle = bas_prepare(handle, resume)
   
+  add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = FALSE)
   
   bas_run_g2p_for_pronunciation_dbi(
     handle = handle,
@@ -450,10 +456,9 @@ runBASwebservice_g2pForPronunciation <- function(handle,
     resume = resume,
     params = params
   )
+
+  handle = bas_clear(handle, oldBasePath)
   
-  bas_clear(handle)
-  
-  add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = FALSE)
   rewrite_allAnnots(handle, verbose = verbose)
 }
 
@@ -506,10 +511,12 @@ runBASwebservice_chunker <- function(handle,
   
   languages = bas_evaluate_language_option(handle = handle, language = language)
   
-  if (!resume)
-  {
-    bas_prepare(handle)
-  }
+  oldBasePath = handle$basePath
+  handle = bas_prepare(handle, resume)
+  
+  add_levelDefinition(handle, chunkLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
+  bas_new_canvas(handle, perspective, chunkLevel)
+  add_linkDefinition(handle, "ONE_TO_MANY", chunkLevel, canoLevel)
   
   bas_run_chunker_dbi(
     handle = handle,
@@ -522,19 +529,19 @@ runBASwebservice_chunker <- function(handle,
     topLevel = rootLevel,
     orthoLabel = orthoLabel,
     resume = resume,
-    params = params
+    params = params,
+    oldBasePath = oldBasePath
   )
   
   
-  bas_clear(handle)
-  
-  add_levelDefinition(handle, chunkLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
-  add_linkDefinition(handle, "ONE_TO_MANY", chunkLevel, canoLevel)
   
   if (!is.null(rootLevel)) {
     add_linkDefinition(handle, "ONE_TO_MANY", rootLevel, chunkLevel)
   }
-  bas_new_canvas(handle, perspective, chunkLevel)
+  
+  
+  handle = bas_clear(handle, oldBasePath)
+  
   rewrite_allAnnots(handle, verbose = verbose)
 }
 
@@ -578,10 +585,14 @@ runBASwebservice_minni <- function(handle,
   
   languages = bas_evaluate_language_option(handle = handle, language = language)
   
-  if (!resume)
-  {
-    bas_prepare(handle)
+  oldBasePath = handle$basePath
+  handle = bas_prepare(handle, resume)
+  
+  add_levelDefinition(handle, minniLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
+  if (!is.null(rootLevel)) {
+    add_linkDefinition(handle, "ONE_TO_MANY", rootLevel, minniLevel)
   }
+  bas_new_canvas(handle, perspective, minniLevel)
   
   bas_run_minni_dbi(
     handle = handle,
@@ -591,16 +602,15 @@ runBASwebservice_minni <- function(handle,
     verbose = verbose,
     topLevel = rootLevel,
     resume = resume,
-    params = params
+    params = params,
+    oldBasePath = oldBasePath
   )
+
   
-  bas_clear(handle)
   
-  add_levelDefinition(handle, minniLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
-  if (!is.null(rootLevel)) {
-    add_linkDefinition(handle, "ONE_TO_MANY", rootLevel, minniLevel)
-  }
-  bas_new_canvas(handle, perspective, minniLevel)
+  
+  handle = bas_clear(handle, oldBasePath)
+  
   rewrite_allAnnots(handle, verbose = verbose)
 }
 
@@ -637,10 +647,8 @@ runBASwebservice_pho2sylCanonical <- function(handle,
   
   languages = bas_evaluate_language_option(handle = handle, language = language)
   
-  if (!resume)
-  {
-    bas_prepare(handle)
-  }
+  oldBasePath = handle$basePath
+  handle = bas_prepare(handle, resume)
   
   bas_run_pho2syl_canonical_dbi(
     handle = handle,
@@ -653,9 +661,10 @@ runBASwebservice_pho2sylCanonical <- function(handle,
     params = params
   )
   
-  bas_clear(handle)
-  
   add_attributeDefinition(handle, canoLevel, canoSylLabel, verbose = FALSE)
+  
+  handle = bas_clear(handle, oldBasePath)
+  
   rewrite_allAnnots(handle)
 }
 
@@ -664,14 +673,14 @@ runBASwebservice_pho2sylCanonical <- function(handle,
 ##' @family BAS webservice functions
 ##' @export
 ##' @param segmentLabel name of the label (not level!) containing a phonetic segmentation.
-##' @param wordLevel name of word level. Must be a parent lavel of the segmentation level.
+##' @param wordLabel name of a word label. This label's level must be a parent of the segmentation level.
 ##'
 ##' @inheritParams runBASwebservice_all
 ##' @inheritParams runBASwebservice_maus
 
 runBASwebservice_pho2sylSegmental <- function(handle,
                                               segmentLabel,
-                                              wordLevel,
+                                              wordLabel,
                                               language,
                                               
                                               sylLabel = "MAS",
@@ -696,16 +705,15 @@ runBASwebservice_pho2sylSegmental <- function(handle,
          " must be a segment tier in order to run pho2syl from segment")
   }
   
-  if (is.null(get_levelDefinition(handle, wordLevel))) {
-    stop("Could not find a level for label ", wordLevel)
+  wordLevel = get_levelNameForAttributeName(handle, wordLabel)
+  if (is.null(wordLevel)) {
+    stop("Could not find a level for label ", wordLabel)
   }
   
   languages = bas_evaluate_language_option(handle = handle, language = language)
   
-  if (!resume)
-  {
-    bas_prepare(handle)
-  }
+  oldBasePath = handle$basePath
+  handle = bas_prepare(handle, resume)
   
   bas_run_pho2syl_segmental_dbi(
     handle = handle,
@@ -715,12 +723,10 @@ runBASwebservice_pho2sylSegmental <- function(handle,
     verbose = verbose,
     sylLabel = sylLabel,
     sylLevel = sylLevel,
-    wordLevel = wordLevel,
+    wordLabel = wordLabel,
     resume = resume,
     params = params
   )
-  
-  bas_clear(handle)
   
   add_levelDefinition(handle, sylLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
   
@@ -731,5 +737,8 @@ runBASwebservice_pho2sylSegmental <- function(handle,
                           mausLevel,
                           convertSuperlevel = TRUE,
                           verbose = verbose)
+  
+  handle = bas_clear(handle, oldBasePath)
+  
   rewrite_allAnnots(handle, verbose = verbose)
 }
