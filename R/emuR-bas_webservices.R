@@ -307,7 +307,7 @@ runBASwebservice_maus <- function(handle,
     chunkLevel = get_levelNameForAttributeName(handle, chunkLabel)
     if (is.null(chunkLevel))
     {
-      stop("Could not find level ", chunkLevel)
+      stop("Could not find level for label ", chunkLabel)
     }
     
     if (get_levelDefinition(handle, chunkLevel)$type != "SEGMENT")
@@ -339,7 +339,7 @@ runBASwebservice_maus <- function(handle,
     oldBasePath = oldBasePath
   )
   
-  if(turnChunkLevelIntoItemLevel && !is.null(chunkLevel)) {
+  if(turnChunkLevelIntoItemLevel && !is.null(chunkLabel)) {
     bas_segment_to_item_level(handle, chunkLevel)
   }
   

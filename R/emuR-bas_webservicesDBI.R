@@ -117,11 +117,11 @@ bas_run_maus_dbi <- function(handle,
         usetrn = "false"
         if (!is.null(chunkLabel))
         {
+          usetrn = "true"
           trn_items_bundle = trn_items[trn_items$bundle == bundle &
                                          trn_items$session == session,]
           if (nrow(trn_items_bundle) > 0)
           {
-            usetrn = "true"
             for (turn_idx in 1:nrow(trn_items_bundle))
             {
               turn_item_id = trn_items_bundle[turn_idx, "start_item_id"]
