@@ -152,7 +152,6 @@ bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
   
   for(l in levelDefs$name){
     levelItems = dplyr::filter_(annotDFs$items, ~(level == l))
-    
     levels[[length(levels) + 1]] = list(
       items = apply(levelItems, 1, function(r) {
       
@@ -207,8 +206,9 @@ bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
     name = l,
     type = levelDefs$type[levelDefs$name == l]
     )
+    # fix names for single entry data.frames
+    names(levels[[length(levels)]]$items) = NULL
   }
-  
   if(nrow(annotDFs$links) >0){
     links = apply(annotDFs$links, 1, function(r) list(fromID = as.numeric(r[1]), toID = as.numeric(r[2])))
   }else{
