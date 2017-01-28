@@ -1127,7 +1127,10 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
     
     
     queryTxt = paste0("[", wordLabel,"=~.*]")
-    word_items = query(handle, queryTxt, calcTimes = F)
+    word_items = query(handle, queryTxt, calcTimes = T, timeRefSegmentLevel = mausLevel)
+    
+    queryTxt = paste0("[", mausLabel,"=~.*]")
+    maus_items = query(handle, queryTxt, calcTimes = T, timeRefSegmentLevel = mausLevel)
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
@@ -1151,7 +1154,10 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
       word_items_bundle = word_items[word_items$bundle == bundle &
                                        word_items$session == session,]
       
-      if (nrow(word_items_bundle) > 0)
+      maus_items_bundle = maus_items[maus_items$bundle == bundle &
+                                       maus_items$session == session,]
+      
+      if (nrow(word_items_bundle) > 0 && nrow(maus_items_bundle) > 0)
       {
         seq_idx = 1
         max_id = bas_get_max_id(handle, session, bundle)
@@ -1168,44 +1174,51 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
         
         written_anything = FALSE
         
+        
+        mau_start = - 1
+        mau_idx = 1
+        
         for (word_idx in 1:nrow(word_items_bundle))
         {
           word_item_id = word_items_bundle[word_idx, "start_item_id"]
-          maus_items = requery_hier(handle, word_items_bundle[word_idx,], mausLabel, collapse = F)
+          word_end = word_items_bundle[word_idx, "sample_end"]
+          word_start = word_items_bundle[word_idx, "sample_start"]
           written_mau = FALSE
           
-          if (nrow(maus_items) > 0)
+          
+          
+          while(maus_items_bundle[mau_idx, "sample_end"] <= word_end && mau_idx <= nrow(maus_items_bundle))
           {
-            for (mau_idx in 1:nrow(maus_items))
+            mau_label = stringr::str_trim(maus_items[mau_idx, "labels"])
+            mau_start = maus_items[mau_idx, "sample_start"]
+            mau_end = maus_items[mau_idx, "sample_end"]
+
+            if (stringr::str_length(mau_label) > 0 && mau_start >= word_start)
             {
-              mau_label = stringr::str_trim(maus_items[mau_idx, "labels"])
-              mau_start = maus_items[mau_idx, "sample_start"]
-              mau_end = maus_items[mau_idx, "sample_end"]
-              
-              if (stringr::str_length(mau_label) > 0)
-              {
-                write(
-                  paste0(
-                    "MAU: ",
-                    mau_start,
-                    " ",
-                    mau_end - mau_start,
-                    " ",
-                    bas_id,
-                    " ",
-                    mau_label
-                  ),
-                  maucon
-                )
-                written_mau = TRUE
-                written_anything = TRUE
-              }
+              write(
+                paste0(
+                  "MAU: ",
+                  mau_start,
+                  " ",
+                  mau_end - mau_start,
+                  " ",
+                  bas_id,
+                  " ",
+                  mau_label
+                ),
+                maucon
+              )
+                
+              written_mau = TRUE
+              written_anything = TRUE
             }
-            if (written_mau)
-            {
-              bas_id_to_word_item_id[[toString(bas_id)]] = word_item_id
-              bas_id = bas_id + 1
-            }
+            
+            mau_idx = mau_idx + 1
+          }
+          if (written_mau)
+          {
+            bas_id_to_word_item_id[[toString(bas_id)]] = word_item_id
+            bas_id = bas_id + 1
           }
         }
         
@@ -1333,9 +1346,9 @@ bas_prepare <- function(handle, resume)
     dir.create(BAS_WORKDIR, recursive = TRUE)
     dir.create(BAS_TMPDB, recursive = TRUE)
     file.copy(file.path(oldBasePath, paste0(handle$dbName, database.cache.suffix)), BAS_TMPCACHE)
-    
-    store_DBconfig(handle, dbConfig)
   }
+  
+  store_DBconfig(handle, dbConfig)
   
   handle$connection <- DBI::dbConnect(RSQLite::SQLite(), BAS_TMPCACHE)
   return(handle)
