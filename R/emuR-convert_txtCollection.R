@@ -1,12 +1,12 @@
 ##' Converts a collection of audio files and plain text transcriptions into an emuDB
-##' 
+##'
 ##' This function takes as input pairs of media files (i.e. wav files) and plain text
 ##' transcriptions files. It creates a new emuDB with one bundle per media file, and
 ##' turns the associated transcription into an item in that bundle. For this purpose,
 ##' media files and text files belonging to the same bundle must be named identically
 ##' (with the exception of their respective file extensions). The newly created
 ##' emuDB is stored in the target directory, and its handle is returned.
-##' 
+##'
 ##' @param dbName name of the new emuDB
 ##' @param sourceDir directory containing the plain text transcription files and media files
 ##' @param targetDir directory where the new emuDB will be stored
@@ -17,19 +17,19 @@
 ##' @param cleanWhitespaces if true, any sequence of whitespaces in the transcription (including newlines and tabs)
 ##' is transformed into a single blank
 ##' @param verbose display progress bar
-##' 
+##'
 ##' @export
 ##' @seealso convert_BPFCollection, convert_TextGridCollection
 
-convert_plainTextCollection <- function(dbName,
-                                        sourceDir,
-                                        targetDir,
-                                        txtExtension = 'txt',
-                                        mediaFileExtension = 'wav',
-                                        transcriptionLevel = "Transcription",
-                                        transcriptionLabel = "Transcription",
-                                        cleanWhitespaces = TRUE,
-                                        verbose = TRUE)
+convert_txtCollection <- function(dbName,
+                                  sourceDir,
+                                  targetDir,
+                                  txtExtension = 'txt',
+                                  mediaFileExtension = 'wav',
+                                  transcriptionLevel = "Transcription",
+                                  transcriptionLabel = "Transcription",
+                                  cleanWhitespaces = TRUE,
+                                  verbose = TRUE)
 {
   # ---------------------------------------------------------------------------
   # -------------------------- Get directories --------------------------------
@@ -40,19 +40,19 @@ convert_plainTextCollection <- function(dbName,
   basePath = file.path(targetDir, paste0(dbName, emuDB.suffix))
   
   res = try(suppressWarnings(dir.create(targetDir)))
-  if(class(res) == "try-error")
+  if (class(res) == "try-error")
   {
     stop("Could not create target directory ", targetDir)
   }
-
+  
   
   # ---------------------------------------------------------------------------
   # -------------------------- Get file pair list ----------------------------
   # ---------------------------------------------------------------------------
   
-  filePairList = create_filePairList(sourceDir, 
-                                     sourceDir, 
-                                     txtExtension, 
+  filePairList = create_filePairList(sourceDir,
+                                     sourceDir,
+                                     txtExtension,
                                      mediaFileExtension)
   
   # ---------------------------------------------------------------------------
@@ -62,7 +62,7 @@ convert_plainTextCollection <- function(dbName,
   
   
   res = try(dir.create(basePath))
-  if(class(res) == "try-error")
+  if (class(res) == "try-error")
   {
     stop("Could not create emuDB base directory ", basePath)
   }
@@ -76,13 +76,15 @@ convert_plainTextCollection <- function(dbName,
   # ------------------------ Initialize progress bar --------------------------
   # ---------------------------------------------------------------------------
   
-  if(verbose)
+  if (verbose)
   {
     progress = 0
     nbFilePairs = length(filePairList) / 2
     
     cat("INFO: Parsing plain text collection containing", nbFilePairs, "file pair(s)...\n")
-    pb = utils::txtProgressBar(min = 0, max = nbFilePairs, initial = progress, style=3)
+    pb = utils::txtProgressBar(
+      min = 0, max = nbFilePairs, initial = progress, style = 3
+    )
     utils::setTxtProgressBar(pb, progress)
   }
   
@@ -90,9 +92,8 @@ convert_plainTextCollection <- function(dbName,
   # --------------------------- Loop over bundles -----------------------------
   # ---------------------------------------------------------------------------
   
-  for(idx in 1:nrow(filePairList)[1])
+  for (idx in 1:nrow(filePairList)[1])
   {
-    
     # ---------------------------------------------------------------------------
     # ------------------ Get session and bundle names ---------------------------
     # ---------------------------------------------------------------------------
@@ -122,14 +123,16 @@ convert_plainTextCollection <- function(dbName,
     queryTxt = paste0("SELECT name from session WHERE name='", session, "'")
     all_sessions = DBI::dbGetQuery(dbHandle$connection, queryTxt)
     
-    if(!session %in% all_sessions)
+    if (!session %in% all_sessions)
     {
       queryTxt = paste0("INSERT INTO session VALUES('", dbHandle$UUID, "', '", session, "')")
       DBI::dbGetQuery(dbHandle$connection, queryTxt)
     }
     
-    queryTxt = paste0("INSERT INTO bundle VALUES('", dbHandle$UUID, "', '", session, "', '", bundle, "', '",
-                      annotates, "', ", samplerate, ", 'NULL')")
+    queryTxt = paste0(
+      "INSERT INTO bundle VALUES('", dbHandle$UUID, "', '", session, "', '", bundle, "', '",
+      annotates, "', ", samplerate, ", 'NULL')"
+    )
     
     DBI::dbGetQuery(dbHandle$connection, queryTxt)
     
@@ -175,45 +178,61 @@ convert_plainTextCollection <- function(dbName,
     DBI::dbGetQuery(dbHandle$connection, queryTxt)
     
     
-    if(verbose)
+    if (verbose)
     {
       utils::setTxtProgressBar(pb, idx)
     }
   }
-  if(verbose)
+  if (verbose)
   {
     cat("\n")
   }
-
   
-  dbConfig = list(name = dbName,
-                  UUID = dbHandle$UUID,
-                  mediafileExtension = mediaFileExtension,
-                  ssffTrackDefinitions = list(),
-                  levelDefinitions = list(list(name = transcriptionLevel,
-                                               type = "ITEM",
-                                               attributeDefinitions = list(list(name = transcriptionLabel, 
-                                                                                type = "STRING")))),
-                  linkDefinitions = list(),
-                  EMUwebAppConfig = list(perspectives=list(defPersp = list(name = 'default', 
-                                                                           signalCanvases = list(order = c("OSCI","SPEC"), 
-                                                                                                 assign = list(), 
-                                                                                                 contourLims = list()), 
-                                                                           levelCanvases = list(order = list()), 
-                                                                           twoDimCanvases = list(order = list()))), 
-                                         activeButtons = list(saveBundle = TRUE,
-                                                              showHierarchy = TRUE)))
-
+  
+  dbConfig = list(
+    name = dbName,
+    UUID = dbHandle$UUID,
+    mediafileExtension = mediaFileExtension,
+    ssffTrackDefinitions = list(),
+    levelDefinitions = list(
+      list(
+        name = transcriptionLevel,
+        type = "ITEM",
+        attributeDefinitions = list(list(name = transcriptionLabel,
+                                         type = "STRING"))
+      )
+    ),
+    linkDefinitions = list(),
+    EMUwebAppConfig = list(
+      perspectives = list(
+        defPersp = list(
+          name = 'default',
+          signalCanvases = list(
+            order = c("OSCI","SPEC"),
+            assign = list(),
+            contourLims = list()
+          ),
+          levelCanvases = list(order = list()),
+          twoDimCanvases = list(order = list())
+        )
+      ),
+      activeButtons = list(saveBundle = TRUE,
+                           showHierarchy = TRUE)
+    )
+  )
+  
   
   store_DBconfig(dbHandle, dbConfig)
   
   make_bpfDbSkeleton(dbHandle)
   
-  copy_bpfMediaFiles(basePath = basePath,
-                     sourceDir = sourceDir,
-                     mediaFiles = filePairList[,2],
-                     verbose = verbose)
+  copy_bpfMediaFiles(
+    basePath = basePath,
+    sourceDir = sourceDir,
+    mediaFiles = filePairList[,2],
+    verbose = verbose
+  )
   
-  rewrite_allAnnots(dbHandle, verbose = verbose)  
+  rewrite_allAnnots(dbHandle, verbose = verbose)
   return(dbHandle)
 }
