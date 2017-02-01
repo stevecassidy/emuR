@@ -175,7 +175,7 @@ runBASwebservice_all <- function(handle,
     mausLevel = mausLevel,
     verbose = verbose,
     resume = resume,
-    params = list(),
+    params = list(INFORMAT="bpf-sampa"),
     oldBasePath = oldBasePath
   )
   
