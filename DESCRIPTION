@@ -23,6 +23,7 @@ Imports:
     grDevices,
     stringr,
     uuid,
+    RCurl,
     base64enc,
     wrassp (>= 0.1.4),
     jsonlite (>= 0.9.13),
