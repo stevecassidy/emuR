@@ -5,7 +5,7 @@
 \title{Runs MAUS webservice to create a phonetic segmentation}
 \usage{
 runBASwebservice_maus(handle, canoLabel, language, mausLabel = "MAU",
-  chunkLevel = NULL, turnChunkLevelIntoItemLevel = TRUE, params = NULL,
+  chunkLabel = NULL, turnChunkLevelIntoItemLevel = TRUE, params = NULL,
   perspective = "default", resume = FALSE, verbose = TRUE)
 }
 \arguments{
@@ -23,7 +23,7 @@ Up-to-date lists of the languages accepted by all webservices can be found here:
 
 \item{mausLabel}{label name for the MAUS segmentation}
 
-\item{chunkLevel}{if you have a chunk segmentation level, you can provide it to improve the speed and accuracy
+\item{chunkLabel}{if you have a chunk segmentation level, you can provide one of its labels to improve the speed and accuracy
 of MAUS. The chunk segmentation level must be a segment level, and it must link to the level of orthoLabel.}
 
 \item{turnChunkLevelIntoItemLevel}{if TRUE, and if a chunk level is provided, the chunk level is converted into an ITEM level after segmentation}

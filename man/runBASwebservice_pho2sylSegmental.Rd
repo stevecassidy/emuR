@@ -4,7 +4,7 @@
 \alias{runBASwebservice_pho2sylSegmental}
 \title{Creates a syllable segmentation on the basis of a phonetic segmentation.}
 \usage{
-runBASwebservice_pho2sylSegmental(handle, segmentLabel, wordLevel, language,
+runBASwebservice_pho2sylSegmental(handle, segmentLabel, wordLabel, language,
   sylLabel = "MAS", params = list(), perspective = "default",
   resume = FALSE, verbose = TRUE)
 }
@@ -13,7 +13,7 @@ runBASwebservice_pho2sylSegmental(handle, segmentLabel, wordLevel, language,
 
 \item{segmentLabel}{name of the label (not level!) containing a phonetic segmentation.}
 
-\item{wordLevel}{name of word level. Must be a parent lavel of the segmentation level.}
+\item{wordLabel}{name of a word label. This label's level must be a parent of the segmentation level.}
 
 \item{language}{language(s) to be used. If you pass a single string (e.g. "deu-DE"), this language will be used for all bundles.
 Alternatively, you can select the language for every bundle individually. To do so, you must pass a data frame with the columns
