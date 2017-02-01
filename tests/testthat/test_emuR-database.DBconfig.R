@@ -74,6 +74,22 @@ test_that("CRUD operations work for ssffTrackDefinitions", {
     
   })
   
+  test_that("remove = CRU(D) with force", {
+    remove_linkDefinition(ae, "Intermediate", "Word", force = T, verbose = F)
+    remove_linkDefinition(ae, "Word", "Syllable", force = T, verbose = F)
+    remove_levelDefinition(ae, "Word", force = T, verbose = F)
+    
+    # check items table 
+    df = DBI::dbGetQuery(ae$connection, "SELECT * FROM items WHERE level='Word'")
+    expect_equal(nrow(df), 0)
+    
+    # TODO: probably should also check labels table
+    
+    # check annot json 
+    ajson = jsonlite::fromJSON(file.path(path2db, "0000_ses", "msajc003_bndl", "msajc003_annot.json"), simplifyVector = F)
+    expect_false(ajson$levels[[4]]$name == "Word")
+  })
+  
 })
 
 ##############################
@@ -159,7 +175,7 @@ test_that("CRUD operations work for attributeDefinitions", {
   test_that("remove = CRU(D)", {
     expect_error(remove_attributeDefinition(ae, 'Word', 'Word', verbose = F))
     expect_error(remove_attributeDefinition(ae, 'Word', 'Accent', verbose = F))
-    remove_attributeDefinition(ae, 'Word', 'testAttrDef', verbose = F)
+    remove_attributeDefinition(ae, 'Word', 'testAttrDef', force = T, verbose = F)
     df = list_attributeDefinitions(ae, 'Word')
     expect_equal(nrow(df), 3)
   })
@@ -331,6 +347,15 @@ test_that("CRUD operations work for linkDefinitions", {
     expect_equal(ncol(df), 3)
     expect_equal(nrow(df), 9)
     
+  })
+  
+  test_that("remove = CRU(D) with force", {
+    remove_linkDefinition(ae, "Word", "Syllable", force = T, verbose = F)
+    remove_linkDefinition(ae, "Syllable", "Phoneme", force = T, verbose = F)
+    ldefs = list_linkDefinitions(ae)
+    expect_false("Word" %in% ldefs$superlevelName)  
+    expect_false("Phoneme" %in% ldefs$sublevelName)
+    # TODO: should probably check annot json files & cache as well..
   })
   
 })  

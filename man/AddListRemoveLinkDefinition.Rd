@@ -11,7 +11,8 @@ add_linkDefinition(emuDBhandle, type, superlevelName, sublevelName)
 
 list_linkDefinitions(emuDBhandle)
 
-remove_linkDefinition(emuDBhandle, superlevelName, sublevelName)
+remove_linkDefinition(emuDBhandle, superlevelName, sublevelName,
+  force = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
@@ -21,6 +22,10 @@ remove_linkDefinition(emuDBhandle, superlevelName, sublevelName)
 \item{superlevelName}{name of super-level of linkDefinition}
 
 \item{sublevelName}{name of sub-level of linkDefinition}
+
+\item{force}{delete all links belonging to the linkDefinition (\strong{USE WITH CAUTION! VERY INVASIVE AKTION!})}
+
+\item{verbose}{be verbose. Ask to delete links if \code{force} is \code{TRUE}.}
 }
 \description{
 Add / List / Remove new link definition to / of / from emuDB. A link definition

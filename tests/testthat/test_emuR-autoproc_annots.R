@@ -84,8 +84,8 @@ test_that("duplicate_level works correctly", {
     
     # check multiple attribute definitions
     duplicate_level(ae, levelName = "Word", duplicateLevelName = "Word2", verbose = F)
-    dbConfig = load_DBconfig(ae)
-    expect_equal(length(dbConfig$levelDefinitions[[4]]$attributeDefinitions), length(dbConfig$levelDefinitions[[4]]$attributeDefinitions))
+    # dbConfig = load_DBconfig(ae)
+    # expect_equal(length(dbConfig$levelDefinitions[[4]]$attributeDefinitions), length(dbConfig$levelDefinitions[[4]]$attributeDefinitions))
     
   })
 
