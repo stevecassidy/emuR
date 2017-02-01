@@ -73,20 +73,25 @@ create_emuRdemoData <- function(dir = tempdir(), precache = FALSE){
   }
   
   ####################################
-  # create TextGrid_collection and BPF_collection
+  # create TextGrid_collection, BPF_collection and txt_collection
   fpltgc = create_filePairList(path2data, path2data, "wav", "TextGrid")
   fplbpf_original = create_filePairList(path2data, path2data, "wav", "par")
   fplbpf_manipulated = create_filePairList(path2data, path2data, "wav", "parmanipulated")
+  fpltxt = create_filePairList(path2data, path2data, "wav", "txt")
   tgcPath = file.path(ddPath, "TextGrid_collection")
   bpfPath_original = file.path(ddPath, "BPF_collection")
+  txtcPath = file.path(ddPath, "txt_collection")
   
   dir.create(tgcPath)
   dir.create(bpfPath_original)
+  dir.create(txtcPath)
   
   file.copy(fpltgc[,1], tgcPath)
   file.copy(fpltgc[,2], tgcPath)
   file.copy(fplbpf_original[,1], bpfPath_original)
   file.copy(fplbpf_original[,2], bpfPath_original)
+  file.copy(fpltxt[,1], txtcPath)
+  file.copy(fpltxt[,2], txtcPath)
   
   #################################
   # create legacyEmuDB
