@@ -179,11 +179,6 @@ runBASwebservice_all <- function(handle,
     oldBasePath = oldBasePath
   )
   
-  if(running_chunker)
-  {
-    bas_segment_to_item_level(handle, chunkLevel)
-  }
-  
   add_levelDefinition(handle, minniLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
   bas_new_canvas(handle, "default", minniLevel)
   add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, minniLevel)
@@ -236,9 +231,13 @@ runBASwebservice_all <- function(handle,
     sylLevel,
     mausLevel,
     rewriteAllAnnots = FALSE,
-    convertSuperlevel = TRUE
+    convertSuperlevel = FALSE
   )
-
+  
+  if(running_chunker)
+  {
+    bas_segment_to_item_level(handle, chunkLevel)
+  }
   
   handle = bas_clear(handle, oldBasePath)
   
@@ -731,10 +730,10 @@ runBASwebservice_pho2sylSegmental <- function(handle,
   add_levelDefinition(handle, sylLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
   
   add_linkDefinition(handle, "MANY_TO_MANY", wordLevel, sylLevel)
-  add_linkDefinition(handle, "ONE_TO_MANY", sylLevel, mausLevel)
+  add_linkDefinition(handle, "ONE_TO_MANY", sylLevel, segmentLevel)
   autobuild_linkFromTimes(handle,
                           sylLevel,
-                          mausLevel,
+                          segmentLevel,
                           convertSuperlevel = TRUE,
                           verbose = verbose)
   

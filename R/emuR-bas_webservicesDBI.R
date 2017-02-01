@@ -1,6 +1,5 @@
 BAS_WORKDIR = file.path(tempdir(), "emuR_bas_workdir")
-BAS_TMPDB = file.path(tempdir(), "BASTMP_emuDB")
-BAS_TMPCACHE = file.path(BAS_TMPDB, "BAS_cache.sqlite")
+BAS_TMPDBDIR = file.path(tempdir(), "BASTMP_emuDB")
 
 BAS_ADDRESS = "https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/"
 
@@ -30,7 +29,7 @@ bas_run_maus_dbi <- function(handle,
     {
       cat("INFO: Running MAUS on emuDB containing",
           nrow(bundles_list),
-          "bundle(s) ...\n")
+          "bundle(s)...\n")
       progress = 0
       pb = utils::txtProgressBar(
         min = 0,
@@ -75,7 +74,7 @@ bas_run_maus_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat("Skipping bundle", bundle)
+          cat(" Skipping bundle", bundle)
           utils::setTxtProgressBar(pb, bundle_idx)
         }
         next
@@ -268,7 +267,7 @@ bas_run_minni_dbi <- function(handle,
     {
       cat("INFO: Running MINNI on emuDB containing",
           nrow(bundles_list),
-          "bundle(s) ...\n")
+          "bundle(s)...\n")
       progress = 0
       pb = utils::txtProgressBar(
         min = 0,
@@ -294,7 +293,7 @@ bas_run_minni_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat("Skipping bundle", bundle)
+          cat(" Skipping bundle", bundle)
           utils::setTxtProgressBar(pb, bundle_idx)
         }
         next
@@ -429,7 +428,7 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
       cat(
         "INFO: Running G2P tokenizer on emuDB containing",
         nrow(bundles_list),
-        "bundle(s) ...\n"
+        "bundle(s)...\n"
       )
       progress = 0
       pb = utils::txtProgressBar(
@@ -457,7 +456,7 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat("Skipping bundle", bundle)
+          cat(" Skipping bundle", bundle)
           utils::setTxtProgressBar(pb, bundle_idx)
         }
         next
@@ -593,7 +592,7 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
     {
       cat("INFO: Running G2P on emuDB containing",
           nrow(bundles_list),
-          "bundle(s) ...\n")
+          "bundle(s)...\n")
       progress = 0
       pb = utils::txtProgressBar(
         min = 0,
@@ -620,7 +619,7 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat("Skipping bundle", bundle)
+          cat(" Skipping bundle", bundle)
           utils::setTxtProgressBar(pb, bundle_idx)
         }
         next
@@ -745,7 +744,7 @@ bas_run_chunker_dbi <- function(handle,
       cat(
         "INFO: Running Chunker on emuDB containing",
         nrow(bundles_list),
-        "bundle(s) ...\n"
+        "bundle(s)...\n"
       )
       progress = 0
       pb = utils::txtProgressBar(
@@ -773,7 +772,7 @@ bas_run_chunker_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat("Skipping bundle", bundle)
+          cat(" Skipping bundle", bundle)
           utils::setTxtProgressBar(pb, bundle_idx)
         }
         next
@@ -959,7 +958,7 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
       cat(
         "INFO: Running Pho2Syl (canonical) on emuDB containing",
         nrow(bundles_list),
-        "bundle(s) ...\n"
+        "bundle(s)...\n"
       )
       progress = 0
       pb = utils::txtProgressBar(
@@ -987,7 +986,7 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat("Skipping bundle", bundle)
+          cat(" Skipping bundle", bundle)
           utils::setTxtProgressBar(pb, bundle_idx)
         }
         next
@@ -1113,7 +1112,7 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
       cat(
         "INFO: Running Pho2Syl (segmental) on emuDB containing",
         nrow(bundles_list),
-        "bundle(s) ...\n"
+        "bundle(s)...\n"
       )
       progress = 0
       pb = utils::txtProgressBar(
@@ -1145,7 +1144,7 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat("Skipping bundle", bundle)
+          cat(" Skipping bundle", bundle)
           utils::setTxtProgressBar(pb, bundle_idx)
         }
         next
@@ -1187,9 +1186,9 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
           
           while(maus_items_bundle[mau_idx, "sample_end"] <= word_end && mau_idx <= nrow(maus_items_bundle))
           {
-            mau_label = stringr::str_trim(maus_items[mau_idx, "labels"])
-            mau_start = maus_items[mau_idx, "sample_start"]
-            mau_end = maus_items[mau_idx, "sample_end"]
+            mau_label = stringr::str_trim(maus_items_bundle[mau_idx, "labels"])
+            mau_start = maus_items_bundle[mau_idx, "sample_start"]
+            mau_end = maus_items_bundle[mau_idx, "sample_end"]
 
             if (stringr::str_length(mau_label) > 0 && mau_start >= word_start)
             {
@@ -1328,27 +1327,39 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
 #####################################################################
 bas_prepare <- function(handle, resume)
 {
+  if(dir.exists(BAS_WORKDIR))
+  {
+    unlink(BAS_WORKDIR, recursive = TRUE)
+  }
+  
+  dir.create(BAS_WORKDIR, recursive = TRUE)
+  
   dbConfig = load_DBconfig(handle)
   oldBasePath = handle$basePath
   
-  handle$basePath <- BAS_TMPDB
+  handle$basePath <- file.path(BAS_TMPDBDIR, paste0(handle$dbName, emuDB.suffix))
+  tmpCache = file.path(handle$basePath, paste0(handle$dbName, database.cache.suffix))
   
-  if(!(resume && dir.exists(BAS_TMPDB) && file.exists(BAS_TMPCACHE)))
+  if(!(resume && file.exists(tmpCache)))
   {
     cat("INFO: Preparing temporary database. This may take a while...\n")
-    if(dir.exists(BAS_TMPDB))
+    if(dir.exists(BAS_TMPDBDIR))
     {
-      unlink(BAS_TMPDB, recursive = "TRUE")
+      unlink(BAS_TMPDBDIR, recursive = TRUE)
     }
     
-    dir.create(BAS_WORKDIR, recursive = TRUE)
-    dir.create(BAS_TMPDB, recursive = TRUE)
-    file.copy(file.path(oldBasePath, paste0(handle$dbName, database.cache.suffix)), BAS_TMPCACHE)
+    dir.create(handle$basePath, recursive = TRUE)
+    
+    oldCache = file.path(oldBasePath, paste0(handle$dbName, database.cache.suffix))
+    if(!file.copy(oldCache, tmpCache, overwrite = T))
+    {
+      stop("Could not create temporary DB cache")
+    }
   }
   
   store_DBconfig(handle, dbConfig)
   
-  handle$connection <- DBI::dbConnect(RSQLite::SQLite(), BAS_TMPCACHE)
+  handle$connection <- DBI::dbConnect(RSQLite::SQLite(), tmpCache)
   return(handle)
 }
 
@@ -1357,15 +1368,18 @@ bas_clear <- function(handle, oldBasePath)
   
   oldCache = file.path(oldBasePath, paste0(handle$dbName, database.cache.suffix))
   
-  file.copy(BAS_TMPCACHE, oldCache, overwrite = TRUE)
+  if(!file.copy(file.path(handle$basePath, paste0(handle$dbName, database.cache.suffix)), oldCache, overwrite = TRUE))
+  {
+    stop("Could not copy temporary DB cache into original DB")
+  }
   
   dbConfig = load_DBconfig(handle)
   
   handle$basePath <- oldBasePath
   store_DBconfig(handle, dbConfig)
   
-  unlink(BAS_WORKDIR, recursive = TRUE)
-  unlink(BAS_TMPDB)
+  #unlink(BAS_WORKDIR, recursive = TRUE)
+  unlink(BAS_TMPDBDIR, recursive = TRUE)
   
   handle$connection <- DBI::dbConnect(RSQLite::SQLite(), oldCache)
   
@@ -1696,7 +1710,6 @@ bas_segment_to_item_level <- function(handle, segmentLevel)
     {
       perspective = perspectives[perspective_idx, "name"]
       oldOrder = get_levelCanvasesOrder(handle, perspective)
-      print(oldOrder)
       set_levelCanvasesOrder(handle, perspective, oldOrder[oldOrder != segmentLevel])
     }
   }
