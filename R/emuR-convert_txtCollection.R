@@ -91,12 +91,13 @@ convert_txtCollection <- function(dbName,
     # ------------------ Get session and bundle names ---------------------------
     # ---------------------------------------------------------------------------
     
-    session = get_bpfSession(filePath = filePairList[idx, 1],
+    session = get_bpfSession(filePath = filePairList[idx, 2],
                              sourceDir = sourceDir)
     
-    bpfPath = normalizePath(filePairList[idx, 1], winslash = .Platform$file.sep)
-    bundle = tools::file_path_sans_ext(basename(bpfPath))
-    annotates = basename(filePairList[idx, 2])
+    txtPath = normalizePath(filePairList[idx, 1], winslash = .Platform$file.sep)
+    wavPath = normalizePath(filePairList[idx, 2], winslash = .Platform$file.sep)
+    bundle = tools::file_path_sans_ext(basename(wavPath))
+    annotates = basename(wavPath)
     
     # Escaping single quotes in anything user-generated that will be fed into SQL
     session = stringr::str_replace_all(session, "'", "''")
