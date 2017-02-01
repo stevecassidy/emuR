@@ -1,5 +1,5 @@
 Package: emuR
-Version: 0.2.1.9003
+Version: 0.2.1.9004
 Title: Main Package of the EMU Speech Database Management System
 Authors@R: c(
     person("Raphael", "Winkelmann", , "raphael@phonetik.uni-muenchen.de", c("aut", "cre")),
@@ -23,6 +23,7 @@ Imports:
     grDevices,
     stringr,
     uuid,
+    RCurl,
     base64enc,
     wrassp (>= 0.1.4),
     jsonlite (>= 0.9.13),

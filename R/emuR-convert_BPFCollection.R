@@ -1,5 +1,3 @@
-requireNamespace("RSQLite", quietly = T)
-
 ##' Convert a Bas Partitur File Collection (audio and BAS Partitur files) to an emuDB
 ##' 
 ##' Converts a Bas Partitur File Collection to an emuDB. Expects a collection of the following form:

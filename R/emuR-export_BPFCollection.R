@@ -225,7 +225,8 @@ make_link_map <- function(handle, session, bundle, refLevel)
   return(link_map)
 }
 
-get_links <- function(handle, session, bundle, ref_id, direction="all")
+get_links <- function(handle, session, bundle, ref_id, direction="all", 
+                      level=NULL, item_table = "items", link_table = "links")
 {
   links = c(ref_id)
   
@@ -251,13 +252,34 @@ get_links <- function(handle, session, bundle, ref_id, direction="all")
     while(length(current_anchors) > 0)
     {
       id_set_string = paste0("(", paste(current_anchors, collapse = "," ) ,")")
-      queryTxt = paste0("SELECT ", this, " FROM links", basic_cond(handle, session, bundle), "
-                        AND ", other, " in ", id_set_string)
+      
+      if(is.null(level))
+      {
+        queryTxt = paste0("SELECT l.", this, " FROM ", link_table, " AS l", basic_cond(handle, session, bundle, prefix = "l"), 
+                          "AND l.", other, " in ", id_set_string)
+      }
+      else
+      {
+        queryTxt = paste0("SELECT l.", this, " FROM ", link_table, " AS l JOIN ", item_table, " AS i ON ",
+                          "l.db_uuid == i.db_uuid AND l.session == i.session AND l.bundle == i.bundle ",
+                          "AND l.", this, " == i.item_id",
+                          basic_cond(handle, session, bundle, prefix = "i"), 
+                          "AND l.", other, " in ", id_set_string, " AND i.level=='", level, "'")
+      }
 
       current_anchors = DBI::dbGetQuery(handle$connection, queryTxt)[[this]]
       links = c(links, current_anchors)
     }
   }
+  
+  if(!is.null(level))
+  {
+    id_set_string = paste0("(", paste(links, collapse = "," ) ,")")
+    queryTxt = paste0("SELECT item_id FROM ", item_table, " ", basic_cond(handle, session, bundle), "AND level=='", level,
+                      "' AND item_id in ", id_set_string) 
+    links = DBI::dbGetQuery(handle$connection, queryTxt)[["item_id"]]
+  }
+  
   return(links)
 }
 
