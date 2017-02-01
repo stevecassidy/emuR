@@ -58,16 +58,9 @@ convert_txtCollection <- function(dbName,
   # ---------------------------------------------------------------------------
   # ---------------------------- Initialize dbHandle --------------------------
   # ---------------------------------------------------------------------------
+
   
-  
-  
-  res = try(dir.create(basePath))
-  if (class(res) == "try-error")
-  {
-    stop("Could not create emuDB base directory ", basePath)
-  }
-  
-  dbHandle = emuDBhandle(dbName, basePath = basePath, uuid::UUIDgenerate(), file.path(basePath, paste0(dbName, database.cache.suffix)))
+  dbHandle = emuDBhandle(dbName, basePath = basePath, uuid::UUIDgenerate(), ":memory:")
   # insert into emuDB table
   queryTxt = paste0("INSERT INTO emu_db (uuid, name) VALUES('", dbHandle$UUID, "', '", dbName,"')")
   DBI::dbGetQuery(dbHandle$connection, queryTxt)
@@ -221,6 +214,11 @@ convert_txtCollection <- function(dbName,
     )
   )
   
+  res = try(dir.create(basePath))
+  if (class(res) == "try-error")
+  {
+    stop("Could not create emuDB base directory ", basePath)
+  }
   
   store_DBconfig(dbHandle, dbConfig)
   
@@ -234,5 +232,4 @@ convert_txtCollection <- function(dbName,
   )
   
   rewrite_allAnnots(dbHandle, verbose = verbose)
-  return(dbHandle)
 }
