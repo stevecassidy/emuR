@@ -231,7 +231,7 @@ runBASwebservice_all <- function(handle,
     sylLevel,
     mausLevel,
     rewriteAllAnnots = FALSE,
-    convertSuperlevel = FALSE
+    convertSuperlevel = TRUE
   )
   
   if(running_chunker)
