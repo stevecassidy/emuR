@@ -104,7 +104,7 @@ runBASwebservice_all <- function(handle,
   languages = bas_evaluate_language_option(handle = handle, language = language)
   
   
-  handle = bas_prepare(handle, resume)
+  handle = bas_prepare(handle, resume, verbose)
 
   add_levelDefinition(handle, orthoLevel, "ITEM", verbose = FALSE, rewriteAllAnnots = FALSE)
   
@@ -123,9 +123,7 @@ runBASwebservice_all <- function(handle,
     resume = resume,
     params = list()
   )
-  
-  add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = FALSE)
-  
+
   bas_run_g2p_for_pronunciation_dbi(
     handle = handle,
     orthoLevel = orthoLevel,
@@ -136,6 +134,8 @@ runBASwebservice_all <- function(handle,
     resume = resume,
     params = list(embed="maus")
   )
+  
+  internal_add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = FALSE, rewriteAllAnnots = FALSE, insertLabels = FALSE)
   
   # if we previously decided to run automatic chunk segmentation
   if (running_chunker)
@@ -175,7 +175,7 @@ runBASwebservice_all <- function(handle,
     mausLevel = mausLevel,
     verbose = verbose,
     resume = resume,
-    params = list(INFORMAT="bpf-sampa"),
+    params = list(),
     oldBasePath = oldBasePath
   )
   
@@ -195,8 +195,6 @@ runBASwebservice_all <- function(handle,
     oldBasePath = oldBasePath
   )
   
-  add_attributeDefinition(handle, orthoLevel, canoSylLabel, verbose = FALSE)
-  
   bas_run_pho2syl_canonical_dbi(
     handle = handle,
     canoLabel = canoLabel,
@@ -207,6 +205,9 @@ runBASwebservice_all <- function(handle,
     params = list(),
     resume = resume
   )
+  
+  internal_add_attributeDefinition(handle, orthoLevel, canoSylLabel, verbose = FALSE, rewriteAllAnnots = FALSE, insertLabels = FALSE)
+  
   
   add_levelDefinition(handle, sylLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
   add_linkDefinition(handle, "MANY_TO_MANY", orthoLevel, sylLevel)
@@ -234,7 +235,7 @@ runBASwebservice_all <- function(handle,
     convertSuperlevel = TRUE
   )
   
-  remove_levelDefinition(paste0(sylLevel, formals(autobuild_linkFromTimes)$backupLevelAppendStr), 
+  remove_levelDefinition(handle, paste0(sylLevel, formals(autobuild_linkFromTimes)$backupLevelAppendStr), 
                          force = T, 
                          verbose = F)
   
@@ -322,7 +323,7 @@ runBASwebservice_maus <- function(handle,
   languages = bas_evaluate_language_option(handle = handle, language = language)
   
   oldBasePath = handle$basePath
-  handle = bas_prepare(handle, resume)
+  handle = bas_prepare(handle, resume, verbose)
   
   add_levelDefinition(handle, mausLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
   bas_new_canvas(handle, perspective, mausLevel)
@@ -391,7 +392,7 @@ runBASwebservice_g2pForTokenization <- function(handle,
   languages = bas_evaluate_language_option(handle = handle, language = language)
   
   oldBasePath = handle$basePath
-  handle = bas_prepare(handle, resume)
+  handle = bas_prepare(handle, resume, verbose)
   
   add_levelDefinition(handle, orthoLevel, "ITEM", verbose = FALSE, rewriteAllAnnots = FALSE)
   add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, orthoLevel)
@@ -445,9 +446,7 @@ runBASwebservice_g2pForPronunciation <- function(handle,
   languages = bas_evaluate_language_option(handle = handle, language = language)
   
   oldBasePath = handle$basePath
-  handle = bas_prepare(handle, resume)
-  
-  add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = FALSE)
+  handle = bas_prepare(handle, resume, verbose)
   
   bas_run_g2p_for_pronunciation_dbi(
     handle = handle,
@@ -459,6 +458,9 @@ runBASwebservice_g2pForPronunciation <- function(handle,
     resume = resume,
     params = params
   )
+  
+  internal_add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = FALSE, rewriteAllAnnots = FALSE, insertLabels = FALSE)
+  
 
   handle = bas_clear(handle, oldBasePath)
   
@@ -515,7 +517,7 @@ runBASwebservice_chunker <- function(handle,
   languages = bas_evaluate_language_option(handle = handle, language = language)
   
   oldBasePath = handle$basePath
-  handle = bas_prepare(handle, resume)
+  handle = bas_prepare(handle, resume, verbose)
   
   add_levelDefinition(handle, chunkLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
   bas_new_canvas(handle, perspective, chunkLevel)
@@ -589,7 +591,7 @@ runBASwebservice_minni <- function(handle,
   languages = bas_evaluate_language_option(handle = handle, language = language)
   
   oldBasePath = handle$basePath
-  handle = bas_prepare(handle, resume)
+  handle = bas_prepare(handle, resume, verbose)
   
   add_levelDefinition(handle, minniLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
   if (!is.null(rootLevel)) {
@@ -649,9 +651,9 @@ runBASwebservice_pho2sylCanonical <- function(handle,
   bas_check_this_is_a_new_label(handle, canoSylLabel)
   
   languages = bas_evaluate_language_option(handle = handle, language = language)
-  
+
   oldBasePath = handle$basePath
-  handle = bas_prepare(handle, resume)
+  handle = bas_prepare(handle, resume, verbose)
   
   bas_run_pho2syl_canonical_dbi(
     handle = handle,
@@ -664,11 +666,11 @@ runBASwebservice_pho2sylCanonical <- function(handle,
     params = params
   )
   
-  add_attributeDefinition(handle, canoLevel, canoSylLabel, verbose = FALSE)
+  internal_add_attributeDefinition(handle, canoLevel, canoSylLabel, verbose = FALSE, rewriteAllAnnots = FALSE, insertLabels = FALSE)
   
   handle = bas_clear(handle, oldBasePath)
   
-  rewrite_allAnnots(handle)
+  rewrite_allAnnots(handle, verbose = verbose)
 }
 
 
@@ -716,7 +718,7 @@ runBASwebservice_pho2sylSegmental <- function(handle,
   languages = bas_evaluate_language_option(handle = handle, language = language)
   
   oldBasePath = handle$basePath
-  handle = bas_prepare(handle, resume)
+  handle = bas_prepare(handle, resume, verbose)
   
   bas_run_pho2syl_segmental_dbi(
     handle = handle,
@@ -741,7 +743,7 @@ runBASwebservice_pho2sylSegmental <- function(handle,
                           convertSuperlevel = TRUE,
                           verbose = verbose)
   
-  remove_levelDefinition(paste0(sylLevel, formals(autobuild_linkFromTimes)$backupLevelAppendStr), 
+  remove_levelDefinition(handle, paste0(sylLevel, formals(autobuild_linkFromTimes)$backupLevelAppendStr), 
                          force = T, 
                          verbose = F)
   

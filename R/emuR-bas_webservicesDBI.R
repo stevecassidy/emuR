@@ -23,7 +23,7 @@ bas_run_maus_dbi <- function(handle,
   
   if (nrow(bundles_list) > 0)
   {
-    bas_ping()
+    bas_ping(verbose)
     
     if (verbose)
     {
@@ -261,7 +261,7 @@ bas_run_minni_dbi <- function(handle,
   bundles_list = languages
   if (nrow(bundles_list) > 0)
   {
-    bas_ping()
+    bas_ping(verbose)
     
     if (verbose)
     {
@@ -421,7 +421,7 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
   bundles_list = languages
   if (nrow(bundles_list) > 0)
   {
-    bas_ping()
+    bas_ping(verbose)
     
     if (verbose)
     {
@@ -583,7 +583,7 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
   bundles_list = languages
   if (nrow(bundles_list) > 0)
   {
-    bas_ping()
+    bas_ping(verbose)
     
     if (verbose)
     {
@@ -734,7 +734,7 @@ bas_run_chunker_dbi <- function(handle,
   bundles_list = languages
   if (nrow(bundles_list) > 0)
   {
-    bas_ping()
+    bas_ping(verbose)
     if (verbose)
     {
       cat(
@@ -947,7 +947,7 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
   bundles_list = languages
   if (nrow(bundles_list) > 0)
   {
-    bas_ping()
+    bas_ping(verbose)
     if (verbose)
     {
       cat(
@@ -1101,7 +1101,7 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
   bundles_list = languages
   if (nrow(bundles_list) > 0)
   {
-    bas_ping()
+    bas_ping(verbose)
     if (verbose)
     {
       cat(
@@ -1320,7 +1320,7 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
 #####################################################################
 ############################ HELPERS ################################
 #####################################################################
-bas_prepare <- function(handle, resume)
+bas_prepare <- function(handle, resume, verbose)
 {
   if(dir.exists(BAS_WORKDIR))
   {
@@ -1337,7 +1337,10 @@ bas_prepare <- function(handle, resume)
   
   if(!(resume && file.exists(tmpCache)))
   {
-    cat("INFO: Preparing temporary database. This may take a while...\n")
+    if(verbose)
+    {
+      cat("INFO: Preparing temporary database. This may take a while...\n")
+    }
     if(dir.exists(BAS_TMPDBDIR))
     {
       unlink(BAS_TMPDBDIR, recursive = TRUE)
@@ -1508,6 +1511,7 @@ bas_add_label <- function(handle,
     label,
     "')"
   )
+
   DBI::dbGetQuery(handle$connection, queryTxt)
 }
 
@@ -1655,9 +1659,12 @@ bas_get_options <- function()
   return(RCurl::curlOptions(connecttimeout = 10, timeout = 2400))
 }
 
-bas_ping <- function()
+bas_ping <- function(verbose)
 {
-  cat("Sending ping to webservices provider.\n")
+  if(verbose)
+  {
+    cat("Sending ping to webservices provider.\n")
+  }
   
   res = RCurl::getURL(
     url = paste0(BAS_ADDRESS, "help"),
