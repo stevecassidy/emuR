@@ -32,8 +32,6 @@ will only work if you have not run any other emuR functions (such as the query f
 webservice functions) in the meantime, as they are likely to delete your temporary data.}
 
 \item{verbose}{Display progress bars and other information}
-
-\item{orthoLevel}{name of the word level that will be created. Defaults to the value of orthoLabel.}
 }
 \description{
 Tokenizes an orthographic transcription.

@@ -43,8 +43,6 @@ will only work if you have not run any other emuR functions (such as the query f
 webservice functions) in the meantime, as they are likely to delete your temporary data.}
 
 \item{verbose}{Display progress bars and other information}
-
-\item{mausLevel}{name of the level for the MAUS segmentation. Defaults to the value of mausLabel.}
 }
 \description{
 This function calls the BAS webservice MAUS to generate a phonemic segmentation.
