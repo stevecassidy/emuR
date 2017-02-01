@@ -134,7 +134,7 @@ runBASwebservice_all <- function(handle,
     languages = languages,
     verbose = verbose,
     resume = resume,
-    params = list()
+    params = list(embed="maus")
   )
   
   # if we previously decided to run automatic chunk segmentation
@@ -152,7 +152,7 @@ runBASwebservice_all <- function(handle,
       chunkLevel = chunkLevel,
       orthoLabel = orthoLabel,
       topLevel = transcriptionLevel,
-      params = list(),
+      params = list(force="rescue"),
       resume = resume,
       verbose = verbose,
       languages = languages,
@@ -233,6 +233,10 @@ runBASwebservice_all <- function(handle,
     rewriteAllAnnots = FALSE,
     convertSuperlevel = TRUE
   )
+  
+  remove_levelDefinition(paste0(sylLevel, formals(autobuild_linkFromTimes)$backupLevelAppendStr), 
+                         force = T, 
+                         verbose = F)
   
   if(running_chunker)
   {
@@ -736,6 +740,10 @@ runBASwebservice_pho2sylSegmental <- function(handle,
                           segmentLevel,
                           convertSuperlevel = TRUE,
                           verbose = verbose)
+  
+  remove_levelDefinition(paste0(sylLevel, formals(autobuild_linkFromTimes)$backupLevelAppendStr), 
+                         force = T, 
+                         verbose = F)
   
   handle = bas_clear(handle, oldBasePath)
   

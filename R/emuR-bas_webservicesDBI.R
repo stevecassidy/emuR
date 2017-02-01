@@ -150,7 +150,7 @@ bas_run_maus_dbi <- function(handle,
         
         close(kancon)
         
-        params = list(
+        curlParams = list(
           LANGUAGE = language,
           OUTFORMAT = "par",
           USETRN = usetrn,
@@ -160,15 +160,15 @@ bas_run_maus_dbi <- function(handle,
         
         for (key in names(params))
         {
-          if (!(key %in% names(params)))
+          if (!(key %in% names(curlParams)))
           {
-            params[[key]] = params[[key]]
+            curlParams[[key]] = params[[key]]
           }
         }
         
         res = RCurl::postForm(
           paste0(BAS_ADDRESS, "runMAUS"),
-          .params = params,
+          .params = curlParams,
           style = "HTTPPOST",
           .opts = bas_get_options()
         )
@@ -311,7 +311,7 @@ bas_run_minni_dbi <- function(handle,
       minnifile = file.path(BAS_WORKDIR, paste0(bundle, ".minni.par"))
       
       
-      params = list(
+      curlParams = list(
         LANGUAGE = language,
         OUTFORMAT = "mau",
         SIGNAL = RCurl::fileUpload(signalfile)
@@ -319,16 +319,16 @@ bas_run_minni_dbi <- function(handle,
       
       for (key in names(params))
       {
-        if (!(key %in% names(params)))
+        if (!(key %in% names(curlParams)))
         {
-          params[[key]] = params[[key]]
+          curlParams[[key]] = params[[key]]
         }
       }
       
       
       res = RCurl::postForm(
         uri = paste0(BAS_ADDRESS, "runMINNI"),
-        .params = params,
+        .params = curlParams,
         style = "HTTPPOST",
         .opts = bas_get_options()
       )
@@ -484,7 +484,7 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
           
           write(transcription_label, file = textfile)
           
-          params = list(
+          curlParams = list(
             lng = language,
             iform = "txt",
             oform = "bpfs",
@@ -493,19 +493,16 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
           
           for (key in names(params))
           {
-            if (!(key %in% names(params)))
+            if (!(key %in% names(curlParams)))
             {
-              params[[key]] = params[[key]]
+              curlParams[[key]] = params[[key]]
             }
           }
           
           address = paste0(BAS_ADDRESS, "runG2P")
           res = RCurl::postForm(
             uri = address,
-            lng = language,
-            iform = "txt",
-            oform = "bpfs",
-            i = RCurl::fileUpload(textfile),
+            .params = curlParams,
             style = "HTTPPOST",
             .opts = bas_get_options()
           )
@@ -656,7 +653,7 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
         
         close(orthoCon)
         
-        params = list(
+        curlParams = list(
           lng = language,
           iform = "bpf",
           oform = "bpfs",
@@ -665,16 +662,15 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
         
         for (key in names(params))
         {
-          if (!(key %in% names(params)))
+          if (!(key %in% names(curlParams)))
           {
-            params[[key]] = params[[key]]
+            curlParams[[key]] = params[[key]]
           }
         }
         
-        
         res = RCurl::postForm(
           uri = paste0(BAS_ADDRESS, "runG2P"),
-          .params = params,
+          .params = curlParams,
           style = "HTTPPOST",
           .opts = bas_get_options()
         )
@@ -826,8 +822,7 @@ bas_run_chunker_dbi <- function(handle,
         
         close(kancon)
         
-        params = list(
-          force = "rescue",
+        curlParams = list(
           language = language,
           audio = RCurl::fileUpload(signalfile),
           bpf = RCurl::fileUpload(kanfile)
@@ -835,15 +830,15 @@ bas_run_chunker_dbi <- function(handle,
         
         for (key in names(params))
         {
-          if (!(key %in% names(params)))
+          if (!(key %in% names(curlParams)))
           {
-            params[[key]] = params[[key]]
+            curlParams[[key]] = params[[key]]
           }
         }
         
         res = RCurl::postForm(
           paste0(BAS_ADDRESS, "runChunker"),
-          .params = params,
+          .params = curlParams,
           style = "HTTPPOST",
           .opts = bas_get_options()
         )
@@ -1025,7 +1020,7 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
         
         close(kancon)
         
-        params = list(
+        curlParams = list(
           lng = language,
           i = RCurl::fileUpload(kanfile),
           tier = "KAN",
@@ -1034,15 +1029,15 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
         
         for (key in names(params))
         {
-          if (!(key %in% names(params)))
+          if (!(key %in% names(curlParams)))
           {
-            params[[key]] = params[[key]]
+            curlParams[[key]] = params[[key]]
           }
         }
         
         res = RCurl::postForm(
           paste0(BAS_ADDRESS, "runPho2Syl"),
-          .params = params,
+          .params = curlParams,
           style = "HTTPPOST",
           .opts = bas_get_options()
         )
@@ -1223,7 +1218,7 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
         
         if (written_anything)
         {
-          params = list(
+          curlParams = list(
             lng = language,
             tier = "MAU",
             oform = "bpf",
@@ -1232,15 +1227,15 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
           
           for (key in names(params))
           {
-            if (!(key %in% names(params)))
+            if (!(key %in% names(curlParams)))
             {
-              params[[key]] = params[[key]]
+              curlParams[[key]] = params[[key]]
             }
           }
           
           res = RCurl::postForm(
             paste0(BAS_ADDRESS, "runPho2Syl"),
-            .params = params,
+            .params = curlParams,
             style = "HTTPPOST",
             .opts = bas_get_options()
           )
