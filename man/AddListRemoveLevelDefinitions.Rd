@@ -13,7 +13,7 @@ add_levelDefinition(emuDBhandle, name, type, rewriteAllAnnots = TRUE,
 list_levelDefinitions(emuDBhandle)
 
 remove_levelDefinition(emuDBhandle, name, rewriteAllAnnots = TRUE,
-  verbose = TRUE)
+  force = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
@@ -25,6 +25,8 @@ remove_levelDefinition(emuDBhandle, name, rewriteAllAnnots = TRUE,
 \item{rewriteAllAnnots}{should changes be written to file system (_annot.json files) (intended for expert use only)}
 
 \item{verbose}{Show progress bars and further information}
+
+\item{force}{delete all items incl. links pointing to those items from the levels}
 }
 \description{
 Add / List / Remove database operation functions for level definitions. 

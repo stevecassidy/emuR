@@ -1,12 +1,14 @@
-# emuR 0.2.1.9001
+# emuR 0.2.1.9003
 
 ## bug fixes
 
 * wrapped `readChar`s in `enc2utf8` to avoid encodings issues on windows
+* updating label table correctly on add_attributeDefinition() (#138)
 
 ## new features / performance tweaks / improvements
 
 * choosing explicit paths with intersecting hierarchies now possible
+* remove levelDef & linkDef now implement force parameters 
 
 # emuR 0.2.1
 

@@ -83,7 +83,6 @@ replace_itemLabels <- function(emuDBhandle, attributeDefinitionName, origLabels,
     cat("\n")
   }
   
-  
   rewrite_allAnnots(emuDBhandle, verbose = verbose)
   
 }
@@ -140,7 +139,6 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
     stop(paste0("duplicateLinks & linkDuplicates are both set to TRUE! This is not allowed!"))
   }
   
-  
   ldef = ldefs[ldefs$name == levelName,]
   
   #########################
@@ -174,7 +172,6 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
                                                  "WHERE it.db_uuid = l.db_uuid AND it.session = l.session AND it.bundle = l.bundle AND it.item_id = l.item_id ",
                                                  "AND it.db_uuid = mid.db_uuid AND it.session = mid.session AND it.bundle = mid.bundle ",
                                                  "AND it.level = '", levelName, "'"))
-  
   
   if(duplicateLinks){
     ##########################
@@ -212,17 +209,7 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
   
   ########################
   # add levelDefs 
-  add_levelDefinition(emuDBhandle, duplicateLevelName, type = ldef$type, verbose = verbose) # this also calls rewrite_allAnnots()
-  
-  # update MD5sums in bundle table
-  bndls = list_bundles(emuDBhandle)
-  for(i in 1:nrow(bndls)){
-    curBndl = bndls[i,]
-    annotJSONfilePath = file.path(emuDBhandle$basePath, paste0(curBndl$session, session.suffix), paste0(curBndl$name, bundle.dir.suffix), paste0(curBndl$name, bundle.annotation.suffix, ".json"))
-    newMD5sum = tools::md5sum(annotJSONfilePath)                        
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE bundle SET md5_annot_json = '", newMD5sum, "' WHERE db_uuid ='", emuDBhandle$UUID, "' AND session='", curBndl$session, "' AND name='", curBndl$name, "'"))
-  }
-  
+  add_levelDefinition(emuDBhandle, duplicateLevelName, type = ldef$type, rewriteAllAnnots = FALSE, verbose = verbose)
   
   ########################
   # add linkDefinitions
@@ -254,10 +241,10 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
   attrDefs = list_attributeDefinitions(emuDBhandle, levelName)
   for(i in 1:nrow(attrDefs)){
     if(attrDefs[i,]$name != levelName){
-      add_attributeDefinition(emuDBhandle,
-                              levelName = duplicateLevelName,
-                              name = attrDefs[i,]$name,
-                              type = attrDefs[i,]$type, verbose = verbose)
+      internal_add_attributeDefinition(emuDBhandle,
+                                       levelName = duplicateLevelName,
+                                       name = attrDefs[i,]$name,
+                                       type = attrDefs[i,]$type, rewriteAllAnnots = FALSE, verbose = verbose, insertLabels = F)
     }
     # copy legalLabels
     ll = get_legalLabels(emuDBhandle, levelName, attrDefs[i,]$name)
@@ -280,7 +267,9 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
       }
     }
   }
-
+  
+  rewrite_allAnnots(emuDBhandle, verbose = verbose)
+  
 }
 
 
