@@ -1222,7 +1222,7 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
             lng = language,
             tier = "MAU",
             oform = "bpf",
-            i = RCurl:::fileUpload(maufile)
+            i = RCurl::fileUpload(maufile)
           )
           
           for (key in names(params))
@@ -1397,7 +1397,7 @@ bas_download <- function(result, target)
   }
   
   downloadLink = stringr::str_match(result, "<downloadLink>(.*)</downloadLink>")[1, 2]
-  download.file(
+  utils::download.file(
     downloadLink,
     target,
     method = "auto",

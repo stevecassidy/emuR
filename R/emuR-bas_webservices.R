@@ -147,7 +147,7 @@ runBASwebservice_all <- function(handle,
     bas_run_chunker_dbi(
       handle = handle,
       canoLabel = canoLabel,
-      canoLevel = canoLevel,
+      canoLevel = orthoLevel,
       chunkLabel = chunkLabel,
       chunkLevel = chunkLevel,
       orthoLabel = orthoLabel,
@@ -263,7 +263,6 @@ runBASwebservice_all <- function(handle,
 ##' @param canoLabel name of the label (not level!) containing the SAMPA word pronunciations.
 ##' If this label resides on a segment level, the segment time information is used as a presegmentation.
 ##' If it is an item level, no assumption is made about the temporal position of segments.
-##' @param mausLevel name of the level for the MAUS segmentation. Defaults to the value of mausLabel.
 ##' @param chunkLabel if you have a chunk segmentation level, you can provide one of its labels to improve the speed and accuracy
 ##' of MAUS. The chunk segmentation level must be a segment level, and it must link to the level of orthoLabel.
 ##' @param turnChunkLevelIntoItemLevel if TRUE, and if a chunk level is provided, the chunk level is converted into an ITEM level after segmentation
@@ -365,7 +364,6 @@ runBASwebservice_maus <- function(handle,
 ##' @family BAS webservice functions
 ##'
 ##' @export
-##' @param orthoLevel name of the word level that will be created. Defaults to the value of orthoLabel.
 ##' @inheritParams runBASwebservice_maus
 ##' @inheritParams runBASwebservice_all
 
