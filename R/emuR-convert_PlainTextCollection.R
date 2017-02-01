@@ -8,8 +8,7 @@
 ##' emuDB is stored in the target directory, and its handle is returned.
 ##' 
 ##' @param dbName name of the new emuDB
-##' @param sourceDirTxt directory containing the plain text transcription files
-##' @param sourceDirMedia directory containing the media files (may be identical to sourceDirTxt)
+##' @param sourceDir directory containing the plain text transcription files and media files
 ##' @param targetDir directory where the new emuDB will be stored
 ##' @param txtExtension file extension of transcription files
 ##' @param mediaFileExtension file extension of media files
@@ -22,9 +21,8 @@
 ##' @export
 ##' @seealso convert_BPFCollection, convert_TextGridCollection
 
-convert_PlainTextCollection <- function(dbName,
-                                        sourceDirTxt,
-                                        sourceDirMedia,
+convert_plainTextCollection <- function(dbName,
+                                        sourceDir,
                                         targetDir,
                                         txtExtension = 'txt',
                                         mediaFileExtension = 'wav',
@@ -33,206 +31,189 @@ convert_PlainTextCollection <- function(dbName,
                                         cleanWhitespaces = TRUE,
                                         verbose = TRUE)
 {
-  file_pair_list = create_filePairList(sourceDirMedia, sourceDirTxt, mediaFileExtension, txtExtension)
+  # ---------------------------------------------------------------------------
+  # -------------------------- Get directories --------------------------------
+  # ---------------------------------------------------------------------------
   
-  if(nrow(file_pair_list) == 0)
+  sourceDir = suppressWarnings(normalizePath(sourceDir))
+  targetDir = suppressWarnings(normalizePath(targetDir))
+  basePath = file.path(targetDir, paste0(dbName, emuDB.suffix))
+  
+  res = try(suppressWarnings(dir.create(targetDir)))
+  if(class(res) == "try-error")
   {
-    stop("Could not find any file pairs in ", sourceDir)
+    stop("Could not create target directory ", targetDir)
+  }
+
+  
+  # ---------------------------------------------------------------------------
+  # -------------------------- Get file pair list ----------------------------
+  # ---------------------------------------------------------------------------
+  
+  filePairList = create_filePairList(sourceDir, 
+                                     sourceDir, 
+                                     txtExtension, 
+                                     mediaFileExtension)
+  
+  # ---------------------------------------------------------------------------
+  # ---------------------------- Initialize dbHandle --------------------------
+  # ---------------------------------------------------------------------------
+  
+  
+  
+  res = try(dir.create(basePath))
+  if(class(res) == "try-error")
+  {
+    stop("Could not create emuDB base directory ", basePath)
   }
   
-  all_sessions = list()
-  for(idx in 1:nrow(file_pair_list))
-  {
-    mediaFile = file_pair_list[idx, 1]
-    txtFile = file_pair_list[idx, 2]
-    session = get_bpfSession(mediaFile, sourceDirMedia)
-    
-    mediaDir = normalizePath(dirname(mediaFile), winslash = "/")
-    txtDir = normalizePath(dirname(txtFile), winslash = "/")
-    
-    all_sessions[[session]] = c(mediaDir, txtDir)
-  }
+  dbHandle = emuDBhandle(dbName, basePath = basePath, uuid::UUIDgenerate(), file.path(basePath, paste0(dbName, database.cache.suffix)))
+  # insert into emuDB table
+  queryTxt = paste0("INSERT INTO emu_db (uuid, name) VALUES('", dbHandle$UUID, "', '", dbName,"')")
+  DBI::dbGetQuery(dbHandle$connection, queryTxt)
   
-  create_emuDB(
-    name = dbName,
-    targetDir = targetDir,
-    mediaFileExtension = mediaFileExtension,
-    store = TRUE
-  )
-  handle = load_emuDB(file.path(targetDir, paste0(dbName, emuDB.suffix)))
+  # ---------------------------------------------------------------------------
+  # ------------------------ Initialize progress bar --------------------------
+  # ---------------------------------------------------------------------------
   
-  if (verbose)
+  if(verbose)
   {
     progress = 0
-    cat("INFO: Importing media and text files for", length(names(all_sessions)), "sessions ...\n")
-    pb = utils::txtProgressBar(
-      min = 0,
-      max = length(names(all_sessions)),
-      initial = progress,
-      style = 3
-    )
+    nbFilePairs = length(filePairList) / 2
+    
+    cat("INFO: Parsing plain text collection containing", nbFilePairs, "file pair(s)...\n")
+    pb = utils::txtProgressBar(min = 0, max = nbFilePairs, initial = progress, style=3)
     utils::setTxtProgressBar(pb, progress)
   }
   
-  for(session in names(all_sessions))
+  # ---------------------------------------------------------------------------
+  # --------------------------- Loop over bundles -----------------------------
+  # ---------------------------------------------------------------------------
+  
+  for(idx in 1:nrow(filePairList)[1])
   {
-    import_mediaFiles(handle, all_sessions[[session]][1], targetSessionName = session, verbose = FALSE)
     
-    import_transcriptionFiles(
-      handle,
-      source = all_sessions[[session]][2],
-      txtExt = txtExtension,
-      transcriptionLevel = transcriptionLevel,
-      transcriptionLabel = transcriptionLabel,
-      targetSessionName = session,
-      verbose = FALSE,
-      cleanWhitespaces = cleanWhitespaces,
-      rewriteAllAnnots = FALSE,
-      changeDBConfig = FALSE
-    )
+    # ---------------------------------------------------------------------------
+    # ------------------ Get session and bundle names ---------------------------
+    # ---------------------------------------------------------------------------
     
-    if (verbose)
+    session = get_bpfSession(filePath = filePairList[idx, 1],
+                             sourceDir = sourceDir)
+    
+    bpfPath = normalizePath(filePairList[idx, 1], winslash = .Platform$file.sep)
+    bundle = tools::file_path_sans_ext(basename(bpfPath))
+    annotates = basename(filePairList[idx, 2])
+    
+    # Escaping single quotes in anything user-generated that will be fed into SQL
+    session = stringr::str_replace_all(session, "'", "''")
+    bundle = stringr::str_replace_all(bundle, "'", "''")
+    annotates = stringr::str_replace_all(annotates, "'", "''")
+    
+    # -----------------------------------------------------------------------
+    # -------------------------- Get sample rate ----------------------------
+    # -----------------------------------------------------------------------
+    
+    asspObj = wrassp::read.AsspDataObj(filePairList[idx, 2])
+    samplerate = attributes(asspObj)$sampleRate
+    
+    # -----------------------------------------------------------------------
+    # --------------- Write session and bundle to temp DB -------------------
+    # -----------------------------------------------------------------------
+    queryTxt = paste0("SELECT name from session WHERE name='", session, "'")
+    all_sessions = DBI::dbGetQuery(dbHandle$connection, queryTxt)
+    
+    if(!session %in% all_sessions)
     {
-      progress = progress + 1
-      utils::setTxtProgressBar(pb, progress)
+      queryTxt = paste0("INSERT INTO session VALUES('", dbHandle$UUID, "', '", session, "')")
+      DBI::dbGetQuery(dbHandle$connection, queryTxt)
+    }
+    
+    queryTxt = paste0("INSERT INTO bundle VALUES('", dbHandle$UUID, "', '", session, "', '", bundle, "', '",
+                      annotates, "', ", samplerate, ", 'NULL')")
+    
+    DBI::dbGetQuery(dbHandle$connection, queryTxt)
+    
+    lines = suppressWarnings(readLines(filePairList[idx, 1]))
+    
+    transcription = paste(lines, collapse = " ")
+    transcription = stringr::str_trim(transcription)
+    transcription = stringr::str_replace_all(transcription, "'", "''")
+    
+    if (cleanWhitespaces)
+    {
+      transcription = stringr::str_replace_all(transcription, "\\s+", " ")
+    }
+    
+    queryTxt = paste0(
+      "INSERT INTO items VALUES('",
+      dbHandle$UUID,
+      "','",
+      session,
+      "','",
+      bundle,
+      "',1,'",
+      transcriptionLevel,
+      "','ITEM',1,",
+      samplerate,
+      ",NULL, NULL, NULL)"
+    )
+    DBI::dbGetQuery(dbHandle$connection, queryTxt)
+    
+    queryTxt = paste0(
+      "INSERT INTO labels VALUES('",
+      dbHandle$UUID,
+      "','",
+      session,
+      "','",
+      bundle,
+      "',1,1,'",
+      transcriptionLabel,
+      "','",
+      transcription,
+      "')"
+    )
+    DBI::dbGetQuery(dbHandle$connection, queryTxt)
+    
+    
+    if(verbose)
+    {
+      utils::setTxtProgressBar(pb, idx)
     }
   }
-  
   if(verbose)
   {
     cat("\n")
   }
-  
-  add_levelDefinition(handle, transcriptionLevel, "ITEM", verbose = FALSE, rewriteAllAnnot = FALSE)
-  if (transcriptionLabel != transcriptionLevel) {
-    add_attributeDefinition(handle, transcriptionLevel, transcriptionLabel, verbose = FALSE)
-  }
-  
-  rewrite_allAnnots(handle, verbose = verbose)
-  
-  return(handle)
-}
 
+  
+  dbConfig = list(name = dbName,
+                  UUID = dbHandle$UUID,
+                  mediafileExtension = mediaFileExtension,
+                  ssffTrackDefinitions = list(),
+                  levelDefinitions = list(list(name = transcriptionLevel,
+                                               type = "ITEM",
+                                               attributeDefinitions = list(list(name = transcriptionLabel, 
+                                                                                type = "STRING")))),
+                  linkDefinitions = list(),
+                  EMUwebAppConfig = list(perspectives=list(defPersp = list(name = 'default', 
+                                                                           signalCanvases = list(order = c("OSCI","SPEC"), 
+                                                                                                 assign = list(), 
+                                                                                                 contourLims = list()), 
+                                                                           levelCanvases = list(order = list()), 
+                                                                           twoDimCanvases = list(order = list()))), 
+                                         activeButtons = list(saveBundle = TRUE,
+                                                              showHierarchy = TRUE)))
 
-
-import_transcriptionFiles <- function(handle,
-                                      source,
-                                      txtExt = 'txt',
-                                      transcriptionLevel = "Transcription",
-                                      transcriptionLabel = "Transcription",
-                                      cleanWhitespaces = TRUE,
-                                      rewriteAllAnnots = TRUE,
-                                      changeDBConfig = TRUE,
-                                      targetSessionName = "0000",
-                                      verbose = TRUE)
-{
-  source = suppressWarnings(normalizePath(source))
   
-  if (!is.null(get_levelDefinition(handle, transcriptionLevel)))
-  {
-    stop("There is already a level ", transcriptionLevel)
-  }
+  store_DBconfig(dbHandle, dbConfig)
   
-  if (!is.null(get_levelNameForAttributeName(handle, transcriptionLabel)))
-  {
-    stop("There is already a level with an attribute called ",
-         transcriptionLabel)
-  }
+  make_bpfDbSkeleton(dbHandle)
   
-  txtList = list.files(source, pattern = paste0(".*[.]", txtExt, "$"))
+  copy_bpfMediaFiles(basePath = basePath,
+                     sourceDir = sourceDir,
+                     mediaFiles = filePairList[,2],
+                     verbose = verbose)
   
-  if (length(txtList) > 0)
-  {
-    if (verbose)
-    {
-      progress = 0
-      cat("INFO: Importing ",
-          length(txtList),
-          " transcriptions into session ", targetSessionName, " ...\n")
-      pb = utils::txtProgressBar(
-        min = 0,
-        max = length(txtList),
-        initial = progress,
-        style = 3
-      )
-      utils::setTxtProgressBar(pb, progress)
-    }
-    
-    if (length(txtList) != nrow(list_bundles(handle, targetSessionName)))
-    {
-      stop()
-    }
-    
-    for (txtfile in txtList)
-    {
-      path = file.path(source, txtfile)
-      bundle = sub('[.][^.]*$', '', txtfile)
-      session = targetSessionName
-      
-      samplerate = bas_get_samplerate(handle, session, bundle)
-      
-      transcription = paste(readLines(path), collapse = " ")
-      transcription = stringr::str_trim(transcription)
-      transcription = stringr::str_replace_all(transcription, "'", "''")
-      
-      if (cleanWhitespaces)
-      {
-        transcription = stringr::str_replace_all(transcription, "\\s+", " ")
-      }
-      
-      item_id = bas_get_max_id(handle, session, bundle) + 1
-      queryTxt = paste0(
-        "INSERT INTO items VALUES('",
-        handle$UUID,
-        "','",
-        session,
-        "','",
-        bundle,
-        "',",
-        item_id ,
-        ",'",
-        transcriptionLevel,
-        "','ITEM',1,",
-        samplerate,
-        ",NULL, NULL, NULL)"
-      )
-      DBI::dbGetQuery(handle$connection, queryTxt)
-      
-      queryTxt = paste0(
-        "INSERT INTO labels VALUES('",
-        handle$UUID,
-        "','",
-        session,
-        "','",
-        bundle,
-        "',",
-        item_id,
-        ",1,'",
-        transcriptionLabel,
-        "','",
-        transcription,
-        "')"
-      )
-      DBI::dbGetQuery(handle$connection, queryTxt)
-      
-      if (verbose)
-      {
-        progress = progress + 1
-        utils::setTxtProgressBar(pb, progress)
-      }
-    }
-  }
-  
-  if(changeDBConfig)
-  {
-    add_levelDefinition(handle, transcriptionLevel, "ITEM", verbose = FALSE, rewriteAllAnnots = FALSE)
-    if (transcriptionLabel != transcriptionLevel) {
-      add_attributeDefinition(handle, transcriptionLevel, transcriptionLabel, verbose = FALSE, rewriteAllAnnots = FALSE)
-    }
-  }
-  
-  if(rewriteAllAnnots)
-  {
-    rewrite_allAnnots(handle, verbose = verbose)
-  }
+  rewrite_allAnnots(dbHandle, verbose = verbose)  
+  return(dbHandle)
 }
