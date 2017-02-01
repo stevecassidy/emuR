@@ -39,10 +39,18 @@ convert_txtCollection <- function(dbName,
   targetDir = suppressWarnings(normalizePath(targetDir))
   basePath = file.path(targetDir, paste0(dbName, emuDB.suffix))
   
-  res = try(suppressWarnings(dir.create(targetDir)))
-  if (class(res) == "try-error")
+  if(!dir.exists(targetDir))
   {
-    stop("Could not create target directory ", targetDir)
+    res = try(suppressWarnings(dir.create(targetDir)))
+    if (class(res) == "try-error")
+    {
+      stop("Could not create target directory ", targetDir)
+    }
+  }
+  
+  if(dir.exists(basePath))
+  {
+    stop("emuDB ", basePath, " already exists")
   }
   
   
