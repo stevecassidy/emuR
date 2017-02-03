@@ -297,6 +297,10 @@ list_levelDefinitions <- function(emuDBhandle){
                                attrDefNames = paste0(sapply(ld$attributeDefinitions, function(ad) paste0(ad$name, ";")), collapse = " "),
                                stringsAsFactors = FALSE))
   }
+  # NULL out 
+  if(nrow(df) == 0){
+    df = NULL
+  }
   return(df)
 }
 
@@ -1124,7 +1128,10 @@ list_linkDefinitions <- function(emuDBhandle){
                               sublevelName = ld$sublevelName,
                               stringsAsFactors = F))
   }
-  
+  # NULL out df
+  if(nrow(df) == 0){
+    df = NULL
+  }
   return(df)
   
 }
