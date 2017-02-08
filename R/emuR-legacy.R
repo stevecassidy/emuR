@@ -600,6 +600,7 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=uuid::UUIDgenerate()
     if(tr[['fileExtension']]==dbConfig[['flags']][['PrimaryExtension']]){
       primaryFileExtension=tr[['fileExtension']]
       primaryBasePath=tr[['basePath']]
+      break
     }
   }
   
