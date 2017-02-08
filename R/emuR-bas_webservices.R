@@ -749,3 +749,41 @@ runBASwebservice_pho2sylSegmental <- function(handle,
   
   rewrite_allAnnots(handle, verbose = verbose)
 }
+
+runBASwebservice_textAlign <- function(handle,
+                                              superLabel,
+                                              subLabel,
+                                              params = list(),
+                                              resume = FALSE,
+                                              verbose = TRUE)
+{
+  
+  superLevel = get_levelNameForAttributeName(handle, superLabel)
+  if (is.null(superLevel)) {
+    stop("Could not find a level for label ", superLabel)
+  }
+  
+  subLevel = get_levelNameForAttributeName(handle, subLabel)
+  if (is.null(subLevel)) {
+    stop("Could not find a level for label ", subLabel)
+  }
+  
+  oldBasePath = handle$basePath
+  handle = bas_prepare(handle, resume, verbose)
+  
+  bas_run_text_align(handle,
+                                 superLabel,
+                                 subLabel,
+                                 superLevel,
+                                 subLevel,
+                                 resume,
+                                 params,
+                                 verbose)
+    
+  add_linkDefinition(handle, "ONE_TO_ONE", superLevel, subLevel)
+  
+  handle = bas_clear(handle, oldBasePath)
+  
+  rewrite_allAnnots(handle, verbose = verbose)
+  
+}
