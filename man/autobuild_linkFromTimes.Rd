@@ -6,7 +6,8 @@
 \usage{
 autobuild_linkFromTimes(emuDBhandle, superlevelName, sublevelName,
   rewriteAllAnnots = TRUE, convertSuperlevel = FALSE,
-  backupLevelAppendStr = "-autobuildBackup", verbose = TRUE)
+  backupLevelAppendStr = "-autobuildBackup", newLinkDefType = NULL,
+  verbose = TRUE)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
@@ -21,6 +22,9 @@ autobuild_linkFromTimes(emuDBhandle, superlevelName, sublevelName,
 superlevel will be converted to a level of type ITEM}
 
 \item{backupLevelAppendStr}{string appended to level name for backup level}
+
+\item{newLinkDefType}{type of new linkDefinition (either \code{"ONE_TO_MANY"}, \code{"MANY_TO_MANY"} or \code{"ONE_TO_ONE"}) 
+which is passed to \code{\link{add_linkDefinition}}. If NULL (the default) \code{\link{add_linkDefinition}} isn't called and a linkDefintion is expected to be present.}
 
 \item{verbose}{show progress bars and further information}
 }
