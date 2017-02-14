@@ -1,3 +1,9 @@
+# emuR 0.2.1.9006
+
+## bug fixes
+
+* convert_txtCollection now treats perspectives as array (as it should)
+
 # emuR 0.2.1.9005
 
 ## new features / performance tweaks / improvements

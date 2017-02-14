@@ -207,7 +207,7 @@ convert_txtCollection <- function(dbName,
     linkDefinitions = list(),
     EMUwebAppConfig = list(
       perspectives = list(
-        defPersp = list(
+        list(
           name = 'default',
           signalCanvases = list(
             order = c("OSCI","SPEC"),

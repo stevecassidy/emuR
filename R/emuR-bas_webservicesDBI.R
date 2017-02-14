@@ -1654,6 +1654,22 @@ bas_label_exists_in_bundle <-
     return(DBI::dbGetQuery(handle$connection, queryTxt)[1, 1] > 0)
   }
 
+bas_link_exists_in_bundle <-
+  function(handle, session, bundle, superLevel, subLevel)
+  {
+    queryTxt = paste0(
+      "SELECT count(*) FROM links",
+      basic_cond(handle, session, bundle),
+      "AND from_id in (SELECT item_id FROM items",
+      basic_cond(handle, session, bundle),
+      "AND name=='", superLevel, "') AND
+      to_id in (SELECT item_id FROM items",
+      basic_cond(handle, session, bundle),
+      "AND name=='", subLevel, "')"
+    )
+    return(DBI::dbGetQuery(handle$connection, queryTxt)[1, 1] > 0)
+  }
+
 bas_get_options <- function()
 {
   return(RCurl::curlOptions(connecttimeout = 10, timeout = 2400))
