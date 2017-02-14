@@ -600,6 +600,7 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=uuid::UUIDgenerate()
     if(tr[['fileExtension']]==dbConfig[['flags']][['PrimaryExtension']]){
       primaryFileExtension=tr[['fileExtension']]
       primaryBasePath=tr[['basePath']]
+      break
     }
   }
   
@@ -611,8 +612,16 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=uuid::UUIDgenerate()
         break
       }
     }
-    
   }
+  
+  if(is.null(primaryFileExtension)){
+    stop("Primary file extension not defined in legacy EMU template file ",emuTplPath)
+  }
+  
+  if(is.null(primaryBasePath)){
+    stop("Base path for primary files not defined in legacy EMU template file ",emuTplPath)
+  }
+  
   primaryFileSuffixPattern=paste0('[.]',primaryFileExtension,'$')
   legacyBundleIDsList=get_legacyEmuBundles(legacyBasePath,primaryBasePath,primaryFileSuffixPattern)
   

@@ -1,4 +1,4 @@
-# emuR 0.2.1.9004
+# emuR 0.2.1.9005
 
 ## new features / performance tweaks / improvements
 
@@ -9,6 +9,8 @@ single-node emuDB
 * new functions runBASwebservice_* that call various BAS webservices
 from inside emuR
 * NULLing out empty DFs on list_level/linkDefs for more consisten API
+* `newLinkDefType` argument implemented in `autobuild_linkFromTimes()` to generate linkDefinition if so desired 
+* automatically removing superlevel from `levelCanvasOrder` if `convertSuperlevel` is set to `TRUE` in `autobuild_linkFromTimes()`
 
 ## bug fixes
 

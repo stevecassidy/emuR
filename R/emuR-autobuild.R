@@ -21,6 +21,8 @@
 ##' @param convertSuperlevel if set to TRUE a backup of the superlevel will be created and the actual
 ##' superlevel will be converted to a level of type ITEM
 ##' @param backupLevelAppendStr string appended to level name for backup level
+##' @param newLinkDefType type of new linkDefinition (either \code{"ONE_TO_MANY"}, \code{"MANY_TO_MANY"} or \code{"ONE_TO_ONE"}) 
+##' which is passed to \code{\link{add_linkDefinition}}. If NULL (the default) \code{\link{add_linkDefinition}} isn't called and a linkDefintion is expected to be present.
 ##' @param verbose show progress bars and further information
 ##' @export
 ##' @keywords emuR autobuild
@@ -48,7 +50,15 @@
 ##' 
 ##' }
 autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, rewriteAllAnnots = TRUE, 
-                                    convertSuperlevel = FALSE, backupLevelAppendStr = '-autobuildBackup', verbose = TRUE){
+                                    convertSuperlevel = FALSE, backupLevelAppendStr = '-autobuildBackup', 
+                                    newLinkDefType = NULL, verbose = TRUE){
+  
+  # add linkDefintions if newLinkDefType is present
+  if(!is.null(newLinkDefType)){
+    add_linkDefinition(emuDBhandle, type = newLinkDefType, 
+                       superlevelName = superlevelName,
+                       sublevelName = sublevelName)
+  }
   
   dbConfig = load_DBconfig(emuDBhandle)
   
@@ -112,7 +122,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, r
                                                    "SELECT db_uuid, session, bundle, max(item_id) AS bndl_max_item_id FROM items WHERE db_uuid = '", emuDBhandle$UUID, "' ",
                                                    "GROUP BY db_uuid, session, bundle"))
     
-
+    
     # backup labels belonging to superlevel (labels have to be backed up before items to avoid maxID problem (maybe should rewrite query to avoid this in future versions using labels table to determin
     # maxID))
     DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labels ",
@@ -145,7 +155,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, r
   
   # query DB depending on type of sublevelDefinition 
   if(foundSubLevelDev$type == 'EVENT'){
-
+    
     # get all links and store in temp table
     DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO autob_all_links_tmp (db_uuid, session, bundle, from_id, to_id) ",
                                                    "SELECT super.db_uuid, super.session, super.bundle, super.item_id AS 'from_id', sub.item_id AS 'to_id' ", 
@@ -194,7 +204,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, r
                                                      "AND super.db_uuid = '", emuDBhandle$UUID, "' AND sub.db_uuid = '", emuDBhandle$UUID, "' ",
                                                      "AND super.session = sub.session AND super.bundle = sub.bundle ",
                                                      "AND (sub.sample_start + 0 = super.sample_start + 0)) AND ((sub.sample_start + sub.sample_dur) = (super.sample_start + super.sample_dur)) ")) # are exatly the same
-                                                     
+      
       
     }
   }
@@ -227,11 +237,26 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, r
     
     # convert superlevel to ITEM level
     DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE items SET type = 'ITEM', sample_point = null, sample_start = null, sample_dur = null WHERE db_uuid='", emuDBhandle$UUID, "' AND level ='", superlevelName,"'"))
+    
   }
   
   # write DBconfig to disc
   store_DBconfig(emuDBhandle, dbConfig)
-
+  
+  # remove super from levelCanvasOrder
+  if(convertSuperlevel){
+    psp = list_perspectives(emuDBhandle)
+    if(nrow(psp) > 0){
+      for(i in 1:nrow(psp)){
+        curPsp = psp[1,]
+        lco = get_levelCanvasesOrder(emuDBhandle, curPsp$name)
+        if(superlevelName %in% lco){
+          set_levelCanvasesOrder(emuDBhandle, curPsp$name, lco[!lco %in% superlevelName])
+        }
+      }
+    }
+  }
+  
   if(rewriteAllAnnots){
     rewrite_allAnnots(emuDBhandle, verbose=verbose)
   }

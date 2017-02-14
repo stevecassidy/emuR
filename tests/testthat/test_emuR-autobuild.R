@@ -382,7 +382,11 @@ test_that("autobuild_linkFromTimes works correctly", {
     # add label to Phonetic2
     DBI::dbGetQuery(ae$connection, paste0("INSERT INTO labels VALUES ('", ae$UUID, "', '0000', 'msajc003', 980, 0, 'Phonetic2', 'testLabel12')"))
     
+    set_levelCanvasesOrder(ae, "default", c("Phonetic", "Phonetic2", "Tone"))
     autobuild_linkFromTimes(ae, 'Phonetic', 'Phonetic2', TRUE, TRUE, verbose = F)
+    
+    # check if levelCanvasOrder entry was removed
+    expect_false("Phonetic" %in% get_levelCanvasesOrder(ae, "default"))
     
     
     # _DBconfig.json has new definitions
