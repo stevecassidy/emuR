@@ -38,7 +38,13 @@ webservice functions) in the meantime, as they are likely to delete your tempora
 \item{verbose}{Display progress bars and other information}
 }
 \description{
-Creates a rough phonetic segmentation by running the phoneme decoder webservice MINNI.
+The MINNI phoneme decoder performs phoneme-based decoding on the signal without input from
+the transcription. Therefore, labelling quality is usually worse than that obtained from
+MAUS (\link{runBASwebservice_maus}). Contrary to MAUS however, there is no need for a pre-
+existing transcription.
+}
+\details{
+All necessary level, link and attribute definitions are created in the process.
 }
 \seealso{
 Other BAS.webservice.functions: \code{\link{runBASwebservice_all}},

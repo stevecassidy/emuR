@@ -5,9 +5,8 @@
 \title{Converts a collection of audio files and plain text transcriptions into an emuDB}
 \usage{
 convert_txtCollection(dbName, sourceDir, targetDir, txtExtension = "txt",
-  mediaFileExtension = "wav", transcriptionLevel = "Transcription",
-  transcriptionLabel = "Transcription", cleanWhitespaces = TRUE,
-  verbose = TRUE)
+  mediaFileExtension = "wav", transcriptionLabel = "bundle",
+  cleanWhitespaces = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{dbName}{name of the new emuDB}
@@ -19,8 +18,6 @@ convert_txtCollection(dbName, sourceDir, targetDir, txtExtension = "txt",
 \item{txtExtension}{file extension of transcription files}
 
 \item{mediaFileExtension}{file extension of media files}
-
-\item{transcriptionLevel}{level name of the transcription level}
 
 \item{transcriptionLabel}{label name of the transcription items}
 

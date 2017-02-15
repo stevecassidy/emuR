@@ -1166,7 +1166,7 @@ bas_run_pho2syl_segmental_dbi_anchored <- function(handle,
     queryTxt = paste0("[", wordLabel,"=~.*]")
     word_items = query(handle, queryTxt, calcTimes = T, timeRefSegmentLevel = mausLevel)
     
-    queryTxt = paste0("[", mausLabel,"=~.*]")
+    queryTxt = paste0("[", mausLabel,"=~.*\\S.*]")
     maus_items = query(handle, queryTxt, calcTimes = T, timeRefSegmentLevel = mausLevel)
     
     for (bundle_idx in 1:nrow(bundles_list))
@@ -1396,7 +1396,7 @@ bas_run_pho2syl_segmental_dbi_unanchored <- function(handle,
       utils::setTxtProgressBar(pb, progress)
     }
     
-    queryTxt = paste0("[", mausLabel,"=~.*]")
+    queryTxt = paste0("[", mausLabel,"=~.*\\S\\.*]")
     maus_items = query(handle, queryTxt, calcTimes = T, timeRefSegmentLevel = mausLevel)
     
     for (bundle_idx in 1:nrow(bundles_list))
