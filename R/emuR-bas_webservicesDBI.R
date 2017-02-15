@@ -1094,9 +1094,52 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
                                           verbose,
                                           sylLabel,
                                           sylLevel,
+                                          superLabel,
+                                          resume,
+                                          params,
+                                          allowmultilink)
+{
+  if(!is.null(superLabel))
+  {
+    bas_run_pho2syl_segmental_dbi_anchored(handle = handle,
+                                           mausLabel = mausLabel,
+                                           mausLevel = mausLevel,
+                                           languages = languages,
+                                           verbose = verbose,
+                                           sylLabel = sylLabel,
+                                           sylLevel = sylLevel,
+                                           wordLabel = superLabel,
+                                           resume = resume,
+                                           params = params,
+                                           allowmultilink = allowmultilink)
+  }
+  
+  else
+  {
+    bas_run_pho2syl_segmental_dbi_unanchored(handle = handle,
+                                           mausLabel = mausLabel,
+                                           mausLevel = mausLevel,
+                                           languages = languages,
+                                           verbose = verbose,
+                                           sylLabel = sylLabel,
+                                           sylLevel = sylLevel,
+                                           resume = resume,
+                                           params = params)
+  }
+  
+}
+
+bas_run_pho2syl_segmental_dbi_anchored <- function(handle,
+                                          mausLabel,
+                                          mausLevel,
+                                          languages,
+                                          verbose,
+                                          sylLabel,
+                                          sylLevel,
                                           wordLabel,
                                           resume,
-                                          params)
+                                          params,
+                                          allowmultilink)
 {
   bundles_list = languages
   if (nrow(bundles_list) > 0)
@@ -1258,6 +1301,11 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
                 bas_ids = splitline[[4]]
                 bas_ids_split = stringr::str_split(bas_ids, ",")[[1]]
                 
+                if((!allowmultilink) && length(bas_ids_split) > 1)
+                {
+                  stop("Pho2Syl returned item with multiple links despite wsync not being set to yes: ", line)
+                }
+                
                 if (as.integer(bas_ids_split[1]) >= 0)
                 {
                   bas_add_item(
@@ -1300,6 +1348,185 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
                     )
                   }
                 }
+              }
+            }
+          }
+        }
+      }
+      if (verbose)
+      {
+        utils::setTxtProgressBar(pb, bundle_idx)
+      }
+    }
+  }
+  if (verbose)
+  {
+    cat("\n")
+  }
+}
+
+bas_run_pho2syl_segmental_dbi_unanchored <- function(handle,
+                                                   mausLabel,
+                                                   mausLevel,
+                                                   languages,
+                                                   verbose,
+                                                   sylLabel,
+                                                   sylLevel,
+                                                   resume,
+                                                   params)
+{
+  bundles_list = languages
+  if (nrow(bundles_list) > 0)
+  {
+    bas_ping(verbose)
+    if (verbose)
+    {
+      cat(
+        "INFO: Running Pho2Syl (segmental) on emuDB containing",
+        nrow(bundles_list),
+        "bundle(s)...\n"
+      )
+      progress = 0
+      pb = utils::txtProgressBar(
+        min = 0,
+        max = nrow(bundles_list),
+        initial = 0,
+        style = 3
+      )
+      utils::setTxtProgressBar(pb, progress)
+    }
+    
+    queryTxt = paste0("[", mausLabel,"=~.*]")
+    maus_items = query(handle, queryTxt, calcTimes = T, timeRefSegmentLevel = mausLevel)
+    
+    for (bundle_idx in 1:nrow(bundles_list))
+    {
+      bundle = bundles_list[bundle_idx, "bundle"]
+      session = bundles_list[bundle_idx, "session"]
+      language = bundles_list[bundle_idx, "language"]
+      
+      samplerate = bas_get_samplerate(handle, session, bundle)
+      
+      if (resume &&
+          bas_label_exists_in_bundle(handle, session, bundle, sylLabel))
+      {
+        if (verbose)
+        {
+          cat(" Skipping bundle", bundle)
+          utils::setTxtProgressBar(pb, bundle_idx)
+        }
+        next
+      }
+
+      maus_items_bundle = maus_items[maus_items$bundle == bundle &
+                                       maus_items$session == session,]
+      
+      if (nrow(maus_items_bundle) > 0)
+      {
+        seq_idx = 1
+        max_id = bas_get_max_id(handle, session, bundle)
+        
+        maufile = file.path(BAS_WORKDIR, paste0(bundle, ".mau.par"))
+        masfile = file.path(BAS_WORKDIR, paste0(bundle, ".mas.par"))
+        
+        maucon <- file(maufile)
+        open(maucon, "w")
+        write(paste0("SAM: ", samplerate, "\nLBD:"), maucon)
+        
+        
+        for (mau_idx in 1:nrow(maus_items_bundle))
+        {
+          mau_label = stringr::str_trim(maus_items_bundle[mau_idx, "labels"])
+          mau_start = maus_items_bundle[mau_idx, "sample_start"]
+          mau_end = maus_items_bundle[mau_idx, "sample_end"]
+          
+ 
+          if (stringr::str_length(mau_label) > 0)
+          {
+            write(
+              paste0(
+                "MAU: ",
+                mau_start,
+                " ",
+                mau_end - mau_start,
+                " 0 ",
+                mau_label
+              ),
+              maucon
+            )
+ 
+          }
+        }
+        
+        close(maucon)
+        
+        curlParams = list(
+          lng = language,
+          tier = "MAU",
+          oform = "bpf",
+          i = RCurl::fileUpload(maufile)
+        )
+          
+        for (key in names(params))
+        {
+          if (!(key %in% names(curlParams)))
+          {
+            curlParams[[key]] = params[[key]]
+          }
+        }
+          
+        res = RCurl::postForm(
+          paste0(BAS_ADDRESS, "runPho2Syl"),
+          .params = curlParams,
+          style = "HTTPPOST",
+          .opts = bas_get_options()
+        )
+          
+        masLines = bas_download(res, masfile)
+          
+        if (length(masLines) > 0)
+        {
+          for (line_idx in 1:length(masLines))
+          {
+            line = masLines[line_idx]
+            if (stringr::str_detect(line, "^MAS:"))
+            {
+              splitline = stringr::str_split_fixed(line, "\\s+", n = 5)
+              item_id = max_id + seq_idx
+              start = as.integer(splitline[[2]])
+              dur = as.integer(splitline[[3]])
+              label = stringr::str_replace_all(stringr::str_trim(splitline[[5]]), "'", "''")
+                
+              bas_ids = splitline[[4]]
+              bas_ids_split = stringr::str_split(bas_ids, ",")[[1]]
+                
+              if (as.integer(bas_ids_split[1]) >= 0)
+              {
+                bas_add_item(
+                  handle = handle,
+                  session = session,
+                  bundle = bundle,
+                  item_id = item_id,
+                  level = sylLevel,
+                  type = "SEGMENT",
+                  seq_idx = seq_idx,
+                  sample_start = start,
+                  sample_dur = dur,
+                  samplerate = samplerate
+                )
+                  
+                seq_idx = seq_idx + 1
+                  
+                bas_add_label(
+                  handle = handle,
+                  session = session,
+                  bundle = bundle,
+                  item_id = item_id,
+                  label_idx = 1,
+                  label_name =
+                    sylLabel,
+                  label = label
+                )
               }
             }
           }
