@@ -42,7 +42,11 @@ webservice functions) in the meantime, as they are likely to delete your tempora
 }
 \description{
 This function calls the BAS webservice Pho2Syl to create a syllable segmentation on the basis
-of a phonetic segmentation (created by, for example, \link{runBASwebservice_maus}.
+of a phonetic segmentation (created by, for example, \link{runBASwebservice_maus}).
+You can provide the name of your word segmentation, or of any other hierarchically
+dominant segmentation, via the superLabel parameter. This way, the new syllable
+items can be linked with the pre-existing hierarchy. If you do not provide
+this input, the syllables will only be linked to the segments.
 }
 \details{
 All necessary level, link and parameter definitions are created in the process.
