@@ -25,7 +25,7 @@ convert_txtCollection <- function(dbName,
                                   targetDir,
                                   txtExtension = 'txt',
                                   mediaFileExtension = 'wav',
-                                  transcriptionLabel = "Utterance",
+                                  transcriptionLabel = "bundle",
                                   cleanWhitespaces = TRUE,
                                   verbose = TRUE)
 {
