@@ -103,15 +103,10 @@ runBASwebservice_all <- function(handle,
   
   languages = bas_evaluate_language_option(handle = handle, language = language)
   
-  
   handle = bas_prepare(handle, resume, verbose)
 
   add_levelDefinition(handle, orthoLevel, "ITEM", verbose = FALSE, rewriteAllAnnots = FALSE)
-  
-  if(!running_chunker)
-  {
-    add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, orthoLevel)
-  }
+  add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, orthoLevel)
   
   bas_run_g2p_for_tokenization_dbi(
     handle = handle,
@@ -158,6 +153,8 @@ runBASwebservice_all <- function(handle,
       languages = languages,
       oldBasePath = oldBasePath
     )
+    
+    remove_linkDefinition(handle, superlevelName = transcriptionLevel, sublevelName = orthoLevel, force = T, verbose = F)
   }
 
   
