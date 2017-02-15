@@ -12,7 +12,6 @@
 ##' @param targetDir directory where the new emuDB will be stored
 ##' @param txtExtension file extension of transcription files
 ##' @param mediaFileExtension file extension of media files
-##' @param transcriptionLevel level name of the transcription level
 ##' @param transcriptionLabel label name of the transcription items
 ##' @param cleanWhitespaces if true, any sequence of whitespaces in the transcription (including newlines and tabs)
 ##' is transformed into a single blank
@@ -26,11 +25,13 @@ convert_txtCollection <- function(dbName,
                                   targetDir,
                                   txtExtension = 'txt',
                                   mediaFileExtension = 'wav',
-                                  transcriptionLevel = "Transcription",
-                                  transcriptionLabel = "Transcription",
+                                  transcriptionLabel = "Utterance",
                                   cleanWhitespaces = TRUE,
                                   verbose = TRUE)
 {
+  
+  transcriptionLevel = transcriptionLabel
+  
   # ---------------------------------------------------------------------------
   # -------------------------- Get directories --------------------------------
   # ---------------------------------------------------------------------------
