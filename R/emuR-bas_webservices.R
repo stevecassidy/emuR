@@ -1,4 +1,4 @@
-##' Runs several BAS webservices with default options, starting from an orthographic transcription
+##' Runs several BAS webservices, starting from an orthographic transcription
 ##'
 ##' This function calls the BAS webservices G2P, MAUS, Pho2Syl, MINNI and (if necessary) Chunker.
 ##' Starting from an orthographic transcription, it derives a tokenized orthographical word tier
@@ -10,10 +10,10 @@
 ##'
 ##' All necessary level, attribute and link definitions are created in the process.
 ##' Note that this function will run all BAS webservices with default parameters, with three exceptions: 
-##' \describe{
-##' \item{"Chunker"}{force=rescue}
-##' \item{"G2P"}{embed=maus}
-##' \item{"Pho2Syl"}{wsync=no}
+##' \itemize{
+##' \item{Chunker: force=rescue}
+##' \item{G2P: embed=maus}
+##' \item{Pho2Syl: wsync=no}
 ##' }
 ##' If you wish to change parameters, you must use the individual runBASwebservices functions. This will also allow 
 ##' you to carry out manual corrections in between the steps, or to use different languages for different webservices.
@@ -369,9 +369,10 @@ runBASwebservice_maus <- function(handle,
 ##' 
 ##' This function calls the webservice G2P to break up a transcription into tokens, or words.
 ##' In addition to tokenization, G2P performs normalization of numbers and other special words.
-##' All necessary level, link and attribute definitions are created in the process.
 ##' A call to this function is usually followed by a call to \link{runBASwebservice_g2pForPronunciation}.
 ##' \strong{This function requires an internet connection.}
+##' 
+##' All necessary level, link and attribute definitions are created in the process.
 ##' 
 ##' @family BAS webservice functions
 ##'
@@ -726,9 +727,11 @@ runBASwebservice_pho2sylCanonical <- function(handle,
 ##' Creates a syllable segmentation on the basis of a phonetic segmentation.
 ##' 
 ##' This function calls the BAS webservice Pho2Syl to create a syllable segmentation on the basis
-##' of a phonetic segmentation (created by, for example, \link{runBASwebservice_maus}.
-##' 
-##' 
+##' of a phonetic segmentation (created by, for example, \link{runBASwebservice_maus}).
+##' You can provide the name of your word segmentation, or of any other hierarchically
+##' dominant segmentation, via the superLabel parameter. This way, the new syllable
+##' items can be linked with the pre-existing hierarchy. If you do not provide
+##' this input, the syllables will only be linked to the segments.
 ##' 
 ##' All necessary level, link and parameter definitions are created in the process.
 ##' By default, Pho2Syl is called in word synchronized mode. To override this, call this function

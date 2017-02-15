@@ -2,7 +2,7 @@
 % Please edit documentation in R/emuR-bas_webservices.R
 \name{runBASwebservice_all}
 \alias{runBASwebservice_all}
-\title{Runs several BAS webservices with default options, starting from an orthographic transcription}
+\title{Runs several BAS webservices, starting from an orthographic transcription}
 \usage{
 runBASwebservice_all(handle, transcriptionLabel, language, orthoLabel = "ORT",
   canoLabel = "KAN", mausLabel = "MAU", minniLabel = "MINNI",
@@ -55,10 +55,10 @@ Finally, syllabification is performed by calling Pho2Syl. \strong{This function 
 \details{
 All necessary level, attribute and link definitions are created in the process.
 Note that this function will run all BAS webservices with default parameters, with three exceptions: 
-\describe{
-\item{"Chunker"}{force=rescue}
-\item{"G2P"}{embed=maus}
-\item{"Pho2Syl"}{wsync=no}
+\itemize{
+\item{Chunker: force=rescue}
+\item{G2P: embed=maus}
+\item{Pho2Syl: wsync=no}
 }
 If you wish to change parameters, you must use the individual runBASwebservices functions. This will also allow 
 you to carry out manual corrections in between the steps, or to use different languages for different webservices.
