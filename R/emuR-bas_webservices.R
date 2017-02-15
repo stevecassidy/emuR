@@ -207,7 +207,7 @@ runBASwebservice_all <- function(handle,
   
   
   add_levelDefinition(handle, sylLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
-  add_linkDefinition(handle, "MANY_TO_MANY", orthoLevel, sylLevel)
+  add_linkDefinition(handle, "ONE_TO_MANY", orthoLevel, sylLevel)
   
   bas_run_pho2syl_segmental_dbi(
     handle = handle,
@@ -218,7 +218,7 @@ runBASwebservice_all <- function(handle,
     sylLevel = sylLevel,
     wordLabel = orthoLabel,
     resume = resume,
-    params = list(),
+    params = list(wsync="yes"),
     verbose = verbose
   )
   
@@ -235,6 +235,8 @@ runBASwebservice_all <- function(handle,
   remove_levelDefinition(handle, paste0(sylLevel, formals(autobuild_linkFromTimes)$backupLevelAppendStr), 
                          force = T, 
                          verbose = F)
+  
+  remove_linkDefinition(handle, orthoLevel, mausLevel, force = T, verbose = F)
   
   if(running_chunker)
   {
