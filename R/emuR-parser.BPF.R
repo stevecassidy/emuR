@@ -380,11 +380,11 @@ write_bpfUtteranceToDb <- function(emuDBhandle,
   # Utterance gets itemID 1 (other items will start at ID 2)
   utteranceItemID = 1
   
-  # Collect label keys ("Utterance" + all header keys found).
-  labelTracker = list("Utterance")
+  # Collect label keys ("bundle" + all header keys found).
+  labelTracker = list("bundle")
   
   queryTxt = paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
-                    utteranceItemID, ", 'Utterance', 'ITEM', 1, ", samplerate, ", NULL, NULL, NULL)")
+                    utteranceItemID, ", 'bundle', 'ITEM', 1, ", samplerate, ", NULL, NULL, NULL)")
   
   DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   
@@ -392,7 +392,7 @@ write_bpfUtteranceToDb <- function(emuDBhandle,
   
   # First label: 'Utterance' -> name of bundle.
   queryTxt = paste0("INSERT INTO labels VALUES","('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
-                    utteranceItemID, ", ", labelIdxCounter, ", 'Utterance', '", bundle, "')")
+                    utteranceItemID, ", ", labelIdxCounter, ", 'bundle', '", bundle, "')")
   
   DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   
