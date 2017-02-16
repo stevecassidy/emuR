@@ -9,17 +9,45 @@ BAS_ADDRESS = "https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/"
 
 bas_run_maus_dbi <- function(handle,
                              canoLabel,
-                             canoLevel,
                              mausLabel,
-                             mausLevel,
-                             languages,
+                             language,
                              chunkLabel,
                              verbose,
                              params,
                              resume,
-                             oldBasePath)
+                             oldBasePath,
+                             perspective,
+                             turnChunkLevelIntoItemLevel)
 {
-  bundles_list = languages
+  mausLevel = mausLabel
+  
+  bas_check_this_is_a_new_label(handle, mausLabel)
+  
+  canoLevel = get_levelNameForAttributeName(handle, canoLabel)
+  if (is.null(canoLevel)) {
+    stop("Could not find a level for label", canoLabel)
+  }
+  
+  if (is.null(chunkLabel) &&
+      get_levelDefinition(handle, canoLevel)$type == "SEGMENT") {
+    chunkLabel = canoLabel
+  }
+  
+  if (!is.null(chunkLabel))
+  {
+    chunkLevel = get_levelNameForAttributeName(handle, chunkLabel)
+    if (is.null(chunkLevel))
+    {
+      stop("Could not find level for label ", chunkLabel)
+    }
+    
+    if (get_levelDefinition(handle, chunkLevel)$type != "SEGMENT")
+    {
+      stop("Chunk level ", chunkLevel, " must be a segment level")
+    }
+  }
+  
+  bundles_list = bas_evaluate_language_option(handle = handle, language = language)
   
   if (nrow(bundles_list) > 0)
   {
@@ -240,6 +268,20 @@ bas_run_maus_dbi <- function(handle,
   {
     cat("\n")
   }
+  
+  add_levelDefinition(handle, mausLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
+  bas_new_canvas(handle, perspective, mausLevel)
+  add_linkDefinition(handle, "ONE_TO_MANY", canoLevel, mausLevel)
+  
+  mausDescription = paste0("Phonetic segmentation automatically derived from '", canoLabel, "' by MAUS (", BAS_ADDRESS, 
+                           "runMAUS) on ", Sys.time(),
+                           ", with the following parameters: (", 
+                           paste0(c(rbind(names(params), unlist(params))), collapse = " "), ")")
+  set_attributeDescription(handle, mausLevel, mausLabel, mausDescription)
+  
+  if(turnChunkLevelIntoItemLevel && !is.null(chunkLabel)) {
+    bas_segment_to_item_level(handle, chunkLevel)
+  }
 }
 
 #####################################################################
@@ -248,16 +290,33 @@ bas_run_maus_dbi <- function(handle,
 
 
 bas_run_minni_dbi <- function(handle,
-                              languages,
+                              language,
                               minniLabel,
-                              minniLevel,
                               verbose,
-                              topLevel,
+                              rootLabel,
                               params,
                               resume,
-                              oldBasePath)
+                              oldBasePath,
+                              perspective)
 {
-  bundles_list = languages
+  minniLevel = minniLabel
+  bas_check_this_is_a_new_label(handle, minniLabel)
+  
+  if(is.null(rootLabel))
+  {
+    rootLevel = NULL
+  }
+  else
+  {
+    rootLevel = get_levelNameForAttributeName(handle, rootLabel)
+    if(is.null(rootLevel))
+    {
+      stop("Could not find a level for label ", rootLabel)
+    }
+  }
+  
+  bundles_list = bas_evaluate_language_option(handle = handle, language = language)
+  
   if (nrow(bundles_list) > 0)
   {
     bas_ping(verbose)
@@ -297,12 +356,7 @@ bas_run_minni_dbi <- function(handle,
         next
       }
       
-      top_id = NULL
-      if (!is.null(topLevel))
-      {
-        top_id = bas_get_top_id(handle, session, bundle, topLevel)
-      }
-      
+      top_id = bas_get_top_id(handle, session, bundle, rootLevel)
       
       max_id = bas_get_max_id(handle, session, bundle)
       
@@ -399,6 +453,20 @@ bas_run_minni_dbi <- function(handle,
   {
     cat("\n")
   }
+  
+  add_levelDefinition(handle, minniLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
+  bas_new_canvas(handle, perspective, minniLevel)
+  
+  if(!is.null(rootLevel))
+  {
+    add_linkDefinition(handle, "ONE_TO_MANY", rootLevel, minniLevel)
+  }
+  
+  minniDescription = paste0("Rough phonetic segmentation automatically derived by MINNI (", 
+                            BAS_ADDRESS, "runMINNI) on ", Sys.time(),
+                            ", with the following parameters: (", 
+                            paste0(c(rbind(names(params), unlist(params))), collapse = " "), ")")
+  set_attributeDescription(handle, minniLevel, minniLabel, minniDescription)
 }
 
 #####################################################################
@@ -409,14 +477,22 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
                                              transcriptionLabel,
                                              canoLabel,
                                              orthoLabel,
-                                             transcriptionLevel,
-                                             orthoLevel,
-                                             languages,
+                                             language,
                                              verbose,
                                              resume,
                                              params)
 {
-  bundles_list = languages
+  orthoLevel = orthoLabel
+  
+  bas_check_this_is_a_new_label(handle, orthoLabel)
+  
+  transcriptionLevel = get_levelNameForAttributeName(handle, transcriptionLabel)
+  if (is.null(transcriptionLevel)) {
+    stop("Could not find a level for label ", transcriptionLabel)
+  }
+  
+  bundles_list = bas_evaluate_language_option(handle = handle, language = language)
+
   if (nrow(bundles_list) > 0)
   {
     bas_ping(verbose)
@@ -565,19 +641,34 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
   {
     cat("\n")
   }
+  add_levelDefinition(handle, orthoLevel, "ITEM", verbose = FALSE, rewriteAllAnnots = FALSE)
+  add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, orthoLevel)
+  
+  orthoDescription = paste0("Tokenized and normalized orthography level automatically derived from '", 
+                            transcriptionLabel, "' by G2P (", BAS_ADDRESS, "runG2P) on ", Sys.time(),
+                            ", with the following parameters: (", 
+                            paste0(c(rbind(names(params), unlist(params))), collapse = " "), ")")
+  set_attributeDescription(handle, orthoLevel, orthoLabel, orthoDescription)
 }
 
 
 bas_run_g2p_for_pronunciation_dbi <- function(handle,
                                               orthoLabel,
-                                              orthoLevel,
                                               canoLabel,
-                                              languages,
+                                              language,
                                               verbose,
                                               resume,
                                               params)
 {
-  bundles_list = languages
+  orthoLevel = get_levelNameForAttributeName(handle, orthoLabel)
+  if (is.null(orthoLevel)) {
+    stop("Could not find a level for label ", orthoLabel)
+  }
+  
+  bas_check_this_is_a_new_label(handle, canoLabel)
+  
+  bundles_list = bas_evaluate_language_option(handle = handle, language = language)
+ 
   if (nrow(bundles_list) > 0)
   {
     bas_ping(verbose)
@@ -708,6 +799,14 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
   {
     cat("\n")
   }
+  
+  internal_add_attributeDefinition(handle, orthoLevel, canoLabel, verbose = FALSE, rewriteAllAnnots = FALSE, insertLabels = FALSE)
+  canoDescription = paste0("Canonical transcription automatically derived from '", orthoLabel, "' by G2P (",
+                           BAS_ADDRESS, "runG2P) on ", Sys.time(),
+                           ", with the following parameters: (", 
+                           paste0(c(rbind(names(params), unlist(params))), collapse = " "), ")")
+  
+  set_attributeDescription(handle, orthoLevel, canoLabel, canoDescription)
 }
 
 #####################################################################
@@ -716,18 +815,38 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
 
 bas_run_chunker_dbi <- function(handle,
                                 canoLabel,
-                                canoLevel,
                                 chunkLabel,
-                                languages,
+                                language,
                                 verbose,
-                                chunkLevel,
-                                topLevel,
+                                rootLabel,
                                 orthoLabel,
                                 params,
                                 resume,
-                                oldBasePath)
+                                oldBasePath,
+                                perspective)
 {
-  bundles_list = languages
+  chunkLevel = chunkLabel
+  bas_check_this_is_a_new_label(handle, chunkLabel)
+  
+  canoLevel = get_levelNameForAttributeName(handle, canoLabel)
+  if (is.null(canoLevel)) {
+    stop("Could not find a level for label ", canoLabel)
+  }
+  
+  if(is.null(rootLabel))
+  {
+    rootLevel = NULL
+  }
+  else
+  {
+    rootLevel = get_levelNameForAttributeName(handle, rootLabel)
+    if(is.null(rootLevel))
+    {
+      stop("Could not find a level for label ", rootLabel)
+    }
+  }
+  
+  bundles_list = bas_evaluate_language_option(handle = handle, language = language)
   if (nrow(bundles_list) > 0)
   {
     bas_ping(verbose)
@@ -772,7 +891,7 @@ bas_run_chunker_dbi <- function(handle,
       cano_items_bundle = cano_items[cano_items$bundle == bundle &
                                        cano_items$session == session,]
       
-      top_id = bas_get_top_id(handle, session, bundle, topLevel)
+      top_id = bas_get_top_id(handle, session, bundle, rootLevel)
       
       if (nrow(cano_items_bundle) > 0)
       {
@@ -923,7 +1042,19 @@ bas_run_chunker_dbi <- function(handle,
     cat("\n")
   }
   
+  add_levelDefinition(handle, chunkLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
+  bas_new_canvas(handle, perspective, chunkLevel)
+  add_linkDefinition(handle, "ONE_TO_MANY", chunkLevel, canoLevel)
+  if(!is.null(rootLevel))
+  {
+    add_linkDefinition(handle, "ONE_TO_MANY", rootLevel, chunkLevel)
+  }
   
+  chunkDescription = paste0("Chunk segmentation automatically derived from '", canoLabel, "' by Chunker (",
+                            BAS_ADDRESS, "runChunker) on ", Sys.time(),
+                            ", with the following parameters: (", 
+                            paste0(c(rbind(names(params), unlist(params))), collapse = " "), ")")
+  set_attributeDescription(handle, chunkLevel, chunkLabel, chunkDescription)
 }
 
 #####################################################################
@@ -932,14 +1063,21 @@ bas_run_chunker_dbi <- function(handle,
 
 bas_run_pho2syl_canonical_dbi <- function(handle,
                                           canoLabel,
-                                          canoLevel,
-                                          languages,
+                                          language,
                                           verbose,
                                           canoSylLabel,
                                           resume,
                                           params)
 {
-  bundles_list = languages
+  canoLevel = get_levelNameForAttributeName(handle, canoLabel)
+  if (is.null(canoLevel)) {
+    stop("Could not find a level for label ", canoLabel)
+  }
+  
+  bas_check_this_is_a_new_label(handle, canoSylLabel)
+  
+  bundles_list = bas_evaluate_language_option(handle = handle, language = language)
+  
   if (nrow(bundles_list) > 0)
   {
     bas_ping(verbose)
@@ -1079,25 +1217,59 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
   {
     cat("\n")
   }
+  internal_add_attributeDefinition(handle, canoLevel, canoSylLabel, verbose = FALSE, rewriteAllAnnots = FALSE, insertLabels = FALSE)
+  
+  kasDescription = paste0("Syllabified canonical pronunciation automatically derived from '", canoLabel, 
+                          "' by Pho2Syl (", BAS_ADDRESS, "runPho2Syl) on ", Sys.time(),
+                          ", with the following parameters: (", 
+                          paste0(c(rbind(names(params), unlist(params))), collapse = " "), ")")
+  set_attributeDescription(handle, canoLevel, canoSylLabel, kasDescription)
 }
 
 bas_run_pho2syl_segmental_dbi <- function(handle,
-                                          mausLabel,
-                                          mausLevel,
-                                          languages,
+                                          segmentLabel,
+                                          language,
                                           verbose,
                                           sylLabel,
-                                          sylLevel,
                                           superLabel,
                                           resume,
-                                          params,
-                                          allowmultilink)
+                                          params)
 {
+  sylLevel = sylLabel
+  
+  bas_check_this_is_a_new_label(handle, sylLabel)
+  
+  segmentLevel = get_levelNameForAttributeName(handle, segmentLabel)
+  if (is.null(segmentLevel)) {
+    stop("Could not find a level for label ", segmentLevel)
+  }
+  
+  if (get_levelDefinition(handle, segmentLevel)$type != "SEGMENT") {
+    stop(segmentLevel,
+         " must be a segment tier in order to run pho2syl from segment")
+  }
+  
+  if(!is.null(superLabel))
+  {
+    superLevel = get_levelNameForAttributeName(handle, superLabel)
+    if (is.null(superLevel)) {
+      stop("Could not find a level for label ", superLabel)
+    }
+  }
+  
+  multilink = F
+  if("wsync" %in% names(params) && params$wsync == "no")
+  {
+    multilink = T
+  }
+  
+  languages = bas_evaluate_language_option(handle = handle, language = language)
+  
   if(!is.null(superLabel))
   {
     bas_run_pho2syl_segmental_dbi_anchored(handle = handle,
-                                           mausLabel = mausLabel,
-                                           mausLevel = mausLevel,
+                                           segmentLabel = segmentLabel,
+                                           segmentLevel = segmentLevel,
                                            languages = languages,
                                            verbose = verbose,
                                            sylLabel = sylLabel,
@@ -1105,14 +1277,14 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
                                            wordLabel = superLabel,
                                            resume = resume,
                                            params = params,
-                                           allowmultilink = allowmultilink)
+                                           allowmultilink = multilink)
   }
   
   else
   {
     bas_run_pho2syl_segmental_dbi_unanchored(handle = handle,
-                                           mausLabel = mausLabel,
-                                           mausLevel = mausLevel,
+                                             segmentLabel = segmentLabel,
+                                             segmentLevel = segmentLevel,
                                            languages = languages,
                                            verbose = verbose,
                                            sylLabel = sylLabel,
@@ -1121,11 +1293,42 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
                                            params = params)
   }
   
+  add_levelDefinition(handle, sylLevel, "SEGMENT", verbose = FALSE, rewriteAllAnnots = FALSE)
+  
+  sylDescription = paste0("Syllable segmentation automatically derived from '", 
+                            segmentLabel, "' by Pho2Syl (", BAS_ADDRESS, "runPho2Syl) on ", Sys.time(),
+                          ", with the following parameters: (", 
+                          paste0(c(rbind(names(params), unlist(params))), collapse = " "), ")")
+  set_attributeDescription(handle, sylLevel, sylLabel, sylDescription)
+  
+  if(!is.null(superLabel))
+  {
+    if(multilink)
+    {
+      add_linkDefinition(handle, "MANY_TO_MANY", superLevel, sylLevel)
+    }
+    else
+    {
+      add_linkDefinition(handle, "ONE_TO_MANY", superLevel, sylLevel)
+    }
+  }
+  
+  add_linkDefinition(handle, "ONE_TO_MANY", sylLevel, segmentLevel)
+  autobuild_linkFromTimes(handle,
+                          sylLevel,
+                          segmentLevel,
+                          convertSuperlevel = TRUE,
+                          rewriteAllAnnots = FALSE,
+                          verbose = verbose)
+  
+  remove_levelDefinition(handle, paste0(sylLevel, formals(autobuild_linkFromTimes)$backupLevelAppendStr), 
+                         force = T, 
+                         verbose = F)
 }
 
 bas_run_pho2syl_segmental_dbi_anchored <- function(handle,
-                                          mausLabel,
-                                          mausLevel,
+                                          segmentLabel,
+                                          segmentLevel,
                                           languages,
                                           verbose,
                                           sylLabel,
@@ -1158,10 +1361,10 @@ bas_run_pho2syl_segmental_dbi_anchored <- function(handle,
     
     
     queryTxt = paste0("[", wordLabel,"=~.*]")
-    word_items = query(handle, queryTxt, calcTimes = T, timeRefSegmentLevel = mausLevel)
+    word_items = query(handle, queryTxt, calcTimes = T, timeRefSegmentLevel = segmentLevel)
     
-    queryTxt = paste0("[", mausLabel,"=~.*\\S.*]")
-    maus_items = query(handle, queryTxt, calcTimes = T, timeRefSegmentLevel = mausLevel)
+    queryTxt = paste0("[", segmentLabel,"=~.*\\S.*]")
+    maus_items = query(handle, queryTxt, calcTimes = T, timeRefSegmentLevel = segmentLevel)
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
@@ -1359,8 +1562,8 @@ bas_run_pho2syl_segmental_dbi_anchored <- function(handle,
 }
 
 bas_run_pho2syl_segmental_dbi_unanchored <- function(handle,
-                                                   mausLabel,
-                                                   mausLevel,
+                                                   segmentLabel,
+                                                   segmentLevel,
                                                    languages,
                                                    verbose,
                                                    sylLabel,
@@ -1389,8 +1592,8 @@ bas_run_pho2syl_segmental_dbi_unanchored <- function(handle,
       utils::setTxtProgressBar(pb, progress)
     }
     
-    queryTxt = paste0("[", mausLabel,"=~.*\\S\\.*]")
-    maus_items = query(handle, queryTxt, calcTimes = T, timeRefSegmentLevel = mausLevel)
+    queryTxt = paste0("[", segmentLabel,"=~.*\\S\\.*]")
+    maus_items = query(handle, queryTxt, calcTimes = T, timeRefSegmentLevel = segmentLevel)
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
@@ -1967,7 +2170,7 @@ bas_segment_to_item_level_dbi <-
 bas_check_this_is_a_new_label <- function(handle, label)
 {
   if (!is.null(get_levelNameForAttributeName(handle, label))) {
-    stop("There is already a level with label", label)
+    stop("There is already a level with label ", label)
   }
   
   if (!is.null(get_levelDefinition(handle, label))) {
@@ -1978,7 +2181,7 @@ bas_check_this_is_a_new_label <- function(handle, label)
 
 bas_evaluate_language_option <- function(handle, language)
 {
-  bundles = list_bundles(handle)
+  bundles = list_bundlesDBI(handle)
   names(bundles)[names(bundles) == "name"] <- "bundle"
   
   if (is.data.frame(language))
@@ -2006,4 +2209,34 @@ bas_evaluate_language_option <- function(handle, language)
     languages$language = language
     return(languages)
   }
+}
+
+set_attributeDescription <- function(handle, level, label, description)
+{
+  dbConfig = load_DBconfig(handle)
+  
+  df = list_attributeDefinitions(handle, level)
+  
+  if(!(label %in% df$name))
+  {
+    stop(paste0("There is no attribute definition named ", label, " on level ", level))
+  }
+  
+  for(i in 1:length(dbConfig$levelDefinitions))
+  {
+    if(dbConfig$levelDefinitions[[i]]$name == level)
+    {
+      for(j in 1:length(dbConfig$levelDefinitions[[i]]$attributeDefinitions))
+      {
+        if(dbConfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$name == label)
+        {
+          dbConfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$description = description
+          break
+        }
+      }
+      break
+    }
+  }
+  
+  store_DBconfig(handle, dbConfig)
 }
