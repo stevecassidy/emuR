@@ -1,4 +1,4 @@
-requireNamespace("RSQLite", quietly = T)
+# requireNamespace("RSQLite", quietly = T)
 # requireNamespace("stringr", quietly = T)
 
 ## EmuDB Parser for Bas Partitur Files
@@ -392,7 +392,7 @@ write_bpfUtteranceToDb <- function(emuDBhandle,
   
   # First label: 'bundle' -> empty string
   queryTxt = paste0("INSERT INTO labels VALUES","('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
-                    utteranceItemID, ", ", labelIdxCounter, ", 'bundle', '')")
+    utteranceItemID, ", ", labelIdxCounter, ", 'bundle', '')")
   
   DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   
