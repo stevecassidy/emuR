@@ -74,8 +74,7 @@ bas_run_maus_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat(" Skipping bundle", bundle)
-          utils::setTxtProgressBar(pb, bundle_idx)
+          cat("\nSkipping bundle", bundle)
         }
         next
       }
@@ -293,8 +292,7 @@ bas_run_minni_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat(" Skipping bundle", bundle)
-          utils::setTxtProgressBar(pb, bundle_idx)
+          cat("\nSkipping bundle", bundle)
         }
         next
       }
@@ -456,8 +454,7 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat(" Skipping bundle", bundle)
-          utils::setTxtProgressBar(pb, bundle_idx)
+          cat("\nSkipping bundle", bundle)
         }
         next
       }
@@ -616,8 +613,7 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat(" Skipping bundle", bundle)
-          utils::setTxtProgressBar(pb, bundle_idx)
+          cat("\nSkipping bundle", bundle)
         }
         next
       }
@@ -768,8 +764,7 @@ bas_run_chunker_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat(" Skipping bundle", bundle)
-          utils::setTxtProgressBar(pb, bundle_idx)
+          cat("\nSkipping bundle", bundle)
         }
         next
       }
@@ -981,8 +976,7 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat(" Skipping bundle", bundle)
-          utils::setTxtProgressBar(pb, bundle_idx)
+          cat("\nSkipping bundle", bundle)
         }
         next
       }
@@ -1182,8 +1176,7 @@ bas_run_pho2syl_segmental_dbi_anchored <- function(handle,
       {
         if (verbose)
         {
-          cat(" Skipping bundle", bundle)
-          utils::setTxtProgressBar(pb, bundle_idx)
+          cat("\nSkipping bundle", bundle)
         }
         next
       }
@@ -1412,8 +1405,7 @@ bas_run_pho2syl_segmental_dbi_unanchored <- function(handle,
       {
         if (verbose)
         {
-          cat(" Skipping bundle", bundle)
-          utils::setTxtProgressBar(pb, bundle_idx)
+          cat("\nSkipping bundle", bundle)
         }
         next
       }
