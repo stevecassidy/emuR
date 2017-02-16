@@ -67,7 +67,7 @@ parse_BPF <- function(emuDBhandle,
   samplerate = returnContainer$samplerate
   
   # ---------------------------------------------------------------------------
-  # ---------- Write 'Utterance' item to items and lables tables --------------
+  # ----------- Write 'bundle' item to items and lables tables ----------------
   # ---------------------------------------------------------------------------
   levelInfo = write_bpfUtteranceToDb(emuDBhandle,
                                      header = header,
@@ -361,7 +361,7 @@ compare_bpfSamplerate <- function(header,
 ###############################################################################
 ###############################################################################
 
-## Write item and label information for Utterance Item
+## Write item and label information for bundle Item
 ## 
 ## @param emuDBhandle
 ## @param session
@@ -390,9 +390,9 @@ write_bpfUtteranceToDb <- function(emuDBhandle,
   
   labelIdxCounter = 1
   
-  # First label: 'Utterance' -> name of bundle.
+  # First label: 'bundle' -> empty string
   queryTxt = paste0("INSERT INTO labels VALUES","('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
-                    utteranceItemID, ", ", labelIdxCounter, ", 'bundle', '", bundle, "')")
+                    utteranceItemID, ", ", labelIdxCounter, ", 'bundle', '')")
   
   DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   
@@ -412,7 +412,7 @@ write_bpfUtteranceToDb <- function(emuDBhandle,
   }
   
   
-  levelInfo = list(list(key = "Utterance", type = "ITEM", labels = labelTracker))
+  levelInfo = list(list(key = "bundle", type = "ITEM", labels = labelTracker))
   
   return(levelInfo)
 }
@@ -485,7 +485,7 @@ parse_bpfBody <- function(bpfLines,
   # --------------------------- Parsing ---------------------------------------
   # ---------------------------------------------------------------------------
   
-  # Initialize current itemID at 2 (since 'Utterance' is 1).
+  # Initialize current itemID at 2 (since 'bundle' is 1).
   currentItemID = 2
   
   # Start parsing from body start key onwards (body start key position + 1).
