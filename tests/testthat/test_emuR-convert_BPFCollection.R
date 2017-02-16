@@ -167,7 +167,7 @@ test_that("Conversion without reference level.",
             expect_equal(sapply(dbAnnot$levels[[1]]$items[[1]]$labels, function(x) x$name),
                          c("bundle", "LHD", "REP", "SNB", "SAM", "SBF", "SSB", "NCH", "SPN"))
             expect_equal(sapply(dbAnnot$levels[[1]]$items[[1]]$labels, function(x) x$value),
-                         c("bundle", "Partitur 1.2.16", "unknown", "2", "20000", "01", "16", "1", "unknown"))
+                         c("", "Partitur 1.2.16", "unknown", "2", "20000", "01", "16", "1", "unknown"))
                                     
             # Check individual label
             expect_equal(dbAnnot$levels[[2]]$items[[3]]$labels[[1]]$value, "frendz")
@@ -393,7 +393,7 @@ test_that("Correct call with necessary arguments",
             # Check that the bundle item has only nine labels (the bundle name + all the empty labels for the others).
             expect_equal(length(dbAnnot$levels[[1]]$items[[1]]$labels), 9)
             expect_equal(dbAnnot$levels[[1]]$items[[1]]$labels[[1]]$name, "bundle")
-            expect_equal(dbAnnot$levels[[1]]$items[[1]]$labels[[1]]$value, "msajc010")
+            expect_equal(dbAnnot$levels[[1]]$items[[1]]$labels[[1]]$value, "")
             
             # Check that there are no links.
             expect_equal(length(dbAnnot$links), 0)
@@ -413,18 +413,17 @@ test_that("Correct call with necessary arguments",
 # Cleaning up
 unlink(newDbPath, recursive = T)
 
-
-# ---------------------------------------------------------------------------
-# ---------------------------------------------------------------------------
-test_that("Warnings (semicolon) are displayed if verbose.",
-          {
-            expect_warning(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = T, refLevel = "ORT", 
-                                                         newLevels = c("XYZ"), newLevelClasses = c(1), segmentToEventLevels = c("MAU"), bpfExt = "parmanipulated"),
-                           regexp = "between.*';'", ignore.case = T)
-            }
-          )
-# Cleaning up
-unlink(newDbPath, recursive = T)
+# # ---------------------------------------------------------------------------
+# # ---------------------------------------------------------------------------
+# test_that("Warnings (semicolon) are displayed if verbose.",
+#           {
+#             expect_warning(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = T, refLevel = "ORT", 
+#                                                          newLevels = c("XYZ"), newLevelClasses = c(1), segmentToEventLevels = c("MAU"), bpfExt = "parmanipulated"),
+#                            regexp = "between.*';'", ignore.case = T)
+#             }
+#           )
+# # Cleaning up
+# unlink(newDbPath, recursive = T)
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------

@@ -13,7 +13,7 @@ test_that("testing whether runBASwebservice_all runs without error",
            convert_txtCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F)
            handle = load_emuDB(file.path(testDir, paste0(dbName, emuDB.suffix)), verbose = F)
            
-           runBASwebservice_all(handle, "Transcription", "eng-GB", verbose = F)
+           runBASwebservice_all(handle, "transcription", "eng-AU", verbose = F)
           }
 )
 
@@ -25,13 +25,13 @@ test_that("testing whether all the other runBASwebservice_* functions run withou
             convert_txtCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F)
             handle = load_emuDB(file.path(testDir, paste0(dbName, emuDB.suffix)), verbose = F)
             
-            runBASwebservice_g2pForTokenization(handle, "Transcription", "eng-GB", verbose = F)
+            runBASwebservice_g2pForTokenization(handle, "transcription", "eng-GB", verbose = F)
             runBASwebservice_g2pForPronunciation(handle, "ORT", "eng-GB", verbose = F)
-            runBASwebservice_chunker(handle, "KAN", "eng-GB", rootLevel = "Transcription", verbose = F)
+            runBASwebservice_chunker(handle, "KAN", "eng-GB", rootLabel = "transcription", verbose = F)
             runBASwebservice_maus(handle, "KAN", "eng-GB", chunkLabel = "TRN", verbose = F)
-            runBASwebservice_minni(handle, "eng-GB", rootLevel = "Transcription", verbose = F)
+            runBASwebservice_minni(handle, "eng-GB", rootLabel = "transcription", verbose = F)
             runBASwebservice_pho2sylCanonical(handle, "KAN", "eng-GB", verbose = F)
-            runBASwebservice_pho2sylSegmental(handle, "MAU", "ORT", "eng-GB", verbose = F)
+            runBASwebservice_pho2sylSegmental(handle, "MAU", "eng-GB", superLabel = "ORT", verbose = F)
           }
 )
 
