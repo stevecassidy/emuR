@@ -1008,7 +1008,7 @@ link_bpfUtteranceLevel <- function(emuDBhandle, linkTracker,
     # -------------------------- Update link tracker --------------------------
     # -------------------------------------------------------------------------
     
-    linkTracker[[length(linkTracker) + 1L]] = list(fromkey = "Utterance", 
+    linkTracker[[length(linkTracker) + 1L]] = list(fromkey = "bundle", 
                                                    tokey = level, 
                                                    type = linkType)
   }
