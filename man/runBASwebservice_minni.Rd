@@ -5,7 +5,7 @@
 \title{Creates a rough phonetic segmentation by running the phoneme decoder webservice MINNI.}
 \usage{
 runBASwebservice_minni(handle, language, minniLabel = "MINNI",
-  rootLevel = NULL, params = list(), perspective = "default",
+  rootLabel = NULL, params = list(), perspective = "default",
   resume = FALSE, verbose = TRUE)
 }
 \arguments{
@@ -19,7 +19,7 @@ Up-to-date lists of the languages accepted by all webservices can be found here:
 
 \item{minniLabel}{label name for the MINNI segmentation}
 
-\item{rootLevel}{if provided, the new level will be linked to the root level}
+\item{rootLabel}{if provided, the new level will be linked to the root level}
 
 \item{params}{named list of parameters to be passed on to the webservice. It is your own reponsibility to
 ensure that these parameters are compatible with the webservice API

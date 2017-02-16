@@ -5,7 +5,7 @@
 \title{Converts a collection of audio files and plain text transcriptions into an emuDB}
 \usage{
 convert_txtCollection(dbName, sourceDir, targetDir, txtExtension = "txt",
-  mediaFileExtension = "wav", transcriptionLabel = "bundle",
+  mediaFileExtension = "wav", transcriptionLabel = "transcription",
   cleanWhitespaces = TRUE, verbose = TRUE)
 }
 \arguments{

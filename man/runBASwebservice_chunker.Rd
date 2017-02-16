@@ -5,7 +5,7 @@
 \title{Creates a chunk segmentation using the webservice Chunker.}
 \usage{
 runBASwebservice_chunker(handle, canoLabel, language, chunkLabel = "TRN",
-  rootLevel = NULL, orthoLabel = NULL, params = list(force = "rescue"),
+  rootLabel = NULL, orthoLabel = NULL, params = list(force = "rescue"),
   perspective = "default", resume = FALSE, verbose = TRUE)
 }
 \arguments{
@@ -21,7 +21,7 @@ Up-to-date lists of the languages accepted by all webservices can be found here:
 
 \item{chunkLabel}{label name for the chunk segmentation}
 
-\item{rootLevel}{if provided, the new level will be linked to the root level}
+\item{rootLabel}{if provided, the new level will be linked to the root level}
 
 \item{orthoLabel}{if provided, chunk labels will contain orthographic instead of SAMPA strings.
 Must be paired with the canonical pronunciation labels in canoLabel.}
