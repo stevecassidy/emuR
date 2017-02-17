@@ -1913,6 +1913,7 @@ bas_prepare <- function(handle, resume, verbose)
     
     dir.create(tmpBasePath, recursive = TRUE)
 
+
     if (!file.copy(oldCache, tmpCache, overwrite = T))
     {
       stop("Could not create temporary DB cache")
