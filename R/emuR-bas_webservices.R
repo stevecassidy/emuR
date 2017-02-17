@@ -9,13 +9,13 @@
 ##' Finally, syllabification is performed by calling Pho2Syl. \strong{This function requires an internet connection.}
 ##'
 ##' All necessary level, attribute and link definitions are created in the process.
-##' Note that this function will run all BAS webservices with default parameters, with three exceptions: 
+##' Note that this function will run all BAS webservices with default parameters, with three exceptions:
 ##' \itemize{
 ##' \item{Chunker: force=rescue}
 ##' \item{G2P: embed=maus}
 ##' \item{Pho2Syl: wsync=no}
 ##' }
-##' If you wish to change parameters, you must use the individual runBASwebservices functions. This will also allow 
+##' If you wish to change parameters, you must use the individual runBASwebservices functions. This will also allow
 ##' you to carry out manual corrections in between the steps, or to use different languages for different webservices.
 ##'
 ##' @family BAS webservice functions
@@ -25,7 +25,7 @@
 ##' @param transcriptionLabel name of the label (not level!) containing an orthographic transcription.
 ##' @param language language(s) to be used. If you pass a single string (e.g. "deu-DE"), this language will be used for all bundles.
 ##' Alternatively, you can select the language for every bundle individually. To do so, you must pass a data frame with the columns
-##' session, bundle, language. This data frame must contain one row for every bundle in your emuDB. 
+##' session, bundle, language. This data frame must contain one row for every bundle in your emuDB.
 ##' Up-to-date lists of the languages accepted by all webservices can be found here:
 ##' \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}
 ##'
@@ -67,7 +67,7 @@ runBASwebservice_all <- function(handle,
   if (is.null(transcriptionLevel)) {
     stop("Could not find a level for label ", transcriptionLabel)
   }
-
+  
   running_chunker = FALSE
   
   # if our transcription is a segment level, we assume it is a manual chunk segmentation
@@ -97,7 +97,7 @@ runBASwebservice_all <- function(handle,
     resume = resume,
     params = list()
   )
-
+  
   bas_run_g2p_for_pronunciation_dbi(
     handle = handle,
     orthoLabel = orthoLabel,
@@ -105,9 +105,9 @@ runBASwebservice_all <- function(handle,
     language = language,
     verbose = verbose,
     resume = resume,
-    params = list(embed="maus")
+    params = list(embed = "maus")
   )
-
+  
   
   # if we previously decided to run automatic chunk segmentation
   if (running_chunker)
@@ -118,7 +118,7 @@ runBASwebservice_all <- function(handle,
       chunkLabel = chunkLabel,
       orthoLabel = orthoLabel,
       rootLabel = transcriptionLabel,
-      params = list(force="rescue"),
+      params = list(force = "rescue"),
       resume = resume,
       verbose = verbose,
       language = language,
@@ -126,7 +126,7 @@ runBASwebservice_all <- function(handle,
       perspective = "default"
     )
   }
-
+  
   bas_run_maus_dbi(
     handle = handle,
     canoLabel = canoLabel,
@@ -170,16 +170,24 @@ runBASwebservice_all <- function(handle,
     sylLabel = sylLabel,
     superLabel = orthoLabel,
     resume = resume,
-    params = list(wsync="yes"),
+    params = list(wsync = "yes"),
     verbose = verbose
   )
   
-  remove_linkDefinition(handle, orthoLabel, mausLabel, force = T, verbose = F)
+  remove_linkDefinition(handle,
+                        orthoLabel,
+                        mausLabel,
+                        force = T,
+                        verbose = F)
   
-  if(running_chunker)
+  if (running_chunker)
   {
     bas_segment_to_item_level(handle, chunkLabel)
-    remove_linkDefinition(handle, transcriptionLevel, orthoLabel, force = T, verbose = F)
+    remove_linkDefinition(handle,
+                          transcriptionLevel,
+                          orthoLabel,
+                          force = T,
+                          verbose = F)
   }
   
   handle = bas_clear(handle, oldBasePath)
@@ -191,10 +199,10 @@ runBASwebservice_all <- function(handle,
 ##'
 ##' This function calls the BAS webservice MAUS to generate a phonemic segmentation.
 ##' It requires a word-tokenized tier with a SAMPA pronunciation, which can be generated
-##' by the function \link{runBASwebservice_g2pForPronunciation}. 
+##' by the function \link{runBASwebservice_g2pForPronunciation}.
 ##' \strong{This function requires an internet connection.}
-##' 
-##' All necessary level, link and attribute definitions are created in the process. 
+##'
+##' All necessary level, link and attribute definitions are created in the process.
 ##'
 ##' @family BAS webservice functions
 ##'
@@ -260,14 +268,14 @@ runBASwebservice_maus <- function(handle,
 
 
 ##' Tokenizes an orthographic transcription.
-##' 
+##'
 ##' This function calls the webservice G2P to break up a transcription into tokens, or words.
 ##' In addition to tokenization, G2P performs normalization of numbers and other special words.
 ##' A call to this function is usually followed by a call to \link{runBASwebservice_g2pForPronunciation}.
 ##' \strong{This function requires an internet connection.}
-##' 
+##'
 ##' All necessary level, link and attribute definitions are created in the process.
-##' 
+##'
 ##' @family BAS webservice functions
 ##'
 ##' @export
@@ -297,20 +305,20 @@ runBASwebservice_g2pForTokenization <- function(handle,
     resume = resume,
     params = params
   )
-
+  
   handle = bas_clear(handle, oldBasePath)
   
   rewrite_allAnnots(handle, verbose = verbose)
 }
 
 ##' Creates canonical pronunciation labels for a tier of tokenized orthographical words.
-##' 
+##'
 ##' This function calls the G2P webservice to add canonical pronunciation labels in SAMPA (default)
 ##' or IPA to a tier of tokenized orthographical words. It is usually called after tokenization
 ##' with \link{runBASwebservice_g2pForTokenization}. Its output can be used as input to
-##' \link{runBASwebservice_maus} or \link{runBASwebservice_chunker}. 
+##' \link{runBASwebservice_maus} or \link{runBASwebservice_chunker}.
 ##' \strong{This function requires an internet connection.}
-##' 
+##'
 ##' By default, G2P is called in MAUS embed mode. This is important if you intend to use MAUS
 ##' afterwards. To disable MAUS embed mode, call this function with params=list(embed="no").
 ##' To derive IPA symbols, add outsym="ipa" to the parameter list.
@@ -319,7 +327,7 @@ runBASwebservice_g2pForTokenization <- function(handle,
 ##' @export
 ##'
 ##' @param orthoLabel name of a label (not level!) containing orthographic words.
-##' 
+##'
 ##' @inheritParams runBASwebservice_all
 ##' @inheritParams runBASwebservice_maus
 
@@ -330,8 +338,8 @@ runBASwebservice_g2pForPronunciation <- function(handle,
                                                  
                                                  canoLabel = "KAN",
                                                  
-                                                 params = list(embed="maus"),
-
+                                                 params = list(embed = "maus"),
+                                                 
                                                  resume = FALSE,
                                                  verbose = TRUE)
 {
@@ -360,22 +368,22 @@ runBASwebservice_g2pForPronunciation <- function(handle,
 #####################################################################
 
 ##' Creates a chunk segmentation using the webservice Chunker.
-##' 
+##'
 ##' When audio input files are longer than approximately 10 minutes, alignment-based segmentation
 ##' tools such as MAUS will take a long time to run. In these cases, the Chunker pre-segments
 ##' the input into more digestable "chunks". As input, it requires a word tier with canonical
 ##' pronunciation labels (which can be derived by \link{runBASwebservice_g2pForPronunciation}).
 ##' The resulting chunk level can be passed as input to \link{runBASwebservice_maus}.
 ##' \strong{This function requires an internet connection.}
-##' 
-##' Please note that the chunker output is \strong{not} a semantically meaningful sentence 
+##'
+##' Please note that the chunker output is \strong{not} a semantically meaningful sentence
 ##' or turn segmentation, meaning that it cannot be used for analyses of sentence durations and the like.
 ##' By default, the chunker is called in force rescue mode. This means that the chunker is first run
-##' in its normal mode, and switches to forced chunking mode only when it fails to find chunks that 
+##' in its normal mode, and switches to forced chunking mode only when it fails to find chunks that
 ##' are short enough for processing by MAUS. To disable the force mode completely, call this function with
 ##' params=list(force="false"). To skip the normal chunking mode and go directly into forced chunking
 ##' mode, use params=list(force="true").
-##' 
+##'
 ##' @family BAS webservice functions
 ##'
 ##' @export
@@ -396,7 +404,7 @@ runBASwebservice_chunker <- function(handle,
                                      rootLabel = NULL,
                                      orthoLabel = NULL,
                                      
-                                     params = list(force="rescue"),
+                                     params = list(force = "rescue"),
                                      
                                      perspective = "default",
                                      resume = FALSE,
@@ -415,7 +423,7 @@ runBASwebservice_chunker <- function(handle,
     param = params,
     oldBasePath = oldBasePath,
     perspective = perspective,
-    resume=resume,
+    resume = resume,
     rootLabel = rootLabel
   )
   
@@ -432,17 +440,17 @@ runBASwebservice_chunker <- function(handle,
 #####################################################################
 
 ##' Creates a rough phonetic segmentation by running the phoneme decoder webservice MINNI.
-##' 
+##'
 ##' The MINNI phoneme decoder performs phoneme-based decoding on the signal without input from
 ##' the transcription. Therefore, labelling quality is usually worse than that obtained from
 ##' MAUS (\link{runBASwebservice_maus}). Contrary to MAUS however, there is no need for a pre-
 ##' existing transcription.
-##' 
+##'
 ##' All necessary level, link and attribute definitions are created in the process.
-##' 
+##'
 ##' @family BAS webservice functions
 ##' @export
-##' 
+##'
 ##' @inheritParams runBASwebservice_all
 ##' @inheritParams runBASwebservice_maus
 ##' @inheritParams runBASwebservice_chunker
@@ -492,7 +500,7 @@ runBASwebservice_minni <- function(handle,
 ##' to a word level that already contains an unsyllabified canonical pronunciation label (as can be
 ##' derived using \link{runBASwebservice_g2pForPronunciation}). \strong{This function requires an internet
 ##' connection.}
-##' 
+##'
 ##' @family BAS webservice functions
 ##' @export
 ##' @param canoLabel name of the label (not level!) containing a canonical pronunciation of the words.
@@ -510,7 +518,6 @@ runBASwebservice_pho2sylCanonical <- function(handle,
                                               resume = FALSE,
                                               verbose = TRUE)
 {
-
   oldBasePath = handle$basePath
   handle = bas_prepare(handle, resume, verbose)
   
@@ -532,18 +539,18 @@ runBASwebservice_pho2sylCanonical <- function(handle,
 
 
 ##' Creates a syllable segmentation on the basis of a phonetic segmentation.
-##' 
+##'
 ##' This function calls the BAS webservice Pho2Syl to create a syllable segmentation on the basis
 ##' of a phonetic segmentation (created by, for example, \link{runBASwebservice_maus}).
 ##' You can provide the name of your word segmentation, or of any other hierarchically
 ##' dominant segmentation, via the superLabel parameter. This way, the new syllable
 ##' items can be linked up into the pre-existing hierarchy. If you do not provide
 ##' this input, the syllables will only be linked down to the segments.
-##' 
+##'
 ##' All necessary level, link and parameter definitions are created in the process.
 ##' By default, Pho2Syl is run in word synchronized mode. To override this, call this function
 ##' with the parameter params=list(wsync="no").
-##' 
+##'
 ##' @family BAS webservice functions
 ##' @export
 ##' @param segmentLabel name of the label (not level!) containing a phonetic segmentation.
@@ -561,13 +568,12 @@ runBASwebservice_pho2sylSegmental <- function(handle,
                                               
                                               sylLabel = "MAS",
                                               
-                                              params = list(wsync="yes"),
+                                              params = list(wsync = "yes"),
                                               
                                               perspective = "default",
                                               resume = FALSE,
                                               verbose = TRUE)
 {
-
   oldBasePath = handle$basePath
   handle = bas_prepare(handle, resume, verbose)
   
@@ -581,7 +587,7 @@ runBASwebservice_pho2sylSegmental <- function(handle,
     resume = resume,
     params = params
   )
-
+  
   
   handle = bas_clear(handle, oldBasePath)
   
