@@ -1429,7 +1429,10 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
   
   add_linkDefinition(handle, "ONE_TO_MANY", sylLevel, segmentLevel)
   
-  cat("INFO: Autobuilding syllable -> segment links from time information\n")
+  if(verbose)
+  {
+    cat("INFO: Autobuilding syllable -> segment links from time information\n")
+  }
   
   autobuild_linkFromTimes(
     handle,
