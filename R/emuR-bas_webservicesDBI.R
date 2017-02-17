@@ -2101,7 +2101,7 @@ bas_ping <- function(verbose)
 {
   if(verbose)
   {
-    cat("Sending ping to webservices provider.\n")
+    cat("INFO: Sending ping to webservices provider.\n")
   }
   
   res = RCurl::getURL(
