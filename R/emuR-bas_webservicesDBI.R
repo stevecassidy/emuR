@@ -140,10 +140,8 @@ bas_run_maus_dbi <- function(handle,
           bas_id = bas_id + 1
         }
         
-        usetrn = "false"
         if (!is.null(chunkLabel))
         {
-          usetrn = "true"
           trn_items_bundle = trn_items[trn_items$bundle == bundle &
                                          trn_items$session == session, ]
           if (nrow(trn_items_bundle) > 0)
@@ -187,7 +185,6 @@ bas_run_maus_dbi <- function(handle,
         curlParams = list(
           LANGUAGE = language,
           OUTFORMAT = "par",
-          USETRN = usetrn,
           SIGNAL = RCurl::fileUpload(signalfile),
           BPF = RCurl::fileUpload(kanfile)
         )

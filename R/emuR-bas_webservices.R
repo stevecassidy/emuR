@@ -9,11 +9,12 @@
 ##' Finally, syllabification is performed by calling Pho2Syl. \strong{This function requires an internet connection.}
 ##'
 ##' All necessary level, attribute and link definitions are created in the process.
-##' Note that this function will run all BAS webservices with default parameters, with three exceptions:
+##' Note that this function will run all BAS webservices with default parameters, with four exceptions:
 ##' \itemize{
 ##' \item{Chunker: force=rescue}
 ##' \item{G2P: embed=maus}
 ##' \item{Pho2Syl: wsync=no}
+##' \item{MAUS: USETRN=[true if Chunker was called or transcription is a segment tier, false otherwise]}
 ##' }
 ##' If you wish to change parameters, you must use the individual runBASwebservices functions. This will also allow
 ##' you to carry out manual corrections in between the steps, or to use different languages for different webservices.
@@ -72,18 +73,21 @@ runBASwebservice_all <- function(handle,
   
   # if our transcription is a segment level, we assume it is a manual chunk segmentation
   if (get_levelDefinition(handle, transcriptionLevel)$type == "SEGMENT") {
-    chunkLabel = transcriptionLabel
+    chunkLabel = transcriptionLabel # the transcription is the chunk segmentation
+    usetrn = "true" # we use it for MAUS
   }
   
   # else, we check if we will need to perform automatic chunk segmentation
   else if (bas_long_enough_for_chunker(handle, oldBasePath)) {
-    running_chunker = TRUE
+    running_chunker = TRUE # we need to run the chunker
     chunkLevel = chunkLabel
+    usetrn = "true" # the to-be-created chunk segmentation will be used for MAUS
   }
   
   else
   {
     chunkLabel = NULL
+    usetrn = "false"
   }
   
   handle = bas_prepare(handle, resume, verbose)
@@ -135,7 +139,7 @@ runBASwebservice_all <- function(handle,
     mausLabel = mausLabel,
     verbose = verbose,
     resume = resume,
-    params = list(),
+    params = list(USETRN=usetrn),
     oldBasePath = oldBasePath,
     perspective = "default",
     turnChunkLevelIntoItemLevel = T
@@ -174,6 +178,7 @@ runBASwebservice_all <- function(handle,
     verbose = verbose
   )
   
+  # remove the ORT -> MAU link as it is has been made redundant by the ORT -> MAS -> MAU path
   remove_linkDefinition(handle,
                         orthoLabel,
                         mausLabel,
@@ -182,7 +187,11 @@ runBASwebservice_all <- function(handle,
   
   if (running_chunker)
   {
+    # turn the chunk segmentation into an item level (as time information is now on the MAU tier)
     bas_segment_to_item_level(handle, chunkLabel)
+    
+    # remove the transcription -> ORT link 
+    # as it has been made redundant by the transcription -> TRN -> ORT path
     remove_linkDefinition(handle,
                           transcriptionLevel,
                           orthoLabel,
@@ -191,7 +200,6 @@ runBASwebservice_all <- function(handle,
   }
   
   handle = bas_clear(handle, oldBasePath)
-  
   rewrite_allAnnots(handle, verbose = verbose)
 }
 
