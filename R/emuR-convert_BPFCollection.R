@@ -277,7 +277,7 @@ convert_BPFCollection <- function(sourceDir,
   # ------ Link from bundle level to refLevel and levels above refLevel -------
   # ---------------------------------------------------------------------------
   
-  if(length(linkTracker) > 0)
+  if(!is.null(refLevel))
   {
     linkTracker = link_bpfUtteranceLevel(dbHandle, linkTracker = linkTracker,
                                          refLevel = refLevel)
@@ -1037,6 +1037,8 @@ get_bpfLevelsUnderUtterance <- function(linkTracker,
                                         refLevel)
 {
   underUtterance = list(refLevel)
+  
+  if(length(linkTracker) == 0) { return(underUtterance)}
   
   for(idx in 1:length(linkTracker))
   {
