@@ -204,7 +204,7 @@ bas_run_maus_dbi <- function(handle,
           .opts = bas_get_options()
         )
         
-        mauLines = bas_download(res, maufile)
+        mauLines = bas_download(res, maufile, session, bundle)
         
         if (length(mauLines) > 0)
         {
@@ -402,7 +402,7 @@ bas_run_minni_dbi <- function(handle,
         .opts = bas_get_options()
       )
       
-      minniLines = bas_download(res, minnifile)
+      minniLines = bas_download(res, minnifile, session, bundle)
       if (length(minniLines) > 0)
       {
         seq_idx = 1
@@ -615,7 +615,7 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
             .opts = bas_get_options()
           )
           
-          g2pLines = bas_download(res, g2pfile)
+          g2pLines = bas_download(res, g2pfile, session, bundle)
           
           if (length(g2pLines) > 0)
           {
@@ -810,7 +810,7 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
           .opts = bas_get_options()
         )
         
-        g2pLines = bas_download(res, kanfile)
+        g2pLines = bas_download(res, kanfile, session, bundle)
         
         if (length(g2pLines) > 0)
         {
@@ -1025,7 +1025,7 @@ bas_run_chunker_dbi <- function(handle,
           .opts = bas_get_options()
         )
         
-        trnLines = bas_download(res, trnfile)
+        trnLines = bas_download(res, trnfile, session, bundle)
         
         if (length(trnLines) > 0)
         {
@@ -1255,7 +1255,7 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
           .opts = bas_get_options()
         )
         
-        kasLines = bas_download(res, kasfile)
+        kasLines = bas_download(res, kasfile, session, bundle)
         
         if (length(kasLines) > 0)
         {
@@ -1616,7 +1616,7 @@ bas_run_pho2syl_segmental_dbi_anchored <- function(handle,
             .opts = bas_get_options()
           )
           
-          masLines = bas_download(res, masfile)
+          masLines = bas_download(res, masfile, session, bundle)
           
           if (length(masLines) > 0)
           {
@@ -1636,7 +1636,7 @@ bas_run_pho2syl_segmental_dbi_anchored <- function(handle,
                 
                 if ((!allowmultilink) && length(bas_ids_split) > 1)
                 {
-                  stop(
+                  stop("Bundle ", bundle, " session ", session, ": ",
                     "Pho2Syl returned item with multiple links despite wsync not being set to yes: ",
                     line
                   )
@@ -1818,7 +1818,7 @@ bas_run_pho2syl_segmental_dbi_unanchored <- function(handle,
           .opts = bas_get_options()
         )
         
-        masLines = bas_download(res, masfile)
+        masLines = bas_download(res, masfile, session, bundle)
         
         if (length(masLines) > 0)
         {
@@ -1965,11 +1965,11 @@ bas_evaluate_result <- function (result)
   return(result)
 }
 
-bas_download <- function(result, target)
+bas_download <- function(result, target, session = "", bundle = "")
 {
   if (stringr::str_detect(result, "<success>false</success>"))
   {
-    stop("Unsuccessful webservice call: ", result)
+    stop("Unsuccessful webservice call in bundle ", bundle, ", session ", session, ": ", result)
   }
   
   downloadLink = stringr::str_match(result, "<downloadLink>(.*)</downloadLink>")[1, 2]
@@ -1986,12 +1986,12 @@ bas_download <- function(result, target)
   
   if (class(lines) == "try-error")
   {
-    stop("Cannot read from G2P output ", target)
+    stop("Bundle ", bundle, ", session ", session, ": Cannot read from G2P output ", target)
   }
   
   if (length(lines) == 0)
   {
-    stop("Zero line output from webservice: ", target)
+    stop("Bundle ", bundle, ", session ", session, ": Zero line output from webservice: ", target)
   }
   
   return(lines)
@@ -2164,7 +2164,7 @@ bas_get_top_id <- function(handle, session, bundle, topLevel)
     return(NULL)
   }
   if (nrow(res) > 1) {
-    stop("More than one possible node on level ",
+    stop("Bundle ", bundle, ", session ", session, ": More than one possible node on level ",
          topLevel,
          " in bundle ",
          bundle)
