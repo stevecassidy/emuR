@@ -274,7 +274,7 @@ convert_BPFCollection <- function(sourceDir,
   }
   
   # ---------------------------------------------------------------------------
-  # ----- Link from Utterance level to refLevel and levels above refLevel -----
+  # ------ Link from bundle level to refLevel and levels above refLevel -------
   # ---------------------------------------------------------------------------
   
   if(length(linkTracker) > 0)
@@ -955,7 +955,7 @@ merge_bpfLinkTypes <- function(linkTracker)
 ###############################################################################
 ###############################################################################
 
-## Create links from the utterance level to the next highest level(s)
+## Create links from the bundle level to the next highest level(s)
 ## 
 ## @param emuDBhandle
 ## @param linkTracker
@@ -967,7 +967,7 @@ link_bpfUtteranceLevel <- function(emuDBhandle, linkTracker,
                                    refLevel)
 {
   # ---------------------------------------------------------------------------
-  # --- Get list of levels that should be linked to from the Utterance level --
+  # --- Get list of levels that should be linked to from the bundle level --
   # ---------------------------------------------------------------------------
   
   # (contains refLevel and any levels that are hierarchically higher than refLevel)
@@ -978,7 +978,7 @@ link_bpfUtteranceLevel <- function(emuDBhandle, linkTracker,
   for(level in underUtterance)
   {
     # -------------------------------------------------------------------------
-    # --------- Create links from Utterance to current level in temp DB -------
+    # ---------- Create links from bundle to current level in temp DB ---------
     # -------------------------------------------------------------------------
     
     nbItems = link_bpfUtteranceLevelToCurrentLevel(emuDBhandle, currentLevel = level)
@@ -988,7 +988,7 @@ link_bpfUtteranceLevel <- function(emuDBhandle, linkTracker,
     # -------------------------------------------------------------------------
     
     # Check whether there is one item of this specific level per bundle, or more than one.
-    # This determines whether the links from 'Utterance' are ONE_TO_ONE or ONE_TO_MANY.
+    # This determines whether the links from 'bundle' are ONE_TO_ONE or ONE_TO_MANY.
     
     queryTxt = paste0("SELECT DISTINCT db_uuid, session, bundle FROM items WHERE level = '", level, "'")
     distinctUuidSessionBundle = DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
@@ -1008,7 +1008,7 @@ link_bpfUtteranceLevel <- function(emuDBhandle, linkTracker,
     # -------------------------- Update link tracker --------------------------
     # -------------------------------------------------------------------------
     
-    linkTracker[[length(linkTracker) + 1L]] = list(fromkey = "Utterance", 
+    linkTracker[[length(linkTracker) + 1L]] = list(fromkey = "bundle", 
                                                    tokey = level, 
                                                    type = linkType)
   }
@@ -1076,8 +1076,8 @@ link_bpfUtteranceLevelToCurrentLevel <- function(emuDBhandle, currentLevel)
     bundle = uuidSessionBundleItemID[idx,][["bundle"]]
     itemID = uuidSessionBundleItemID[idx,][["item_id"]]
     
-    # Link all items to their corresponding Utterance item 
-    # (same UUID, session & bundle, Utterance item_id is always 1).
+    # Link all items to their corresponding bundle item 
+    # (same UUID, session & bundle, item_id is always 1).
     queryTxt = paste0("INSERT INTO links VALUES('", db_uuid, "', '", session, "', '", bundle, "', 1, ", itemID, ", NULL)")
     DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
   }

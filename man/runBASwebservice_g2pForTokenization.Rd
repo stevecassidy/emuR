@@ -36,9 +36,11 @@ webservice functions) in the meantime, as they are likely to delete your tempora
 \description{
 This function calls the webservice G2P to break up a transcription into tokens, or words.
 In addition to tokenization, G2P performs normalization of numbers and other special words.
-All necessary level, link and attribute definitions are created in the process.
 A call to this function is usually followed by a call to \link{runBASwebservice_g2pForPronunciation}.
 \strong{This function requires an internet connection.}
+}
+\details{
+All necessary level, link and attribute definitions are created in the process.
 }
 \seealso{
 Other BAS.webservice.functions: \code{\link{runBASwebservice_all}},

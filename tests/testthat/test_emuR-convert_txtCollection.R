@@ -41,20 +41,21 @@ test_that("testing txt collection conversion",
             expect_true(dbConfig$EMUwebAppConfig$activeButtons$saveBundle)
             expect_true(dbConfig$EMUwebAppConfig$activeButtons$showHierarchy)
             
-            # Check that there are no level canvas orders (Transcription is item!)
+            # Check that there are no level canvas orders (bundle is item!)
             expect_equal(length(dbConfig$EMUwebAppConfig$perspectives[[1]]$levelCanvases$order), 0)
                                     
-            # Check that there is one level definition (Transcription)
+            # Check that there is one level definition (bundle)
             expect_equal(length(dbConfig$levelDefinitions), 1)
                                     
             # Check that level names and types are correct
-            expect_equal(sapply(dbConfig$levelDefinitions, function(x) x$name), "Transcription")
+            expect_equal(sapply(dbConfig$levelDefinitions, function(x) x$name), "bundle")
             expect_equal(sapply(dbConfig$levelDefinitions, function(x) x$type), "ITEM")
                                     
             # Check that each level has the appropriate amount of attribute definitions
-            expect_equal(sapply(dbConfig$levelDefinitions, function(x) length(x$attributeDefinitions)), 1)
-            expect_equal(sapply(dbConfig$levelDefinitions, function(x) x$attributeDefinitions[[1]]$name), "Transcription")
-
+            expect_equal(sapply(dbConfig$levelDefinitions, function(x) length(x$attributeDefinitions)), 2)
+            expect_equal(sapply(dbConfig$levelDefinitions, function(x) x$attributeDefinitions[[1]]$name), "bundle")
+            expect_equal(sapply(dbConfig$levelDefinitions, function(x) x$attributeDefinitions[[2]]$name), "transcription")
+            
             # No link definitions
             expect_equal(length(dbConfig$linkDefinitions), 0)
             
@@ -68,7 +69,7 @@ test_that("testing txt collection conversion",
                                     
             # Check individual items
             expect_equal(dbAnnot$levels[[1]]$items[[1]]$id, 1)
-            expect_equal(dbAnnot$levels[[1]]$items[[1]]$labels[[1]]$value, "amongst her friends she was considered beautiful")
+            expect_equal(dbAnnot$levels[[1]]$items[[1]]$labels[[2]]$value, "amongst her friends she was considered beautiful")
                                     
             # Check that there are no links
             expect_equal(length(dbAnnot$links), 0)

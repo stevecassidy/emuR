@@ -25,12 +25,15 @@ convert_txtCollection <- function(dbName,
                                   targetDir,
                                   txtExtension = 'txt',
                                   mediaFileExtension = 'wav',
-                                  transcriptionLabel = "bundle",
+                                  transcriptionLabel = 'transcription',
                                   cleanWhitespaces = TRUE,
                                   verbose = TRUE)
 {
-  
-  transcriptionLevel = transcriptionLabel
+  transcriptionLevel = 'bundle'
+  if(transcriptionLevel == transcriptionLabel)
+  {
+    stop("Transcription label must not be ", transcriptionLabel)
+  }
   
   # ---------------------------------------------------------------------------
   # -------------------------- Get directories --------------------------------
@@ -173,6 +176,19 @@ convert_txtCollection <- function(dbName,
       "','",
       bundle,
       "',1,1,'",
+      transcriptionLevel,
+      "','')"
+    )
+    DBI::dbGetQuery(dbHandle$connection, queryTxt)
+    
+    queryTxt = paste0(
+      "INSERT INTO labels VALUES('",
+      dbHandle$UUID,
+      "','",
+      session,
+      "','",
+      bundle,
+      "',1,2,'",
       transcriptionLabel,
       "','",
       transcription,
@@ -201,8 +217,11 @@ convert_txtCollection <- function(dbName,
       list(
         name = transcriptionLevel,
         type = "ITEM",
-        attributeDefinitions = list(list(name = transcriptionLabel,
-                                         type = "STRING"))
+        attributeDefinitions = list(list(name=transcriptionLevel,
+                                         type = "STRING"),
+                                    list(name = transcriptionLabel,
+                                         type = "STRING",
+                                         description="Transcription imported from txt collection"))
       )
     ),
     linkDefinitions = list(),
