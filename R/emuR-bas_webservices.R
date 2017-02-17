@@ -537,11 +537,11 @@ runBASwebservice_pho2sylCanonical <- function(handle,
 ##' of a phonetic segmentation (created by, for example, \link{runBASwebservice_maus}).
 ##' You can provide the name of your word segmentation, or of any other hierarchically
 ##' dominant segmentation, via the superLabel parameter. This way, the new syllable
-##' items can be linked with the pre-existing hierarchy. If you do not provide
-##' this input, the syllables will only be linked to the segments.
+##' items can be linked up into the pre-existing hierarchy. If you do not provide
+##' this input, the syllables will only be linked down to the segments.
 ##' 
 ##' All necessary level, link and parameter definitions are created in the process.
-##' By default, Pho2Syl is called in word synchronized mode. To override this, call this function
+##' By default, Pho2Syl is run in word synchronized mode. To override this, call this function
 ##' with the parameter params=list(wsync="no").
 ##' 
 ##' @family BAS webservice functions
