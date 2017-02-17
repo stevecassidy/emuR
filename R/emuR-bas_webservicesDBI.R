@@ -45,6 +45,15 @@ bas_run_maus_dbi <- function(handle,
     {
       stop("Chunk level ", chunkLevel, " must be a segment level")
     }
+    
+    if(!("USETRN" %in% names(params)))
+    {
+      if(verbose)
+      {
+        cat("INFO: Setting USETRN to true (chunk label: ", chunkLabel, ")\n")
+      }
+      params$USETRN = "true"
+    }
   }
   
   bundles_list = bas_evaluate_language_option(handle = handle, language = language)
@@ -144,6 +153,12 @@ bas_run_maus_dbi <- function(handle,
         {
           trn_items_bundle = trn_items[trn_items$bundle == bundle &
                                          trn_items$session == session, ]
+          if(nrow(trn_items_bundle) == 0)
+          {
+            close(kancon)
+            next
+          }
+          
           if (nrow(trn_items_bundle) > 0)
           {
             for (turn_idx in 1:nrow(trn_items_bundle))
