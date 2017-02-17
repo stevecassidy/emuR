@@ -1203,8 +1203,14 @@ get_bpfLevelDefinitions <- function(levelTracker)
       
       for(label in levelTracker[[levelIdx]][["labels"]])
       {
+        description = ""
+        if(label != "bundle")
+        {
+          description = "Imported from BPF collection"
+        }
         attrDefList[[length(attrDefList) + 1L]] = list(name = label, 
-                                                       type = "STRING")
+                                                       type = "STRING",
+                                                       description = description)
       }
       
       levelDefinitions[[length(levelDefinitions) + 1L]] = list(name = levelTracker[[levelIdx]][["key"]],
