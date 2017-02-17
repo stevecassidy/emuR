@@ -1890,11 +1890,14 @@ bas_prepare <- function(handle, resume, verbose)
   dir.create(BAS_WORKDIR, recursive = TRUE)
   
   dbConfig = load_DBconfig(handle)
-  oldBasePath = handle$basePath
   
-  handle$basePath <-
-    file.path(BAS_TMPDBDIR, paste0(handle$dbName, emuDB.suffix))
-  tmpCache = file.path(handle$basePath,
+  tmpBasePath = file.path(BAS_TMPDBDIR, paste0(handle$dbName, emuDB.suffix))
+  oldBasePath = handle$basePath
+    
+  tmpCache = file.path(newBasePath,
+                       paste0(handle$dbName, database.cache.suffix))
+  
+  oldCache = file.path(oldBasePath,
                        paste0(handle$dbName, database.cache.suffix))
   
   if (!(resume && file.exists(tmpCache)))
@@ -1908,19 +1911,23 @@ bas_prepare <- function(handle, resume, verbose)
       unlink(BAS_TMPDBDIR, recursive = TRUE)
     }
     
-    dir.create(handle$basePath, recursive = TRUE)
-    
-    oldCache = file.path(oldBasePath,
-                         paste0(handle$dbName, database.cache.suffix))
+    dir.create(newBasePath, recursive = TRUE)
+
     if (!file.copy(oldCache, tmpCache, overwrite = T))
     {
       stop("Could not create temporary DB cache")
     }
   }
   
+  handle$connection <- DBI::dbConnect(RSQLite::SQLite(), tmpCache)
+  
+  update_cache(handle, verbose = verbose)
+  
+  handle$basePath <- newBasePath
+  
   store_DBconfig(handle, dbConfig)
   
-  handle$connection <- DBI::dbConnect(RSQLite::SQLite(), tmpCache)
+  
   return(handle)
 }
 
