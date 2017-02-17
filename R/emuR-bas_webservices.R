@@ -73,17 +73,20 @@ runBASwebservice_all <- function(handle,
   # if our transcription is a segment level, we assume it is a manual chunk segmentation
   if (get_levelDefinition(handle, transcriptionLevel)$type == "SEGMENT") {
     chunkLabel = transcriptionLabel
+    usetrn = "true"
   }
   
   # else, we check if we will need to perform automatic chunk segmentation
   else if (bas_long_enough_for_chunker(handle, oldBasePath)) {
     running_chunker = TRUE
     chunkLevel = chunkLabel
+    usetrn = "true"
   }
   
   else
   {
     chunkLabel = NULL
+    usetrn = "false"
   }
   
   handle = bas_prepare(handle, resume, verbose)
@@ -135,7 +138,7 @@ runBASwebservice_all <- function(handle,
     mausLabel = mausLabel,
     verbose = verbose,
     resume = resume,
-    params = list(),
+    params = list(USETRN=usetrn),
     oldBasePath = oldBasePath,
     perspective = "default",
     turnChunkLevelIntoItemLevel = T
