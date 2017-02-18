@@ -235,8 +235,7 @@ bas_run_maus_dbi <- function(handle,
               label = stringr::str_replace_all(stringr::str_trim(splitline[5]), "'", "''")
               
               bas_id = splitline[[4]]
-              if (as.integer(bas_id) >= 0)
-              {
+              
                 bas_add_item(
                   handle = handle,
                   session = session,
@@ -264,13 +263,15 @@ bas_run_maus_dbi <- function(handle,
                   label = label
                 )
                 
-                bas_add_link(
-                  handle = handle,
-                  session = session,
-                  bundle = bundle,
-                  from_id = bas_id_to_item_id[[splitline[4]]],
-                  to_id =
-                    item_id
+                if (as.integer(bas_id) >= 0)
+                {
+                  bas_add_link(
+                    handle = handle,
+                    session = session,
+                    bundle = bundle,
+                    from_id = bas_id_to_item_id[[splitline[4]]],
+                    to_id =
+                      item_id
                 )
               }
             }
@@ -431,8 +432,7 @@ bas_run_minni_dbi <- function(handle,
             label = stringr::str_replace_all(stringr::str_trim(splitline[5]), "'", "''")
             
             bas_id = splitline[[4]]
-            if (as.integer(bas_id) >= 0)
-            {
+            
               bas_add_item(
                 handle = handle,
                 session = session,
@@ -461,7 +461,7 @@ bas_run_minni_dbi <- function(handle,
                 label = label
               )
               
-              if (!is.null(top_id))
+              if ((!is.null(top_id)) && bas_id >= 0)
               {
                 bas_add_link(
                   handle = handle,
@@ -470,7 +470,6 @@ bas_run_minni_dbi <- function(handle,
                   from_id = top_id,
                   to_id = item_id
                 )
-              }
             }
           }
         }
