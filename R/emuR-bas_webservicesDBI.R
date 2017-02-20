@@ -9,17 +9,54 @@ BAS_ADDRESS = "https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/"
 
 bas_run_maus_dbi <- function(handle,
                              canoLabel,
-                             canoLevel,
                              mausLabel,
-                             mausLevel,
-                             languages,
+                             language,
                              chunkLabel,
                              verbose,
                              params,
                              resume,
-                             oldBasePath)
+                             oldBasePath,
+                             perspective,
+                             turnChunkLevelIntoItemLevel)
 {
-  bundles_list = languages
+  mausLevel = mausLabel
+  
+  bas_check_this_is_a_new_label(handle, mausLabel)
+  
+  canoLevel = get_levelNameForAttributeName(handle, canoLabel)
+  if (is.null(canoLevel)) {
+    stop("Could not find a level for label", canoLabel)
+  }
+  
+  if (is.null(chunkLabel) &&
+      get_levelDefinition(handle, canoLevel)$type == "SEGMENT") {
+    chunkLabel = canoLabel
+  }
+  
+  if (!is.null(chunkLabel))
+  {
+    chunkLevel = get_levelNameForAttributeName(handle, chunkLabel)
+    if (is.null(chunkLevel))
+    {
+      stop("Could not find level for label ", chunkLabel)
+    }
+    
+    if (get_levelDefinition(handle, chunkLevel)$type != "SEGMENT")
+    {
+      stop("Chunk level ", chunkLevel, " must be a segment level")
+    }
+    
+    if(!("USETRN" %in% names(params)))
+    {
+      if(verbose)
+      {
+        cat("INFO: Setting USETRN to true (chunk label: ", chunkLabel, ")\n")
+      }
+      params$USETRN = "true"
+    }
+  }
+  
+  bundles_list = bas_evaluate_language_option(handle = handle, language = language)
   
   if (nrow(bundles_list) > 0)
   {
@@ -40,7 +77,7 @@ bas_run_maus_dbi <- function(handle,
       utils::setTxtProgressBar(pb, progress)
     }
     
-    queryTxt = paste0("[", canoLabel,"=~.*\\S.*]")
+    queryTxt = paste0("[", canoLabel, "=~.*\\S.*]")
     cano_items = query(handle, queryTxt, calcTimes = F)
     
     if (!is.null(chunkLabel))
@@ -50,7 +87,7 @@ bas_run_maus_dbi <- function(handle,
       
       if (nrow(trn_items_tmp) > 0)
       {
-        if (trn_items_tmp[1,"type"] != "SEGMENT")
+        if (trn_items_tmp[1, "type"] != "SEGMENT")
         {
           stop("Chunk segmentation must be of type SEGMENT")
         }
@@ -74,14 +111,13 @@ bas_run_maus_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat(" Skipping bundle", bundle)
-          utils::setTxtProgressBar(pb, bundle_idx)
+          cat("\nSkipping bundle", bundle)
         }
         next
       }
       
       cano_items_bundle = cano_items[cano_items$bundle == bundle &
-                                       cano_items$session == session,]
+                                       cano_items$session == session, ]
       
       if (nrow(cano_items_bundle) > 0)
       {
@@ -113,12 +149,16 @@ bas_run_maus_dbi <- function(handle,
           bas_id = bas_id + 1
         }
         
-        usetrn = "false"
         if (!is.null(chunkLabel))
         {
-          usetrn = "true"
           trn_items_bundle = trn_items[trn_items$bundle == bundle &
-                                         trn_items$session == session,]
+                                         trn_items$session == session, ]
+          if(nrow(trn_items_bundle) == 0)
+          {
+            close(kancon)
+            next
+          }
+          
           if (nrow(trn_items_bundle) > 0)
           {
             for (turn_idx in 1:nrow(trn_items_bundle))
@@ -128,7 +168,11 @@ bas_run_maus_dbi <- function(handle,
               turn_end = trn_items_bundle[turn_idx, "sample_end"]
               
               linked_ids = requery_hier(
-                handle, trn_items_bundle[turn_idx,], canoLabel, calcTimes = F, collapse = F
+                handle,
+                trn_items_bundle[turn_idx, ],
+                canoLabel,
+                calcTimes = F,
+                collapse = F
               )$start_item_id
               
               if (length(linked_ids) > 0)
@@ -138,8 +182,11 @@ bas_run_maus_dbi <- function(handle,
                 
                 
                 trnline = paste(
-                  "TRN:", turn_start, turn_end - turn_start,
-                  paste0(bas_ids, collapse = ","),"_"
+                  "TRN:",
+                  turn_start,
+                  turn_end - turn_start,
+                  paste0(bas_ids, collapse = ","),
+                  "_"
                 )
                 
                 write(trnline, kancon)
@@ -153,7 +200,6 @@ bas_run_maus_dbi <- function(handle,
         curlParams = list(
           LANGUAGE = language,
           OUTFORMAT = "par",
-          USETRN = usetrn,
           SIGNAL = RCurl::fileUpload(signalfile),
           BPF = RCurl::fileUpload(kanfile)
         )
@@ -173,7 +219,7 @@ bas_run_maus_dbi <- function(handle,
           .opts = bas_get_options()
         )
         
-        mauLines = bas_download(res, maufile)
+        mauLines = bas_download(res, maufile, session, bundle)
         
         if (length(mauLines) > 0)
         {
@@ -189,8 +235,7 @@ bas_run_maus_dbi <- function(handle,
               label = stringr::str_replace_all(stringr::str_trim(splitline[5]), "'", "''")
               
               bas_id = splitline[[4]]
-              if (as.integer(bas_id) >= 0)
-              {
+              
                 bas_add_item(
                   handle = handle,
                   session = session,
@@ -218,13 +263,15 @@ bas_run_maus_dbi <- function(handle,
                   label = label
                 )
                 
-                bas_add_link(
-                  handle = handle,
-                  session = session,
-                  bundle = bundle,
-                  from_id = bas_id_to_item_id[[splitline[4]]],
-                  to_id =
-                    item_id
+                if (as.integer(bas_id) >= 0)
+                {
+                  bas_add_link(
+                    handle = handle,
+                    session = session,
+                    bundle = bundle,
+                    from_id = bas_id_to_item_id[[splitline[4]]],
+                    to_id =
+                      item_id
                 )
               }
             }
@@ -241,6 +288,33 @@ bas_run_maus_dbi <- function(handle,
   {
     cat("\n")
   }
+  
+  add_levelDefinition(handle,
+                      mausLevel,
+                      "SEGMENT",
+                      verbose = FALSE,
+                      rewriteAllAnnots = FALSE)
+  bas_new_canvas(handle, perspective, mausLevel)
+  add_linkDefinition(handle, "ONE_TO_MANY", canoLevel, mausLevel)
+  
+  mausDescription = paste0(
+    "Phonetic segmentation automatically derived from '",
+    canoLabel,
+    "' by MAUS (",
+    BAS_ADDRESS,
+    "runMAUS) on ",
+    Sys.time(),
+    ", with the following parameters: (",
+    paste0(c(rbind(
+      names(params), unlist(params)
+    )), collapse = " "),
+    ")"
+  )
+  set_attributeDescription(handle, mausLevel, mausLabel, mausDescription)
+  
+  if (turnChunkLevelIntoItemLevel && !is.null(chunkLabel)) {
+    bas_segment_to_item_level(handle, chunkLevel)
+  }
 }
 
 #####################################################################
@@ -249,16 +323,33 @@ bas_run_maus_dbi <- function(handle,
 
 
 bas_run_minni_dbi <- function(handle,
-                              languages,
+                              language,
                               minniLabel,
-                              minniLevel,
                               verbose,
-                              topLevel,
+                              rootLabel,
                               params,
                               resume,
-                              oldBasePath)
+                              oldBasePath,
+                              perspective)
 {
-  bundles_list = languages
+  minniLevel = minniLabel
+  bas_check_this_is_a_new_label(handle, minniLabel)
+  
+  if (is.null(rootLabel))
+  {
+    rootLevel = NULL
+  }
+  else
+  {
+    rootLevel = get_levelNameForAttributeName(handle, rootLabel)
+    if (is.null(rootLevel))
+    {
+      stop("Could not find a level for label ", rootLabel)
+    }
+  }
+  
+  bundles_list = bas_evaluate_language_option(handle = handle, language = language)
+  
   if (nrow(bundles_list) > 0)
   {
     bas_ping(verbose)
@@ -293,18 +384,12 @@ bas_run_minni_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat(" Skipping bundle", bundle)
-          utils::setTxtProgressBar(pb, bundle_idx)
+          cat("\nSkipping bundle", bundle)
         }
         next
       }
       
-      top_id = NULL
-      if (!is.null(topLevel))
-      {
-        top_id = bas_get_top_id(handle, session, bundle, topLevel)
-      }
-      
+      top_id = bas_get_top_id(handle, session, bundle, rootLevel)
       
       max_id = bas_get_max_id(handle, session, bundle)
       
@@ -333,7 +418,7 @@ bas_run_minni_dbi <- function(handle,
         .opts = bas_get_options()
       )
       
-      minniLines = bas_download(res, minnifile)
+      minniLines = bas_download(res, minnifile, session, bundle)
       if (length(minniLines) > 0)
       {
         seq_idx = 1
@@ -347,8 +432,7 @@ bas_run_minni_dbi <- function(handle,
             label = stringr::str_replace_all(stringr::str_trim(splitline[5]), "'", "''")
             
             bas_id = splitline[[4]]
-            if (as.integer(bas_id) >= 0)
-            {
+            
               bas_add_item(
                 handle = handle,
                 session = session,
@@ -377,7 +461,7 @@ bas_run_minni_dbi <- function(handle,
                 label = label
               )
               
-              if (!is.null(top_id))
+              if ((!is.null(top_id)) && bas_id >= 0)
               {
                 bas_add_link(
                   handle = handle,
@@ -386,7 +470,6 @@ bas_run_minni_dbi <- function(handle,
                   from_id = top_id,
                   to_id = item_id
                 )
-              }
             }
           }
         }
@@ -401,6 +484,31 @@ bas_run_minni_dbi <- function(handle,
   {
     cat("\n")
   }
+  
+  add_levelDefinition(handle,
+                      minniLevel,
+                      "SEGMENT",
+                      verbose = FALSE,
+                      rewriteAllAnnots = FALSE)
+  bas_new_canvas(handle, perspective, minniLevel)
+  
+  if (!is.null(rootLevel))
+  {
+    add_linkDefinition(handle, "ONE_TO_MANY", rootLevel, minniLevel)
+  }
+  
+  minniDescription = paste0(
+    "Rough phonetic segmentation automatically derived by MINNI (",
+    BAS_ADDRESS,
+    "runMINNI) on ",
+    Sys.time(),
+    ", with the following parameters: (",
+    paste0(c(rbind(
+      names(params), unlist(params)
+    )), collapse = " "),
+    ")"
+  )
+  set_attributeDescription(handle, minniLevel, minniLabel, minniDescription)
 }
 
 #####################################################################
@@ -411,14 +519,22 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
                                              transcriptionLabel,
                                              canoLabel,
                                              orthoLabel,
-                                             transcriptionLevel,
-                                             orthoLevel,
-                                             languages,
+                                             language,
                                              verbose,
                                              resume,
                                              params)
 {
-  bundles_list = languages
+  orthoLevel = orthoLabel
+  
+  bas_check_this_is_a_new_label(handle, orthoLabel)
+  
+  transcriptionLevel = get_levelNameForAttributeName(handle, transcriptionLabel)
+  if (is.null(transcriptionLevel)) {
+    stop("Could not find a level for label ", transcriptionLabel)
+  }
+  
+  bundles_list = bas_evaluate_language_option(handle = handle, language = language)
+  
   if (nrow(bundles_list) > 0)
   {
     bas_ping(verbose)
@@ -440,7 +556,7 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
       utils::setTxtProgressBar(pb, progress)
     }
     
-    queryTxt = paste0("[", transcriptionLabel,"=~.*\\S.*]")
+    queryTxt = paste0("[", transcriptionLabel, "=~.*\\S.*]")
     transcription_items = query(handle, queryTxt, calcTimes = F)
     
     for (bundle_idx in 1:nrow(bundles_list))
@@ -456,14 +572,13 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat(" Skipping bundle", bundle)
-          utils::setTxtProgressBar(pb, bundle_idx)
+          cat("\nSkipping bundle", bundle)
         }
         next
       }
       
       transcription_items_bundle = transcription_items[transcription_items$bundle == bundle &
-                                                         transcription_items$session == session,]
+                                                         transcription_items$session == session, ]
       
       if (nrow(transcription_items_bundle) > 0)
       {
@@ -475,12 +590,19 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
           transcription_label = stringr::str_trim(transcription_items_bundle [label_idx, "labels"])
           transcription_item_id = transcription_items_bundle [label_idx, "start_item_id"]
           
-          textfile = file.path(BAS_WORKDIR, paste0(bundle, ".", toString(transcription_item_id), ".txt"))
+          textfile = file.path(BAS_WORKDIR, paste0(
+            bundle,
+            ".",
+            toString(transcription_item_id),
+            ".txt"
+          ))
           g2pfile = file.path(BAS_WORKDIR,
-                              paste0(bundle,
-                                     ".",
-                                     toString(transcription_item_id),
-                                     ".g2p.par"))
+                              paste0(
+                                bundle,
+                                ".",
+                                toString(transcription_item_id),
+                                ".g2p.par"
+                              ))
           
           write(transcription_label, file = textfile)
           
@@ -507,7 +629,7 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
             .opts = bas_get_options()
           )
           
-          g2pLines = bas_download(res, g2pfile)
+          g2pLines = bas_download(res, g2pfile, session, bundle)
           
           if (length(g2pLines) > 0)
           {
@@ -568,19 +690,47 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
   {
     cat("\n")
   }
+  add_levelDefinition(handle,
+                      orthoLevel,
+                      "ITEM",
+                      verbose = FALSE,
+                      rewriteAllAnnots = FALSE)
+  add_linkDefinition(handle, "ONE_TO_MANY", transcriptionLevel, orthoLevel)
+  
+  orthoDescription = paste0(
+    "Tokenized and normalized orthography level automatically derived from '",
+    transcriptionLabel,
+    "' by G2P (",
+    BAS_ADDRESS,
+    "runG2P) on ",
+    Sys.time(),
+    ", with the following parameters: (",
+    paste0(c(rbind(
+      names(params), unlist(params)
+    )), collapse = " "),
+    ")"
+  )
+  set_attributeDescription(handle, orthoLevel, orthoLabel, orthoDescription)
 }
 
 
 bas_run_g2p_for_pronunciation_dbi <- function(handle,
                                               orthoLabel,
-                                              orthoLevel,
                                               canoLabel,
-                                              languages,
+                                              language,
                                               verbose,
                                               resume,
                                               params)
 {
-  bundles_list = languages
+  orthoLevel = get_levelNameForAttributeName(handle, orthoLabel)
+  if (is.null(orthoLevel)) {
+    stop("Could not find a level for label ", orthoLabel)
+  }
+  
+  bas_check_this_is_a_new_label(handle, canoLabel)
+  
+  bundles_list = bas_evaluate_language_option(handle = handle, language = language)
+  
   if (nrow(bundles_list) > 0)
   {
     bas_ping(verbose)
@@ -600,7 +750,7 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
       utils::setTxtProgressBar(pb, progress)
     }
     
-    queryTxt = paste0("[", orthoLabel,"=~.*\\S.*]")
+    queryTxt = paste0("[", orthoLabel, "=~.*\\S.*]")
     ortho_items = query(handle, queryTxt, calcTimes = F)
     
     for (bundle_idx in 1:nrow(bundles_list))
@@ -616,14 +766,13 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat(" Skipping bundle", bundle)
-          utils::setTxtProgressBar(pb, bundle_idx)
+          cat("\nSkipping bundle", bundle)
         }
         next
       }
       
       ortho_items_bundle = ortho_items[ortho_items$bundle == bundle &
-                                         ortho_items$session == session,]
+                                         ortho_items$session == session, ]
       
       if (nrow(ortho_items_bundle) > 0)
       {
@@ -675,7 +824,7 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
           .opts = bas_get_options()
         )
         
-        g2pLines = bas_download(res, kanfile)
+        g2pLines = bas_download(res, kanfile, session, bundle)
         
         if (length(g2pLines) > 0)
         {
@@ -712,6 +861,30 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
   {
     cat("\n")
   }
+  
+  internal_add_attributeDefinition(
+    handle,
+    orthoLevel,
+    canoLabel,
+    verbose = FALSE,
+    rewriteAllAnnots = FALSE,
+    insertLabels = FALSE
+  )
+  canoDescription = paste0(
+    "Canonical transcription automatically derived from '",
+    orthoLabel,
+    "' by G2P (",
+    BAS_ADDRESS,
+    "runG2P) on ",
+    Sys.time(),
+    ", with the following parameters: (",
+    paste0(c(rbind(
+      names(params), unlist(params)
+    )), collapse = " "),
+    ")"
+  )
+  
+  set_attributeDescription(handle, orthoLevel, canoLabel, canoDescription)
 }
 
 #####################################################################
@@ -720,18 +893,38 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
 
 bas_run_chunker_dbi <- function(handle,
                                 canoLabel,
-                                canoLevel,
                                 chunkLabel,
-                                languages,
+                                language,
                                 verbose,
-                                chunkLevel,
-                                topLevel,
+                                rootLabel,
                                 orthoLabel,
                                 params,
                                 resume,
-                                oldBasePath)
+                                oldBasePath,
+                                perspective)
 {
-  bundles_list = languages
+  chunkLevel = chunkLabel
+  bas_check_this_is_a_new_label(handle, chunkLabel)
+  
+  canoLevel = get_levelNameForAttributeName(handle, canoLabel)
+  if (is.null(canoLevel)) {
+    stop("Could not find a level for label ", canoLabel)
+  }
+  
+  if (is.null(rootLabel))
+  {
+    rootLevel = NULL
+  }
+  else
+  {
+    rootLevel = get_levelNameForAttributeName(handle, rootLabel)
+    if (is.null(rootLevel))
+    {
+      stop("Could not find a level for label ", rootLabel)
+    }
+  }
+  
+  bundles_list = bas_evaluate_language_option(handle = handle, language = language)
   if (nrow(bundles_list) > 0)
   {
     bas_ping(verbose)
@@ -752,7 +945,7 @@ bas_run_chunker_dbi <- function(handle,
       utils::setTxtProgressBar(pb, progress)
     }
     
-    queryTxt = paste0("[", canoLabel,"=~.*\\S.*]")
+    queryTxt = paste0("[", canoLabel, "=~.*\\S.*]")
     cano_items = query(handle, queryTxt, calcTimes = F)
     
     for (bundle_idx in 1:nrow(bundles_list))
@@ -768,16 +961,15 @@ bas_run_chunker_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat(" Skipping bundle", bundle)
-          utils::setTxtProgressBar(pb, bundle_idx)
+          cat("\nSkipping bundle", bundle)
         }
         next
       }
       
       cano_items_bundle = cano_items[cano_items$bundle == bundle &
-                                       cano_items$session == session,]
+                                       cano_items$session == session, ]
       
-      top_id = bas_get_top_id(handle, session, bundle, topLevel)
+      top_id = bas_get_top_id(handle, session, bundle, rootLevel)
       
       if (nrow(cano_items_bundle) > 0)
       {
@@ -804,15 +996,19 @@ bas_run_chunker_dbi <- function(handle,
           if (!is.null(orthoLabel))
           {
             ortho_labels = requery_hier(
-              handle, seglist = cano_items_bundle[label_idx,], level = orthoLabel, calcTimes = F
+              handle,
+              seglist = cano_items_bundle[label_idx, ],
+              level = orthoLabel,
+              calcTimes = F
             )
             
             if (length(ortho_labels) > 0)
             {
-              write(paste0("ORT: ", bas_id, " ", ortho_labels[1, "labels"]), kancon)
+              write(paste0("ORT: ", bas_id, " ", ortho_labels[1, "labels"]),
+                    kancon)
             }
           }
-            
+          
           write(paste0("KAN: ", bas_id, " ", cano_label),
                 kancon)
           item_id_to_bas_id[[toString(cano_item_id)]] = bas_id
@@ -843,7 +1039,7 @@ bas_run_chunker_dbi <- function(handle,
           .opts = bas_get_options()
         )
         
-        trnLines = bas_download(res, trnfile)
+        trnLines = bas_download(res, trnfile, session, bundle)
         
         if (length(trnLines) > 0)
         {
@@ -928,7 +1124,32 @@ bas_run_chunker_dbi <- function(handle,
     cat("\n")
   }
   
+  add_levelDefinition(handle,
+                      chunkLevel,
+                      "SEGMENT",
+                      verbose = FALSE,
+                      rewriteAllAnnots = FALSE)
+  bas_new_canvas(handle, perspective, chunkLevel)
+  add_linkDefinition(handle, "ONE_TO_MANY", chunkLevel, canoLevel)
+  if (!is.null(rootLevel))
+  {
+    add_linkDefinition(handle, "ONE_TO_MANY", rootLevel, chunkLevel)
+  }
   
+  chunkDescription = paste0(
+    "Chunk segmentation automatically derived from '",
+    canoLabel,
+    "' by Chunker (",
+    BAS_ADDRESS,
+    "runChunker) on ",
+    Sys.time(),
+    ", with the following parameters: (",
+    paste0(c(rbind(
+      names(params), unlist(params)
+    )), collapse = " "),
+    ")"
+  )
+  set_attributeDescription(handle, chunkLevel, chunkLabel, chunkDescription)
 }
 
 #####################################################################
@@ -937,14 +1158,21 @@ bas_run_chunker_dbi <- function(handle,
 
 bas_run_pho2syl_canonical_dbi <- function(handle,
                                           canoLabel,
-                                          canoLevel,
-                                          languages,
+                                          language,
                                           verbose,
                                           canoSylLabel,
                                           resume,
                                           params)
 {
-  bundles_list = languages
+  canoLevel = get_levelNameForAttributeName(handle, canoLabel)
+  if (is.null(canoLevel)) {
+    stop("Could not find a level for label ", canoLabel)
+  }
+  
+  bas_check_this_is_a_new_label(handle, canoSylLabel)
+  
+  bundles_list = bas_evaluate_language_option(handle = handle, language = language)
+  
   if (nrow(bundles_list) > 0)
   {
     bas_ping(verbose)
@@ -965,7 +1193,7 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
       utils::setTxtProgressBar(pb, progress)
     }
     
-    queryTxt = paste0("[", canoLabel,"=~.*\\S.*]")
+    queryTxt = paste0("[", canoLabel, "=~.*\\S.*]")
     cano_items = query(handle, queryTxt, calcTimes = F)
     
     for (bundle_idx in 1:nrow(bundles_list))
@@ -981,14 +1209,13 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat(" Skipping bundle", bundle)
-          utils::setTxtProgressBar(pb, bundle_idx)
+          cat("\nSkipping bundle", bundle)
         }
         next
       }
       
       cano_items_bundle = cano_items[cano_items$bundle == bundle &
-                                       cano_items$session == session,]
+                                       cano_items$session == session, ]
       
       
       if (nrow(cano_items_bundle) > 0)
@@ -1042,7 +1269,7 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
           .opts = bas_get_options()
         )
         
-        kasLines = bas_download(res, kasfile)
+        kasLines = bas_download(res, kasfile, session, bundle)
         
         if (length(kasLines) > 0)
         {
@@ -1085,18 +1312,173 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
   {
     cat("\n")
   }
+  internal_add_attributeDefinition(
+    handle,
+    canoLevel,
+    canoSylLabel,
+    verbose = FALSE,
+    rewriteAllAnnots = FALSE,
+    insertLabels = FALSE
+  )
+  
+  kasDescription = paste0(
+    "Syllabified canonical pronunciation automatically derived from '",
+    canoLabel,
+    "' by Pho2Syl (",
+    BAS_ADDRESS,
+    "runPho2Syl) on ",
+    Sys.time(),
+    ", with the following parameters: (",
+    paste0(c(rbind(
+      names(params), unlist(params)
+    )), collapse = " "),
+    ")"
+  )
+  set_attributeDescription(handle, canoLevel, canoSylLabel, kasDescription)
 }
 
 bas_run_pho2syl_segmental_dbi <- function(handle,
-                                          mausLabel,
-                                          mausLevel,
-                                          languages,
+                                          segmentLabel,
+                                          language,
                                           verbose,
                                           sylLabel,
-                                          sylLevel,
-                                          wordLabel,
+                                          superLabel,
                                           resume,
                                           params)
+{
+  sylLevel = sylLabel
+  
+  bas_check_this_is_a_new_label(handle, sylLabel)
+  
+  segmentLevel = get_levelNameForAttributeName(handle, segmentLabel)
+  if (is.null(segmentLevel)) {
+    stop("Could not find a level for label ", segmentLevel)
+  }
+  
+  if (get_levelDefinition(handle, segmentLevel)$type != "SEGMENT") {
+    stop(segmentLevel,
+         " must be a segment tier in order to run pho2syl from segment")
+  }
+  
+  if (!is.null(superLabel))
+  {
+    superLevel = get_levelNameForAttributeName(handle, superLabel)
+    if (is.null(superLevel)) {
+      stop("Could not find a level for label ", superLabel)
+    }
+  }
+  
+  multilink = F
+  if ("wsync" %in% names(params) && params$wsync == "no")
+  {
+    multilink = T
+  }
+  
+  languages = bas_evaluate_language_option(handle = handle, language = language)
+  
+  if (!is.null(superLabel))
+  {
+    bas_run_pho2syl_segmental_dbi_anchored(
+      handle = handle,
+      segmentLabel = segmentLabel,
+      segmentLevel = segmentLevel,
+      languages = languages,
+      verbose = verbose,
+      sylLabel = sylLabel,
+      sylLevel = sylLevel,
+      wordLabel = superLabel,
+      resume = resume,
+      params = params,
+      allowmultilink = multilink
+    )
+  }
+  
+  else
+  {
+    bas_run_pho2syl_segmental_dbi_unanchored(
+      handle = handle,
+      segmentLabel = segmentLabel,
+      segmentLevel = segmentLevel,
+      languages = languages,
+      verbose = verbose,
+      sylLabel = sylLabel,
+      sylLevel = sylLevel,
+      resume = resume,
+      params = params
+    )
+  }
+  
+  add_levelDefinition(handle,
+                      sylLevel,
+                      "SEGMENT",
+                      verbose = FALSE,
+                      rewriteAllAnnots = FALSE)
+  
+  sylDescription = paste0(
+    "Syllable segmentation automatically derived from '",
+    segmentLabel,
+    "' by Pho2Syl (",
+    BAS_ADDRESS,
+    "runPho2Syl) on ",
+    Sys.time(),
+    ", with the following parameters: (",
+    paste0(c(rbind(
+      names(params), unlist(params)
+    )), collapse = " "),
+    ")"
+  )
+  set_attributeDescription(handle, sylLevel, sylLabel, sylDescription)
+  
+  if (!is.null(superLabel))
+  {
+    if (multilink)
+    {
+      add_linkDefinition(handle, "MANY_TO_MANY", superLevel, sylLevel)
+    }
+    else
+    {
+      add_linkDefinition(handle, "ONE_TO_MANY", superLevel, sylLevel)
+    }
+  }
+  
+  add_linkDefinition(handle, "ONE_TO_MANY", sylLevel, segmentLevel)
+  
+  if(verbose)
+  {
+    cat("INFO: Autobuilding syllable -> segment links from time information\n")
+  }
+  
+  autobuild_linkFromTimes(
+    handle,
+    sylLevel,
+    segmentLevel,
+    convertSuperlevel = TRUE,
+    rewriteAllAnnots = FALSE,
+    verbose = verbose
+  )
+  
+  remove_levelDefinition(
+    handle,
+    paste0(
+      sylLevel,
+      formals(autobuild_linkFromTimes)$backupLevelAppendStr
+    ),
+    force = T,
+    verbose = F
+  )
+}
+
+bas_run_pho2syl_segmental_dbi_anchored <- function(handle,
+                                                   segmentLabel,
+                                                   segmentLevel,
+                                                   languages,
+                                                   verbose,
+                                                   sylLabel,
+                                                   sylLevel,
+                                                   wordLabel,
+                                                   resume,
+                                                   params,
+                                                   allowmultilink)
 {
   bundles_list = languages
   if (nrow(bundles_list) > 0)
@@ -1120,11 +1502,17 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
     }
     
     
-    queryTxt = paste0("[", wordLabel,"=~.*]")
-    word_items = query(handle, queryTxt, calcTimes = T, timeRefSegmentLevel = mausLevel)
+    queryTxt = paste0("[", wordLabel, "=~.*]")
+    word_items = query(handle,
+                       queryTxt,
+                       calcTimes = T,
+                       timeRefSegmentLevel = segmentLevel)
     
-    queryTxt = paste0("[", mausLabel,"=~.*]")
-    maus_items = query(handle, queryTxt, calcTimes = T, timeRefSegmentLevel = mausLevel)
+    queryTxt = paste0("[", segmentLabel, "=~.*\\S.*]")
+    maus_items = query(handle,
+                       queryTxt,
+                       calcTimes = T,
+                       timeRefSegmentLevel = segmentLevel)
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
@@ -1139,19 +1527,19 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
       {
         if (verbose)
         {
-          cat(" Skipping bundle", bundle)
-          utils::setTxtProgressBar(pb, bundle_idx)
+          cat("\nSkipping bundle", bundle)
         }
         next
       }
       
       word_items_bundle = word_items[word_items$bundle == bundle &
-                                       word_items$session == session,]
+                                       word_items$session == session, ]
       
       maus_items_bundle = maus_items[maus_items$bundle == bundle &
-                                       maus_items$session == session,]
+                                       maus_items$session == session, ]
       
-      if (nrow(word_items_bundle) > 0 && nrow(maus_items_bundle) > 0)
+      if (nrow(word_items_bundle) > 0 &&
+          nrow(maus_items_bundle) > 0)
       {
         seq_idx = 1
         max_id = bas_get_max_id(handle, session, bundle)
@@ -1169,7 +1557,7 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
         written_anything = FALSE
         
         
-        mau_start = - 1
+        mau_start = -1
         mau_idx = 1
         
         for (word_idx in 1:nrow(word_items_bundle))
@@ -1179,13 +1567,15 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
           word_start = word_items_bundle[word_idx, "sample_start"]
           written_mau = FALSE
           
-          while(maus_items_bundle[mau_idx, "sample_end"] <= word_end && mau_idx <= nrow(maus_items_bundle))
+          while (maus_items_bundle[mau_idx, "sample_end"] <= word_end &&
+                 mau_idx <= nrow(maus_items_bundle))
           {
             mau_label = stringr::str_trim(maus_items_bundle[mau_idx, "labels"])
             mau_start = maus_items_bundle[mau_idx, "sample_start"]
             mau_end = maus_items_bundle[mau_idx, "sample_end"]
-
-            if (stringr::str_length(mau_label) > 0 && mau_start >= word_start)
+            
+            if (stringr::str_length(mau_label) > 0 &&
+                mau_start >= word_start)
             {
               write(
                 paste0(
@@ -1200,7 +1590,7 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
                 ),
                 maucon
               )
-                
+              
               written_mau = TRUE
               written_anything = TRUE
             }
@@ -1240,7 +1630,7 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
             .opts = bas_get_options()
           )
           
-          masLines = bas_download(res, masfile)
+          masLines = bas_download(res, masfile, session, bundle)
           
           if (length(masLines) > 0)
           {
@@ -1257,6 +1647,14 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
                 
                 bas_ids = splitline[[4]]
                 bas_ids_split = stringr::str_split(bas_ids, ",")[[1]]
+                
+                if ((!allowmultilink) && length(bas_ids_split) > 1)
+                {
+                  stop("Bundle ", bundle, " session ", session, ": ",
+                    "Pho2Syl returned item with multiple links despite wsync not being set to yes: ",
+                    line
+                  )
+                }
                 
                 if (as.integer(bas_ids_split[1]) >= 0)
                 {
@@ -1317,12 +1715,191 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
   }
 }
 
+bas_run_pho2syl_segmental_dbi_unanchored <- function(handle,
+                                                     segmentLabel,
+                                                     segmentLevel,
+                                                     languages,
+                                                     verbose,
+                                                     sylLabel,
+                                                     sylLevel,
+                                                     resume,
+                                                     params)
+{
+  bundles_list = languages
+  if (nrow(bundles_list) > 0)
+  {
+    bas_ping(verbose)
+    if (verbose)
+    {
+      cat(
+        "INFO: Running Pho2Syl (segmental) on emuDB containing",
+        nrow(bundles_list),
+        "bundle(s)...\n"
+      )
+      progress = 0
+      pb = utils::txtProgressBar(
+        min = 0,
+        max = nrow(bundles_list),
+        initial = 0,
+        style = 3
+      )
+      utils::setTxtProgressBar(pb, progress)
+    }
+    
+    queryTxt = paste0("[", segmentLabel, "=~.*\\S\\.*]")
+    maus_items = query(handle,
+                       queryTxt,
+                       calcTimes = T,
+                       timeRefSegmentLevel = segmentLevel)
+    
+    for (bundle_idx in 1:nrow(bundles_list))
+    {
+      bundle = bundles_list[bundle_idx, "bundle"]
+      session = bundles_list[bundle_idx, "session"]
+      language = bundles_list[bundle_idx, "language"]
+      
+      samplerate = bas_get_samplerate(handle, session, bundle)
+      
+      if (resume &&
+          bas_label_exists_in_bundle(handle, session, bundle, sylLabel))
+      {
+        if (verbose)
+        {
+          cat("\nSkipping bundle", bundle)
+        }
+        next
+      }
+      
+      maus_items_bundle = maus_items[maus_items$bundle == bundle &
+                                       maus_items$session == session, ]
+      
+      if (nrow(maus_items_bundle) > 0)
+      {
+        seq_idx = 1
+        max_id = bas_get_max_id(handle, session, bundle)
+        
+        maufile = file.path(BAS_WORKDIR, paste0(bundle, ".mau.par"))
+        masfile = file.path(BAS_WORKDIR, paste0(bundle, ".mas.par"))
+        
+        maucon <- file(maufile)
+        open(maucon, "w")
+        write(paste0("SAM: ", samplerate, "\nLBD:"), maucon)
+        
+        
+        for (mau_idx in 1:nrow(maus_items_bundle))
+        {
+          mau_label = stringr::str_trim(maus_items_bundle[mau_idx, "labels"])
+          mau_start = maus_items_bundle[mau_idx, "sample_start"]
+          mau_end = maus_items_bundle[mau_idx, "sample_end"]
+          
+          
+          if (stringr::str_length(mau_label) > 0)
+          {
+            write(paste0(
+              "MAU: ",
+              mau_start,
+              " ",
+              mau_end - mau_start,
+              " 0 ",
+              mau_label
+            ),
+            maucon)
+            
+          }
+        }
+        
+        close(maucon)
+        
+        curlParams = list(
+          lng = language,
+          tier = "MAU",
+          oform = "bpf",
+          i = RCurl::fileUpload(maufile)
+        )
+        
+        for (key in names(params))
+        {
+          if (!(key %in% names(curlParams)))
+          {
+            curlParams[[key]] = params[[key]]
+          }
+        }
+        
+        res = RCurl::postForm(
+          paste0(BAS_ADDRESS, "runPho2Syl"),
+          .params = curlParams,
+          style = "HTTPPOST",
+          .opts = bas_get_options()
+        )
+        
+        masLines = bas_download(res, masfile, session, bundle)
+        
+        if (length(masLines) > 0)
+        {
+          for (line_idx in 1:length(masLines))
+          {
+            line = masLines[line_idx]
+            if (stringr::str_detect(line, "^MAS:"))
+            {
+              splitline = stringr::str_split_fixed(line, "\\s+", n = 5)
+              item_id = max_id + seq_idx
+              start = as.integer(splitline[[2]])
+              dur = as.integer(splitline[[3]])
+              label = stringr::str_replace_all(stringr::str_trim(splitline[[5]]), "'", "''")
+              
+              bas_ids = splitline[[4]]
+              bas_ids_split = stringr::str_split(bas_ids, ",")[[1]]
+              
+              if (as.integer(bas_ids_split[1]) >= 0)
+              {
+                bas_add_item(
+                  handle = handle,
+                  session = session,
+                  bundle = bundle,
+                  item_id = item_id,
+                  level = sylLevel,
+                  type = "SEGMENT",
+                  seq_idx = seq_idx,
+                  sample_start = start,
+                  sample_dur = dur,
+                  samplerate = samplerate
+                )
+                
+                seq_idx = seq_idx + 1
+                
+                bas_add_label(
+                  handle = handle,
+                  session = session,
+                  bundle = bundle,
+                  item_id = item_id,
+                  label_idx = 1,
+                  label_name =
+                    sylLabel,
+                  label = label
+                )
+              }
+            }
+          }
+        }
+      }
+      if (verbose)
+      {
+        utils::setTxtProgressBar(pb, bundle_idx)
+      }
+    }
+  }
+  if (verbose)
+  {
+    cat("\n")
+  }
+}
+
 #####################################################################
 ############################ HELPERS ################################
 #####################################################################
 bas_prepare <- function(handle, resume, verbose)
 {
-  if(dir.exists(BAS_WORKDIR))
+  if (dir.exists(BAS_WORKDIR))
   {
     unlink(BAS_WORKDIR, recursive = TRUE)
   }
@@ -1330,43 +1907,56 @@ bas_prepare <- function(handle, resume, verbose)
   dir.create(BAS_WORKDIR, recursive = TRUE)
   
   dbConfig = load_DBconfig(handle)
+  
+  tmpBasePath = file.path(BAS_TMPDBDIR, paste0(handle$dbName, emuDB.suffix))
   oldBasePath = handle$basePath
+    
+  tmpCache = file.path(tmpBasePath,
+                       paste0(handle$dbName, database.cache.suffix))
   
-  handle$basePath <- file.path(BAS_TMPDBDIR, paste0(handle$dbName, emuDB.suffix))
-  tmpCache = file.path(handle$basePath, paste0(handle$dbName, database.cache.suffix))
+  oldCache = file.path(oldBasePath,
+                       paste0(handle$dbName, database.cache.suffix))
   
-  if(!(resume && file.exists(tmpCache)))
+  if (!(resume && file.exists(tmpCache)))
   {
-    if(verbose)
+    if (verbose)
     {
       cat("INFO: Preparing temporary database. This may take a while...\n")
     }
-    if(dir.exists(BAS_TMPDBDIR))
+    if (dir.exists(BAS_TMPDBDIR))
     {
       unlink(BAS_TMPDBDIR, recursive = TRUE)
     }
     
-    dir.create(handle$basePath, recursive = TRUE)
-    
-    oldCache = file.path(oldBasePath, paste0(handle$dbName, database.cache.suffix))
-    if(!file.copy(oldCache, tmpCache, overwrite = T))
+    dir.create(tmpBasePath, recursive = TRUE)
+
+
+    if (!file.copy(oldCache, tmpCache, overwrite = T))
     {
       stop("Could not create temporary DB cache")
     }
   }
   
+  handle$connection <- DBI::dbConnect(RSQLite::SQLite(), tmpCache)
+  
+  update_cache(handle, verbose = verbose)
+  
+  handle$basePath <- tmpBasePath
+  
   store_DBconfig(handle, dbConfig)
   
-  handle$connection <- DBI::dbConnect(RSQLite::SQLite(), tmpCache)
+  
   return(handle)
 }
 
 bas_clear <- function(handle, oldBasePath)
 {
-  
   oldCache = file.path(oldBasePath, paste0(handle$dbName, database.cache.suffix))
   
-  if(!file.copy(file.path(handle$basePath, paste0(handle$dbName, database.cache.suffix)), oldCache, overwrite = TRUE))
+  if (!file.copy(file.path(
+    handle$basePath,
+    paste0(handle$dbName, database.cache.suffix)
+  ), oldCache, overwrite = TRUE))
   {
     stop("Could not copy temporary DB cache into original DB")
   }
@@ -1389,11 +1979,11 @@ bas_evaluate_result <- function (result)
   return(result)
 }
 
-bas_download <- function(result, target)
+bas_download <- function(result, target, session = "", bundle = "")
 {
   if (stringr::str_detect(result, "<success>false</success>"))
   {
-    stop("Unsuccessful webservice call: ", result)
+    stop("Unsuccessful webservice call in bundle ", bundle, ", session ", session, ": ", result)
   }
   
   downloadLink = stringr::str_match(result, "<downloadLink>(.*)</downloadLink>")[1, 2]
@@ -1410,12 +2000,12 @@ bas_download <- function(result, target)
   
   if (class(lines) == "try-error")
   {
-    stop("Cannot read from G2P output ", target)
+    stop("Bundle ", bundle, ", session ", session, ": Cannot read from G2P output ", target)
   }
   
   if (length(lines) == 0)
   {
-    stop("Zero line output from webservice: ", target)
+    stop("Bundle ", bundle, ", session ", session, ": Zero line output from webservice: ", target)
   }
   
   return(lines)
@@ -1435,7 +2025,8 @@ bas_get_max_label_idx <- function(handle, session, bundle, item_id)
 
 bas_get_max_id <- function(handle, session, bundle)
 {
-  queryTxt = paste0("SELECT max(item_id) FROM items", basic_cond(handle, session, bundle))
+  queryTxt = paste0("SELECT max(item_id) FROM items",
+                    basic_cond(handle, session, bundle))
   
   res = DBI::dbGetQuery(handle$connection, queryTxt)
   if (nrow(res) == 0 || is.na(res[1, 1]) || is.null(res[1, 1]))
@@ -1511,7 +2102,7 @@ bas_add_label <- function(handle,
     label,
     "')"
   )
-
+  
   DBI::dbGetQuery(handle$connection, queryTxt)
 }
 
@@ -1587,7 +2178,7 @@ bas_get_top_id <- function(handle, session, bundle, topLevel)
     return(NULL)
   }
   if (nrow(res) > 1) {
-    stop("More than one possible node on level ",
+    stop("Bundle ", bundle, ", session ", session, ": More than one possible node on level ",
          topLevel,
          " in bundle ",
          bundle)
@@ -1655,18 +2246,26 @@ bas_label_exists_in_bundle <-
   }
 
 bas_link_exists_in_bundle <-
-  function(handle, session, bundle, superLevel, subLevel)
+  function(handle,
+           session,
+           bundle,
+           superLevel,
+           subLevel)
   {
     queryTxt = paste0(
       "SELECT count(*) FROM links",
       basic_cond(handle, session, bundle),
       "AND from_id in (SELECT item_id FROM items",
       basic_cond(handle, session, bundle),
-      "AND name=='", superLevel, "') AND
+      "AND name=='",
+      superLevel,
+      "') AND
       to_id in (SELECT item_id FROM items",
       basic_cond(handle, session, bundle),
-      "AND name=='", subLevel, "')"
-    )
+      "AND name=='",
+      subLevel,
+      "')"
+      )
     return(DBI::dbGetQuery(handle$connection, queryTxt)[1, 1] > 0)
   }
 
@@ -1677,9 +2276,9 @@ bas_get_options <- function()
 
 bas_ping <- function(verbose)
 {
-  if(verbose)
+  if (verbose)
   {
-    cat("Sending ping to webservices provider.\n")
+    cat("INFO: Sending ping to webservices provider.\n")
   }
   
   res = RCurl::getURL(
@@ -1696,7 +2295,10 @@ bas_long_enough_for_chunker <- function(handle, basePath)
   {
     for (bundle_idx in nrow(bundles))
     {
-      annotates = bas_get_signal_path(handle, session = bundles[bundle_idx, "session"], bundles[bundle_idx, "name"], basePath = basePath)
+      annotates = bas_get_signal_path(handle,
+                                      session = bundles[bundle_idx, "session"],
+                                      bundles[bundle_idx, "name"],
+                                      basePath = basePath)
       obj = wrassp::read.AsspDataObj(annotates)
       if ((attr(obj, "endRecord") / attr(obj, "sampleRate")) > 60)
       {
@@ -1714,7 +2316,7 @@ bas_segment_to_item_level <- function(handle, segmentLevel)
   dbConfig = load_DBconfig(handle)
   
   for (i in 1:length(dbConfig$levelDefinitions)) {
-    if(dbConfig$levelDefinitions[[i]]$name == segmentLevel) {
+    if (dbConfig$levelDefinitions[[i]]$name == segmentLevel) {
       dbConfig$levelDefinitions[[i]]$type = 'ITEM'
     }
   }
@@ -1722,7 +2324,7 @@ bas_segment_to_item_level <- function(handle, segmentLevel)
   store_DBconfig(handle, dbConfig)
   
   perspectives = list_perspectives(handle)
-  if(nrow(perspectives) > 0)
+  if (nrow(perspectives) > 0)
   {
     for (perspective_idx in 1:nrow(perspectives))
     {
@@ -1738,8 +2340,13 @@ bas_segment_to_item_level_dbi <-
   function(handle, segmentLevel, items_table = "items")
   {
     queryTxt = paste0(
-      "UPDATE ", items_table, " SET type='ITEM', sample_point = NULL, sample_start = NULL, sample_dur = NULL WHERE level=='", segmentLevel,
-      "' AND db_uuid=='", handle$UUID, "'"
+      "UPDATE ",
+      items_table,
+      " SET type='ITEM', sample_point = NULL, sample_start = NULL, sample_dur = NULL WHERE level=='",
+      segmentLevel,
+      "' AND db_uuid=='",
+      handle$UUID,
+      "'"
     )
     
     DBI::dbGetQuery(handle$connection, queryTxt)
@@ -1748,7 +2355,7 @@ bas_segment_to_item_level_dbi <-
 bas_check_this_is_a_new_label <- function(handle, label)
 {
   if (!is.null(get_levelNameForAttributeName(handle, label))) {
-    stop("There is already a level with label", label)
+    stop("There is already a level with label ", label)
   }
   
   if (!is.null(get_levelDefinition(handle, label))) {
@@ -1759,7 +2366,7 @@ bas_check_this_is_a_new_label <- function(handle, label)
 
 bas_evaluate_language_option <- function(handle, language)
 {
-  bundles = list_bundles(handle)
+  bundles = list_bundlesDBI(handle)
   names(bundles)[names(bundles) == "name"] <- "bundle"
   
   if (is.data.frame(language))
@@ -1768,7 +2375,11 @@ bas_evaluate_language_option <- function(handle, language)
     {
       stop(
         "You have provided a dataframe as language option. This dataframe must contain the same number of bundles as your emuDB. ",
-        "Currently, your emuDB contains ", nrow(bundles), " bundles, and the language dataframe ", nrow(language), " bundles."
+        "Currently, your emuDB contains ",
+        nrow(bundles),
+        " bundles, and the language dataframe ",
+        nrow(language),
+        " bundles."
       )
     }
     if (unique(language$bundle) != unique(bundles$bundle))
@@ -1788,3 +2399,78 @@ bas_evaluate_language_option <- function(handle, language)
     return(languages)
   }
 }
+
+get_attributeDescription <- function(handle, level, label)
+{
+  dbConfig = load_DBconfig(handle)
+  
+  df = list_levelDefinitions(handle)
+  
+  if (!(level %in% df$name))
+  {
+    stop("There is no level named ", level)
+  }
+  
+  df = list_attributeDefinitions(handle, level)
+  
+  if (!(label %in% df$name))
+  {
+    stop("There is no attribute definition named ",
+         label,
+         " on level ",
+         level)
+  }
+  
+  ld = get_levelDefinition(handle, level)
+  
+  for (j in 1:length(ld$attributeDefinitions))
+  {
+    if (ld$attributeDefinitions[[j]]$name == label)
+    {
+      return(ld$attributeDefinitions[[j]]$description)
+    }
+  }
+}
+
+set_attributeDescription <-
+  function(handle, level, label, description)
+  {
+    dbConfig = load_DBconfig(handle)
+    
+    df = list_levelDefinitions(handle)
+    
+    if (!(level %in% df$name))
+    {
+      stop("There is no level named ", level)
+    }
+    
+    df = list_attributeDefinitions(handle, level)
+    
+    if (!(label %in% df$name))
+    {
+      stop(paste0(
+        "There is no attribute definition named ",
+        label,
+        " on level ",
+        level
+      ))
+    }
+    
+    for (i in 1:length(dbConfig$levelDefinitions))
+    {
+      if (dbConfig$levelDefinitions[[i]]$name == level)
+      {
+        for (j in 1:length(dbConfig$levelDefinitions[[i]]$attributeDefinitions))
+        {
+          if (dbConfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$name == label)
+          {
+            dbConfig$levelDefinitions[[i]]$attributeDefinitions[[j]]$description = description
+            break
+          }
+        }
+        break
+      }
+    }
+    
+    store_DBconfig(handle, dbConfig)
+  }

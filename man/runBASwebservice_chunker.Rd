@@ -5,7 +5,7 @@
 \title{Creates a chunk segmentation using the webservice Chunker.}
 \usage{
 runBASwebservice_chunker(handle, canoLabel, language, chunkLabel = "TRN",
-  rootLevel = NULL, orthoLabel = NULL, params = list(),
+  rootLabel = NULL, orthoLabel = NULL, params = list(force = "rescue"),
   perspective = "default", resume = FALSE, verbose = TRUE)
 }
 \arguments{
@@ -21,7 +21,7 @@ Up-to-date lists of the languages accepted by all webservices can be found here:
 
 \item{chunkLabel}{label name for the chunk segmentation}
 
-\item{rootLevel}{if provided, the new level will be linked to the root level}
+\item{rootLabel}{if provided, the new level will be linked to the root level}
 
 \item{orthoLabel}{if provided, chunk labels will contain orthographic instead of SAMPA strings.
 Must be paired with the canonical pronunciation labels in canoLabel.}
@@ -43,7 +43,21 @@ webservice functions) in the meantime, as they are likely to delete your tempora
 \item{verbose}{Display progress bars and other information}
 }
 \description{
-Creates a chunk segmentation using the webservice Chunker.
+When audio input files are longer than approximately 10 minutes, alignment-based segmentation
+tools such as MAUS will take a long time to run. In these cases, the Chunker pre-segments
+the input into more digestable "chunks". As input, it requires a word tier with canonical
+pronunciation labels (which can be derived by \link{runBASwebservice_g2pForPronunciation}).
+The resulting chunk level can be passed as input to \link{runBASwebservice_maus}.
+\strong{This function requires an internet connection.}
+}
+\details{
+Please note that the chunker output is \strong{not} a semantically meaningful sentence 
+or turn segmentation, meaning that it cannot be used for analyses of sentence durations and the like.
+By default, the chunker is called in force rescue mode. This means that the chunker is first run
+in its normal mode, and switches to forced chunking mode only when it fails to find chunks that 
+are short enough for processing by MAUS. To disable the force mode completely, call this function with
+params=list(force="false"). To skip the normal chunking mode and go directly into forced chunking
+mode, use params=list(force="true").
 }
 \seealso{
 Other BAS.webservice.functions: \code{\link{runBASwebservice_all}},

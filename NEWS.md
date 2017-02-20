@@ -1,3 +1,15 @@
+# emuR 0.2.1.9007
+
+## new features / performance tweaks / improvements
+
+* convert_txtCollection and convert_BPFCollection now name topmost item "bundle"
+* added functions to set and get level descriptions in DBconfig
+* BAS webservice functions now perform a cache update prior to departure
+
+## bug fixes
+
+* runBASwebservice_maus / minni / all now no longer ignore unlinked items (idx -1) but treat them as linkless segments
+
 # emuR 0.2.1.9006
 
 ## bug fixes

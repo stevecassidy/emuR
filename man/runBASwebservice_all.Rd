@@ -2,7 +2,7 @@
 % Please edit documentation in R/emuR-bas_webservices.R
 \name{runBASwebservice_all}
 \alias{runBASwebservice_all}
-\title{Runs several BAS webservices with default options, starting from an orthographic transcription}
+\title{Runs several BAS webservices, starting from an orthographic transcription}
 \usage{
 runBASwebservice_all(handle, transcriptionLabel, language, orthoLabel = "ORT",
   canoLabel = "KAN", mausLabel = "MAU", minniLabel = "MINNI",
@@ -47,17 +47,21 @@ webservice functions) in the meantime, as they are likely to delete your tempora
 This function calls the BAS webservices G2P, MAUS, Pho2Syl, MINNI and (if necessary) Chunker.
 Starting from an orthographic transcription, it derives a tokenized orthographical word tier
 using the G2P tool. It also derives canonical pronunciations (in SAMPA) for the words.
-If the audio file is longer than 60 seconds, the function then calls the Chunker webservice
-to presegment the recording. Subsequently, the webservice MAUS is called to derive a phonetic
+If at least one audio file is longer than 60 seconds, the function then calls the Chunker webservice
+to presegment the recordings. Subsequently, the webservice MAUS is called to derive a phonetic
 segmentation. A second, rough segmentation is created by running the phoneme decoder MINNI.
-Finally, syllabification is performed by calling Pho2Syl. All necessary level, attribute and link
-definitions are created in the process. \strong{This function requires an internet connection.}
+Finally, syllabification is performed by calling Pho2Syl. \strong{This function requires an internet connection.}
 }
 \details{
-Note that this function will run all BAS webservices in default mode. If you wish to change
-options, you must use the individual runBASwebservices functions. This will also allow you to carry
-out manual corrections in between the individual steps, or to use different languages for different
-webservices.
+All necessary level, attribute and link definitions are created in the process.
+Note that this function will run all BAS webservices with default parameters, with three exceptions: 
+\itemize{
+\item{Chunker: force=rescue}
+\item{G2P: embed=maus}
+\item{Pho2Syl: wsync=no}
+}
+If you wish to change parameters, you must use the individual runBASwebservices functions. This will also allow 
+you to carry out manual corrections in between the steps, or to use different languages for different webservices.
 }
 \seealso{
 Other BAS.webservice.functions: \code{\link{runBASwebservice_chunker}},

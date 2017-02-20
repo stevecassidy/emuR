@@ -2,10 +2,11 @@
 % Please edit documentation in R/emuR-bas_webservices.R
 \name{runBASwebservice_g2pForPronunciation}
 \alias{runBASwebservice_g2pForPronunciation}
-\title{Creates SAMPA labels for a tier of tokenized orthographical words.}
+\title{Creates canonical pronunciation labels for a tier of tokenized orthographical words.}
 \usage{
 runBASwebservice_g2pForPronunciation(handle, orthoLabel, language,
-  canoLabel = "KAN", params = list(), resume = FALSE, verbose = TRUE)
+  canoLabel = "KAN", params = list(embed = "maus"), resume = FALSE,
+  verbose = TRUE)
 }
 \arguments{
 \item{handle}{emuDB handle}
@@ -34,7 +35,16 @@ webservice functions) in the meantime, as they are likely to delete your tempora
 \item{verbose}{Display progress bars and other information}
 }
 \description{
-Creates SAMPA labels for a tier of tokenized orthographical words.
+This function calls the G2P webservice to add canonical pronunciation labels in SAMPA (default)
+or IPA to a tier of tokenized orthographical words. It is usually called after tokenization
+with \link{runBASwebservice_g2pForTokenization}. Its output can be used as input to
+\link{runBASwebservice_maus} or \link{runBASwebservice_chunker}. 
+\strong{This function requires an internet connection.}
+}
+\details{
+By default, G2P is called in MAUS embed mode. This is important if you intend to use MAUS
+afterwards. To disable MAUS embed mode, call this function with params=list(embed="no").
+To derive IPA symbols, add outsym="ipa" to the parameter list.
 }
 \seealso{
 Other BAS.webservice.functions: \code{\link{runBASwebservice_all}},

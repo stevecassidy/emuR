@@ -5,7 +5,7 @@
 \title{Creates a rough phonetic segmentation by running the phoneme decoder webservice MINNI.}
 \usage{
 runBASwebservice_minni(handle, language, minniLabel = "MINNI",
-  rootLevel = NULL, params = list(), perspective = "default",
+  rootLabel = NULL, params = list(), perspective = "default",
   resume = FALSE, verbose = TRUE)
 }
 \arguments{
@@ -19,7 +19,7 @@ Up-to-date lists of the languages accepted by all webservices can be found here:
 
 \item{minniLabel}{label name for the MINNI segmentation}
 
-\item{rootLevel}{if provided, the new level will be linked to the root level}
+\item{rootLabel}{if provided, the new level will be linked to the root level}
 
 \item{params}{named list of parameters to be passed on to the webservice. It is your own reponsibility to
 ensure that these parameters are compatible with the webservice API
@@ -38,7 +38,13 @@ webservice functions) in the meantime, as they are likely to delete your tempora
 \item{verbose}{Display progress bars and other information}
 }
 \description{
-Creates a rough phonetic segmentation by running the phoneme decoder webservice MINNI.
+The MINNI phoneme decoder performs phoneme-based decoding on the signal without input from
+the transcription. Therefore, labelling quality is usually worse than that obtained from
+MAUS (\link{runBASwebservice_maus}). Contrary to MAUS however, there is no need for a pre-
+existing transcription.
+}
+\details{
+All necessary level, link and attribute definitions are created in the process.
 }
 \seealso{
 Other BAS.webservice.functions: \code{\link{runBASwebservice_all}},

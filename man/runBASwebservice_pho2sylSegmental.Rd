@@ -4,22 +4,23 @@
 \alias{runBASwebservice_pho2sylSegmental}
 \title{Creates a syllable segmentation on the basis of a phonetic segmentation.}
 \usage{
-runBASwebservice_pho2sylSegmental(handle, segmentLabel, wordLabel, language,
-  sylLabel = "MAS", params = list(), perspective = "default",
-  resume = FALSE, verbose = TRUE)
+runBASwebservice_pho2sylSegmental(handle, segmentLabel, language,
+  superLabel = NULL, sylLabel = "MAS", params = list(wsync = "yes"),
+  perspective = "default", resume = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{handle}{emuDB handle}
 
 \item{segmentLabel}{name of the label (not level!) containing a phonetic segmentation.}
 
-\item{wordLabel}{name of a word label. This label's level must be a parent of the segmentation level.}
-
 \item{language}{language(s) to be used. If you pass a single string (e.g. "deu-DE"), this language will be used for all bundles.
 Alternatively, you can select the language for every bundle individually. To do so, you must pass a data frame with the columns
 session, bundle, language. This data frame must contain one row for every bundle in your emuDB. 
 Up-to-date lists of the languages accepted by all webservices can be found here:
 \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}}
+
+\item{superLabel}{name of a label on the segments' parent level (typically words).
+If set to NULL, the syllable level cannot be linked up.}
 
 \item{sylLabel}{label name for syllable segmentation}
 
@@ -40,7 +41,17 @@ webservice functions) in the meantime, as they are likely to delete your tempora
 \item{verbose}{Display progress bars and other information}
 }
 \description{
-Creates a syllable segmentation on the basis of a phonetic segmentation.
+This function calls the BAS webservice Pho2Syl to create a syllable segmentation on the basis
+of a phonetic segmentation (created by, for example, \link{runBASwebservice_maus}).
+You can provide the name of your word segmentation, or of any other hierarchically
+dominant segmentation, via the superLabel parameter. This way, the new syllable
+items can be linked with the pre-existing hierarchy. If you do not provide
+this input, the syllables will only be linked to the segments.
+}
+\details{
+All necessary level, link and parameter definitions are created in the process.
+By default, Pho2Syl is called in word synchronized mode. To override this, call this function
+with the parameter params=list(wsync="no").
 }
 \seealso{
 Other BAS.webservice.functions: \code{\link{runBASwebservice_all}},

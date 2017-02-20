@@ -34,7 +34,10 @@ webservice functions) in the meantime, as they are likely to delete your tempora
 \item{verbose}{Display progress bars and other information}
 }
 \description{
-Adds syllabified word labels to a word level that already contains a canonical pronunciation label.
+This function calls the webservice Pho2Syl to add a syllabified canonical pronunciation label
+to a word level that already contains an unsyllabified canonical pronunciation label (as can be
+derived using \link{runBASwebservice_g2pForPronunciation}). \strong{This function requires an internet
+connection.}
 }
 \seealso{
 Other BAS.webservice.functions: \code{\link{runBASwebservice_all}},

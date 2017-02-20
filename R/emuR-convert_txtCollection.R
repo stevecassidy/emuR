@@ -12,7 +12,6 @@
 ##' @param targetDir directory where the new emuDB will be stored
 ##' @param txtExtension file extension of transcription files
 ##' @param mediaFileExtension file extension of media files
-##' @param transcriptionLevel level name of the transcription level
 ##' @param transcriptionLabel label name of the transcription items
 ##' @param cleanWhitespaces if true, any sequence of whitespaces in the transcription (including newlines and tabs)
 ##' is transformed into a single blank
@@ -26,11 +25,16 @@ convert_txtCollection <- function(dbName,
                                   targetDir,
                                   txtExtension = 'txt',
                                   mediaFileExtension = 'wav',
-                                  transcriptionLevel = "Transcription",
-                                  transcriptionLabel = "Transcription",
+                                  transcriptionLabel = 'transcription',
                                   cleanWhitespaces = TRUE,
                                   verbose = TRUE)
 {
+  transcriptionLevel = 'bundle'
+  if(transcriptionLevel == transcriptionLabel)
+  {
+    stop("Transcription label must not be ", transcriptionLabel)
+  }
+  
   # ---------------------------------------------------------------------------
   # -------------------------- Get directories --------------------------------
   # ---------------------------------------------------------------------------
@@ -172,6 +176,19 @@ convert_txtCollection <- function(dbName,
       "','",
       bundle,
       "',1,1,'",
+      transcriptionLevel,
+      "','')"
+    )
+    DBI::dbGetQuery(dbHandle$connection, queryTxt)
+    
+    queryTxt = paste0(
+      "INSERT INTO labels VALUES('",
+      dbHandle$UUID,
+      "','",
+      session,
+      "','",
+      bundle,
+      "',1,2,'",
       transcriptionLabel,
       "','",
       transcription,
@@ -200,8 +217,11 @@ convert_txtCollection <- function(dbName,
       list(
         name = transcriptionLevel,
         type = "ITEM",
-        attributeDefinitions = list(list(name = transcriptionLabel,
-                                         type = "STRING"))
+        attributeDefinitions = list(list(name=transcriptionLevel,
+                                         type = "STRING"),
+                                    list(name = transcriptionLabel,
+                                         type = "STRING",
+                                         description="Transcription imported from txt collection"))
       )
     ),
     linkDefinitions = list(),
