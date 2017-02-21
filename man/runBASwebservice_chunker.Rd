@@ -15,7 +15,7 @@ runBASwebservice_chunker(handle, canoLabel, language, chunkLabel = "TRN",
 
 \item{language}{language(s) to be used. If you pass a single string (e.g. "deu-DE"), this language will be used for all bundles.
 Alternatively, you can select the language for every bundle individually. To do so, you must pass a data frame with the columns
-session, bundle, language. This data frame must contain one row for every bundle in your emuDB. 
+session, bundle, language. This data frame must contain one row for every bundle in your emuDB.
 Up-to-date lists of the languages accepted by all webservices can be found here:
 \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}}
 
@@ -51,10 +51,10 @@ The resulting chunk level can be passed as input to \link{runBASwebservice_maus}
 \strong{This function requires an internet connection.}
 }
 \details{
-Please note that the chunker output is \strong{not} a semantically meaningful sentence 
+Please note that the chunker output is \strong{not} a semantically meaningful sentence
 or turn segmentation, meaning that it cannot be used for analyses of sentence durations and the like.
 By default, the chunker is called in force rescue mode. This means that the chunker is first run
-in its normal mode, and switches to forced chunking mode only when it fails to find chunks that 
+in its normal mode, and switches to forced chunking mode only when it fails to find chunks that
 are short enough for processing by MAUS. To disable the force mode completely, call this function with
 params=list(force="false"). To skip the normal chunking mode and go directly into forced chunking
 mode, use params=list(force="true").

@@ -17,7 +17,7 @@ If it is an item level, no assumption is made about the temporal position of seg
 
 \item{language}{language(s) to be used. If you pass a single string (e.g. "deu-DE"), this language will be used for all bundles.
 Alternatively, you can select the language for every bundle individually. To do so, you must pass a data frame with the columns
-session, bundle, language. This data frame must contain one row for every bundle in your emuDB. 
+session, bundle, language. This data frame must contain one row for every bundle in your emuDB.
 Up-to-date lists of the languages accepted by all webservices can be found here:
 \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}}
 
@@ -47,7 +47,7 @@ webservice functions) in the meantime, as they are likely to delete your tempora
 \description{
 This function calls the BAS webservice MAUS to generate a phonemic segmentation.
 It requires a word-tokenized tier with a SAMPA pronunciation, which can be generated
-by the function \link{runBASwebservice_g2pForPronunciation}. 
+by the function \link{runBASwebservice_g2pForPronunciation}.
 \strong{This function requires an internet connection.}
 }
 \details{

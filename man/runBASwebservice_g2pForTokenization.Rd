@@ -14,7 +14,7 @@ runBASwebservice_g2pForTokenization(handle, transcriptionLabel, language,
 
 \item{language}{language(s) to be used. If you pass a single string (e.g. "deu-DE"), this language will be used for all bundles.
 Alternatively, you can select the language for every bundle individually. To do so, you must pass a data frame with the columns
-session, bundle, language. This data frame must contain one row for every bundle in your emuDB. 
+session, bundle, language. This data frame must contain one row for every bundle in your emuDB.
 Up-to-date lists of the languages accepted by all webservices can be found here:
 \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}}
 

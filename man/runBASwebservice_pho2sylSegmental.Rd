@@ -15,7 +15,7 @@ runBASwebservice_pho2sylSegmental(handle, segmentLabel, language,
 
 \item{language}{language(s) to be used. If you pass a single string (e.g. "deu-DE"), this language will be used for all bundles.
 Alternatively, you can select the language for every bundle individually. To do so, you must pass a data frame with the columns
-session, bundle, language. This data frame must contain one row for every bundle in your emuDB. 
+session, bundle, language. This data frame must contain one row for every bundle in your emuDB.
 Up-to-date lists of the languages accepted by all webservices can be found here:
 \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}}
 
@@ -45,12 +45,12 @@ This function calls the BAS webservice Pho2Syl to create a syllable segmentation
 of a phonetic segmentation (created by, for example, \link{runBASwebservice_maus}).
 You can provide the name of your word segmentation, or of any other hierarchically
 dominant segmentation, via the superLabel parameter. This way, the new syllable
-items can be linked with the pre-existing hierarchy. If you do not provide
-this input, the syllables will only be linked to the segments.
+items can be linked up into the pre-existing hierarchy. If you do not provide
+this input, the syllables will only be linked down to the segments.
 }
 \details{
 All necessary level, link and parameter definitions are created in the process.
-By default, Pho2Syl is called in word synchronized mode. To override this, call this function
+By default, Pho2Syl is run in word synchronized mode. To override this, call this function
 with the parameter params=list(wsync="no").
 }
 \seealso{

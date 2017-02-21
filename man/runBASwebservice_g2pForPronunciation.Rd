@@ -15,7 +15,7 @@ runBASwebservice_g2pForPronunciation(handle, orthoLabel, language,
 
 \item{language}{language(s) to be used. If you pass a single string (e.g. "deu-DE"), this language will be used for all bundles.
 Alternatively, you can select the language for every bundle individually. To do so, you must pass a data frame with the columns
-session, bundle, language. This data frame must contain one row for every bundle in your emuDB. 
+session, bundle, language. This data frame must contain one row for every bundle in your emuDB.
 Up-to-date lists of the languages accepted by all webservices can be found here:
 \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}}
 
@@ -38,7 +38,7 @@ webservice functions) in the meantime, as they are likely to delete your tempora
 This function calls the G2P webservice to add canonical pronunciation labels in SAMPA (default)
 or IPA to a tier of tokenized orthographical words. It is usually called after tokenization
 with \link{runBASwebservice_g2pForTokenization}. Its output can be used as input to
-\link{runBASwebservice_maus} or \link{runBASwebservice_chunker}. 
+\link{runBASwebservice_maus} or \link{runBASwebservice_chunker}.
 \strong{This function requires an internet connection.}
 }
 \details{

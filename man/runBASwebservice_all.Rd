@@ -16,7 +16,7 @@ runBASwebservice_all(handle, transcriptionLabel, language, orthoLabel = "ORT",
 
 \item{language}{language(s) to be used. If you pass a single string (e.g. "deu-DE"), this language will be used for all bundles.
 Alternatively, you can select the language for every bundle individually. To do so, you must pass a data frame with the columns
-session, bundle, language. This data frame must contain one row for every bundle in your emuDB. 
+session, bundle, language. This data frame must contain one row for every bundle in your emuDB.
 Up-to-date lists of the languages accepted by all webservices can be found here:
 \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}}
 
@@ -54,13 +54,14 @@ Finally, syllabification is performed by calling Pho2Syl. \strong{This function 
 }
 \details{
 All necessary level, attribute and link definitions are created in the process.
-Note that this function will run all BAS webservices with default parameters, with three exceptions: 
+Note that this function will run all BAS webservices with default parameters, with four exceptions:
 \itemize{
 \item{Chunker: force=rescue}
 \item{G2P: embed=maus}
 \item{Pho2Syl: wsync=no}
+\item{MAUS: USETRN=[true if Chunker was called or transcription is a segment tier, false otherwise]}
 }
-If you wish to change parameters, you must use the individual runBASwebservices functions. This will also allow 
+If you wish to change parameters, you must use the individual runBASwebservices functions. This will also allow
 you to carry out manual corrections in between the steps, or to use different languages for different webservices.
 }
 \seealso{
