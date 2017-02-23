@@ -1,4 +1,4 @@
-# emuR 0.2.1.9007
+# emuR 0.2.1.9008
 
 ## new features / performance tweaks / improvements
 
@@ -9,6 +9,7 @@
 ## bug fixes
 
 * runBASwebservice_maus / minni / all now no longer ignore unlinked items (idx -1) but treat them as linkless segments
+* commented out `cat()` in `train()` function be be less verbose
 
 # emuR 0.2.1.9006
 

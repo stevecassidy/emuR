@@ -390,7 +390,7 @@ bayesplot <- function(data, train, N = 10, ellipse = FALSE,
     mat$means <- NULL
     mat$cov <- NULL
     for(j in unique(lab)) {
-      cat("data for ", j, " \n" )
+      # cat("data for ", j, " \n" )
       temp <- lab == j			
       mat$means <- c(mat$means, mean(x[temp]))
       mat$cov <- c(mat$cov, sqrt(var(x[temp])))
