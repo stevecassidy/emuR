@@ -61,6 +61,7 @@ runBASwebservice_all <- function(handle,
                                  resume = FALSE,
                                  verbose = TRUE)
 {
+  func = "all"
   transcriptionLevel = get_levelNameForAttributeName(handle, transcriptionLabel)
   
   oldBasePath = handle$basePath
@@ -90,7 +91,7 @@ runBASwebservice_all <- function(handle,
     usetrn = "false"
   }
   
-  handle = bas_prepare(handle, resume, verbose)
+  handle = bas_prepare(handle, resume, verbose, func)
   
   bas_run_g2p_for_tokenization_dbi(
     handle = handle,
@@ -99,7 +100,8 @@ runBASwebservice_all <- function(handle,
     language = language,
     verbose = verbose,
     resume = resume,
-    params = list()
+    params = list(),
+    func = func
   )
   
   bas_run_g2p_for_pronunciation_dbi(
@@ -109,7 +111,8 @@ runBASwebservice_all <- function(handle,
     language = language,
     verbose = verbose,
     resume = resume,
-    params = list(embed = "maus")
+    params = list(embed = "maus"),
+    func = func
   )
   
   
@@ -127,7 +130,8 @@ runBASwebservice_all <- function(handle,
       verbose = verbose,
       language = language,
       oldBasePath = oldBasePath,
-      perspective = "default"
+      perspective = "default",
+      func = func
     )
   }
   
@@ -139,10 +143,11 @@ runBASwebservice_all <- function(handle,
     mausLabel = mausLabel,
     verbose = verbose,
     resume = resume,
-    params = list(USETRN=usetrn),
+    params = list(USETRN = usetrn),
     oldBasePath = oldBasePath,
     perspective = "default",
-    turnChunkLevelIntoItemLevel = T
+    turnChunkLevelIntoItemLevel = T,
+    func = func
   )
   
   bas_run_minni_dbi(
@@ -154,7 +159,8 @@ runBASwebservice_all <- function(handle,
     resume = resume,
     params = list(),
     oldBasePath = oldBasePath,
-    perspective = "default"
+    perspective = "default",
+    func = func
   )
   
   bas_run_pho2syl_canonical_dbi(
@@ -164,7 +170,8 @@ runBASwebservice_all <- function(handle,
     language = language,
     verbose = verbose,
     params = list(),
-    resume = resume
+    resume = resume,
+    func = func
   )
   
   bas_run_pho2syl_segmental_dbi(
@@ -175,7 +182,8 @@ runBASwebservice_all <- function(handle,
     superLabel = orthoLabel,
     resume = resume,
     params = list(wsync = "yes"),
-    verbose = verbose
+    verbose = verbose,
+    func = func
   )
   
   # remove the ORT -> MAU link as it is has been made redundant by the ORT -> MAS -> MAU path
@@ -190,7 +198,7 @@ runBASwebservice_all <- function(handle,
     # turn the chunk segmentation into an item level (as time information is now on the MAU tier)
     bas_segment_to_item_level(handle, chunkLabel)
     
-    # remove the transcription -> ORT link 
+    # remove the transcription -> ORT link
     # as it has been made redundant by the transcription -> TRN -> ORT path
     remove_linkDefinition(handle,
                           transcriptionLevel,
@@ -199,7 +207,7 @@ runBASwebservice_all <- function(handle,
                           verbose = F)
   }
   
-  handle = bas_clear(handle, oldBasePath)
+  handle = bas_clear(handle, oldBasePath, func)
   rewrite_allAnnots(handle, verbose = verbose)
 }
 
@@ -247,8 +255,9 @@ runBASwebservice_maus <- function(handle,
                                   resume = FALSE,
                                   verbose = TRUE)
 {
+  func = "maus"
   oldBasePath = handle$basePath
-  handle = bas_prepare(handle, resume, verbose)
+  handle = bas_prepare(handle, resume, verbose, func)
   
   bas_run_maus_dbi(
     handle = handle,
@@ -261,10 +270,11 @@ runBASwebservice_maus <- function(handle,
     params = params,
     oldBasePath = oldBasePath,
     perspective = perspective,
-    turnChunkLevelIntoItemLevel = turnChunkLevelIntoItemLevel
+    turnChunkLevelIntoItemLevel = turnChunkLevelIntoItemLevel,
+    func = func
   )
   
-  handle = bas_clear(handle, oldBasePath)
+  handle = bas_clear(handle, oldBasePath, func)
   
   rewrite_allAnnots(handle, verbose = verbose)
 }
@@ -301,8 +311,9 @@ runBASwebservice_g2pForTokenization <- function(handle,
                                                 resume = FALSE,
                                                 verbose = TRUE)
 {
+  func = "g2p_tokenization"
   oldBasePath = handle$basePath
-  handle = bas_prepare(handle, resume, verbose)
+  handle = bas_prepare(handle, resume, verbose, func)
   
   bas_run_g2p_for_tokenization_dbi(
     handle = handle,
@@ -311,10 +322,11 @@ runBASwebservice_g2pForTokenization <- function(handle,
     language = language,
     verbose = verbose,
     resume = resume,
-    params = params
+    params = params,
+    func = func
   )
   
-  handle = bas_clear(handle, oldBasePath)
+  handle = bas_clear(handle, oldBasePath, func)
   
   rewrite_allAnnots(handle, verbose = verbose)
 }
@@ -351,8 +363,9 @@ runBASwebservice_g2pForPronunciation <- function(handle,
                                                  resume = FALSE,
                                                  verbose = TRUE)
 {
+  func = "g2p_pronunciation"
   oldBasePath = handle$basePath
-  handle = bas_prepare(handle, resume, verbose)
+  handle = bas_prepare(handle, resume, verbose, func)
   
   bas_run_g2p_for_pronunciation_dbi(
     handle = handle,
@@ -361,10 +374,11 @@ runBASwebservice_g2pForPronunciation <- function(handle,
     canoLabel = canoLabel,
     verbose = verbose,
     resume = resume,
-    params = params
+    params = params,
+    func = func
   )
   
-  handle = bas_clear(handle, oldBasePath)
+  handle = bas_clear(handle, oldBasePath, func)
   
   rewrite_allAnnots(handle, verbose = verbose)
 }
@@ -418,8 +432,9 @@ runBASwebservice_chunker <- function(handle,
                                      resume = FALSE,
                                      verbose = TRUE)
 {
+  func = "chunker"
   oldBasePath = handle$basePath
-  handle = bas_prepare(handle, resume, verbose)
+  handle = bas_prepare(handle, resume, verbose, func)
   
   bas_run_chunker_dbi(
     handle = handle,
@@ -432,10 +447,11 @@ runBASwebservice_chunker <- function(handle,
     oldBasePath = oldBasePath,
     perspective = perspective,
     resume = resume,
-    rootLabel = rootLabel
+    rootLabel = rootLabel,
+    func = func
   )
   
-  handle = bas_clear(handle, oldBasePath)
+  handle = bas_clear(handle, oldBasePath, func)
   
   rewrite_allAnnots(handle, verbose = verbose)
 }
@@ -477,8 +493,9 @@ runBASwebservice_minni <- function(handle,
                                    resume = FALSE,
                                    verbose = TRUE)
 {
+  func = "minni"
   oldBasePath = handle$basePath
-  handle = bas_prepare(handle, resume, verbose)
+  handle = bas_prepare(handle, resume, verbose, func)
   
   bas_run_minni_dbi(
     handle = handle,
@@ -489,10 +506,11 @@ runBASwebservice_minni <- function(handle,
     resume = resume,
     params = params,
     oldBasePath = oldBasePath,
-    perspective = perspective
+    perspective = perspective,
+    func = func
   )
   
-  handle = bas_clear(handle, oldBasePath)
+  handle = bas_clear(handle, oldBasePath, func)
   
   rewrite_allAnnots(handle, verbose = verbose)
 }
@@ -526,8 +544,9 @@ runBASwebservice_pho2sylCanonical <- function(handle,
                                               resume = FALSE,
                                               verbose = TRUE)
 {
+  func = "pho2syl_canonical"
   oldBasePath = handle$basePath
-  handle = bas_prepare(handle, resume, verbose)
+  handle = bas_prepare(handle, resume, verbose, func)
   
   bas_run_pho2syl_canonical_dbi(
     handle = handle,
@@ -536,11 +555,12 @@ runBASwebservice_pho2sylCanonical <- function(handle,
     verbose = verbose,
     canoSylLabel = canoSylLabel,
     resume = resume,
-    params = params
+    params = params,
+    func = func
   )
   
   
-  handle = bas_clear(handle, oldBasePath)
+  handle = bas_clear(handle, oldBasePath, func)
   
   rewrite_allAnnots(handle, verbose = verbose)
 }
@@ -582,8 +602,9 @@ runBASwebservice_pho2sylSegmental <- function(handle,
                                               resume = FALSE,
                                               verbose = TRUE)
 {
+  func = "pho2syl_segmental"
   oldBasePath = handle$basePath
-  handle = bas_prepare(handle, resume, verbose)
+  handle = bas_prepare(handle, resume, verbose, func)
   
   bas_run_pho2syl_segmental_dbi(
     handle = handle,
@@ -593,11 +614,12 @@ runBASwebservice_pho2sylSegmental <- function(handle,
     sylLabel = sylLabel,
     superLabel = superLabel,
     resume = resume,
-    params = params
+    params = params,
+    func = func
   )
   
   
-  handle = bas_clear(handle, oldBasePath)
+  handle = bas_clear(handle, oldBasePath, func)
   
   rewrite_allAnnots(handle, verbose = verbose)
 }
