@@ -2434,6 +2434,16 @@ bas_curl <- function(service, params)
 bas_paste_description <-
   function(description, source, service, params)
   {
+    # TODO: replace BASWebServicesTest with BASWebServices when Thomas (Kisler) says its okay
+    version = RCurl::getURL(
+      paste0(
+        "https://clarin.phonetik.uni-muenchen.de/BASWebServicesTest/services/runGetVersion?service=",
+        service
+      ),
+      .opts = RCurl::curlOptions(connecttimeout = 10, timeout = 30)
+    )
+    
+    version = stringr::str_trim(version)
     description = paste0(description, " automatically derived ")
     if (!is.null(source))
     {
@@ -2443,10 +2453,7 @@ bas_paste_description <-
       paste0(
         description,
         "by BAS webservice ",
-        service,
-        " (https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/",
-        service,
-        ") on ",
+        service, " (", version, "), on ",
         Sys.time(),
         ", with the following parameters: (",
         paste0(c(rbind(
