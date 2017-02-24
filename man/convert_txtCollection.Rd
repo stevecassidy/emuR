@@ -5,7 +5,7 @@
 \title{Converts a collection of audio files and plain text transcriptions into an emuDB}
 \usage{
 convert_txtCollection(dbName, sourceDir, targetDir, txtExtension = "txt",
-  mediaFileExtension = "wav", transcriptionLabel = "transcription",
+  mediaFileExtension = "wav", attributeDefinitionName = "transcription",
   cleanWhitespaces = TRUE, verbose = TRUE)
 }
 \arguments{
@@ -19,7 +19,7 @@ convert_txtCollection(dbName, sourceDir, targetDir, txtExtension = "txt",
 
 \item{mediaFileExtension}{file extension of media files}
 
-\item{transcriptionLabel}{label name of the transcription items}
+\item{attributeDefinitionName}{label name of the transcription items}
 
 \item{cleanWhitespaces}{if true, any sequence of whitespaces in the transcription (including newlines and tabs)
 is transformed into a single blank}
