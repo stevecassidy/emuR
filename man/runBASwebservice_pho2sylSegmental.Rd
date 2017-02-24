@@ -4,14 +4,15 @@
 \alias{runBASwebservice_pho2sylSegmental}
 \title{Creates a syllable segmentation on the basis of a phonetic segmentation.}
 \usage{
-runBASwebservice_pho2sylSegmental(handle, segmentLabel, language,
-  superLabel = NULL, sylLabel = "MAS", params = list(wsync = "yes"),
-  perspective = "default", resume = FALSE, verbose = TRUE)
+runBASwebservice_pho2sylSegmental(handle, segmentAttributeDefinitionName,
+  language, superLevel = NULL, sylAttributeDefinitionName = "MAS",
+  params = list(wsync = "yes"), perspective = "default", resume = FALSE,
+  verbose = TRUE)
 }
 \arguments{
 \item{handle}{emuDB handle}
 
-\item{segmentLabel}{name of the label (not level!) containing a phonetic segmentation.}
+\item{segmentAttributeDefinitionName}{name of the attribute (not level!) containing a phonetic segmentation.}
 
 \item{language}{language(s) to be used. If you pass a single string (e.g. "deu-DE"), this language will be used for all bundles.
 Alternatively, you can select the language for every bundle individually. To do so, you must pass a data frame with the columns
@@ -19,10 +20,10 @@ session, bundle, language. This data frame must contain one row for every bundle
 Up-to-date lists of the languages accepted by all webservices can be found here:
 \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}}
 
-\item{superLabel}{name of a label on the segments' parent level (typically words).
+\item{superLevel}{name of the segments' parent level (typically the word level).
 If set to NULL, the syllable level cannot be linked up.}
 
-\item{sylLabel}{label name for syllable segmentation}
+\item{sylAttributeDefinitionName}{attribute name for syllable segmentation}
 
 \item{params}{named list of parameters to be passed on to the webservice. It is your own reponsibility to
 ensure that these parameters are compatible with the webservice API
@@ -35,16 +36,15 @@ If NULL, the new level is not added to any perspectives.}
 
 \item{resume}{If a previous call to this function has failed (and you think you have fixed the issue
 that caused the error), you can set resume=TRUE to recover any progress made up to that point. This
-will only work if you have not run any other emuR functions (such as the query function or other
-webservice functions) in the meantime, as they are likely to delete your temporary data.}
+will only work if your R temporary directory has not been deleted or emptied in the meantime.}
 
 \item{verbose}{Display progress bars and other information}
 }
 \description{
 This function calls the BAS webservice Pho2Syl to create a syllable segmentation on the basis
 of a phonetic segmentation (created by, for example, \link{runBASwebservice_maus}).
-You can provide the name of your word segmentation, or of any other hierarchically
-dominant segmentation, via the superLabel parameter. This way, the new syllable
+You can provide the level of your word segmentation, or of any other hierarchically
+dominant segmentation, via the superLevel parameter. This way, the new syllable
 items can be linked up into the pre-existing hierarchy. If you do not provide
 this input, the syllables will only be linked down to the segments.
 }

@@ -4,15 +4,18 @@
 \alias{runBASwebservice_all}
 \title{Runs several BAS webservices, starting from an orthographic transcription}
 \usage{
-runBASwebservice_all(handle, transcriptionLabel, language, orthoLabel = "ORT",
-  canoLabel = "KAN", mausLabel = "MAU", minniLabel = "MINNI",
-  sylLabel = "MAS", canoSylLabel = "KAS", chunkLabel = "TRN",
-  resume = FALSE, verbose = TRUE)
+runBASwebservice_all(handle, transcriptionAttributeDefinitionName, language,
+  orthoAttributeDefinitionName = "ORT", canoAttributeDefinitionName = "KAN",
+  mausAttributeDefinitionName = "MAU",
+  minniAttributeDefinitionName = "MINNI",
+  sylAttributeDefinitionName = "MAS",
+  canoSylAttributeDefinitionName = "KAS",
+  chunkAttributeDefinitionName = "TRN", resume = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{handle}{emuDB handle}
 
-\item{transcriptionLabel}{name of the label (not level!) containing an orthographic transcription.}
+\item{transcriptionAttributeDefinitionName}{name of the attribute (not level!) containing an orthographic transcription.}
 
 \item{language}{language(s) to be used. If you pass a single string (e.g. "deu-DE"), this language will be used for all bundles.
 Alternatively, you can select the language for every bundle individually. To do so, you must pass a data frame with the columns
@@ -20,26 +23,25 @@ session, bundle, language. This data frame must contain one row for every bundle
 Up-to-date lists of the languages accepted by all webservices can be found here:
 \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}}
 
-\item{orthoLabel}{label name for orthographic words}
+\item{orthoAttributeDefinitionName}{attribute name for orthographic words}
 
-\item{canoLabel}{label name for canonical pronunciations of words}
+\item{canoAttributeDefinitionName}{attribute name for canonical pronunciations of words}
 
-\item{mausLabel}{label name for the MAUS segmentation}
+\item{mausAttributeDefinitionName}{attribute name for the MAUS segmentation}
 
-\item{minniLabel}{label name for the MINNI segmentation}
+\item{minniAttributeDefinitionName}{attribute name for the MINNI segmentation}
 
-\item{sylLabel}{label name for syllable segmentation}
+\item{sylAttributeDefinitionName}{attribute name for syllable segmentation}
 
-\item{canoSylLabel}{label name for syllabified canonical pronunciations of words}
+\item{canoSylAttributeDefinitionName}{attribute name for syllabified canonical pronunciations of words}
 
-\item{chunkLabel}{label name for the chunk segmentation
+\item{chunkAttributeDefinitionName}{attribute name for the chunk segmentation.
 Please note that the chunk segmentation will only be generated if your emuDB contains
 audio files beyond the one minute mark.}
 
 \item{resume}{If a previous call to this function has failed (and you think you have fixed the issue
 that caused the error), you can set resume=TRUE to recover any progress made up to that point. This
-will only work if you have not run any other emuR functions (such as the query function or other
-webservice functions) in the meantime, as they are likely to delete your temporary data.}
+will only work if your R temporary directory has not been deleted or emptied in the meantime.}
 
 \item{verbose}{Display progress bars and other information}
 }

@@ -2,15 +2,16 @@
 % Please edit documentation in R/emuR-bas_webservices.R
 \name{runBASwebservice_pho2sylCanonical}
 \alias{runBASwebservice_pho2sylCanonical}
-\title{Adds syllabified word labels to a word level that already contains a canonical pronunciation label.}
+\title{Adds syllabified word labels to a word level that already contains canonical pronunciations.}
 \usage{
-runBASwebservice_pho2sylCanonical(handle, canoLabel, language,
-  canoSylLabel = "KAS", params = list(), resume = FALSE, verbose = TRUE)
+runBASwebservice_pho2sylCanonical(handle, canoAttributeDefinitionName, language,
+  canoSylAttributeDefinitionName = "KAS", params = list(), resume = FALSE,
+  verbose = TRUE)
 }
 \arguments{
 \item{handle}{emuDB handle}
 
-\item{canoLabel}{name of the label (not level!) containing a canonical pronunciation of the words.}
+\item{canoAttributeDefinitionName}{name of the attribute (not level!) containing a canonical pronunciation of the words.}
 
 \item{language}{language(s) to be used. If you pass a single string (e.g. "deu-DE"), this language will be used for all bundles.
 Alternatively, you can select the language for every bundle individually. To do so, you must pass a data frame with the columns
@@ -18,7 +19,7 @@ session, bundle, language. This data frame must contain one row for every bundle
 Up-to-date lists of the languages accepted by all webservices can be found here:
 \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}}
 
-\item{canoSylLabel}{label name for syllabified canonical pronunciations of words}
+\item{canoSylAttributeDefinitionName}{attribute name for syllabified canonical pronunciations of words}
 
 \item{params}{named list of parameters to be passed on to the webservice. It is your own reponsibility to
 ensure that these parameters are compatible with the webservice API
@@ -28,14 +29,13 @@ and will be overridden.}
 
 \item{resume}{If a previous call to this function has failed (and you think you have fixed the issue
 that caused the error), you can set resume=TRUE to recover any progress made up to that point. This
-will only work if you have not run any other emuR functions (such as the query function or other
-webservice functions) in the meantime, as they are likely to delete your temporary data.}
+will only work if your R temporary directory has not been deleted or emptied in the meantime.}
 
 \item{verbose}{Display progress bars and other information}
 }
 \description{
-This function calls the webservice Pho2Syl to add a syllabified canonical pronunciation label
-to a word level that already contains an unsyllabified canonical pronunciation label (as can be
+This function calls the webservice Pho2Syl to add syllabified canonical pronunciation labels
+to a word level that already contains unsyllabified canonical pronunciation labels (as can be
 derived using \link{runBASwebservice_g2pForPronunciation}). \strong{This function requires an internet
 connection.}
 }

@@ -4,14 +4,15 @@
 \alias{runBASwebservice_chunker}
 \title{Creates a chunk segmentation using the webservice Chunker.}
 \usage{
-runBASwebservice_chunker(handle, canoLabel, language, chunkLabel = "TRN",
-  rootLabel = NULL, orthoLabel = NULL, params = list(force = "rescue"),
+runBASwebservice_chunker(handle, canoAttributeDefinitionName, language,
+  chunkAttributeDefinitionName = "TRN", rootLevel = NULL,
+  orthoAttributeDefinitionName = NULL, params = list(force = "rescue"),
   perspective = "default", resume = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{handle}{emuDB handle}
 
-\item{canoLabel}{name of the label (not level!) containing a canonical pronunciation of the words.}
+\item{canoAttributeDefinitionName}{name of the attribute (not level!) containing a canonical pronunciation of the words.}
 
 \item{language}{language(s) to be used. If you pass a single string (e.g. "deu-DE"), this language will be used for all bundles.
 Alternatively, you can select the language for every bundle individually. To do so, you must pass a data frame with the columns
@@ -19,12 +20,12 @@ session, bundle, language. This data frame must contain one row for every bundle
 Up-to-date lists of the languages accepted by all webservices can be found here:
 \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}}
 
-\item{chunkLabel}{label name for the chunk segmentation}
+\item{chunkAttributeDefinitionName}{attribute name for the chunk segmentation}
 
-\item{rootLabel}{if provided, the new level will be linked to the root level}
+\item{rootLevel}{if provided, the new level will be linked to the root level}
 
-\item{orthoLabel}{if provided, chunk labels will contain orthographic instead of SAMPA strings.
-Must be paired with the canonical pronunciation labels in canoLabel.}
+\item{orthoAttributeDefinitionName}{if provided, chunk attributes will contain orthographic instead of SAMPA strings.
+Must be paired with the canonical pronunciation attributes in canoAttributeDefinitionName.}
 
 \item{params}{named list of parameters to be passed on to the webservice. It is your own reponsibility to
 ensure that these parameters are compatible with the webservice API
@@ -37,8 +38,7 @@ If NULL, the new level is not added to any perspectives.}
 
 \item{resume}{If a previous call to this function has failed (and you think you have fixed the issue
 that caused the error), you can set resume=TRUE to recover any progress made up to that point. This
-will only work if you have not run any other emuR functions (such as the query function or other
-webservice functions) in the meantime, as they are likely to delete your temporary data.}
+will only work if your R temporary directory has not been deleted or emptied in the meantime.}
 
 \item{verbose}{Display progress bars and other information}
 }
@@ -46,7 +46,7 @@ webservice functions) in the meantime, as they are likely to delete your tempora
 When audio input files are longer than approximately 10 minutes, alignment-based segmentation
 tools such as MAUS will take a long time to run. In these cases, the Chunker pre-segments
 the input into more digestable "chunks". As input, it requires a word tier with canonical
-pronunciation labels (which can be derived by \link{runBASwebservice_g2pForPronunciation}).
+pronunciation attributes (which can be derived by \link{runBASwebservice_g2pForPronunciation}).
 The resulting chunk level can be passed as input to \link{runBASwebservice_maus}.
 \strong{This function requires an internet connection.}
 }

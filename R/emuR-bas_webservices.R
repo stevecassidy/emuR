@@ -32,19 +32,18 @@
 ##'
 ##' @param orthoAttributeDefinitionName attribute name for orthographic words
 ##' @param canoAttributeDefinitionName attribute name for canonical pronunciations of words
-##' @param chunkAttributeDefinitionName attribute name for the chunk segmentation
+##' @param chunkAttributeDefinitionName attribute name for the chunk segmentation.
 ##' Please note that the chunk segmentation will only be generated if your emuDB contains
 ##' audio files beyond the one minute mark.
 ##' @param mausAttributeDefinitionName attribute name for the MAUS segmentation
 ##' @param minniAttributeDefinitionName attribute name for the MINNI segmentation
-##' @param sylAttributeDefinitionName attributeDefinitionName name for syllable segmentation
+##' @param sylAttributeDefinitionName attribute name for syllable segmentation
 ##' @param canoSylAttributeDefinitionName attribute name for syllabified canonical pronunciations of words
 ##'
 ##' @param verbose Display progress bars and other information
 ##' @param resume If a previous call to this function has failed (and you think you have fixed the issue
 ##' that caused the error), you can set resume=TRUE to recover any progress made up to that point. This
-##' will only work if you have not run any other emuR functions (such as the query function or other
-##' webservice functions) in the meantime, as they are likely to delete your temporary data.
+##' will only work if your R temporary directory has not been deleted or emptied in the meantime.
 
 runBASwebservice_all <- function(handle,
                                  transcriptionAttributeDefinitionName,
@@ -234,7 +233,7 @@ runBASwebservice_all <- function(handle,
 ##' If this attribute resides on a segment level, the segment time information is used as a presegmentation.
 ##' If it is an item level, no assumption is made about the temporal position of segments.
 ##' @param chunkLevel if you have a chunk segmentation level, you can provide it to improve the speed and accuracy
-##' of MAUS. The chunk segmentation level must be a segment level, and it must link to the level of orthoAttributeDefinitionName.
+##' of MAUS. The chunk segmentation level must be a segment level, and it must link to the level of canoAttributeDefinitionName.
 ##' @param turnChunkLevelIntoItemLevel if TRUE, and if a chunk level is provided, the chunk level is converted into an ITEM level after segmentation
 ##' @param params named list of parameters to be passed on to the webservice. It is your own reponsibility to
 ##' ensure that these parameters are compatible with the webservice API
@@ -473,8 +472,8 @@ runBASwebservice_chunker <- function(handle,
 ##'
 ##' The MINNI phoneme decoder performs phoneme-based decoding on the signal without input from
 ##' the transcription. Therefore, labelling quality is usually worse than that obtained from
-##' MAUS (\link{runBASwebservice_maus}). Contrary to MAUS however, there is no need for a pre-
-##' existing transcription.
+##' MAUS (\link{runBASwebservice_maus}). Contrary to MAUS however, there is no need for a
+##' pre-existing transcription.
 ##'
 ##' All necessary level, link and attribute definitions are created in the process.
 ##'

@@ -4,9 +4,10 @@
 \alias{runBASwebservice_minni}
 \title{Creates a rough phonetic segmentation by running the phoneme decoder webservice MINNI.}
 \usage{
-runBASwebservice_minni(handle, language, minniLabel = "MINNI",
-  rootLabel = NULL, params = list(), perspective = "default",
-  resume = FALSE, verbose = TRUE)
+runBASwebservice_minni(handle, language,
+  minniAttributeDefinitionName = "MINNI", rootLevel = NULL,
+  params = list(), perspective = "default", resume = FALSE,
+  verbose = TRUE)
 }
 \arguments{
 \item{handle}{emuDB handle}
@@ -17,9 +18,9 @@ session, bundle, language. This data frame must contain one row for every bundle
 Up-to-date lists of the languages accepted by all webservices can be found here:
 \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}}
 
-\item{minniLabel}{label name for the MINNI segmentation}
+\item{minniAttributeDefinitionName}{attribute name for the MINNI segmentation}
 
-\item{rootLabel}{if provided, the new level will be linked to the root level}
+\item{rootLevel}{if provided, the new level will be linked to the root level}
 
 \item{params}{named list of parameters to be passed on to the webservice. It is your own reponsibility to
 ensure that these parameters are compatible with the webservice API
@@ -32,16 +33,15 @@ If NULL, the new level is not added to any perspectives.}
 
 \item{resume}{If a previous call to this function has failed (and you think you have fixed the issue
 that caused the error), you can set resume=TRUE to recover any progress made up to that point. This
-will only work if you have not run any other emuR functions (such as the query function or other
-webservice functions) in the meantime, as they are likely to delete your temporary data.}
+will only work if your R temporary directory has not been deleted or emptied in the meantime.}
 
 \item{verbose}{Display progress bars and other information}
 }
 \description{
 The MINNI phoneme decoder performs phoneme-based decoding on the signal without input from
 the transcription. Therefore, labelling quality is usually worse than that obtained from
-MAUS (\link{runBASwebservice_maus}). Contrary to MAUS however, there is no need for a pre-
-existing transcription.
+MAUS (\link{runBASwebservice_maus}). Contrary to MAUS however, there is no need for a
+pre-existing transcription.
 }
 \details{
 All necessary level, link and attribute definitions are created in the process.
