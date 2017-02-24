@@ -30,9 +30,9 @@ convert_txtCollection <- function(dbName,
                                   verbose = TRUE)
 {
   transcriptionLevel = 'bundle'
-  if(transcriptionLevel == transcriptionLabel)
+  if(transcriptionLevel == attributeDefinitionName)
   {
-    stop("Transcription label must not be ", transcriptionLabel)
+    stop("Transcription label must not be ", attributeDefinitionName)
   }
   
   # ---------------------------------------------------------------------------
@@ -189,7 +189,7 @@ convert_txtCollection <- function(dbName,
       "','",
       bundle,
       "',1,2,'",
-      transcriptionLabel,
+      attributeDefinitionName,
       "','",
       transcription,
       "')"
@@ -219,7 +219,7 @@ convert_txtCollection <- function(dbName,
         type = "ITEM",
         attributeDefinitions = list(list(name=transcriptionLevel,
                                          type = "STRING"),
-                                    list(name = transcriptionLabel,
+                                    list(name = attributeDefinitionName,
                                          type = "STRING",
                                          description="Transcription imported from txt collection"))
       )
