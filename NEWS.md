@@ -1,3 +1,13 @@
+# emuR 0.2.1.9010
+
+## new features / performance tweaks / improvements
+
+* some changes to the parameter names in the BAS webservice functions
+
+## bug fixes
+
+* BAS webservice calls now get their own temp directories (UUID based). This avoids race conditions when several scripts are running in parallel.
+
 # emuR 0.2.1.9009
 
 ## new features / performance tweaks / improvements
