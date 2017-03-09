@@ -4,15 +4,16 @@
 \alias{runBASwebservice_maus}
 \title{Runs MAUS webservice to create a phonetic segmentation}
 \usage{
-runBASwebservice_maus(handle, canoLabel, language, mausLabel = "MAU",
-  chunkLabel = NULL, turnChunkLevelIntoItemLevel = TRUE, params = NULL,
+runBASwebservice_maus(handle, canoAttributeDefinitionName, language,
+  mausAttributeDefinitionName = "MAU", chunkLevel = NULL,
+  turnChunkLevelIntoItemLevel = TRUE, params = NULL,
   perspective = "default", resume = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{handle}{emuDB handle}
 
-\item{canoLabel}{name of the label (not level!) containing the SAMPA word pronunciations.
-If this label resides on a segment level, the segment time information is used as a presegmentation.
+\item{canoAttributeDefinitionName}{name of the attribute (not level!) containing the SAMPA word pronunciations.
+If this attribute resides on a segment level, the segment time information is used as a presegmentation.
 If it is an item level, no assumption is made about the temporal position of segments.}
 
 \item{language}{language(s) to be used. If you pass a single string (e.g. "deu-DE"), this language will be used for all bundles.
@@ -21,10 +22,10 @@ session, bundle, language. This data frame must contain one row for every bundle
 Up-to-date lists of the languages accepted by all webservices can be found here:
 \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}}
 
-\item{mausLabel}{label name for the MAUS segmentation}
+\item{mausAttributeDefinitionName}{attribute name for the MAUS segmentation}
 
-\item{chunkLabel}{if you have a chunk segmentation level, you can provide one of its labels to improve the speed and accuracy
-of MAUS. The chunk segmentation level must be a segment level, and it must link to the level of orthoLabel.}
+\item{chunkLevel}{if you have a chunk segmentation level, you can provide it to improve the speed and accuracy
+of MAUS. The chunk segmentation level must be a segment level, and it must link to the level of canoAttributeDefinitionName.}
 
 \item{turnChunkLevelIntoItemLevel}{if TRUE, and if a chunk level is provided, the chunk level is converted into an ITEM level after segmentation}
 
@@ -39,8 +40,7 @@ If NULL, the new level is not added to any perspectives.}
 
 \item{resume}{If a previous call to this function has failed (and you think you have fixed the issue
 that caused the error), you can set resume=TRUE to recover any progress made up to that point. This
-will only work if you have not run any other emuR functions (such as the query function or other
-webservice functions) in the meantime, as they are likely to delete your temporary data.}
+will only work if your R temporary directory has not been deleted or emptied in the meantime.}
 
 \item{verbose}{Display progress bars and other information}
 }

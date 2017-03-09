@@ -2,16 +2,16 @@
 % Please edit documentation in R/emuR-bas_webservices.R
 \name{runBASwebservice_g2pForPronunciation}
 \alias{runBASwebservice_g2pForPronunciation}
-\title{Creates canonical pronunciation labels for a tier of tokenized orthographical words.}
+\title{Creates canonical pronunciation attributes for a tier of tokenized orthographical words.}
 \usage{
-runBASwebservice_g2pForPronunciation(handle, orthoLabel, language,
-  canoLabel = "KAN", params = list(embed = "maus"), resume = FALSE,
-  verbose = TRUE)
+runBASwebservice_g2pForPronunciation(handle, orthoAttributeDefinitionName,
+  language, canoAttributeDefinitionName = "KAN", params = list(embed =
+  "maus"), resume = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{handle}{emuDB handle}
 
-\item{orthoLabel}{name of a label (not level!) containing orthographic words.}
+\item{orthoAttributeDefinitionName}{name of a attribute (not level!) containing orthographic words.}
 
 \item{language}{language(s) to be used. If you pass a single string (e.g. "deu-DE"), this language will be used for all bundles.
 Alternatively, you can select the language for every bundle individually. To do so, you must pass a data frame with the columns
@@ -19,7 +19,7 @@ session, bundle, language. This data frame must contain one row for every bundle
 Up-to-date lists of the languages accepted by all webservices can be found here:
 \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}}
 
-\item{canoLabel}{label name for canonical pronunciations of words}
+\item{canoAttributeDefinitionName}{attribute name for canonical pronunciations of words}
 
 \item{params}{named list of parameters to be passed on to the webservice. It is your own reponsibility to
 ensure that these parameters are compatible with the webservice API
@@ -29,13 +29,12 @@ and will be overridden.}
 
 \item{resume}{If a previous call to this function has failed (and you think you have fixed the issue
 that caused the error), you can set resume=TRUE to recover any progress made up to that point. This
-will only work if you have not run any other emuR functions (such as the query function or other
-webservice functions) in the meantime, as they are likely to delete your temporary data.}
+will only work if your R temporary directory has not been deleted or emptied in the meantime.}
 
 \item{verbose}{Display progress bars and other information}
 }
 \description{
-This function calls the G2P webservice to add canonical pronunciation labels in SAMPA (default)
+This function calls the G2P webservice to add canonical pronunciation attributes in SAMPA (default)
 or IPA to a tier of tokenized orthographical words. It is usually called after tokenization
 with \link{runBASwebservice_g2pForTokenization}. Its output can be used as input to
 \link{runBASwebservice_maus} or \link{runBASwebservice_chunker}.

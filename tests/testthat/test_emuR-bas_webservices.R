@@ -40,19 +40,19 @@ test_that(
     runBASwebservice_chunker(handle,
                              "KAN",
                              "eng-GB",
-                             rootLabel = "transcription",
+                             rootLevel = "bundle",
                              verbose = F)
     runBASwebservice_maus(handle,
                           "KAN",
                           "eng-GB",
-                          chunkLabel = "TRN",
+                          chunkLevel = "TRN",
                           verbose = F)
-    runBASwebservice_minni(handle, "eng-GB", rootLabel = "transcription", verbose = F)
+    runBASwebservice_minni(handle, "eng-GB", rootLevel = "bundle", verbose = F)
     runBASwebservice_pho2sylCanonical(handle, "KAN", "eng-GB", verbose = F)
     runBASwebservice_pho2sylSegmental(handle,
                                       "MAU",
                                       "eng-GB",
-                                      superLabel = "ORT",
+                                      superLevel = "ORT",
                                       verbose = F)
   }
 )

@@ -2,6 +2,16 @@
 
 ## new features / performance tweaks / improvements
 
+* some changes to the parameter names in the BAS webservice functions
+
+## bug fixes
+
+* BAS webservice calls now get their own temp directories (UUID based). This avoids race conditions when several scripts are running in parallel.
+
+# emuR 0.2.1.9009
+
+## new features / performance tweaks / improvements
+
 * convert_txtCollection and convert_BPFCollection now name topmost item "bundle"
 * added functions to set and get level descriptions in DBconfig
 * BAS webservice functions now perform a cache update prior to departure
