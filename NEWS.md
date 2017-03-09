@@ -1,10 +1,11 @@
-# emuR 0.2.1.9009
+# emuR 0.2.1.9010
 
 ## new features / performance tweaks / improvements
 
 * convert_txtCollection and convert_BPFCollection now name topmost item "bundle"
 * added functions to set and get level descriptions in DBconfig
 * BAS webservice functions now perform a cache update prior to departure
+* added mulitple perspectives to ae demo database
 
 ## bug fixes
 

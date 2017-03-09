@@ -346,7 +346,58 @@
 
                     ]
                 }
+            },
+            {
+                "name": "Phonetic-only",
+                "signalCanvases": {
+                    "order": [
+                        "OSCI",
+                        "SPEC"
+                    ],
+                    "assign": [
+
+                    ],
+                    "contourLims": [
+
+                    ]
+                },
+                "levelCanvases": {
+                    "order": [
+                        "Phonetic"
+                    ]
+                },
+                "twoDimCanvases": {
+                    "order": [
+
+                    ]
+                }
+            },
+            {
+                "name": "Tone-only",
+                "signalCanvases": {
+                    "order": [
+                        "OSCI",
+                        "SPEC"
+                    ],
+                    "assign": [
+
+                    ],
+                    "contourLims": [
+
+                    ]
+                },
+                "levelCanvases": {
+                    "order": [
+                        "Phonetic"
+                    ]
+                },
+                "twoDimCanvases": {
+                    "order": [
+
+                    ]
+                }
             }
+
         ],
         "restrictions": {
             "showPerspectivesSidebar": true
