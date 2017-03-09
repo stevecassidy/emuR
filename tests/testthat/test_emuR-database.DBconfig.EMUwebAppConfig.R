@@ -36,9 +36,9 @@ test_that("CRUD operations work for perspectives", {
     expect_true(df$signalCanvasesOrder[1] == "OSCI; SPEC")
     expect_true(df$levelCanvasesOrder[1] == "Phonetic; Tone")
     
-    expect_true(df$name[2] == "newPersp")
-    expect_true(df$signalCanvasesOrder[2] == "OSCI; SPEC")
-    expect_true(df$levelCanvasesOrder[2] == "")
+    expect_true(df$name[4] == "newPersp")
+    expect_true(df$signalCanvasesOrder[4] == "OSCI; SPEC")
+    expect_true(df$levelCanvasesOrder[4] == "")
   })
   
   test_that("modify = CR(U)D", {
@@ -51,7 +51,7 @@ test_that("CRUD operations work for perspectives", {
                        name = 'newPersp')
     
     df = list_perspectives(ae)
-    expect_equal(nrow(df), 1)
+    expect_equal(nrow(df), 3)
   })
   
   # clean up
