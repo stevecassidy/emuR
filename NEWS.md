@@ -1,37 +1,12 @@
-# emuR 0.2.1.9010
+# emuR 0.2.1.9011
 
 ## new features / performance tweaks / improvements
 
 * some changes to the parameter names in the BAS webservice functions
-
-## bug fixes
-
-* BAS webservice calls now get their own temp directories (UUID based). This avoids race conditions when several scripts are running in parallel.
-
-# emuR 0.2.1.9009
-
-## new features / performance tweaks / improvements
-
 * convert_txtCollection and convert_BPFCollection now name topmost item "bundle"
 * added functions to set and get level descriptions in DBconfig
 * BAS webservice functions now perform a cache update prior to departure
 * added mulitple perspectives to ae demo database
-
-## bug fixes
-
-* runBASwebservice_maus / minni / all now no longer ignore unlinked items (idx -1) but treat them as linkless segments
-* commented out `cat()` in `train()` function be be less verbose
-
-# emuR 0.2.1.9006
-
-## bug fixes
-
-* convert_txtCollection now treats perspectives as array (as it should)
-
-# emuR 0.2.1.9005
-
-## new features / performance tweaks / improvements
-
 * choosing explicit paths with intersecting hierarchies now possible
 * remove levelDef & linkDef now implement force parameters
 * new function convert_txtCollection converts plain text collections into
@@ -46,9 +21,12 @@ from inside emuR
 
 * wrapped `readChar`s in `enc2utf8` to avoid encodings issues on windows
 * updating label table correctly on add_attributeDefinition() (#138)
+* runBASwebservice_maus / minni / all now no longer ignore unlinked items (idx -1) but treat them as linkless segments
+* commented out `cat()` in `train()` function be be less verbose
+* BAS webservice calls now get their own temp directories (UUID based). This avoids race conditions when several scripts are running in parallel.
+* convert_txtCollection now treats perspectives as array (as it should)
 
 # emuR 0.2.1
-
 
 ## new features / performance tweaks / improvements
 
