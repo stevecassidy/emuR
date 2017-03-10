@@ -6,12 +6,12 @@
 * convert_txtCollection and convert_BPFCollection now name topmost item "bundle"
 * added functions to set and get level descriptions in DBconfig
 * BAS webservice functions now perform a cache update prior to departure
-* added mulitple perspectives to ae demo database
+* added multiple perspectives to ae demo database
 * choosing explicit paths with intersecting hierarchies now possible
 * remove levelDef & linkDef now implement force parameters
 * new function convert_txtCollection converts plain text collections into single-node emuDB
 * new functions runBASwebservice_* that call various BAS webservices from inside emuR
-* NULLing out empty DFs on list_level/linkDefs for more consisten API
+* NULLing out empty DFs on list_level/linkDefs for more consistent API
 * `newLinkDefType` argument implemented in `autobuild_linkFromTimes()` to generate linkDefinition if so desired 
 * automatically removing superlevel from `levelCanvasOrder` if `convertSuperlevel` is set to `TRUE` in `autobuild_linkFromTimes()`
 
