@@ -1,4 +1,4 @@
-# emuR 0.2.1.9011
+# emuR 0.2.2
 
 ## new features / performance tweaks / improvements
 
@@ -9,10 +9,8 @@
 * added mulitple perspectives to ae demo database
 * choosing explicit paths with intersecting hierarchies now possible
 * remove levelDef & linkDef now implement force parameters
-* new function convert_txtCollection converts plain text collections into
-single-node emuDB
-* new functions runBASwebservice_* that call various BAS webservices
-from inside emuR
+* new function convert_txtCollection converts plain text collections into single-node emuDB
+* new functions runBASwebservice_* that call various BAS webservices from inside emuR
 * NULLing out empty DFs on list_level/linkDefs for more consisten API
 * `newLinkDefType` argument implemented in `autobuild_linkFromTimes()` to generate linkDefinition if so desired 
 * automatically removing superlevel from `levelCanvasOrder` if `convertSuperlevel` is set to `TRUE` in `autobuild_linkFromTimes()`
