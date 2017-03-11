@@ -119,11 +119,10 @@ par(mfrow=c(2,3))
 
 
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{\link{plot}}, \code{\link{dplot}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{dplot}
-

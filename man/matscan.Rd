@@ -33,4 +33,3 @@ data into Splus matrix objects.
 read.table
 }
 \keyword{misc}
-

@@ -2,8 +2,8 @@
 % Please edit documentation in R/mel.R
 \name{mel}
 \alias{mel}
-\alias{mel.spectral}
 \alias{mel.trackdata}
+\alias{mel.spectral}
 \title{Convert Hz to the mel scale}
 \usage{
 mel(a)
@@ -72,9 +72,6 @@ plot(e.dft, freq=mel(trackfreq(e.dft)))
 # in a higher frequency range.
 
 }
-\author{
-Jonathan Harrington
-}
 \references{
 Traunmueller, H. (1990) \"Analytical expressions for the
 tonotopic sensory scale\" J. Acoust. Soc. Am. 88: 97-100.
@@ -82,5 +79,7 @@ tonotopic sensory scale\" J. Acoust. Soc. Am. 88: 97-100.
 \seealso{
 \code{\link{bark}}, \code{\link{plot.spectral}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{math}
-

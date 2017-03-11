@@ -69,12 +69,11 @@ p <- palate(polhom.epg[temp,])
 epggs(p)
 
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{\link{epgai}} \code{\link{epgcog}} \code{\link{epgplot}}
 \code{\link{palate}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{dplot}
-

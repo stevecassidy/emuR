@@ -54,4 +54,3 @@ add_files(emuDBhandle = ae,
 \keyword{Emu}
 \keyword{database}
 \keyword{emuDB}
-

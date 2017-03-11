@@ -4,8 +4,8 @@
 \alias{AddListRenameRemoveAttributeDefinitions}
 \alias{add_attributeDefinition}
 \alias{list_attributeDefinitions}
-\alias{remove_attributeDefinition}
 \alias{rename_attributeDefinition}
+\alias{remove_attributeDefinition}
 \title{Add / List / Rename / Remove attribute definition to / of / from emuDB}
 \usage{
 add_attributeDefinition(emuDBhandle, levelName, name, type = "STRING",
@@ -90,4 +90,3 @@ remove_attributeDefinition(emuDBhandle = ae,
 \keyword{Emu}
 \keyword{database}
 \keyword{emuDB}
-

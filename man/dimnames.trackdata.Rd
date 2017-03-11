@@ -13,4 +13,3 @@
 returns dimension names of trackdata objects
 }
 \keyword{methods}
-

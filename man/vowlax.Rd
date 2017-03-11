@@ -10,4 +10,3 @@ speaker of Standard North German from database kielread.}
 An EMU dataset
 }
 \keyword{datasets}
-

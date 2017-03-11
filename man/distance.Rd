@@ -10,4 +10,3 @@ distance(data, train, labels = NULL, metric = "bayes")
 see function
 }
 \keyword{internal}
-

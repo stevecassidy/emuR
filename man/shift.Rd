@@ -37,11 +37,10 @@ shift(vec, 2, circular=FALSE)
 
 
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 filter
 }
+\author{
+Jonathan Harrington
+}
 \keyword{manip}
-

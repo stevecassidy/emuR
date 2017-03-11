@@ -92,4 +92,3 @@ requery_seq(ae, sl3, length = 3, ignoreOutOfBounds = TRUE)
 \keyword{database}
 \keyword{emuDB}
 \keyword{requery}
-

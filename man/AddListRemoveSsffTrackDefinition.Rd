@@ -98,4 +98,3 @@ remove_ssffTrackDefinition <- function(emuDBhandle = ae,
 }
 
 }
-

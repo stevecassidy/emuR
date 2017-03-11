@@ -91,11 +91,10 @@ If 'right.time' is omitted then a single data point correponding to
      int[1]
  
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{\link{get_trackdata}}, \code{\link{dplot}}, \code{\link{eplot}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{datagen}
-

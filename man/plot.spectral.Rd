@@ -83,12 +83,11 @@ plot(fric.dft[1,])
 }
 
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{\link{plot}} \code{\link{plot.trackdata}}
 \code{\link{as.spectral}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{dplot}
-

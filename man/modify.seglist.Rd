@@ -60,11 +60,10 @@ newsegs <-  modify.seglist( segs, database="notdemo" )
 
 
 }
-\author{
-Steve Cassidy
-}
 \seealso{
 \code{\link{query}}
 }
+\author{
+Steve Cassidy
+}
 \keyword{misc}
-

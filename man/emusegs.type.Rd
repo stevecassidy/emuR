@@ -10,4 +10,3 @@ emusegs.type(sl)
 Gives SEGEMENT or EVENT
 }
 \keyword{internal}
-

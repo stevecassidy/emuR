@@ -10,4 +10,3 @@ mu.colour.get(col.lty, label)
 see function
 }
 \keyword{internal}
-

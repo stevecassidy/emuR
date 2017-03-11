@@ -71,12 +71,11 @@ classplot(fm.lda, xlim=xlim, ylim=ylim, main="LDA")
 \dontrun{classplot(fm.svm, xlim=xlim, ylim=ylim, xlab="F1", ylab="F2", main="SVM")}          
 
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{\link[MASS]{qda}}, \code{\link[MASS]{lda}}, svm of e1071
 package. There is a function plot.svm which produces a prettier plot for
 SVMs.
 }
-
+\author{
+Jonathan Harrington
+}

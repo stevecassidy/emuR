@@ -61,9 +61,6 @@ dct(vec, m=4)
 dct(vec, m=4 , fit=TRUE)
 
 }
-\author{
-Jonathan Harrington
-}
 \references{
 Watson, C. & Harrington, J. (1999). Acoustic evidence for
 dynamic formant trajectories in Australian English vowels. Journal of the
@@ -76,5 +73,7 @@ Society of America, 94, 19661982.
 \seealso{
 \code{\link{plafit}} \code{\link{by}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{math}
-

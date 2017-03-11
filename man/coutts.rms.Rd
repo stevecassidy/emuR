@@ -14,4 +14,3 @@ data(coutts.rms)
 
 }
 \keyword{datasets}
-

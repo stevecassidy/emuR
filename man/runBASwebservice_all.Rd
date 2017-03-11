@@ -67,7 +67,7 @@ If you wish to change parameters, you must use the individual runBASwebservices 
 you to carry out manual corrections in between the steps, or to use different languages for different webservices.
 }
 \seealso{
-Other BAS.webservice.functions: \code{\link{runBASwebservice_chunker}},
+Other BAS webservice functions: \code{\link{runBASwebservice_chunker}},
   \code{\link{runBASwebservice_g2pForPronunciation}},
   \code{\link{runBASwebservice_g2pForTokenization}},
   \code{\link{runBASwebservice_maus}},
@@ -75,4 +75,3 @@ Other BAS.webservice.functions: \code{\link{runBASwebservice_chunker}},
   \code{\link{runBASwebservice_pho2sylCanonical}},
   \code{\link{runBASwebservice_pho2sylSegmental}}
 }
-

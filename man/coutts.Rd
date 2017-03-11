@@ -10,4 +10,3 @@ from database epgcoutts}
 An EMU dataset
 }
 \keyword{datasets}
-

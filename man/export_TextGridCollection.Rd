@@ -62,4 +62,3 @@ export_TextGridCollection(ae, "/path/2/targetDir")
 \keyword{database}
 \keyword{emuDB}
 \keyword{query}
-

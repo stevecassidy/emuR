@@ -22,4 +22,3 @@ A track list is created via the \code{\link{get_trackdata}} function.
 \code{\link{trackdata}}
 }
 \keyword{datasets}
-

@@ -2,8 +2,8 @@
 % Please edit documentation in R/emuR-database.DBconfig.EMUwebAppConfig.R
 \name{SetGetSignalCanvasesOrder}
 \alias{SetGetSignalCanvasesOrder}
-\alias{get_signalCanvasesOrder}
 \alias{set_signalCanvasesOrder}
+\alias{get_signalCanvasesOrder}
 \title{Set / Get signalCanvasesOrder of / to / from emuDB}
 \usage{
 set_signalCanvasesOrder(emuDBhandle, perspectiveName, order)
@@ -44,4 +44,3 @@ get_signalCanvasesOrder(emuDBhandle = ae,
 \keyword{Emu}
 \keyword{database}
 \keyword{emuDB}
-

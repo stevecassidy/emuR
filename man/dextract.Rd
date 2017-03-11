@@ -46,11 +46,10 @@ fzero50 = dextract(fzero, 0.5)
 
 
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{dcut}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{datagen}
-

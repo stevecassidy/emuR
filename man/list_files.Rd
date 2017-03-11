@@ -44,4 +44,3 @@ list_files(emuDBhandle = ae, bundlePattern=".*3$")
 \keyword{database}
 \keyword{emuDB}
 \keyword{schema}
-

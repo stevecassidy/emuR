@@ -97,9 +97,6 @@ crplot(k=3)
 crplot(k=15)
 
 }
-\author{
-Jonathan Harrington
-}
 \references{
 Harrington, J, & Cassidy, S. 1999. Techniques in Speech
 Acoustics. Kluwer
@@ -107,5 +104,7 @@ Acoustics. Kluwer
 \seealso{
 \code{\link{cr}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{dplot}
-

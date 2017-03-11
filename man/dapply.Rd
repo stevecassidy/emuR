@@ -72,4 +72,3 @@ fm.first10 <- dapply( fm, testfun, 10 )
 \code{\link{dsmooth}} \code{\link{ddiff}}
 }
 \keyword{misc}
-

@@ -30,4 +30,3 @@ Calculates ellipse coordinates for eplot
 \code{\link{eplot}}
 }
 \keyword{misc}
-

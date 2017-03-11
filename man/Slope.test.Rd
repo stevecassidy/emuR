@@ -39,4 +39,3 @@ p.436-450, 496-507.
 lm(), summary.lm(), pf()
 }
 \keyword{misc}
-

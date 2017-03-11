@@ -10,4 +10,3 @@ closest(vec, val)
 see function
 }
 \keyword{internal}
-

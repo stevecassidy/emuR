@@ -60,4 +60,3 @@ tdata[2]
 \code{\link{get_trackdata}} \code{\link{dplot}}
 }
 \keyword{misc}
-

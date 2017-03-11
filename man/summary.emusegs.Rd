@@ -15,4 +15,3 @@
 summarizes data in emu segment lists
 }
 \keyword{internal}
-

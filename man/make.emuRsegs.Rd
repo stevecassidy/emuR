@@ -19,4 +19,3 @@ make.emuRsegs(dbName, seglist, query, type)
 \description{
 Make emuDB segment list
 }
-

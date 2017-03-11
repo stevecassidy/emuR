@@ -78,4 +78,3 @@ requery_seq(ae, requery_hier(ae, sl1, level = 'Phoneme'), offsetRef = 'END')
 \keyword{database}
 \keyword{emuDB}
 \keyword{requery}
-

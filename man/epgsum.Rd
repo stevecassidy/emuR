@@ -74,9 +74,6 @@ epgsum(p, 2, columns=3:6)
 
 
 }
-\author{
-Jonathan Harrington
-}
 \references{
 BYRD, D. (1996). Influences on articulatory timing in consonant
 sequences. Journal of Phonetics, 24, 209-244.
@@ -89,5 +86,7 @@ Press: Cambridge.
 \code{\link{epgai}} \code{\link{epgcog}} \code{\link{epggs}}
 \code{\link{palate}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{math}
-

@@ -35,12 +35,11 @@ p <- palate(dcut(coutts.epg, 0, prop=TRUE))
 
 
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{\link{epgcog}} \code{\link{epggs}} \code{\link{epgai}}
 \code{\link{epgplot}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{datagen}
-

@@ -19,4 +19,3 @@ Converts degrees to radians
 There are 360 degrees or 2 * PI radians in one full rotation.
 }
 \keyword{misc}
-

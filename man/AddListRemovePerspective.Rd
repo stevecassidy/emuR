@@ -56,4 +56,3 @@ remove_perspective(emuDBhandle = ae,
 \keyword{Emu}
 \keyword{database}
 \keyword{emuDB}
-

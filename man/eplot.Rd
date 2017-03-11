@@ -103,11 +103,10 @@ data.
 
 
 }
-\author{
-Jonathan Harrington, Steve Cassidy
-}
 \seealso{
 \code{\link{dcut}}
 }
+\author{
+Jonathan Harrington, Steve Cassidy
+}
 \keyword{dplot}
-

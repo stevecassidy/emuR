@@ -10,4 +10,3 @@ emusegs.query(sl)
 sends a emu query to EMU
 }
 \keyword{internal}
-

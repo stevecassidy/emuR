@@ -3,8 +3,8 @@
 \name{label}
 \alias{label}
 \alias{label.emusegs}
-\alias{utt}
 \alias{utt.emusegs}
+\alias{utt}
 \title{Get labels / utterances from segment list}
 \usage{
 label(segs)
@@ -32,11 +32,10 @@ utterances from the segment list.
    
 
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{\link{segmentlist} \link{start} \link{end}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{methods}
-

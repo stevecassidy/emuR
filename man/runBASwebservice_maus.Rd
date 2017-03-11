@@ -54,7 +54,7 @@ by the function \link{runBASwebservice_g2pForPronunciation}.
 All necessary level, link and attribute definitions are created in the process.
 }
 \seealso{
-Other BAS.webservice.functions: \code{\link{runBASwebservice_all}},
+Other BAS webservice functions: \code{\link{runBASwebservice_all}},
   \code{\link{runBASwebservice_chunker}},
   \code{\link{runBASwebservice_g2pForPronunciation}},
   \code{\link{runBASwebservice_g2pForTokenization}},
@@ -62,4 +62,3 @@ Other BAS.webservice.functions: \code{\link{runBASwebservice_all}},
   \code{\link{runBASwebservice_pho2sylCanonical}},
   \code{\link{runBASwebservice_pho2sylSegmental}}
 }
-

@@ -73,4 +73,3 @@ serve(myDb)
 \keyword{database}
 \keyword{emuDB}
 \keyword{websocket}
-

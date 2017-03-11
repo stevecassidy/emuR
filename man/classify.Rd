@@ -45,4 +45,3 @@ function (data, train, metric = "bayes")
 Jonathan Harrington
 }
 \keyword{models}
-

@@ -40,7 +40,7 @@ derived using \link{runBASwebservice_g2pForPronunciation}). \strong{This functio
 connection.}
 }
 \seealso{
-Other BAS.webservice.functions: \code{\link{runBASwebservice_all}},
+Other BAS webservice functions: \code{\link{runBASwebservice_all}},
   \code{\link{runBASwebservice_chunker}},
   \code{\link{runBASwebservice_g2pForPronunciation}},
   \code{\link{runBASwebservice_g2pForTokenization}},
@@ -48,4 +48,3 @@ Other BAS.webservice.functions: \code{\link{runBASwebservice_all}},
   \code{\link{runBASwebservice_minni}},
   \code{\link{runBASwebservice_pho2sylSegmental}}
 }
-

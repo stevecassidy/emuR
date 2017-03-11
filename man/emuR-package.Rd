@@ -2,8 +2,8 @@
 % Please edit documentation in R/emuR-packageDocs.R
 \docType{package}
 \name{emuR-package}
-\alias{emuR}
 \alias{emuR-package}
+\alias{emuR}
 \title{emuR - Main Package of the EMU Speech Database Management System}
 \description{
 The emuR package provides the next iteration of the EMU Speech 
@@ -97,4 +97,3 @@ Harrington, J. (2010). The Phonetic Analysis of Speech Corpora.
 Blackwell.
 }
 \keyword{package}
-

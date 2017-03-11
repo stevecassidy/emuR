@@ -1,5 +1,5 @@
 Package: emuR
-Version: 0.2.2
+Version: 0.2.2.9000
 Title: Main Package of the EMU Speech Database Management System
 Authors@R: c(
     person("Raphael", "Winkelmann", , "raphael@phonetik.uni-muenchen.de", c("aut", "cre")),
@@ -43,4 +43,4 @@ LazyData: yes
 ZipData: no
 URL: https://github.com/IPS-LMU/emuR
 BugReports: https://github.com/IPS-LMU/emuR/issues
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

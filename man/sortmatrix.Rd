@@ -22,4 +22,3 @@ Sorts matrix by label
 label, phon
 }
 \keyword{misc}
-

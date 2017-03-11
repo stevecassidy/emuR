@@ -10,4 +10,3 @@ mu.linetype.get(col.lty, label)
 see function
 }
 \keyword{internal}
-

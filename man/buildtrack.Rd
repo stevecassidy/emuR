@@ -41,11 +41,10 @@ additional argument to buildtrack()
    m
 
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{\link{by}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{manip}
-

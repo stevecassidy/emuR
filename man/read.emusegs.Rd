@@ -43,11 +43,10 @@ text files on disk.
 
 
 }
-\author{
-Steve Cassidy
-}
 \seealso{
 \code{\link{query}}
 }
+\author{
+Steve Cassidy
+}
 \keyword{IO}
-

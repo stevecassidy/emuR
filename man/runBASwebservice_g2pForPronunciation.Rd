@@ -46,7 +46,7 @@ afterwards. To disable MAUS embed mode, call this function with params=list(embe
 To derive IPA symbols, add outsym="ipa" to the parameter list.
 }
 \seealso{
-Other BAS.webservice.functions: \code{\link{runBASwebservice_all}},
+Other BAS webservice functions: \code{\link{runBASwebservice_all}},
   \code{\link{runBASwebservice_chunker}},
   \code{\link{runBASwebservice_g2pForTokenization}},
   \code{\link{runBASwebservice_maus}},
@@ -54,4 +54,3 @@ Other BAS.webservice.functions: \code{\link{runBASwebservice_all}},
   \code{\link{runBASwebservice_pho2sylCanonical}},
   \code{\link{runBASwebservice_pho2sylSegmental}}
 }
-

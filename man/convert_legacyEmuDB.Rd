@@ -88,4 +88,3 @@ dbHandle=load_emuDB(file.path(targetDir,"ae_emuDB"))
 \keyword{database}
 \keyword{emuDB}
 \keyword{schema}
-

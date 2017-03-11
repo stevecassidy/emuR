@@ -2,8 +2,8 @@
 % Please edit documentation in R/emuR-database.DBconfig.EMUwebAppConfig.R
 \name{SetGetlevelCanvasesOrder}
 \alias{SetGetlevelCanvasesOrder}
-\alias{get_levelCanvasesOrder}
 \alias{set_levelCanvasesOrder}
+\alias{get_levelCanvasesOrder}
 \title{Set / Get level canvases order of emuDB}
 \usage{
 set_levelCanvasesOrder(emuDBhandle, perspectiveName, order)
@@ -53,4 +53,3 @@ get_levelCanvasesOrder(emuDBhandle = ae,
 \keyword{Emu}
 \keyword{database}
 \keyword{emuDB}
-

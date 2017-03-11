@@ -10,4 +10,3 @@ bayesian.metric(data, mean, cov, invcov)
 see function
 }
 \keyword{internal}
-

@@ -60,9 +60,6 @@ class(r) <- "EPG"
 epgcog(r, rows=5:8, columns=3:6)
 
 }
-\author{
-Jonathan Harrington
-}
 \references{
 GIBBON, F., HARDCASTLE, W. and NICOLAIDIS, K. (1993) Temporal
 and spatial aspects of lingual coarticuation in /kl/ sequences: a
@@ -79,5 +76,7 @@ Journal of Phonetics, 19, 251-266.
 \seealso{
 \code{\link{epgai}} \code{\link{epgsum}} \code{\link{palate}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{math}
-

@@ -61,11 +61,10 @@ text(info.fm$duration, info.fm$delta1, labels=label(segs))
 delta.fm <- info.fm[,10:13]
 
 }
-\author{
-Steve Cassidy
-}
 \seealso{
 \code{\link{get_trackdata}}, \code{\link{dapply}}
 }
+\author{
+Steve Cassidy
+}
 \keyword{misc}
-

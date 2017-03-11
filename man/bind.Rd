@@ -10,4 +10,3 @@ bind(a, ...)
 binds data
 }
 \keyword{internal}
-

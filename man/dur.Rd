@@ -12,4 +12,3 @@ dur(x)
 \description{
 calculates durations
 }
-

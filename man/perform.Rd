@@ -20,4 +20,3 @@ Performs (hit rate) of a confusion matrix
 confusion
 }
 \keyword{misc}
-
