@@ -1,6 +1,8 @@
-# emuR 0.2.2.9000
+# emuR 0.2.2.9001
 
 ## new features / performance tweaks / improvements
+
+* performance bump for `fapply()`
 
 ## bug fixes
 

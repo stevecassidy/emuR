@@ -48,6 +48,7 @@
 'fapply' <- function (specdata, fun, ..., power = FALSE, 
                       powcoeffs = c(10, 10)) 
 {
+  
   if (!is.spectral(specdata)) 
     stop("object must be of class spectral")
   if (power) 
@@ -58,7 +59,10 @@
     class(specdata$data) <- "spectral"
     for (j in 1:nrow(specdata$data)) {
       vals <- fun(specdata$data[j, ], ...)
-      omat <- rbind(omat, vals)
+      if(j == 1){ # preallocate matrix
+        omat = matrix(nrow = nrow(specdata$data), ncol = length(vals))
+      }
+      omat[j, ] <- vals
     }
     if (ncol(omat) == ncol(specdata)) {
       dimnames(omat) <- dnames
@@ -81,7 +85,10 @@
     
     for (j in 1:nrow(specdata)) {
       vals <- fun(specdata[j, ], ...)
-      omat <- rbind(omat, vals)
+      if(j == 1){ # preallocate matrix
+        omat = matrix(nrow = nrow(specdata), ncol = length(vals))
+      }
+      omat[j, ] <- vals
     }
     if (ncol(omat) == ncol(specdata)) {
       dimnames(omat) <- dnames
