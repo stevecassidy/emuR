@@ -1,8 +1,11 @@
-# emuR 0.2.2.9001
+# emuR 0.2.2.9002
 
 ## new features / performance tweaks / improvements
 
-* performance bump for `fapply()`
+* performance bump for `fapply()` by preallocating result matrix
+* performance bump for `trapply()` by preallocating result matrix
+* performance bump for `mel.spectral()` by preallocating result matrix
+* performance bump for `bark.spectral()` by preallocating result matrix
 
 ## bug fixes
 
