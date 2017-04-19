@@ -1,4 +1,4 @@
-# emuR 0.2.2.9002
+# emuR 0.2.2.9003
 
 ## new features / performance tweaks / improvements
 
@@ -8,6 +8,8 @@
 * performance bump for `bark.spectral()` by preallocating result matrix
 
 ## bug fixes
+
+* `export_TextGridCollection()` now handles partial includes of bundle and session names correctly (issue \#147) 
 
 # emuR 0.2.2
 
