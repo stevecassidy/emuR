@@ -152,6 +152,7 @@ bas_run_maus_dbi <- function(handle,
         {
           trn_items_bundle = trn_items[trn_items$bundle == bundle &
                                          trn_items$session == session,]
+          
           if (nrow(trn_items_bundle) == 0)
           {
             close(kancon)
@@ -160,36 +161,45 @@ bas_run_maus_dbi <- function(handle,
           
           if (nrow(trn_items_bundle) > 0)
           {
-            for (turn_idx in 1:nrow(trn_items_bundle))
+            linked_kan_items = requery_hier(
+              handle,
+              trn_items_bundle,
+              canoAttributeDefinitionName,
+              calcTime = F,
+              collapse = T
+            )
+            
+            linked_trn_items = requery_hier(
+              handle,
+              linked_kan_items,
+              chunkLevel,
+              calcTimes = T,
+              collapse = T
+            )
+            
+            if(nrow(linked_kan_items) != nrow(linked_trn_items))
             {
-              turn_item_id = trn_items_bundle[turn_idx, "start_item_id"]
-              turn_start = trn_items_bundle[turn_idx, "sample_start"]
-              turn_end = trn_items_bundle[turn_idx, "sample_end"]
-              
-              linked_ids = requery_hier(
-                handle,
-                trn_items_bundle[turn_idx,],
-                canoAttributeDefinitionName,
-                calcTimes = F,
-                collapse = F
-              )$start_item_id
-              
-              if (length(linked_ids) > 0)
-              {
-                bas_ids = sapply(linked_ids, function(x)
-                  item_id_to_bas_id[[toString(x)]])
+              stop("Something has gone wrong in the turn query...")
+            }
+            
+            for(trn_idx in 1:nrow(linked_trn_items))
+            {
+              turn_start = linked_trn_items[trn_idx, "sample_start"]
+              turn_end = linked_trn_items[trn_idx, "sample_end"]
+              item_id_start = linked_kan_items[trn_idx, "start_item_id"]
+              item_id_end = linked_kan_items[trn_idx, "end_item_id"]
+              bas_id_start = item_id_to_bas_id[[toString(item_id_start)]]
+              bas_id_end = item_id_to_bas_id[[toString(item_id_end)]]
                 
+              trnline = paste(
+                "TRN:",
+                turn_start,
+                turn_end - turn_start,
+                paste0(bas_id_start:bas_id_end, collapse = ","),
+                "_"
+              )
                 
-                trnline = paste(
-                  "TRN:",
-                  turn_start,
-                  turn_end - turn_start,
-                  paste0(bas_ids, collapse = ","),
-                  "_"
-                )
-                
-                write(trnline, kancon)
-              }
+              write(trnline, kancon)
             }
           }
         }
@@ -290,7 +300,6 @@ bas_run_maus_dbi <- function(handle,
                       rewriteAllAnnots = FALSE)
   bas_new_canvas(handle, perspective, mausLevel)
   add_linkDefinition(handle, "ONE_TO_MANY", canoLevel, mausLevel)
-  
   
   mausDescription = bas_paste_description("Phonetic segmentation by MAUS", canoAttributeDefinitionName, service, params)
   set_attributeDescription(handle, mausLevel, mausAttributeDefinitionName, mausDescription)
