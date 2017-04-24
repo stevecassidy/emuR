@@ -102,22 +102,6 @@ As the BPF format also permits annotational units to be linked to one another, t
 unlink(file.path(tempdir(), "myBPF-DB_emuDB"), recursive = TRUE)
 ```
 
-## Text file collections
-
-The function `convert_txtCollection()` is for cases in which you do not yet have a phonetic database, but wish to create one starting from a set of transcriptions and audio files. As with the other converter functions, your starting point is a collection of file pairs. In this collection, every `.wav` file must be paired with one text file, which must have the same file prefix (e.g. `recording01.wav` and `recording01.txt`). The `convert_txtCollection()` function will create an `emuDB` with one item per bundle. This item will hold the transcription found in the associated text file.
-
-```{r}
-# get the path to a folder containing .wav & .txt files that is part of the demo data
-path2folder = file.path(tempdir(), "emuR_demoData", "txt_collection")
-
-# convert this text collection to the emuDB format
-convert_txtCollection(sourceDir = path2folder, dbName = 'myTxt-DB',
-		      targetDir = tempdir(), verbose = F, attributeDefinitionName = "transcription")
-
-# we do not remove this emuDB at this point, as we will be needing it for other demonstrations
-```
-
-Of course, a transcription-only `emuDB` created by the `convert_txtCollection()` function is not very interesting. In most cases, the next step would be to either enhance it with a manual annotation and segmentation, or to use our `BAS webservice` functions (see below) to do this job automatically.
 
 # Loading and inspecting the database
 
@@ -194,44 +178,6 @@ Once you are finished using the EMU-webApp simply click the clear button in the 
 
 **INFO: For more information about how to use the EMU-webApp click the EMU-webApp icon in the top right hand corner in the webApp's top menu bar. For more 
 information about how to configure the EMU-webApp see the 'Configuring the EMU-webApp' section of the `emuDB` vignette.**
-
-## Using the BAS webservices for automatic annotation
-
-As an alternative to manual annotation, you can use the webservices provided by the Bavarian Archive for Speech Signals (BAS).
-The first and most simplistic webservice function is the `runBASwebservice_all()` function. It assumes that your `emuDB` contains
-(at least) a transcription attribute definition like the one we created with the `convert_txtCollection()` function.
-
-```{r}
-# first of all, make sure that you are on-line
-
-# load the transcription-only database that we created earlier
-path2folder = file.path(tempdir(), "myTxt-DB")
-handle = load_emuDB(path2folder)
-```
-
-`runBASwebservice_all` needs to know at least two things: the name of the transcription attribute definition, and the language or variety of the recording. 
-
-```{r}
-# we defined the transcription attribute definition when we converted the text collection
-attrDefName = "transcription"
-
-# the language of our demo recordings is Australian English
-lang = "eng-AU"
-
-runBASwebservice_all(handle, transcriptionAttributeDefinitionName = attrDefName, language = lang)
-
-```
-The resulting `emuDB` has several new levels: a word level with orthographic and canonical pronunciation forms, a syllable level, a transcription-guided phonetic segmentation and a phonotactically guided rough second segmentation. You can use the EMU-webApp to visually inspect the result and correct errors.
-
-```{r}
-serve(handle)
-
-# when you are done, remove the emuDB as we will not be needing it any more
-unlink(file.path(tempdir(), "myTxt-DB_emuDB"), recursive = TRUE)
-
-```
-In addition to the `runBASwebservice_all` function, there are seven functions for the individual BAS webservices. They are useful when you want to perform only one part of the process, e.g. if you already have a phonetic segmentation but wish to add a syllable segmentation. What is more, the individual functions give you control over the parameters that are passed on to the webservices. For more information, please read the documentation.
-
 
 # Use cases
 
