@@ -128,11 +128,10 @@ averaged. The plots can be colour-coded for different category types.
 
 
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{\link{dcut}} \code{\link{get_trackdata}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{dplot}
-

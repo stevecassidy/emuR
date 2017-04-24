@@ -42,4 +42,3 @@ freqtoint(vowlax.dft.5, -1)
 Jonathan Harrington
 }
 \keyword{math}
-

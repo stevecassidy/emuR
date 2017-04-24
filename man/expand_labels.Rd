@@ -23,4 +23,3 @@ Labels each data sample
 frames, track
 }
 \keyword{misc}
-

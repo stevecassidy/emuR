@@ -10,4 +10,3 @@ is.seglist(object)
 see function
 }
 \keyword{internal}
-

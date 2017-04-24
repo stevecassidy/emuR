@@ -11,4 +11,3 @@ bayesplot(data, train, N = 10, ellipse = FALSE, labs = NULL, xlab = "",
 bayesplot
 }
 \keyword{internal}
-

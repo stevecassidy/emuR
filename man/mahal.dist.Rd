@@ -33,4 +33,3 @@ centroid to each data point.
 train, mahal, bayes.lab, bayes.dist
 }
 \keyword{misc}
-

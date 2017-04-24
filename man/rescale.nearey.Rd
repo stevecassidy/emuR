@@ -10,4 +10,3 @@ rescale.nearey(data, neardata)
 see function
 }
 \keyword{internal}
-

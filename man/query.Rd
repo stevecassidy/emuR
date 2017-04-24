@@ -80,4 +80,3 @@ query(ae, "Phoneme = p", bundlePattern = "msajc05.*", sessionPattern = "00.*")
 \keyword{database}
 \keyword{emuDB}
 \keyword{query}
-

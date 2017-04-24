@@ -18,4 +18,3 @@ A segment list is created via \code{\link{query}}.
 \code{\link{demo.vowels}} \code{\link{segmentlist}}
 }
 \keyword{datasets}
-

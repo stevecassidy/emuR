@@ -15,4 +15,3 @@
 summarizes trackdata objects
 }
 \keyword{internal}
-

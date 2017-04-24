@@ -10,4 +10,3 @@ emusegs.database(sl)
 Returns the database attribute from a segmentlist
 }
 \keyword{internal}
-

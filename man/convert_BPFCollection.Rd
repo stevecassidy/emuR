@@ -71,4 +71,3 @@ convert_BPFCollection("/tmp/BPF_collection","/tmp/DirNewEmuR",'NewEmuR',
 \seealso{
 convert_TextGridCollection, convert_legacyEmuDB
 }
-

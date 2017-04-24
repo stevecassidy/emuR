@@ -11,6 +11,8 @@ fapply(specdata, fun, ..., power = FALSE, powcoeffs = c(10, 10))
 
 \item{fun}{A function to be applied.}
 
+\item{\dots}{Optional arguments to fun}
+
 \item{power}{A single element logical vector. If T, convert specdata to
 power values i.e. apply the function to a * specdata
 \eqn{\mbox{\textasciicircum}}{^}b or a * specdata\$data
@@ -18,8 +20,6 @@ power values i.e. apply the function to a * specdata
 
 \item{powcoeffs}{A 2 element numeric vector for converting dB values to
 power values. Defaults to a = 10 and b = 10. See \code{power}.}
-
-\item{\dots}{Optional arguments to fun}
 }
 \value{
 If the output has the same dimensions has the input, then an object
@@ -38,6 +38,7 @@ designed for handling EMU spectral objects.
 trackdata object. In this case, it may be faster to use a for-loop with the
 desired function around \$data
 }
+
 \examples{
 
 # mean value per spectrum, input is a spectral matrix
@@ -60,11 +61,10 @@ d3 <- fapply(fric.dft[1:4,], dct, 10, TRUE)
 
 
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{\link{apply}} \code{\link{by.trackdata}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{utilities}
-

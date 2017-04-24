@@ -319,7 +319,10 @@
   res <- NULL
   for (j in 1:nrow(spec)) {
     v = approx(b, c(spec[j, ]), ba)
-    res <- rbind(res, v$y)
+    if(j == 1){ # preallocate result matrix
+      res = matrix(nrow = nrow(spec), ncol = length(v$y))
+    }
+    res[j, ] <- v$y
   }
   if (is.trackdata(specobject)) {
     specobject$data <- res
@@ -355,7 +358,10 @@
   res <- NULL
   for (j in 1:nrow(spec)) {
     v = approx(b, c(spec[j, ]), ba)
-    res <- rbind(res, v$y)
+    if(j == 1){ # preallocate result matrix
+      res = matrix(nrow = nrow(spec), ncol = length(v$y))
+    }
+    res[j, ] <- v$y
   }
   if (is.trackdata(specobject)) {
     specobject$data <- res

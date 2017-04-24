@@ -1,43 +1,31 @@
-# emuR 0.2.1.9010
+# emuR 0.2.2.9004
+
+## new features / performance tweaks / improvements
+
+* performance bump for `fapply()` by preallocating result matrix
+* performance bump for `trapply()` by preallocating result matrix
+* performance bump for `mel.spectral()` by preallocating result matrix
+* performance bump for `bark.spectral()` by preallocating result matrix
+
+## bug fixes
+
+* `export_TextGridCollection()` now handles partial includes of bundle and session names correctly (issue \#147)
+* added missing check if `anagestConfig` is defined to `rename_attributeDefinition()`
+
+# emuR 0.2.2
 
 ## new features / performance tweaks / improvements
 
 * some changes to the parameter names in the BAS webservice functions
-
-## bug fixes
-
-* BAS webservice calls now get their own temp directories (UUID based). This avoids race conditions when several scripts are running in parallel.
-
-# emuR 0.2.1.9009
-
-## new features / performance tweaks / improvements
-
 * convert_txtCollection and convert_BPFCollection now name topmost item "bundle"
 * added functions to set and get level descriptions in DBconfig
 * BAS webservice functions now perform a cache update prior to departure
-
-## bug fixes
-
-* runBASwebservice_maus / minni / all now no longer ignore unlinked items (idx -1) but treat them as linkless segments
-* commented out `cat()` in `train()` function be be less verbose
-
-# emuR 0.2.1.9006
-
-## bug fixes
-
-* convert_txtCollection now treats perspectives as array (as it should)
-
-# emuR 0.2.1.9005
-
-## new features / performance tweaks / improvements
-
+* added multiple perspectives to ae demo database
 * choosing explicit paths with intersecting hierarchies now possible
 * remove levelDef & linkDef now implement force parameters
-* new function convert_txtCollection converts plain text collections into
-single-node emuDB
-* new functions runBASwebservice_* that call various BAS webservices
-from inside emuR
-* NULLing out empty DFs on list_level/linkDefs for more consisten API
+* new function convert_txtCollection converts plain text collections into single-node emuDB
+* new functions runBASwebservice_* that call various BAS webservices from inside emuR
+* NULLing out empty DFs on list_level/linkDefs for more consistent API
 * `newLinkDefType` argument implemented in `autobuild_linkFromTimes()` to generate linkDefinition if so desired 
 * automatically removing superlevel from `levelCanvasOrder` if `convertSuperlevel` is set to `TRUE` in `autobuild_linkFromTimes()`
 
@@ -45,9 +33,12 @@ from inside emuR
 
 * wrapped `readChar`s in `enc2utf8` to avoid encodings issues on windows
 * updating label table correctly on add_attributeDefinition() (#138)
+* runBASwebservice_maus / minni / all now no longer ignore unlinked items (idx -1) but treat them as linkless segments
+* commented out `cat()` in `train()` function be be less verbose
+* BAS webservice calls now get their own temp directories (UUID based). This avoids race conditions when several scripts are running in parallel.
+* convert_txtCollection now treats perspectives as array (as it should)
 
 # emuR 0.2.1
-
 
 ## new features / performance tweaks / improvements
 

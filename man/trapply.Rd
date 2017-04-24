@@ -11,12 +11,12 @@ trapply(trackdata, fun, ..., simplify = FALSE, returntrack = FALSE)
 
 \item{fun}{a function that is applied to each segment}
 
+\item{\dots}{arguments of the function fun}
+
 \item{simplify}{simplify = TRUE , output is a matrix; simplify = FALSE a
 list is returned}
 
 \item{returntrack}{returntrack = FALSE , return a trackdata object}
-
-\item{\dots}{arguments of the function fun}
 }
 \value{
 list or vector or matrix
@@ -72,11 +72,10 @@ pfun <- function(x) x/(diff(abs(range(x))))
 newf2 = trapply(vowlax.fdat[,2], pfun, returntrack=TRUE)
 
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{\link{apply}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{methods}
-

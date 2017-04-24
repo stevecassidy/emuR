@@ -27,11 +27,10 @@ rad(c(pi/2, pi/4), 10000, FALSE)
 
 
 }
-\author{
-Jonahtan Harrington
-}
 \seealso{
 \code{\link{help}}
 }
+\author{
+Jonahtan Harrington
+}
 \keyword{math}
-

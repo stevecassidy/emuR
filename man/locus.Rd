@@ -75,4 +75,3 @@ result$locus
 Jonathan Harrington
 }
 \keyword{math}
-

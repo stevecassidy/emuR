@@ -72,11 +72,10 @@ the segment list.
 
 
 }
-\author{
-Steve Cassidy
-}
 \seealso{
 \code{\link{modify.seglist}}, \code{\link{label.emusegs}}
 }
+\author{
+Steve Cassidy
+}
 \keyword{misc}
-

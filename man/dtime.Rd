@@ -10,4 +10,3 @@ dtime(dataset, times, single = TRUE, average = TRUE)
 see function
 }
 \keyword{internal}
-

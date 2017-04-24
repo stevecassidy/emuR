@@ -2,9 +2,9 @@
 % Please edit documentation in R/bark.R
 \name{bark}
 \alias{bark}
-\alias{bark.default}
-\alias{bark.spectral}
 \alias{bark.trackdata}
+\alias{bark.spectral}
+\alias{bark.default}
 \title{Convert Hertz to Bark and Bark to Hertz}
 \usage{
 bark(f, inv = FALSE, ...)
@@ -123,9 +123,6 @@ plot(e.dft, freq=bark(trackfreq(e.dft)))
 
 
 }
-\author{
-Jonathan Harrington
-}
 \references{
 Traunmueller, H. (1990) "Analytical expressions for the
 tonotopic sensory scale" J. Acoust. Soc. Am. 88: 97-100.
@@ -135,5 +132,7 @@ tonotopic sensory scale" J. Acoust. Soc. Am. 88: 97-100.
 
 \code{\link{plot.spectral}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{math}
-

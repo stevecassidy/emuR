@@ -102,11 +102,10 @@ cr(expon=-0.95,  N=200, type="l")
 
 
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{\link{crplot}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{dplot}
-

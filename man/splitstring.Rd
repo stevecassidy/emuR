@@ -25,4 +25,3 @@ splitstring("/home/recog/steve/foo", "/")
 
 }
 \keyword{misc}
-

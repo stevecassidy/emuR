@@ -75,7 +75,7 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
   
   slAll = NULL
   for(i in 1:length(allAttrNames)){
-    sl = query(emuDBhandle, paste0(allAttrNames[i], "=~ .*"), verbose = verbose)
+    sl = query(emuDBhandle, paste0(allAttrNames[i], "=~ .*"), verbose = FALSE)
     slAll = dplyr::bind_rows(slAll, sl)
   }
   
@@ -106,7 +106,7 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
     wavPath = file.path(emuDBhandle$basePath, paste0(curSes, session.suffix), paste0(curBndl, bundle.dir.suffix), paste0(curBndl, ".", dbConfig$mediafileExtension))
     file.copy(wavPath, sesDir)
     # extract bundle sl
-    slBndl = slAll[grepl(curSes, slAll$session) & grepl(curBndl, slAll$bundle), ]
+    slBndl = slAll[grepl(paste0("^", curSes, "$"), slAll$session) & grepl(paste0("^", curBndl, "$"), slAll$bundle), ]
     tgPath = file.path(sesDir, paste0(curBndl, ".TextGrid"))
     
     wavDur = wrassp::dur.AsspDataObj(wrassp::read.AsspDataObj(wavPath))

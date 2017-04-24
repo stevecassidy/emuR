@@ -10,4 +10,3 @@ bayes.dist(data, train, labels = NULL)
 see function
 }
 \keyword{internal}
-

@@ -37,4 +37,3 @@ emuDB is stored in the target directory, and its handle is returned.
 \seealso{
 convert_BPFCollection, convert_TextGridCollection
 }
-

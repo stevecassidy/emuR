@@ -10,4 +10,3 @@ rescale.lob(data, mvals, sdvals)
 see function
 }
 \keyword{internal}
-

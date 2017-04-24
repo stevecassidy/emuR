@@ -10,4 +10,3 @@ temporal midpoint from the segment list vowlax}
 An EMU dataset
 }
 \keyword{datasets}
-

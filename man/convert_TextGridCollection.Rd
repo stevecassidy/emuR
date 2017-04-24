@@ -59,4 +59,3 @@ convert_TextGridCollection(dir = "/path/to/directory/",
 
 } 
 }
-

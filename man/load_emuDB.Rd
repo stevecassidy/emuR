@@ -61,4 +61,3 @@ ae = load_emuDB(demoDatabaseDir)
 \keyword{DBconfig}
 \keyword{database}
 \keyword{emuDB}
-

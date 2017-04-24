@@ -44,11 +44,10 @@ plafit(vowlax.fund[1,]$data, fit=TRUE)
 
 
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{\link{dct}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{math}
-

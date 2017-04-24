@@ -18,4 +18,3 @@ A segment list is created via \code{\link{query}}.
 \code{\link{demo.all}} \code{\link{segmentlist}}
 }
 \keyword{datasets}
-

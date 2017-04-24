@@ -15,4 +15,3 @@
 Gives an overview of an EMU database.
 Prints database name, UUID, base directory path, session and bundle count and informations about signal track, annotation level, attribute and link definitions.
 }
-

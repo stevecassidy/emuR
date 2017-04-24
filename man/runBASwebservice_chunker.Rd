@@ -60,7 +60,7 @@ params=list(force="false"). To skip the normal chunking mode and go directly int
 mode, use params=list(force="true").
 }
 \seealso{
-Other BAS.webservice.functions: \code{\link{runBASwebservice_all}},
+Other BAS webservice functions: \code{\link{runBASwebservice_all}},
   \code{\link{runBASwebservice_g2pForPronunciation}},
   \code{\link{runBASwebservice_g2pForTokenization}},
   \code{\link{runBASwebservice_maus}},
@@ -68,4 +68,3 @@ Other BAS.webservice.functions: \code{\link{runBASwebservice_all}},
   \code{\link{runBASwebservice_pho2sylCanonical}},
   \code{\link{runBASwebservice_pho2sylSegmental}}
 }
-

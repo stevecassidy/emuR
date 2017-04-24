@@ -22,4 +22,3 @@ the index and ftime values each time.
 Jonathan Harrington
 }
 \keyword{math}
-

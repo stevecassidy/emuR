@@ -39,4 +39,3 @@ in labs.
 mahal, bayes.lab, mahalplot, bayes.plot
 }
 \keyword{misc}
-

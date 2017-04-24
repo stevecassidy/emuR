@@ -25,4 +25,3 @@ data for each segment.
 smooth, dapply
 }
 \keyword{misc}
-

@@ -29,4 +29,3 @@ Finds the inter-euclidean distance for a data matrix
 steady
 }
 \keyword{misc}
-

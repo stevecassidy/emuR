@@ -532,7 +532,6 @@ rename_attributeDefinition <- function(emuDBhandle, origAttrDef, newAttrDef, ver
   
   #############################
   # check input parameters
-  
   if(class(origAttrDef) != "character" | class(newAttrDef) != "character" | length(origAttrDef) != 1 | length(newAttrDef) != 1){
     stop("origAttrDef and newAttrDef have to be character vectors with only one item!")  
   }
@@ -590,10 +589,11 @@ rename_attributeDefinition <- function(emuDBhandle, origAttrDef, newAttrDef, ver
     function (lvlDef) {
       # If lvlDef references the level to be renamed in its anagest config,
       # adjust that
-      if (lvlDef$anagestConfig$autoLinkLevelName == origAttrDef) {
-        lvlDef$anagestConfig$autoLinkLevelName = newAttrDef
+      if(!is.null(lvlDef$anagestConfig)){
+        if (lvlDef$anagestConfig$autoLinkLevelName == origAttrDef) {
+          lvlDef$anagestConfig$autoLinkLevelName = newAttrDef
+        }
       }
-      
       # If lvlDef *is* the level to be renamed, adjust that
       if (lvlDef$name == origAttrDef) {
         lvlDef$name = newAttrDef

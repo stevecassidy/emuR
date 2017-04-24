@@ -22,6 +22,7 @@ Writes an Emu segment list to a file
 standard format, suitable for input to \code{gettrack} or other Emu utility
 programs.
 }
+
 \examples{
 
    data(dip)
@@ -37,4 +38,3 @@ programs.
 \code{\link{query}}
 }
 \keyword{misc}
-

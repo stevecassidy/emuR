@@ -27,11 +27,10 @@ is.spectral(fric.dft[1,1])
 
 
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{\link{as.spectral}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{attribute}
-

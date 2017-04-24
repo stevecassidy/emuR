@@ -35,11 +35,10 @@ plot(res, ylim=ylim, type="l", col=2)
 
 
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{\link{dbtopower}} \code{\link{plot.spectral}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{manip}
-

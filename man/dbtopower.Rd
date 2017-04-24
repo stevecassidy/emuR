@@ -38,11 +38,10 @@ res = dbtopower(vowlax.dft.5)
 res = dbtopower(res, inv=TRUE)
 
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{\link{dbtopower}} \code{\link{plot.spectral}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{math}
-

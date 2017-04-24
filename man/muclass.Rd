@@ -28,4 +28,3 @@ muclass(c("a", "b", "c"), c("a", "c"))
 match
 }
 \keyword{misc}
-

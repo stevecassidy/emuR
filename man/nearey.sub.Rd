@@ -10,4 +10,3 @@ nearey.sub(data)
 see function
 }
 \keyword{internal}
-

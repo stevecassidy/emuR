@@ -10,4 +10,3 @@ mahalanobis.metric(data, mean, invcov)
 see function
 }
 \keyword{internal}
-

@@ -34,10 +34,10 @@ contains the information stored in both objects.
             or between two times}
 }
 }
+
 \seealso{
 \code{\link{get_trackdata}}, \code{\link{create_emuRtrackdata}}
 
 trackdata
 }
 \keyword{classes}
-

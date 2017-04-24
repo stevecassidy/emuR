@@ -22,4 +22,3 @@ Gets data for a given time
 track, frames
 }
 \keyword{misc}
-

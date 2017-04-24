@@ -45,9 +45,6 @@ ci <- epgci(palate(dcut(coutts.epg, 0.5, prop=TRUE)))
 
 
 }
-\author{
-Jonathan Harrington
-}
 \references{
 GIBBON, F. AND NICOLAIDIS, K. (1999). Palatography.  In W.J.
 Hardcastle & N. Hewlett (eds). Coarticulation.  (pp. 229-245). Cambridge
@@ -59,5 +56,7 @@ blending in Catalan consonant clusters. Journal of Phonetics, 29, 273-301.
 \seealso{
 \code{\link{epgcog}} \code{\link{epggs}} \code{\link{palate}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{math}
-

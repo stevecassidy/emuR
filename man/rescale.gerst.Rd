@@ -10,4 +10,3 @@ rescale.gerst(data, mind, ranged)
 see function
 }
 \keyword{internal}
-

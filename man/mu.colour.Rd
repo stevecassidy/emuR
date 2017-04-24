@@ -98,12 +98,11 @@ dplot(vowlax.fdat[,2], vowlax.l, average=TRUE, lty=2, pch=4, type="b", xlim=c(40
 eplot(vowlax.fdat.5[,1:2], vowlax.l, lty=2, lwd=2)
 
 }
-\author{
-Steve Cassidy, modified by Jonathan Harrington
-}
 \seealso{
 \code{\link{plot.trackdata}} \code{\link{dplot}}
 \code{\link{eplot}} \code{\link{plot.spectral}}
 }
+\author{
+Steve Cassidy, modified by Jonathan Harrington
+}
 \keyword{utilities}
-

@@ -36,4 +36,3 @@ expected by the \code{\link{convert_BPFCollection}} function)}
 create_emuRdemoData(dir = tempdir())
 }
 }
-

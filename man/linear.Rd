@@ -25,4 +25,3 @@ The data for each segment is normaised using the \code{approx} function.
 approx
 }
 \keyword{misc}
-

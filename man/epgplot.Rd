@@ -86,12 +86,11 @@ epgplot(coutts.epg[2,], c(16377, 16633))
 
 
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{\link{epgai}} \code{\link{epgcog}} \code{\link{epggs}}
 \code{\link{palate}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{dplot}
-

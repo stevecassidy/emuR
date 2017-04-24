@@ -67,4 +67,3 @@ remove_levelDefinitions(emuDBhandle = ae,
 \keyword{database}
 \keyword{emuDB}
 \keyword{schema}
-

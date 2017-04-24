@@ -37,4 +37,3 @@ the mediafile into the bundle. If not already present, adds 'OSCI' and
 \keyword{Emu}
 \keyword{database}
 \keyword{emuDB}
-

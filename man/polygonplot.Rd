@@ -32,4 +32,3 @@ polygonplot(data, labels, order, formant = TRUE, axes = TRUE, xlab = "",
 plots a polygon
 }
 \keyword{internal}
-

@@ -15,11 +15,10 @@ Data frames from the input object.
 \description{
 Get frames from trackdata objects
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{\link{trackdata}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{utilities}
-

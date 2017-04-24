@@ -10,4 +10,3 @@ cen.sub(data)
 see function
 }
 \keyword{internal}
-

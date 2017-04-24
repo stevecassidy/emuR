@@ -19,4 +19,3 @@ Duration of segments is calculated for each element in the trackdata object
 Jonathan Harrington
 }
 \keyword{internal}
-

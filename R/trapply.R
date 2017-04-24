@@ -67,12 +67,22 @@
   if (!simplify) 
     result <- list(NULL)
   else result <- NULL
-  for (j in 1:nrow(trackdata)) {
-    if (!simplify) 
-      result[[j]] <- fun(trackdata[j, ]$data, ...)
-    else 
-      result <- rbind(result, fun(trackdata[j, ]$data, 
-                                  ...))        
+  if (!simplify) 
+    for (j in 1:nrow(trackdata)) {
+      curRes = fun(trackdata[j, ]$data, ...)
+      if(j == 1){
+        lapply(1:nrow(trackdata), function(i) vector('numeric', length(curRes)))   
+      }
+      result[[j]] <- curRes
+    }
+  else{
+    for (j in 1:nrow(trackdata)) {
+      curRes = fun(trackdata[j, ]$data, ...)
+      if(j == 1){ # preallocate matrix
+        result = matrix(nrow = nrow(trackdata), ncol = length(curRes))
+      }
+      result[j,] <- curRes
+    }
   }
   if (simplify) {
     if (ncol(result) == 1) 

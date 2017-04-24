@@ -39,4 +39,3 @@ rsegs <- randomise.segs( segs )
 \code{\link{query}}
 }
 \keyword{misc}
-

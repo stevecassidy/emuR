@@ -2,9 +2,9 @@
 % Please edit documentation in R/emuR-database.DBconfig.R
 \name{SetGetRemoveLegalLabels}
 \alias{SetGetRemoveLegalLabels}
+\alias{set_legalLabels}
 \alias{get_legalLabels}
 \alias{remove_legalLabels}
-\alias{set_legalLabels}
 \title{Set / Get / Remove legal labels of attributeDefinition of emuDB}
 \usage{
 set_legalLabels(emuDBhandle, levelName, attributeDefinitionName, legalLabels)
@@ -74,4 +74,3 @@ remove_legalLabels(emuDBhandle = ae,
 \keyword{database}
 \keyword{emuDB}
 \keyword{schema}
-

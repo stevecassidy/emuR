@@ -19,4 +19,3 @@ duration of segments is calculated for each segment in the segment list
 Jonathan Harrington
 }
 \keyword{internal}
-

@@ -10,4 +10,3 @@ outliers(data, labels, threshold)
 see function
 }
 \keyword{internal}
-

@@ -33,4 +33,3 @@ create_emuDB(name = "myNewEmuDB",
              targetDir = tempdir())
 }
 }
-

@@ -26,12 +26,11 @@ times <- tracktimes(vowlax.fdat)
 tracktimes(dcut(vowlax.fdat[1:3,], 0.5, prop=TRUE))
 
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{\link{start.trackdata}} \code{\link{end.trackdata}}
 \code{\link{start.emusegs}} \code{\link{end.emusegs}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{datagen}
-

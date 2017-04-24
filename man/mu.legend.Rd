@@ -10,4 +10,3 @@ mu.legend(legn, xlim, ylim)
 see function
 }
 \keyword{internal}
-

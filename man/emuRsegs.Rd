@@ -2,8 +2,8 @@
 % Please edit documentation in R/emuR-objDocs.R
 \name{emuRsegs}
 \alias{emuRsegs}
-\alias{list}
 \alias{segment}
+\alias{list}
 \title{emuR segment list}
 \format{Attributed data.frame, one row per segment descriptor.
 
@@ -53,4 +53,3 @@ The emuRsegs class inherits \link{emusegs} and hence \code{\link{data.frame}}
 \code{\link{query}},\code{\link{get_trackdata}},\link{emusegs}
 }
 \keyword{classes}
-

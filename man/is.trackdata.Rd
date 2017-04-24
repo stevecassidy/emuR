@@ -19,4 +19,3 @@ Test whether an object is an Emu trackdata object
 \code{\link{get_trackdata}}
 }
 \keyword{misc}
-

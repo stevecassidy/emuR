@@ -42,12 +42,11 @@ m <- moments(vowlax.fdat[10,1]$data)[3]
 
 
 }
-\author{
-Jonathan Harrington
-}
 \references{
 Snedecor, G & Cochran, W. 'Statistical Methods' Iowa State
 Press. Wuensch,K., 2005
 }
+\author{
+Jonathan Harrington
+}
 \keyword{math}
-

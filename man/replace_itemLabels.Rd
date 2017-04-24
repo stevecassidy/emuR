@@ -47,4 +47,3 @@ replace_itemLabels(ae, attributeDefinitionName = "Phonetic",
 \code{\link{load_emuDB}}
 }
 \keyword{emuDB}
-

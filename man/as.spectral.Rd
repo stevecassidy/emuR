@@ -48,11 +48,10 @@ class(tr$data)
 
 
 }
-\author{
-Jonathan Harrington
-}
 \seealso{
 \code{\link{is.spectral}} \code{\link{plot.spectral}}
 }
+\author{
+Jonathan Harrington
+}
 \keyword{attribute}
-

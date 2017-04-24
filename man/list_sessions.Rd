@@ -28,4 +28,3 @@ list_sessions(emuDBhandle = ae)
 }
 
 }
-

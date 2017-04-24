@@ -10,4 +10,3 @@ bayes.lab(data, train)
 see function
 }
 \keyword{internal}
-

@@ -9,4 +9,3 @@
 For wordlax (see data(vowlax))
 }
 \keyword{datasets}
-
