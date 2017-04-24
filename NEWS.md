@@ -1,3 +1,9 @@
+# emuR 0.2.2.9005
+
+## new features / performance tweaks / improvements
+
+* tweaked `runBASwebservice_maus()`; improved performance for presegmented bundles
+
 # emuR 0.2.2.9004
 
 ## new features / performance tweaks / improvements
