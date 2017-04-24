@@ -165,7 +165,7 @@ bas_run_maus_dbi <- function(handle,
               handle,
               trn_items_bundle,
               canoAttributeDefinitionName,
-              calcTime = F,
+              calcTimes = F,
               collapse = T
             )
             
