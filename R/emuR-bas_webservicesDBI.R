@@ -2443,10 +2443,9 @@ bas_curl <- function(service, params)
 bas_paste_description <-
   function(description, source, service, params)
   {
-    # TODO: replace BASWebServicesTest with BASWebServices when Thomas (Kisler) says its okay
     version = RCurl::getURL(
       paste0(
-        "https://clarin.phonetik.uni-muenchen.de/BASWebServicesTest/services/runGetVersion?service=",
+        "https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/runGetVersion?service=",
         service
       ),
       .opts = RCurl::curlOptions(connecttimeout = 10, timeout = 30)
