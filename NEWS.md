@@ -1,4 +1,4 @@
-# emuR 0.2.2.9003
+# emuR 0.2.2.9004
 
 ## new features / performance tweaks / improvements
 
@@ -10,6 +10,7 @@
 ## bug fixes
 
 * `export_TextGridCollection()` now handles partial includes of bundle and session names correctly (issue \#147) 
+* added missing check if `anagestConfig` is defined to `rename_attributeDefinition()`
 
 # emuR 0.2.2
 
