@@ -3,11 +3,6 @@
 ## new features / performance tweaks / improvements
 
 * tweaked `runBASwebservice_maus()`; improved performance for presegmented bundles
-
-# emuR 0.2.2.9004
-
-## new features / performance tweaks / improvements
-
 * performance bump for `fapply()` by preallocating result matrix
 * performance bump for `trapply()` by preallocating result matrix
 * performance bump for `mel.spectral()` by preallocating result matrix
