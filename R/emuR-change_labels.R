@@ -1,7 +1,7 @@
+##' @export
 change_labels = function (emuDBhandle,
                           labels,
                           verbose = TRUE) {
-  
   ##
   ## Resolve attribute definition names to level names
   ##
@@ -85,24 +85,20 @@ change_labels = function (emuDBhandle,
   
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
-    "UPDATE labels SET label = ?
-    WHERE
-    db_uuid = ? AND
-    session = ? AND
-    bundle = ? AND
-    item_id = ? AND
-    name = ?"
+    "INSERT OR REPLACE INTO labels
+    (db_uuid, session, bundle, item_id, name, label)
+    VALUES (?, ?, ?, ?, ?, ?)"
   )
   
   DBI::dbBind(
     statement,
     list(
-      labels$label,
       rep(emuDBhandle$UUID, nrow(labels)),
       labels$session,
       labels$bundle,
       item_id_list$item_id,
-      labels$attributeDefinition
+      labels$attributeDefinition,
+      labels$label
     )
   )
   
