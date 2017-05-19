@@ -32,7 +32,7 @@ change_labels = function (emuDBhandle,
       labels$session,
       labels$bundle,
       labelLevels,
-      labels$sequence_index
+      labels$sequenceIndex
     )
   )
   
@@ -76,7 +76,7 @@ change_labels = function (emuDBhandle,
       labels$session,
       labels$bundle,
       labelLevels,
-      labels$sequence_index
+      labels$sequenceIndex
     )
   )
   
