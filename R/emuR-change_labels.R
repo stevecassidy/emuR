@@ -5,13 +5,29 @@ change_labels = function (emuDBhandle,
   ##
   ## Resolve attribute definition names to level names
   ##
-  labelLevels = unlist(
+  levelNames = unlist(
     lapply(
       labels$attributeDefinition,
-      emuR:::get_levelNameForAttributeName,
+      get_levelNameForAttributeName,
       emuDBhandle = emuDBhandle
     )
   )
+  
+  ##
+  ## Find the index of each attribute definition on its respective level
+  ##
+  labelIndex = rep (0, length(labels$attributeDefinition))
+  
+  for (i in seq_len(length(labelIndex))) {
+    levelDefinition = get_levelDefinition(emuDBhandle, levelNames[i])
+    
+    for (j in seq_len(length(levelDefinition$attributeDefinitions))) {
+      if (levelDefinition$attributeDefinitions[[j]]$name == labels$attributeDefinition[i]) {
+        labelIndex[i] = j
+      }
+    }
+  }
+
   
 
   ##
@@ -31,7 +47,7 @@ change_labels = function (emuDBhandle,
     list(
       labels$session,
       labels$bundle,
-      labelLevels,
+      levelNames,
       labels$sequenceIndex
     )
   )
@@ -57,7 +73,7 @@ change_labels = function (emuDBhandle,
       print ("Set verbose to TRUE to see them listed.")
     }
     
-    return ()
+    return (invisible(NULL))
   }
   
   statement = DBI::dbSendStatement(
@@ -75,7 +91,7 @@ change_labels = function (emuDBhandle,
     list(
       labels$session,
       labels$bundle,
-      labelLevels,
+      levelNames,
       labels$sequenceIndex
     )
   )
@@ -86,8 +102,8 @@ change_labels = function (emuDBhandle,
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
     "INSERT OR REPLACE INTO labels
-    (db_uuid, session, bundle, item_id, name, label)
-    VALUES (?, ?, ?, ?, ?, ?)"
+    (db_uuid, session, bundle, item_id, label_idx, name, label)
+    VALUES (?, ?, ?, ?, ?, ?, ?)"
   )
   
   DBI::dbBind(
@@ -97,6 +113,7 @@ change_labels = function (emuDBhandle,
       labels$session,
       labels$bundle,
       item_id_list$item_id,
+      labelIndex,
       labels$attributeDefinition,
       labels$label
     )
@@ -109,5 +126,5 @@ change_labels = function (emuDBhandle,
   
   emuR:::rewrite_allAnnots(emuDBhandle, verbose)
   
-  return ()
+  invisible(NULL)
 }
