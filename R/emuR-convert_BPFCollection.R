@@ -433,6 +433,7 @@ get_bpfSession <- function(filePath,
   
   session = normalizePath(dirname(filePath), winslash = "/")
   sourceDir = normalizePath(sourceDir, winslash = "/")
+  sourceDir = stringr::str_replace(sourceDir, "/$", "") # remove final / which stays on sourceDir in Windows
   session = stringr::str_replace_all(session, sourceDir, "")
   session = stringr::str_replace_all(session, .Platform$file.sep, "_")
   session = stringr::str_replace_all(session, "^_", "")
