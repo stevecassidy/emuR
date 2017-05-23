@@ -48,7 +48,7 @@
 ##' @param nrOfAllocationRows If this size limit of the data matrix is reached 
 ##' a further \code{nrOfAllocationRows} more rows will be allocated. As this allocation leads to
 ##' a performance penalty one should consider increasing this number for large emuDBs. 
-##' @param resultType Specify class of returned object. Either \code{"emuRtrackdata"} or \code{"trackdata"}.
+##' @param resultType Specify class of returned object. Either \code{"emuRtrackdata"} or \code{"trackdata"} (see \code{\link{trackdata}} and \code{\link{emuRtrackdata}} for details about these objects).
 ##' @param verbose Show progress bars and further information
 ##' @return If the \code{cut} parameter is not set (the default) an object of type \code{\link{trackdata}} or \code{\link{emuRtrackdata}} 
 ##' is returned. If \code{cut} is set and \code{npoints} is not, or the seglist 

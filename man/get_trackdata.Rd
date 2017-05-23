@@ -52,7 +52,7 @@ parameter one wishes to change.}
 a further \code{nrOfAllocationRows} more rows will be allocated. As this allocation leads to
 a performance penalty one should consider increasing this number for large emuDBs.}
 
-\item{resultType}{Specify class of returned object. Either \code{"emuRtrackdata"} or \code{"trackdata"}.}
+\item{resultType}{Specify class of returned object. Either \code{"emuRtrackdata"} or \code{"trackdata"} (see \code{\link{trackdata}} and \code{\link{emuRtrackdata}} for details about these objects).}
 
 \item{verbose}{Show progress bars and further information}
 }
