@@ -458,7 +458,7 @@ rewrite_allAnnots <- function(emuDBhandle, verbose=TRUE){
                               paste0(bndl$name, bundle.dir.suffix), 
                               paste0(bndl$name, bundle.annotation.suffix, '.json'))
     
-    writeLines(annotJSONchar, annotFilePath)
+    writeLines(annotJSONchar, annotFilePath, useBytes = TRUE)
     
     # (re-)calculate md5 sums 
     newMD5sum = tools::md5sum(annotFilePath)
