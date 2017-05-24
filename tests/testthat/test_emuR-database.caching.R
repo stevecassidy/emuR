@@ -49,7 +49,7 @@ test_that("update_cache works", {
     annotJson$levels$items[[1]]$id = 666666
     
     pbpJSON=jsonlite::toJSON(annotJson,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-    writeLines(pbpJSON,file.path(path2db, "new_ses", "msajc010_bndl", "msajc010_annot.json"))
+    writeLines(pbpJSON,file.path(path2db, "new_ses", "msajc010_bndl", "msajc010_annot.json"), useBytes = TRUE)
     
     update_cache(ae, verbose = F)
     

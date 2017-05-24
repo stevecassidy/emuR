@@ -113,7 +113,7 @@ import_mediaFiles<-function(emuDBhandle,dir,targetSessionName='0000', verbose=TR
     # write to file
     annotJSONchar = jsonlite::toJSON(b, auto_unbox = T, pretty = T)
     newAnnotFileFullPath=file.path(bundleDir, paste0(bundleName, bundle.annotation.suffix, ".json"))
-    writeLines(annotJSONchar, newAnnotFileFullPath)
+    writeLines(annotJSONchar, newAnnotFileFullPath, useBytes = TRUE)
     
     # calculate MD5 sum of bundle annotJSON
     MD5annotJSON = tools::md5sum(newAnnotFileFullPath)

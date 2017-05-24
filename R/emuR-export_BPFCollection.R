@@ -182,7 +182,7 @@ export_BPFCollection <- function(handle,
       }
     }
 
-    writeLines(c(headerLines, bpfLines), con = bpf_target, sep = "\n", useBytes = FALSE)
+    writeLines(c(headerLines, bpfLines), con = bpf_target, sep = "\n", useBytes = TRUE)
     
     if(verbose)
     {

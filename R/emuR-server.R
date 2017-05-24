@@ -388,7 +388,7 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*', seglist =
             json = jsonlite::toJSON(bundleData, auto_unbox = TRUE, force = TRUE, pretty = TRUE)
             
             # use try mainly for permission problems on file system
-            res=tryCatch(writeLines(json, annotFilePath), error=function(e) e)
+            res=tryCatch(writeLines(json, annotFilePath, useBytes = TRUE), error=function(e) e)
             if(inherits(res,'error')){
               err=res
             }else{

@@ -339,7 +339,7 @@ rename_emuDB <- function(databaseDir, newName){
   # change name entry, store and rename DBconfig
   dbConfig$name = newName
   json = jsonlite::toJSON(dbConfig, auto_unbox = TRUE, force = TRUE, pretty = TRUE)
-  writeLines(json, dbCfgPath_old)
+  writeLines(json, dbCfgPath_old, useBytes = TRUE)
   file.rename(dbCfgPath_old, dbCfgPath_new)
   
   ############################

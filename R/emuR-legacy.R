@@ -679,7 +679,7 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=uuid::UUIDgenerate()
       ban=stringr::str_c(bundle[['name']],bundle.annotation.suffix,'.json')
       baJSONPath=file.path(bfp,ban)
       pbpJSON=jsonlite::toJSON(bp,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-      writeLines(pbpJSON,baJSONPath)
+      writeLines(pbpJSON, baJSONPath, useBytes = TRUE)
       
       
       for(sf in bundle[['signalpaths']]){
