@@ -12,6 +12,7 @@
 
 * `export_TextGridCollection()` now handles partial includes of bundle and session names correctly (issue \#147)
 * added missing check if `anagestConfig` is defined to `rename_attributeDefinition()`
+* setting useBytes to T to avoid reencoding under windows
 
 # emuR 0.2.2
 
