@@ -37,6 +37,7 @@ change_labels = function (emuDBhandle,
     emuDBhandle$connection,
     "SELECT count(*) FROM items
     WHERE
+    db_uuid = ? AND
     session = ? AND
     bundle = ? AND
     level = ? AND
@@ -45,6 +46,7 @@ change_labels = function (emuDBhandle,
   DBI::dbBind(
     statement,
     list(
+      rep(emuDBhandle$UUID, nrow(labels)),
       labels$session,
       labels$bundle,
       levelNames,
@@ -80,6 +82,7 @@ change_labels = function (emuDBhandle,
     emuDBhandle$connection,
     "SELECT item_id FROM items
     WHERE
+    db_uuid = ? AND
     session = ? AND
     bundle = ? AND
     level = ? AND
@@ -89,6 +92,7 @@ change_labels = function (emuDBhandle,
   DBI::dbBind(
     statement,
     list(
+      rep(emuDBhandle$UUID, nrow(labels)),
       labels$session,
       labels$bundle,
       levelNames,
