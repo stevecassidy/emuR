@@ -13,6 +13,7 @@
 * `export_TextGridCollection()` now handles partial includes of bundle and session names correctly (issue \#147)
 * added missing check if `anagestConfig` is defined to `rename_attributeDefinition()`
 * setting useBytes to T to avoid reencoding under windows
+* fixed bug in `add_ssffTrackDefinition()` that was trying to access `fp` which was renamed in a refactor to `filesDf`
 
 # emuR 0.2.2
 

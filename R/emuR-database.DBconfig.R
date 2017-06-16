@@ -1340,10 +1340,10 @@ add_ssffTrackDefinition <- function(emuDBhandle, name,
     filesDf = list_files(emuDBhandle, fileExtension)
     ans = 'y'
     if(nrow(filesDf) != 0){
-      fp = paste(emuDBhandle$basePath, paste0(fp$session, session.suffix), paste0(fp$bundle, bundle.dir.suffix), fp$file, sep = .Platform$file.sep)
+      fp = paste(emuDBhandle$basePath, paste0(filesDf$session, session.suffix), paste0(filesDf$bundle, bundle.dir.suffix), filesDf$file, sep = .Platform$file.sep)
       if(interactive){
         ans = readline(paste0("There are files present in '",emuDBhandle$dbName,"' that have the file extention '", 
-                              fileExtension, "' Continuing will overwrite these files! Do you wish to proceed? (y/n) "))
+                              fileExtension, "'! Continuing will overwrite these files! Do you wish to proceed? (y/n) "))
       }
     }else{
       if(ans == 'y'){
