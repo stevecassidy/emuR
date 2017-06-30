@@ -62,7 +62,7 @@ convert_BPFCollection <- function(sourceDir,
                                   unifyLevels = NULL,
                                   verbose = TRUE)
 {
-
+  
   
   # ---------------------------------------------------------------------------
   # -------------------------- Get directories --------------------------------
@@ -126,7 +126,7 @@ convert_BPFCollection <- function(sourceDir,
   dbHandle = emuDBhandle(dbName, basePath = basePath, uuid::UUIDgenerate(), ":memory:")
   # insert into emuDB table
   queryTxt = paste0("INSERT INTO emu_db (uuid, name) VALUES('", dbHandle$UUID, "', '", dbName,"')")
-  DBI::dbGetQuery(dbHandle$connection, queryTxt)
+  DBI::dbExecute(dbHandle$connection, queryTxt)
   
   # ---------------------------------------------------------------------------
   # ------------------------ Initialize progress bar --------------------------
@@ -195,13 +195,13 @@ convert_BPFCollection <- function(sourceDir,
     if(!session %in% all_sessions)
     {
       queryTxt = paste0("INSERT INTO session VALUES('", dbHandle$UUID, "', '", session, "')")
-      DBI::dbGetQuery(dbHandle$connection, queryTxt)
+      DBI::dbExecute(dbHandle$connection, queryTxt)
     }
     
     queryTxt = paste0("INSERT INTO bundle VALUES('", dbHandle$UUID, "', '", session, "', '", bundle, "', '",
                       annotates, "', ", samplerate, ", 'NULL')")
     
-    DBI::dbGetQuery(dbHandle$connection, queryTxt)
+    DBI::dbExecute(dbHandle$connection, queryTxt)
     
     # -----------------------------------------------------------------------
     # ------------------------------ Parse BPF ------------------------------
@@ -297,7 +297,7 @@ convert_BPFCollection <- function(sourceDir,
                               dbName = dbName,
                               dbUUID = dbHandle$UUID,
                               audioExt = audioExt)
-
+  
   # ---------------------------------------------------------------------------
   # ------------------------- Create and store database -----------------------
   # ---------------------------------------------------------------------------
@@ -309,9 +309,9 @@ convert_BPFCollection <- function(sourceDir,
   }
   
   store_DBconfig(dbHandle, DBconfig)
-
+  
   make_bpfDbSkeleton(dbHandle)
-
+  
   copy_bpfMediaFiles(basePath = basePath,
                      sourceDir = sourceDir,
                      mediaFiles = filePairList[,2],
@@ -873,7 +873,7 @@ turn_bpfLinks <- function(emuDBhandle, turnAround)
                       "' AND db_uuid = links.db_uuid AND session = links.session AND bundle = links.bundle) ",
                       "AND to_id IN(SELECT item_id FROM items WHERE level = '", link[["tokey"]], "' ",
                       "AND db_uuid = links.db_uuid AND session = links.session AND bundle = links.bundle);")
-    DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
+    DBI::dbExecute(emuDBhandle$connection, queryTxt)
   }
 }
 
@@ -1082,7 +1082,7 @@ link_bpfUtteranceLevelToCurrentLevel <- function(emuDBhandle, currentLevel)
     # Link all items to their corresponding bundle item 
     # (same UUID, session & bundle, item_id is always 1).
     queryTxt = paste0("INSERT INTO links VALUES('", db_uuid, "', '", session, "', '", bundle, "', 1, ", itemID, ", NULL)")
-    DBI::dbGetQuery(emuDBhandle$connection, queryTxt)
+    DBI::dbExecute(emuDBhandle$connection, queryTxt)
   }
   
   nbItems = nrow(uuidSessionBundleItemID)
@@ -1115,7 +1115,7 @@ create_bpfSchema <- function(levelTracker,
   # ---------------------------------------------------------------------------
   # --- Get default level order and level definitions from level tracker ------
   # ---------------------------------------------------------------------------
-
+  
   defaultLevelOrder = get_bpfDefaultLevelOrder(levelTracker = levelTracker)
   levelDefinitions = get_bpfLevelDefinitions(levelTracker = levelTracker)
   

@@ -1,4 +1,4 @@
-# emuR 0.2.2.9005
+# emuR 0.2.2.9006
 
 ## new features / performance tweaks / improvements
 
@@ -7,6 +7,8 @@
 * performance bump for `trapply()` by preallocating result matrix
 * performance bump for `mel.spectral()` by preallocating result matrix
 * performance bump for `bark.spectral()` by preallocating result matrix
+* updated DBI calls to comply with the latest best practices (using `DBI::dbExecute()` instead of `DBI::dbGetQuery()` for non-SELECT queries)
+
 
 ## bug fixes
 

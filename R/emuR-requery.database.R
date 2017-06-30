@@ -20,12 +20,12 @@ database.DDL.emuRsegsTmp = 'CREATE TEMP TABLE emursegs_tmp (
 );'
 
 create_requeryTmpTables <- function(emuDBhandle){
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuRsegsTmp)
+  DBI::dbExecute(emuDBhandle$connection, database.DDL.emuRsegsTmp)
 }
 
 drop_requeryTmpTables <- function(emuDBhandle){
   if("emursegs_tmp" %in% DBI::dbListTables(emuDBhandle$connection)){
-    DBI::dbGetQuery(emuDBhandle$connection, "DROP TABLE IF EXISTS emursegs_tmp")
+    DBI::dbExecute(emuDBhandle$connection, "DROP TABLE IF EXISTS emursegs_tmp")
   }
 }
 
@@ -114,7 +114,7 @@ requery_seq<-function(emuDBhandle, seglist, offset = 0, offsetRef = 'START',
     drop_requeryTmpTables(emuDBhandle)
     create_requeryTmpTables(emuDBhandle)
     # place in emuRsegsTmp table
-    DBI::dbGetQuery(emuDBhandle$connection, "DELETE FROM emursegs_tmp;") # delete 
+    DBI::dbExecute(emuDBhandle$connection, "DELETE FROM emursegs_tmp;") # delete 
     
     DBI::dbWriteTable(emuDBhandle$connection, "emursegs_tmp", as.data.frame(seglist), append=T, row.names = F) # append to make sure field names done't get overwritten
     
@@ -234,7 +234,7 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE,
     create_tmpFilteredQueryTablesDBI(emuDBhandle)
     
     # place in emursegs_tmp table
-    DBI::dbGetQuery(emuDBhandle$connection, "DELETE FROM emursegs_tmp;")
+    DBI::dbExecute(emuDBhandle$connection, "DELETE FROM emursegs_tmp;")
     
     DBI::dbWriteTable(emuDBhandle$connection, "emursegs_tmp", as.data.frame(seglist), append=T, row.names = F) # append to avoid rewirte of col names
     
@@ -259,7 +259,7 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE,
       origSeglistItemsTableSuffix = "orig_seglist_items"
       create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = origSeglistItemsTableSuffix)
       
-      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_", origSeglistItemsTableSuffix, " ",
+      DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_", origSeglistItemsTableSuffix, " ",
                                                      "SELECT erst.db_uuid, erst.session, erst.bundle, erst.start_item_id AS seq_start_id, erst.end_item_id AS seq_end_id, (i_end.seq_idx - i_start.seq_idx) + 1 AS seq_len, '", level, "' AS level, erst.start_item_seq_idx AS seq_start_seq_idx, erst.end_item_seq_idx AS seq_end_seq_idx ",
                                                      "FROM emursegs_tmp AS erst, items AS i_start, items AS i_end ",
                                                      "WHERE erst.db_uuid = i_start.db_uuid AND erst.session = i_start.session AND erst.bundle = i_start.bundle AND erst.start_item_id = i_start.item_id ", 
@@ -273,7 +273,7 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE,
       reqLevelItemsTableSuffix = "req_level_items"
       create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = reqLevelItemsTableSuffix)
       
-      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_", reqLevelItemsTableSuffix, " ",
+      DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_", reqLevelItemsTableSuffix, " ",
                                                      "SELECT db_uuid, session, bundle, item_id AS start_item_id, item_id AS seq_end_id, 1 AS seq_len, level, seq_idx AS seq_start_seq_idx, seq_idx AS seq_end_seq_idx ",
                                                      "FROM items ",
                                                      "WHERE db_uuid ='", emuDBhandle$UUID, "' AND level = '", reqAttrDefLn, "'"))
@@ -283,7 +283,7 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE,
       # move query_databaseHier results into interm_res_items_tmp_root 
       create_intermResTmpQueryTablesDBI(emuDBhandle)
       # create temp table to insert 
-      DBI::dbGetQuery(emuDBhandle$connection,paste0("CREATE TEMP TABLE IF NOT EXISTS seq_idx_tmp ( ",
+      DBI::dbExecute(emuDBhandle$connection,paste0("CREATE TEMP TABLE IF NOT EXISTS seq_idx_tmp ( ",
                                                     "db_uuid VARCHAR(36), ",
                                                     "session TEXT, ",
                                                     "bundle TEXT, ",
@@ -294,7 +294,7 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE,
       # first step in two step process to group by and get seq min/max
       # then extract according item_id
       if(collapse){
-        DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO seq_idx_tmp ",
+        DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO seq_idx_tmp ",
                                                        "SELECT lr.db_uuid, lr.session, lr.bundle, r_level AS level, min(i_start.seq_idx) AS min_seq_idx, max(i_end.seq_idx) AS max_seq_idx ",
                                                        "FROM lr_exp_res_tmp AS lr, items AS i_start, items AS i_end ",
                                                        "WHERE lr.db_uuid = i_start.db_uuid AND lr.session = i_start.session AND lr.bundle = i_start.bundle AND lr.r_seq_start_id = i_start.item_id ",
@@ -303,7 +303,7 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE,
                                                        ""))
       }else{
         # use right side of lr_exp_res_tmp if not collapsing
-        DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO seq_idx_tmp ",
+        DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO seq_idx_tmp ",
                                                        "SELECT lr.db_uuid, lr.session, lr.bundle, r_level AS level, min(i_start.seq_idx) AS min_seq_idx, max(i_end.seq_idx) AS max_seq_idx ",
                                                        "FROM lr_exp_res_tmp AS lr, items AS i_start, items AS i_end ",
                                                        "WHERE lr.db_uuid = i_start.db_uuid AND lr.session = i_start.session AND lr.bundle = i_start.bundle AND lr.r_seq_start_id = i_start.item_id ",
@@ -313,7 +313,7 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE,
         
       }
       #extract according item_id#s
-      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_root ",
+      DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_root ",
                                                      "SELECT sit.db_uuid, sit.session, sit.bundle, i_min_idx.item_id AS seq_start_id, i_max_idx.item_id AS seq_end_id, (sit.max_seq_idx - sit.min_seq_idx) + 1 AS seq_len, '", reqAttrDef, "' AS level, sit.min_seq_idx AS seq_start_seq_idx, sit.max_seq_idx AS seq_end_seq_idx ",
                                                      "FROM seq_idx_tmp AS sit, items AS i_min_idx, items AS i_max_idx ",
                                                      "WHERE sit.db_uuid = i_min_idx.db_uuid AND sit.session = i_min_idx.session AND sit.bundle = i_min_idx.bundle AND sit.level = i_min_idx.level AND sit.min_seq_idx = i_min_idx.seq_idx ",
@@ -321,12 +321,12 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE,
                                                      ""))
       
       # drop temp table
-      DBI::dbGetQuery(emuDBhandle$connection,paste0("DROP TABLE IF EXISTS seq_idx_tmp"))
+      DBI::dbExecute(emuDBhandle$connection,paste0("DROP TABLE IF EXISTS seq_idx_tmp"))
     }else{
       # just reset level as convert_queryResultToEmuRsegs does the rest!
       create_intermResTmpQueryTablesDBI(emuDBhandle)
       
-      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_root ",
+      DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_root ",
                                                      "SELECT erst.db_uuid, erst.session, erst.bundle, erst.start_item_id AS seq_start_id, erst.end_item_id AS seq_end_id, (i_end.seq_idx - i_start.seq_idx) + 1 AS seq_len, '", level, "' AS level, erst.start_item_seq_idx AS seq_start_seq_idx, erst.end_item_seq_idx AS seq_end_seq_idx ",
                                                      "FROM emursegs_tmp AS erst, items AS i_start, items AS i_end ",
                                                      "WHERE erst.db_uuid = i_start.db_uuid AND erst.session = i_start.session AND erst.bundle = i_start.bundle AND erst.start_item_id = i_start.item_id ", 

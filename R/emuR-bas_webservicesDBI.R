@@ -190,7 +190,7 @@ bas_run_maus_dbi <- function(handle,
               item_id_end = linked_kan_items[trn_idx, "end_item_id"]
               bas_id_start = item_id_to_bas_id[[toString(item_id_start)]]
               bas_id_end = item_id_to_bas_id[[toString(item_id_end)]]
-                
+              
               trnline = paste(
                 "TRN:",
                 turn_start,
@@ -198,7 +198,7 @@ bas_run_maus_dbi <- function(handle,
                 paste0(bas_id_start:bas_id_end, collapse = ","),
                 "_"
               )
-                
+              
               write(trnline, kancon)
             }
           }
@@ -330,7 +330,7 @@ bas_run_minni_dbi <- function(handle,
   
   minniLevel = minniAttributeDefinitionName
   bas_check_this_is_a_new_label(handle, minniAttributeDefinitionName)
-
+  
   if(!is.null(rootLevel))
   {
     if (is.null(get_levelDefinition(handle, rootLevel)))
@@ -2026,7 +2026,7 @@ bas_add_item <- function(handle,
     ")"
   )
   
-  DBI::dbGetQuery(handle$connection, queryTxt)
+  DBI::dbExecute(handle$connection, queryTxt)
 }
 
 bas_add_label <- function(handle,
@@ -2055,7 +2055,7 @@ bas_add_label <- function(handle,
     "')"
   )
   
-  DBI::dbGetQuery(handle$connection, queryTxt)
+  DBI::dbExecute(handle$connection, queryTxt)
 }
 
 bas_add_link <- function(handle,
@@ -2077,7 +2077,7 @@ bas_add_link <- function(handle,
     to_id,
     ", NULL)"
   )
-  DBI::dbGetQuery(handle$connection, queryTxt)
+  DBI::dbExecute(handle$connection, queryTxt)
 }
 
 bas_get_signal_path <- function(handle, session, bundle, basePath)
@@ -2223,7 +2223,7 @@ bas_link_exists_in_bundle <-
       "AND name=='",
       subLevel,
       "')"
-      )
+    )
     return(DBI::dbGetQuery(handle$connection, queryTxt)[1, 1] > 0)
   }
 
@@ -2300,7 +2300,7 @@ bas_segment_to_item_level_dbi <-
       "'"
     )
     
-    DBI::dbGetQuery(handle$connection, queryTxt)
+    DBI::dbExecute(handle$connection, queryTxt)
   }
 
 bas_check_this_is_a_new_label <- function(handle, label)

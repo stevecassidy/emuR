@@ -70,12 +70,12 @@ convert_txtCollection <- function(dbName,
   # ---------------------------------------------------------------------------
   # ---------------------------- Initialize dbHandle --------------------------
   # ---------------------------------------------------------------------------
-
+  
   
   dbHandle = emuDBhandle(dbName, basePath = basePath, uuid::UUIDgenerate(), ":memory:")
   # insert into emuDB table
   queryTxt = paste0("INSERT INTO emu_db (uuid, name) VALUES('", dbHandle$UUID, "', '", dbName,"')")
-  DBI::dbGetQuery(dbHandle$connection, queryTxt)
+  DBI::dbExecute(dbHandle$connection, queryTxt)
   
   # ---------------------------------------------------------------------------
   # ------------------------ Initialize progress bar --------------------------
@@ -132,7 +132,7 @@ convert_txtCollection <- function(dbName,
     if (!session %in% all_sessions)
     {
       queryTxt = paste0("INSERT INTO session VALUES('", dbHandle$UUID, "', '", session, "')")
-      DBI::dbGetQuery(dbHandle$connection, queryTxt)
+      DBI::dbExecute(dbHandle$connection, queryTxt)
     }
     
     queryTxt = paste0(
@@ -140,7 +140,7 @@ convert_txtCollection <- function(dbName,
       annotates, "', ", samplerate, ", 'NULL')"
     )
     
-    DBI::dbGetQuery(dbHandle$connection, queryTxt)
+    DBI::dbExecute(dbHandle$connection, queryTxt)
     
     lines = suppressWarnings(readLines(filePairList[idx, 1]))
     
@@ -166,7 +166,7 @@ convert_txtCollection <- function(dbName,
       samplerate,
       ",NULL, NULL, NULL)"
     )
-    DBI::dbGetQuery(dbHandle$connection, queryTxt)
+    DBI::dbExecute(dbHandle$connection, queryTxt)
     
     queryTxt = paste0(
       "INSERT INTO labels VALUES('",
@@ -179,7 +179,7 @@ convert_txtCollection <- function(dbName,
       transcriptionLevel,
       "','')"
     )
-    DBI::dbGetQuery(dbHandle$connection, queryTxt)
+    DBI::dbExecute(dbHandle$connection, queryTxt)
     
     queryTxt = paste0(
       "INSERT INTO labels VALUES('",
@@ -194,7 +194,7 @@ convert_txtCollection <- function(dbName,
       transcription,
       "')"
     )
-    DBI::dbGetQuery(dbHandle$connection, queryTxt)
+    DBI::dbExecute(dbHandle$connection, queryTxt)
     
     
     if (verbose)

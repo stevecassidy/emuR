@@ -117,28 +117,28 @@ initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TR
   if(DBI::dbExistsTable(emuDBhandle$connection, "emuDB")){
     cat("INFO: Depricated cache tables found. Deleting these and recreating SQL cache that adheres to new DB schema definition.\n")
     allTableNames = DBI::dbListTables(emuDBhandle$connection)
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "items"))
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "labels"))
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "links"))
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "linksTmp"))
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "linksExt"))
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "linksExtTmp"))
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "linksExtTmp2"))
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "bundle"))
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "session"))
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "emuDB"))
+    DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "items"))
+    DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "labels"))
+    DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "links"))
+    DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "linksTmp"))
+    DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "linksExt"))
+    DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "linksExtTmp"))
+    DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "linksExtTmp2"))
+    DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "bundle"))
+    DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "session"))
+    DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "emuDB"))
   }else if(DBI::dbExistsTable(emuDBhandle$connection, "links_ext")){
     cat("INFO: Found depricated links_ext table. Deleting this table as it is not needed any longer.\n")
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "links_ext"))
+    DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "links_ext"))
   }
   
   if(createTables & !DBI::dbExistsTable(emuDBhandle$connection, "emu_db")){
-    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB)
-    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_session)
-    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_bundle)
-    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_items)
-    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_labels)
-    DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_links)
+    DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB)
+    DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB_session)
+    DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB_bundle)
+    DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB_items)
+    DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB_labels)
+    DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB_links)
   }
   if(createIndices){
     create_emuDBindicesDBI(emuDBhandle)
@@ -146,11 +146,11 @@ initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TR
 }
 
 create_emuDBindicesDBI<-function(emuDBhandle){
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_items_level_seq_idx)
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_links_both_ids_idx)
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_links_to_id_idx)
-  DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_label_nameLabel_idx)
-  # DBI::dbGetQuery(emuDBhandle$connection, database.DDL.emuDB_label_nameLabel_idx2)
+  DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB_items_level_seq_idx)
+  DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB_links_both_ids_idx)
+  DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB_links_to_id_idx)
+  DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB_label_nameLabel_idx)
+  # DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB_label_nameLabel_idx2)
 }
 
 
@@ -159,7 +159,7 @@ create_emuDBindicesDBI<-function(emuDBhandle){
 
 add_emuDbDBI <- function(emuDBhandle){
   dbSqlInsert = paste0("INSERT INTO emu_db(uuid,name) VALUES('", emuDBhandle$UUID, "','", emuDBhandle$dbName, "')")
-  DBI::dbGetQuery(emuDBhandle$connection, dbSqlInsert)
+  DBI::dbExecute(emuDBhandle$connection, dbSqlInsert)
 }
 
 get_emuDbDBI <- function(emuDBhandle){
@@ -174,7 +174,7 @@ get_emuDbDBI <- function(emuDBhandle){
 
 add_sessionDBI <- function(emuDBhandle, sessionName){
   insertSessionSql = paste0("INSERT INTO session(db_uuid, name) VALUES('", emuDBhandle$UUID,"','", sessionName, "')")
-  DBI::dbGetQuery(emuDBhandle$connection, insertSessionSql)
+  DBI::dbExecute(emuDBhandle$connection, insertSessionSql)
 }
 
 list_sessionsDBI <- function(emuDBhandle){
@@ -184,7 +184,7 @@ list_sessionsDBI <- function(emuDBhandle){
 
 
 remove_sessionDBI <- function(emuDBhandle, sessionName){
-  DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM session WHERE ", "db_uuid='", emuDBhandle$UUID, "' AND name='", sessionName, "'"))
+  DBI::dbExecute(emuDBhandle$connection, paste0("DELETE FROM session WHERE ", "db_uuid='", emuDBhandle$UUID, "' AND name='", sessionName, "'"))
 }
 
 ####################################
@@ -193,7 +193,7 @@ remove_sessionDBI <- function(emuDBhandle, sessionName){
 add_bundleDBI <- function(emuDBhandle, sessionName, name, annotates, sampleRate, MD5annotJSON){
   insertBundleSql = paste0("INSERT INTO bundle(db_uuid, session, name, annotates, sample_rate, md5_annot_json) VALUES('", 
                            emuDBhandle$UUID, "', '", sessionName, "', '", name, "', '", annotates, "', ", sampleRate, ", '", MD5annotJSON, "')")
-  DBI::dbGetQuery(emuDBhandle$connection, insertBundleSql)
+  DBI::dbExecute(emuDBhandle$connection, insertBundleSql)
 }
 
 list_bundlesDBI <- function(emuDBhandle, sessionName = NULL){
@@ -206,7 +206,7 @@ list_bundlesDBI <- function(emuDBhandle, sessionName = NULL){
 }
 
 remove_bundleDBI <- function(emuDBhandle, sessionName, name){
-  DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM bundle WHERE ", "db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND name='", name, "'"))
+  DBI::dbExecute(emuDBhandle$connection, paste0("DELETE FROM bundle WHERE ", "db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND name='", name, "'"))
 }
 
 # MD5annotJSON
@@ -292,13 +292,13 @@ remove_bundleAnnotDBI<-function(emuDBhandle, sessionName, bundleName){
   res<-DBI::dbGetQuery(emuDBhandle$connection, cntSqlQuery)
   
   delSqlQuery=paste0("DELETE FROM items WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName, "'")
-  DBI::dbGetQuery(emuDBhandle$connection, delSqlQuery)
+  DBI::dbExecute(emuDBhandle$connection, delSqlQuery)
   
   delSqlQuery=paste0("DELETE FROM labels WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName,"'")
-  DBI::dbGetQuery(emuDBhandle$connection, delSqlQuery)
+  DBI::dbExecute(emuDBhandle$connection, delSqlQuery)
   
   delSqlQuery=paste0("DELETE FROM links WHERE db_uuid='", emuDBhandle$UUID, "' AND session='", sessionName, "' AND bundle='", bundleName, "'")
-  DBI::dbGetQuery(emuDBhandle$connection, delSqlQuery)
+  DBI::dbExecute(emuDBhandle$connection, delSqlQuery)
   
 }
 
@@ -351,7 +351,7 @@ rename_emuDB <- function(databaseDir, newName){
   }
   
   con <- DBI::dbConnect(RSQLite::SQLite(), cachePath_new)
-  DBI::dbGetQuery(con, paste0("UPDATE emu_db SET name = '", newName, "' WHERE uuid = '", dbConfig$UUID, "'"))
+  DBI::dbExecute(con, paste0("UPDATE emu_db SET name = '", newName, "' WHERE uuid = '", dbConfig$UUID, "'"))
   DBI::dbDisconnect(con)
   con = NULL # delete -> disconnect
   
@@ -450,9 +450,11 @@ rewrite_allAnnots <- function(emuDBhandle, verbose=TRUE){
   
   for(i in 1:nrow(bndls)){
     bndl = bndls[i,]
+
     bundleAnnotDFs = load_bundleAnnotDFsDBI(emuDBhandle, bndl$session, bndl$name)
-    annotJSONchar = bundleAnnotDFsToAnnotJSONchar(emuDBhandle, bundleAnnotDFs)
     
+    annotJSONchar = bundleAnnotDFsToAnnotJSONchar(emuDBhandle, bundleAnnotDFs)
+
     # construct path to annotJSON
     annotFilePath = file.path(emuDBhandle$basePath, paste0(bndl$session, session.suffix), 
                               paste0(bndl$name, bundle.dir.suffix), 
@@ -462,13 +464,14 @@ rewrite_allAnnots <- function(emuDBhandle, verbose=TRUE){
     
     # (re-)calculate md5 sums 
     newMD5sum = tools::md5sum(annotFilePath)
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE bundle SET md5_annot_json = '", newMD5sum, "' WHERE db_uuid ='", emuDBhandle$UUID, "' AND session='", bndl$session, "' AND name='", bndl$name, "'"))
-
+    DBI::dbExecute(emuDBhandle$connection, paste0("UPDATE bundle SET md5_annot_json = '", newMD5sum, "' WHERE db_uuid ='", emuDBhandle$UUID, "' AND session='", bndl$session, "' AND name='", bndl$name, "'"))
+    
+    
     progress=progress+1L
     if(verbose){
       utils::setTxtProgressBar(pb,progress)
     }
-  } 
+  }
 }
 
 
@@ -663,6 +666,7 @@ create_emuDB<-function(name, targetDir, mediaFileExtension='wav',
 ##' ae = load_emuDB(demoDatabaseDir)
 ##' 
 ##' }
+
 load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, verbose=TRUE, ...){
   progress = 0
   # check database dir

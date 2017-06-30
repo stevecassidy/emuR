@@ -166,7 +166,6 @@ bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
         }
       )
       
-      
       specifiedAttributes = sapply (dbLabels, function(l) l$name)
       expectedAttributes = list_attributeDefinitions(emuDBhandle, l)$name
       

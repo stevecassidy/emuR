@@ -21,8 +21,8 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
     
     # as this function uses the query_databaseHier function which only works on
     # the interm_res_items_tmp_root table -> insert everything into interm_res_items_tmp_root
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("DELETE FROM interm_res_items_tmp_root"))
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_root ",
+    DBI::dbExecute(emuDBhandle$connection, paste0("DELETE FROM interm_res_items_tmp_root"))
+    DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_root ",
                                                    "SELECT DISTINCT db_uuid, session, bundle, ",
                                                    "p_seq_start_id AS seq_start_id, p_seq_end_id AS seq_end_id, p_seq_len AS seq_len, p_level AS level, p_seq_start_seq_idx AS seq_start_seq_idx, p_seq_end_seq_idx AS seq_end_seq_idx ", 
                                                    "FROM interm_res_proj_items_tmp_root"))
@@ -56,7 +56,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
       }
     }
     # create temp table that holds emuRsegs without labels
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("CREATE TEMP TABLE emursegs_tmp ( ",
+    DBI::dbExecute(emuDBhandle$connection, paste0("CREATE TEMP TABLE emursegs_tmp ( ",
                                                    "labels TEXT, ",
                                                    "start REAL, ",
                                                    "end REAL, ",
@@ -77,7 +77,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
     
     if(!calcTimes){ # no times are requested then that makes things a lot easier :-)
       
-      res = DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO emursegs_tmp ",
+      res = DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO emursegs_tmp ",
                                                            "SELECT 'XXX' AS labels, ",
                                                            "NULL AS start, ",
                                                            "NULL AS end, ",
@@ -93,7 +93,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
       
     }else if(ld$type != "ITEM"){ # if level has time information, time can be calculated from sample values directly
       
-      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO emursegs_tmp ",
+      DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO emursegs_tmp ",
                                                      "SELECT 'XXX' AS labels, ",
                                                      "CASE items_seq_start.type ",
                                                      " WHEN 'SEGMENT' THEN ",
@@ -139,7 +139,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
       timeItemsTableSuffix = "time_level_items"
       create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = timeItemsTableSuffix)
       
-      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_", timeItemsTableSuffix, " ",
+      DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_", timeItemsTableSuffix, " ",
                                                      "SELECT db_uuid, session, bundle, item_id AS seq_start_id, item_id AS seq_end_id, 1 AS seq_len, level, seq_idx AS start_seq_idx, seq_idx AS end_seq_idx  FROM ", itemsTableName, " ",
                                                      "WHERE db_uuid ='", emuDBhandle$UUID, "' AND level = '", lnwt, "' ",
                                                      "AND session IN (SELECT session FROM interm_res_items_tmp_root) ",
@@ -150,7 +150,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
       query_databaseHier(emuDBhandle, firstLevelName = lnwt, secondLevelName = attrDefLn, leftTableSuffix = timeItemsTableSuffix, rightTableSuffix = "root", filteredTablesSuffix, minMaxSeqIdxLeafOnly = F, verbose = verbose) # result written to lr_exp_res_tmp table
       
       # calculate left and right times and store in tmp table
-      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO emursegs_tmp ",
+      DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO emursegs_tmp ",
                                                      "SELECT 'XXX' AS labels, ",
                                                      "CASE itl.type ",
                                                      " WHEN 'SEGMENT' THEN ",
@@ -181,7 +181,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
     }
     
     # construct labels
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("CREATE INDEX IF NOT EXISTS emursegs_tmp_idx ON emursegs_tmp(db_uuid, session, bundle, start_item_id, end_item_id)"))
+    DBI::dbExecute(emuDBhandle$connection, paste0("CREATE INDEX IF NOT EXISTS emursegs_tmp_idx ON emursegs_tmp(db_uuid, session, bundle, start_item_id, end_item_id)"))
     
     seglist = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT GROUP_CONCAT(labels.label, '->') AS labels, emursegs_tmp.start, emursegs_tmp.end, emursegs_tmp.utts, emursegs_tmp.db_uuid, emursegs_tmp.session, emursegs_tmp.bundle, ",
                                                              "emursegs_tmp.start_item_id, emursegs_tmp.end_item_id, emursegs_tmp.level, emursegs_tmp.start_item_seq_idx, emursegs_tmp.end_item_seq_idx, ",
@@ -196,7 +196,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
                                                              "GROUP BY emursegs_tmp.rowid, emursegs_tmp.db_uuid, emursegs_tmp.session, emursegs_tmp.bundle, emursegs_tmp.start_item_id, emursegs_tmp.end_item_id", # once again using rowid to preserve duplicates (requery only)
                                                              ""))
     # drop temp table
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS emursegs_tmp"))
+    DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS emursegs_tmp"))
   }else{
     seglist = data.frame(labels = character(), start = numeric(), end = numeric(), utts = character(),
                          db_uuid = character(), session = character(), bundle = character(),

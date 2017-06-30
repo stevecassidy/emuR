@@ -15,7 +15,7 @@ create_DBconfigFromTextGrid = function(tgPath, dbName, basePath, tierNames = NUL
   
   ####################
   # check parameters
-
+  
   if(is.null(tgPath)) {
     stop("Argument tgPath (path to TextGrid file) must not be NULL\n")
   }
@@ -46,7 +46,7 @@ create_DBconfigFromTextGrid = function(tgPath, dbName, basePath, tierNames = NUL
   # generate defaultLvlOrder
   defaultLvlOrder=list()
   levIdx = 1  
-
+  
   for(lineIdx in 1:nrow(levels)){
     lev = levels[lineIdx,]
     if(lev$type == 'SEGMENT' || lev$type == 'EVENT'){

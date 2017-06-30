@@ -52,7 +52,7 @@ replace_itemLabels <- function(emuDBhandle, attributeDefinitionName, origLabels,
     cat("\n  INFO: creating temporary index...\n")
   }
   # create temp index
-  DBI::dbGetQuery(emuDBhandle$connection, paste0("CREATE INDEX IF NOT EXISTS label_replace_tmp_idx ON labels(db_uuid, name, label)"))
+  DBI::dbExecute(emuDBhandle$connection, paste0("CREATE INDEX IF NOT EXISTS label_replace_tmp_idx ON labels(db_uuid, name, label)"))
   
   # progressbar 
   if(verbose){
@@ -64,8 +64,8 @@ replace_itemLabels <- function(emuDBhandle, attributeDefinitionName, origLabels,
   DBI::dbBegin(emuDBhandle$connection)
   
   for(i in 1:length(origLabels)){
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE labels SET label = '", newLabels[i], "' ",
-                                                   "WHERE db_uuid='", emuDBhandle$UUID, "' AND name = '", attributeDefinitionName, "' AND label = '", origLabels[i], "'"))
+    DBI::dbExecute(emuDBhandle$connection, paste0("UPDATE labels SET label = '", newLabels[i], "' ",
+                                                  "WHERE db_uuid='", emuDBhandle$UUID, "' AND name = '", attributeDefinitionName, "' AND label = '", origLabels[i], "'"))
     if(verbose){
       utils::setTxtProgressBar(pb, i)
     }
@@ -75,7 +75,7 @@ replace_itemLabels <- function(emuDBhandle, attributeDefinitionName, origLabels,
   DBI::dbCommit(emuDBhandle$connection)
   
   # remove temp index
-  DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP INDEX IF EXISTS label_replace_tmp_idx"))
+  DBI::dbExecute(emuDBhandle$connection, paste0("DROP INDEX IF EXISTS label_replace_tmp_idx"))
   
   # close progress bar if open
   if(exists('pb')){
@@ -145,7 +145,7 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
   # duplicate item entries
   
   # create temp tables
-  DBI::dbGetQuery(emuDBhandle$connection, "CREATE TEMP TABLE IF NOT EXISTS bndl_max_item_id_tmp (
+  DBI::dbExecute(emuDBhandle$connection, "CREATE TEMP TABLE IF NOT EXISTS bndl_max_item_id_tmp (
                   db_uuid VARCHAR(36),
                   session TEXT,
                   bundle TEXT,
@@ -153,59 +153,59 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
                   PRIMARY KEY (db_uuid, session, bundle)
   )")
   # create bndl_max_item_id_tmp table
-  DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO bndl_max_item_id_tmp ",
-                                                 "SELECT db_uuid, session, bundle, max(item_id) AS bndl_max_item_id FROM items WHERE db_uuid = '", emuDBhandle$UUID, "' ",
-                                                 "GROUP BY db_uuid, session, bundle"))
+  DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO bndl_max_item_id_tmp ",
+                                                "SELECT db_uuid, session, bundle, max(item_id) AS bndl_max_item_id FROM items WHERE db_uuid = '", emuDBhandle$UUID, "' ",
+                                                "GROUP BY db_uuid, session, bundle"))
   # duplicate level items table elements
-  DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO items ",
-                                                 "SELECT items.db_uuid, items.session, items.bundle, (item_id + bndl_max_item_id) AS item_id, '", duplicateLevelName, "' AS level, type, seq_idx, sample_rate, sample_point, sample_start, sample_dur ",
-                                                 "FROM items, bndl_max_item_id_tmp ", 
-                                                 "WHERE items.db_uuid = bndl_max_item_id_tmp.db_uuid AND items.session = bndl_max_item_id_tmp.session ",
-                                                 "AND items.bundle = bndl_max_item_id_tmp.bundle AND items.level = '", levelName, "'"))
+  DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO items ",
+                                                "SELECT items.db_uuid, items.session, items.bundle, (item_id + bndl_max_item_id) AS item_id, '", duplicateLevelName, "' AS level, type, seq_idx, sample_rate, sample_point, sample_start, sample_dur ",
+                                                "FROM items, bndl_max_item_id_tmp ", 
+                                                "WHERE items.db_uuid = bndl_max_item_id_tmp.db_uuid AND items.session = bndl_max_item_id_tmp.session ",
+                                                "AND items.bundle = bndl_max_item_id_tmp.bundle AND items.level = '", levelName, "'"))
   
   ##########################
   # duplicate labels entries
-  DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO labels ",
-                                                 "SELECT l.db_uuid, l.session, l.bundle, (l.item_id + mid.bndl_max_item_id) AS item_id, l.label_idx, ",
-                                                 "CASE WHEN l.name = '", levelName, "' THEN '", duplicateLevelName, "' ELSE l.name END AS name, l.label ",
-                                                 "FROM items AS it, labels AS l, bndl_max_item_id_tmp AS mid ",
-                                                 "WHERE it.db_uuid = l.db_uuid AND it.session = l.session AND it.bundle = l.bundle AND it.item_id = l.item_id ",
-                                                 "AND it.db_uuid = mid.db_uuid AND it.session = mid.session AND it.bundle = mid.bundle ",
-                                                 "AND it.level = '", levelName, "'"))
+  DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO labels ",
+                                                "SELECT l.db_uuid, l.session, l.bundle, (l.item_id + mid.bndl_max_item_id) AS item_id, l.label_idx, ",
+                                                "CASE WHEN l.name = '", levelName, "' THEN '", duplicateLevelName, "' ELSE l.name END AS name, l.label ",
+                                                "FROM items AS it, labels AS l, bndl_max_item_id_tmp AS mid ",
+                                                "WHERE it.db_uuid = l.db_uuid AND it.session = l.session AND it.bundle = l.bundle AND it.item_id = l.item_id ",
+                                                "AND it.db_uuid = mid.db_uuid AND it.session = mid.session AND it.bundle = mid.bundle ",
+                                                "AND it.level = '", levelName, "'"))
   
   if(duplicateLinks){
     ##########################
     # duplicate links entries
     
     # where duplicate items are parents
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links ",
-                                                   "SELECT li.db_uuid, li.session, li.bundle, (li.from_id + mid.bndl_max_item_id) AS from_id, li.to_id, li.label ",
-                                                   "FROM items AS it, links AS li, bndl_max_item_id_tmp AS mid ",
-                                                   "WHERE it.db_uuid = li.db_uuid AND it.session = li.session AND it.bundle = li.bundle AND it.item_id = li.from_id ",
-                                                   "AND it.db_uuid = mid.db_uuid AND it.session = mid.session AND it.bundle = mid.bundle ",
-                                                   "AND it.level = '", levelName, "'"))
+    DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO links ",
+                                                  "SELECT li.db_uuid, li.session, li.bundle, (li.from_id + mid.bndl_max_item_id) AS from_id, li.to_id, li.label ",
+                                                  "FROM items AS it, links AS li, bndl_max_item_id_tmp AS mid ",
+                                                  "WHERE it.db_uuid = li.db_uuid AND it.session = li.session AND it.bundle = li.bundle AND it.item_id = li.from_id ",
+                                                  "AND it.db_uuid = mid.db_uuid AND it.session = mid.session AND it.bundle = mid.bundle ",
+                                                  "AND it.level = '", levelName, "'"))
     
     # where duplicate items are children
-    DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links ",
-                                                   "SELECT li.db_uuid, li.session, li.bundle, li.from_id, (li.to_id + mid.bndl_max_item_id) AS to_id, li.label ",
-                                                   "FROM items AS it, links AS li, bndl_max_item_id_tmp AS mid ",
-                                                   "WHERE it.db_uuid = li.db_uuid AND it.session = li.session AND it.bundle = li.bundle AND it.item_id = li.to_id ",
-                                                   "AND it.db_uuid = mid.db_uuid AND it.session = mid.session AND it.bundle = mid.bundle ",
-                                                   "AND it.level = '", levelName, "'"))
+    DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO links ",
+                                                  "SELECT li.db_uuid, li.session, li.bundle, li.from_id, (li.to_id + mid.bndl_max_item_id) AS to_id, li.label ",
+                                                  "FROM items AS it, links AS li, bndl_max_item_id_tmp AS mid ",
+                                                  "WHERE it.db_uuid = li.db_uuid AND it.session = li.session AND it.bundle = li.bundle AND it.item_id = li.to_id ",
+                                                  "AND it.db_uuid = mid.db_uuid AND it.session = mid.session AND it.bundle = mid.bundle ",
+                                                  "AND it.level = '", levelName, "'"))
     
   }else{
     if(linkDuplicates){
-      DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO links ",
-                                                     "SELECT it1.db_uuid, it1.session, it1.bundle, it1.item_id AS from_id, it2.item_id AS to_id, null AS label ",
-                                                     "FROM items AS it1, items AS it2 ",
-                                                     "WHERE it1.db_uuid = it2.db_uuid AND it1.session = it2.session AND it1.bundle = it2.bundle ",
-                                                     "AND it1.level = '", levelName,"' ",
-                                                     "AND it2.level = '", duplicateLevelName,"' AND it1.type = it2.type AND it1.seq_idx = it2.seq_idx"))
+      DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO links ",
+                                                    "SELECT it1.db_uuid, it1.session, it1.bundle, it1.item_id AS from_id, it2.item_id AS to_id, null AS label ",
+                                                    "FROM items AS it1, items AS it2 ",
+                                                    "WHERE it1.db_uuid = it2.db_uuid AND it1.session = it2.session AND it1.bundle = it2.bundle ",
+                                                    "AND it1.level = '", levelName,"' ",
+                                                    "AND it2.level = '", duplicateLevelName,"' AND it1.type = it2.type AND it1.seq_idx = it2.seq_idx"))
     }
   }
   
   # drop temp tables
-  DBI::dbGetQuery(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "bndl_max_item_id_tmp"))
+  DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "bndl_max_item_id_tmp"))
   
   ########################
   # add levelDefs 
@@ -277,12 +277,12 @@ resample_annots <- function(emuDBhandle, oldSampleRate, newSampleRate, verbose =
   
   stop("not implemented yet!!!")
   
-  DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE items ",
-                                                 "SET sample_rate =  ", newSampleRate, ", ",
-                                                 "sample_point = ROUND((sample_point / sample_rate) * ", newSampleRate, ") ",
-                                                 "sample_start = sample_start ", 
-                                                 "sample_dur = sample_dur ",
-                                                 "WHERE sample_rate = ", oldSampleRate))
+  DBI::dbExecute(emuDBhandle$connection, paste0("UPDATE items ",
+                                                "SET sample_rate =  ", newSampleRate, ", ",
+                                                "sample_point = ROUND((sample_point / sample_rate) * ", newSampleRate, ") ",
+                                                "sample_start = sample_start ", 
+                                                "sample_dur = sample_dur ",
+                                                "WHERE sample_rate = ", oldSampleRate))
   
   DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM items WHERE level = 'Tone'"))
 }

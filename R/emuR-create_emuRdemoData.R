@@ -70,6 +70,7 @@ create_emuRdemoData <- function(dir = tempdir(), precache = FALSE){
   # generate cache of ae emuDB
   if(precache){
     dbHandle = load_emuDB(aePath, inMemoryCache = F, verbose = F)
+    DBI::dbDisconnect(dbHandle$connection)
   }
   
   ####################################

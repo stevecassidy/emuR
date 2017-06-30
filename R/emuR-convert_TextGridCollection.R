@@ -125,13 +125,13 @@ convert_TextGridCollection <- function(dir, dbName,
         stop("Could not create session directory: ", sfp, " !\n")
       }
     }
-
+    
     # create session entry if it doesn't already exist
     sesDF = DBI::dbGetQuery(dbHandle$connection, paste0("SELECT * FROM session WHERE name = '", sesName, "'"))
     if(nrow(sesDF) == 0){    
-      DBI::dbGetQuery(dbHandle$connection, paste0("INSERT INTO session VALUES('", dbHandle$UUID, "', '", sesName, "')"))
+      DBI::dbExecute(dbHandle$connection, paste0("INSERT INTO session VALUES('", dbHandle$UUID, "', '", sesName, "')"))
     }
-
+    
     # media file
     mfPath = fpl[i,1]
     mfBn = basename(mfPath)
@@ -189,11 +189,11 @@ convert_TextGridCollection <- function(dir, dbName,
     }
     
   }
-
+  
   if(verbose){
     cat('\n') # hack to have newline after pb
   }
-
+  
   # store all annotations
   rewrite_allAnnots(dbHandle, verbose = verbose)
   

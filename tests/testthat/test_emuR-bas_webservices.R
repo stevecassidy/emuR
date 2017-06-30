@@ -9,6 +9,7 @@ unlink(file.path(testDir, paste0(dbName, emuDB.suffix)), recursive = T)
 
 test_that("testing whether runBASwebservice_all runs without error",
           {
+            skip("skipping as it takes 4 ever to test -> make sure to rerun on deploy")
             skip_on_cran()
             convert_txtCollection(
               sourceDir = sourceDir,
@@ -26,6 +27,7 @@ unlink(file.path(testDir, paste0(dbName, emuDB.suffix)), recursive = T)
 test_that(
   "testing whether all the other runBASwebservice_* functions run without error when chained together",
   {
+    skip("skipping as it takes 4 ever to test -> make sure to rerun on deploy")
     skip_on_cran()
     convert_txtCollection(
       sourceDir = sourceDir,
