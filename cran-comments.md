@@ -1,6 +1,6 @@
 ## Test environments
-* local OS X (x86_64-apple-darwin13.4.0) install, R Under development (unstable) (2017-03-09 r72322) -- "Unsuffered Consequences"
-* Ubuntu 12.04.5 LTS (on travis-ci), R 3.3.2
+* local OS X (x86_64-apple-darwin15.6.0) install, R version 3.4.0 (2017-04-21) -- "You Stupid Darkness"
+* Ubuntu 12.04.5 LTS (on travis-ci), R 3.4.0
 * win-builder (devel and release)
 
 ## R CMD check results
