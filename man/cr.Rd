@@ -12,7 +12,7 @@ cr(A = 1, k = 1, p = 0, N = 16, samfreq = NULL, duration = NULL,
 \arguments{
 \item{A}{A vector of amplitude values. Defaults to A = 1}
 
-\item{k}{A vector of cycles (repetitions). Defauls to k = 1}
+\item{k}{A vector of cycles (repetitions). Defaults to k = 1}
 
 \item{p}{A vector of phase values between -pi/2 and pi/2. Defaults to 0.}
 

@@ -5,7 +5,7 @@
 ##' 
 ##' 
 ##' @param A A vector of amplitude values. Defaults to A = 1
-##' @param k A vector of cycles (repetitions). Defauls to k = 1
+##' @param k A vector of cycles (repetitions). Defaults to k = 1
 ##' @param p A vector of phase values between -pi/2 and pi/2. Defaults to 0.
 ##' @param N The number of points in the signal. Defaults to 16.
 ##' @param samfreq If NULL, then a sinusoid is plotted with a frequency of k
@@ -228,7 +228,7 @@
 ##' @param xaxlab Now redundant
 ##' @param xlab Specify an x-axis label.
 ##' @param type Specify a type.
-##' @param fconst A single elment numeric vector for the aspect ratio in a
+##' @param fconst A single element numeric vector for the aspect ratio in a
 ##' postscript plot. Defaults to 3.5/3.1 which is appropriate for a postscript
 ##' setting of setps(h=4, w=4)
 ##' @param pointconst The radius for plotting the numbers around the circle.

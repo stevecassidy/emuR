@@ -22,7 +22,7 @@ of columns in the track requested.
 }
 \section{Methods}{
  The following generic methods are implemented for
-trackdata obects.  \describe{ \item{list("Arith")}{\code{"+"}, \code{"-"},
+trackdata objects.  \describe{ \item{list("Arith")}{\code{"+"}, \code{"-"},
 \code{"*"}, \code{"^"}, \code{"\%\%"}, \code{"\%/\%"}, \code{"/"}}
 \item{list("Compare")}{\code{"=="}, \code{">"}, \code{"<"}, \code{"!="},
 \code{"<="}, \code{">="}} \item{list("Logic")}{\code{"&"}, \code{"|"}.  }

@@ -108,7 +108,7 @@
 ##' 
 ##' Reads matrix data from a file
 ##' 
-##' This function has been partially superceeded by the introduction of data
+##' This function has been partially superseded by the introduction of data
 ##' frames and the read.table function.  It is still useful however for reading
 ##' data into Splus matrix objects.
 ##' 
@@ -295,7 +295,7 @@
 ##' Defaults to 20000 Hz
 ##' @param hz Logical. If T, convert from Hz to radians otherwise from radians
 ##' to hz
-##' @author Jonahtan Harrington
+##' @author Jonathan Harrington
 ##' @seealso \code{\link{help}}
 ##' @keywords math
 ##' @examples
@@ -505,7 +505,7 @@
 
 ##' Function to shift the elements of a vector.
 ##' 
-##' The function makes use of the function 'fitler' to delay or advance a
+##' The function makes use of the function 'filter' to delay or advance a
 ##' signal by k points.
 ##' 
 ##' The function makes use of the function 'filter' for linear filtering to

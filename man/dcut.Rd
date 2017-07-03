@@ -13,12 +13,12 @@ dcut(trackdata, left.time, right.time, single = TRUE, average = TRUE,
 \item{trackdata}{An Emu trackdata object.}
 
 \item{left.time}{Either: a numeric vector of the same length as there are
-obsverations in trackdata. Or: a single value between 0 and 1. In the first
+observations in trackdata. Or: a single value between 0 and 1. In the first
 case, the left time boundary of trackdata[n,] is cut at left.time[n], in
 the second case, and if prop=T, it is cut at that proportional time.}
 
 \item{right.time}{Either: a numeric vector of the same length as there are
-obsverations in trackdata. Or: a single value between 0 and 1. In the first
+observations in trackdata. Or: a single value between 0 and 1. In the first
 case, the right time boundary of trackdata[n,] is cut at right.time[n], in
 the second case, and if prop=T, it is cut at that proportional time.}
 

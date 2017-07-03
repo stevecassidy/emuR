@@ -216,7 +216,7 @@ add_files <- function(emuDBhandle, dir, fileExtension, targetSessionName='0000')
 ##' more information on the structural elements of an emuDB 
 ##' see \code{vignette{emuDB}}.
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
-##' @param fileExtension file extention of files
+##' @param fileExtension file extension of files
 ##' @param sessionPattern A (RegEx) pattern matching sessions to be searched from the database
 ##' @param bundlePattern A (RegEx) pattern matching bundles to be searched from the database
 ##' @return file paths as character vector

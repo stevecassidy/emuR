@@ -1,6 +1,6 @@
 ##' Replace item labels
 ##' 
-##' Replace the labels of all annotation items, or more specifially 
+##' Replace the labels of all annotation items, or more specifically 
 ##' of attribute definitions belonging to annotation items, in an emuDB that 
 ##' match the provided \code{origLabels} character vector which the 
 ##' corresponding labels provided by the \code{newLabels} character vector. 

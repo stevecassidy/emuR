@@ -36,7 +36,7 @@ element and subtract from each the mean of the logarithmic data.
 from each data element in that column.  \code{"lob"}, Lobanov: Find the
 mean and standard deviation of the data. Subtract the mean from each data
 element and devide each result by the standard deviation.  "gerst",
-Gerstman: Subtract from the data the minimun formant value then devide by
+Gerstman: Subtract from the data the minimum formant value then devide by
 the formant range.
 }
 \seealso{

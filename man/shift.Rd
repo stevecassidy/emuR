@@ -20,7 +20,7 @@ number of zeros are prepended to the signal}
 The signal shifted by a certain number of points.  ...
 }
 \description{
-The function makes use of the function 'fitler' to delay or advance a
+The function makes use of the function 'filter' to delay or advance a
 signal by k points.
 }
 \details{

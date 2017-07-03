@@ -25,7 +25,7 @@ A matrix corresponding to the data in \code{file}.
 Reads matrix data from a file
 }
 \details{
-This function has been partially superceeded by the introduction of data
+This function has been partially superseded by the introduction of data
 frames and the read.table function.  It is still useful however for reading
 data into Splus matrix objects.
 }

@@ -41,7 +41,7 @@
 
 ##' bind trackdata
 ##' 
-##' binds diffrent trackdata objects together
+##' binds different trackdata objects together
 ##' 
 ##' 
 ##' @param \dots trackdata objects

@@ -73,7 +73,7 @@ which is to be superimposed}
 
 \item{xlab}{Specify an x-axis label.}
 
-\item{fconst}{A single elment numeric vector for the aspect ratio in a
+\item{fconst}{A single element numeric vector for the aspect ratio in a
 postscript plot. Defaults to 3.5/3.1 which is appropriate for a postscript
 setting of setps(h=4, w=4)}
 

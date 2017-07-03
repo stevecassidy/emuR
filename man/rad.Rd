@@ -31,6 +31,6 @@ rad(c(pi/2, pi/4), 10000, FALSE)
 \code{\link{help}}
 }
 \author{
-Jonahtan Harrington
+Jonathan Harrington
 }
 \keyword{math}

@@ -10,7 +10,7 @@ list_files(emuDBhandle, fileExtension = ".*", sessionPattern = ".*",
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
 
-\item{fileExtension}{file extention of files}
+\item{fileExtension}{file extension of files}
 
 \item{sessionPattern}{A (RegEx) pattern matching sessions to be searched from the database}
 

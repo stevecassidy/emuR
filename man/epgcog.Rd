@@ -62,7 +62,7 @@ epgcog(r, rows=5:8, columns=3:6)
 }
 \references{
 GIBBON, F., HARDCASTLE, W. and NICOLAIDIS, K. (1993) Temporal
-and spatial aspects of lingual coarticuation in /kl/ sequences: a
+and spatial aspects of lingual coarticulation in /kl/ sequences: a
 cross-linguistic investigation. Language & Speech, 36, 26t1-277.
 
 GIBBON, F. AND NICOLAIDIS, K. (1999). Palatography.  In W.J. Hardcastle &
