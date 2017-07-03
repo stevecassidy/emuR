@@ -39,7 +39,7 @@
 ##'    fund.rms.lax[1,]
 ##' 
 ##' 
-##' @export cbind.trackdata
+##' @export
 cbind.trackdata <- function (...) 
 {
   mat <- NULL

@@ -41,7 +41,7 @@
 ##'    
 ##' 
 ##' 
-##' @export rbind.trackdata
+##' @export
 "rbind.trackdata" <- function (...) 
 {
   mat <- NULL
