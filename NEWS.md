@@ -1,4 +1,4 @@
-# emuR 0.2.2.9006
+# emuR 0.2.2.9007
 
 ## new features / performance tweaks / improvements
 
@@ -8,6 +8,7 @@
 * performance bump for `mel.spectral()` by preallocating result matrix
 * performance bump for `bark.spectral()` by preallocating result matrix
 * updated DBI calls to comply with the latest best practices (using `DBI::dbExecute()` instead of `DBI::dbGetQuery()` for non-SELECT queries)
+* BPF collection exporter documented and now public
 
 
 ## bug fixes

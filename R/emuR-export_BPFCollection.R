@@ -1,21 +1,26 @@
-# Exports an emuDB into a Bas Partitur File Collection (BAS Partitur files)
-#
-#
-# @param handle handle to the emuDB
-# @param targetDir directory where the BPF collection should be saved
-# @param extractLevels list containing the names of labels (not levels!) that should be extracted, and their
-# matching BPF keys, e.g. extractLevels = list(SampleRate="SAM", Text="ORT", Phonemes="SAP")
-# @param refLevel optional name of level (not label!) used as reference for symbolic links. If NULL (the default), a link-less BPF collection is created.
-# @param newLevels optional vector containing names of levels in the BPF collection that are not part of the standard 
-# BPF levels. See \url{http://www.bas.uni-muenchen.de/forschung/Bas/BasFormatseng.html#Partitur_tiersdef} for details on 
-# standard BPF levels.
-# @param newLevelClasses optional vector containing the classes of levels in the newLevels vector as integers. 
-# Must have the same length and order as newLevels.
-# @param copyAudio if true, audio files are copied to the new BPF collection
-# @param verbose display infos, warnings and show progress bar
-# @return NULL
-# @seealso export_TextGridCollection
-# 
+##' Exports an emuDB into a BAS Partitur File (BPF) Collection
+##' 
+##' This function exports an emuDB into the BAS Partitur File format, with one BPF file per bundle.
+##' The user must pass a list of matching label names and BPF keys. 
+##' \strong{Important:} The BPF format does not support explicit hierarchies with more than three
+##' levels. Hence, you will probably lose information when exporting complex hierarchies.
+##'
+##' @param handle handle to the emuDB
+##' @param targetDir directory where the BPF collection should be saved
+##' @param extractLevels list containing the names of labels (not levels!) that should be extracted, and their
+##' matching BPF keys, e.g. extractLevels = list(SampleRate="SAM", Text="ORT", Phonemes="SAP")
+##' @param refLevel optional name of level (not label!) used as reference for symbolic links. If NULL (the default), a link-less BPF collection is created.
+##' @param newLevels optional vector containing names of levels in the BPF collection that are not part of the standard 
+##' BPF levels. See \url{http://www.bas.uni-muenchen.de/forschung/Bas/BasFormatseng.html#Partitur_tiersdef} for details on 
+##'standard BPF levels.
+##' @param newLevelClasses optional vector containing the classes of levels in the newLevels vector as integers. 
+##' Must have the same length and order as newLevels.
+##' @param copyAudio if true, audio files are copied to the new BPF collection
+##' @param verbose display infos, warnings and show progress bar
+##' @return NULL
+##' @seealso export_TextGridCollection
+##' @export
+ 
 export_BPFCollection <- function(handle,
                                  targetDir,
                                  extractLevels,
