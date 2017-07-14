@@ -1,3 +1,10 @@
+# emuR 0.2.3.9001
+
+## bugfixes
+
+* fixed a bug in the BPF export function, which meant that WAVE files were only copied into one session
+
+
 # emuR 0.2.3
 
 ## new features / performance tweaks / improvements
