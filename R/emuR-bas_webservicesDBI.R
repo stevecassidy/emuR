@@ -2454,6 +2454,12 @@ bas_paste_description <-
     )
     
     version = stringr::str_trim(version)
+    
+    if(nchar(version) == 0)
+    {
+      warning("Could not retrieve version number for service", service)
+    }
+    
     description = paste0(description, " automatically derived ")
     if (!is.null(source))
     {
@@ -2471,5 +2477,6 @@ bas_paste_description <-
         )), collapse = " "),
         ")"
       )
+    
     return(description)
   }
