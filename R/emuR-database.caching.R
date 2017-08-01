@@ -35,15 +35,15 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
   sesDelta_toDelete = dplyr::anti_join(notUpdatedSessionDBI, sessions, by = "name")
   
   # add new
-  if(length(sesDelta_new) > 0){
-    for(i in 1:length(sesDelta_new)){
-      add_sessionDBI(emuDBhandle, sesDelta_new[i])
+  if(nrow(sesDelta_new) > 0){
+    for(i in 1:nrow(sesDelta_new)){
+      add_sessionDBI(emuDBhandle, sesDelta_new[i,])
     }
   }
   # delete
-  if(length(sesDelta_toDelete) > 0){
-    for(i in 1:length(sesDelta_toDelete)){
-      remove_sessionDBI(emuDBhandle, sesDelta_toDelete[i])
+  if(nrow(sesDelta_toDelete) > 0){
+    for(i in 1:nrow(sesDelta_toDelete)){
+      remove_sessionDBI(emuDBhandle, sesDelta_toDelete[i,])
     }
   }
   

@@ -1,3 +1,11 @@
+# emuR 0.2.3.9000
+
+## new features / performance tweaks / improvements
+
+## bug fixes
+
+* fixed problem of updating cache. Didn't handle data.frame object that was thought to be a vector correctly!
+
 # emuR 0.2.3
 
 ## new features / performance tweaks / improvements
