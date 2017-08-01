@@ -322,32 +322,32 @@ build_skeleton <- function(handle, targetDir, copyAudio, verbose)
       progress = progress + 1
       utils::setTxtProgressBar(pb, progress)
     }
-  }
     
-  if(copyAudio)
-  {
-    for(bundle in list_bundles(handle, session = session)$name)
+    if(copyAudio)
     {
-      queryTxt = paste0("SELECT annotates FROM bundle", 
+      for(bundle in list_bundles(handle, session = session)$name)
+      {
+        queryTxt = paste0("SELECT annotates FROM bundle", 
                         basic_cond(handle, session, bundle, bundlename="name"))
       
-      annotates = DBI::dbGetQuery(handle$connection, queryTxt)[1,1]
+        annotates = DBI::dbGetQuery(handle$connection, queryTxt)[1,1]
         
-      wav_target = file.path(targetDir, 
+        wav_target = file.path(targetDir, 
                              handle$dbName,
                              session,
                              annotates)
 
-      wav_source = file.path(handle$basePath,
+        wav_source = file.path(handle$basePath,
                              paste0(session, session.suffix),
                              paste0(bundle, bundle.dir.suffix),
                              annotates)
       
-      file.copy(wav_source, wav_target)
-      if(verbose)
-      {
-        progress = progress + 1
-        utils::setTxtProgressBar(pb, progress)
+        file.copy(wav_source, wav_target)
+        if(verbose)
+        {
+          progress = progress + 1
+          utils::setTxtProgressBar(pb, progress)
+        }
       }
     }
   }
