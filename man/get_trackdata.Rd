@@ -8,7 +8,8 @@
 get_trackdata(emuDBhandle, seglist = NULL, ssffTrackName = NULL,
   cut = NULL, npoints = NULL, onTheFlyFunctionName = NULL,
   onTheFlyParams = NULL, onTheFlyOptLogFilePath = NULL,
-  nrOfAllocationRows = 10000, resultType = "trackdata", verbose = TRUE)
+  nrOfAllocationRows = 10000, resultType = "trackdata",
+  persistentOutputType = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
@@ -53,6 +54,8 @@ a further \code{nrOfAllocationRows} more rows will be allocated. As this allocat
 a performance penalty one should consider increasing this number for large emuDBs.}
 
 \item{resultType}{Specify class of returned object. Either \code{"emuRtrackdata"} or \code{"trackdata"} (see \code{\link{trackdata}} and \code{\link{emuRtrackdata}} for details about these objects).}
+
+\item{persistentOutputType}{Prevent converting the output object to a \code{data.frame} depending on the \code{npoint} and \code{cut} arguments}
 
 \item{verbose}{Show progress bars and further information}
 }

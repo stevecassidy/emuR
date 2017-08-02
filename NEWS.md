@@ -1,6 +1,8 @@
-# emuR 0.2.3.9000
+# emuR 0.2.3.9001
 
 ## new features / performance tweaks / improvements
+
+* implemented new `persistentOutputType` parameter for `get_trackdata()` to always return a `trackdata` or `emuRtrackdata` object independent of what the `cut` and `npoints` arguments are set to
 
 ## bug fixes
 
