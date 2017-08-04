@@ -289,21 +289,21 @@ resample_annots <- function(emuDBhandle, oldSampleRate, newSampleRate, verbose =
 
 
 
-##' Append an item (on a given level) to each bundle
-##'
-##' @param emuDBhandle emuDB handle object (see \link{load_emuDB})
-##' @param levelName Name of the level to which to append the new items
-##' @param labels Character vector containing one label for each attributeDefinition of \code{levelName}
-##' @param sessionPattern A (RegEx) pattern matching sessions to be included in the operation
-##' @param bundlePattern A (RegEx) pattern matching bundles to be included in the operation
-##' @param verbose Show progress bars and further information
-##' @export
-##' @seealso \code{\link{change_labels}}
-##' @keywords emuDB
-##' @examples
-##' \dontrun{
-##' TO DO - Add example
-##' }
+## Append an item (on a given level) to each bundle
+##
+## @param emuDBhandle emuDB handle object (see \link{load_emuDB})
+## @param levelName Name of the level to which to append the new items
+## @param labels Character vector containing one label for each attributeDefinition of \code{levelName}
+## @param sessionPattern A (RegEx) pattern matching sessions to be included in the operation
+## @param bundlePattern A (RegEx) pattern matching bundles to be included in the operation
+## @param verbose Show progress bars and further information
+## @export
+## @seealso \code{\link{change_labels}}
+## @keywords emuDB
+## @examples
+## \dontrun{
+## TO DO - Add example
+## }
 append_itemsToLevel = function(emuDBhandle,
                                levelName,
                                labels,

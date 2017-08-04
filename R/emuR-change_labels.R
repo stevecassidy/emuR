@@ -1,4 +1,4 @@
-##' @export
+## @export
 change_labels = function (emuDBhandle,
                           labels,
                           verbose = TRUE) {
