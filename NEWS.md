@@ -1,3 +1,14 @@
+# emuR 0.2.3.9001
+
+## new features / performance tweaks / improvements
+
+* implemented new `persistentOutputType` parameter for `get_trackdata()` to always return a `trackdata` or `emuRtrackdata` object independent of what the `cut` and `npoints` arguments are set to
+
+## bug fixes
+
+* fixed problem of updating cache. Didn't handle data.frame object that was thought to be a vector correctly!
+* fixed a bug in the BPF export function, which meant that WAVE files were only copied into one session
+
 # emuR 0.2.3
 
 ## new features / performance tweaks / improvements
