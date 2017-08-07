@@ -1,8 +1,9 @@
-# emuR 0.2.3.9001
+# emuR 0.2.3.9002
 
 ## new features / performance tweaks / improvements
 
 * implemented new `persistentOutputType` parameter for `get_trackdata()` to always return a `trackdata` or `emuRtrackdata` object independent of what the `cut` and `npoints` arguments are set to
+* now removing `levelCanvasOrder` entry in `remove_levelDefinition()` (fixes \#156)
 
 ## bug fixes
 

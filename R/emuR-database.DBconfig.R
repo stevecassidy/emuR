@@ -364,6 +364,16 @@ remove_levelDefinition<-function(emuDBhandle, name, rewriteAllAnnots = TRUE, for
   }
   dbConfig$levelDefinitions = newLvlDefs
   
+  # remove from levelCanvasOrder of EMUwebAppConfig if present
+  for(i in 1:length(dbConfig$EMUwebAppConfig$perspectives)){
+    if(any(dbConfig$EMUwebAppConfig$perspectives[[i]]$levelCanvases$order == name)){
+      # print(dbConfig$EMUwebAppConfig$perspectives[[i]]$levelCanvases$order)
+      found = dbConfig$EMUwebAppConfig$perspectives[[i]]$levelCanvases$order == name
+      # print(found)
+      dbConfig$EMUwebAppConfig$perspectives[[i]]$levelCanvases$order = dbConfig$EMUwebAppConfig$perspectives[[i]]$levelCanvases$order[!found]
+    }
+  }
+
   store_DBconfig(emuDBhandle, dbConfig)
   
   if(rewriteAllAnnots){

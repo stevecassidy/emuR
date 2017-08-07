@@ -128,7 +128,7 @@ change_labels = function (emuDBhandle,
   
   print(paste("Updated", rowsAffected, "labels."))
   
-  emuR:::rewrite_allAnnots(emuDBhandle, verbose)
+  rewrite_allAnnots(emuDBhandle, verbose)
   
   invisible(NULL)
 }
