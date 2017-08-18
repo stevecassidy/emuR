@@ -13,6 +13,7 @@ bas_run_maus_dbi <- function(handle,
                              oldBasePath,
                              perspective,
                              turnChunkLevelIntoItemLevel,
+                             patience,
                              func)
 {
   service = "runMAUS"
@@ -221,9 +222,7 @@ bas_run_maus_dbi <- function(handle,
           }
         }
         
-        res = bas_curl(service, curlParams)
-        
-        mauLines = bas_download(res, maufile, session, bundle)
+        mauLines = bas_curl(service, curlParams, maufile, session, bundle, patience)
         
         if (length(mauLines) > 0)
         {
@@ -323,6 +322,7 @@ bas_run_minni_dbi <- function(handle,
                               resume,
                               oldBasePath,
                               perspective,
+                              patience,
                               func)
 {
   service = "runMINNI"
@@ -401,9 +401,8 @@ bas_run_minni_dbi <- function(handle,
         }
       }
       
-      res = bas_curl(service, curlParams)
+      minniLines = bas_curl(service, curlParams, minnifile, session, bundle, patience)
       
-      minniLines = bas_download(res, minnifile, session, bundle)
       if (length(minniLines) > 0)
       {
         seq_idx = 1
@@ -498,6 +497,7 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
                                              verbose,
                                              resume,
                                              params,
+                                             patience,
                                              func)
 {
   service = "runG2P"
@@ -600,9 +600,8 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
             }
           }
           
-          res = bas_curl(service, curlParams)
-          g2pLines = bas_download(res, g2pfile, session, bundle)
-          
+          g2pLines = bas_curl(service, curlParams, g2pfile, session, bundle, patience)
+
           if (length(g2pLines) > 0)
           {
             for (line_idx in 1:length(g2pLines))
@@ -684,6 +683,7 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
                                               verbose,
                                               resume,
                                               params,
+                                              patience,
                                               func)
 {
   service = "runG2P"
@@ -784,9 +784,7 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
           }
         }
         
-        res = bas_curl(service, curlParams)
-        
-        g2pLines = bas_download(res, kanfile, session, bundle)
+        g2pLines = bas_curl(service, curlParams, kanfile, session, bundle, patience)
         
         if (length(g2pLines) > 0)
         {
@@ -855,6 +853,7 @@ bas_run_chunker_dbi <- function(handle,
                                 resume,
                                 oldBasePath,
                                 perspective,
+                                patience,
                                 func)
 {
   service = "runChunker"
@@ -984,9 +983,7 @@ bas_run_chunker_dbi <- function(handle,
           }
         }
         
-        res = bas_curl(service, curlParams)
-        
-        trnLines = bas_download(res, trnfile, session, bundle)
+        trnLines = bas_curl(service, curlParams, trnfile, session, bundle, patience)
         
         if (length(trnLines) > 0)
         {
@@ -1098,6 +1095,7 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
                                           canoSylAttributeDefinitionName,
                                           resume,
                                           params,
+                                          patience,
                                           func)
 {
   service = "runPho2Syl"
@@ -1201,9 +1199,7 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
           }
         }
         
-        res = bas_curl(service, curlParams)
-        
-        kasLines = bas_download(res, kasfile, session, bundle)
+        kasLines = bas_curl(service, curlParams, kasfile, session, bundle, patience)
         
         if (length(kasLines) > 0)
         {
@@ -1270,6 +1266,7 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
                                           superLevel,
                                           resume,
                                           params,
+                                          patience,
                                           func)
 {
   sylLevel = sylAttributeDefinitionName
@@ -1315,7 +1312,8 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
       resume = resume,
       params = params,
       allowmultilink = multilink,
-      func = func
+      func = func, 
+      patience = patience
     )
   }
   
@@ -1331,6 +1329,7 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
       sylLevel = sylLevel,
       resume = resume,
       params = params,
+      patience = patience,
       func = func
     )
   }
@@ -1394,6 +1393,7 @@ bas_run_pho2syl_segmental_dbi_anchored <- function(handle,
                                                    resume,
                                                    params,
                                                    allowmultilink,
+                                                   patience,
                                                    func)
 {
   service = "runPho2Syl"
@@ -1542,11 +1542,7 @@ bas_run_pho2syl_segmental_dbi_anchored <- function(handle,
             }
           }
           
-          res = bas_curl(service, curlParams)
-          
-          
-          
-          masLines = bas_download(res, masfile, session, bundle)
+          masLines = bas_curl(service, curlParams, masfile, session, bundle, patience)
           
           if (length(masLines) > 0)
           {
@@ -1645,6 +1641,7 @@ bas_run_pho2syl_segmental_dbi_unanchored <- function(handle,
                                                      sylLevel,
                                                      resume,
                                                      params,
+                                                     patience,
                                                      func)
 {
   service = "runPho2Syl"
@@ -1750,9 +1747,7 @@ bas_run_pho2syl_segmental_dbi_unanchored <- function(handle,
           }
         }
         
-        res = bas_curl(service, curlParams)
-        
-        masLines = bas_download(res, masfile, session, bundle)
+        masLines = bas_curl(service, curlParams, masfile, session, bundle, patience)
         
         if (length(masLines) > 0)
         {
@@ -2428,18 +2423,54 @@ set_attributeDescription <-
     store_DBconfig(handle, dbConfig)
   }
 
-bas_curl <- function(service, params)
+
+bas_curl_inner <- function(service, params, file, session, bundle)
 {
-  res = RCurl::postForm(
-    paste0(
-      "https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/",
-      service
-    ),
-    .params = params,
-    style = "HTTPPOST",
-    .opts = RCurl::curlOptions(connecttimeout = 10, timeout = 10000)
-  )
-  return(res)
+  success = tryCatch({
+    res = RCurl::postForm(
+      paste0(
+        "https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/",
+        service
+      ),
+      .params = params,
+      style = "HTTPPOST",
+      .opts = RCurl::curlOptions(connecttimeout = 10, timeout = 10000)
+    )
+    lines = bas_download(res, file, session, bundle)
+    return(T)
+  },
+  error = function (cond)
+  {
+    message("Error calling ", service)
+    message(cond)
+    return(F)
+  })
+}
+
+bas_curl <- function(service, params, file, session, bundle, patience)
+{
+  if(patience < 0 || patience > 3)
+  {
+    stop("Invalid patience value; must lie between 0 and 3.")
+  }
+  
+  attempts = 0
+  success = F
+  
+  while(attempts <= patience && (!success))
+  {
+    attempts = attempts + 1
+    success = bas_curl_inner(service, params, file, session, bundle)
+  }
+  
+  if(!success)
+  {
+    stop("Call to ", service, " failed ", attempts, " time(s). Aborting.")
+  }
+  
+  lines = readLines(file, encoding = "UTF-8")
+  
+  return(lines)
 }
 
 bas_paste_description <-
