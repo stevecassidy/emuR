@@ -64,7 +64,7 @@ Note that this function will run all BAS webservices with default parameters, wi
 \itemize{
 \item{Chunker: force=rescue}
 \item{G2P: embed=maus}
-\item{Pho2Syl: wsync=no}
+\item{Pho2Syl: wsync=yes}
 \item{MAUS: USETRN=[true if Chunker was called or transcription is a segment tier, false otherwise]}
 }
 If you wish to change parameters, you must use the individual runBASwebservices functions. This will also allow
