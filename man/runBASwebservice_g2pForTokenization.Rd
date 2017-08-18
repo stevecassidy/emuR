@@ -6,8 +6,8 @@
 \usage{
 runBASwebservice_g2pForTokenization(handle,
   transcriptionAttributeDefinitionName, language,
-  orthoAttributeDefinitionName = "ORT", params = list(), resume = FALSE,
-  verbose = TRUE)
+  orthoAttributeDefinitionName = "ORT", params = list(), patience = 0,
+  resume = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{handle}{emuDB handle}
@@ -27,6 +27,9 @@ ensure that these parameters are compatible with the webservice API
 (see \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}).
 Some options accepted by the API (e.g. output format) cannot be set when calling a webservice from within emuR,
 and will be overridden.}
+
+\item{patience}{If a web service call fails, it is repeated a further n times, with n being the value of patience.
+Must be set to a value between 0 and 3.}
 
 \item{resume}{If a previous call to this function has failed (and you think you have fixed the issue
 that caused the error), you can set resume=TRUE to recover any progress made up to that point. This

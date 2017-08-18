@@ -10,7 +10,8 @@ runBASwebservice_all(handle, transcriptionAttributeDefinitionName, language,
   minniAttributeDefinitionName = "MINNI",
   sylAttributeDefinitionName = "MAS",
   canoSylAttributeDefinitionName = "KAS",
-  chunkAttributeDefinitionName = "TRN", resume = FALSE, verbose = TRUE)
+  chunkAttributeDefinitionName = "TRN", patience = 0, resume = FALSE,
+  verbose = TRUE)
 }
 \arguments{
 \item{handle}{emuDB handle}
@@ -38,6 +39,9 @@ Up-to-date lists of the languages accepted by all webservices can be found here:
 \item{chunkAttributeDefinitionName}{attribute name for the chunk segmentation.
 Please note that the chunk segmentation will only be generated if your emuDB contains
 audio files beyond the one minute mark.}
+
+\item{patience}{If a web service call fails, it is repeated a further n times, with n being the value of patience.
+Must be set to a value between 0 and 3.}
 
 \item{resume}{If a previous call to this function has failed (and you think you have fixed the issue
 that caused the error), you can set resume=TRUE to recover any progress made up to that point. This
