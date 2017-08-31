@@ -13,7 +13,7 @@
 ##' \itemize{
 ##' \item{Chunker: force=rescue}
 ##' \item{G2P: embed=maus}
-##' \item{Pho2Syl: wsync=no}
+##' \item{Pho2Syl: wsync=yes}
 ##' \item{MAUS: USETRN=[true if Chunker was called or transcription is a segment tier, false otherwise]}
 ##' }
 ##' If you wish to change parameters, you must use the individual runBASwebservices functions. This will also allow
@@ -40,6 +40,8 @@
 ##' @param sylAttributeDefinitionName attribute name for syllable segmentation
 ##' @param canoSylAttributeDefinitionName attribute name for syllabified canonical pronunciations of words
 ##'
+##' @param patience If a web service call fails, it is repeated a further n times, with n being the value of patience.
+##' Must be set to a value between 0 and 3.
 ##' @param verbose Display progress bars and other information
 ##' @param resume If a previous call to this function has failed (and you think you have fixed the issue
 ##' that caused the error), you can set resume=TRUE to recover any progress made up to that point. This
@@ -57,6 +59,7 @@ runBASwebservice_all <- function(handle,
                                  canoSylAttributeDefinitionName = "KAS",
                                  chunkAttributeDefinitionName = "TRN",
                                  
+                                 patience = 0,
                                  resume = FALSE,
                                  verbose = TRUE)
 {
@@ -101,7 +104,8 @@ runBASwebservice_all <- function(handle,
     verbose = verbose,
     resume = resume,
     params = list(),
-    func = func
+    func = func,
+    patience = patience
   )
   
   bas_run_g2p_for_pronunciation_dbi(
@@ -112,7 +116,8 @@ runBASwebservice_all <- function(handle,
     verbose = verbose,
     resume = resume,
     params = list(embed = "maus"),
-    func = func
+    func = func,
+    patience = patience
   )
   
   
@@ -131,7 +136,8 @@ runBASwebservice_all <- function(handle,
       language = language,
       oldBasePath = oldBasePath,
       perspective = "default",
-      func = func
+      func = func,
+      patience = patience
     )
   }
   
@@ -147,7 +153,8 @@ runBASwebservice_all <- function(handle,
     oldBasePath = oldBasePath,
     perspective = "default",
     turnChunkLevelIntoItemLevel = T,
-    func = func
+    func = func,
+    patience = patience
   )
   
   bas_run_minni_dbi(
@@ -160,7 +167,8 @@ runBASwebservice_all <- function(handle,
     params = list(),
     oldBasePath = oldBasePath,
     perspective = "default",
-    func = func
+    func = func,
+    patience = patience
   )
   
   bas_run_pho2syl_canonical_dbi(
@@ -171,7 +179,8 @@ runBASwebservice_all <- function(handle,
     verbose = verbose,
     params = list(),
     resume = resume,
-    func = func
+    func = func,
+    patience = patience
   )
   
   orthoLevel = orthoAttributeDefinitionName
@@ -185,7 +194,8 @@ runBASwebservice_all <- function(handle,
     resume = resume,
     params = list(wsync = "yes"),
     verbose = verbose,
-    func = func
+    func = func,
+    patience = patience
   )
   
   
@@ -257,6 +267,7 @@ runBASwebservice_maus <- function(handle,
                                   params = NULL,
                                   
                                   perspective = "default",
+                                  patience = 0,
                                   resume = FALSE,
                                   verbose = TRUE)
 {
@@ -276,7 +287,8 @@ runBASwebservice_maus <- function(handle,
     oldBasePath = oldBasePath,
     perspective = perspective,
     turnChunkLevelIntoItemLevel = turnChunkLevelIntoItemLevel,
-    func = func
+    func = func,
+    patience = patience
   )
   
   handle = bas_clear(handle, oldBasePath, func)
@@ -313,6 +325,7 @@ runBASwebservice_g2pForTokenization <- function(handle,
                                                 
                                                 params = list(),
                                                 
+                                                patience = 0,
                                                 resume = FALSE,
                                                 verbose = TRUE)
 {
@@ -328,7 +341,8 @@ runBASwebservice_g2pForTokenization <- function(handle,
     verbose = verbose,
     resume = resume,
     params = params,
-    func = func
+    func = func,
+    patience = patience
   )
   
   handle = bas_clear(handle, oldBasePath, func)
@@ -365,6 +379,7 @@ runBASwebservice_g2pForPronunciation <- function(handle,
                                                  
                                                  params = list(embed = "maus"),
                                                  
+                                                 patience = 0,
                                                  resume = FALSE,
                                                  verbose = TRUE)
 {
@@ -380,7 +395,8 @@ runBASwebservice_g2pForPronunciation <- function(handle,
     verbose = verbose,
     resume = resume,
     params = params,
-    func = func
+    func = func,
+    patience = patience
   )
   
   handle = bas_clear(handle, oldBasePath, func)
@@ -434,6 +450,7 @@ runBASwebservice_chunker <- function(handle,
                                      params = list(force = "rescue"),
                                      
                                      perspective = "default",
+                                     patience = 0,
                                      resume = FALSE,
                                      verbose = TRUE)
 {
@@ -453,7 +470,8 @@ runBASwebservice_chunker <- function(handle,
     perspective = perspective,
     resume = resume,
     rootLevel = rootLevel,
-    func = func
+    func = func,
+    patience = patience
   )
   
   handle = bas_clear(handle, oldBasePath, func)
@@ -495,6 +513,7 @@ runBASwebservice_minni <- function(handle,
                                    params = list(),
                                    
                                    perspective = "default",
+                                   patience = 0,
                                    resume = FALSE,
                                    verbose = TRUE)
 {
@@ -512,7 +531,8 @@ runBASwebservice_minni <- function(handle,
     params = params,
     oldBasePath = oldBasePath,
     perspective = perspective,
-    func = func
+    func = func,
+    patience = patience
   )
   
   handle = bas_clear(handle, oldBasePath, func)
@@ -546,6 +566,7 @@ runBASwebservice_pho2sylCanonical <- function(handle,
                                               
                                               params = list(),
                                               
+                                              patience = 0,
                                               resume = FALSE,
                                               verbose = TRUE)
 {
@@ -561,7 +582,8 @@ runBASwebservice_pho2sylCanonical <- function(handle,
     canoSylAttributeDefinitionName = canoSylAttributeDefinitionName,
     resume = resume,
     params = params,
-    func = func
+    func = func,
+    patience = patience
   )
   
   
@@ -604,6 +626,7 @@ runBASwebservice_pho2sylSegmental <- function(handle,
                                               params = list(wsync = "yes"),
                                               
                                               perspective = "default",
+                                              patience = 0,
                                               resume = FALSE,
                                               verbose = TRUE)
 {
@@ -620,7 +643,8 @@ runBASwebservice_pho2sylSegmental <- function(handle,
     superLevel = superLevel,
     resume = resume,
     params = params,
-    func = func
+    func = func,
+    patience = patience
   )
   
   

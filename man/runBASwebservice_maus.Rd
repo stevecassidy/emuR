@@ -7,7 +7,7 @@
 runBASwebservice_maus(handle, canoAttributeDefinitionName, language,
   mausAttributeDefinitionName = "MAU", chunkLevel = NULL,
   turnChunkLevelIntoItemLevel = TRUE, params = NULL,
-  perspective = "default", resume = FALSE, verbose = TRUE)
+  perspective = "default", patience = 0, resume = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{handle}{emuDB handle}
@@ -37,6 +37,9 @@ and will be overridden.}
 
 \item{perspective}{the webApp perspective that the new level will be added to.
 If NULL, the new level is not added to any perspectives.}
+
+\item{patience}{If a web service call fails, it is repeated a further n times, with n being the value of patience.
+Must be set to a value between 0 and 3.}
 
 \item{resume}{If a previous call to this function has failed (and you think you have fixed the issue
 that caused the error), you can set resume=TRUE to recover any progress made up to that point. This
