@@ -287,6 +287,195 @@ resample_annots <- function(emuDBhandle, oldSampleRate, newSampleRate, verbose =
   DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM items WHERE level = 'Tone'"))
 }
 
+
+
+## Append an item (on a given level) to each bundle
+##
+## @param emuDBhandle emuDB handle object (see \link{load_emuDB})
+## @param levelName Name of the level to which to append the new items
+## @param labels Character vector containing one label for each attributeDefinition of \code{levelName}
+## @param sessionPattern A (RegEx) pattern matching sessions to be included in the operation
+## @param bundlePattern A (RegEx) pattern matching bundles to be included in the operation
+## @param verbose Show progress bars and further information
+## @export
+## @seealso \code{\link{change_labels}}
+## @keywords emuDB
+## @examples
+## \dontrun{
+## TO DO - Add example
+## }
+append_itemsToLevel = function(emuDBhandle,
+                               levelName,
+                               labels,
+                               sessionPattern = ".*",
+                               bundlePattern = ".*",
+                               verbose = T) {
+  ##
+  ## Check pre-conditions
+  ##
+  levelDefinition = get_levelDefinition(emuDBhandle, levelName)
+
+  if (is.null(levelDefinition)) {
+    print("Error: The given level does not exist ")
+    return(invisible(NULL))
+  }
+  
+  if (length(labels) != length(levelDefinition$attributeDefinitions)) {
+    print (
+      paste0(
+        "Error: The number of labels (",
+        length(labels),
+        ") must match the number of attribute definitions (",
+        length(levelDefinition$attributeDefinitions),
+        ") for the given level (",
+        levelName,
+        ")"
+      )
+    )
+    
+    return(invisible(NULL))
+  }
+
+
+  ##
+  ## Filter bundles according to sessionPattern and bundlePattern
+  ##
+  bundles = list_bundles(emuDBhandle)
+  sessionMatch = emuR_regexprl (sessionPattern, bundles$session)
+  bundleMatch = emuR_regexprl (bundlePattern, bundles$name)
+  bundles = bundles [sessionMatch & bundleMatch, ]
+  
+  
+  ##
+  ## Get sample rate
+  ##
+  statement = DBI::dbSendStatement(
+    emuDBhandle$connection,
+    "SELECT sample_rate FROM bundle
+    WHERE
+    db_uuid = ? AND
+    session = ? AND
+    name = ?"
+  )
+  
+  DBI::dbBind(statement,
+              list(rep(emuDBhandle$UUID, nrow(bundles)),
+                   bundles$session,
+                   bundles$name))
+  sampleRate = DBI::dbFetch(statement)
+  DBI::dbClearResult(statement)
+
+  
+  ##
+  ## Get appropriate item ID
+  ##
+  statement = DBI::dbSendStatement(
+    emuDBhandle$connection,
+    "SELECT max(item_id) FROM items
+    WHERE
+    db_uuid = ? AND
+    session = ? AND
+    bundle = ?"
+  )
+  
+  DBI::dbBind(statement,
+              list(rep(emuDBhandle$UUID, nrow(bundles)),
+                   bundles$session,
+                   bundles$name))
+  itemID = DBI::dbFetch(statement)
+  DBI::dbClearResult(statement)
+  
+  itemID[is.na(itemID),1] = 0
+  itemID = itemID + 1
+  
+  
+  ##
+  ## Get appropriate sequence index
+  ##
+  statement = DBI::dbSendStatement(
+    emuDBhandle$connection,
+    "SELECT max(seq_idx) FROM items
+    WHERE
+    db_uuid = ? AND
+    session = ? AND
+    bundle = ? AND
+    level = ?"
+  )
+  
+  DBI::dbBind(statement,
+              list(rep(emuDBhandle$UUID, nrow(bundles)),
+                   bundles$session,
+                   bundles$name,
+                   rep(levelName, nrow(bundles))))
+  sequenceIndex = DBI::dbFetch(statement)
+  DBI::dbClearResult(statement)
+  
+  sequenceIndex[is.na(sequenceIndex),1] = 0
+  sequenceIndex = sequenceIndex + 1
+  
+  
+  ##
+  ## Insert items
+  ##
+  statement = DBI::dbSendStatement(
+    emuDBhandle$connection,
+    "INSERT INTO items
+    (db_uuid, session, bundle, item_id, level, type, seq_idx, sample_rate)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+  )
+
+  DBI::dbBind(
+    statement,
+    list(
+      rep(emuDBhandle$UUID, nrow(bundles)),
+      bundles$session,
+      bundles$name,
+      itemID[,1],
+      rep(levelName, nrow(bundles)),
+      rep("ITEM", nrow(bundles)),
+      sequenceIndex[,1],
+      sampleRate$sample_rate
+    )
+  )
+  ## @todo check success
+  DBI::dbClearResult(statement)
+  
+  
+  ##
+  ## Insert labels
+  ##
+ 
+  for (i in 1:length(labels)) {
+    attributeDefinition = emuR::list_attributeDefinitions(emuDBhandle,
+                                                          levelName)[i, "name"]
+ 
+    statement = DBI::dbSendStatement(
+      emuDBhandle$connection,
+      "INSERT INTO labels
+      (db_uuid, session, bundle, item_id, label_idx, name, label)
+      VALUES (?, ?, ?, ?, ?, ?, ?)"
+    )
+  
+    DBI::dbBind(
+      statement,
+      list(
+        rep(emuDBhandle$UUID, nrow(bundles)),
+        bundles$session,
+        bundles$name,
+        itemID[,1],
+        rep(i, nrow(bundles)),
+        rep(attributeDefinition, nrow(bundles)),
+        rep(labels[i], nrow(bundles))
+      )
+    )
+    
+    ## @todo check success
+    DBI::dbClearResult(statement)    
+  }
+  
+  rewrite_allAnnots(emuDBhandle, verbose)
+}
+
 # FOR DEVELOPMENT
 # library('testthat')
 # test_file('tests/testthat/test_emuR-autoproc_annots.R')
