@@ -87,16 +87,41 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*', seglist =
   
   
   httpRequest = function(req){
-    # Only 
-    # Rook conform answer  
-    body = paste('<p>http protocol not supported, please use ws protocol.</p>')
-    list(
-      status = 501L,
-      headers = list(
-        'Content-Type' = 'text/html'
-      ),
-      body = body
-    )
+    # process GET request by client 
+    # this is used if URL is used instead of BASE64 in encoding of media file in bundle
+    queryStr = shiny::parseQueryString(req$QUERY_STRING)
+    # SIC this should also have a third parameter "ext/extension"
+    if(!is.null(queryStr$session) && !is.null(queryStr$bundle)){
+      #print("processing GET request to media file...")
+      mediaFilePath = file.path(emuDBhandle$basePath, 
+                                paste0(queryStr$session, session.suffix), 
+                                paste0(queryStr$bundle, bundle.dir.suffix),
+                                paste0(queryStr$bundle, ".", DBconfig$mediafileExtension))
+      audioFile = file(mediaFilePath, "rb")
+      audioFileData=readBin(audioFile, raw(), n=file.info(mediaFilePath)$size)
+      close(audioFile)
+      # Only 
+      # Rook conform answer
+      res = list(
+        status = 200L, # 
+        headers = list(
+          'Content-Type' = 'audio/x-wav',
+          'Access-Control-Allow-Origin' = "*"
+        ),
+        body = audioFileData
+      )
+    }else{
+      body = paste('<p>http protocol not supported, please use ws protocol.</p>')
+      res = list(
+        status = 501L, 
+        headers = list(
+          'Content-Type' = 'text/html'
+        ),
+        body = body
+      )
+      
+    }
+    res
   }
   
   onHeaders<-function(req){
@@ -236,25 +261,29 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*', seglist =
           # error
           err=simpleError(paste('Could not load bundle ',bundleName,' of session ',bundleSess))
         }
-        if(is.null(err)){
-          mediaFilePath=normalizePath(file.path(emuDBhandle$basePath, paste0(bundleSess, session.suffix), 
-                                                paste0(bundleName, bundle.dir.suffix), 
-                                                paste0(bundleName, ".", DBconfig$mediafileExtension)))
-          if(debugLevel>4){
-            cat("Mediafile: ",mediaFilePath," for ",b$name,"\n")
-          }
-          audioFile=tryCatch(file(mediaFilePath, "rb"),error=function(e) err<<-e)
-          if(is.null(err)){
-            audioFileData=readBin(audioFile, raw(), n=file.info(mediaFilePath)$size)
-            if(inherits(audioFileData,'error')){
-              err=audioFileData
-            }else{
-              audioBase64=base64enc::base64encode(audioFileData)
-              mediaFile=list(encoding="BASE64",data=audioBase64)
-              close(audioFile)
-            }
-          }
-        }
+        # if(is.null(err)){
+        #   mediaFilePath=normalizePath(file.path(emuDBhandle$basePath, paste0(bundleSess, session.suffix), 
+        #                                         paste0(bundleName, bundle.dir.suffix), 
+        #                                         paste0(bundleName, ".", DBconfig$mediafileExtension)))
+        #   if(debugLevel>4){
+        #     cat("Mediafile: ",mediaFilePath," for ",b$name,"\n")
+        #   }
+        #   audioFile=tryCatch(file(mediaFilePath, "rb"),error=function(e) err<<-e)
+        #   if(is.null(err)){
+        #     audioFileData=readBin(audioFile, raw(), n=file.info(mediaFilePath)$size)
+        #     if(inherits(audioFileData,'error')){
+        #       err=audioFileData
+        #     }else{
+        #       audioBase64=base64enc::base64encode(audioFileData)
+        #       mediaFile=list(encoding="BASE64",data=audioBase64)
+        #       close(audioFile)
+        #     }
+        #   }
+        # }
+        mediaFile=list(encoding="GETURL", data=paste0("http://", 
+                                                      ws$request$HTTP_HOST, 
+                                                      "?session=", bundleSess,
+                                                      "&bundle=", bundleName))
         if(is.null(err)){   
           ssffTracksInUse=get_ssffTracksUsedByDBconfig(DBconfig)
           ssffTrackNmsInUse=c()
@@ -316,6 +345,7 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*', seglist =
         }
         responseBundleJSON=jsonlite::toJSON(responseBundle,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
         result=ws$send(responseBundleJSON)
+        
         if(is.null(err) & debugLevel >= 2){
           
           if(debugLevel >=8){
@@ -376,7 +406,7 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*', seglist =
             }
           }
           bundleData=jr[['data']][['annotation']]
-
+          
           # if we do not have an (error) response already
           if(is.null(err)){
             ##### emuDB ####

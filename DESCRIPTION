@@ -25,6 +25,7 @@ Imports:
     uuid,
     RCurl,
     base64enc,
+    shiny,
     wrassp (>= 0.1.4),
     jsonlite (>= 0.9.13),
     RSQLite (>= 1.0.0),

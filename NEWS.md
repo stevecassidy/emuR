@@ -1,9 +1,11 @@
-# emuR 0.2.3.9002
+# emuR 0.2.3.9003
 
 ## new features / performance tweaks / improvements
 
 * implemented new `persistentOutputType` parameter for `get_trackdata()` to always return a `trackdata` or `emuRtrackdata` object independent of what the `cut` and `npoints` arguments are set to
 * now removing `levelCanvasOrder` entry in `remove_levelDefinition()` (fixes \#156)
+* `serve()` method now uses GET to deliver media files to the EMU-webApp. This avoids the base64 conversion overhead and is a quite significant load time improvement
+* explicit error message in `convert_legacyEmuDB()` when invalid redundant links are found
 
 ## bug fixes
 
