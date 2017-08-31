@@ -402,6 +402,7 @@ build_hashedLinkDefs<-function(linkDefinitions){
 }
 
 remove_redundantBundleLinks<-function(linkDefsHashed,bundle){
+  
   lvls=bundle[['levels']]
   itemsHashed=list()
   for(lvl in lvls){
@@ -419,6 +420,17 @@ remove_redundantBundleLinks<-function(linkDefsHashed,bundle){
     
     subLvls=linkDefsHashed[[fromLvl]]
     for(subLvl in subLvls){
+      if(is.null(toLvl)){
+        txt = paste0("Found unvalid link in ",
+                     bundle[["name"]],
+                     ".hlb that points to an item that doesn't exist! ",
+                     "This means the annotation is corrupt and can not be parsed. ",
+                     "Check the link matrix at the bottom of the .hlb file that start with the identifier: ",
+                     legLk$fromID, "; for the invalid item identifier on the same line: ", legLk$toID, " ",
+                     " (TIP: manually deleting the invalid identifier might fix the problem)")
+        stop(txt)
+      }
+
       if(subLvl==toLvl){
         links[[length(links)+1]]=legLk
       }
@@ -644,6 +656,7 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=uuid::UUIDgenerate()
       newBundleId=convert_legacyBundleId(legacyBundleID)
       sessionName=newBundleId[1]
       bundleName=newBundleId[2]
+      
       sDir=paste0(sessionName,session.suffix)
       sfp=file.path(pp,sDir)
       if(!file.exists(sfp)){
