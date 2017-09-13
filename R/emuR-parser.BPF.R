@@ -869,7 +869,7 @@ check_bpfOverlap <- function(levels,
           levels[[key]][[idx]][["start"]] <= levels[[key]][[jdx]][["start"]] + levels[[key]][[jdx]][["duration"]]
         )
         {
-          stop("The following BPF contains overlapping segments on level '", key, "': ", bpfPath)
+          stop("The following BPF contains overlapping segments on level '", key, "'; ", idx, " : ", bpfPath)
         }
       }
     }
