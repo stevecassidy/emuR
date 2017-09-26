@@ -476,6 +476,86 @@ append_itemsToLevel = function(emuDBhandle,
   rewrite_allAnnots(emuDBhandle, verbose)
 }
 
+# ##' Add items to an empty level
+# ##'
+# ##'
+# ##' Although an object of class emuRsegs may be passed into this function
+# ##' it is not obligatory. The requiered column names of the data.frame
+# ##' object passed into this function are
+# ##' @param emuDBhandle emuDB handle object (see \link{load_emuDB})
+# ##' @param levelName Name of the level to which to add the items
+# ##' @param seglist Segmentlist containing information about the items that are
+# ##' to be added to the specified level. 
+# ##' @param verbose Show progress bars and further information
+# ##' @export
+# ##' @seealso \code{\link{change_labels}}
+# ##' @keywords emuDB
+# ##' @examples
+# ##' \dontrun{
+# ##' TO DO - Add example
+# ##' }
+# add_itemsToEmptyLevel <- function(emuDBhandle, levelName, seglist, verbose = TRUE){
+#   
+#   levelDef = get_levelDefinition(emuDBhandle, levelName)
+#   
+#   if(is.null(levelDef)){
+#     stop("Specified level does not exist!")
+#   }
+#   
+#   # check input parameters
+#   if(levelDef$type == "SEGMENT"){
+#     # if(is.null(sampleStart) || is.null(sampleEnd)){
+#     #   stop("Specified level is of type SEGMENT! Both sampleStart and sampleEnd have to be set!")
+#     # }
+#     # if(length(labels) != length(sampleStart) || length(labels) != length(sampleEnd)){
+#     #   stop("labels, sampleStart and sampleEnd have to be of the same length!")
+#     # }
+#   }else if(levelDef$type == "EVENT"){
+#     # if(is.null(sampleStart)){
+#     #   stop("Specified level is of type EVENT! sampleStart has to be set!")
+#     # }
+#     # if(length(labels) != length(sampleStart)){
+#     #   stop("labels and sampleStart have to be of the same length!")
+#     # }
+#   }else{
+#     stop("ITEM levels not supported yet!")
+#   }
+#   
+#   # check that level is empty
+#   res = DBI::dbGetQuery(emuDBhandle$connection, statement = paste0("SELECT * FROM items WHERE level='", levelName, "'"))
+#   if(nrow(res) != 0){
+#     stop("Specified level is not empty!")
+#   }
+#   
+#   # use dplyr to sort seglist (in case these go mixed up somehow)
+#   sortedSl = seglist %>% dplyr::arrange(session, bundle, sample_start)
+#   
+#   
+#   if(levelDef$type == "SEGMENT"){
+#   }else if(levelDef$type == "EVENT"){
+#     
+#     sortedSl %>%
+#       dplyr::group_by(session, bundle) %>% 
+#       dplyr::mutate(seq_idx = row_number())
+#     
+#     # create items df
+#     itemsDf = data.frame(db_uuid = emuDBhandle$UUID, 
+#                          session = sortedSl$session, 
+#                          bundle = sortedSl$bundle, 
+#                          item_id = sortedSl$start_item_id, # SIC!!! 
+#                          level = rep(levelName, length), 
+#                          type = ,
+#                          seq_idx = ,
+#                          sample_rate = ,
+#                          sample_point = ,
+#                          sample_start = ,
+#                          sample_dur = )
+#     
+#   }else{
+#     stop("ITEM levels not supported yet!")
+#   }
+# }
+
 # FOR DEVELOPMENT
 # library('testthat')
 # test_file('tests/testthat/test_emuR-autoproc_annots.R')

@@ -276,7 +276,7 @@ load_annotationForLegacyBundle=function(schema,legacyBundleID,basePath=NULL,enco
   }else{
     # TODO ASSP does not return good error messages if an IO error (not exist, permission denied ,etc...) occurs
     # TODO test file access first
-    pfAssp=read.AsspDataObj(sampleRateReferenceFile,0,4000)
+    pfAssp=wrassp::read.AsspDataObj(sampleRateReferenceFile,0,4000)
     sampleRate=attr(pfAssp,'sampleRate')
   }
   
@@ -715,11 +715,25 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=uuid::UUIDgenerate()
           }else if(mergedOptions[['rewriteSSFFTracks']] && isSSFFFile){
             # is SSFF track
             # read/write instead of copy to get rid of big endian encoded SSFF files (SPARC)
-            pfAssp=read.AsspDataObj(sf)
+            pfAssp=wrassp::read.AsspDataObj(sf)
             write.AsspDataObj(pfAssp,nsfp)
           }else{
             # media file (likely a wav file)
-            file.copy(from=sf,to=nsfp)
+            if(dbConfigPersist$mediafileExtension == 'ssd'){
+              # convert ssd to wav
+              ado = read.AsspDataObj(sf)
+              AsspFileFormat(ado) = 'WAVE'
+              wavfp = paste0(tools::file_path_sans_ext(nsfp), '.wav')
+              write.AsspDataObj(wavfp, dobj = ado)
+              # fix and rewrite 
+              bp_fixed = deduct_timeFromJson(bp, round(attr(ado,'startTime') * attr(ado,"sampleRate")))
+              pbpJSON_fixed=jsonlite::toJSON(bp_fixed,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+              writeLines(pbpJSON_fixed, baJSONPath, useBytes = TRUE)
+              # also copy ssd file
+              file.copy(from=sf,to=nsfp)
+            }else{
+              file.copy(from=sf,to=nsfp)
+            }
           }
         }else{
           if(!mergedOptions[['ignoreMissingSSFFTrackFiles']]){
@@ -743,4 +757,30 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=uuid::UUIDgenerate()
       cat("\n")
     }
   }
+  # fix DBconfig
+  if(dbConfigPersist$mediafileExtension == 'ssd'){
+    dbConfigPersist$mediafileExtension = 'wav'
+    store_DBconfig(dbHandle, dbConfigPersist)
+  }
+  
+}
+
+
+deduct_timeFromJson <- function(json, sample){
+  for(l_idx in 1:length(json$levels)){
+    if(json$levels[[l_idx]]$type != 'ITEM'){
+      for(i_idx in 1:length(json$levels[[l_idx]]$items)){
+        if(json$levels[[l_idx]]$type == 'SEGMENT'){
+          newVal = json$levels[[l_idx]]$items[[i_idx]]$sampleStart - sample
+          if(newVal < 0) stop("Error normalizing startTime vals! Negative samples not allowed in annot.json files!")
+          json$levels[[l_idx]]$items[[i_idx]]$sampleStart = newVal
+        }else{
+          newVal = json$levels[[l_idx]]$items[[i_idx]]$samplePoint - sample
+          if(newVal < 0) stop("Error normalizing startTime vals! Negative samples not allowed in annot.json files!")
+          json$levels[[l_idx]]$items[[i_idx]]$samplePoint = newVal
+        }
+      }
+    }
+  }
+  return(json)
 }
