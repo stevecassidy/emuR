@@ -29,6 +29,22 @@ drop_requeryTmpTables <- function(emuDBhandle){
   }
 }
 
+check_emuRsegsForRequery <- function(sl){
+  
+  if(length(unique(sl$level)) != 1){
+    warning("emuRsegs contains segments/annotation items of multiple levels!")
+  }
+  
+  sl_df = as.data.frame(sl)
+  
+  sl_df_sorted = dplyr::arrange_(sl_df, "session", "bundle", "sample_start")
+  comp_res = compare::compare(sl_df, sl_df_sorted, allowAll = F)
+  if(!comp_res$result){
+    warning("emuRsegs is not ordered correctly (by session; bundle; sample_start)! Hence, the ordering of the resulting emuRsegs object of the requery will NOT be the same! Use sort(emuRsegs) to sort the emuRsegs object correctly!")
+  }
+
+}
+
 
 ##' Requery sequential context of segment list in an emuDB
 ##' @description Function to requery sequential context of a segment list queried from an emuDB
@@ -110,6 +126,8 @@ requery_seq<-function(emuDBhandle, seglist, offset = 0, offsetRef = 'START',
     # empty seglist, return the empty list
     return(seglist)
   }else{
+    check_emuRsegsForRequery(seglist)
+    
     # drop create tmp tables and recreate (will ensure they are empty)
     drop_requeryTmpTables(emuDBhandle)
     create_requeryTmpTables(emuDBhandle)
@@ -223,10 +241,15 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE,
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType will be used)")
   }
+  
+
   if(nrow(seglist)==0){
     # empty seglist, return the empty list
     return(seglist)
   }else{
+    
+    check_emuRsegsForRequery(seglist)
+    
     # drop create tmp tables and recreate (will ensure they are empty)
     drop_allTmpTablesDBI(emuDBhandle)
     create_requeryTmpTables(emuDBhandle)
@@ -348,4 +371,10 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE,
     return(trSl)
   }
 }
+
+#######################
+# FOR DEVELOPMENT
+# library('testthat')
+# test_file('tests/testthat/test_emuR-requery.database.R')
+
 

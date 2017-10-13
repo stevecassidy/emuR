@@ -133,6 +133,28 @@ test_that("requeries work on ae",{
     expect_equal(sl1$end_item_seq_idx, slRq$end_item_seq_idx)
     
   })
+
+  test_that("hierarchical throws warning if badly ordered/multiple levels",{
+    # warning from various levels
+    sl1 = query(ae, "Phonetic == n")
+    sl2 = query(ae, "Syllable == S")
+    
+    sl = rbind(sl1, sl2)
+    
+    expect_warning(check_emuRsegsForRequery(sl))
+    
+    
+    sl1 = query(ae, "Phonetic == n")
+    sl2 = query(ae, "Phonetic == @")
+    
+    sl = rbind(sl1, sl2)
+
+    expect_warning(check_emuRsegsForRequery(sl))
+    
+    sl = sort(sl)
+    check_emuRsegsForRequery(sl)
+    
+  })
   
     
   # clean up (also disconnects)

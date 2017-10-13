@@ -2,7 +2,7 @@
 % Please edit documentation in R/emuR-emuRsegs.R
 \name{print.emuRsegs}
 \alias{print.emuRsegs}
-\title{Print emuDB segment list}
+\title{Print emuRsegs segment list}
 \usage{
 \method{print}{emuRsegs}(x, ...)
 }
@@ -12,5 +12,5 @@
 \item{...}{additional params}
 }
 \description{
-Print emuDB segment list
+Print emuRsegs segment list
 }
