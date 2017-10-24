@@ -48,6 +48,8 @@ make.emuRsegs <- function(dbName,seglist,query,type)
   printX='[.data.frame'(x,c('labels','start','end','session','bundle','level','type'))
   
   print.data.frame(printX, ...)
+  
+  cat("\nNOTE: to reduce the verboseness of the output not all colums of an emuRsegs object are printed. Use print.data.frame() to print all columns.\n")
 }
 
 ##' Sort emuRsegs segment list by session, bundle and sample_start 

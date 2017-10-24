@@ -2,11 +2,11 @@
 ##' 
 ##' Joins \code{\link{emuRsegs}} and \code{\link{trackdata}} objects
 ##' to create an \code{\link{emuRtrackdata}} object that is a sub-class of
-##' a \code{data.table} (and \code{\link{data.frame}}) object. This object 
+##' a \code{\link{data.frame}} object. This object 
 ##' can be viewed as a flat version of a \code{\link{trackdata}} object that also 
 ##' contains all the information of a \code{\link{emuRsegs}} object. It is meant to
 ##' ease integration with other packages as it is based on the well known 
-##' \code{data.table} and \code{\link{data.frame}} objects.
+##' \code{\link{data.frame}} object.
 ##' @param sl seglist of class \code{\link{emuRsegs}}
 ##' @param td \code{\link{trackdata}} object generated from sl
 ##' @return emuRtrackdata object
@@ -55,38 +55,80 @@ create_emuRtrackdata <- function(sl, td){
   start.time = rep(start(td), nframes)
   n.time = times - start.time
   rownames(td$data) = NULL
-  res = data.table::data.table(sl_rowIdx = inds, expSl, times_rel = n.time, times_orig = times, td$data)
+  resTmp = data.frame(sl_rowIdx = inds, expSl, times_orig = times, times_rel = n.time)
+  # calculate normalized time (between 0-1)
+  resTmp = resTmp %>% dplyr::group_by_("sl_rowIdx") %>% dplyr::mutate_( times_norm = ~(times_rel / max(times_rel)))
+  # add data
+  res = data.frame(resTmp, td$data)
+  
   class(res) <- c("emuRtrackdata", class(res))
   return(res)
 }
 
+##' Normalize length of object
+##'
+##' @param x object to normalize length for
+##' @param ... further arguments to be passed to the next method.
+##' @return object of same class as x which lenght has been normalized
+##' @export normalize_length
+"normalize_length" <- function(x, ...) {
+  UseMethod("normalize_length")
+}
 
-# ##' Function to extract an emuRtrackdata at a single time point of to create another EMU-trackdata object between two times
-# ##' 
-# ##' this function is intended to mimic some of the dcut behaviour
-# ##' 
-# ##' @param emuRtrackdata emuRtrackdata object
-# ##' @param leftTime bla
-# ##' @param rightTime bli
-# ##' @param single blup
-# ##' @param average blap
-# ##' @param prop woooord
-# cut.emuRtrackdata = function(emuRtrackdata, leftTime, rightTime, 
-#                              single = TRUE, average = TRUE, prop = FALSE){
-#   
-#   if (missing(rightTime)) {
-#     if(length(leftTime == 1)){
-#       res = emuRtrackdata %>% 
-#         dplyr::group_by("sl_rowIdx") %>% 
-#         dplyr::mutate(times_propDiff = 1 + ("times_orig" - min("times_orig")) / (max("times_orig") - min("times_orig")) - leftTime) %>%
-#         dplyr::filter(times_propDiff == min("times_propDiff")) %>%
-#         dplyr::select(-times_propDiff)
-#     }else{
-#       
-#     }
-#   }
-#   # return(as.data.table(res))
-# }
+
+##' Normalize length of segments contained in an emuRtrackdata object
+##'
+##' @param x object of class \code{\link{emuRtrackdata}}
+##' @param N specify length of normalized segments (each segment in resulting
+##' object will consist of \code{N} rows).
+##' @param ... further arguments (none used by this method)
+##' @return emuRtrackdata
+##' @seealso \code{\link{emuRtrackdata} \link{emuRsegs}}
+##' @export
+"normalize_length.emuRtrackdata" <-function(x, N = 21, ...){
+  eRtd.norm=NULL
+  for (i in unique(x$sl_rowIdx)){
+    eRtd = x[x$sl_rowIdx == i,]
+    xynew = approx(eRtd$times_norm, eRtd$T1, n = N)
+    # create data.frame of correct length (all relevant entries are replaced)
+    eRtd.normtemp = eRtd[1:N,]
+    # fill with values of first row (only rel. for redundant columns such as sl_rowIdx, labels)
+    eRtd.normtemp[1:N,] = eRtd.normtemp[1,] 
+    eRtd.normtemp$times_norm = xynew$x
+    num = grep("T",colnames(eRtd))
+    numlength = length(num)
+    for (y in 1:numlength){
+      # interpolate T1, T2, ...
+      eRtd.normtemp[,num[y]] = approx(eRtd$times_norm,eRtd[,num[y]], n = N)$y
+    }
+    # recalculate times_orig & rimes_rel 
+    eRtd.normtemp$times_orig = seq(unique(eRtd.normtemp$start), unique(eRtd.normtemp$end),length.out = N)
+    eRtd.normtemp$times_rel = seq(0,unique(eRtd.normtemp$end) - unique(eRtd.normtemp$start), length.out = N)
+    # TODO to avoid rbind performance problems: preallocate data.frame of 
+    # length: N * length(eRtd.norm) and place values directly into it
+    eRtd.norm = rbind(eRtd.norm, eRtd.normtemp)
+
+  }
+  class(eRtd.norm) <- c("emuRtrackdata", class(eRtd.norm))
+  # fix rownames
+  row.names(eRtd.norm) = seq(1, nrow(eRtd.norm))
+    
+  return(eRtd.norm)
+}
+
+
+##' Print emuRtrackdata object
+##' @param x object to print
+##' @param ... additional params
+##' @export
+"print.emuRtrackdata" <-  function(x, ...) 
+{
+  trackNames = names(x)[stringr::str_detect(names(x), 'T.*')]
+  printX = '[.data.frame'(x,c('sl_rowIdx', 'labels', 'start', 'end', 'session', 'level', 'type', 'times_orig', 'times_rel', 'times_norm', trackNames))
+  print.data.frame(printX, ...)
+  cat("\nNOTE: to reduce the verboseness of the output not all colums of an emuRtrackdata object are printed. Use print.data.frame() to print all columns.\n")
+}
+
 
 
 #######################

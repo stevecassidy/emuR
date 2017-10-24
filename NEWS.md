@@ -1,4 +1,4 @@
-# emuR 0.2.3.9006
+# emuR 0.2.3.9007
 
 ## new features / performance tweaks / improvements
 
@@ -10,6 +10,11 @@
 * `convert_legacyEmuDB()` automatically converts of `.ssd` media files to `.wav` and normalizes the annotations to start at 0 (only if attr(ssd,'startTime') is not 0).
 * added `sort()` S3 method for `emuRsegs` objects
 * checking for badly sorted `emuRsegs` in `requery_hier()` and `requery_seq()` functions
+* `create_emuRtrackdata()` returns a simple `data.frame` object not a `data.table` object
+* `emuRtrackdata` object now contains a `times_norm` (normalized time values between 0 and 1 for each segment) column by default
+* added note to `print.emuRsegs()` to give the user a hint about missing columns
+* implemented `print.emuRtrackdata()` to avoid overly verbose output
+* implemented `normalize_length()` function as S3 function to normalize the lenght of each segment in an `emuRtrackdata` object
 
 ## bug fixes
 
