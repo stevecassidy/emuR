@@ -252,9 +252,11 @@ list_files <- function(emuDBhandle,
   for(i in 1:nrow(bndls)){
     
     fps = list.files(file.path(emuDBhandle$basePath, paste0(bndls[i,]$session, "_ses"), paste0(bndls[i,]$name, "_bndl")), pattern = fileExtension)
+    absFps = list.files(file.path(emuDBhandle$basePath, paste0(bndls[i,]$session, "_ses"), paste0(bndls[i,]$name, "_bndl")), pattern = fileExtension, full.names = T)
     df = rbind(df, data.frame(session = rep(bndls[i,]$session, length(fps)), 
                               bundle = rep(bndls[i,]$name, length(fps)), 
                               file = fps,
+                              absolute_file_path = absFps,
                               stringsAsFactors = F))  
   }
   

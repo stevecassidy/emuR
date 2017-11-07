@@ -1,4 +1,4 @@
-# emuR 0.2.3.9007
+# emuR 0.2.3.9008
 
 ## new features / performance tweaks / improvements
 
@@ -15,6 +15,7 @@
 * added note to `print.emuRsegs()` to give the user a hint about missing columns
 * implemented `print.emuRtrackdata()` to avoid overly verbose output
 * implemented `normalize_length()` function as S3 function to normalize the lenght of each segment in an `emuRtrackdata` object
+* added `absolute_file_path` column to output of `list_files()`
 
 ## bug fixes
 

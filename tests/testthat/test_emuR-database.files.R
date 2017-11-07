@@ -55,7 +55,7 @@ test_that("file operations work", {
     
     test_that("list = C(R)UD", {
       df = list_files(ae)
-      expect_equal(dim(df),c(55, 3))
+      expect_equal(dim(df),c(55, 4))
     })
     
     
