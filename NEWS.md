@@ -1,4 +1,4 @@
-# emuR 0.2.3.9009
+# emuR 0.2.3.9010
 
 ## new features / performance tweaks / improvements
 
@@ -17,6 +17,7 @@
 * implemented `normalize_length()` function as S3 function to normalize the lenght of each segment in an `emuRtrackdata` object
 * added `absolute_file_path` column to output of `list_files()`
 * query engine does not rely on label index in label array any more (updated `convert_queryResultToEmuRsegs()` to use `resultAttrDef` instead of `labelIdx`). Closes \#164.
+* added `browser` argument to `serve()` function which is passed on to `utils::browseURL()` function
 
 ## bug fixes
 

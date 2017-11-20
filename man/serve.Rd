@@ -7,7 +7,7 @@
 serve(emuDBhandle, sessionPattern = ".*", bundlePattern = ".*",
   seglist = NULL, host = "127.0.0.1", port = 17890,
   autoOpenURL = "http://ips-lmu.github.io/EMU-webApp/?autoConnect=true",
-  debug = FALSE, debugLevel = 0)
+  browser = getOption("browser"), debug = FALSE, debugLevel = 0)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
@@ -24,6 +24,9 @@ serve(emuDBhandle, sessionPattern = ".*", bundlePattern = ".*",
 
 \item{autoOpenURL}{URL passed to \code{\link{browseURL}} function. If NULL or an empty string are passed in
 \code{\link{browseURL}} will not be invoked.}
+
+\item{browser}{argument passed on to \code{browser} argument of \code{\link{browseURL}} (see 
+it's documentation for details )}
 
 \item{debug}{TRUE to enable debugging (default: no debugging messages)}
 
