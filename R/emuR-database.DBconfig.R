@@ -1344,11 +1344,11 @@ add_ssffTrackDefinition <- function(emuDBhandle, name,
     stop("ssffTrackDefinitions with name ", name ," already exists for emuDB: ", emuDBhandle$dbName, "!")
   }
   
+  ans = 'y'
   # calculate new files
   if(!is.null(onTheFlyFunctionName)){
     # check if files exist
     filesDf = list_files(emuDBhandle, fileExtension)
-    ans = 'y'
     if(nrow(filesDf) != 0){
       fp = paste(emuDBhandle$basePath, paste0(filesDf$session, session.suffix), paste0(filesDf$bundle, bundle.dir.suffix), filesDf$file, sep = .Platform$file.sep)
       if(interactive){
@@ -1380,12 +1380,14 @@ add_ssffTrackDefinition <- function(emuDBhandle, name,
     }
   }
   
-  # add new ssffTrackDefinition
-  dbConfig$ssffTrackDefinitions[[length(dbConfig$ssffTrackDefinitions) + 1]] = list(name = name, 
+  if(ans == 'y'){
+    # add new ssffTrackDefinition
+    dbConfig$ssffTrackDefinitions[[length(dbConfig$ssffTrackDefinitions) + 1]] = list(name = name, 
                                                                                     columnName = columnName,
                                                                                     fileExtension = fileExtension)
-  # store changes
-  store_DBconfig(emuDBhandle, dbConfig)
+    # store changes
+    store_DBconfig(emuDBhandle, dbConfig)
+  }
 }
 
 ##' @rdname AddListRemoveSsffTrackDefinition
