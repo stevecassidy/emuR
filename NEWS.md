@@ -1,4 +1,4 @@
-# emuR 0.2.3.9010
+# emuR 0.2.3.9011
 
 ## new features / performance tweaks / improvements
 
@@ -23,7 +23,8 @@
 
 * fixed problem of updating cache. Didn't handle data.frame object that was thought to be a vector correctly!
 * fixed a bug in the BPF export function, which meant that WAVE files were only copied into one session
-
+* added missing `$` in pattern arguments in `list.files` call in `list_files` (fixes \#170)
+ 
 # emuR 0.2.3
 
 ## new features / performance tweaks / improvements
