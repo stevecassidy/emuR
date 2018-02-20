@@ -134,14 +134,14 @@ requery_seq<-function(emuDBhandle, seglist, offset = 0, offsetRef = 'START',
     # place in emuRsegsTmp table
     DBI::dbExecute(emuDBhandle$connection, "DELETE FROM emursegs_tmp;") # delete 
     
-    DBI::dbWriteTable(emuDBhandle$connection, "emursegs_tmp", as.data.frame(seglist), append=T, row.names = F) # append to make sure field names done't get overwritten
+    DBI::dbWriteTable(emuDBhandle$connection, "emursegs_tmp", as.data.frame(seglist), append=T, row.names = F) # append to make sure field names don't get overwritten
     
     # load config
     dbConfig=load_DBconfig(emuDBhandle)
     
     # query for sequential requeries
-    heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle,il.item_id AS seq_start_id, ir.item_id AS seq_end_id,",length," AS seq_len, sl.level, sl.start_item_seq_idx AS seq_start_seq_idx, sl.end_item_seq_idx AS seq_end_seq_idx ",
-                      "FROM emursegs_tmp sl,items sll, items slr,items il, items ir ",
+    heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle, il.item_id AS seq_start_id, ir.item_id AS seq_end_id,",length," AS seq_len, sl.level, il.seq_idx AS seq_start_seq_idx, ir.seq_idx AS seq_end_seq_idx ",
+                      "FROM emursegs_tmp sl, items sll, items slr, items il, items ir ",
                       "WHERE il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle AND ",
                       "il.db_uuid=sl.db_uuid AND il.session=sl.session AND il.bundle=sl.bundle AND ",
                       "sll.db_uuid=sl.db_uuid AND sll.session=sl.session AND sll.bundle=sl.bundle AND sl.start_item_id=sll.item_id AND ",
