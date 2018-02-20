@@ -1,4 +1,4 @@
-# emuR 0.2.3.9012
+# emuR 0.2.3.9013
 
 ## new features / performance tweaks / improvements
 
@@ -25,6 +25,7 @@
 * fixed a bug in the BPF export function, which meant that WAVE files were only copied into one session
 * added missing `$` in pattern arguments in `list.files` call in `list_files` (fixes \#170)
 * not adding ssffTrackDefinition to DBconfig if user input is no (closes \#171)
+* fixed bad `seq_start_seq_idx` and `seq__seq_idx` returned by `requery_seq()` (fixes \#183) 
 
 # emuR 0.2.3
 
