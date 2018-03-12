@@ -7,7 +7,7 @@
 * `serve()` method now uses GET to deliver media files to the EMU-webApp. This avoids the base64 conversion overhead and is a quite significant load time improvement
 * explicit error message in `convert_legacyEmuDB()` when invalid redundant links are found
 * better error message in BPF parser
-* `convert_legacyEmuDB()` automatically converts of `.ssd` media files to `.wav` and normalizes the annotations to start at 0 (only if attr(ssd,'startTime') is not 0).
+* `convert_legacyEmuDB()` automatically converts `.ssd` media files to `.wav` and normalizes the annotations to start at 0 (only if attr(ssd,'startTime') is not 0).
 * added `sort()` S3 method for `emuRsegs` objects
 * checking for badly sorted `emuRsegs` in `requery_hier()` and `requery_seq()` functions
 * `create_emuRtrackdata()` returns a simple `data.frame` object not a `data.table` object
@@ -21,7 +21,7 @@
 
 ## bug fixes
 
-* fixed problem of updating cache. Didn't handle data.frame object that was thought to be a vector correctly!
+* fixed problem of updating cache. Didn't handle `data.frame` object that was thought to be a vector correctly!
 * fixed a bug in the BPF export function, which meant that WAVE files were only copied into one session
 * added missing `$` in pattern arguments in `list.files` call in `list_files` (fixes \#170)
 * not adding ssffTrackDefinition to DBconfig if user input is no (closes \#171)
