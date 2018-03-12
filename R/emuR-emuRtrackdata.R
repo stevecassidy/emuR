@@ -126,7 +126,7 @@ create_emuRtrackdata <- function(sl, td){
   trackNames = names(x)[stringr::str_detect(names(x), 'T.*')]
   printX = '[.data.frame'(x,c('sl_rowIdx', 'labels', 'start', 'end', 'session', 'bundle', 'level', 'type', 'times_orig', 'times_rel', 'times_norm', trackNames))
   print.data.frame(printX, ...)
-  cat("\nNOTE: to reduce the verboseness of the output not all colums of an emuRtrackdata object are printed. Use print.data.frame() to print all columns.\n")
+  #cat("\nNOTE: to reduce the verboseness of the output not all colums of an emuRtrackdata object are printed. Use print.data.frame() to print all columns.\n")
 }
 
 
