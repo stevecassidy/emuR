@@ -38,6 +38,7 @@ test_that("Load example database ae",{
     expect_that('[.data.frame'(sl1,1,'utts'),is_identical_to(I('0000:msajc057')))
   })
   
+  
   test_that("Query level label groups",{
 
     sl1=query(ae,"Phoneme=nasal",resultType='emusegs')
@@ -71,6 +72,10 @@ test_that("Load example database ae",{
     expect_that(nrow(sl1),equals(1))
     expect_that('[.data.frame'(sl1,1,'labels'),is_identical_to(I('tS->I->l')))
     expect_that('[.data.frame'(sl1,1,'utts'),is_identical_to(I('0000:msajc012')))
+    
+    sl2 = query(ae, "[Phoneme=n -> Phoneme=t]")
+    expect_that(sl2$end_item_seq_idx[1], equals(sl2$start_item_seq_idx[1] + 1))
+    
   })
   
   test_that("Query combined sequence dominance",{
