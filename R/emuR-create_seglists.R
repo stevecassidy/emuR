@@ -141,12 +141,12 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
       create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = timeItemsTableSuffix)
       
       DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_", timeItemsTableSuffix, " ",
-                                                     "SELECT db_uuid, session, bundle, item_id AS seq_start_id, item_id AS seq_end_id, 1 AS seq_len, level, seq_idx AS start_seq_idx, seq_idx AS end_seq_idx  FROM ", itemsTableName, " ",
-                                                     "WHERE db_uuid ='", emuDBhandle$UUID, "' AND level = '", lnwt, "' ",
-                                                     "AND session IN (SELECT session FROM interm_res_items_tmp_root) ",
-                                                     "AND bundle IN (SELECT bundle FROM interm_res_items_tmp_root) ",
-                                                     ""))
-      
+                                                    "SELECT db_uuid, session, bundle, item_id AS seq_start_id, item_id AS seq_end_id, 1 AS seq_len, level, seq_idx AS start_seq_idx, seq_idx AS end_seq_idx  ",
+                                                    "FROM ", itemsTableName, " ",
+                                                    "WHERE db_uuid ='", emuDBhandle$UUID, "' AND level = '", lnwt, "' ",
+                                                    "AND session IN (SELECT session FROM interm_res_items_tmp_root) ",
+                                                    "AND bundle IN (SELECT bundle FROM interm_res_items_tmp_root) ",
+                                                    ""))
       
       query_databaseHier(emuDBhandle, firstLevelName = lnwt, secondLevelName = attrDefLn, leftTableSuffix = timeItemsTableSuffix, rightTableSuffix = "root", filteredTablesSuffix, minMaxSeqIdxLeafOnly = F, verbose = verbose) # result written to lr_exp_res_tmp table
       
