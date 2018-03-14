@@ -1,4 +1,4 @@
-# emuR 0.2.3.9013
+# emuR 0.2.3.9014
 
 ## new features / performance tweaks / improvements
 
@@ -18,6 +18,8 @@
 * added `absolute_file_path` column to output of `list_files()`
 * query engine does not rely on label index in label array any more (updated `convert_queryResultToEmuRsegs()` to use `resultAttrDef` instead of `labelIdx`). Closes \#164.
 * added `browser` argument to `serve()` function which is passed on to `utils::browseURL()` function
+* `requery_seq()` now uses `start_item_seq_idx` and `end_item_seq_idx` of seglist instead of `start_item_id` and `start_item_id` to simplify function
+
 
 ## bug fixes
 
@@ -25,7 +27,9 @@
 * fixed a bug in the BPF export function, which meant that WAVE files were only copied into one session
 * added missing `$` in pattern arguments in `list.files` call in `list_files` (fixes \#170)
 * not adding ssffTrackDefinition to DBconfig if user input is no (closes \#171)
-* fixed bad `seq_start_seq_idx` and `seq__seq_idx` returned by `requery_seq()` (fixes \#183) 
+* fixed bad `seq_start_seq_idx` and `seq_seq_idx` returned by `requery_seq()` (fixes \#183) 
+* fixed bad `seq_start_seq_idx` returned by internal `query_databaseHier()` function
+
 
 # emuR 0.2.3
 

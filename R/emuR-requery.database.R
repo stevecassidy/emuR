@@ -140,22 +140,40 @@ requery_seq<-function(emuDBhandle, seglist, offset = 0, offsetRef = 'START',
     dbConfig=load_DBconfig(emuDBhandle)
     
     # query for sequential requeries
-    heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle, il.item_id AS seq_start_id, ir.item_id AS seq_end_id,",length," AS seq_len, sl.level, il.seq_idx AS seq_start_seq_idx, ir.seq_idx AS seq_end_seq_idx ",
-                      "FROM emursegs_tmp sl, items sll, items slr, items il, items ir ",
-                      "WHERE il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle AND ",
-                      "il.db_uuid=sl.db_uuid AND il.session=sl.session AND il.bundle=sl.bundle AND ",
-                      "sll.db_uuid=sl.db_uuid AND sll.session=sl.session AND sll.bundle=sl.bundle AND sl.start_item_id=sll.item_id AND ",
-                      "slr.db_uuid=sl.db_uuid AND slr.session=sl.session AND slr.bundle=sl.bundle AND sl.end_item_id=slr.item_id AND ")
+    # heQueryStr=paste0("SELECT il.db_uuid,il.session,il.bundle, il.item_id AS seq_start_id, ir.item_id AS seq_end_id,",length," AS seq_len, sl.level, il.seq_idx AS seq_start_seq_idx, ir.seq_idx AS seq_end_seq_idx ",
+    #                   "FROM emursegs_tmp sl, items sll, items slr, items il, items ir ",
+    #                   "WHERE il.db_uuid=ir.db_uuid AND il.session=ir.session AND il.bundle=ir.bundle AND ",
+    #                   "il.db_uuid=sl.db_uuid AND il.session=sl.session AND il.bundle=sl.bundle AND ",
+    #                   "sll.db_uuid=sl.db_uuid AND sll.session=sl.session AND sll.bundle=sl.bundle AND sl.start_item_id=sll.item_id AND ",
+    #                   "slr.db_uuid=sl.db_uuid AND slr.session=sl.session AND slr.bundle=sl.bundle AND sl.end_item_id=slr.item_id AND ")
+    
+    if(FALSE){ # here the boolean input parameter should be 
+      join_type = "LEFT JOIN"
+    }else{
+      join_type = "JOIN"
+    }
+    
     if(offsetRef=='START'){
-      heQueryStr=paste0(heQueryStr,"il.level=sll.level AND il.seq_idx=sll.seq_idx+",offset," AND ",
-                        "ir.level=sll.level AND ir.seq_idx=sll.seq_idx+",offset+length-1)
+      heQueryStr=paste0("SELECT sl.db_uuid, sl.session, sl.bundle, items_start.item_id AS seq_start_id, items_end.item_id AS seq_end_id, ", length, " AS seq_len, sl.level, items_start.seq_idx AS seq_start_seq_idx, items_end.seq_idx AS seq_end_seq_idx ",
+                        "FROM emursegs_tmp sl ",
+                        join_type, " items items_start ON sl.db_uuid = items_start.db_uuid AND sl.session = items_start.session AND sl.bundle = items_start.bundle AND sl.level = items_start.level AND sl.start_item_seq_idx + ", offset, " = items_start.seq_idx ",
+                        join_type, " items items_end ON sl.db_uuid = items_end.db_uuid AND sl.session = items_end.session AND sl.bundle = items_end.bundle  AND sl.level = items_end.level AND sl.start_item_seq_idx + ", offset + length - 1, " = items_end.seq_idx ",
+                        "")
+      
+      #heQueryStr=paste0(heQueryStr,"il.level = sll.level AND il.seq_idx = sll.seq_idx + ", offset, " AND ",
+      #                  "ir.level=sll.level AND ir.seq_idx=sll.seq_idx+",offset+length-1)
     }else if(offsetRef=='END'){
-      heQueryStr=paste0(heQueryStr,"il.level=slr.level AND il.seq_idx=slr.seq_idx+",offset," AND ",
-                        "ir.level=slr.level AND ir.seq_idx=slr.seq_idx+",offset+length-1)
+      heQueryStr=paste0("SELECT sl.db_uuid, sl.session, sl.bundle, items_start.item_id AS seq_start_id, items_end.item_id AS seq_end_id, ", length, " AS seq_len, sl.level, items_start.seq_idx AS seq_start_seq_idx, items_end.seq_idx AS seq_end_seq_idx ",
+                        "FROM emursegs_tmp sl ",
+                        join_type, " items items_start ON sl.db_uuid = items_start.db_uuid AND sl.session = items_start.session AND sl.bundle = items_start.bundle AND sl.level = items_start.level AND sl.end_item_seq_idx + ", offset, " = items_start.seq_idx ",
+                        join_type, " items items_end ON sl.db_uuid = items_end.db_uuid AND sl.session = items_end.session AND sl.bundle = items_end.bundle  AND sl.level = items_end.level AND sl.end_item_seq_idx + ", offset + length - 1, " = items_end.seq_idx ",
+                        "")
+      #heQueryStr=paste0(heQueryStr,"il.level=slr.level AND il.seq_idx=slr.seq_idx+",offset," AND ",
+      #                  "ir.level=slr.level AND ir.seq_idx=slr.seq_idx+",offset+length-1)
     }else{
       stop("Parameter offsetRef must be one of 'START' or 'END'\n")
     }
-    heQueryStr=paste0(heQueryStr," ORDER BY il.ROWID");
+    #heQueryStr=paste0(heQueryStr," ORDER BY il.ROWID");
     he = DBI::dbGetQuery(emuDBhandle$connection, heQueryStr)
     slLen=nrow(seglist)
     resLen=nrow(he)
@@ -172,7 +190,6 @@ requery_seq<-function(emuDBhandle, seglist, offset = 0, offsetRef = 'START',
     drop_allTmpTablesDBI(emuDBhandle)
     create_tmpFilteredQueryTablesDBI(emuDBhandle)
     DBI::dbWriteTable(emuDBhandle$connection, "interm_res_items_tmp_root", he, overwrite=T)
-    
     
     trSl=convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel = timeRefSegmentLevel, filteredTablesSuffix = "", queryStr = "FROM REQUERY", calcTimes, verbose)
     drop_allTmpTablesDBI(emuDBhandle)
@@ -374,7 +391,8 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE,
 
 #######################
 # FOR DEVELOPMENT
-# library('testthat')
-# test_file('tests/testthat/test_emuR-requery.database.R')
+library('testthat')
+test_file("tests/testthat/test_aaa_initData.R")
+test_file('tests/testthat/test_emuR-requery.database.R')
 
 
