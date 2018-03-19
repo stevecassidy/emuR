@@ -391,8 +391,8 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE,
 
 #######################
 # FOR DEVELOPMENT
-library('testthat')
-test_file("tests/testthat/test_aaa_initData.R")
-test_file('tests/testthat/test_emuR-requery.database.R')
+# library('testthat')
+# test_file("tests/testthat/test_aaa_initData.R")
+# test_file('tests/testthat/test_emuR-requery.database.R')
 
 
