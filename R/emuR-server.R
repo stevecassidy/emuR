@@ -67,6 +67,8 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*', seglist =
                   autoOpenURL = "http://ips-lmu.github.io/EMU-webApp/?autoConnect=true", 
                   browser = getOption("browser"), debug=FALSE, debugLevel=0){
   
+  check_emuDBhandle(emuDBhandle)
+  
   if(debug && debugLevel==0){
     debugLevel=2
   }

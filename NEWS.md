@@ -1,4 +1,4 @@
-# emuR 0.2.3.9014
+# emuR 0.2.3.9015
 
 ## new features / performance tweaks / improvements
 
@@ -19,7 +19,7 @@
 * query engine does not rely on label index in label array any more (updated `convert_queryResultToEmuRsegs()` to use `resultAttrDef` instead of `labelIdx`). Closes \#164.
 * added `browser` argument to `serve()` function which is passed on to `utils::browseURL()` function
 * `requery_seq()` now uses `start_item_seq_idx` and `end_item_seq_idx` of seglist instead of `start_item_id` and `start_item_id` to simplify function
-
+* implemented `check_emuDBhandle()` function that is used on every exported function that takes a `emuDBhandle` as an argument to check if the handle is still valid (closes \#176)
 
 ## bug fixes
 

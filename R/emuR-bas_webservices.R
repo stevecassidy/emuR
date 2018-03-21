@@ -63,6 +63,8 @@ runBASwebservice_all <- function(handle,
                                  resume = FALSE,
                                  verbose = TRUE)
 {
+  check_emuDBhandle(handle)
+  
   func = "all"
   transcriptionLevel = get_levelNameForAttributeName(handle, transcriptionAttributeDefinitionName)
   
@@ -271,6 +273,8 @@ runBASwebservice_maus <- function(handle,
                                   resume = FALSE,
                                   verbose = TRUE)
 {
+  check_emuDBhandle(handle)
+  
   func = "maus"
   oldBasePath = handle$basePath
   handle = bas_prepare(handle, resume, verbose, func)
@@ -329,6 +333,8 @@ runBASwebservice_g2pForTokenization <- function(handle,
                                                 resume = FALSE,
                                                 verbose = TRUE)
 {
+  check_emuDBhandle(handle)
+  
   func = "g2p_tokenization"
   oldBasePath = handle$basePath
   handle = bas_prepare(handle, resume, verbose, func)
@@ -383,6 +389,7 @@ runBASwebservice_g2pForPronunciation <- function(handle,
                                                  resume = FALSE,
                                                  verbose = TRUE)
 {
+  check_emuDBhandle(handle)
   func = "g2p_pronunciation"
   oldBasePath = handle$basePath
   handle = bas_prepare(handle, resume, verbose, func)
@@ -454,6 +461,7 @@ runBASwebservice_chunker <- function(handle,
                                      resume = FALSE,
                                      verbose = TRUE)
 {
+  check_emuDBhandle(handle)
   func = "chunker"
   oldBasePath = handle$basePath
   handle = bas_prepare(handle, resume, verbose, func)
@@ -517,6 +525,7 @@ runBASwebservice_minni <- function(handle,
                                    resume = FALSE,
                                    verbose = TRUE)
 {
+  check_emuDBhandle(handle)
   func = "minni"
   oldBasePath = handle$basePath
   handle = bas_prepare(handle, resume, verbose, func)
@@ -570,6 +579,7 @@ runBASwebservice_pho2sylCanonical <- function(handle,
                                               resume = FALSE,
                                               verbose = TRUE)
 {
+  check_emuDBhandle(handle)
   func = "pho2syl_canonical"
   oldBasePath = handle$basePath
   handle = bas_prepare(handle, resume, verbose, func)
@@ -630,6 +640,7 @@ runBASwebservice_pho2sylSegmental <- function(handle,
                                               resume = FALSE,
                                               verbose = TRUE)
 {
+  check_emuDBhandle(handle)
   func = "pho2syl_segmental"
   oldBasePath = handle$basePath
   handle = bas_prepare(handle, resume, verbose, func)

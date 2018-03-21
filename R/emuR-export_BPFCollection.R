@@ -30,6 +30,7 @@ export_BPFCollection <- function(handle,
                                  newLevelClasses = NULL,
                                  copyAudio = FALSE)
 {
+  check_emuDBhandle(handle)
   levelClasses = as.list(BPF_STANDARD_LEVEL_CLASSES)
   names(levelClasses) = BPF_STANDARD_LEVELS
   levelClasses[newLevels] = newLevelClasses

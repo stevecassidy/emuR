@@ -1301,6 +1301,8 @@ query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*
                   queryLang = 'EQL2', timeRefSegmentLevel = NULL, resultType = NULL, 
                   calcTimes = TRUE, verbose = FALSE){
   
+  check_emuDBhandle(emuDBhandle)
+  
   if(queryLang=='EQL2'){
     # create temp tables 
     drop_allTmpTablesDBI(emuDBhandle)

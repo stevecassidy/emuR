@@ -46,6 +46,8 @@ NULL
 add_perspective <- function(emuDBhandle, 
                             name){
   
+  check_emuDBhandle(emuDBhandle)
+  
   DBconfig = load_DBconfig(emuDBhandle)
   
   curPersp = list_perspectives(emuDBhandle)
@@ -74,6 +76,8 @@ add_perspective <- function(emuDBhandle,
 ##' @export
 list_perspectives <- function(emuDBhandle){
   
+  check_emuDBhandle(emuDBhandle)
+  
   DBconfig = load_DBconfig(emuDBhandle)
   df = data.frame(name = character(),
                   signalCanvasesOrder = character(),
@@ -95,6 +99,8 @@ list_perspectives <- function(emuDBhandle){
 ##' @export
 remove_perspective <- function(emuDBhandle, 
                                name){
+  
+  check_emuDBhandle(emuDBhandle)
   
   DBconfig = load_DBconfig(emuDBhandle)
   
@@ -155,6 +161,8 @@ set_signalCanvasesOrder <- function(emuDBhandle,
                                     perspectiveName,
                                     order){
   
+  check_emuDBhandle(emuDBhandle)
+  
   DBconfig = load_DBconfig(emuDBhandle)
   
   curTracks = c("OSCI", "SPEC", list_ssffTrackDefinitions(emuDBhandle)$name)
@@ -182,6 +190,7 @@ set_signalCanvasesOrder <- function(emuDBhandle,
 ##' @export
 get_signalCanvasesOrder <- function(emuDBhandle,
                                     perspectiveName){
+  check_emuDBhandle(emuDBhandle)
   
   DBconfig = load_DBconfig(emuDBhandle)
   
@@ -242,6 +251,7 @@ NULL
 set_levelCanvasesOrder <- function(emuDBhandle,
                                    perspectiveName,
                                    order){
+  check_emuDBhandle(emuDBhandle)
   
   DBconfig = load_DBconfig(emuDBhandle)
   
@@ -274,6 +284,8 @@ set_levelCanvasesOrder <- function(emuDBhandle,
 ##' @export
 get_levelCanvasesOrder <- function(emuDBhandle,
                                    perspectiveName){
+  
+  check_emuDBhandle(emuDBhandle)
   
   DBconfig = load_DBconfig(emuDBhandle)
   

@@ -115,6 +115,8 @@ requery_seq<-function(emuDBhandle, seglist, offset = 0, offsetRef = 'START',
                       length = 1, ignoreOutOfBounds = FALSE, calcTimes = TRUE, 
                       timeRefSegmentLevel = NULL, verbose = FALSE){
   
+  check_emuDBhandle(emuDBhandle)
+  
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter in the query() command; then the default resultType=emuRsegs will be used)")
   }
@@ -254,6 +256,8 @@ requery_seq<-function(emuDBhandle, seglist, offset = 0, offsetRef = 'START',
 ##' }
 requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE, 
                        calcTimes = T, timeRefSegmentLevel = NULL, verbose = FALSE){
+  
+  check_emuDBhandle(emuDBhandle)
   
   if(!inherits(seglist,"emuRsegs")){
     stop("Segment list 'seglist' must be of type 'emuRsegs'. (Do not set a value for 'resultType' parameter for the query, the default resultType will be used)")

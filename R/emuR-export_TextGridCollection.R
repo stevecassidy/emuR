@@ -44,6 +44,8 @@
 export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '.*', bundlePattern = '.*', 
                                       attributeDefinitionNames = NULL, verbose = TRUE) {
   
+  check_emuDBhandle(emuDBhandle)
+  
   dbConfig = load_DBconfig(emuDBhandle)
   
   allAttrNames = get_allAttributeNames(emuDBhandle)

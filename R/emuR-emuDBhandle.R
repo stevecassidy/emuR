@@ -34,7 +34,32 @@ setSQLitePragmas <- function(con){
 
 ##' @export
 print.emuDBhandle = function(x, ...){
+  check_emuDBhandle(x)
   print(paste0("<emuDBhandle> (dbName = '", x$dbName, "', basePath = '", x$basePath, "')"))
+}
+
+##' function to check if a emuDBhandle 
+##' seems to be valid. It only does some shallow 
+##' checks and doesn't do any deep inspection
+check_emuDBhandle <- function(emuDBhandle, checkCache = TRUE){
+  # check if dir and cache actually exist
+  if(!dir.exists(emuDBhandle$basePath)){
+    stop("emuDBhandle is invalid as emuDBhandle$basePath doesn't exist! Please reload the emuDB.")
+  }
+  if(!DBI::dbIsValid(emuDBhandle$connection)){
+    stop("emuDBhandle is invalid as emuDBhandle$connection is not a valid DBI connection! Please reload the emuDB.")
+  }
+  # from basePath extract dbName and see if DB
+  dbName = stringr::str_replace(basename(emuDBhandle$basePath), pattern = '_emuDB$', replacement = '')
+  
+  if(!file.exists(file.path(emuDBhandle$basePath, paste0(dbName, database.schema.suffix)))){
+    stop("emuDBhandle is invalid as the directory emuDBhandle$basePath doesn't contain a _DBconfig.json file!")
+  }
+  if(checkCache){
+    if(!file.exists(file.path(emuDBhandle$basePath, paste0(dbName, database.cache.suffix)))){
+      stop("emuDBhandle is invalid as the directory emuDBhandle$basePath doesn't contain a _emuDBcache.sqlite file! Please reload the emuDB to recreate the emuDBcache.")
+    }
+  }
 }
 
 ##' Print summary of loaded EMU database (emuDB).
@@ -44,6 +69,8 @@ print.emuDBhandle = function(x, ...){
 ##' @param ... additional arguments affecting the summary produced.
 ##' @export
 summary.emuDBhandle = function(object, ...){
+  
+  check_emuDBhandle(object)
   
   cat("Name:\t", object$dbName, "\n")
   cat("UUID:\t", object$UUID, "\n")

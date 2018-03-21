@@ -37,6 +37,8 @@ replace_itemLabels <- function(emuDBhandle, attributeDefinitionName, origLabels,
   #############################
   # check input parameters
   
+  check_emuDBhandle(emuDBhandle)
+  
   allAttrNames = get_allAttributeNames(emuDBhandle)
   if(!attributeDefinitionName %in% allAttrNames){
     stop(paste0("No attributeDefinitionName: ", attributeDefinitionName, " found in emuDB! The available attributeNames are: ", paste0(get_allAttributeNames(emuDBhandle), collapse = "; ")))
@@ -124,6 +126,8 @@ replace_itemLabels <- function(emuDBhandle, attributeDefinitionName, origLabels,
 duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName, 
                             duplicateLinks = TRUE, linkDuplicates = FALSE, 
                             linkDefType = "ONE_TO_ONE", verbose = TRUE) {
+  
+  check_emuDBhandle(emuDBhandle)
   
   ldefs = list_levelDefinitions(emuDBhandle)
   

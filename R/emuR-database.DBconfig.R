@@ -255,6 +255,7 @@ NULL
 ##' @export
 add_levelDefinition<-function(emuDBhandle, name,
                               type, rewriteAllAnnots = TRUE, verbose = TRUE){
+  check_emuDBhandle(emuDBhandle)
   allowedTypes = c('ITEM', 'SEGMENT', 'EVENT')
   # precheck type 
   if(!(type %in% allowedTypes)){
@@ -284,6 +285,7 @@ add_levelDefinition<-function(emuDBhandle, name,
 ##' @rdname AddListRemoveLevelDefinitions
 ##' @export
 list_levelDefinitions <- function(emuDBhandle){
+  check_emuDBhandle(emuDBhandle, checkCache=F)
   dbConfig = load_DBconfig(emuDBhandle)
   df <- data.frame(name = character(),
                    type = character(), 
@@ -308,7 +310,7 @@ list_levelDefinitions <- function(emuDBhandle){
 ##' @rdname AddListRemoveLevelDefinitions
 ##' @export
 remove_levelDefinition<-function(emuDBhandle, name, rewriteAllAnnots = TRUE, force = FALSE, verbose = TRUE){
-  
+  check_emuDBhandle(emuDBhandle)
   dbConfig = load_DBconfig(emuDBhandle)
   # check if level definition (name)exists 
   if(!any(sapply(dbConfig$levelDefinitions, function(ld) ld[['name']] == name))){
@@ -452,7 +454,7 @@ NULL
 add_attributeDefinition <- function(emuDBhandle, levelName, 
                                     name, type = "STRING", 
                                     rewriteAllAnnots = TRUE, verbose = TRUE){
-  
+  check_emuDBhandle(emuDBhandle)
   internal_add_attributeDefinition(emuDBhandle, levelName, 
                                    name, type = "STRING", 
                                    rewriteAllAnnots = TRUE, verbose = verbose)
@@ -508,7 +510,7 @@ internal_add_attributeDefinition <- function(emuDBhandle, levelName,
 ##' @rdname AddListRenameRemoveAttributeDefinitions
 ##' @export
 list_attributeDefinitions <- function(emuDBhandle, levelName){
-  
+  check_emuDBhandle(emuDBhandle, checkCache = F)
   ld = get_levelDefinition(emuDBhandle, levelName)
   
   if(length(ld$attributeDefinitions) > 1){
@@ -542,6 +544,7 @@ rename_attributeDefinition <- function(emuDBhandle, origAttrDef, newAttrDef, ver
   
   #############################
   # check input parameters
+  check_emuDBhandle(emuDBhandle)
   if(class(origAttrDef) != "character" | class(newAttrDef) != "character" | length(origAttrDef) != 1 | length(newAttrDef) != 1){
     stop("origAttrDef and newAttrDef have to be character vectors with only one item!")  
   }
@@ -677,6 +680,8 @@ remove_attributeDefinition <- function(emuDBhandle,
                                        rewriteAllAnnots = TRUE,
                                        verbose = TRUE){
   
+  check_emuDBhandle(emuDBhandle)
+  
   if(levelName == name){
     stop("Can not remove primary attributeDefinition (attributeDefinition with same name as level)")
   }
@@ -806,6 +811,8 @@ set_legalLabels <- function(emuDBhandle,
                             attributeDefinitionName,
                             legalLabels){
   
+  check_emuDBhandle(emuDBhandle)
+  
   if(!is.null(legalLabels) & class(legalLabels) != "character"){
     stop("legalLables must be of class 'character'")
   }
@@ -831,6 +838,7 @@ set_legalLabels <- function(emuDBhandle,
 get_legalLabels <- function(emuDBhandle,
                             levelName,
                             attributeDefinitionName){
+  check_emuDBhandle(emuDBhandle)
   
   ld = get_levelDefinition(emuDBhandle, levelName)
   
@@ -854,7 +862,7 @@ get_legalLabels <- function(emuDBhandle,
 remove_legalLabels <- function(emuDBhandle,
                                levelName,
                                attributeDefinitionName){
-  
+  check_emuDBhandle(emuDBhandle)
   # remove by setting to NULL
   set_legalLabels(emuDBhandle,
                   levelName,
@@ -932,7 +940,7 @@ add_attrDefLabelGroup <- function(emuDBhandle,
                                   attributeDefinitionName, 
                                   labelGroupName,
                                   labelGroupValues){
-  
+  check_emuDBhandle(emuDBhandle)
   dbConfig = load_DBconfig(emuDBhandle)
   curLgs = list_attrDefLabelGroups(emuDBhandle, 
                                    levelName, 
@@ -965,7 +973,7 @@ add_attrDefLabelGroup <- function(emuDBhandle,
 list_attrDefLabelGroups <- function(emuDBhandle,
                                     levelName,
                                     attributeDefinitionName){
-  
+  check_emuDBhandle(emuDBhandle)
   ld = get_levelDefinition(emuDBhandle, levelName)
   
   df = data.frame(name = character(), 
@@ -993,7 +1001,7 @@ remove_attrDefLabelGroup <- function(emuDBhandle,
                                      levelName,
                                      attributeDefinitionName, 
                                      labelGroupName){
-  
+  check_emuDBhandle(emuDBhandle)
   dbConfig = load_DBconfig(emuDBhandle)
   curLgs = list_attrDefLabelGroups(emuDBhandle, 
                                    levelName, 
@@ -1081,6 +1089,7 @@ add_linkDefinition <- function(emuDBhandle,
                                superlevelName,
                                sublevelName){
   
+  check_emuDBhandle(emuDBhandle)
   dbConfig = load_DBconfig(emuDBhandle)
   
   allowedTypes = c("ONE_TO_MANY", "MANY_TO_MANY", "ONE_TO_ONE")
@@ -1124,7 +1133,7 @@ add_linkDefinition <- function(emuDBhandle,
 ##' @rdname AddListRemoveLinkDefinition
 ##' @export
 list_linkDefinitions <- function(emuDBhandle){
-  
+  check_emuDBhandle(emuDBhandle)
   dbConfig = load_DBconfig(emuDBhandle)
   
   df = data.frame(type = character(),
@@ -1154,7 +1163,7 @@ remove_linkDefinition <- function(emuDBhandle,
                                   sublevelName,
                                   force = FALSE,
                                   verbose = TRUE){
-  
+  check_emuDBhandle(emuDBhandle)
   dbConfig = load_DBconfig(emuDBhandle)
   curLds = list_linkDefinitions(emuDBhandle)
   
@@ -1307,6 +1316,8 @@ add_ssffTrackDefinition <- function(emuDBhandle, name,
                                     onTheFlyOptLogFilePath = NULL,
                                     verbose = TRUE, interactive = TRUE){
   
+  check_emuDBhandle(emuDBhandle)
+  
   dbConfig = load_DBconfig(emuDBhandle)
   
   #########################
@@ -1393,6 +1404,7 @@ add_ssffTrackDefinition <- function(emuDBhandle, name,
 ##' @rdname AddListRemoveSsffTrackDefinition
 ##' @export
 list_ssffTrackDefinitions <- function(emuDBhandle){
+  check_emuDBhandle(emuDBhandle, checkCache = F)
   dbConfig = load_DBconfig(emuDBhandle)
   df <- do.call(rbind, lapply(dbConfig$ssffTrackDefinitions, data.frame, stringsAsFactors=FALSE))
   return(df)
@@ -1403,7 +1415,7 @@ list_ssffTrackDefinitions <- function(emuDBhandle){
 ##' @export
 remove_ssffTrackDefinition <- function(emuDBhandle, name, 
                                        deleteFiles = FALSE){
-  
+  check_emuDBhandle(emuDBhandle)
   dbConfig = load_DBconfig(emuDBhandle)
   
   # precheck if exists
@@ -1499,6 +1511,8 @@ add_labelGroup <- function(emuDBhandle,
                            name,
                            values){
   
+  check_emuDBhandle(emuDBhandle)
+  
   dbConfig = load_DBconfig(emuDBhandle)
   curLgs = list_labelGroups(emuDBhandle)
   
@@ -1519,6 +1533,7 @@ add_labelGroup <- function(emuDBhandle,
 ##' @export
 list_labelGroups <- function(emuDBhandle){
   
+  check_emuDBhandle(emuDBhandle)
   dbConfig = load_DBconfig(emuDBhandle)
   df = data.frame(name = character(),
                   values = character(),
@@ -1540,6 +1555,7 @@ list_labelGroups <- function(emuDBhandle){
 remove_labelGroup <- function(emuDBhandle,
                               name){
   
+  check_emuDBhandle(emuDBhandle)
   dbConfig = load_DBconfig(emuDBhandle)
   curLgs = list_labelGroups(emuDBhandle)
   

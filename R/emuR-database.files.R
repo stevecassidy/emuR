@@ -61,6 +61,7 @@ is_relativeFilePath<-function(nativeFilePathStr, forRunningPlatform=FALSE){
 ##' 
 ##' }
 import_mediaFiles<-function(emuDBhandle,dir,targetSessionName='0000', verbose=TRUE){
+  check_emuDBhandle(emuDBhandle)
   dbCfg=load_DBconfig(emuDBhandle)
   if(is.null(dbCfg[['mediafileExtension']])){
     pattern=NULL
@@ -190,6 +191,7 @@ import_mediaFiles<-function(emuDBhandle,dir,targetSessionName='0000', verbose=TR
 ##' }
 add_files <- function(emuDBhandle, dir, fileExtension, targetSessionName='0000'){
   
+  check_emuDBhandle(emuDBhandle)
   bndls = list_bundles(emuDBhandle, session = targetSessionName)
   
   sourcePaths = list.files(dir, pattern = paste0(fileExtension, '$'), full.names = T)
@@ -242,6 +244,7 @@ list_files <- function(emuDBhandle,
                        sessionPattern = ".*",
                        bundlePattern = ".*"){
 
+  check_emuDBhandle(emuDBhandle)
   bndls = list_bundles(emuDBhandle)
   
   df = data.frame(session = character(), 

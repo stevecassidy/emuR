@@ -384,6 +384,7 @@ rename_emuDB <- function(databaseDir, newName){
 ##' }
 ##' 
 list_sessions <- function(emuDBhandle){
+  check_emuDBhandle(emuDBhandle, checkCache = F)
   sesPattern = paste0("^.*", session.suffix ,"$")
   sesDirs = dir(emuDBhandle$basePath, pattern = sesPattern)
   sesDirs = gsub(paste0(session.suffix, "$"), "", sesDirs)
@@ -411,6 +412,7 @@ list_sessions <- function(emuDBhandle){
 ##' }
 ##' 
 list_bundles <- function(emuDBhandle, session=NULL){
+  check_emuDBhandle(emuDBhandle, checkCache = F)
   sesDf = list_sessions(emuDBhandle)
   if(!is.null(session)){
     sesDf = dplyr::filter_(sesDf, ~(name == session))
@@ -432,7 +434,7 @@ list_bundles <- function(emuDBhandle, session=NULL){
 
 
 rewrite_allAnnots <- function(emuDBhandle, verbose=TRUE){
-  
+
   bndls = list_bundles(emuDBhandle)
   
   # check if any bundles exist

@@ -53,6 +53,8 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, r
                                     convertSuperlevel = FALSE, backupLevelAppendStr = '-autobuildBackup', 
                                     newLinkDefType = NULL, verbose = TRUE){
   
+  check_emuDBhandle(emuDBhandle)
+  
   # add linkDefintions if newLinkDefType is present
   if(!is.null(newLinkDefType)){
     add_linkDefinition(emuDBhandle, type = newLinkDefType, 
@@ -261,4 +263,3 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, r
 # library('testthat')
 # test_file('tests/testthat/test_aaa_initData.R')
 # test_file('tests/testthat/test_emuR-autobuild.R')
-

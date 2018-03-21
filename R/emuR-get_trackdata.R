@@ -88,6 +88,9 @@
                             npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
                             onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, 
                             resultType = "trackdata", persistentOutputType = FALSE, verbose = TRUE){
+  
+  check_emuDBhandle(emuDBhandle)
+  
   #########################
   # get DBconfig
   DBconfig = load_DBconfig(emuDBhandle)
