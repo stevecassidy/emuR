@@ -457,7 +457,7 @@ add_attributeDefinition <- function(emuDBhandle, levelName,
   check_emuDBhandle(emuDBhandle)
   internal_add_attributeDefinition(emuDBhandle, levelName, 
                                    name, type = "STRING", 
-                                   rewriteAllAnnots = TRUE, verbose = verbose)
+                                   rewriteAllAnnots = rewriteAllAnnots, verbose = verbose)
   
   
 }
