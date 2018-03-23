@@ -1,8 +1,8 @@
-# emuR 0.2.3.9015
+# emuR 0.2.3.9016
 
 ## new features / performance tweaks / improvements
 
-* implemented new `persistentOutputType` parameter for `get_trackdata()` to always return a `trackdata` or `emuRtrackdata` object independent of what the `cut` and `npoints` arguments are set to
+* implemented new `consistentOutputType` parameter for `get_trackdata()` to always return a `trackdata` or `emuRtrackdata` object independent of what the `cut` and `npoints` arguments are set to
 * now removing `levelCanvasOrder` entry in `remove_levelDefinition()` (fixes \#156)
 * `serve()` method now uses GET to deliver media files to the EMU-webApp. This avoids the base64 conversion overhead and is a quite significant load time improvement
 * explicit error message in `convert_legacyEmuDB()` when invalid redundant links are found
@@ -20,6 +20,7 @@
 * added `browser` argument to `serve()` function which is passed on to `utils::browseURL()` function
 * `requery_seq()` now uses `start_item_seq_idx` and `end_item_seq_idx` of seglist instead of `start_item_id` and `start_item_id` to simplify function
 * implemented `check_emuDBhandle()` function that is used on every exported function that takes a `emuDBhandle` as an argument to check if the handle is still valid (closes \#176)
+* implemented `"tibble"` as `resultType` option in `get_trackdata()`. This will probably replace the `"emuRtrackdata"` option in future (it contains exactly the same data/columns).
 
 ## bug fixes
 

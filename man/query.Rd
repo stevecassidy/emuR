@@ -24,7 +24,7 @@ query(emuDBhandle, query, sessionPattern = ".*", bundlePattern = ".*",
 \item{resultType}{type (class name) of result}
 
 \item{calcTimes}{calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
-calculate the times for large nested hierarchies it can be turned of via this boolian parameter.}
+calculate the times for large nested hierarchies, it can be turned off via this boolean parameter.}
 
 \item{verbose}{be verbose. Set this to \code{TRUE} if you wish to choose which path to traverse on intersecting hierarchies. If set to \code{FALSE} (the default) all paths will be traversed (= legacy EMU bahaviour).}
 }

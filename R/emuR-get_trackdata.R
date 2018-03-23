@@ -8,10 +8,10 @@
 ##' segment list (\code{\link{emuRsegs}} or \code{\link{emusegs}}), extracts the 
 ##' specified trackdata and places it into a 
 ##' trackdata object (analogous to the depricated \code{emu.track}). This function
-##' replaces the deprecated \code{emu.track} function. Note that a error is thrown
+##' replaces the deprecated \code{emu.track} function. Note that an error is thrown
 ##' if the bundles in the \code{\link{emuRsegs}} or \code{\link{emusegs}} object 
 ##' have in-homogeneous sampling rates as this will lead to inconsistent/erroneous
-##' \code{\link{trackdata}} or \code{\link{emuRtrackdata}} result objects. For 
+##' \code{\link{trackdata}}, \code{\link{emuRtrackdata}} or \code{\link{tibble}} result objects. For 
 ##' more information on the structural elements of an emuDB 
 ##' see \code{vignette{emuDB}}.
 ##' 
@@ -48,12 +48,12 @@
 ##' @param nrOfAllocationRows If this size limit of the data matrix is reached 
 ##' a further \code{nrOfAllocationRows} more rows will be allocated. As this allocation leads to
 ##' a performance penalty one should consider increasing this number for large emuDBs. 
-##' @param resultType Specify class of returned object. Either \code{"emuRtrackdata"} or \code{"trackdata"} (see \code{\link{trackdata}} and \code{\link{emuRtrackdata}} for details about these objects).
-##' @param persistentOutputType Prevent converting the output object to a \code{data.frame} depending on the \code{npoint} and \code{cut} arguments
+##' @param resultType Specify class of returned object. Either \code{"emuRtrackdata"}, \code{"trackdata"} or \code{"tibble"}  (see \code{\link{trackdata}}, \code{\link{emuRtrackdata}} and \code{\link{tibble}} for details about these objects).
+##' @param consistentOutputType Prevent converting the output object to a \code{data.frame} depending on the \code{npoint} and \code{cut} arguments
 ##' @param verbose Show progress bars and further information
-##' @return If the \code{cut} parameter is not set (the default) an object of type \code{\link{trackdata}} or \code{\link{emuRtrackdata}} 
+##' @return If the \code{cut} parameter is not set (the default) an object of type \code{\link{trackdata}}, \code{\link{emuRtrackdata}} or \code{\link{tibble}} 
 ##' is returned. If \code{cut} is set and \code{npoints} is not, or the seglist 
-##' is of type event and npoints is not set, a \code{\link{data.frame}} is returned.
+##' is of type event and npoints is not set, a \code{\link{data.frame}} is returned (see the \code{consistentOutputType} to change this behaviour).
 ##' @seealso \code{\link{formals}}, \code{\link[wrassp]{wrasspOutputInfos}}, \code{\link{trackdata}}, \code{\link{emuRtrackdata}}
 ##' @keywords misc
 ##' @import wrassp
@@ -87,7 +87,7 @@
 "get_trackdata" <- function(emuDBhandle, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
                             npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
                             onTheFlyOptLogFilePath = NULL, nrOfAllocationRows = 10000, 
-                            resultType = "trackdata", persistentOutputType = FALSE, verbose = TRUE){
+                            resultType = "trackdata", consistentOutputType = FALSE, verbose = TRUE){
   
   check_emuDBhandle(emuDBhandle)
   
@@ -136,7 +136,7 @@
   }
   
   # check resultType if valid string
-  if(!resultType %in% c("emuRtrackdata", "trackdata")){
+  if(!resultType %in% c("tibble", "emuRtrackdata", "trackdata")){
     stop("resultType has to either be 'emuRtrackdata' or 'trackdata'")
   }
   
@@ -425,7 +425,7 @@
   data = as.matrix(data) # make sure it is a matrix to be able to set row names
   timeStampRowNames = timeStampRowNames[timeStampRowNames != -1]
   
-  if(!persistentOutputType && ((!is.null(cut) && (npoints == 1 || is.null(npoints))) || (emusegs.type(seglist) == 'event' && (npoints == 1 || is.null(npoints))))){
+  if(!consistentOutputType && ((!is.null(cut) && (npoints == 1 || is.null(npoints))) || (emusegs.type(seglist) == 'event' && (npoints == 1 || is.null(npoints))))){
     resObj = as.data.frame(data)
     colnames(resObj) = paste(trackDef[[1]]$columnName, seq(1:ncol(resObj)), sep = '')    
   }else{
@@ -456,6 +456,10 @@
   # convert to emuRtrackdata if resultType is 'emuRtrackdata'
   if(resultType =="emuRtrackdata"){
     resObj = create_emuRtrackdata(seglist, resObj)
+  }
+  
+  if(resultType == "tibble"){
+    resObj = tibble::as_tibble(create_emuRtrackdata(seglist, resObj))
   }
   
   return(resObj)

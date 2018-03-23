@@ -38,9 +38,9 @@ print.emuDBhandle = function(x, ...){
   print(paste0("<emuDBhandle> (dbName = '", x$dbName, "', basePath = '", x$basePath, "')"))
 }
 
-##' function to check if a emuDBhandle 
-##' seems to be valid. It only does some shallow 
-##' checks and doesn't do any deep inspection
+# function to check if a emuDBhandle 
+# seems to be valid. It only does some shallow 
+# checks and doesn't do any deep inspection
 check_emuDBhandle <- function(emuDBhandle, checkCache = TRUE){
   # check if dir and cache actually exist
   if(!dir.exists(emuDBhandle$basePath)){

@@ -9,7 +9,7 @@ get_trackdata(emuDBhandle, seglist = NULL, ssffTrackName = NULL,
   cut = NULL, npoints = NULL, onTheFlyFunctionName = NULL,
   onTheFlyParams = NULL, onTheFlyOptLogFilePath = NULL,
   nrOfAllocationRows = 10000, resultType = "trackdata",
-  persistentOutputType = FALSE, verbose = TRUE)
+  consistentOutputType = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
@@ -53,16 +53,16 @@ parameter one wishes to change.}
 a further \code{nrOfAllocationRows} more rows will be allocated. As this allocation leads to
 a performance penalty one should consider increasing this number for large emuDBs.}
 
-\item{resultType}{Specify class of returned object. Either \code{"emuRtrackdata"} or \code{"trackdata"} (see \code{\link{trackdata}} and \code{\link{emuRtrackdata}} for details about these objects).}
+\item{resultType}{Specify class of returned object. Either \code{"emuRtrackdata"}, \code{"trackdata"} or \code{"tibble"}  (see \code{\link{trackdata}}, \code{\link{emuRtrackdata}} and \code{\link{tibble}} for details about these objects).}
 
-\item{persistentOutputType}{Prevent converting the output object to a \code{data.frame} depending on the \code{npoint} and \code{cut} arguments}
+\item{consistentOutputType}{Prevent converting the output object to a \code{data.frame} depending on the \code{npoint} and \code{cut} arguments}
 
 \item{verbose}{Show progress bars and further information}
 }
 \value{
-If the \code{cut} parameter is not set (the default) an object of type \code{\link{trackdata}} or \code{\link{emuRtrackdata}} 
+If the \code{cut} parameter is not set (the default) an object of type \code{\link{trackdata}}, \code{\link{emuRtrackdata}} or \code{\link{tibble}} 
 is returned. If \code{cut} is set and \code{npoints} is not, or the seglist 
-is of type event and npoints is not set, a \code{\link{data.frame}} is returned.
+is of type event and npoints is not set, a \code{\link{data.frame}} is returned (see the \code{consistentOutputType} to change this behaviour).
 }
 \description{
 Extract trackdata information from a loaded emuDB that 
@@ -74,10 +74,10 @@ SSFF/audio file handling. It reads time relevant data from a given
 segment list (\code{\link{emuRsegs}} or \code{\link{emusegs}}), extracts the 
 specified trackdata and places it into a 
 trackdata object (analogous to the depricated \code{emu.track}). This function
-replaces the deprecated \code{emu.track} function. Note that a error is thrown
+replaces the deprecated \code{emu.track} function. Note that an error is thrown
 if the bundles in the \code{\link{emuRsegs}} or \code{\link{emusegs}} object 
 have in-homogeneous sampling rates as this will lead to inconsistent/erroneous
-\code{\link{trackdata}} or \code{\link{emuRtrackdata}} result objects. For 
+\code{\link{trackdata}}, \code{\link{emuRtrackdata}} or \code{\link{tibble}} result objects. For 
 more information on the structural elements of an emuDB 
 see \code{vignette{emuDB}}.
 }

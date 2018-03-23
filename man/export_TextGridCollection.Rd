@@ -22,10 +22,10 @@ exported as tiers. If set to NULL (the default) all attribute definitions will b
 \item{verbose}{Show progress bars and further information}
 }
 \description{
-Exports the annotations of a emuDB to a TextGrid collection (.TextGrid and .wav file pairs).
-To avoid naming conflicts and not to loose the session information the session structure of 
-the database is kept in place by sub-folders that are named as the sessions where. 
-Due to the more complex annotation structure modeling capabilities of 
+Exports the annotations of an emuDB to a TextGrid collection (.TextGrid and .wav file pairs).
+To avoid naming conflicts and not to loose the session information, the session structure of 
+the database is kept in place (i.e. the TextGrid collection will have sub-folders that are named
+as the sessions were). Due to the more complex annotation structure modeling capabilities of 
 the EMU-SDMS system, this export routine has to make several compromises on export which 
 can lead to information loss. So use with caution and at own risk as reimporting the exported
 data will mean that not all information can be recreated!

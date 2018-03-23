@@ -248,7 +248,7 @@ If the `resultType` parameter is set to `"emuRtrackdata"` the `get_trackdata` fu
 class(td)
 ```
 
-As we are dealing with a `data.table` / `data.frame` we can now simply use a package like `ggplot2` to visualize our F1/F2 distribution:
+As we are dealing with a `data.frame` we can now simply use a package like `ggplot2` to visualize our F1/F2 distribution:
 
 ```{r, fig.height = 5, fig.width = 5}
 # check if ggplot2 package is available (install separately with 
@@ -353,7 +353,7 @@ dftTd = get_trackdata(ae,
 
 As we have not set the `resultType` parameter to `"emuRtrackdata"` an object of the class `trackdata` is returned. This object, just
 like an object of the class `emuRtrackdata`, contains the extracted trackdata information. Compared to the `emuRtrackdata` class
-the object is however not "flat" and in the form of a `data.table` / `data.frame` but has a more nested structure (see `?trackdata` for
+the object is however not "flat" and in the form of a `data.frame` but has a more nested structure (see `?trackdata` for
 more details).
 
 ```{r results='hide'}
@@ -446,7 +446,7 @@ boxplot(meanFirstMoments ~ sibil$labels)
 ```
 
 **INFO: Using the `"emuRtrackdata"` `resultType` of `get_trackdata` function we could have performed a comparable analysis 
-by utilizing packages such as `dplyr` for `data.table` / `data.frame` manipulation and `lattice` or `ggplot2` for data
+by utilizing packages such as `dplyr` for `data.frame` manipulation and `lattice` or `ggplot2` for data
 visualisation.**
 
 ```{r echo=FALSE, results='hide', message=FALSE, warning=FALSE}
