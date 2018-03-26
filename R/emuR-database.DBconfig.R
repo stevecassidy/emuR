@@ -472,6 +472,15 @@ internal_add_attributeDefinition <- function(emuDBhandle, levelName,
     stop("Currently only attributeDefinition of type 'STRING' allowed")
   }
   
+  # precheck if attribute definition is already defined
+  lds = list_levelDefinitions(emuDBhandle)
+  for(ln in lds$name){
+    lads = list_attributeDefinitions(emuDBhandle, ln)
+    if(name %in% lads$name){
+      stop("attributeDefinition with name '", name, "' already exists on level '", ln, "'! Currently, only unique attributeDefinition names are allowed within a single emuDB.")
+    }
+  }
+  
   dbConfig = load_DBconfig(emuDBhandle)
   
   df = list_attributeDefinitions(emuDBhandle, levelName)

@@ -1,4 +1,4 @@
-# emuR 0.2.3.9017
+# emuR 0.2.3.9018
 
 ## new features / performance tweaks / improvements
 
@@ -21,6 +21,7 @@
 * `requery_seq()` now uses `start_item_seq_idx` and `end_item_seq_idx` of seglist instead of `start_item_id` and `start_item_id` to simplify function
 * implemented `check_emuDBhandle()` function that is used on every exported function that takes a `emuDBhandle` as an argument to check if the handle is still valid (closes \#176)
 * implemented `"tibble"` as `resultType` option in `get_trackdata()`. This will probably replace the `"emuRtrackdata"` option in future (it contains exactly the same data/columns).
+* prechecking if attribute definition is already defined (closes \#182)
 
 ## bug fixes
 
