@@ -324,7 +324,7 @@ TextGridToBundleAnnotDFs <- function(tgPath, sampleRate, name, annotates){
   lines = unlist(strsplit(tgChar, "\n"))
   
   if(!grepl(paste0("^", FILE_TYPE_KEY), lines[1]) & !grepl(paste0("^", OBJECT_CLASS_KEY), lines[2])){
-    stop("First two lines of TextGrid file do not match: ", FILE_TYPE_KEY, "; and: ", OBJECT_CLASS_KEY, ". Only long form TextGrids are currently supported. Problem file is: ", tgPath)
+    stop("First two lines of TextGrid file do not match: ", FILE_TYPE_KEY, "; and: ", OBJECT_CLASS_KEY, ". Only UTF-8 long form TextGrids are currently supported. Problem file is: ", tgPath)
   }
   
   
