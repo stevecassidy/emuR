@@ -22,7 +22,7 @@
 * implemented `check_emuDBhandle()` function that is used on every exported function that takes a `emuDBhandle` as an argument to check if the handle is still valid (closes \#176)
 * implemented `"tibble"` as `resultType` option in `get_trackdata()`. This will probably replace the `"emuRtrackdata"` option in future (it contains exactly the same data/columns).
 * prechecking if attribute definition is already defined (closes \#182)
-* `get_trackdata()` now uses temporary SQL tables to store the intermediate results (massive performance gains!). Removed `nrOfAllocationRows` parameter as this is no longer needed as no matrix is used to store the intermediate results. (also closes \#)
+* `get_trackdata()` now uses temporary SQL tables to store the intermediate results (massive performance gains!). Removed `nrOfAllocationRows` parameter as this is no longer needed as no matrix is used to store the intermediate results. (also closes \#125)
 
 ## bug fixes
 
