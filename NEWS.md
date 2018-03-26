@@ -1,4 +1,4 @@
-# emuR 0.2.3.9016
+# emuR 0.2.3.9017
 
 ## new features / performance tweaks / improvements
 
@@ -30,6 +30,7 @@
 * not adding ssffTrackDefinition to DBconfig if user input is no (closes \#171)
 * fixed bad `seq_start_seq_idx` and `seq_seq_idx` returned by `requery_seq()` (fixes \#183) 
 * fixed bad `seq_start_seq_idx` returned by internal `query_databaseHier()` function
+* fixed bad sorting of `requery_seq()/requery_hier()` when `calcTimes = F` (still sorted by `start_sample` instead of the correct `seq_idx`)
 
 
 # emuR 0.2.3

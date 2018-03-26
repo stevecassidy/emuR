@@ -196,6 +196,12 @@ requery_seq<-function(emuDBhandle, seglist, offset = 0, offsetRef = 'START',
     trSl=convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel = timeRefSegmentLevel, filteredTablesSuffix = "", queryStr = "FROM REQUERY", calcTimes, verbose)
     drop_allTmpTablesDBI(emuDBhandle)
     
+    inSlLen=nrow(seglist)
+    trSlLen=nrow(trSl)
+    if(inSlLen!=trSlLen){
+      warning("Length of requery segment list (",trSlLen,") differs from input list (",inSlLen,")! These segments where lost while deriving their time   (no )")
+    }
+    
     return(trSl)
   }
 }
@@ -384,7 +390,7 @@ requery_hier<-function(emuDBhandle, seglist, level, collapse = TRUE,
     inSlLen=nrow(seglist)
     trSlLen=nrow(trSl)
     
-    if(verbose & inSlLen!=trSlLen){
+    if(inSlLen!=trSlLen){
       warning("Length of requery segment list (",trSlLen,") differs from input list (",inSlLen,")!")
     }
     

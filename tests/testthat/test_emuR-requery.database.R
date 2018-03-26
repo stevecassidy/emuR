@@ -55,7 +55,7 @@ test_that("requeries work on ae",{
     
     # Bug ID 42
     sl1=query(ae, "[[Phonetic=k -> Phonetic=~.*]->Phonetic=~.*]")
-    sl1w=requery_hier(ae, sl1,level='Word', verbose = F)
+    sl1w=suppressWarnings(requery_hier(ae, sl1,level='Word', verbose = F)) # this will throw a warning because sl1 has 8 rows and sl1w has 7 msajc023 k->H->s not dominated by single C
     # sl1w has sequence length 1
     sl1w2=requery_seq(ae, sl1w[1,])
     # Bug startItemID != endItemID, and label is not a sequence !!
@@ -69,7 +69,7 @@ test_that("requeries work on ae",{
     # Text beginning with 'a'
     sl1=query(ae, "Text=~'a[mn].*'")
     # requery to level Phoneme
-    rsl1=requery_hier(ae, sl1,level='Phoneme')
+    rsl1=suppressWarnings(requery_hier(ae, sl1, level='Phoneme'))
     expect_that(class(rsl1),is_identical_to(c('emuRsegs','emusegs','data.frame')))
     expect_that(nrow(sl1),equals(3))
     expect_that(nrow(rsl1),equals(3))
@@ -92,7 +92,7 @@ test_that("requeries work on ae",{
     # Text beginning with 'a'
     sl1=query(ae, "Text=~'a[mn].*'")
     # requery to level Phoneme
-    rsl1=requery_hier(ae, sl1,level='Phonetic', collapse = F, verbose = F)
+    rsl1=suppressWarnings(requery_hier(ae, sl1,level='Phonetic', collapse = F, verbose = F))
     allLabels = paste0(rsl1$labels, collapse = "->")
     expect_equal(allLabels, "V->m->V->N->s->t->H->E->n->i:->@->n")
   })

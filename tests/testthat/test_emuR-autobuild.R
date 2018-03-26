@@ -16,6 +16,7 @@ internalVars = get("internalVars", envir = .emuR_pkgEnv)
 
 test_that("autobuild_linkFromTimes works correctly", {
   skip_on_cran()
+  expect_true(T) # to avoid skip message
   ###########################
   test_that("bad calls to autobuild_linkFromTimes", {
 
@@ -422,6 +423,9 @@ test_that("autobuild_linkFromTimes works correctly", {
     add_linkDefinition(tgCol, "ONE_TO_MANY", superlevelName = "Utterance", sublevelName = "Intonational")
     # this autobuild causes the warning
     autobuild_linkFromTimes(tgCol, "Utterance", "Intonational", verbose = F)
+    
+    expect_true(T) # to avoid skip message
+    
     test_that("MD5 sums are updated",{
       annotJSONpath = file.path(path2testData, paste0("tgCol", emuDB.suffix),
                                 paste0("0000", session.suffix),
