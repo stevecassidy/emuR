@@ -56,11 +56,11 @@ convert_TextGridCollection <- function(dir, dbName,
   targetDir = suppressWarnings(normalizePath(targetDir))
   
   # check if dir exists
-  if(!file.exists(dir)){
+  if(!dir.exists(dir)){
     stop("dir does not exist!")
   }
   # create
-  if(!file.exists(targetDir)){
+  if(!dir.exists(targetDir)){
     res=dir.create(targetDir,recursive = TRUE)
     if(!res){
       stop("Could not create target directory: ",targetDir," !\n")
@@ -69,7 +69,7 @@ convert_TextGridCollection <- function(dir, dbName,
   
   basePath=file.path(targetDir, paste0(dbName, emuDB.suffix))
   # check if base path dir already exists
-  if(file.exists(basePath)){
+  if(dir.exists(basePath)){
     stop('The directory ', basePath, ' already exists. Can not generate new emuDB if directory called ', dbName, ' already exists!')
   }else{
     res=dir.create(basePath)
