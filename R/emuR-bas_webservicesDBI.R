@@ -1935,7 +1935,7 @@ bas_download <- function(result,
     cacheOK = TRUE
   )
   
-  lines = try(readLines(target, encoding = "UTF-8"))
+  lines = try(readr::read_lines(target))
   
   if (class(lines) == "try-error")
   {
@@ -2468,7 +2468,7 @@ bas_curl <- function(service, params, file, session, bundle, patience)
     stop("Call to ", service, " failed ", attempts, " time(s). Aborting.")
   }
   
-  lines = readLines(file, encoding = "UTF-8")
+  lines = readr::read_lines(file)
   
   return(lines)
 }

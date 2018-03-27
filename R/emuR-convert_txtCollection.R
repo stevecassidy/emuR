@@ -142,7 +142,7 @@ convert_txtCollection <- function(dbName,
     
     DBI::dbExecute(dbHandle$connection, queryTxt)
     
-    lines = suppressWarnings(readLines(filePairList[idx, 1]))
+    lines = suppressWarnings(readr::read_lines(filePairList[idx, 1]))
     
     transcription = paste(lines, collapse = " ")
     transcription = stringr::str_trim(transcription)

@@ -786,8 +786,8 @@ load_emuDB <- function(databaseDir, inMemoryCache = FALSE, connection = NULL, ve
       names(newMD5annotJSON) = NULL
       
       # read annotJSON as charac 
-      annotJSONchar = enc2utf8(readChar(annotFilePath, file.info(annotFilePath)$size)) # wrapped in enc2utf8 as readChar respects the system default (windows iso 88591)
-      
+      #annotJSONchar = enc2utf8(readChar(annotFilePath, file.info(annotFilePath)$size)) # wrapped in enc2utf8 as readChar respects the system default (windows iso 88591)
+      annotJSONchar = readr::read_file(annotFilePath)
       # convert to bundleAnnotDFs
       bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(annotJSONchar)
       # add to bundle table
