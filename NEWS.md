@@ -25,6 +25,7 @@
 * `get_trackdata()` now uses temporary SQL tables to store the intermediate results (massive performance gains!). Removed `nrOfAllocationRows` parameter as this is no longer needed as no matrix is used to store the intermediate results. (also closes \#125)
 * `convert_TextGridCollectio()` using `dir.exists()` instead of `file.exists()` to check dirs 
 * all read operations now use the readr package (avoids encoding problems like \#187)
+* `list_attributeDefinitions()` now allows for a name vector to be passed in
 
 ## bug fixes
 
