@@ -27,7 +27,7 @@ load_dbConfigFromEmuTemplate=function(tplPath,dbUUID=NULL,encoding=NULL){
   if(is.null(encoding)){
     tpl = try(readr::read_lines(tplPath))
   }else{
-    tpl = try(readr::read_lines(tplPath, locale(encoding=encoding)))
+    tpl = try(readr::read_lines(tplPath, readr::locale(encoding=encoding)))
   }
   if(class(tpl) == "try-error") {
     stop("read tpl: cannot read from file ", tplPath)

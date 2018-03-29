@@ -38,7 +38,7 @@ parse_espsLabelFile <- function(labFilePath=NULL,tierName,tierType=NULL,sampleRa
     if(is.null(encoding)){
       lc = try(readr::read_lines(fileToRead))
     }else{
-      lc = try(readr::read_lines(fileToRead,local(encoding=encoding)))
+      lc = try(readr::read_lines(fileToRead,readr::locale(encoding=encoding)))
     }
     if(class(lc) == "try-error") {
       stop("read.TextGrid: cannot read from file ", fileToRead)
