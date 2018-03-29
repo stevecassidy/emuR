@@ -1,4 +1,4 @@
-# emuR 0.2.3.9020
+# emuR 0.2.3.9021
 
 ## new features / performance tweaks / improvements
 
@@ -26,6 +26,7 @@
 * `convert_TextGridCollectio()` using `dir.exists()` instead of `file.exists()` to check dirs 
 * all read operations now use the readr package (avoids encoding problems like \#187)
 * `list_attributeDefinitions()` now allows for a name vector to be passed in
+* rewrite of `rewrite_allAnnots()` functions for faster rewrites of `_annot.json` files to disk
 
 ## bug fixes
 

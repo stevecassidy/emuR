@@ -4,12 +4,12 @@
 # convert annotJSON to list of data.frames including 
 # meta information (name, annotates, samplerate)
 annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
-
+  
   jsonObj = jsonlite::fromJSON(annotJSONchar, simplifyVector=F) # SIC pass in path 2 json instead -> a bit faster
-
+  
   ##############################
   # extract items
-
+  
   # extract all IDs
   allIds = unlist(lapply(jsonObj$levels, function(level){
     allIds = sapply(level$items, function(it) {
@@ -96,11 +96,11 @@ annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
   if(is.null(allToIds)) allToIds = integer()
   
   links = data.frame(from_id = allFromIds, to_id = allToIds, stringsAsFactors = F)
-                     
-
+  
+  
   ##############################
   # extract labels
-
+  
   # extract all label item ids
   allLabelItemIds = unlist(lapply(jsonObj$levels, function(level){
     allLabelItemIds = lapply(level$items, function(it) {
@@ -138,87 +138,64 @@ annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
   if(is.null(allLabelValues)) allLabelValues = character()
   
   labels = data.frame(item_id = allLabelItemIds, label_idx = allLabelLabelIdx, name = allLabelNames, label = allLabelValues, stringsAsFactors = F)
-                 
+  
   return(list(name = jsonObj$name, annotates = jsonObj$annotates, sampleRate = jsonObj$sampleRate, items = items, links = links, labels = labels))
   
 }
 
 # convert annotDFs (annotation list of data.frame representation) to annotJSON
 bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
+  # NOTE load_bundleAnnotDFsDBI that produces annotDFs orders the items according to DBconfig
+  
   # load DBconfig to generate levelNames vector (although levels are not ordered per say)
   levelDefs = list_levelDefinitions(emuDBhandle)
   
-  levels = list()
+  attrDefs = list_attributeDefinitions(emuDBhandle, levelDefs$name)
   
-  for(l in levelDefs$name){
-    levelItems = dplyr::filter_(annotDFs$items, ~(level == l))
-    levels[[length(levels) + 1]] = list(
-      items = apply(levelItems, 1, function(r) {
-      
-      dbLabels = apply(
-        dplyr::filter_(
-          annotDFs$labels,
-          ~(item_id == as.numeric(r[1]))
-        ),
-        1,
-        function(r2) {
-          list(name = as.character(r2[3]), value = as.character(r2[4]))
-        }
-      )
-      
-      specifiedAttributes = sapply (dbLabels, function(l) l$name)
-      expectedAttributes = list_attributeDefinitions(emuDBhandle, l)$name
-      
-      labels = list()
-      
-      for (i in 1:length(expectedAttributes)) {
-        if(expectedAttributes[i] %in% specifiedAttributes){
-          labels [[length(labels) + 1 ]] = list(
-            name = expectedAttributes[i],
-            value = dbLabels[specifiedAttributes==expectedAttributes[i]][[1]]$value
-          )
-        }else{
-          labels [[length(labels) + 1 ]] = list(
-            name = expectedAttributes[i],
-            value = ""
-          )
-        }
+  levelsdf = dplyr::full_join(annotDFs$items, attrDefs, by=c("level")) %>%
+    dplyr::left_join(annotDFs$labels, by=c("item_id", "name")) 
+  
+  levelsdf$label[is.na(levelsdf$label)] = "" # set missing labels top ""
+  
+  # convert columns that are split() to factors to prevent reodering
+  levelsdf$level = factor(levelsdf$level, levels = unique(levelsdf$level))
+  
+  levels = split(levelsdf, levelsdf$level) %>%
+    purrr::map(function(lev) {
+      # convert columns that are split() to factors to prevent reodering
+      lev$item_id = factor(lev$item_id, levels = unique(lev$item_id))
+      split(lev, lev$item_id)
+    }) %>%
+    purrr::modify_depth(2, function(df){
+      if(unique(df$type.x) == "ITEM"){
+        list(id = as.integer(as.character(unique(df$item_id))), 
+             labels = data.frame(name = df$name, value = df$label, stringsAsFactors = F))
+      }else if(unique(df$type.x) == "SEGMENT"){
+        list(id=as.integer(as.character(unique(df$item_id))), 
+             sampleStart = unique(df$sample_start), 
+             sampleDur = unique(df$sample_dur), 
+             labels = data.frame(name = df$name, value = df$label, stringsAsFactors = F))
+      }else if(unique(df$type.x) == "EVENT"){
+        list(id=as.integer(as.character(unique(df$item_id))), 
+             samplePoint = unique(df$sample_point), 
+             labels = data.frame(name = df$name, value = df$label, stringsAsFactors = F))
       }
-      
-      
-      res = NULL
-      if(r[3] == "ITEM"){
-        res = list(id = as.numeric(r[1]),
-                   labels = labels)
-      }else if(r[3] == "SEGMENT"){
-        res = list(id = as.numeric(r[1]),
-                   sampleStart = as.numeric(r[7]),
-                   sampleDur = as.numeric(r[8]),
-                   labels = labels)
-      }else if(r[3] == "EVENT"){
-        res = list(id = as.numeric(r[1]),
-                   samplePoint = as.numeric(r[6]),
-                   labels = labels)
-      }
-      return(res)
-    }),
-    name = l,
-    type = levelDefs$type[levelDefs$name == l]
-    )
-    # fix names for single entry data.frames
-    names(levels[[length(levels)]]$items) = NULL
-  }
-  if(nrow(annotDFs$links) >0){
-    links = apply(annotDFs$links, 1, function(r) list(fromID = as.numeric(r[1]), toID = as.numeric(r[2])))
+    })
+  
+  levels = purrr::map2(levels, 1:length(levels), function(itemsList, levelIdx){
+    names(itemsList) = NULL # remove items key values
+    list(name = levelDefs$name[levelIdx], type = levelDefs$type[levelIdx], items = itemsList)
+  })
+  
+  names(levels) = NULL # remove level key values
+  
+  # build links
+  if(nrow(annotDFs$links) > 0){
+    links = data.frame(fromID = annotDFs$links$from_id,
+                       toID = annotDFs$links$to_id,
+                       stringsAsFactors = F)
   }else{
     links = list()
-  }
-  
-  # reset null entries of empty items to list for correct cohesion into json
-  for(i in 1:length(levels)){
-    if(is.null(levels[[i]]$items)){
-      levels[[i]]$items = list()
-    }
   }
   
   annotJSON = list(name = annotDFs$name,
@@ -227,5 +204,6 @@ bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
                    levels = levels, links = links)
   
   return(jsonlite::toJSON(annotJSON, auto_unbox = T, force = T, pretty = T))
+  
 }
 
