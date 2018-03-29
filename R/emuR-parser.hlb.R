@@ -22,7 +22,7 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
   if(is.null(encoding)){
     lines = try(readr::read_lines(hlbFilePath))
   }else{
-    lines = try(readr::read_lines(hlbFilePath,locale(encoding=encoding)))
+    lines = try(readr::read_lines(hlbFilePath, readr::locale(encoding=encoding)))
   }
   if(class(lines) == "try-error") {
     stop("Cannot read from file ", hlbFilePath)
