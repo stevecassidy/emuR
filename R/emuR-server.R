@@ -166,6 +166,7 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*', seglist =
       }else{
         D = DATA
       }
+      D = readr::parse_character(D) # ensure UTF-8 encoding windows
       jr=jsonlite::fromJSON(D,simplifyVector = FALSE)
       if(debugLevel >= 2 ){
         cat("Received command from EMU-webApp: ",jr[['type']],"\n")

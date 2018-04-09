@@ -1,4 +1,4 @@
-# emuR 0.2.3.9021
+# emuR 0.2.3.9022
 
 ## new features / performance tweaks / improvements
 
@@ -37,7 +37,7 @@
 * fixed bad `seq_start_seq_idx` and `seq_seq_idx` returned by `requery_seq()` (fixes \#183) 
 * fixed bad `seq_start_seq_idx` returned by internal `query_databaseHier()` function
 * fixed bad sorting of `requery_seq()/requery_hier()` when `calcTimes = F` (still sorted by `start_sample` instead of the correct `seq_idx`)
-
+* added `readr::parse_character()` to data received in `serve()` as this is recoded in windows (fixes \#188).
 
 # emuR 0.2.3
 
