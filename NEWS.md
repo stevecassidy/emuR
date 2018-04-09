@@ -1,4 +1,4 @@
-# emuR 0.2.3.9022
+# emuR 1.0.0
 
 ## new features / performance tweaks / improvements
 
