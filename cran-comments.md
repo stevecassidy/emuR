@@ -1,6 +1,6 @@
 ## Test environments
-* local OS X (x86_64-apple-darwin15.6.0) install, R version 3.4.0 (2017-04-21) -- "You Stupid Darkness"
-* Ubuntu 12.04.5 LTS (on travis-ci), R 3.4.0
+* local OS X (x86_64-apple-darwin15.6.0) install, R version 3.4.4 (2018-03-15) -- "Someone to Lean On"
+* Ubuntu 12.04.5 LTS (on travis-ci), R version 3.4.4 (2017-01-27)
 * win-builder (devel and release)
 
 ## R CMD check results
