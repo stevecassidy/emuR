@@ -195,7 +195,8 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
                                                              "AND iseq.db_uuid = labels.db_uuid AND iseq.session = labels.session AND iseq.bundle = labels.bundle AND iseq.item_id = labels.item_id ",
                                                              "AND labels.name = '", resultAttrDef, "' ",
                                                              "GROUP BY emursegs_tmp.rowid, emursegs_tmp.db_uuid, emursegs_tmp.session, emursegs_tmp.bundle, emursegs_tmp.start_item_id, emursegs_tmp.end_item_id ", # once again using rowid to preserve duplicates (requery only)
-                                                             "ORDER BY emursegs_tmp.db_uuid, emursegs_tmp.session, emursegs_tmp.bundle, emursegs_tmp.level, emursegs_tmp.start_item_seq_idx"))
+                                                             "ORDER BY emursegs_tmp.db_uuid, emursegs_tmp.session, emursegs_tmp.bundle, emursegs_tmp.level, iseq.seq_idx ",
+                                                             ""))
     # drop temp table
     DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS emursegs_tmp"))
   }else{
