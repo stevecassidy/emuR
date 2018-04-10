@@ -1,4 +1,4 @@
-# emuR 1.0.0
+# emuR 1.0.1
 
 ## new features / performance tweaks / improvements
 
@@ -27,6 +27,8 @@
 * all read operations now use the readr package (avoids encoding problems like \#187)
 * `list_attributeDefinitions()` now allows for a name vector to be passed in
 * rewrite of `rewrite_allAnnots()` functions for faster rewrites of `_annot.json` files to disk
+* improved cleanup in testing DBconfig functions
+* now ordering by `items_idx` not by `start_start_seq_idx` which led to bad label sequences (fixes \#140)
 
 ## bug fixes
 
