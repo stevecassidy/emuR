@@ -27,6 +27,11 @@ test_that("get_levelDefinition returns correct levelDef", {
   expect_equal(ld$type, 'SEGMENT')
   expect_equal(ld$attributeDefinitions[[1]]$name, 'Phonetic')
   expect_equal(ld$attributeDefinitions[[1]]$type, 'STRING')
+  
+  # cleanup
+  DBI::dbDisconnect(ae$connection)
+  ae = NULL
+  unlink(path2db, recursive = T)
 })
 
 ##############################
@@ -90,6 +95,11 @@ test_that("CRUD operations work for ssffTrackDefinitions", {
     expect_false(ajson$levels[[4]]$name == "Word")
   })
   
+  # cleanup
+  DBI::dbDisconnect(ae$connection)
+  ae = NULL
+  unlink(path2db, recursive = T)
+  
 })
 
 ##############################
@@ -144,6 +154,11 @@ test_that("CRUD operations work for levelDefinitions", {
     
   })
   
+  # cleanup
+  DBI::dbDisconnect(ae$connection)
+  ae = NULL
+  unlink(path2db, recursive = T)
+  
 })  
 
 ##############################
@@ -179,6 +194,11 @@ test_that("CRUD operations work for attributeDefinitions", {
     df = list_attributeDefinitions(ae, 'Word')
     expect_equal(nrow(df), 3)
   })
+  
+  # cleanup
+  DBI::dbDisconnect(ae$connection)
+  ae = NULL
+  unlink(path2db, recursive = T)
   
 })  
 
@@ -224,6 +244,11 @@ test_that("CRUD operations work for legalLabels", {
     
     expect_true(is.na(ll))
   })
+  
+  # cleanup
+  DBI::dbDisconnect(ae$connection)
+  ae = NULL
+  unlink(path2db, recursive = T)
   
 })  
 
@@ -286,6 +311,11 @@ test_that("CRUD operations work for labelGroups", {
                                  attributeDefinitionName = 'Word')
     expect_equal(nrow(df), 0)
   })
+  
+  # cleanup
+  DBI::dbDisconnect(ae$connection)
+  ae = NULL
+  unlink(path2db, recursive = T)
   
 })  
 
@@ -358,6 +388,10 @@ test_that("CRUD operations work for linkDefinitions", {
     # TODO: should probably check annot json files & cache as well..
   })
   
+  # cleanup
+  DBI::dbDisconnect(ae$connection)
+  ae = NULL
+  unlink(path2db, recursive = T)
 })  
 
 
@@ -392,11 +426,9 @@ test_that("CRUD operations work for labelGroups", {
     df = list_labelGroups(ae)
     expect_equal(nrow(df), 0)
   })
-})  
-
-# 
-test_that("delete", {
+  
+  # cleanup
+  DBI::dbDisconnect(ae$connection)
+  ae = NULL
   unlink(path2db, recursive = T)
-})
-
-
+})  
