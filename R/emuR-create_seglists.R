@@ -184,7 +184,8 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
     # construct labels
     DBI::dbExecute(emuDBhandle$connection, paste0("CREATE INDEX IF NOT EXISTS emursegs_tmp_idx ON emursegs_tmp(db_uuid, session, bundle, start_item_id, end_item_id)"))
     
-    seglist = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT GROUP_CONCAT(labels.label, '->') AS labels, emursegs_tmp.start, emursegs_tmp.end, emursegs_tmp.utts, emursegs_tmp.db_uuid, emursegs_tmp.session, emursegs_tmp.bundle, ",
+    seglist = DBI::dbGetQuery(emuDBhandle$connection, paste0("select GROUP_CONCAT(ungrouped.label, '->') AS labels, start, end, utts, db_uuid, session, bundle, start_item_id, end_item_id, level, start_item_seq_idx, end_item_seq_idx, type, sample_start, sample_end, sample_rate FROM ",
+                                                             "(SELECT emursegs_tmp.rowid, labels.label, emursegs_tmp.start, emursegs_tmp.end, emursegs_tmp.utts, emursegs_tmp.db_uuid, emursegs_tmp.session, emursegs_tmp.bundle, ",
                                                              "emursegs_tmp.start_item_id, emursegs_tmp.end_item_id, emursegs_tmp.level, emursegs_tmp.start_item_seq_idx, emursegs_tmp.end_item_seq_idx, ",
                                                              "emursegs_tmp.type, emursegs_tmp.sample_start, emursegs_tmp.sample_end, emursegs_tmp.sample_rate ",
                                                              "FROM emursegs_tmp, ", itemsTableName, " AS itl, ", itemsTableName, " AS itr, ", itemsTableName, " AS iseq, ", labelsTableName, " AS labels ", # items table left & right
@@ -194,8 +195,8 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
                                                              "AND iseq.seq_idx >= itl.seq_idx  AND iseq.seq_idx <= itr.seq_idx ", # join all seq. items
                                                              "AND iseq.db_uuid = labels.db_uuid AND iseq.session = labels.session AND iseq.bundle = labels.bundle AND iseq.item_id = labels.item_id ",
                                                              "AND labels.name = '", resultAttrDef, "' ",
-                                                             "GROUP BY emursegs_tmp.rowid, emursegs_tmp.db_uuid, emursegs_tmp.session, emursegs_tmp.bundle, emursegs_tmp.start_item_id, emursegs_tmp.end_item_id ", # once again using rowid to preserve duplicates (requery only)
-                                                             "ORDER BY emursegs_tmp.db_uuid, emursegs_tmp.session, emursegs_tmp.bundle, emursegs_tmp.level, iseq.seq_idx ",
+                                                             "ORDER BY emursegs_tmp.db_uuid, emursegs_tmp.session, emursegs_tmp.bundle, emursegs_tmp.level, iseq.seq_idx) AS ungrouped ",
+                                                             "GROUP BY rowid",
                                                              ""))
     # drop temp table
     DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS emursegs_tmp"))

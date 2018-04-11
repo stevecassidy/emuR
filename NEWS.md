@@ -4,6 +4,8 @@
 
 ## bug fixes
 
+* propper fix for "now ordering by `items_idx` not by `start_start_seq_idx` which led to bad label sequences (fixes \#140)"
+
 
 # emuR 1.0.0
 
