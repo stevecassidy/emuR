@@ -29,7 +29,7 @@ of MAUS. The chunk segmentation level must be a segment level, and it must link 
 
 \item{turnChunkLevelIntoItemLevel}{if TRUE, and if a chunk level is provided, the chunk level is converted into an ITEM level after segmentation}
 
-\item{params}{named list of parameters to be passed on to the webservice. It is your own reponsibility to
+\item{params}{named list of parameters to be passed on to the webservice. It is your own responsibility to
 ensure that these parameters are compatible with the webservice API
 (see \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}).
 Some options accepted by the API (e.g. output format) cannot be set when calling a webservice from within emuR,

@@ -208,7 +208,7 @@ requery_seq<-function(emuDBhandle, seglist, offset = 0, offsetRef = 'START',
 
 ##' Requery hierarchical context of a segment list in an emuDB
 ##' @description Function to requery hierarchical context of a segment list queried from an emuDB
-##' @details A segment is defined as a single item or a chain of items from the respective level, e.g. if a level in a bundle instance has labels 'a', 'b' and 'c' in that order, 'a' or 'a->b' oder 'a->b->c' are all valid segments, but not 'a->c'.
+##' @details A segment is defined as a single item or a chain of items from the respective level, e.g. if a level in a bundle instance has labels 'a', 'b' and 'c' in that order, 'a' or 'a->b' or 'a->b->c' are all valid segments, but not 'a->c'.
 ##' For each segment of the input segment list \code{seglist} the function checks the start and end item for hierarchically linked items in the given target level, and based on them constructs segments in the target level.
 ##' As the start item in the resulting segment the item with the lowest sample position is chosen; for the end item that with the highest sample position.
 ##' If result and input segment list have the same length (for each input segment one segment on the target level was found), the result segment list has the same length and order as the input list; 

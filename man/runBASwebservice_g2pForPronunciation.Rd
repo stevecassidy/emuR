@@ -21,7 +21,7 @@ Up-to-date lists of the languages accepted by all webservices can be found here:
 
 \item{canoAttributeDefinitionName}{attribute name for canonical pronunciations of words}
 
-\item{params}{named list of parameters to be passed on to the webservice. It is your own reponsibility to
+\item{params}{named list of parameters to be passed on to the webservice. It is your own responsibility to
 ensure that these parameters are compatible with the webservice API
 (see \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}).
 Some options accepted by the API (e.g. output format) cannot be set when calling a webservice from within emuR,

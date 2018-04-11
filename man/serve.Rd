@@ -58,7 +58,7 @@ Disconnect and stop:
 }
 }
 \details{
-Function opens a HTTP/websocket and waits in a loop for browser requests. Parameter host determines the IP address(es) of hosts allowed to connect to the server. By default the server only listens to localhost. If you want to allow connection from any host set the host parameter to \code{0.0.0.0}. Please note that this might be an safety issue! The \code{port} parameter determines the port the server listens on. The \code{host} and \code{port} parameters are intended only for expert users. When started the R console will be blocked. On successfull connection the server sends the session and bundle list of the database referenced by name by parameter \code{dbName} or by UUID parameter \code{dbUUID}.
+Function opens a HTTP/websocket and waits in a loop for browser requests. Parameter host determines the IP address(es) of hosts allowed to connect to the server. By default the server only listens to localhost. If you want to allow connection from any host set the host parameter to \code{0.0.0.0}. Please note that this might be an safety issue! The \code{port} parameter determines the port the server listens on. The \code{host} and \code{port} parameters are intended only for expert users. When started the R console will be blocked. On successful connection the server sends the session and bundle list of the database referenced by name by parameter \code{dbName} or by UUID parameter \code{dbUUID}.
 The Web application requests bundle data for viewing or editing. If a bundle is modified with the EMU-webApp and the save button is pressed the server modifies the internal database and saves the changes to disk.
 Communication between server and EMU webApp is defined by EMU-webApp-websocket-protocol version 0.0.2.
 }

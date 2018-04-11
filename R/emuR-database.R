@@ -115,7 +115,7 @@ database.DDL.emuDB_links_to_id_idx = 'CREATE INDEX IF NOT EXISTS links_to_id_idx
 initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TRUE){
   # check of old tables are present and rename them
   if(DBI::dbExistsTable(emuDBhandle$connection, "emuDB")){
-    cat("INFO: Depricated cache tables found. Deleting these and recreating SQL cache that adheres to new DB schema definition.\n")
+    cat("INFO: Deprecated cache tables found. Deleting these and recreating SQL cache that adheres to new DB schema definition.\n")
     allTableNames = DBI::dbListTables(emuDBhandle$connection)
     DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "items"))
     DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "labels"))
@@ -128,7 +128,7 @@ initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TR
     DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "session"))
     DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "emuDB"))
   }else if(DBI::dbExistsTable(emuDBhandle$connection, "links_ext")){
-    cat("INFO: Found depricated links_ext table. Deleting this table as it is not needed any longer.\n")
+    cat("INFO: Found deprecated links_ext table. Deleting this table as it is not needed any longer.\n")
     DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "links_ext"))
   }
   
