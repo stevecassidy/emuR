@@ -1,6 +1,8 @@
-# emuR 1.0.0.9000
+# emuR 1.0.0.9001
 
 ## new features / performance tweaks / improvements
+
+* URL encoding of bundle and session names to allow for URL string reserved characters in bundle and session names
 
 ## bug fixes
 

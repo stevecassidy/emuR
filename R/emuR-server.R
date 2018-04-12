@@ -105,6 +105,7 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*', seglist =
                                 paste0(queryStr$session, session.suffix), 
                                 paste0(queryStr$bundle, bundle.dir.suffix),
                                 paste0(queryStr$bundle, ".", DBconfig$mediafileExtension))
+      
       audioFile = file(mediaFilePath, "rb")
       audioFileData=readBin(audioFile, raw(), n=file.info(mediaFilePath)$size)
       close(audioFile)
@@ -291,8 +292,8 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*', seglist =
         # }
         mediaFile=list(encoding="GETURL", data=paste0("http://", 
                                                       ws$request$HTTP_HOST, 
-                                                      "?session=", bundleSess,
-                                                      "&bundle=", bundleName))
+                                                      "?session=", URLencode(bundleSess, reserved = T),
+                                                      "&bundle=", URLencode(bundleName, reserved = T)))
         if(is.null(err)){   
           ssffTracksInUse=get_ssffTracksUsedByDBconfig(DBconfig)
           ssffTrackNmsInUse=c()
