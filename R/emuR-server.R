@@ -292,8 +292,8 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*', seglist =
         # }
         mediaFile=list(encoding="GETURL", data=paste0("http://", 
                                                       ws$request$HTTP_HOST, 
-                                                      "?session=", URLencode(bundleSess, reserved = T),
-                                                      "&bundle=", URLencode(bundleName, reserved = T)))
+                                                      "?session=", utils::URLencode(bundleSess, reserved = T),
+                                                      "&bundle=", utils::URLencode(bundleName, reserved = T)))
         if(is.null(err)){   
           ssffTracksInUse=get_ssffTracksUsedByDBconfig(DBconfig)
           ssffTrackNmsInUse=c()
