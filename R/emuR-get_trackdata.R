@@ -388,7 +388,7 @@
       curData[,] <- tmpData[curStartDataIdx:curEndDataIdx,]
     }else{
       entry= paste(seglist[i,], collapse = " ")
-      stop('Can not extract following segmentlist entry: ', entry, ' start and/or end times out of bounds')
+      stop('Can not extract data for the ', i, 'th row of the segment list: ', entry, ' start and/or end times out of bounds')
     }
     
     ##############################
