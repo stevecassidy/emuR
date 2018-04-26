@@ -16,7 +16,8 @@ database.DDL.emuRsegsTmp = 'CREATE TEMP TABLE emursegs_tmp (
   type TEXT,
   sample_start INTEGER,
   sample_end  INTEGER,
-  sample_rate FLOAT
+  sample_rate FLOAT,
+  attribute TEXT
 );'
 
 create_requeryTmpTables <- function(emuDBhandle){
