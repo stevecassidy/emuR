@@ -276,7 +276,9 @@ load_annotationForLegacyBundle=function(schema,legacyBundleID,basePath=NULL,enco
   }else{
     # TODO ASSP does not return good error messages if an IO error (not exist, permission denied ,etc...) occurs
     # TODO test file access first
-    pfAssp=wrassp::read.AsspDataObj(sampleRateReferenceFile,0,4000)
+    tryCatch({pfAssp=wrassp::read.AsspDataObj(sampleRateReferenceFile, 0, 4000)},
+             error=function(e){stop(paste0("Error reading: ", sampleRateReferenceFile, " (this could be caused by a faulty or empty audio file)"))})
+    
     sampleRate=attr(pfAssp,'sampleRate')
   }
   
