@@ -1,9 +1,10 @@
-# emuR 1.0.0.9002
+# emuR 1.0.0.9003
 
 ## new features / performance tweaks / improvements
 
 * URL encoding of bundle and session names to allow for URL string reserved characters in bundle and session names
 * error message of `get_trackdata` now contains seglist row index if "Can not extract following"
+* `normalize_length()` now allows for additional non-numeric columns
 
 ## bug fixes
 

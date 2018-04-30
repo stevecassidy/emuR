@@ -92,7 +92,8 @@ create_emuRtrackdata <- function(sl, td){
   
   for(dc in dataCols){
     if(!class(td[[dc]]) %in% numericDataClasses){
-      stop(paste0('Found column that is not of a number class ("complex", "single", "double", "integer", "numeric"). Column name is', td[[dc]]))
+      warning(paste0('Found additional column that is not of a number class ("complex", "single", "double", "integer", "numeric"). Column name is: "', 
+                     dc, '". The first entry of each segment is reduplicated to match the length of each normalized segment.'))
     }
   }
   
@@ -163,7 +164,11 @@ create_emuRtrackdata <- function(sl, td){
     # interpolate data columns
     for (name in dataCols){
       y = dplyr::pull(eRtd, name)
-      eRtd.normtemp[,name] = approx(eRtd$times_norm, y, n = N)$y
+      if(class(y) != "character"){
+        eRtd.normtemp[,name] = approx(eRtd$times_norm, y, n = N)$y
+      }else{
+        eRtd.normtemp[,name]  = y[1] # use first element to fill up vector (R's recycling)
+      }
     }
     # recalculate times_orig & rimes_rel
     eRtd.normtemp$times_orig = seq(unique(eRtd.normtemp$start), unique(eRtd.normtemp$end),length.out = N)
