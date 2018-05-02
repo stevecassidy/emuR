@@ -26,112 +26,45 @@
 ##' Any newly created item must be given a sequence index. The sequence index may
 ##' be real-valued (it will automatically be replaced with a natural value). To
 ##' prepend the new item to the existing one, pass a value lower than one. To
-##' append it to the existing items, you can either pass \code{NULL} or any value
+##' append it to the existing items, you can either pass \code{NA} or any value
 ##' that you know is greater than n (the number of existing items in that level).
-##' It does not need to be exactly n+1. If you are appending multiple items at the
-##' same time, you should not choose \code{NULL}, because then the order of the
-##' new items will not be guaranteed. To place the new item between two existing
-##' ones, use any real value between the sequence indexes of the existing neighbors.
+##' It does not need to be exactly n+1. To place the new item between two
+##' existing ones, use any real value between the sequence indexes of the existing
+##' neighbors.
+##' 
+##' If you are appending multiple items at the same time, every sequence index
+##' (including NA) can only be used once per session/bundle/level combination
+##' (because session/bundle/level/sequence index make the item's unique identifier).
 ##' 
 ##' After creating the items, all sequence indexes (which may now be real-valued,
-##' natural-valued or NULL) are sorted in ascending order and then replaced with
+##' natural-valued or NA) are sorted in ascending order and then replaced with
 ##' the values 1..n, where n is the number of items on that level. While sorting,
-##' NULL values are placed at the end.
-##' 
-##' If you pass in an \code{emuRsegs} object, make sure \code{start_item_seq_idx}
-##' and \code{end_item_seq_idx} are the same. This is not the case when you have
-##' queried for sequences, e.g. as in
-##' \code{query(emuDBhandle, "[Phonetic == i -> Phonetic == t]")}. Sequences of
-##' this kind are currently unsupported in \code{create_itemsInLevel}.
+##' NA values are placed at the end.
 ##' 
 ##' At this time, it is not possible to insert items into time-based levels (SEGMENT or EVENT).
 ##'
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
-##' @param itemsToCreate Either an emuRsegs object or a data frame with the
-##' columns \code{session}, \code{bundle}, \code{level}, \code{sequenceIndex},
-##' \code{attribute}, and \code{label}. *None* of the columns should be factors.
+##' @param itemsToCreate A data frame with the columns
+##' \itemize{
+##' \item\code{session},
+##' \item\code{bundle},
+##' \item\code{level},
+##' \item\code{sequenceIndex},
+##' \item\code{attribute}, and
+##' \item \code{label}.
+##' }
+##' *None* of the columns should be factors.
 ##' \code{sequenceIndex} must be numeric (can be real-valued or natural-valued),
 ##' all other columns must be of type character.
+##' @param rewriteAllAnnots should changes be written to file system (_annot.json
+##'                         files) (intended for expert use only)
+##' @param verbose if set to \code{TRUE}, more status messages are printed
+##' 
+##' @importFrom rlang .data
 create_itemsInLevel = function(emuDBhandle,
                                itemsToCreate,
                                rewriteAllAnnots = TRUE,
                                verbose = TRUE) {
-  UseMethod("create_itemsInLevel", itemsToCreate)
-}
-
-## A function called read_itemsInLevel will not exist - query() is the function that does the job.
-# read_itemsInLevel = function (...)
-
-
-## The currently unexported function change_labels will be renamed to update_itemsInLevel (and then be exported)
-# update_itemsInLevel = function (...)
-
-
-##' Delete new items programmatically
-##' @export
-##' 
-##' @description Allows to delete annotation items programmatically.
-delete_itemsInLevel = function (emuDBhandle,
-                                itemsToDelete,
-                                rewriteAllAnnots = TRUE,
-                                verbose = TRUE) {
-  UseMethod("delete_itemsInLevel", itemsToDelete)
-}
-
-
-
-
-
-############################################
-### Wrappers that take emuRsegs as input ###
-############################################
-
-##' Transforms an emuRsegs object and calls the actual create function.
-##' See \code{\link{create_itemsInLevel}}.
-##' @export
-create_itemsInLevel.emuRsegs = function (emuDBhandle,
-                                         segmentList,
-                                         rewriteAllAnnots = TRUE,
-                                         verbose = TRUE) {
-  itemsToCreate = as.crud.data.frame(emuDBhandle,
-                                     segmentList)
-  create_itemsInLevel(emuDBhandle,
-                      itemsToCreate,
-                      rewriteAllAnnots,
-                      verbose)
-}
-
-##' Transforms an emuRsegs object and calls the actual delete function.
-##' See \code{\link{delete_itemsInLevel}}.
-##' @export
-delete_itemsInLevel.emuRsegs = function (emuDBhandle,
-                                         segmentList,
-                                         rewriteAllAnnots = TRUE,
-                                         verbose = TRUE) {
-  itemsToDelete = as.crud.data.frame(emuDBhandle,
-                                     segmentList)
-  delete_itemsInLevel(emuDBhandle,
-                      itemsToDelete,
-                      rewriteAllAnnots,
-                      verbose)
-}
-
-
-
-
-
-##############################
-### Actual implementations ###
-##############################
-
-
-##' Actual implementation of the create function.
-##' See \code{\link{create_itemsInLevel}}.
-##' @export
-create_itemsInLevel.data.frame = function (emuDBhandle,
-                                           itemsToCreate,
-                                           rewriteAllAnnots = TRUE,
-                                           verbose = TRUE) {
   ##
   ## First, check that every session/bundle combination exists
   ##
@@ -164,6 +97,13 @@ create_itemsInLevel.data.frame = function (emuDBhandle,
   }
   
   ##
+  ## Make sure all sequence indexes are unique within their respective level/attribute pair.
+  ##
+  itemsToCreate %>%
+    dplyr::group_by(.data$session, .data$bundle, .data$level, .data$attribute) %>%
+    dplyr::do(ensureNoDuplicateSequenceIndexes(.data))
+  
+  ##
   ## Get the label index for each attribute (the label index marks the order of attributes within their level)
   ##
   itemsToCreate$labelIndex = get_labelIndex(emuDBhandle = emuDBhandle,
@@ -176,14 +116,16 @@ create_itemsInLevel.data.frame = function (emuDBhandle,
   ## and proceed separately for each of them
   ##
   itemsToCreate %>%
-    dplyr::group_by_(~(session * bundle * level * sequenceIndex)) %>%
-    dplyr::do_(insertItemIntoDatabase(emuDBhandle, ~(.)))
-
-  ##
-  ## Rewrite sequence indexes - fail if there are duplicate sequence indexes
-  ##
+    dplyr::group_by(.data$session, .data$bundle, .data$level, .data$sequenceIndex) %>%
+    dplyr::do(insertItemIntoDatabase(emuDBhandle, .data))
   
-  # ...
+  
+  ##
+  ## Rewrite sequence indexes
+  ##
+  rewrite_allSequenceIndexes(db)
+  ## @todo fail if the user is trying to add sequence indexes that are already
+  ## there - or accept it silently, producing undefined order?
   
   if (rewriteAllAnnots) {
     rewrite_allAnnots(emuDBhandle, verbose)
@@ -192,13 +134,37 @@ create_itemsInLevel.data.frame = function (emuDBhandle,
   invisible(NULL)
 }
 
+## A function called read_itemsInLevel will not exist - query() is the function that does the job.
+# read_itemsInLevel = function (...)
 
-##' Actual implementation of the delete function.
-##' See \code{\link{delete_itemsInLevel}}.
-delete_itemsInLevel.data.frame = function (emuDBhandle,
-                                           itemsToDelete,
-                                           rewriteAllAnnots = TRUE,
-                                           verbose = TRUE) {
+
+## The currently unexported function change_labels will be renamed to update_itemsInLevel (and then be exported)
+# update_itemsInLevel = function (...)
+
+
+##' Delete new items programmatically
+##' @export
+##' 
+##' @description Allows to delete annotation items programmatically.
+##' 
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
+##' @param itemsToDelete A data frame with the columns
+##' \itemize{
+##' \item\code{session},
+##' \item\code{bundle},
+##' \item\code{level}, and
+##' \item\code{sequenceIndex}.
+##' }
+##' *None* of the columns should be factors.
+##' \code{sequenceIndex} must be numeric (natural-valued), all other columns must
+##' be of type character.
+##' @param rewriteAllAnnots should changes be written to file system (_annot.json
+##'                         files) (intended for expert use only)
+##' @param verbose if set to \code{TRUE}, more status messages are printed
+delete_itemsInLevel = function (emuDBhandle,
+                                itemsToDelete,
+                                rewriteAllAnnots = TRUE,
+                                verbose = TRUE) {
   print ("[Dummy] Deleting items")
   print(itemsToDelete)
   

@@ -1,61 +1,3 @@
-##' Transform a segment list of type emuRsegs into a data frame for CRUD operations
-##' @export
-##' 
-##' @todo Is the name good?
-##' 
-##' @description A segment list (object of type emuRsegs) is often the basis for
-##' CRUD operations. It must therefore be possible to pass them directly into
-##' the various CRUD functions (\link{\code{create_itemsInLevel}},
-##' \link{\code{update_itemsInLevel}}, \link{\code{delete_itemsInLevel}}).
-##' 
-##' By definition, segment lists are in fact segment sequence lists. Therefore,
-##' they have the columns \code{start_item_seq_idx} and \code{end_item_seq_idx},
-##' but nothing like \code{seq_idx}.
-##' 
-##' CRUD operations, however, operate on individual segments and not on segment
-##' sequences.
-##' 
-##' Also, segment lists contain a column 'level' that actually contains an
-##' attribute name rather than a level name.
-##' 
-##' @todo Maybe resolve sequences to all their members instead of reject them? Is this a problem with the labels?
-as.crud.data.frame = function (emuDBhandle,
-                               segmentList) {
-  check_emuDBhandle(emuDBhandle, checkCache = F) # Do not check cache, we only need the DBconfig
-  
-  ##
-  ## Check that the segment list contains no sequences
-  ##
-  if (!identical(segmentList$start_item_seq_idx, segmentList$end_item_seq_idx)) {
-    stop("The segment list contains sequences. This is not yet supported.")
-  }
-  
-  ##
-  ## Resolve level names
-  ##
-  segmentList$attribute = segmentList$level
-  
-  for (rowname in rownames(segmentList)) {
-    currentRow = segmentList[rowname,]
-    segmentList$level = get_levelNameForAttributeName(emuDBhandle = emuDBhandle,
-                                                             attributeName = currentRow$level)
-  }
-  
-  crudDataFrame = data.frame(
-    session = segmentList$session,
-    bundle = segmentList$bundle,
-    level = segmentList$level,
-    sequenceIndex = segmentList$start_item_seq_idx,
-    attribute = segmentList$attribute,
-    label = segmentList$label,
-    
-    stringsAsFactors = F
-  )
-  
-  return(crudDataFrame)
-}
-
-
 ##' Insert one item into the database
 ##'
 ##' @description One item, identified as \code{session:bundle:level:sequenceIndex},
@@ -63,13 +5,13 @@ as.crud.data.frame = function (emuDBhandle,
 ##' of the given level.
 ##'
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
-##' @param item Data frame containing the labels for the item to be inserted.
-##'             Must contain the columns \code{session}, \code{bundle}, \code{level},
-##'             \code{sequenceIndex}, \code{attribute}, \code{labelIndex}, and
-##'             \code{label}. The first four of these identify the item and must
-##'             contain the same value in all rows. \code{attribute} and \code{labelIndex}
-##'             must match up - the label index marks the position of the
-##'             attribute within its level (see \code{\link{get_labelIndex}}.
+##' @param itemToInsert Data frame containing the labels for the item to be inserted.
+##'                     Must contain the columns \code{session}, \code{bundle}, \code{level},
+##'                     \code{sequenceIndex}, \code{attribute}, \code{labelIndex}, and
+##'                     \code{label}. The first four of these identify the item and must
+##'                     contain the same value in all rows. \code{attribute} and \code{labelIndex}
+##'                     must match up - the label index marks the position of the
+##'                     attribute within its level (see \code{\link{get_labelIndex}}.
 insertItemIntoDatabase = function(emuDBhandle,
                                   itemToInsert) {
   session = itemToInsert$session[1]
@@ -100,9 +42,6 @@ insertItemIntoDatabase = function(emuDBhandle,
   ##
   ## Insert item into the database (first the item itself, then the corresponding labels)
   ##
-  print (paste0("Inserting item ",
-                paste(session, bundle, level, sequenceIndex, sep = ":")))
-  
   itemId = 1 + bas_get_max_id(emuDBhandle,
                                      session,
                                      bundle)
@@ -136,10 +75,7 @@ insertItemIntoDatabase = function(emuDBhandle,
     )
   )
   
-  rowsAffected = DBI::dbGetRowsAffected(statement)
   DBI::dbClearResult(statement)
-  print(paste("Inserted", rowsAffected, "items."))
-  
   
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
@@ -168,9 +104,17 @@ insertItemIntoDatabase = function(emuDBhandle,
   )
   
   DBI::dbClearResult(statement)
+  
+  invisible(itemToInsert)
 }
 
 ##' Vectorized function to translate level/attribute name pairs into label indexes.
+##' 
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
+##' @param levelName The level of the level/attribute pairs. This vector must
+##' match the \code{attributeName} vector.
+##' @param attributeName The attribute of the level/attribute pairs. This vector must
+##' match the \code{levelName} vector.
 get_labelIndex = function(emuDBhandle,
                           levelName,
                           attributeName) {
@@ -231,21 +175,34 @@ get_labelIndex = function(emuDBhandle,
 ##' replaces them with the sequence 1..n, where n is the number of items on the
 ##' respective level in the respective bundle. NULL values are placed at the end
 ##' of the sequence.
+##' 
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
+##' 
+##' @importFrom rlang .data
 rewrite_allSequenceIndexes = function (emuDBhandle) {
   allItems = DBI::dbReadTable(emuDBhandle$connection, "items")
   
   allItems %>%
-    dplyr::group_by(~(db_uuid * session * bundle * level)) %>%
-    dplyr::do(rewrite_sequenceIndexesOneLevel(~(.)))
+    dplyr::group_by(.data$db_uuid, .data$session, .data$bundle, .data$level) %>%
+    dplyr::do(rewrite_sequenceIndexesOneLevel(emuDBhandle, .data))
 }
 
 ##' See \code{\link{rewrite_allSequenceIndexes}}
+##' 
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
+##' @param itemsOnLevel Data frame describing all items on a particular level.
+##' 
+##' @importFrom rlang .data
 rewrite_sequenceIndexesOneLevel = function (emuDBhandle,
                                             itemsOnLevel) {
   # Sort items by their current sequence_index
-  itemsOnLevel = dplyr::arrange(itemsOnLevel, ~(seq_idx))
+  itemsOnLevel = dplyr::arrange(itemsOnLevel, .data$seq_idx)
   
-  # @todo handle NULL to be at the end of the sorting
+  # @todo
+  # dplyr::arrange handles NA values the way I want it to - they go at the end
+  # of the list, no matter if sorting in ascending or descending order (we only
+  # use ascending anyway). However, this does not seem to be documented. Should
+  # We rely on it?
   
   # Re-calculate the sequence index
   itemsOnLevel$newSequenceIndex = 1:nrow(itemsOnLevel)
@@ -266,8 +223,25 @@ rewrite_sequenceIndexesOneLevel = function (emuDBhandle,
     )
   )
   
-  rowsAffected = DBI::dbGetRowsAffected(statement)
   DBI::dbClearResult(statement)
   
-  print(paste("Updated", rowsAffected, "items."))
+  invisible(itemsOnLevel)
+}
+
+
+ensureNoDuplicateSequenceIndexes = function (itemsOnAttribute) {
+  uniqueSequenceIndexes = unique (itemsOnAttribute$sequenceIndex)
+  
+  if (length(uniqueSequenceIndexes) != length(itemsOnAttribute$sequenceIndex)) {
+    stop(call. = FALSE,
+         paste("Sequence indexes must be uniqe within one level.",
+               "Found duplicate sequence indexes in",
+               paste(itemsOnAttribute[1, "session"],
+                     itemsOnAttribute[1, "bundle"],
+                     itemsOnAttribute[1, "level"],
+                     itemsOnAttribute[1, "attribute"],
+                     sep = ":")))
+  }
+  
+  invisible(itemsOnAttribute)
 }
