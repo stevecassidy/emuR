@@ -123,7 +123,7 @@ create_itemsInLevel = function(emuDBhandle,
   ##
   ## Rewrite sequence indexes
   ##
-  rewrite_allSequenceIndexes(db)
+  rewrite_allSequenceIndexes(emuDBhandle)
   ## @todo fail if the user is trying to add sequence indexes that are already
   ## there - or accept it silently, producing undefined order?
   
