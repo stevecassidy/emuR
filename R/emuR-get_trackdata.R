@@ -185,7 +185,7 @@
   sesBndls$db_uuid = NULL
   sesBndls$MD5annotJSON = NULL
   if(length(unique(sesBndls$sample_rate)) != 1){
-    stop("The emusegs/emuRsegs object passed in refers to bundles with in-homogeneous sampling rates in their audio files! Here is a list of all refered to bundles incl. their sampling rate: \n", paste(utils::capture.output(print(sesBndls)), collapse = "\n"))
+    warning("The emusegs/emuRsegs object passed in refers to bundles with in-homogeneous sampling rates in their audio files! Here is a list of all refered to bundles incl. their sampling rate: \n", paste(utils::capture.output(print(sesBndls)), collapse = "\n"))
   }
   
   ###################################
