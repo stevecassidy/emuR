@@ -137,8 +137,144 @@ create_itemsInLevel = function(emuDBhandle,
 # read_itemsInLevel = function (...)
 
 
-## The currently unexported function change_labels will be renamed to update_itemsInLevel (and then be exported)
-# update_itemsInLevel = function (...)
+##' Change item labels programmatically
+##' @export
+##' 
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
+##' @param itemsToUpdate A data frame with the columns
+##' \itemize{
+##' \item\code{session},
+##' \item\code{bundle},
+##' \item\code{level},
+##' \item\code{sequenceIndex},
+##' \item\code{attribute}, and
+##' \item \code{label}.
+##' }
+##' *None* of the columns should be factors.
+##' \code{sequenceIndex} must be numeric (natural-valued), all other columns
+##' must be of type character.
+##' @param rewriteAllAnnots should changes be written to file system (_annot.json
+##'                         files) (intended for expert use only)
+##' @param verbose if set to \code{TRUE}, more status messages are printed
+##' 
+##' @importFrom rlang .data
+update_itemsInLevel = function (emuDBhandle,
+                                itemsToUpdate,
+                                rewriteAllAnnots = TRUE,
+                                verbose = TRUE) {
+  ##
+  ## Find the index of each attribute definition on its respective level
+  ##
+  itemsToUpdate$labelIndex = get_labelIndex(emuDBhandle = emuDBhandle,
+                                            levelName = itemsToUpdate$level,
+                                            attributeName = itemsToUpdate$attribute)
+  
+
+  ##
+  ## First thing, make sure all the items whose labels are gonna be changed do exist
+  ##
+  statement = DBI::dbSendStatement(
+    emuDBhandle$connection,
+    "SELECT count(*) FROM items
+    WHERE
+    db_uuid = ? AND
+    session = ? AND
+    bundle = ? AND
+    level = ? AND
+    seq_idx = ?"
+  )
+  DBI::dbBind(
+    statement,
+    list(
+      rep(emuDBhandle$UUID, nrow(itemsToUpdate)),
+      itemsToUpdate$session,
+      itemsToUpdate$bundle,
+      itemsToUpdate$level,
+      itemsToUpdate$sequenceIndex
+    )
+  )
+  
+  existenceMatrix = DBI::dbFetch(statement)
+  DBI::dbClearResult(statement)
+  
+  if (!all(existenceMatrix)) {
+    total = nrow(itemsToUpdate)
+    notFound = length(existenceMatrix[existenceMatrix == 0, ])
+    
+    warning (paste(
+      "Error:",
+      notFound,
+      "of the",
+      total,
+      "specified items do/does not exist"
+    ))
+    
+    if (verbose) {
+      warning(itemsToUpdate[existenceMatrix == 0, ])
+    } else {
+      warning ("Set verbose to TRUE to see them listed.")
+    }
+    
+    return (invisible(NULL))
+  }
+  
+  statement = DBI::dbSendStatement(
+    emuDBhandle$connection,
+    "SELECT item_id FROM items
+    WHERE
+    db_uuid = ? AND
+    session = ? AND
+    bundle = ? AND
+    level = ? AND
+    seq_idx = ?"
+  )
+  
+  DBI::dbBind(
+    statement,
+    list(
+      rep(emuDBhandle$UUID, nrow(itemsToUpdate)),
+      itemsToUpdate$session,
+      itemsToUpdate$bundle,
+      itemsToUpate$level,
+      itemsToUpdate$sequenceIndex
+    )
+  )
+  
+  item_id_list = DBI::dbFetch(statement)
+  DBI::dbClearResult(statement)
+  
+  statement = DBI::dbSendStatement(
+    emuDBhandle$connection,
+    "INSERT OR REPLACE INTO labels
+    (db_uuid, session, bundle, item_id, label_idx, name, label)
+    VALUES (?, ?, ?, ?, ?, ?, ?)"
+  )
+  
+  DBI::dbBind(
+    statement,
+    list(
+      rep(emuDBhandle$UUID, nrow(itemsToUpdate)),
+      itemsToUpdate$session,
+      itemsToUpdate$bundle,
+      item_id_list$item_id,
+      itemsToUpdate$labelIndex,
+      itemsToUpdate$attribute,
+      itemsToUpdate$label
+    )
+  )
+  
+  rowsAffected = DBI::dbGetRowsAffected(statement)
+  DBI::dbClearResult(statement)
+  
+  print(paste("Updated", rowsAffected, "labels."))
+  
+  if (rewriteAllAnnots) {
+    rewrite_allAnnots(emuDBhandle, verbose)
+  }
+  
+  invisible(NULL)
+}
+
 
 
 ##' Delete new items programmatically
