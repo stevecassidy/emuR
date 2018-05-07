@@ -9,14 +9,13 @@
 ##' @export
 ##' 
 ##' @description Allows to create annotation items programmatically. You have to
-##' pass in either an \code{emuRsegs} object or a data frame describing the new
-##' items. Each new item is identified by its \code{session}, \code{bundle},
-##' \code{level}, and \code{sequence index}. The \code{level} with its associated
-##' \code{attributes} determines how many labels must be provided. You must
-##' provide a label for every existing attribute.
+##' pass in a data frame describing the new items. Each new item is identified by
+##' its \code{session}, \code{bundle}, \code{level}, and \code{sequence index}.
+##' The \code{level} with its associated \code{attributes} determines how many
+##' labels must be provided. You must provide a label for every existing attribute.
 ##' 
 ##' Sessions, bundles, levels and attributes must exist beforehand. The sequence
-##' index is explained below.bla
+##' index is explained below.
 ##' 
 ##' Within each bundle, there can be multiple annotation items on every level.
 ##' Their order within the level is given by their sequence index. All *existing*
