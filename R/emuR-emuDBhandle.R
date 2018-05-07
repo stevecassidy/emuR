@@ -53,7 +53,7 @@ check_emuDBhandle <- function(emuDBhandle, checkCache = TRUE){
   dbName = stringr::str_replace(basename(emuDBhandle$basePath), pattern = '_emuDB$', replacement = '')
   
   if(!file.exists(file.path(emuDBhandle$basePath, paste0(dbName, database.schema.suffix)))){
-    stop("emuDBhandle is invalid as the directory emuDBhandle$basePath doesn't contain a _DBconfig.json file!")
+    stop(paste0("emuDBhandle is invalid as the directory emuDBhandle$basePath doesn't contain the _DBconfig.json file '", dbName, "_DBconfig.json'. Note that the emuDB directory has to have the same prefix / name as the _DBconfig.json."))
   }
   if(checkCache){
     if(!file.exists(file.path(emuDBhandle$basePath, paste0(dbName, database.cache.suffix)))){
