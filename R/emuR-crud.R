@@ -82,18 +82,18 @@ create_itemsInLevel = function(emuDBhandle,
   ##
   ## Second, check that all levels are of type ITEM
   ##
-  allLevelsAreItems = TRUE
+  allLevelsAreOfTypeItem = TRUE
   
   for (level in unique(itemsToCreate$level)) {
     levelDefinition = get_levelDefinition(emuDBhandle, level)
     if (levelDefinition$type != "ITEM") {
-      allLevelsAreItems = FALSE
+      allLevelsAreOfTypeItem = FALSE
       warning ("One of the levels provided is not of type ITEM: ", level)
     }
   }
   
-  if (allLevelsAreItems == FALSE) {
-    stop("Some of the levels provided are not of type ITEM.")
+  if (allLevelsAreOfTypeItem == FALSE) {
+    stop("Some of the levels provided are not of type ITEM.", call. = FALSE)
   }
   
   ##
@@ -101,7 +101,7 @@ create_itemsInLevel = function(emuDBhandle,
   ##
   itemsToCreate %>%
     dplyr::group_by(.data$session, .data$bundle, .data$level, .data$attribute) %>%
-    dplyr::do(ensureNoDuplicateSequenceIndexes(.data))
+    dplyr::do(ensureSequenceIndexesAreUnique(.data))
   
   ##
   ## Get the label index for each attribute (the label index marks the order of attributes within their level)

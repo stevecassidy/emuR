@@ -43,12 +43,12 @@ insertItemIntoDatabase = function(emuDBhandle,
   ## Insert item into the database (first the item itself, then the corresponding labels)
   ##
   itemId = 1 + bas_get_max_id(emuDBhandle,
-                                     session,
-                                     bundle)
+                              session,
+                              bundle)
   
   sampleRate = bas_get_samplerate(emuDBhandle,
-                                         session,
-                                         bundle)
+                                  session,
+                                  bundle)
   
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
@@ -229,7 +229,7 @@ rewrite_sequenceIndexesOneLevel = function (emuDBhandle,
 }
 
 
-ensureNoDuplicateSequenceIndexes = function (itemsOnAttribute) {
+ensureSequenceIndexesAreUnique = function (itemsOnAttribute) {
   uniqueSequenceIndexes = unique (itemsOnAttribute$sequenceIndex)
   
   if (length(uniqueSequenceIndexes) != length(itemsOnAttribute$sequenceIndex)) {
