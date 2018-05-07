@@ -109,6 +109,10 @@ create_itemsInLevel = function(emuDBhandle,
                                             levelName = itemsToCreate$level,
                                             attributeName = itemsToCreate$attribute)
   
+  ##
+  ## Copy items data into temporary table
+  ##
+  create_sequenceIndexTmpTable(emuDBhandle)
   
   ##
   ## Split the item list into individual items (identified by the session/bundle/level/sequenceIndex tuple),
@@ -125,6 +129,11 @@ create_itemsInLevel = function(emuDBhandle,
   rewrite_allSequenceIndexes(emuDBhandle)
   ## @todo fail if the user is trying to add sequence indexes that are already
   ## there - or accept it silently, producing undefined order?
+  
+  ##
+  ## Move data from temporary items table back to normal table
+  ##
+  moveback_sequenceIndexTmpTable(emuDBhandle)
   
   if (rewriteAllAnnots) {
     rewrite_allAnnots(emuDBhandle, verbose)

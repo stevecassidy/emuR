@@ -52,7 +52,7 @@ insertItemIntoDatabase = function(emuDBhandle,
   
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
-    "INSERT INTO items (
+    "INSERT INTO items_with_float_sequence_indexes (
     db_uuid, session, bundle, item_id, level, type, seq_idx, sample_rate,
     sample_point, sample_start, sample_dur
   )
@@ -180,7 +180,7 @@ get_labelIndex = function(emuDBhandle,
 ##' 
 ##' @importFrom rlang .data
 rewrite_allSequenceIndexes = function (emuDBhandle) {
-  allItems = DBI::dbReadTable(emuDBhandle$connection, "items")
+  allItems = DBI::dbReadTable(emuDBhandle$connection, "items_with_float_sequence_indexes")
   
   allItems %>%
     dplyr::group_by(.data$db_uuid, .data$session, .data$bundle, .data$level) %>%
@@ -209,7 +209,7 @@ rewrite_sequenceIndexesOneLevel = function (emuDBhandle,
   
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
-    "UPDATE items SET seq_idx = ? WHERE db_uuid = ? AND session = ? AND bundle = ? AND item_id = ?"
+    "UPDATE items_with_float_sequence_indexes SET seq_idx = ? WHERE db_uuid = ? AND session = ? AND bundle = ? AND item_id = ?"
   )
 
   DBI::dbBind(
@@ -244,4 +244,30 @@ ensureSequenceIndexesAreUnique = function (itemsOnAttribute) {
   }
   
   invisible(itemsOnAttribute)
+}
+
+database.DDL.emuDB_items = 'CREATE TEMP TABLE items_with_float_sequence_indexes (
+  db_uuid VARCHAR(36),
+  session TEXT,
+  bundle TEXT,
+  item_id INTEGER,
+  level TEXT,
+  type TEXT,
+  seq_idx FLOAT,
+  sample_rate FLOAT,
+  sample_point INTEGER,
+  sample_start INTEGER,
+  sample_dur INTEGER,
+  PRIMARY KEY (db_uuid, session, bundle, item_id),
+  FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
+);'
+
+create_sequenceIndexTmpTable = function(emuDBhandle) {
+  DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB_items)
+  DBI::dbExecute(emuDBhandle$connection, "INSERT INTO items_with_float_sequence_indexes SELECT * FROM items")
+}
+
+moveback_sequenceIndexTmpTable = function(emuDBhandle) {
+  DBI::dbExecute(emuDBhandle$connection, "INSERT OR REPLACE INTO items SELECT * FROM items_with_float_sequence_indexes")
+  DBI::dbExecute(emuDBhandle$connection, "DROP TABLE items_with_float_sequence_indexes")
 }
