@@ -171,7 +171,7 @@ convert_BPFCollection <- function(sourceDir,
                              sourceDir = sourceDir)
     
     bpfPath = normalizePath(filePairList[idx, 1], winslash = .Platform$file.sep)
-    bundle = tools::file_path_sans_ext(basename(bpfPath))
+    bundle = sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(bpfPath))
     annotates = basename(filePairList[idx, 2])
     
     # Escaping single quotes in anything user-generated that will be fed into SQL
@@ -377,7 +377,7 @@ copy_bpfMediaFiles <- function(basePath,
                           paste0(get_bpfSession(filePath = mediaFiles[[idx]],
                                                 sourceDir = sourceDir),
                                  session.suffix),
-                          paste0(tools::file_path_sans_ext(basename(mediaFiles[[idx]])), 
+                          paste0(sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(mediaFiles[[idx]])), 
                                  bundle.dir.suffix)
     )
     

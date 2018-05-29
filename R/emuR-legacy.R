@@ -725,7 +725,7 @@ convert_legacyEmuDB <- function(emuTplPath,targetDir,dbUUID=uuid::UUIDgenerate()
               # convert ssd to wav
               ado = read.AsspDataObj(sf)
               AsspFileFormat(ado) = 'WAVE'
-              wavfp = paste0(tools::file_path_sans_ext(nsfp), '.wav')
+              wavfp = paste0(sub(pattern = "(.*)\\..*$", replacement = "\\1", nsfp), '.wav')
               write.AsspDataObj(wavfp, dobj = ado)
               # fix and rewrite 
               bp_fixed = deduct_timeFromJson(bp, round(attr(ado,'startTime') * attr(ado,"sampleRate")))

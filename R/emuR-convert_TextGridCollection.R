@@ -140,7 +140,7 @@ convert_TextGridCollection <- function(dir, dbName,
     asspObj = wrassp::read.AsspDataObj(mfPath, begin = 0, end = 1, samples = T)
     sampleRate = attributes(asspObj)$sampleRate
     # create bundle name
-    bndlName = tools::file_path_sans_ext(basename(fpl[i,1]))
+    bndlName = sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(fpl[i,1]))
     
     # parse TextGrid
     bundleAnnotDFs = TextGridToBundleAnnotDFs(fpl[i,2], sampleRate = sampleRate, name = bndlName, annotates = paste0(bndlName, ".wav"))

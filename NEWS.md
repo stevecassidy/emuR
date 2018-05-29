@@ -1,4 +1,4 @@
-# emuR 1.0.0.9005
+# emuR 1.0.0.9006
 
 ## new features / performance tweaks / improvements
 
@@ -7,6 +7,7 @@
 * `normalize_length()` now allows for additional non-numeric columns
 * changed `stop()` to warning in `get_trackdata()` when samplerates are inconsistent (closes \#190)
 * better error message when there is a naming mismatch of `_emuDB` dir `_DBconfig.json`
+* using `sub()` instead of `tools::file_path_sans_ext()` to handle `_` in file extensions
 
 ## bug fixes
 
