@@ -1,4 +1,4 @@
-# emuR 1.0.0.9006
+# emuR 1.0.0.9007
 
 ## new features / performance tweaks / improvements
 
@@ -12,7 +12,7 @@
 ## bug fixes
 
 * propper fix for "now ordering by `items_idx` not by `start_start_seq_idx` which led to bad label sequences (fixes \#140)"
-
+* fixed bad indexing in `normalize_length()` when sl_rowIdx values are not a `c(1, 2, 3, 4, ...)` sequence
 
 # emuR 1.0.0
 
