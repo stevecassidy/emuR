@@ -294,7 +294,7 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*', seglist =
                                                       ws$request$HTTP_HOST, 
                                                       "?session=", utils::URLencode(bundleSess, reserved = T),
                                                       "&bundle=", utils::URLencode(bundleName, reserved = T)))
-        if(is.null(err)){   
+        if(is.null(err)){
           ssffTracksInUse=get_ssffTracksUsedByDBconfig(DBconfig)
           ssffTrackNmsInUse=c()
           for(ssffTrackInUse in ssffTracksInUse){
@@ -548,6 +548,10 @@ get_ssffTracksUsedByDBconfig <- function(DBconfig){
     for(tddd in p$twoDimCanvases$twoDimDrawingDefinitions){
       # dots
       for(dot in tddd$dots){
+        allTracks = c(allTracks, dot$xSsffTrack, dot$ySsffTrack)
+      }
+      # staticContours
+      for(dot in tddd$staticContours){
         allTracks = c(allTracks, dot$xSsffTrack, dot$ySsffTrack)
       }
     }
