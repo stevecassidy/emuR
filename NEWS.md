@@ -1,4 +1,4 @@
-# emuR 1.0.0.9008
+# emuR 1.0.0.9009
 
 ## new features / performance tweaks / improvements
 
@@ -14,6 +14,7 @@
 * propper fix for "now ordering by `items_idx` not by `start_start_seq_idx` which led to bad label sequences (fixes \#140)"
 * fixed bad indexing in `normalize_length()` when sl_rowIdx values are not a `c(1, 2, 3, 4, ...)` sequence
 * fixed `staticContours` SSFF tracks not being sent to EMU-webApp (fixes \#195)
+* fixed bug with completely empty levels that caused a bad resort of levels in `_annot.json`s in `rewrite_allAnnots()`
 
 # emuR 1.0.0
 
