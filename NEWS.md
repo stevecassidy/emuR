@@ -1,4 +1,4 @@
-# emuR 1.0.0.9009
+# emuR 1.0.0.9010
 
 ## new features / performance tweaks / improvements
 
@@ -15,6 +15,8 @@
 * fixed bad indexing in `normalize_length()` when sl_rowIdx values are not a `c(1, 2, 3, 4, ...)` sequence
 * fixed `staticContours` SSFF tracks not being sent to EMU-webApp (fixes \#195)
 * fixed bug with completely empty levels that caused a bad resort of levels in `_annot.json`s in `rewrite_allAnnots()`
+* fixed bug in `add_files()` that was using the wrong variable (fixes \#196)
+
 
 # emuR 1.0.0
 

@@ -208,7 +208,7 @@ add_files <- function(emuDBhandle, dir, fileExtension, targetSessionName='0000')
     }
     
     destDir = file.path(emuDBhandle$basePath, paste0(cbndl$session, '_ses'), paste0(cbndl$name, '_bndl'))
-    file.copy(sourcePaths[i], destDirs[i])
+    file.copy(sourcePaths[i], destDir)
   }
 }
 
