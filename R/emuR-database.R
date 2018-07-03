@@ -87,6 +87,7 @@ database.DDL.emuDB_labels = 'CREATE TABLE labels (
   label TEXT,
   PRIMARY KEY (db_uuid, session, bundle, item_id, label_idx),
   FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
+  -- FOREIGN KEY (db_uuid, session, bundle, item_id) REFERENCES items(db_uuid, session, bundle, item_id) ON DELETE CASCADE
 );'
 
 database.DDL.emuDB_label_nameLabel_idx = 'CREATE INDEX IF NOT EXISTS label_nameLabel_idx ON labels(db_uuid, bundle, session, item_id)'
