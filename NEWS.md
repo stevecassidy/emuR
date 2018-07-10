@@ -1,4 +1,4 @@
-# emuR 1.0.0.9010
+# emuR 1.0.0.9011
 
 ## new features / performance tweaks / improvements
 
@@ -16,7 +16,7 @@
 * fixed `staticContours` SSFF tracks not being sent to EMU-webApp (fixes \#195)
 * fixed bug with completely empty levels that caused a bad resort of levels in `_annot.json`s in `rewrite_allAnnots()`
 * fixed bug in `add_files()` that was using the wrong variable (fixes \#196)
-
+* added error message when querying levels without time-bearing sub-levels (closes \#150)
 
 # emuR 1.0.0
 

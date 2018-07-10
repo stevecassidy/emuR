@@ -148,11 +148,12 @@ find_segmentLevels<-function(emuDBhandle, attrName){
   segLvlList=character(0)
   for(extLnkDef in extLnkDefs){
     if(extLnkDef[1]==lvlNm){
-      for(trgLvlNm in extLnkDef[2:length(extLnkDef)]){
-        
-        trgLd=get_levelDefinition(emuDBhandle, trgLvlNm)
-        if(trgLd['type']=='SEGMENT'){
-          segLvlList=unique(c(segLvlList,trgLvlNm))
+      if(length(extLnkDef) > 1){
+        for(trgLvlNm in extLnkDef[2:length(extLnkDef)]){
+          trgLd=get_levelDefinition(emuDBhandle, trgLvlNm)
+          if(trgLd['type']=='SEGMENT'){
+            segLvlList=unique(c(segLvlList,trgLvlNm))
+          }
         }
       }
     }
