@@ -108,7 +108,7 @@ convert_txtCollection <- function(dbName,
     
     txtPath = normalizePath(filePairList[idx, 1], winslash = .Platform$file.sep)
     wavPath = normalizePath(filePairList[idx, 2], winslash = .Platform$file.sep)
-    bundle = tools::file_path_sans_ext(basename(wavPath))
+    bundle = sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(wavPath))
     annotates = basename(wavPath)
     
     # Escaping single quotes in anything user-generated that will be fed into SQL

@@ -1,14 +1,22 @@
-# emuR 1.0.0.9002
+# emuR 1.0.0.9011
 
 ## new features / performance tweaks / improvements
 
 * URL encoding of bundle and session names to allow for URL string reserved characters in bundle and session names
 * error message of `get_trackdata` now contains seglist row index if "Can not extract following"
+* `normalize_length()` now allows for additional non-numeric columns
+* changed `stop()` to warning in `get_trackdata()` when samplerates are inconsistent (closes \#190)
+* better error message when there is a naming mismatch of `_emuDB` dir `_DBconfig.json`
+* using `sub()` instead of `tools::file_path_sans_ext()` to handle `_` in file extensions
 
 ## bug fixes
 
 * propper fix for "now ordering by `items_idx` not by `start_start_seq_idx` which led to bad label sequences (fixes \#140)"
-
+* fixed bad indexing in `normalize_length()` when sl_rowIdx values are not a `c(1, 2, 3, 4, ...)` sequence
+* fixed `staticContours` SSFF tracks not being sent to EMU-webApp (fixes \#195)
+* fixed bug with completely empty levels that caused a bad resort of levels in `_annot.json`s in `rewrite_allAnnots()`
+* fixed bug in `add_files()` that was using the wrong variable (fixes \#196)
+* added error message when querying levels without time-bearing sub-levels (closes \#150)
 
 # emuR 1.0.0
 

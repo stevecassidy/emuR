@@ -121,6 +121,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
       
       
     }else{
+      
       segLvlNms = find_segmentLevels(emuDBhandle, resultAttrDef)
       
       if(!is.null(timeRefSegmentLevel)){
@@ -131,7 +132,15 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
       }else{
         segLvlsCnt=length(segLvlNms)
         if(segLvlsCnt>1){
-          stop("Segment time information derivation for level '",resultAttrDef,"' is ambiguous:\nThe level is linked to multiple segment levels: ",paste(segLvlNms,collapse=', '),"\nPlease select one of these levels using the 'timeRefSegmentLevel' query parameter.")
+          stop("Segment time information derivation for level '",
+               resultAttrDef,
+               "' is ambiguous:\nThe level is linked to multiple segment levels: ",
+               paste(segLvlNms,collapse=', '),
+               "\nPlease select one of these levels using the 'timeRefSegmentLevel' query parameter.")
+        }else if(segLvlsCnt == 0){
+          stop("Could not find a time bearing sub-level connected to '", 
+               resultAttrDef, 
+               "'. Consider either using 'calcTimes=F' or adding potentially missing link definitions in your emuDB.")
         }
         lnwt = segLvlNms[1] # level name with time
       }

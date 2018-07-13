@@ -92,7 +92,8 @@ create_emuRtrackdata <- function(sl, td){
   
   for(dc in dataCols){
     if(!class(td[[dc]]) %in% numericDataClasses){
-      stop(paste0('Found column that is not of a number class ("complex", "single", "double", "integer", "numeric"). Column name is', td[[dc]]))
+      warning(paste0('Found additional column that is not of a number class ("complex", "single", "double", "integer", "numeric"). Column name is: "', 
+                     dc, '". The first entry of each segment is reduplicated to match the length of each normalized segment.'))
     }
   }
   
@@ -149,8 +150,9 @@ create_emuRtrackdata <- function(sl, td){
       res_tbl[,colName] = numeric()
   }
   
+  segNr = 1
+  
   for (i in unique(x$sl_rowIdx)){
-    
     # get current segment and remove unwanted columns
     eRtd = x[x$sl_rowIdx == i, names(x) %in% c(nonDataColNames, dataCols)]
     
@@ -162,17 +164,24 @@ create_emuRtrackdata <- function(sl, td){
     eRtd.normtemp$times_norm = xynew$x
     # interpolate data columns
     for (name in dataCols){
-      y = dplyr::pull(eRtd, name)
-      eRtd.normtemp[,name] = approx(eRtd$times_norm, y, n = N)$y
+      # y = dplyr::pull(eRtd, name)
+      y = eRtd[[name]]
+      if(class(y) != "character"){
+        eRtd.normtemp[,name] = approx(eRtd$times_norm, y, n = N)$y
+      }else{
+        eRtd.normtemp[,name]  = y[1] # use first element to fill up vector (R's recycling)
+      }
     }
     # recalculate times_orig & rimes_rel
     eRtd.normtemp$times_orig = seq(unique(eRtd.normtemp$start), unique(eRtd.normtemp$end),length.out = N)
     eRtd.normtemp$times_rel = seq(0,unique(eRtd.normtemp$end) - unique(eRtd.normtemp$start), length.out = N)
 
-    curRowIdxStart = i * N - N + 1
-    curRowIdxEnd = i * N
+    curRowIdxStart = segNr * N - N + 1
+    curRowIdxEnd = segNr * N
     
     res_tbl[curRowIdxStart:curRowIdxEnd,] = eRtd.normtemp
+    
+    segNr = segNr + 1
     
   }
   return(res_tbl)

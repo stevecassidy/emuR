@@ -158,7 +158,7 @@ bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
   levelsdf$label[is.na(levelsdf$label)] = "" # set missing labels top ""
   
   # convert columns that are split() to factors to prevent reodering
-  levelsdf$level = factor(levelsdf$level, levels = unique(levelsdf$level))
+  levelsdf$level = factor(levelsdf$level, levels = unique(levelDefs$name))
   
   levels = split(levelsdf, levelsdf$level) %>%
     purrr::map(function(lev) {
