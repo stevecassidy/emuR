@@ -1,14 +1,7 @@
-################################################################################
-#                                                                              #
-# This file contains public API functions for CRUD operations on Emu databases #
-#                                                                              #
-################################################################################
-
-
 ##' Create new items programmatically
 ##' @export
 ##' 
-##' @description Allows to create annotation items programmatically. You have to
+##' @description Allows creating annotation items programmatically. You have to
 ##' pass in a data frame describing the new items. Each new item is identified by
 ##' its \code{session}, \code{bundle}, \code{level}, and \code{sequence index}.
 ##' The \code{level} with its associated \code{attributes} determines how many
@@ -40,7 +33,7 @@
 ##' the values 1..n, where n is the number of items on that level. While sorting,
 ##' NA values are placed at the end.
 ##' 
-##' At this time, it is not possible to insert items into time-based levels (SEGMENT or EVENT).
+##' Currently it is not possible to insert items into time-based levels (SEGMENT or EVENT).
 ##'
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param itemsToCreate A data frame with the columns
@@ -244,7 +237,7 @@ update_itemsInLevel = function (emuDBhandle,
       rep(emuDBhandle$UUID, nrow(itemsToUpdate)),
       itemsToUpdate$session,
       itemsToUpdate$bundle,
-      itemsToUpate$level,
+      itemsToUpdate$level,
       itemsToUpdate$sequenceIndex
     )
   )
