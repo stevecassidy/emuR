@@ -1,4 +1,4 @@
-# emuR 1.0.0.9011
+# emuR 1.0.0.9012
 
 ## new features / performance tweaks / improvements
 
@@ -17,6 +17,8 @@
 * fixed bug with completely empty levels that caused a bad resort of levels in `_annot.json`s in `rewrite_allAnnots()`
 * fixed bug in `add_files()` that was using the wrong variable (fixes \#196)
 * added error message when querying levels without time-bearing sub-levels (closes \#150)
+* fixed bug in `create_emuRtrackdata()` with handeling trackdata object of class `spectral`
+
 
 # emuR 1.0.0
 
