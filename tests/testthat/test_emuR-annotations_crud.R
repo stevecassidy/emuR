@@ -5,18 +5,100 @@ context("testing CRUD annotation operations functions")
 dbName = "ae"
 
 path2orig = file.path(tempdir(), "emuR_demoData", paste0(dbName, emuDB.suffix))
+path2testData = file.path(tempdir(), "emuR_testthat")
+path2db = file.path(path2testData, paste0(dbName, emuDB.suffix))
 
 # extract internalVars from environment .emuR_pkgEnv
 internalVars = get("internalVars", envir = .emuR_pkgEnv)
 
-test_that("errors are thrown", {
+test_that("errors are thrown on bad inputs", {
   
-  ae = load_emuDB(path2orig, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
+  # delete, copy and load
+  unlink(path2db, recursive = T)
+  file.copy(path2orig, path2testData, recursive = T)
   
-  # sl = query(ae, "Utterance =~ .*", 
-             # resultType = "tibble")
+  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
+  
+  # missing cols
+  expect_error(create_itemsInLevel(ae, itemsToCreate = data.frame(session = "", stringsAsFactors = F)))
+  # bad sequenceIndex type
+  expect_error(create_itemsInLevel(ae, itemsToCreate = data.frame(session = "", 
+                                                                  bundle = "", 
+                                                                  level = "", 
+                                                                  sequenceIndex = "", 
+                                                                  attribute = "", 
+                                                                  label = "",
+                                                                  stringsAsFactors = F)))
+  
+  # bad session / bundle
+  expect_error(create_itemsInLevel(ae, 
+                                   itemsToCreate = data.frame(session = "0000", 
+                                                              bundle = "badBndlName", 
+                                                              level = "", 
+                                                              sequenceIndex = 1.5, 
+                                                              attribute = "", 
+                                                              label = "",
+                                                              stringsAsFactors = F)))
+  
+  # existing sequence index
+  expect_error(create_itemsInLevel(ae, 
+                                   itemsToCreate = data.frame(session = "0000", 
+                                                              bundle = "msajc003", 
+                                                              level = "Utterance", 
+                                                              sequenceIndex = 1, 
+                                                              attribute = "Utterance", 
+                                                              label = "newLabel",
+                                                              stringsAsFactors = F), 
+                                   verbose = F))
+  
+  # clean up
+  DBI::dbDisconnect(ae$connection)
+  ae = NULL
+  
+})
 
+
+test_that("ITEM level creates work as expected", {
   
-  # create_itemsInLevel(ae, )
+  # delete, copy and load
+  unlink(path2db, recursive = T)
+  file.copy(path2orig, path2testData, recursive = T)
+  
+  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
+  
+  # insert new root node after existing item
+  create_itemsInLevel(ae, itemsToCreate = data.frame(session = "0000", 
+                                                     bundle = "msajc003", 
+                                                     level = "Utterance", 
+                                                     sequenceIndex = 1.5, 
+                                                     attribute = "Utterance", 
+                                                     label = "newLabel_post",
+                                                     stringsAsFactors = F),
+                      verbose = F)
+  
+  
+  sl = query(ae, "Utterance == newLabel_post", calcTimes = F)
+  
+  expect_equal(nrow(sl), 1)
+  expect_equal(sl$start_item_seq_idx, 2)
+  
+  # insert new root node be4 existing item
+  create_itemsInLevel(ae, itemsToCreate = data.frame(session = "0000", 
+                                                     bundle = "msajc003", 
+                                                     level = "Utterance", 
+                                                     sequenceIndex = 0.5, 
+                                                     attribute = "Utterance", 
+                                                     label = "newLabel_pre",
+                                                     stringsAsFactors = F))
+  
+  
+  sl = query(ae, "Utterance == newLabel_pre", calcTimes = F)
+  
+  expect_equal(nrow(sl), 1)
+  expect_equal(sl$start_item_seq_idx, 1)
+  
+  # clean up
+  DBI::dbDisconnect(ae$connection)
+  ae = NULL
   
 })

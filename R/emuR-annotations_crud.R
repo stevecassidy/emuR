@@ -57,23 +57,39 @@ create_itemsInLevel = function(emuDBhandle,
                                itemsToCreate,
                                rewriteAllAnnots = TRUE,
                                verbose = TRUE) {
-  ##
-  ## First, check that every session/bundle combination exists
-  ##
+  
+  ## check that all required columns are available
+  required_colnames = c("session", "bundle", "level", "sequenceIndex", "attribute", "label")
+  if(!all(required_colnames %in% names(itemsToCreate))){
+    stop(paste0("Not all required columns are available in itemsToCreate data.frame! ",
+                "The required columns are: ", paste(required_colnames, collapse = "; ")))
+  }
+  
+  ## check types of required columns
+  required_colnames = c("session", "bundle", "level", "sequenceIndex", "attribute", "label")
+  if(!is.character(itemsToCreate$session) | 
+     !is.character(itemsToCreate$bundle) | 
+     !is.character(itemsToCreate$level) |
+     !is.numeric(itemsToCreate$sequenceIndex) |
+     !is.character(itemsToCreate$attribute) |
+     !is.character(itemsToCreate$label)
+  ){
+    stop(paste0("Not all columns match the required type!"))
+  }
+  
+  ## check that every session/bundle combination exists
   bundleList = list_bundles(emuDBhandle)
   
-  invalidItems = dplyr::anti_join (x = itemsToCreate,
-                                   y = bundleList,
-                                   by = c("session",
-                                          "bundle" = "name"))
+  invalidItems = dplyr::anti_join(x = itemsToCreate,
+                                  y = bundleList,
+                                  by = c("session",
+                                         "bundle" = "name"))
   
   if (nrow(invalidItems) != 0) {
     stop("Some of the session/bundle combinations provided are invalid: ", invalidItems)
   }
   
-  ##
-  ## Second, check that all levels are of type ITEM
-  ##
+  ## check that all levels are of type ITEM
   allLevelsAreOfTypeItem = TRUE
   
   for (level in unique(itemsToCreate$level)) {
@@ -88,12 +104,19 @@ create_itemsInLevel = function(emuDBhandle,
     stop("Some of the levels provided are not of type ITEM.", call. = FALSE)
   }
   
-  ##
   ## Make sure all sequence indexes are unique within their respective level/attribute pair.
-  ##
   itemsToCreate %>%
     dplyr::group_by(.data$session, .data$bundle, .data$level, .data$attribute) %>%
     dplyr::do(ensureSequenceIndexesAreUnique(.data))
+  
+  ## check for conflicting seq index
+  items_all = DBI::dbReadTable(emuDBhandle$connection, "items")
+  in_both = dplyr::inner_join(itemsToCreate, 
+                             items_all, 
+                             by = c("session", "bundle", "level", "sequenceIndex" = "seq_idx"))
+  if(nrow(in_both) > 0){
+    stop("Found existing items with same 'session', 'bundle', 'level', 'sequenceIndex'!")
+  }
   
   ##
   ## Get the label index for each attribute (the label index marks the order of attributes within their level)
@@ -102,10 +125,14 @@ create_itemsInLevel = function(emuDBhandle,
                                             levelName = itemsToCreate$level,
                                             attributeName = itemsToCreate$attribute)
   
+  
+  # remove old tmp tables if they exist
+  remove_annotCrudTmpTables(emuDBhandle)
+  
   ##
   ## Copy items data into temporary table
   ##
-  create_sequenceIndexTmpTable(emuDBhandle)
+  create_annotCrudTmpTables(emuDBhandle)
   
   ##
   ## Split the item list into individual items (identified by the session/bundle/level/sequenceIndex tuple),
@@ -126,7 +153,7 @@ create_itemsInLevel = function(emuDBhandle,
   ##
   ## Move data from temporary items table back to normal table
   ##
-  moveback_sequenceIndexTmpTable(emuDBhandle)
+  moveback_annotCrudTmpTables(emuDBhandle)
   
   if (rewriteAllAnnots) {
     rewrite_allAnnots(emuDBhandle, verbose)
@@ -171,7 +198,7 @@ update_itemsInLevel = function (emuDBhandle,
                                             levelName = itemsToUpdate$level,
                                             attributeName = itemsToUpdate$attribute)
   
-
+  
   ##
   ## First thing, make sure all the items whose labels are gonna be changed do exist
   ##
@@ -315,3 +342,10 @@ delete_itemsInLevel = function (emuDBhandle,
   
   invisible(NULL)
 }
+
+#######################
+# FOR DEVELOPMENT
+# library('testthat')
+# test_file('tests/testthat/test_aaa_initData.R')
+# test_file('tests/testthat/test_emuR-annotations_crud.R')
+# test_file('tests/testthat/test_zzz_cleanUp.R')

@@ -14,6 +14,7 @@
 ##'                     attribute within its level (see \code{\link{get_labelIndex}}.
 insertItemIntoDatabase = function(emuDBhandle,
                                   itemToInsert) {
+  
   session = itemToInsert$session[1]
   bundle = itemToInsert$bundle[1]
   level = itemToInsert$level[1]
@@ -52,7 +53,7 @@ insertItemIntoDatabase = function(emuDBhandle,
   
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
-    "INSERT INTO items_with_float_sequence_indexes (
+    "INSERT INTO items_annot_crud_tmp (
     db_uuid, session, bundle, item_id, level, type, seq_idx, sample_rate,
     sample_point, sample_start, sample_dur
   )
@@ -77,9 +78,10 @@ insertItemIntoDatabase = function(emuDBhandle,
   
   DBI::dbClearResult(statement)
   
+  # now labels
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
-    "INSERT INTO labels (
+    "INSERT INTO labels_annot_crud_tmp (
     db_uuid, session, bundle, item_id, label_idx, name, label
   )
     VALUES (
@@ -180,7 +182,7 @@ get_labelIndex = function(emuDBhandle,
 ##' 
 ##' @importFrom rlang .data
 rewrite_allSequenceIndexes = function (emuDBhandle) {
-  allItems = DBI::dbReadTable(emuDBhandle$connection, "items_with_float_sequence_indexes")
+  allItems = DBI::dbReadTable(emuDBhandle$connection, "items_annot_crud_tmp")
   
   allItems %>%
     dplyr::group_by(.data$db_uuid, .data$session, .data$bundle, .data$level) %>%
@@ -209,7 +211,7 @@ rewrite_sequenceIndexesOneLevel = function (emuDBhandle,
   
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
-    "UPDATE items_with_float_sequence_indexes SET seq_idx = ? WHERE db_uuid = ? AND session = ? AND bundle = ? AND item_id = ?"
+    "UPDATE items_annot_crud_tmp SET seq_idx = ? WHERE db_uuid = ? AND session = ? AND bundle = ? AND item_id = ?"
   )
 
   DBI::dbBind(
@@ -246,7 +248,7 @@ ensureSequenceIndexesAreUnique = function (itemsOnAttribute) {
   invisible(itemsOnAttribute)
 }
 
-database.DDL.emuDB_items = 'CREATE TEMP TABLE items_with_float_sequence_indexes (
+database.DDL.emuDB_items_annot_crud_tmp = 'CREATE TEMP TABLE items_annot_crud_tmp (
   db_uuid VARCHAR(36),
   session TEXT,
   bundle TEXT,
@@ -258,16 +260,38 @@ database.DDL.emuDB_items = 'CREATE TEMP TABLE items_with_float_sequence_indexes 
   sample_point INTEGER,
   sample_start INTEGER,
   sample_dur INTEGER,
-  PRIMARY KEY (db_uuid, session, bundle, item_id),
-  FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
+  PRIMARY KEY (db_uuid, session, bundle, item_id)
+  -- FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
 );'
 
-create_sequenceIndexTmpTable = function(emuDBhandle) {
-  DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB_items)
-  DBI::dbExecute(emuDBhandle$connection, "INSERT INTO items_with_float_sequence_indexes SELECT * FROM items")
+database.DDL.emuDB_labels_annot_crud_tmp = 'CREATE TEMP TABLE labels_annot_crud_tmp (
+  db_uuid VARCHAR(36),
+  session TEXT,
+  bundle TEXT,
+  item_id INTEGER,
+  label_idx INTEGER,
+  name TEXT,
+  label TEXT,
+  PRIMARY KEY (db_uuid, session, bundle, item_id, label_idx)
+-- FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
+-- FOREIGN KEY (db_uuid, session, bundle, item_id) REFERENCES items(db_uuid, session, bundle, item_id) ON DELETE CASCADE
+);'
+
+create_annotCrudTmpTables = function(emuDBhandle) {
+  DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB_items_annot_crud_tmp)
+  DBI::dbExecute(emuDBhandle$connection, "INSERT INTO items_annot_crud_tmp SELECT * FROM items")
+  DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB_labels_annot_crud_tmp)
+  DBI::dbExecute(emuDBhandle$connection, "INSERT INTO labels_annot_crud_tmp SELECT * FROM labels")
 }
 
-moveback_sequenceIndexTmpTable = function(emuDBhandle) {
-  DBI::dbExecute(emuDBhandle$connection, "INSERT OR REPLACE INTO items SELECT * FROM items_with_float_sequence_indexes")
-  DBI::dbExecute(emuDBhandle$connection, "DROP TABLE items_with_float_sequence_indexes")
+remove_annotCrudTmpTables = function(emuDBhandle) {
+  DBI::dbExecute(emuDBhandle$connection, "DROP TABLE IF EXISTS items_annot_crud_tmp")
+  DBI::dbExecute(emuDBhandle$connection, "DROP TABLE IF EXISTS labels_annot_crud_tmp")
+}
+
+
+moveback_annotCrudTmpTables = function(emuDBhandle) {
+  DBI::dbExecute(emuDBhandle$connection, "INSERT OR REPLACE INTO items SELECT * FROM items_annot_crud_tmp")
+  DBI::dbExecute(emuDBhandle$connection, "INSERT OR REPLACE INTO labels SELECT * FROM labels_annot_crud_tmp")
+  remove_annotCrudTmpTables(emuDBhandle)
 }
