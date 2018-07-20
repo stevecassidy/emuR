@@ -193,7 +193,7 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
                   } 
                 }
                 tdLblName=ldAttrDef[['name']]
-
+                
                 if(is.null(ldAttrDef)){
                   stop("Label name ",tk," has no declaration in level definition. '",hlbFilePath,"' line ",lnr,": ",line)
                 }
@@ -228,6 +228,7 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
   }
   
   # Add levels which are not used in HLB file
+  maxId = maxId + 1
   for(l in levels){
     ln=l$name
     found=FALSE
@@ -239,6 +240,13 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
       }
     }
     if(!found){
+      # fix ids
+      if(length(l$items) > 0){
+        for(item_idx in 1:length(l$items)){
+          l$items[[item_idx]]$id = maxId
+          maxId = maxId + 1
+        }
+      }
       hlbTiers[[length(hlbTiers)+1]]=l
     }
   }

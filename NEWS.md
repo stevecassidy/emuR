@@ -1,4 +1,4 @@
-# emuR 1.0.0.9012
+# emuR 1.0.0.9013
 
 ## new features / performance tweaks / improvements
 
@@ -18,7 +18,7 @@
 * fixed bug in `add_files()` that was using the wrong variable (fixes \#196)
 * added error message when querying levels without time-bearing sub-levels (closes \#150)
 * fixed bug in `create_emuRtrackdata()` with handeling trackdata object of class `spectral`
-
+* correct recalculation of ITEM IDs of missing levels in .hlb files (== only present in ESPS files) in `convert_legacyEmuDB()`
 
 # emuR 1.0.0
 
