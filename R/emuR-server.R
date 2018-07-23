@@ -12,6 +12,16 @@ setServerHandle <- function(sh) {
   assign("serverHandle", sh, envir = .server_env)
 }
 
+check_tibbleForServe <- function(tbl){
+  req_columns = c("db_uuid", "session", "bundle", "start", 
+                  "end", "sample_rate")
+  if(!all(req_columns %in% names(tbl))){
+    stop(paste0("tibble object does not contain all required columns. The required columns are: ", 
+                paste(req_columns, collapse = "; ")))
+  }
+  
+}
+
 ##' Serve EMU database to EMU-webApp
 ##' 
 ##' @description Serves emuDB media files, SSFF tracks and annotations for EMU-webApp browser GUI \url{http://ips-lmu.github.io/EMU-webApp/}
@@ -62,10 +72,10 @@ setServerHandle <- function(sh) {
 ##' serve(myDb)
 ##' }
 ##' 
-serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*', seglist = NULL,
-                  host='127.0.0.1', port=17890, 
+serve <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*', seglist = NULL,
+                  host = '127.0.0.1', port = 17890, 
                   autoOpenURL = "http://ips-lmu.github.io/EMU-webApp/?autoConnect=true", 
-                  browser = getOption("browser"), debug=FALSE, debugLevel=0){
+                  browser = getOption("browser"), debug = FALSE, debugLevel = 0){
   
   check_emuDBhandle(emuDBhandle)
   
@@ -77,6 +87,7 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*', seglist =
   bundleCount=0
   DBconfig = load_DBconfig(emuDBhandle)
   if(is.null(seglist)){
+    check_tibbleForServe(seglist)
     allBundlesDf=list_bundles(emuDBhandle)
   }else{
     tmp = data.frame(session = seglist$session, bundle = seglist$bundle, stringsAsFactors = F)
@@ -234,10 +245,12 @@ serve <- function(emuDBhandle, sessionPattern='.*',bundlePattern='.*', seglist =
           for(i in 1:nrow(response$data)){
             sesBool = response$data[i,]$session == seglist$session 
             bndlBool = response$data[i,]$bundle == seglist$bundle
+            start_sample_vals = round((seglist[sesBool & bndlBool,]$start / 1000) * seglist[sesBool & bndlBool,]$sample_rate)
+            end_sample_vals = round((seglist[sesBool & bndlBool,]$end / 1000) * seglist[sesBool & bndlBool,]$sample_rate)
             dataWithTimeAnchors[[i]] = list(session = response$data[i,]$session, 
                                             name = response$data[i,]$bundle,
-                                            timeAnchors = data.frame(sample_start = seglist[sesBool & bndlBool,]$sample_start,
-                                                                     sample_end = seglist[sesBool & bndlBool,]$sample_end))
+                                            timeAnchors = data.frame(sample_start = start_sample_vals,
+                                                                     sample_end = end_sample_vals))
             
           }
           response$data = dataWithTimeAnchors

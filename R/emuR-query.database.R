@@ -1247,7 +1247,7 @@ query_databaseWithEqlEmuRsegs<-function(emuDBhandle, query, timeRefSegmentLevel,
 
 
 ##' Query emuDB
-##' @description Function to query an emuDB
+##' @description Function to query annotation items/structures in a emuDB
 ##' @details Evaluates a query string of query language queryLang on an emuDB referenced by dbName and returns a segment list of desired type resultType.  
 ##' For details of the query language please refer to the EQL vignette (type: \code{vignette('EQL')} ).
 ##' Returns a list of segments which meet the conditions given by the query string. A segment can consist of one (e.g. 's') or more (e.g. 's->t') items from the specified emuDB level. 
@@ -1261,7 +1261,7 @@ query_databaseWithEqlEmuRsegs<-function(emuDBhandle, query, timeRefSegmentLevel,
 ##' @param bundlePattern A regular expression pattern matching bundle names to be searched from the database
 ##' @param queryLang query language used for evaluating the query string 
 ##' @param timeRefSegmentLevel set time segment level from which to derive time information. It is only necessary to set this parameter if more than one child level contains time information and the queried parent level is of type ITEM.
-##' @param resultType type (class name) of result
+##' @param resultType type (class name) of result (either 'tibble', 'emuRsegs' or 'emusegs' (use 'emusegs' for legacy compatablility only))
 ##' @param calcTimes calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
 ##' calculate the times for large nested hierarchies, it can be turned off via this boolean parameter.
 ##' @param verbose be verbose. Set this to \code{TRUE} if you wish to choose which path to traverse on intersecting hierarchies. If set to \code{FALSE} (the default) all paths will be traversed (= legacy EMU bahaviour).
@@ -1348,18 +1348,23 @@ query <- function(emuDBhandle, query, sessionPattern = '.*', bundlePattern = '.*
       drop_allTmpTablesDBI(emuDBhandle)
       return(emuRsegs)
     }else{
-      if(resultType=='emuRsegs'){
+      if(resultType == 'emuRsegs'){
         emuRsegs = query_databaseWithEqlEmuRsegs(emuDBhandle,query,timeRefSegmentLevel, filteredTablesSuffix, calcTimes, verbose)
         drop_allTmpTablesDBI(emuDBhandle)
         return(emuRsegs)
-      }else if(resultType=='emusegs'){
+      }else if(resultType == 'emusegs'){
         if(!is.null(timeRefSegmentLevel)){
           # TODO 
           stop("Parameter timeRefSegmentLevel not yet supported for resultType 'emusegs'. Please use resultType 'emuRsegs' (default).")
         }
         return(query_databaseWithEqlEmusegs(emuDBhandle, query, timeRefSegmentLevel, filteredTablesSuffix, calcTimes, verbose))
+      }else if(resultType == 'tibble'){
+        emuRsegs = query_databaseWithEqlEmuRsegs(emuDBhandle,query,timeRefSegmentLevel, filteredTablesSuffix, calcTimes, verbose)
+        res_tibble = convert_queryEmuRsegsToTibble(emuDBhandle, emuRsegs)
+        drop_allTmpTablesDBI(emuDBhandle)
+        return(res_tibble)
       }else{
-        stop("Unknown result type: '",resultType,"'. Supported result types: 'emuRsegs', emusegs'")
+        stop("Unknown result type: '",resultType,"'. Supported result types: 'emuRsegs', 'emusegs' or 'tibble'")
       }
     }
     

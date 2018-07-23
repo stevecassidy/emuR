@@ -21,7 +21,7 @@ query(emuDBhandle, query, sessionPattern = ".*", bundlePattern = ".*",
 
 \item{timeRefSegmentLevel}{set time segment level from which to derive time information. It is only necessary to set this parameter if more than one child level contains time information and the queried parent level is of type ITEM.}
 
-\item{resultType}{type (class name) of result}
+\item{resultType}{type (class name) of result (either 'tibble', 'emuRsegs' or 'emusegs' (use 'emusegs' for legacy compatablility only))}
 
 \item{calcTimes}{calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
 calculate the times for large nested hierarchies, it can be turned off via this boolean parameter.}
@@ -32,7 +32,7 @@ calculate the times for large nested hierarchies, it can be turned off via this 
 result set object of class resultType (default: \link{emuRsegs}, compatible to legacy type \link{emusegs})
 }
 \description{
-Function to query an emuDB
+Function to query annotation items/structures in a emuDB
 }
 \details{
 Evaluates a query string of query language queryLang on an emuDB referenced by dbName and returns a segment list of desired type resultType.  

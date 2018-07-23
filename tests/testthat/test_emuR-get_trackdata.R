@@ -121,6 +121,13 @@ test_that("correct classes are returned", {
     
   })
   
+  ##############################
+  test_that("resultType tibble is accepted", {
+    sl = query(ae, "Phonetic == n", resultType = "tibble")
+    td = get_trackdata(ae, sl, onTheFlyFunctionName = "ksvF0", ,verbose=F)
+    expect_equal(dim(td$index)[1], 12)
+  })
+  
   # clean up
   DBI::dbDisconnect(ae$connection)
   ae = NULL

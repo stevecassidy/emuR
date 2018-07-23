@@ -1,4 +1,28 @@
 
+convert_queryEmuRsegsToTibble <- function(emuDBhandle, emuRsegs){
+  resultAttrDef = unique(emuRsegs$level)
+  if(length(resultAttrDef) > 1){
+    stop("Could not convert the emuRsegs object to a tibble as it contains multiple attribute definitions.")
+  }
+  attrDefLn = get_levelNameForAttributeName(emuDBhandle, resultAttrDef)
+  # fix attribute/level 
+  emuRsegs$attribute = resultAttrDef
+  emuRsegs$level = attrDefLn
+  
+  # select columns in correct order
+  res_tibble = emuRsegs %>% 
+    dplyr::select("labels", "start", "end",
+                  "db_uuid", "session", 
+                  "bundle", "start_item_id", "end_item_id",
+                  "level", "attribute", "start_item_seq_idx", 
+                  "end_item_seq_idx", "type", "sample_start", 
+                  "sample_end", "sample_rate") %>%
+    dplyr::as_tibble()
+  
+  return(res_tibble)
+  
+}
+
 convert_queryResultToEmusegs<-function(emuDBhandle, timeRefSegmentLevel=NULL, filteredTablesSuffix, calcTimes = T, verbose){
   queryStr = DBI::dbGetQuery(emuDBhandle$connection, "SELECT query_str FROM interm_res_meta_infos_tmp_root")$query_str
   emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix, queryStr = queryStr, calcTimes, verbose)
@@ -236,7 +260,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
   #   segmentList$level = get_levelNameForAttributeName(emuDBhandle = emuDBhandle,
   #                                                     attributeName = currentRow$level)
   # }
-    
+  
   return(segmentList)
   
 }

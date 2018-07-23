@@ -13,7 +13,7 @@ get_trackdata(emuDBhandle, seglist = NULL, ssffTrackName = NULL,
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
 
-\item{seglist}{\code{\link{emuRsegs}} or \code{\link{emusegs}} object obtained by \code{\link{query}}ing a loaded emuDB}
+\item{seglist}{\code{tibble}, \code{\link{emuRsegs}} or \code{\link{emusegs}} object obtained by \code{\link{query}}ing a loaded emuDB}
 
 \item{ssffTrackName}{The name of track that one wishes to extract (see 
 \code{\link{list_ssffTrackDefinitions}} for the defined ssffTracks of the 
