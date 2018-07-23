@@ -8,7 +8,7 @@
 * changed `stop()` to warning in `get_trackdata()` when samplerates are inconsistent (closes \#190)
 * better error message when there is a naming mismatch of `_emuDB` dir `_DBconfig.json`
 * using `sub()` instead of `tools::file_path_sans_ext()` to handle `_` in file extensions
-* `query()`, `requery_seq()` and `requery_hier()` now supports the `resultType` `"tibble"` (and `get_trackdata()`, `requery_seq()`, `requery_hier()`)
+* `query()`, `requery_seq()` and `requery_hier()` now supports the `resultType` `"tibble"` (and `get_trackdata()`, `requery_seq()`, `requery_hier()` support them as input)
 * `serve()` function now uses `seglist$start` and  `seglist$end` instead of `seglist$sample_start` and `seglist$sample_end`
 
 ## bug fixes
