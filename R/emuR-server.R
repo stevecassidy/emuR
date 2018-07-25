@@ -15,6 +15,7 @@ setServerHandle <- function(sh) {
 check_tibbleForServe <- function(tbl){
   req_columns = c("db_uuid", "session", "bundle", "start", 
                   "end", "sample_rate")
+  browser()
   if(!all(req_columns %in% names(tbl))){
     stop(paste0("tibble object does not contain all required columns. The required columns are: ", 
                 paste(req_columns, collapse = "; ")))

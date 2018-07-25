@@ -1,5 +1,14 @@
 
 convert_queryEmuRsegsToTibble <- function(emuDBhandle, emuRsegs){
+  
+  if(nrow(emuRsegs) == 0){
+    return(dplyr::tibble(labels = character(), start = numeric(), end = numeric(),
+                         db_uuid = character(), session = character(), 
+                         bundle = character(), start_item_id = integer(), end_item_id = integer(),
+                         level = character(), attribute = character(), start_item_seq_idx = integer(), 
+                         end_item_seq_idx = integer(), type = character(), sample_start = integer(), 
+                         sample_end = integer(), sample_rate = integer()))
+  }
   resultAttrDef = unique(emuRsegs$level)
   if(length(resultAttrDef) > 1){
     stop("Could not convert the emuRsegs object to a tibble as it contains multiple attribute definitions.")

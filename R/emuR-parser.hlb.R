@@ -27,7 +27,7 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
   if(class(lines) == "try-error") {
     stop("Cannot read from file ", hlbFilePath)
   }
-  lineCount=length(lines)  
+  lineCount=length(lines)
   
   # assume header in line 1
   # ALC EMU Db has trailing blank in header line 

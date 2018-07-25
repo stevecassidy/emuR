@@ -166,18 +166,21 @@ create_itemsInLevel = function(emuDBhandle,
 # read_itemsInLevel = function (...)
 
 
-##' Change item labels programmatically
+##' Update items programmatically
 ##' @export
 ##' 
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param itemsToUpdate A data frame with the columns
 ##' \itemize{
-##' \item\code{session},
-##' \item\code{bundle},
-##' \item\code{level},
-##' \item\code{sequenceIndex},
-##' \item\code{attribute}, and
-##' \item \code{label}.
+##' \item \code{session},
+##' \item \code{bundle},
+##' \item \code{level},
+##' \item \code{start_item_seq_idx} (\code{start_item_seq_idx} is used instead of 
+##' \code{seq_idx} so that the result of a \code{\link{query}} call can be used directly. 
+##' \code{\link{query}} can return a sequence of items defined by \code{start_item_seq_idx} 
+##' and \code{end_item_seq_idx} which have the same value if single items are returned), 
+##' \item \code{attribute}, and
+##' \item \code{labels}.
 ##' }
 ##' *None* of the columns should be factors.
 ##' \code{sequenceIndex} must be numeric (natural-valued), all other columns
@@ -191,10 +194,11 @@ update_itemsInLevel = function (emuDBhandle,
                                 itemsToUpdate,
                                 rewriteAllAnnots = TRUE,
                                 verbose = TRUE) {
+  
   ##
   ## Find the index of each attribute definition on its respective level
   ##
-  itemsToUpdate$labelIndex = get_labelIndex(emuDBhandle = emuDBhandle,
+  itemsToUpdate$label_index = get_labelIndex(emuDBhandle = emuDBhandle,
                                             levelName = itemsToUpdate$level,
                                             attributeName = itemsToUpdate$attribute)
   
@@ -219,7 +223,7 @@ update_itemsInLevel = function (emuDBhandle,
       itemsToUpdate$session,
       itemsToUpdate$bundle,
       itemsToUpdate$level,
-      itemsToUpdate$sequenceIndex
+      itemsToUpdate$start_item_seq_idx
     )
   )
   
@@ -265,7 +269,7 @@ update_itemsInLevel = function (emuDBhandle,
       itemsToUpdate$session,
       itemsToUpdate$bundle,
       itemsToUpdate$level,
-      itemsToUpdate$sequenceIndex
+      itemsToUpdate$start_item_seq_idx
     )
   )
   
@@ -286,16 +290,13 @@ update_itemsInLevel = function (emuDBhandle,
       itemsToUpdate$session,
       itemsToUpdate$bundle,
       item_id_list$item_id,
-      itemsToUpdate$labelIndex,
+      itemsToUpdate$label_index,
       itemsToUpdate$attribute,
-      itemsToUpdate$label
+      itemsToUpdate$labels
     )
   )
-  
   rowsAffected = DBI::dbGetRowsAffected(statement)
   DBI::dbClearResult(statement)
-  
-  print(paste("Updated", rowsAffected, "labels."))
   
   if (rewriteAllAnnots) {
     rewrite_allAnnots(emuDBhandle, verbose)
@@ -329,7 +330,7 @@ delete_itemsInLevel = function (emuDBhandle,
                                 itemsToDelete,
                                 rewriteAllAnnots = TRUE,
                                 verbose = TRUE) {
-  print ("[Dummy] Deleting items")
+  stop("Not implemented yet!")
   print(itemsToDelete)
   
   ##
