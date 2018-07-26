@@ -1,4 +1,4 @@
-# emuR 1.0.0.9015
+# emuR 1.0.0.9016
 
 ## new features / performance tweaks / improvements
 
@@ -11,6 +11,7 @@
 * `query()`, `requery_seq()` and `requery_hier()` now supports the `resultType` `"tibble"` (and `get_trackdata()`, `requery_seq()`, `requery_hier()` support them as input)
 * `serve()` function now uses `seglist$start` and  `seglist$end` instead of `seglist$sample_start` and `seglist$sample_end`
 * implemented first version of `update_itemsInLevel()` (only label updates for now)
+* now setting the `sample_start` and `sample_end` values in query results when EVENT levels are queried (previously only `start` was set)
 
 ## bug fixes
 
