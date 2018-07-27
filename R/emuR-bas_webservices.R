@@ -225,7 +225,7 @@ runBASwebservice_all <- function(handle,
   }
   
   handle = bas_clear(handle, oldBasePath, func)
-  rewrite_allAnnots(handle, verbose = verbose)
+  rewrite_annots(handle, verbose = verbose)
 }
 
 ##' Runs MAUS webservice to create a phonetic segmentation
@@ -297,7 +297,7 @@ runBASwebservice_maus <- function(handle,
   
   handle = bas_clear(handle, oldBasePath, func)
   
-  rewrite_allAnnots(handle, verbose = verbose)
+  rewrite_annots(handle, verbose = verbose)
 }
 
 
@@ -353,7 +353,7 @@ runBASwebservice_g2pForTokenization <- function(handle,
   
   handle = bas_clear(handle, oldBasePath, func)
   
-  rewrite_allAnnots(handle, verbose = verbose)
+  rewrite_annots(handle, verbose = verbose)
 }
 
 ##' Creates canonical pronunciation attributes for a tier of tokenized orthographical words.
@@ -408,7 +408,7 @@ runBASwebservice_g2pForPronunciation <- function(handle,
   
   handle = bas_clear(handle, oldBasePath, func)
   
-  rewrite_allAnnots(handle, verbose = verbose)
+  rewrite_annots(handle, verbose = verbose)
 }
 
 
@@ -484,7 +484,7 @@ runBASwebservice_chunker <- function(handle,
   
   handle = bas_clear(handle, oldBasePath, func)
   
-  rewrite_allAnnots(handle, verbose = verbose)
+  rewrite_annots(handle, verbose = verbose)
 }
 
 
@@ -546,7 +546,7 @@ runBASwebservice_minni <- function(handle,
   
   handle = bas_clear(handle, oldBasePath, func)
   
-  rewrite_allAnnots(handle, verbose = verbose)
+  rewrite_annots(handle, verbose = verbose)
 }
 
 
@@ -599,7 +599,7 @@ runBASwebservice_pho2sylCanonical <- function(handle,
   
   handle = bas_clear(handle, oldBasePath, func)
   
-  rewrite_allAnnots(handle, verbose = verbose)
+  rewrite_annots(handle, verbose = verbose)
 }
 
 
@@ -661,5 +661,5 @@ runBASwebservice_pho2sylSegmental <- function(handle,
   
   handle = bas_clear(handle, oldBasePath, func)
   
-  rewrite_allAnnots(handle, verbose = verbose)
+  rewrite_annots(handle, verbose = verbose)
 }

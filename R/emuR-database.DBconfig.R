@@ -277,7 +277,7 @@ add_levelDefinition<-function(emuDBhandle, name,
   store_DBconfig(emuDBhandle, dbConfig)
   
   if(rewriteAllAnnots){
-    rewrite_allAnnots(emuDBhandle, verbose = verbose)
+    rewrite_annots(emuDBhandle, verbose = verbose)
   }
   invisible(NULL)
 }
@@ -380,7 +380,7 @@ remove_levelDefinition<-function(emuDBhandle, name, rewriteAllAnnots = TRUE, for
   store_DBconfig(emuDBhandle, dbConfig)
   
   if(rewriteAllAnnots){
-    rewrite_allAnnots(emuDBhandle, verbose = verbose)
+    rewrite_annots(emuDBhandle, verbose = verbose)
   }
   
   return(invisible(NULL))
@@ -510,7 +510,7 @@ internal_add_attributeDefinition <- function(emuDBhandle, levelName,
   store_DBconfig(emuDBhandle, dbConfig)
   
   if(rewriteAllAnnots){
-    rewrite_allAnnots(emuDBhandle, verbose = verbose)
+    rewrite_annots(emuDBhandle, verbose = verbose)
   }
   
 }
@@ -676,7 +676,7 @@ rename_attributeDefinition <- function(emuDBhandle, origAttrDef, newAttrDef, ver
   DBI::dbExecute(emuDBhandle$connection, paste0("DROP INDEX IF EXISTS level_rename_tmp_idx"))
   
   store_DBconfig(emuDBhandle, dbConfig)
-  rewrite_allAnnots(emuDBhandle, verbose = verbose)
+  rewrite_annots(emuDBhandle, verbose = verbose)
 }
 
 
@@ -750,7 +750,7 @@ remove_attributeDefinition <- function(emuDBhandle,
   # store changes
   store_DBconfig(emuDBhandle, dbConfig)
   if(rewriteAllAnnots){
-    rewrite_allAnnots(emuDBhandle, verbose = verbose)
+    rewrite_annots(emuDBhandle, verbose = verbose)
   }
 }
 
@@ -1235,7 +1235,7 @@ remove_linkDefinition <- function(emuDBhandle,
   # store changes
   store_DBconfig(emuDBhandle, dbConfig)
   if(force){
-    rewrite_allAnnots(emuDBhandle, verbose = verbose)
+    rewrite_annots(emuDBhandle, verbose = verbose)
   }
   
 }

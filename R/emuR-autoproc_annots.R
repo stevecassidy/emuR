@@ -85,7 +85,7 @@ replace_itemLabels <- function(emuDBhandle, attributeDefinitionName, origLabels,
     cat("\n")
   }
   
-  rewrite_allAnnots(emuDBhandle, verbose = verbose)
+  rewrite_annots(emuDBhandle, verbose = verbose)
   
 }
 
@@ -272,7 +272,7 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
     }
   }
   
-  rewrite_allAnnots(emuDBhandle, verbose = verbose)
+  rewrite_annots(emuDBhandle, verbose = verbose)
   
 }
 
@@ -477,7 +477,7 @@ append_itemsToLevel = function(emuDBhandle,
     DBI::dbClearResult(statement)    
   }
   
-  rewrite_allAnnots(emuDBhandle, verbose)
+  rewrite_annots(emuDBhandle, verbose)
 }
 
 # ##' Add items to an empty level

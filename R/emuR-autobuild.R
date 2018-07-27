@@ -254,7 +254,7 @@ autobuild_linkFromTimes <- function(emuDBhandle, superlevelName, sublevelName, r
   }
   
   if(rewriteAllAnnots){
-    rewrite_allAnnots(emuDBhandle, verbose=verbose)
+    rewrite_annots(emuDBhandle, verbose=verbose)
   }
   
 }

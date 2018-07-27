@@ -433,11 +433,18 @@ list_bundles <- function(emuDBhandle, session=NULL){
 }
 
 
+##' @param emuDBhandle emuDBhandle
+##' @param bundles data.frame containing session 
+##' and bundle colums (e.g. see output of list_bundles())
+rewrite_annots <- function(emuDBhandle, 
+                              bundles = NULL, 
+                              verbose=TRUE){
 
-rewrite_allAnnots <- function(emuDBhandle, verbose=TRUE){
-
-  bndls = list_bundles(emuDBhandle)
-  
+  if(is.null(bundles)){
+    bndls = list_bundles(emuDBhandle)
+  }else{
+    bndls = bundles
+  }
   # check if any bundles exist
   if(nrow(bndls) == 0){
     return()
@@ -580,7 +587,7 @@ store<-function(emuDBhandle, targetDir, options=NULL, verbose=TRUE){
   
   # rewrite annotations (or should these just be a copied as well?)
   emuDBhandle$basePath = pp
-  rewrite_allAnnots(emuDBhandle, verbose = verbose)
+  rewrite_annots(emuDBhandle, verbose = verbose)
   
   # copy SSFF files
   ssffDefs = list_ssffTrackDefinitions(emuDBhandle)

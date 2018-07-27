@@ -317,7 +317,7 @@ convert_BPFCollection <- function(sourceDir,
                      mediaFiles = filePairList[,2],
                      verbose = verbose)
   
-  rewrite_allAnnots(dbHandle, verbose = verbose)  
+  rewrite_annots(dbHandle, verbose = verbose)  
   
   # ---------------------------------------------------------------------------
   # -------------- Display any warnings collected during parsing --------------

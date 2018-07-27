@@ -260,5 +260,5 @@ convert_txtCollection <- function(dbName,
     verbose = verbose
   )
   
-  rewrite_allAnnots(dbHandle, verbose = verbose)
+  rewrite_annots(dbHandle, verbose = verbose)
 }

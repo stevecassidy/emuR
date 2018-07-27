@@ -195,7 +195,7 @@ convert_TextGridCollection <- function(dir, dbName,
   }
   
   # store all annotations
-  rewrite_allAnnots(dbHandle, verbose = verbose)
+  rewrite_annots(dbHandle, verbose = verbose)
   
   
   

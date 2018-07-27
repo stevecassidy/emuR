@@ -246,8 +246,9 @@ serve <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*', segl
           for(i in 1:nrow(response$data)){
             sesBool = response$data[i,]$session == seglist$session 
             bndlBool = response$data[i,]$bundle == seglist$bundle
-            start_sample_vals = round((seglist[sesBool & bndlBool,]$start / 1000) * seglist[sesBool & bndlBool,]$sample_rate)
-            end_sample_vals = round((seglist[sesBool & bndlBool,]$end / 1000) * seglist[sesBool & bndlBool,]$sample_rate)
+            start_sample_vals = round(((seglist[sesBool & bndlBool,]$start / 1000) + 0.5/seglist[sesBool & bndlBool,]$sample_rate) * seglist[sesBool & bndlBool,]$sample_rate)
+            # end_sample_vals calculated with + 1 as EMU-webApp seems to always mark the right boundary left of the selected sample
+            end_sample_vals = round(((seglist[sesBool & bndlBool,]$end / 1000) + 0.5/seglist[sesBool & bndlBool,]$sample_rate) * seglist[sesBool & bndlBool,]$sample_rate)
             dataWithTimeAnchors[[i]] = list(session = response$data[i,]$session, 
                                             name = response$data[i,]$bundle,
                                             timeAnchors = data.frame(sample_start = start_sample_vals,
