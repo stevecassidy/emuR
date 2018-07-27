@@ -88,9 +88,9 @@ serve <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*', segl
   bundleCount=0
   DBconfig = load_DBconfig(emuDBhandle)
   if(is.null(seglist)){
-    check_tibbleForServe(seglist)
     allBundlesDf=list_bundles(emuDBhandle)
   }else{
+    check_tibbleForServe(seglist)
     tmp = data.frame(session = seglist$session, bundle = seglist$bundle, stringsAsFactors = F)
     allBundlesDf=unique(tmp)
   }
