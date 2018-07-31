@@ -41,9 +41,12 @@
 ##' \item\code{session},
 ##' \item\code{bundle},
 ##' \item\code{level},
-##' \item\code{sequenceIndex},
+##' \item\code{start_item_seq_idx}(\code{start_item_seq_idx} is used instead of 
+##' \code{seq_idx} so that the result of a \code{\link{query}} call can be used directly. 
+##' \code{\link{query}} can return a sequence of items defined by \code{start_item_seq_idx} 
+##' and \code{end_item_seq_idx} which have the same value if single items are returned),
 ##' \item\code{attribute}, and
-##' \item \code{label}.
+##' \item \code{labels}.
 ##' }
 ##' *None* of the columns should be factors.
 ##' \code{sequenceIndex} must be numeric (can be real-valued or natural-valued),
@@ -57,25 +60,27 @@ create_itemsInLevel = function(emuDBhandle,
                                itemsToCreate,
                                rewriteAllAnnots = TRUE,
                                verbose = TRUE) {
-  
   ## check that all required columns are available
-  required_colnames = c("session", "bundle", "level", "sequenceIndex", "attribute", "label")
+  required_colnames = c("session", "bundle", "level", "start_item_seq_idx", "attribute", "labels")
   if(!all(required_colnames %in% names(itemsToCreate))){
     stop(paste0("Not all required columns are available in itemsToCreate data.frame! ",
                 "The required columns are: ", paste(required_colnames, collapse = "; ")))
   }
   
   ## check types of required columns
-  required_colnames = c("session", "bundle", "level", "sequenceIndex", "attribute", "label")
+  required_colnames = c("session", "bundle", "level", "start_item_seq_idx", "attribute", "labels")
   if(!is.character(itemsToCreate$session) | 
      !is.character(itemsToCreate$bundle) | 
      !is.character(itemsToCreate$level) |
-     !is.numeric(itemsToCreate$sequenceIndex) |
+     !is.numeric(itemsToCreate$start_item_seq_idx) |
      !is.character(itemsToCreate$attribute) |
-     !is.character(itemsToCreate$label)
+     !is.character(itemsToCreate$labels)
   ){
     stop(paste0("Not all columns match the required type!"))
   }
+  
+  # rename labels column to label to match labels SQL table column name
+  colnames(itemsToUpdate)[colnames(itemsToUpdate)=="labels"] <- "label"
   
   ## check that every session/bundle combination exists
   bundleList = list_bundles(emuDBhandle)
@@ -90,17 +95,17 @@ create_itemsInLevel = function(emuDBhandle,
   }
   
   ## check that all levels are of type ITEM
-  allLevelsAreOfTypeItem = TRUE
+  allLevelsAreOfAllowedType = TRUE
   
   for (level in unique(itemsToCreate$level)) {
     levelDefinition = get_levelDefinition(emuDBhandle, level)
-    if (levelDefinition$type != "ITEM") {
-      allLevelsAreOfTypeItem = FALSE
-      warning ("One of the levels provided is not of type ITEM: ", level)
+    if (!(levelDefinition$type %in% c("ITEM", "EVENT"))) {
+      allLevelsAreOfAllowedType = FALSE
+      warning("One of the levels provided is not of type ITEM or EVENT: ", level)
     }
   }
   
-  if (allLevelsAreOfTypeItem == FALSE) {
+  if (allLevelsAreOfAllowedType == FALSE) {
     stop("Some of the levels provided are not of type ITEM.", call. = FALSE)
   }
   
@@ -112,10 +117,10 @@ create_itemsInLevel = function(emuDBhandle,
   ## check for conflicting seq index
   items_all = DBI::dbReadTable(emuDBhandle$connection, "items")
   in_both = dplyr::inner_join(itemsToCreate, 
-                             items_all, 
-                             by = c("session", "bundle", "level", "sequenceIndex" = "seq_idx"))
+                              items_all, 
+                              by = c("session", "bundle", "level", "start_item_seq_idx" = "seq_idx"))
   if(nrow(in_both) > 0){
-    stop("Found existing items with same 'session', 'bundle', 'level', 'sequenceIndex'!")
+    stop("Found existing items with same 'session', 'bundle', 'level', 'start_item_seq_idx'!")
   }
   
   ##
@@ -139,7 +144,7 @@ create_itemsInLevel = function(emuDBhandle,
   ## and proceed separately for each of them
   ##
   itemsToCreate %>%
-    dplyr::group_by(.data$session, .data$bundle, .data$level, .data$sequenceIndex) %>%
+    dplyr::group_by(.data$session, .data$bundle, .data$level, .data$start_item_seq_idx) %>%
     dplyr::do(insertItemIntoDatabase(emuDBhandle, .data))
   
   
@@ -156,7 +161,7 @@ create_itemsInLevel = function(emuDBhandle,
   moveback_annotCrudTmpTables(emuDBhandle)
   
   if (rewriteAllAnnots) {
-    rewrite_allAnnots(emuDBhandle, verbose)
+    rewrite_annots(emuDBhandle, verbose)
   }
   
   invisible(NULL)
@@ -175,7 +180,7 @@ create_itemsInLevel = function(emuDBhandle,
 ##' \item \code{session},
 ##' \item \code{bundle},
 ##' \item \code{level},
-##' \item \code{start_item_seq_idx} (\code{start_item_seq_idx} is used instead of 
+##' \item \code{start_item_seq_idx} (\code{start_item_seq_idx} is used instead of e.g.
 ##' \code{seq_idx} so that the result of a \code{\link{query}} call can be used directly. 
 ##' \code{\link{query}} can return a sequence of items defined by \code{start_item_seq_idx} 
 ##' and \code{end_item_seq_idx} which have the same value if single items are returned), 
@@ -195,12 +200,13 @@ update_itemsInLevel = function (emuDBhandle,
                                 rewriteAllAnnots = TRUE,
                                 verbose = TRUE) {
   
+  
   ##
   ## Find the index of each attribute definition on its respective level
   ##
   itemsToUpdate$label_index = get_labelIndex(emuDBhandle = emuDBhandle,
-                                            levelName = itemsToUpdate$level,
-                                            attributeName = itemsToUpdate$attribute)
+                                             levelName = itemsToUpdate$level,
+                                             attributeName = itemsToUpdate$attribute)
   
   
   ##
@@ -251,6 +257,7 @@ update_itemsInLevel = function (emuDBhandle,
     return (invisible(NULL))
   }
   
+  #  get item_ids of matching entries
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
     "SELECT item_id FROM items
@@ -282,6 +289,8 @@ update_itemsInLevel = function (emuDBhandle,
     (db_uuid, session, bundle, item_id, label_idx, name, label)
     VALUES (?, ?, ?, ?, ?, ?, ?)"
   )
+  # rename labels column to label to match labels SQL table column name
+  colnames(itemsToUpdate)[colnames(itemsToUpdate)=="labels"] <- "label"
   
   DBI::dbBind(
     statement,
@@ -292,14 +301,17 @@ update_itemsInLevel = function (emuDBhandle,
       item_id_list$item_id,
       itemsToUpdate$label_index,
       itemsToUpdate$attribute,
-      itemsToUpdate$labels
+      itemsToUpdate$label
     )
   )
   rowsAffected = DBI::dbGetRowsAffected(statement)
   DBI::dbClearResult(statement)
   
   if (rewriteAllAnnots) {
-    rewrite_allAnnots(emuDBhandle, verbose)
+    rewrite_annots(emuDBhandle, 
+                   bundles = unique(data.frame(session = itemsToUpdate$session,
+                                               name = itemsToUpdate$bundle)), 
+                   verbose)
   }
   
   invisible(NULL)
@@ -338,7 +350,7 @@ delete_itemsInLevel = function (emuDBhandle,
   ##
   
   if (rewriteAllAnnots) {
-    rewrite_allAnnots(emuDBhandle, verbose)
+    rewrite_annots(emuDBhandle, verbose)
   }
   
   invisible(NULL)
