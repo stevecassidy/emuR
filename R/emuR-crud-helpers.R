@@ -7,7 +7,7 @@
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param itemToInsert Data frame containing the labels for the item to be inserted.
 ##'                     Must contain the columns \code{session}, \code{bundle}, \code{level},
-##'                     \code{sequenceIndex}, \code{attribute}, \code{labelIndex}, and
+##'                     \code{start_item_seq_idx}, \code{attribute}, \code{labelIndex}, and
 ##'                     \code{label}. The first four of these identify the item and must
 ##'                     contain the same value in all rows. \code{attribute} and \code{labelIndex}
 ##'                     must match up - the label index marks the position of the
@@ -18,7 +18,7 @@ insertItemIntoDatabase = function(emuDBhandle,
   session = itemToInsert$session[1]
   bundle = itemToInsert$bundle[1]
   level = itemToInsert$level[1]
-  sequenceIndex = itemToInsert$sequenceIndex[1]
+  sequenceIndex = itemToInsert$start_item_seq_idx[1]
   
   ##
   ## Make sure that the provided attributes exactly match those required for the provided level
@@ -232,9 +232,10 @@ rewrite_sequenceIndexesOneLevel = function (emuDBhandle,
 
 
 ensureSequenceIndexesAreUnique = function (itemsOnAttribute) {
-  uniqueSequenceIndexes = unique (itemsOnAttribute$sequenceIndex)
   
-  if (length(uniqueSequenceIndexes) != length(itemsOnAttribute$sequenceIndex)) {
+  uniqueSequenceIndexes = unique (itemsOnAttribute$start_item_seq_idx)
+  
+  if (length(uniqueSequenceIndexes) != length(itemsOnAttribute$start_item_seq_idx)) {
     stop(call. = FALSE,
          paste("Sequence indexes must be uniqe within one level.",
                "Found duplicate sequence indexes in",
