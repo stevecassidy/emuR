@@ -437,9 +437,9 @@ list_bundles <- function(emuDBhandle, session=NULL){
 ## @param bundles data.frame containing session 
 ## and bundle colums (e.g. see output of list_bundles())
 rewrite_annots <- function(emuDBhandle, 
-                              bundles = NULL, 
-                              verbose=TRUE){
-
+                           bundles = NULL, 
+                           verbose = TRUE){
+  
   if(is.null(bundles)){
     bndls = list_bundles(emuDBhandle)
   }else{
@@ -460,11 +460,11 @@ rewrite_annots <- function(emuDBhandle,
   
   for(i in 1:nrow(bndls)){
     bndl = bndls[i,]
-
+    
     bundleAnnotDFs = load_bundleAnnotDFsDBI(emuDBhandle, bndl$session, bndl$name)
     
     annotJSONchar = bundleAnnotDFsToAnnotJSONchar(emuDBhandle, bundleAnnotDFs)
-
+    
     # construct path to annotJSON
     annotFilePath = file.path(emuDBhandle$basePath, paste0(bndl$session, session.suffix), 
                               paste0(bndl$name, bundle.dir.suffix), 

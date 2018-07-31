@@ -477,7 +477,7 @@ append_itemsToLevel = function(emuDBhandle,
     DBI::dbClearResult(statement)    
   }
   
-  rewrite_annots(emuDBhandle, verbose)
+  rewrite_annots(emuDBhandle, verbose = verbose)
 }
 
 # ##' Add items to an empty level

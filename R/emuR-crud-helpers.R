@@ -1,19 +1,21 @@
-##' Insert one item into the database
-##'
-##' @description One item, identified as \code{session:bundle:level:sequenceIndex},
-##' is inserted into the database. One label has to be provided for every attribute
-##' of the given level.
-##'
-##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
-##' @param itemToInsert Data frame containing the labels for the item to be inserted.
-##'                     Must contain the columns \code{session}, \code{bundle}, \code{level},
-##'                     \code{start_item_seq_idx}, \code{attribute}, \code{labelIndex}, and
-##'                     \code{label}. The first four of these identify the item and must
-##'                     contain the same value in all rows. \code{attribute} and \code{labelIndex}
-##'                     must match up - the label index marks the position of the
-##'                     attribute within its level (see \code{\link{get_labelIndex}}.
+## Insert one item into the database
+##
+## @description One item, identified as \code{session:bundle:level:sequenceIndex},
+## is inserted into the database. One label has to be provided for every attribute
+## of the given level.
+##
+## @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
+## @param itemToInsert Data frame containing the labels for the item to be inserted.
+##                     Must contain the columns \code{session}, \code{bundle}, \code{level},
+##                     \code{start_item_seq_idx}, \code{attribute}, \code{labelIndex}, and
+##                     \code{label}. The first four of these identify the item and must
+##                     contain the same value in all rows. \code{attribute} and \code{labelIndex}
+##                     must match up - the label index marks the position of the
+##                     attribute within its level (see \code{\link{get_labelIndex}}.
+## @param levelType type of level (ITEM vs EVENT vs SEGMENT)
 insertItemIntoDatabase = function(emuDBhandle,
-                                  itemToInsert) {
+                                  itemToInsert,
+                                  levelType) {
   
   session = itemToInsert$session[1]
   bundle = itemToInsert$bundle[1]
@@ -39,13 +41,26 @@ insertItemIntoDatabase = function(emuDBhandle,
                  ")."))
   }
   
+  # set sample_point, sample_start and sample_dur values based on levelType
+  if(levelType == "SEGMENT"){
+    stop("Not implemented yet!")
+  }else if(levelType == "EVENT"){
+    samplePoint = itemToInsert$sample_point[1]
+    sampleStart = NA
+    sampleDur = NA
+  }else{
+    samplePoint = NA
+    sampleStart = NA
+    sampleDur = NA
+  }
   
   ##
   ## Insert item into the database (first the item itself, then the corresponding labels)
   ##
   itemId = 1 + bas_get_max_id(emuDBhandle,
                               session,
-                              bundle)
+                              bundle,
+                              items_table_name = "items_annot_crud_tmp")
   
   sampleRate = bas_get_samplerate(emuDBhandle,
                                   session,
@@ -58,7 +73,7 @@ insertItemIntoDatabase = function(emuDBhandle,
     sample_point, sample_start, sample_dur
   )
     VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
     )"
   )
   
@@ -70,9 +85,12 @@ insertItemIntoDatabase = function(emuDBhandle,
       bundle,
       itemId,
       level,
-      "ITEM",
+      levelType,
       sequenceIndex,
-      sampleRate
+      sampleRate,
+      samplePoint,
+      sampleStart,
+      sampleDur
     )
   )
   

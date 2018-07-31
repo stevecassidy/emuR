@@ -1972,9 +1972,9 @@ bas_get_max_label_idx <- function(handle, session, bundle, item_id)
   return(DBI::dbGetQuery(handle$connection, queryTxt)[1, 1])
 }
 
-bas_get_max_id <- function(handle, session, bundle)
+bas_get_max_id <- function(handle, session, bundle, items_table_name = "items")
 {
-  queryTxt = paste0("SELECT max(item_id) FROM items",
+  queryTxt = paste0("SELECT max(item_id) FROM ", items_table_name,
                     basic_cond(handle, session, bundle))
   
   res = DBI::dbGetQuery(handle$connection, queryTxt)

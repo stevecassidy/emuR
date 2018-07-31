@@ -80,7 +80,7 @@ create_itemsInLevel = function(emuDBhandle,
   }
   
   # rename labels column to label to match labels SQL table column name
-  colnames(itemsToUpdate)[colnames(itemsToUpdate)=="labels"] <- "label"
+  colnames(itemsToCreate)[colnames(itemsToCreate)=="labels"] <- "label"
   
   ## check that every session/bundle combination exists
   bundleList = list_bundles(emuDBhandle)
@@ -94,19 +94,16 @@ create_itemsInLevel = function(emuDBhandle,
     stop("Some of the session/bundle combinations provided are invalid: ", invalidItems)
   }
   
-  ## check that all levels are of type ITEM
-  allLevelsAreOfAllowedType = TRUE
-  
-  for (level in unique(itemsToCreate$level)) {
-    levelDefinition = get_levelDefinition(emuDBhandle, level)
-    if (!(levelDefinition$type %in% c("ITEM", "EVENT"))) {
-      allLevelsAreOfAllowedType = FALSE
-      warning("One of the levels provided is not of type ITEM or EVENT: ", level)
-    }
+  # check that only one level is provided
+  levelName = unique(itemsToCreate$level)
+  if(length(levelName) > 1){
+    stop("'itemsToCreate' contains multiple levels! The created ITEMs have to be on the same level!")
   }
   
-  if (allLevelsAreOfAllowedType == FALSE) {
-    stop("Some of the levels provided are not of type ITEM.", call. = FALSE)
+  ## check the level is of type ITEM or EVENT (SEGMENT to follow)
+  levelDefinition = get_levelDefinition(emuDBhandle, levelName)
+  if (!(levelDefinition$type %in% c("ITEM", "EVENT"))) {
+    stop(paste0("The level:", levelName, " provided is not of type ITEM or EVENT"))
   }
   
   ## Make sure all sequence indexes are unique within their respective level/attribute pair.
@@ -121,6 +118,32 @@ create_itemsInLevel = function(emuDBhandle,
                               by = c("session", "bundle", "level", "start_item_seq_idx" = "seq_idx"))
   if(nrow(in_both) > 0){
     stop("Found existing items with same 'session', 'bundle', 'level', 'start_item_seq_idx'!")
+  }
+  
+  ## for EVENT
+  if(levelDefinition$type == "EVENT"){
+    
+    # get sample_rate vector
+    bundles_df = DBI::dbReadTable(emuDBhandle$connection, "bundle")
+    sample_rate = dplyr::left_join(itemsToCreate, 
+                                   bundles_df, 
+                                   by = c("session", "bundle" = "name")) %>% 
+      dplyr::select(dplyr::starts_with("sample_rate"))
+    
+    sample_rate = sample_rate[,ncol(sample_rate)] # relevant when multiple sample_rate.x sample_rate.y cols are present
+    
+    # calc. sample_point
+    itemsToCreate$sample_point = (itemsToCreate$start / 1000) * dplyr::pull(sample_rate)
+    
+    # check that times don't exist
+    in_both = dplyr::inner_join(itemsToCreate, 
+                                items_all, 
+                                by = c("session", "bundle", "level", "sample_point"))
+
+    if(nrow(in_both) > 0){
+      stop("Found existing items with same 'session', 'bundle', 'level', 'sample_point'!")
+    }
+    
   }
   
   ##
@@ -145,7 +168,7 @@ create_itemsInLevel = function(emuDBhandle,
   ##
   itemsToCreate %>%
     dplyr::group_by(.data$session, .data$bundle, .data$level, .data$start_item_seq_idx) %>%
-    dplyr::do(insertItemIntoDatabase(emuDBhandle, .data))
+    dplyr::do(insertItemIntoDatabase(emuDBhandle, .data, levelDefinition$type))
   
   
   ##
@@ -161,7 +184,8 @@ create_itemsInLevel = function(emuDBhandle,
   moveback_annotCrudTmpTables(emuDBhandle)
   
   if (rewriteAllAnnots) {
-    rewrite_annots(emuDBhandle, verbose)
+    rewrite_annots(emuDBhandle, 
+                   verbose = verbose)
   }
   
   invisible(NULL)
@@ -311,7 +335,7 @@ update_itemsInLevel = function (emuDBhandle,
     rewrite_annots(emuDBhandle, 
                    bundles = unique(data.frame(session = itemsToUpdate$session,
                                                name = itemsToUpdate$bundle)), 
-                   verbose)
+                   verbose = verbose)
   }
   
   invisible(NULL)
@@ -350,7 +374,8 @@ delete_itemsInLevel = function (emuDBhandle,
   ##
   
   if (rewriteAllAnnots) {
-    rewrite_annots(emuDBhandle, verbose)
+    rewrite_annots(emuDBhandle, 
+                   verbose = verbose)
   }
   
   invisible(NULL)
@@ -360,5 +385,5 @@ delete_itemsInLevel = function (emuDBhandle,
 # FOR DEVELOPMENT
 # library('testthat')
 # test_file('tests/testthat/test_aaa_initData.R')
-# test_file('tests/testthat/test_emuR-annotations_crud.R')
+test_file('tests/testthat/test_emuR-annotations_crud.R')
 # test_file('tests/testthat/test_zzz_cleanUp.R')
