@@ -15,9 +15,12 @@ create_itemsInLevel(emuDBhandle, itemsToCreate, rewriteAllAnnots = TRUE,
 \item\code{session},
 \item\code{bundle},
 \item\code{level},
-\item\code{sequenceIndex},
+\item\code{start_item_seq_idx}(\code{start_item_seq_idx} is used instead of 
+\code{seq_idx} so that the result of a \code{\link{query}} call can be used directly. 
+\code{\link{query}} can return a sequence of items defined by \code{start_item_seq_idx} 
+and \code{end_item_seq_idx} which have the same value if single items are returned),
 \item\code{attribute}, and
-\item \code{label}.
+\item \code{labels}.
 }
 *None* of the columns should be factors.
 \code{sequenceIndex} must be numeric (can be real-valued or natural-valued),

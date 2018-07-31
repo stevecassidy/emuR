@@ -11,7 +11,7 @@ insertItemIntoDatabase(emuDBhandle, itemToInsert)
 
 \item{itemToInsert}{Data frame containing the labels for the item to be inserted.
 Must contain the columns \code{session}, \code{bundle}, \code{level},
-\code{sequenceIndex}, \code{attribute}, \code{labelIndex}, and
+\code{start_item_seq_idx}, \code{attribute}, \code{labelIndex}, and
 \code{label}. The first four of these identify the item and must
 contain the same value in all rows. \code{attribute} and \code{labelIndex}
 must match up - the label index marks the position of the

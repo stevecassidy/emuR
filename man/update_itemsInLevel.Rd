@@ -2,7 +2,7 @@
 % Please edit documentation in R/emuR-annotations_crud.R
 \name{update_itemsInLevel}
 \alias{update_itemsInLevel}
-\title{Change item labels programmatically}
+\title{Update items programmatically}
 \usage{
 update_itemsInLevel(emuDBhandle, itemsToUpdate, rewriteAllAnnots = TRUE,
   verbose = TRUE)
@@ -12,12 +12,15 @@ update_itemsInLevel(emuDBhandle, itemsToUpdate, rewriteAllAnnots = TRUE,
 
 \item{itemsToUpdate}{A data frame with the columns
 \itemize{
-\item\code{session},
-\item\code{bundle},
-\item\code{level},
-\item\code{sequenceIndex},
-\item\code{attribute}, and
-\item \code{label}.
+\item \code{session},
+\item \code{bundle},
+\item \code{level},
+\item \code{start_item_seq_idx} (\code{start_item_seq_idx} is used instead of e.g.
+\code{seq_idx} so that the result of a \code{\link{query}} call can be used directly. 
+\code{\link{query}} can return a sequence of items defined by \code{start_item_seq_idx} 
+and \code{end_item_seq_idx} which have the same value if single items are returned), 
+\item \code{attribute}, and
+\item \code{labels}.
 }
 *None* of the columns should be factors.
 \code{sequenceIndex} must be numeric (natural-valued), all other columns
@@ -29,5 +32,5 @@ files) (intended for expert use only)}
 \item{verbose}{if set to \code{TRUE}, more status messages are printed}
 }
 \description{
-Change item labels programmatically
+Update items programmatically
 }

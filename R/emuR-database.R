@@ -432,10 +432,10 @@ list_bundles <- function(emuDBhandle, session=NULL){
   return(res)
 }
 
-
-##' @param emuDBhandle emuDBhandle
-##' @param bundles data.frame containing session 
-##' and bundle colums (e.g. see output of list_bundles())
+## rewrite annot json files from the cache
+## @param emuDBhandle emuDBhandle
+## @param bundles data.frame containing session 
+## and bundle colums (e.g. see output of list_bundles())
 rewrite_annots <- function(emuDBhandle, 
                               bundles = NULL, 
                               verbose=TRUE){
