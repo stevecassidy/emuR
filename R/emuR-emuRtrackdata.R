@@ -36,7 +36,7 @@ create_emuRtrackdata <- function(sl, td){
   ########################
   # check parameters
   # check correct classes
-  if(!inherits(sl, "emuRsegs") || !inherits(td, "trackdata")){
+  if((!inherits(sl, "emuRsegs") & !inherits(sl, "tbl_df")) | !inherits(td, "trackdata")){
     stop("emuRtrackdata could not be created: sl is not of class 'emuRsegs' or td arguments is not of class 'trackdata'")
   }
   
