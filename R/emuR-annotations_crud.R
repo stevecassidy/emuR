@@ -385,5 +385,5 @@ delete_itemsInLevel = function (emuDBhandle,
 # FOR DEVELOPMENT
 # library('testthat')
 # test_file('tests/testthat/test_aaa_initData.R')
-test_file('tests/testthat/test_emuR-annotations_crud.R')
+# test_file('tests/testthat/test_emuR-annotations_crud.R')
 # test_file('tests/testthat/test_zzz_cleanUp.R')
