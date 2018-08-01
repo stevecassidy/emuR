@@ -215,12 +215,12 @@
     funcFormals$toFile = FALSE
     funcFormals$optLogFilePath = onTheFlyOptLogFilePath
     if(verbose){
-      cat('\n  INFO: applying', onTheFlyFunctionName, 'to', nrow(seglist), 'files\n')
+      cat('\n  INFO: applying', onTheFlyFunctionName, 'to', nrow(seglist), 'segments/events\n')
       pb <- utils::txtProgressBar(min = 0, max = nrow(seglist), style = 3)
     }
   }else{
     if(verbose){
-      cat('\n  INFO: parsing', nrow(seglist), trackDef[[1]]$fileExtension, 'files\n')
+      cat('\n  INFO: parsing', nrow(seglist), trackDef[[1]]$fileExtension, 'segments/events\n')
       pb <- utils::txtProgressBar(min = 0, max = nrow(seglist), style = 3)
     }
   }
