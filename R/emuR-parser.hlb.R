@@ -91,35 +91,37 @@ parse_hlbFile <- function(hlbFilePath=NULL,levelDefinitions,levels,encoding=NULL
             stop("Existing item count mismatch: ",exItemsLen," != ",currItemsLen)
           }
           i=0
-          for(i in 1:exItemsLen){
-            exItem=exItems[[i]]
-            currItem=currentitems[[i]]
-            exType=exItem$type
-            # merge labels
-            mergedLabels=exItem[['labels']]
-            for(itLbl in currItem[['labels']]){
-              for(exLabel in exItem[['labels']]){
-                if(exLabel[['name']]==itLbl[['name']]){
-                  # label exists, check equality
-                  exLblVal=exLabel[['value']]
-                  if(is.null(exLblVal)){
-                    exLblVal=''
+          if(exItemsLen > 0){
+            for(i in 1:exItemsLen){
+              exItem=exItems[[i]]
+              currItem=currentitems[[i]]
+              exType=exItem$type
+              # merge labels
+              mergedLabels=exItem[['labels']]
+              for(itLbl in currItem[['labels']]){
+                for(exLabel in exItem[['labels']]){
+                  if(exLabel[['name']]==itLbl[['name']]){
+                    # label exists, check equality
+                    exLblVal=exLabel[['value']]
+                    if(is.null(exLblVal)){
+                      exLblVal=''
+                    }
+                    itLblVal=itLbl[['value']]
+                    if(exLblVal!=itLblVal){
+                      stop("Labels of attribute level '",exLabel[['name']],"' differ: '",exLabel[['value']],"' '",itLbl[['value']],"' in HLB file: '",hlbFilePath,"' line ",lnr,".\n")
+                    }
+                  }else{
+                    # merge
+                    mergedLabels[[length(mergedLabels)+1]]=itLbl
                   }
-                  itLblVal=itLbl[['value']]
-                  if(exLblVal!=itLblVal){
-                    stop("Labels of attribute level '",exLabel[['name']],"' differ: '",exLabel[['value']],"' '",itLbl[['value']],"' in HLB file: '",hlbFilePath,"' line ",lnr,".\n")
-                  }
-                }else{
-                  # merge
-                  mergedLabels[[length(mergedLabels)+1]]=itLbl
                 }
+                
               }
-              
-            }
-            if(newTier$type == "SEGMENT"){
-              newItems[[i]]=list(id=currItem$id,sampleStart=exItem$sampleStart,sampleDur=exItem$sampleDur,labels=mergedLabels)
-            }else if(newTier$type == "EVENT"){
-              newItems[[i]]=list(id=currItem$id,samplePoint=exItem$samplePoint,labels=mergedLabels)
+              if(newTier$type == "SEGMENT"){
+                newItems[[i]]=list(id=currItem$id,sampleStart=exItem$sampleStart,sampleDur=exItem$sampleDur,labels=mergedLabels)
+              }else if(newTier$type == "EVENT"){
+                newItems[[i]]=list(id=currItem$id,samplePoint=exItem$samplePoint,labels=mergedLabels)
+              }
             }
           }
           newTier$items=newItems
