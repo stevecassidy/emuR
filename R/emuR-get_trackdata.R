@@ -390,8 +390,16 @@
     #timeStampRowNames[curIndexStart:curIndexEnd] <- rowSeq
     curIndexStart <- curIndexEnd + 1
     
-    DBI::dbWriteTable(emuDBhandle$connection, "gettrackdata_data_tmp", as.data.frame(curData), append = T)
-    DBI::dbWriteTable(emuDBhandle$connection, "gettrackdata_timeStampRowNames_tmp", as.data.frame(rowSeq), append = T)
+    DBI::dbWriteTable(emuDBhandle$connection, 
+                      "gettrackdata_data_tmp", 
+                      as.data.frame(curData), 
+                      append = T, 
+                      temporary = T)
+    DBI::dbWriteTable(emuDBhandle$connection, 
+                      "gettrackdata_timeStampRowNames_tmp", 
+                      as.data.frame(rowSeq), 
+                      append = T, 
+                      temporary = T)
     
     
     prevUtt = curUtt
