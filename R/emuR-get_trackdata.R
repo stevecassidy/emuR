@@ -394,12 +394,12 @@
                       "gettrackdata_data_tmp", 
                       as.data.frame(curData), 
                       append = T, 
-                      temporary = T)
+                      temporary = F)
     DBI::dbWriteTable(emuDBhandle$connection, 
                       "gettrackdata_timeStampRowNames_tmp", 
                       as.data.frame(rowSeq), 
                       append = T, 
-                      temporary = T)
+                      temporary = F)
     
     
     prevUtt = curUtt
