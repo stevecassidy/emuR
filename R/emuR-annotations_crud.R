@@ -1,9 +1,17 @@
 ##' Create new items programmatically
 ##' @export
 ##' 
-##' @description Allows creating annotation items programmatically. You have to
-##' pass in a data frame describing the new items. Each new item is identified by
-##' its \code{session}, \code{bundle}, \code{level}, and \code{sequence index}.
+##' @description Allows creating annotation items programmatically on a single level. 
+##' You have to pass in a data frame describing the new items. Each new item is identified by
+##' its \code{session}, \code{bundle}, \code{level}, and depending on the 
+##' level type either:
+##' 
+##' \itemize{
+##' \item \code{sequence index (start_item_seq_idx)}: when level type = \code{ITEM}
+##' \item \code{start}: start time in ms * 1000 (see output of \link{query}) when level type = \code{EVENT}
+##' \item \code{start} and \code{end}: start and end time in ms * 1000 () when level type = \code{SEGMENT}
+##' }
+##' .
 ##' The \code{level} with its associated \code{attributes} determines how many
 ##' labels must be provided. You must provide a label for every existing attribute.
 ##' 
@@ -60,23 +68,51 @@ create_itemsInLevel = function(emuDBhandle,
                                itemsToCreate,
                                rewriteAllAnnots = TRUE,
                                verbose = TRUE) {
+  # check that only one level is provided
+  levelName = unique(itemsToCreate$level)
+  if(length(levelName) > 1){
+    stop("'itemsToCreate' contains multiple levels! The created ITEMs have to be on the same level!")
+  }
+  
+  # check that only one attribute is provided (currenlty only single attributes allowed)
+  attributeName = unique(itemsToCreate$attribute)
+  if(length(levelName) > 1){
+    stop("'itemsToCreate' contains multiple attributes! The created ITEMs have to be on the same attribute!")
+  }
+  
+  ## check the level is of type ITEM or EVENT (SEGMENT to follow)
+  levelDefinition = get_levelDefinition(emuDBhandle, levelName)
+  if(is.null(levelDefinition)) stop("level '", levelName, "' doesn't exist!")
+  if (!(levelDefinition$type %in% c("ITEM", "EVENT"))) {
+    stop(paste0("The level:", levelName, " provided is not of type ITEM or EVENT"))
+  }
+  
   ## check that all required columns are available
-  required_colnames = c("session", "bundle", "level", "start_item_seq_idx", "attribute", "labels")
+  required_colnames = c("session", "bundle", "level", "attribute", "labels")
+  if(levelDefinition$type == "ITEM"){
+    required_colnames = c(required_colnames, "start_item_seq_idx")
+  }else if(levelDefinition$type == "EVENT"){
+    required_colnames = c(required_colnames, "start")
+  }
+  
   if(!all(required_colnames %in% names(itemsToCreate))){
     stop(paste0("Not all required columns are available in itemsToCreate data.frame! ",
                 "The required columns are: ", paste(required_colnames, collapse = "; ")))
   }
   
-  ## check types of required columns
-  required_colnames = c("session", "bundle", "level", "start_item_seq_idx", "attribute", "labels")
+  ## check types of columns
   if(!is.character(itemsToCreate$session) | 
      !is.character(itemsToCreate$bundle) | 
      !is.character(itemsToCreate$level) |
-     !is.numeric(itemsToCreate$start_item_seq_idx) |
      !is.character(itemsToCreate$attribute) |
      !is.character(itemsToCreate$labels)
   ){
     stop(paste0("Not all columns match the required type!"))
+  }
+  if(levelDefinition$type == "ITEM"){
+    if(!is.numeric(itemsToCreate$start_item_seq_idx)) stop(paste0("Not all columns match the required type!"))
+  }else if(levelDefinition$type == "EVENT"){
+    if(!is.numeric(itemsToCreate$start)) stop(paste0("Not all columns match the required type!"))
   }
   
   # rename labels column to label to match labels SQL table column name
@@ -94,32 +130,27 @@ create_itemsInLevel = function(emuDBhandle,
     stop("Some of the session/bundle combinations provided are invalid: ", invalidItems)
   }
   
-  # check that only one level is provided
-  levelName = unique(itemsToCreate$level)
-  if(length(levelName) > 1){
-    stop("'itemsToCreate' contains multiple levels! The created ITEMs have to be on the same level!")
-  }
-  
-  ## check the level is of type ITEM or EVENT (SEGMENT to follow)
-  levelDefinition = get_levelDefinition(emuDBhandle, levelName)
-  if (!(levelDefinition$type %in% c("ITEM", "EVENT"))) {
-    stop(paste0("The level:", levelName, " provided is not of type ITEM or EVENT"))
-  }
-  
-  ## Make sure all sequence indexes are unique within their respective level/attribute pair.
-  itemsToCreate %>%
-    dplyr::group_by(.data$session, .data$bundle, .data$level, .data$attribute) %>%
-    dplyr::do(ensureSequenceIndexesAreUnique(.data))
-  
-  ## check for conflicting seq index
+  # extract all items
   items_all = DBI::dbReadTable(emuDBhandle$connection, "items")
-  in_both = dplyr::inner_join(itemsToCreate, 
-                              items_all, 
-                              by = c("session", "bundle", "level", "start_item_seq_idx" = "seq_idx"))
-  if(nrow(in_both) > 0){
-    stop("Found existing items with same 'session', 'bundle', 'level', 'start_item_seq_idx'!")
-  }
   
+  itemsToUpdate = NULL
+  
+  ## for ITEM levels
+  if(levelDefinition$type == "ITEM"){
+    
+    ## Make sure all sequence indexes are unique within their respective level/attribute pair.
+    itemsToCreate %>%
+      dplyr::group_by(.data$session, .data$bundle, .data$level, .data$attribute) %>%
+      dplyr::do(ensureSequenceIndexesAreUnique(.data))
+    
+    ## check for conflicting seq index
+    in_both = dplyr::inner_join(itemsToCreate, 
+                                items_all, 
+                                by = c("session", "bundle", "level", "start_item_seq_idx" = "seq_idx"))
+    if(nrow(in_both) > 0){
+      stop("Found existing items with same 'session', 'bundle', 'level', 'start_item_seq_idx'!")
+    }
+  }
   ## for EVENT
   if(levelDefinition$type == "EVENT"){
     
@@ -130,19 +161,68 @@ create_itemsInLevel = function(emuDBhandle,
                                    by = c("session", "bundle" = "name")) %>% 
       dplyr::select(dplyr::starts_with("sample_rate"))
     
-    sample_rate = sample_rate[,ncol(sample_rate)] # relevant when multiple sample_rate.x sample_rate.y cols are present
+    sample_rate = dplyr::as_tibble(sample_rate) # incase it isn't already
+    sample_rate = dplyr::pull(sample_rate[,ncol(sample_rate)]) # relevant when multiple sample_rate.x sample_rate.y cols are present
+    
     
     # calc. sample_point
-    itemsToCreate$sample_point = (itemsToCreate$start / 1000) * dplyr::pull(sample_rate)
+    itemsToCreate$sample_point = round((itemsToCreate$start / 1000) * sample_rate)
     
     # check that times don't exist
     in_both = dplyr::inner_join(itemsToCreate, 
                                 items_all, 
                                 by = c("session", "bundle", "level", "sample_point"))
-
+    
     if(nrow(in_both) > 0){
       stop("Found existing items with same 'session', 'bundle', 'level', 'sample_point'!")
     }
+    
+    # calculate correct start_item_seq_idx
+    
+    # find existing items on same levels that are in itemsToCreate
+    items_exist_in_levels = dplyr::left_join(items_all,
+                                             itemsToCreate,
+                                              by = c("session", "bundle", "level"))
+    
+    items_exist_in_levels = items_exist_in_levels[!is.na(items_exist_in_levels$db_uuid.y),]
+    
+    # create data.frame object that contains them both
+    # that can be used to sort by sample_point to calcualte start_item_seq_idx
+    items_to_sort = rbind(
+      dplyr::tibble(session = items_exist_in_levels$session, 
+                    bundle = items_exist_in_levels$bundle,
+                    level = items_exist_in_levels$level,
+                    attribute = attributeName,
+                    label = "XXX",
+                    item_id = items_exist_in_levels$item_id,
+                    sample_point = items_exist_in_levels$sample_point.x,
+                    item_from = "items_exist_in_levels"
+      ),
+      dplyr::tibble(session = itemsToCreate$session, 
+                    bundle = itemsToCreate$bundle,
+                    level = itemsToCreate$level,
+                    attribute = itemsToCreate$attribute,
+                    label = itemsToCreate$label,
+                    item_id = -1,
+                    sample_point = itemsToCreate$sample_point,
+                    item_from = "itemsToCreate"
+      )
+    )
+    
+    items_sorted = items_to_sort %>% 
+      dplyr::group_by(.data$session, .data$bundle, .data$level) %>% 
+      dplyr::arrange(.data$sample_point, .by_group = T) %>%
+      dplyr::mutate(start_item_seq_idx = dplyr::row_number())
+    
+    itemsToCreate = items_sorted %>% 
+      dplyr::filter(.data$item_from == "itemsToCreate") %>% 
+      dplyr::ungroup()
+    
+    itemsToUpdate = items_sorted %>% 
+      dplyr::filter(.data$item_from == "items_exist_in_levels") %>% 
+      dplyr::ungroup()
+    
+    
     
   }
   
@@ -161,6 +241,30 @@ create_itemsInLevel = function(emuDBhandle,
   ## Copy items data into temporary table
   ##
   create_annotCrudTmpTables(emuDBhandle)
+  
+  # update start_item_seq_idx in items_annot_crud_tmp table with itemsToUpdate
+  if(!is.null(itemsToUpdate)){
+    if(nrow(itemsToUpdate) >= 1){
+      statement = DBI::dbSendStatement(
+        emuDBhandle$connection,
+        "UPDATE items_annot_crud_tmp SET seq_idx = ? WHERE db_uuid = ? AND session = ? AND bundle = ? AND item_id = ?"
+      )
+      
+      DBI::dbBind(
+        statement,
+        list(
+          itemsToUpdate$start_item_seq_idx,
+          rep(emuDBhandle$UUID,length(itemsToUpdate$start_item_seq_idx)),
+          itemsToUpdate$session,
+          itemsToUpdate$bundle,
+          itemsToUpdate$item_id
+        )
+      )
+      
+      DBI::dbClearResult(statement)
+      
+    }
+  }
   
   ##
   ## Split the item list into individual items (identified by the session/bundle/level/sequenceIndex tuple),

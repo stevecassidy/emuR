@@ -32,9 +32,17 @@ files) (intended for expert use only)}
 \item{verbose}{if set to \code{TRUE}, more status messages are printed}
 }
 \description{
-Allows creating annotation items programmatically. You have to
-pass in a data frame describing the new items. Each new item is identified by
-its \code{session}, \code{bundle}, \code{level}, and \code{sequence index}.
+Allows creating annotation items programmatically on a single level. 
+You have to pass in a data frame describing the new items. Each new item is identified by
+its \code{session}, \code{bundle}, \code{level}, and depending on the 
+level type either:
+
+\itemize{
+\item \code{sequence index (start_item_seq_idx)}: when level type = \code{ITEM}
+\item \code{start}: start time in ms * 1000 (see output of \link{query}) when level type = \code{EVENT}
+\item \code{start} and \code{end}: start and end time in ms * 1000 () when level type = \code{SEGMENT}
+}
+.
 The \code{level} with its associated \code{attributes} determines how many
 labels must be provided. You must provide a label for every existing attribute.
 

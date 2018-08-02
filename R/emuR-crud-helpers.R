@@ -128,13 +128,13 @@ insertItemIntoDatabase = function(emuDBhandle,
   invisible(itemToInsert)
 }
 
-##' Vectorized function to translate level/attribute name pairs into label indexes.
-##' 
-##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
-##' @param levelName The level of the level/attribute pairs. This vector must
-##' match the \code{attributeName} vector.
-##' @param attributeName The attribute of the level/attribute pairs. This vector must
-##' match the \code{levelName} vector.
+## Vectorized function to translate level/attribute name pairs into label indexes.
+## 
+## @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
+## @param levelName The level of the level/attribute pairs. This vector must
+## match the \code{attributeName} vector.
+## @param attributeName The attribute of the level/attribute pairs. This vector must
+## match the \code{levelName} vector.
 get_labelIndex = function(emuDBhandle,
                           levelName,
                           attributeName) {
@@ -188,17 +188,17 @@ get_labelIndex = function(emuDBhandle,
   ##                c("Canonical", "transcription", "Word", "foo", "transcription")) == c(2,2,1, NA, 2)
 }
 
-##' Rewrite all sequence indexes across all sessions and bundles.
-##' 
-##' Reads the existing sequences of all items, assuming they are a mixture of
-##' natural values, real values and NULL, sorts them in ascending order, and
-##' replaces them with the sequence 1..n, where n is the number of items on the
-##' respective level in the respective bundle. NULL values are placed at the end
-##' of the sequence.
-##' 
-##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
-##' 
-##' @importFrom rlang .data
+## Rewrite all sequence indexes across all sessions and bundles.
+## 
+## Reads the existing sequences of all items, assuming they are a mixture of
+## natural values, real values and NULL, sorts them in ascending order, and
+## replaces them with the sequence 1..n, where n is the number of items on the
+## respective level in the respective bundle. NULL values are placed at the end
+## of the sequence.
+## 
+## @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
+## 
+## @importFrom rlang .data
 rewrite_allSequenceIndexes = function (emuDBhandle) {
   allItems = DBI::dbReadTable(emuDBhandle$connection, "items_annot_crud_tmp")
   
@@ -207,12 +207,12 @@ rewrite_allSequenceIndexes = function (emuDBhandle) {
     dplyr::do(rewrite_sequenceIndexesOneLevel(emuDBhandle, .data))
 }
 
-##' See \code{\link{rewrite_allSequenceIndexes}}
-##' 
-##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
-##' @param itemsOnLevel Data frame describing all items on a particular level.
-##' 
-##' @importFrom rlang .data
+## See \code{\link{rewrite_allSequenceIndexes}}
+## 
+## @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
+## @param itemsOnLevel Data frame describing all items on a particular level.
+## 
+## @importFrom rlang .data
 rewrite_sequenceIndexesOneLevel = function (emuDBhandle,
                                             itemsOnLevel) {
   # Sort items by their current sequence_index
