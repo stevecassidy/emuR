@@ -182,7 +182,7 @@ create_itemsInLevel = function(emuDBhandle,
     # find existing items on same levels that are in itemsToCreate
     items_exist_in_levels = dplyr::left_join(items_all,
                                              itemsToCreate,
-                                              by = c("session", "bundle", "level"))
+                                             by = c("session", "bundle", "level"))
     
     items_exist_in_levels = items_exist_in_levels[!is.na(items_exist_in_levels$db_uuid.y),]
     
@@ -485,9 +485,70 @@ delete_itemsInLevel = function (emuDBhandle,
   invisible(NULL)
 }
 
+##' create links between items
+##'
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
+##' @param links data.frame containing linking information. The required columns
+##' are: 
+##' \itemize{
+##' \item \code{session}: 
+##' \item \code{bundle}
+##' \item \code{from_id}
+##' \item \code{to_id}
+##' }
+##' @param rewriteAllAnnots should changes be written to file system (_annot.json
+##'                         files) (intended for expert use only)
+##' @param verbose if set to \code{TRUE}, more status messages are printed
+##' @export
+create_links = function(emuDBhandle,
+                        links,
+                        rewriteAllAnnots = TRUE,
+                        verbose = TRUE) {
+  
+  input_key <- readline(prompt="Currently no checks are performed so use at own risk! Do you wish to continue anyway (y/N)?")
+  if(input_key != "y") return()
+  
+  # todo check if items are all present in database
+  # todo check that all links are valid
+  # todo check that no links cross each other
+  
+  
+  statement = DBI::dbSendStatement(
+    emuDBhandle$connection,
+    "INSERT INTO links (
+    db_uuid, session, bundle, from_id, to_id, label
+    )
+    VALUES (
+    ?, ?, ?, ?, ?, NULL
+    )"
+  )
+  
+  DBI::dbBind(
+    statement,
+    list(
+      rep(emuDBhandle$UUID, nrow(links)),
+      links$session,
+      links$bundle,
+      links$from_id,
+      links$to_id
+    )
+  ) 
+  
+  DBI::dbClearResult(statement)
+  
+  if (rewriteAllAnnots) {
+    rewrite_annots(emuDBhandle, 
+                   verbose = verbose)
+  }
+  
+  invisible(NULL)
+}
+  
+  
 #######################
 # FOR DEVELOPMENT
 # library('testthat')
 # test_file('tests/testthat/test_aaa_initData.R')
 # test_file('tests/testthat/test_emuR-annotations_crud.R')
 # test_file('tests/testthat/test_zzz_cleanUp.R')
+  

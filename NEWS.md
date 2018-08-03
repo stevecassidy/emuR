@@ -1,4 +1,4 @@
-# emuR 1.0.0.9018
+# emuR 1.0.0.9019
 
 ## new features / performance tweaks / improvements
 
@@ -12,6 +12,7 @@
 * `serve()` function now uses `seglist$start` and  `seglist$end` instead of `seglist$sample_start` and `seglist$sample_end`
 * implemented first version of `update_itemsInLevel()` (only label updates for now)
 * now setting the `sample_start` and `sample_end` values in query results when EVENT levels are queried (previously only `start` was set)
+* implemented first version of `create_links()` (currently not checking for anything)
 
 ## bug fixes
 
