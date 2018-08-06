@@ -1,4 +1,4 @@
-# emuR 1.0.0.9019
+# emuR 1.0.0.9020
 
 ## new features / performance tweaks / improvements
 
@@ -13,6 +13,7 @@
 * implemented first version of `update_itemsInLevel()` (only label updates for now)
 * now setting the `sample_start` and `sample_end` values in query results when EVENT levels are queried (previously only `start` was set)
 * implemented first version of `create_links()` (currently not checking for anything)
+* `list_bundles()` outside of loop for performance bump in `get_trackdata()`
 
 ## bug fixes
 
