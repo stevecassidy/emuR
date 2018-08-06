@@ -226,6 +226,7 @@
   }
   
   prevUtt = ""
+  bndls = list_bundles(emuDBhandle)
   
   # loop through bundle names
   curIndexStart = 1
@@ -239,7 +240,6 @@
     }
     
     # check if utts entry exists
-    bndls = list_bundles(emuDBhandle)
     if(!any(bndls$session == splUtt[1] & bndls$name == splUtt[2])){
       stop("Following utts entry not found: ", seglist$utts[i])
     }
