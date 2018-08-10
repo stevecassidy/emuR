@@ -190,13 +190,17 @@ import_mediaFiles<-function(emuDBhandle,dir,targetSessionName='0000', verbose=TR
 ##' 
 ##' }
 add_files <- function(emuDBhandle, dir, fileExtension, targetSessionName='0000'){
-  
+
   check_emuDBhandle(emuDBhandle)
   bndls = list_bundles(emuDBhandle, session = targetSessionName)
   
   sourcePaths = list.files(dir, pattern = paste0(fileExtension, '$'), full.names = T)
   
   destDirs = file.path(emuDBhandle$basePath, paste0(bndls$session, '_ses'), paste0(bndls$name, '_bndl'))
+  
+  if(length(sourcePaths) == 0){
+    stop("no files found in 'dir' that match the provided 'fileExtension'")
+  }
   
   # copy files
   for (i in 1:length(sourcePaths)){

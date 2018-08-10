@@ -1,4 +1,4 @@
-# emuR 1.0.0.9020
+# emuR 1.0.0.9021
 
 ## new features / performance tweaks / improvements
 
@@ -14,6 +14,8 @@
 * now setting the `sample_start` and `sample_end` values in query results when EVENT levels are queried (previously only `start` was set)
 * implemented first version of `create_links()` (currently not checking for anything)
 * `list_bundles()` outside of loop for performance bump in `get_trackdata()`
+* better error message in `add_files()` if no files are found
+
 
 ## bug fixes
 
