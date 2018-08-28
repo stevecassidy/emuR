@@ -7,7 +7,8 @@
 runBASwebservice_maus(handle, canoAttributeDefinitionName, language,
   mausAttributeDefinitionName = "MAU", chunkLevel = NULL,
   turnChunkLevelIntoItemLevel = TRUE, params = NULL,
-  perspective = "default", patience = 0, resume = FALSE, verbose = TRUE)
+  perspective = "default", patience = 0, resume = FALSE,
+  verbose = TRUE)
 }
 \arguments{
 \item{handle}{emuDB handle}
@@ -65,3 +66,4 @@ Other BAS webservice functions: \code{\link{runBASwebservice_all}},
   \code{\link{runBASwebservice_pho2sylCanonical}},
   \code{\link{runBASwebservice_pho2sylSegmental}}
 }
+\concept{BAS webservice functions}

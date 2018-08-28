@@ -4,8 +4,8 @@
 \alias{bayesplot}
 \title{bayesplot}
 \usage{
-bayesplot(data, train, N = 10, ellipse = FALSE, labs = NULL, xlab = "",
-  ylab = "", colour = TRUE, ...)
+bayesplot(data, train, N = 10, ellipse = FALSE, labs = NULL,
+  xlab = "", ylab = "", colour = TRUE, ...)
 }
 \description{
 bayesplot

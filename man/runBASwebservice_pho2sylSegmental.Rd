@@ -6,8 +6,8 @@
 \usage{
 runBASwebservice_pho2sylSegmental(handle, segmentAttributeDefinitionName,
   language, superLevel = NULL, sylAttributeDefinitionName = "MAS",
-  params = list(wsync = "yes"), perspective = "default", patience = 0,
-  resume = FALSE, verbose = TRUE)
+  params = list(wsync = "yes"), perspective = "default",
+  patience = 0, resume = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{handle}{emuDB handle}
@@ -65,3 +65,4 @@ Other BAS webservice functions: \code{\link{runBASwebservice_all}},
   \code{\link{runBASwebservice_minni}},
   \code{\link{runBASwebservice_pho2sylCanonical}}
 }
+\concept{BAS webservice functions}

@@ -5,7 +5,8 @@
 \title{Export annotations of emuDB to TextGrid collection}
 \usage{
 export_TextGridCollection(emuDBhandle, targetDir, sessionPattern = ".*",
-  bundlePattern = ".*", attributeDefinitionNames = NULL, verbose = TRUE)
+  bundlePattern = ".*", attributeDefinitionNames = NULL,
+  verbose = TRUE)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle object (see \link{load_emuDB})}

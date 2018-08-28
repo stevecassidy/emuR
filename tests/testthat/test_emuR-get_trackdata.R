@@ -24,26 +24,26 @@ test_that("correct classes are returned", {
   ##############################
   test_that("correct classes are returned", {
     
-    td = get_trackdata(ae, n, 'fm', verbose=F)
+    td = get_trackdata(ae, n, 'fm', consistentOutputType = F, verbose=F)
     expect_that(class(td), equals('trackdata'))
     
-    td = get_trackdata(ae, n, 'fm', cut=.5, verbose=F)
+    td = get_trackdata(ae, n, 'fm', cut=.5, consistentOutputType = F, verbose=F)
     expect_that(class(td), equals('data.frame'))
     
-    td = get_trackdata(ae, n, 'fm', cut=.5, npoints=3, verbose=F)
+    td = get_trackdata(ae, n, 'fm', cut=.5, npoints=3, consistentOutputType = F, verbose=F)
     expect_that(class(td), equals('trackdata'))
     
-    td = get_trackdata(ae, n, 'fm', cut=.5, npoints=1, verbose=F)
+    td = get_trackdata(ae, n, 'fm', cut=.5, npoints=1, consistentOutputType = F, verbose=F)
     expect_that(class(td), equals('data.frame'))
     
-    td = get_trackdata(ae, hStar, 'fm', verbose=F)
+    td = get_trackdata(ae, hStar, 'fm', consistentOutputType = F, verbose=F)
     expect_that(class(td), equals('data.frame'))
     
-    td = get_trackdata(ae, hStar, 'fm', npoints=3, verbose=F)
+    td = get_trackdata(ae, hStar, 'fm', npoints=3, consistentOutputType = F, verbose=F)
     expect_that(class(td), equals('trackdata'))
     
     sl = query(ae, "Phonetic=@|i:")
-    td = get_trackdata(ae, sl, "fm", resultType = "emuRtrackdata", verbose=F)
+    td = get_trackdata(ae, sl, "fm", resultType = "emuRtrackdata", consistentOutputType = F, verbose=F)
     expect_true(inherits(td, 'emuRtrackdata'))
   })
   
@@ -74,7 +74,7 @@ test_that("correct classes are returned", {
   test_that("all sorts of cut values work", {
     cutVals = seq(0, 1, 0.04)
     for(cutV in cutVals){
-      td = get_trackdata(ae, n, 'fm',cut=cutV, verbose=F)
+      td = get_trackdata(ae, n, 'fm',cut=cutV, consistentOutputType = F, verbose=F)
       expect_that(class(td), equals('data.frame'))
     }
   })

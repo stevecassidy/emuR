@@ -1,4 +1,4 @@
-# emuR 1.0.0.9021
+# emuR 1.0.0.9022
 
 ## new features / performance tweaks / improvements
 
@@ -15,7 +15,7 @@
 * implemented first version of `create_links()` (currently not checking for anything)
 * `list_bundles()` outside of loop for performance bump in `get_trackdata()`
 * better error message in `add_files()` if no files are found
-
+* `consistentOutputType` of `get_trackdata()` is not set to `TRUE` and is reset to `T` if `resultType` is `"emuRtrackdata"` or `"tibble"` (fixes \#203)
 
 ## bug fixes
 

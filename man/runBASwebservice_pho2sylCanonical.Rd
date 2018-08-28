@@ -4,9 +4,9 @@
 \alias{runBASwebservice_pho2sylCanonical}
 \title{Adds syllabified word labels to a word level that already contains canonical pronunciations.}
 \usage{
-runBASwebservice_pho2sylCanonical(handle, canoAttributeDefinitionName, language,
-  canoSylAttributeDefinitionName = "KAS", params = list(), patience = 0,
-  resume = FALSE, verbose = TRUE)
+runBASwebservice_pho2sylCanonical(handle, canoAttributeDefinitionName,
+  language, canoSylAttributeDefinitionName = "KAS", params = list(),
+  patience = 0, resume = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{handle}{emuDB handle}
@@ -51,3 +51,4 @@ Other BAS webservice functions: \code{\link{runBASwebservice_all}},
   \code{\link{runBASwebservice_minni}},
   \code{\link{runBASwebservice_pho2sylSegmental}}
 }
+\concept{BAS webservice functions}

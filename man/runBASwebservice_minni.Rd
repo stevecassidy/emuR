@@ -58,3 +58,4 @@ Other BAS webservice functions: \code{\link{runBASwebservice_all}},
   \code{\link{runBASwebservice_pho2sylCanonical}},
   \code{\link{runBASwebservice_pho2sylSegmental}}
 }
+\concept{BAS webservice functions}

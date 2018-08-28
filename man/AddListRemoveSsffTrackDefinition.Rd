@@ -9,8 +9,8 @@
 \usage{
 add_ssffTrackDefinition(emuDBhandle, name, columnName = NULL,
   fileExtension = NULL, onTheFlyFunctionName = NULL,
-  onTheFlyParams = NULL, onTheFlyOptLogFilePath = NULL, verbose = TRUE,
-  interactive = TRUE)
+  onTheFlyParams = NULL, onTheFlyOptLogFilePath = NULL,
+  verbose = TRUE, interactive = TRUE)
 
 list_ssffTrackDefinitions(emuDBhandle)
 

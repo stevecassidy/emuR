@@ -46,11 +46,12 @@
 ##' parameter one wishes to change.     
 ##' @param onTheFlyOptLogFilePath Path to optional log file for on-the-fly function
 ##' @param resultType Specify class of returned object. Either \code{"emuRtrackdata"}, \code{"trackdata"} or \code{"tibble"}  (see \code{\link{trackdata}}, \code{\link{emuRtrackdata}} and \code{\link{tibble}} for details about these objects).
-##' @param consistentOutputType Prevent converting the output object to a \code{data.frame} depending on the \code{npoint} and \code{cut} arguments
-##' @param verbose Show progress bars and further information
-##' @return If the \code{cut} parameter is not set (the default) an object of type \code{\link{trackdata}}, \code{\link{emuRtrackdata}} or \code{\link{tibble}} 
+##' @param consistentOutputType Prevent converting the output object to a \code{data.frame} depending on the \code{npoint} and \code{cut} arguments (only applies to output type "trackdata"). Set 
+##' to \code{FALSE} if the following legacy \code{emu.track} output conversion behaviour is desired: If the \code{cut} parameter is not set (the default) an object of type \code{\link{trackdata}} 
 ##' is returned. If \code{cut} is set and \code{npoints} is not, or the seglist 
 ##' is of type event and npoints is not set, a \code{\link{data.frame}} is returned (see the \code{consistentOutputType} to change this behaviour).
+##' @param verbose Show progress bars and further information
+##' @return object of type that is specified with \code{resultType}
 ##' @seealso \code{\link{formals}}, \code{\link[wrassp]{wrasspOutputInfos}}, \code{\link{trackdata}}, \code{\link{emuRtrackdata}}
 ##' @keywords misc
 ##' @import wrassp
@@ -84,7 +85,7 @@
 "get_trackdata" <- function(emuDBhandle, seglist = NULL, ssffTrackName = NULL, cut = NULL, 
                             npoints = NULL, onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
                             onTheFlyOptLogFilePath = NULL, resultType = "trackdata",
-                            consistentOutputType = FALSE, verbose = TRUE){
+                            consistentOutputType = TRUE, verbose = TRUE){
   
   check_emuDBhandle(emuDBhandle)
   
@@ -135,6 +136,16 @@
   # check resultType if valid string
   if(!resultType %in% c("tibble", "emuRtrackdata", "trackdata")){
     stop("resultType has to either be 'emuRtrackdata' or 'trackdata'")
+  }
+  
+  # 
+  if(!resultType %in% c("trackdata")){
+    if(consistentOutputType == F){
+      if(verbose){
+        cat("INFO: resetting 'consistentOutputType' back to TRUE as setting it to FALSE is only allowed when resultType is set to 'trackdata'\n")
+      }
+      consistentOutputType = T
+    }
   }
   
   if(resultType == "emuRtrackdata" && class(seglist) =="emusegs"){
@@ -404,11 +415,11 @@
                         temporary = T)
     }else{
       DBI::dbAppendTable(emuDBhandle$connection, 
-                        "gettrackdata_data_tmp", 
-                        as.data.frame(curData))
+                         "gettrackdata_data_tmp", 
+                         as.data.frame(curData))
       DBI::dbAppendTable(emuDBhandle$connection, 
-                        "gettrackdata_timeStampRowNames_tmp", 
-                        as.data.frame(rowSeq))
+                         "gettrackdata_timeStampRowNames_tmp", 
+                         as.data.frame(rowSeq))
     }
     
     

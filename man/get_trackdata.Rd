@@ -8,7 +8,8 @@
 get_trackdata(emuDBhandle, seglist = NULL, ssffTrackName = NULL,
   cut = NULL, npoints = NULL, onTheFlyFunctionName = NULL,
   onTheFlyParams = NULL, onTheFlyOptLogFilePath = NULL,
-  resultType = "trackdata", consistentOutputType = FALSE, verbose = TRUE)
+  resultType = "trackdata", consistentOutputType = TRUE,
+  verbose = TRUE)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
@@ -50,14 +51,15 @@ parameter one wishes to change.}
 
 \item{resultType}{Specify class of returned object. Either \code{"emuRtrackdata"}, \code{"trackdata"} or \code{"tibble"}  (see \code{\link{trackdata}}, \code{\link{emuRtrackdata}} and \code{\link{tibble}} for details about these objects).}
 
-\item{consistentOutputType}{Prevent converting the output object to a \code{data.frame} depending on the \code{npoint} and \code{cut} arguments}
+\item{consistentOutputType}{Prevent converting the output object to a \code{data.frame} depending on the \code{npoint} and \code{cut} arguments (only applies to output type "trackdata"). Set 
+to \code{FALSE} if the following legacy \code{emu.track} output conversion behaviour is desired: If the \code{cut} parameter is not set (the default) an object of type \code{\link{trackdata}} 
+is returned. If \code{cut} is set and \code{npoints} is not, or the seglist 
+is of type event and npoints is not set, a \code{\link{data.frame}} is returned (see the \code{consistentOutputType} to change this behaviour).}
 
 \item{verbose}{Show progress bars and further information}
 }
 \value{
-If the \code{cut} parameter is not set (the default) an object of type \code{\link{trackdata}}, \code{\link{emuRtrackdata}} or \code{\link{tibble}} 
-is returned. If \code{cut} is set and \code{npoints} is not, or the seglist 
-is of type event and npoints is not set, a \code{\link{data.frame}} is returned (see the \code{consistentOutputType} to change this behaviour).
+object of type that is specified with \code{resultType}
 }
 \description{
 Extract trackdata information from a loaded emuDB that 

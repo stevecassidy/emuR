@@ -6,8 +6,8 @@
 \usage{
 runBASwebservice_g2pForTokenization(handle,
   transcriptionAttributeDefinitionName, language,
-  orthoAttributeDefinitionName = "ORT", params = list(), patience = 0,
-  resume = FALSE, verbose = TRUE)
+  orthoAttributeDefinitionName = "ORT", params = list(),
+  patience = 0, resume = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{handle}{emuDB handle}
@@ -55,3 +55,4 @@ Other BAS webservice functions: \code{\link{runBASwebservice_all}},
   \code{\link{runBASwebservice_pho2sylCanonical}},
   \code{\link{runBASwebservice_pho2sylSegmental}}
 }
+\concept{BAS webservice functions}

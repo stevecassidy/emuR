@@ -6,8 +6,8 @@
 \usage{
 convert_BPFCollection(sourceDir, targetDir, dbName, bpfExt = "par",
   audioExt = "wav", extractLevels = NULL, refLevel = NULL,
-  newLevels = NULL, newLevelClasses = NULL, segmentToEventLevels = NULL,
-  unifyLevels = NULL, verbose = TRUE)
+  newLevels = NULL, newLevelClasses = NULL,
+  segmentToEventLevels = NULL, unifyLevels = NULL, verbose = TRUE)
 }
 \arguments{
 \item{sourceDir}{path to the directory containing the Bas Partitur File collection}

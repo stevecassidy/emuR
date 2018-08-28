@@ -4,8 +4,9 @@
 \alias{runBASwebservice_all}
 \title{Runs several BAS webservices, starting from an orthographic transcription}
 \usage{
-runBASwebservice_all(handle, transcriptionAttributeDefinitionName, language,
-  orthoAttributeDefinitionName = "ORT", canoAttributeDefinitionName = "KAN",
+runBASwebservice_all(handle, transcriptionAttributeDefinitionName,
+  language, orthoAttributeDefinitionName = "ORT",
+  canoAttributeDefinitionName = "KAN",
   mausAttributeDefinitionName = "MAU",
   minniAttributeDefinitionName = "MINNI",
   sylAttributeDefinitionName = "MAS",
@@ -79,3 +80,4 @@ Other BAS webservice functions: \code{\link{runBASwebservice_chunker}},
   \code{\link{runBASwebservice_pho2sylCanonical}},
   \code{\link{runBASwebservice_pho2sylSegmental}}
 }
+\concept{BAS webservice functions}
