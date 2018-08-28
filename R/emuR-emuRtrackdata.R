@@ -64,6 +64,12 @@ create_emuRtrackdata <- function(sl, td){
   res = data.frame(resTmp, td$data)
   
   class(res) <- c("emuRtrackdata", class(res))
+  # set negative values in times_rel and times_norm to 0 
+  # these can be caused by this sort of stuff (tracktimes() uses rownames() which are strings): 
+  # number = 140.0811234234234123412341234
+  # as.numeric(as.character(number)) == number # -> FALSE!
+  res$times_rel[res$times_rel < 0] = 0
+  res$times_norm[res$times_norm < 0] = 0
   return(res)
 }
 
