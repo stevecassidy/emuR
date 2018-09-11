@@ -24,7 +24,7 @@
 ##' @param query query string
 ##' @param type type of list elements
 ##' #@export make.emuRsegs
-make.emuRsegs <- function(dbName,seglist,query,type)
+make.emuRsegs <- function(dbName, seglist, query, type)
 {
   
   class(seglist) <- c("emuRsegs","emusegs", "data.frame")
