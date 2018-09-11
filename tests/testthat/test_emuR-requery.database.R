@@ -64,6 +64,30 @@ test_that("requeries work on ae",{
     
   })
   
+  test_that("Requery sequential produces correct NA rows",{
+    
+    # first -> move one left
+    sl = query(ae, "Phonetic == V")
+    expect_warning(requery_seq(ae, sl, offset = -1, ignoreOutOfBounds = T))
+    sl_rq = suppressWarnings(requery_seq(ae, sl, offset = -1, ignoreOutOfBounds = T))
+    expect_true(is.na(sl_rq[1,1]))
+    
+    # last -> move one right
+    sl = query(ae, "Phonetic == l", resultType = "tibble")
+    expect_warning(requery_seq(ae, sl, offset = 1, ignoreOutOfBounds = T))
+    sl_rq = suppressWarnings(requery_seq(ae, sl, offset = 1, ignoreOutOfBounds = T))
+    expect_true(is.na(sl_rq[1,1]))
+    
+    # last -> move one right + end as ref
+    expect_warning(requery_seq(ae, sl, offset = 1, ignoreOutOfBounds = T, offsetRef = "END"))
+    sl_rq = suppressWarnings(requery_seq(ae, sl, offset = 1, ignoreOutOfBounds = T, offsetRef = "END"))
+    expect_true(is.na(sl_rq[1,1]))
+    
+    # last -> move one left + length way too long
+    sl_rq = suppressWarnings(requery_seq(ae, sl, offset = -1, length = 15, ignoreOutOfBounds = T))
+    expect_true(is.na(sl_rq[1,1]))
+  })
+  
   test_that("Requery hierarchical",{
     
     # Text beginning with 'a'

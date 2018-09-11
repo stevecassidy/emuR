@@ -1,4 +1,4 @@
-# emuR 1.0.0.9023
+# emuR 1.0.0.9024
 
 ## new features / performance tweaks / improvements
 
@@ -17,6 +17,7 @@
 * better error message in `add_files()` if no files are found
 * `consistentOutputType` of `get_trackdata()` is not set to `TRUE` and is reset to `T` if `resultType` is `"emuRtrackdata"` or `"tibble"` (fixes \#203)
 * avoiding negative `times_rel` and `times_norm` values in `create_emuRtrackdata()` by setting them to 0 (caused by string to numeric conversion precision errors)
+* `requery_seq()` now inserts NA values for the out of bounds rows instead of dropping them.
 
 ## bug fixes
 

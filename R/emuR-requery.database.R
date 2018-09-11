@@ -212,6 +212,49 @@ requery_seq<-function(emuDBhandle, seglist, offset = 0, offsetRef = 'START',
     
     trSl = convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel = timeRefSegmentLevel, filteredTablesSuffix = "", queryStr = "FROM REQUERY", calcTimes, verbose)
     
+    inSlLen=nrow(seglist)
+    trSlLen=nrow(trSl)
+    
+    if(inSlLen != trSlLen){
+      warning("Found missing items in resulting segment list! Replacing missing rows with NA values.")
+      
+      seglist_manip = seglist
+      
+      if(offsetRef=='START'){
+        seglist_manip$start_item_seq_idx = seglist_manip$start_item_seq_idx + offset
+        seglist_manip$end_item_seq_idx = seglist_manip$start_item_seq_idx + length - 1
+      } else{
+        seglist_manip$start_item_seq_idx = seglist_manip$end_item_seq_idx + offset
+        seglist_manip$end_item_seq_idx = seglist_manip$end_item_seq_idx + offset + length - 1
+      }
+      
+      join_col_names = c("db_uuid", "session", "bundle", "level", "start_item_seq_idx", "end_item_seq_idx")
+      joined_with_orig_sl = dplyr::left_join(seglist_manip, 
+                                             trSl, 
+                                             by = join_col_names) %>%
+        dplyr::select(join_col_names, dplyr::matches(".+\\.y$"))
+      
+      # remove trailing .y from column names
+      colnames(joined_with_orig_sl) = stringr::str_replace(colnames(joined_with_orig_sl), "(.+)\\.y$", "\\1")
+      
+      # re-add utts column
+      joined_with_orig_sl$utts = paste0(joined_with_orig_sl$session, ":", joined_with_orig_sl$bundle)
+      
+      # resort columns
+      joined_with_orig_sl = joined_with_orig_sl %>% dplyr::select(colnames(trSl))
+      
+      # NA-out entire line
+      joined_with_orig_sl[is.na(joined_with_orig_sl$labels),] = NA
+      
+      # replace trSl
+      trSl = make.emuRsegs(emuDBhandle$dbName, 
+                           seglist = joined_with_orig_sl, 
+                           query = attr(trSl, "query"), 
+                           type = attr(trSl, "type"))
+      
+    }
+    
+    
     if(resultType == "emuRsegs"){
       result = trSl
     }else if(resultType == "tibble"){
@@ -223,12 +266,6 @@ requery_seq<-function(emuDBhandle, seglist, offset = 0, offsetRef = 'START',
     }
     
     drop_allTmpTablesDBI(emuDBhandle)
-    
-    inSlLen=nrow(seglist)
-    trSlLen=nrow(trSl)
-    if(inSlLen!=trSlLen){
-      warning("Length of requery segment list (",trSlLen,") differs from input list (",inSlLen,")! These segments where lost while deriving their time   (no )")
-    }
     
     return(result)
   }
