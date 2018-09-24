@@ -21,7 +21,7 @@ for expert use only!}
 \item{...}{additional parameters}
 }
 \value{
-name of emuDB
+emuDB handle object
 }
 \description{
 Function loads emuDB into its cached representation and makes it accessible from within the 

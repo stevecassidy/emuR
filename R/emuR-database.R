@@ -653,7 +653,7 @@ create_emuDB<-function(name, targetDir, mediaFileExtension='wav',
 ##' for expert use only!
 ##' @param verbose be verbose
 ##' @param ... additional parameters
-##' @return name of emuDB
+##' @return emuDB handle object
 ##' @import jsonlite DBI
 ##' @export
 ##' @keywords emuDB database DBconfig
