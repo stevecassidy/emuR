@@ -277,14 +277,90 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
 }
 
 
-resample_annots <- function(emuDBhandle, oldSampleRate, newSampleRate, verbose = TRUE) {
+##' List sample rates of media and annotation (_annot.json) files
+##' 
+##' @param emuDBhandle emuDB handle object (see \link{load_emuDB})
+##' @param sessionPattern A regular expression pattern matching session names to be searched from the database
+##' @param bundlePattern A regular expression pattern matching bundle names to be searched from the database
+##' 
+##' @return tibble with the columns 
+##' \itemize{
+##' \item session
+##' \item bundle
+##' \item sample_rate_annot_json
+##' \item sample_rate_media_file
+##' }
+##' \code{session}, \code{b}
+##' @export
+list_sampleRates <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*'){
+  
+  db_config = load_DBconfig(emuDBhandle)
+  
+  bndls = DBI::dbReadTable(emuDBhandle$connection, "bundle")
+  
+  # filter sessions/bundles
+  ses_bool = emuR_regexprl(sessionPattern, bndls$session)
+  bndl_bool = emuR_regexprl(bundlePattern, bndls$name)
+  bndls = bndls[ses_bool & bndl_bool,]
+  
+  if(nrow(bndls) < 1) stop("no bundles found that match the sessionPattern & bundlePattern")
+  
+  bndls$sample_rate_media_file = -1
+  
+  bndls$sample_rate_annot_json = -1
+  
+  for(row_idx in 1:nrow(bndls)){
+    annot_json_path = file.path(emuDBhandle$basePath, 
+                                paste0(bndls[row_idx,]$session, session.suffix), 
+                                paste0(bndls[row_idx,]$name, bundle.dir.suffix),
+                                paste0(bndls[row_idx,]$name, bundle.annotation.suffix, ".json"))
+
+    media_file_path = file.path(emuDBhandle$basePath, 
+                                paste0(bndls[row_idx,]$session, session.suffix), 
+                                paste0(bndls[row_idx,]$name, bundle.dir.suffix),
+                                paste0(bndls[row_idx,]$name, ".", db_config$mediafileExtension))
+    
+        
+    annot_json_sample_rate = jsonlite::fromJSON(annot_json_path)$sampleRate
+    bndls$sample_rate_annot_json[row_idx] = annot_json_sample_rate
+    
+    media_file_sample_rate = attr(wrassp::read.AsspDataObj(media_file_path, end = 20), "sampleRate")
+    bndls$sample_rate_media_file[row_idx] = media_file_sample_rate
+  }
+  
+  res = dplyr::as_tibble(dplyr::select(bndls, session, bundle = name, sample_rate_media_file, sample_rate_annot_json))
+  return(res)
+}
+
+##' Resample annotations (\code{_annot.json}) files of emuDB
+##' 
+##' Resample all annotations (\code{_annot.json}) files of emuDB to a specified 
+##' sample rate. It is up to the user to ensure that the samplerates of 
+##' the annot.json files match those of the \code{.wav} files.
+##' 
+##' @param emuDBhandle emuDB handle object (see \link{load_emuDB})
+##' @param newSampleRate target sample rate
+##' @param verbose show progress bars and further information
+##' @export
+##' @examples
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded ae emuDB 
+##' # (see ?load_emuDB for more information)
+##' 
+##' # resample
+##' resample_annots(ae, newSampleRate = 16000)
+##' 
+##' }
+resample_annots <- function(emuDBhandle, newSampleRate, verbose = TRUE) {
   
   stop("not implemented yet!!!")
   
   DBI::dbExecute(emuDBhandle$connection, paste0("UPDATE items ",
                                                 "SET sample_rate =  ", newSampleRate, ", ",
                                                 "sample_point = ROUND((sample_point / sample_rate) * ", newSampleRate, ") ",
-                                                "sample_start = sample_start ", 
+                                                "sample_start = ROUND(((sample_start - 0.5) / sample_rate) * ", newSampleRate, ") ",
                                                 "sample_dur = sample_dur ",
                                                 "WHERE sample_rate = ", oldSampleRate))
   
@@ -318,7 +394,7 @@ append_itemsToLevel = function(emuDBhandle,
   ## Check pre-conditions
   ##
   levelDefinition = get_levelDefinition(emuDBhandle, levelName)
-
+  
   if (is.null(levelDefinition)) {
     print("Error: The given level does not exist ")
     return(invisible(NULL))
@@ -339,8 +415,8 @@ append_itemsToLevel = function(emuDBhandle,
     
     return(invisible(NULL))
   }
-
-
+  
+  
   ##
   ## Filter bundles according to sessionPattern and bundlePattern
   ##
@@ -368,7 +444,7 @@ append_itemsToLevel = function(emuDBhandle,
                    bundles$name))
   sampleRate = DBI::dbFetch(statement)
   DBI::dbClearResult(statement)
-
+  
   
   ##
   ## Get appropriate item ID
@@ -427,7 +503,7 @@ append_itemsToLevel = function(emuDBhandle,
     (db_uuid, session, bundle, item_id, level, type, seq_idx, sample_rate)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
   )
-
+  
   DBI::dbBind(
     statement,
     list(
@@ -448,18 +524,18 @@ append_itemsToLevel = function(emuDBhandle,
   ##
   ## Insert labels
   ##
- 
+  
   for (i in 1:length(labels)) {
     attributeDefinition = emuR::list_attributeDefinitions(emuDBhandle,
                                                           levelName)[i, "name"]
- 
+    
     statement = DBI::dbSendStatement(
       emuDBhandle$connection,
       "INSERT INTO labels
       (db_uuid, session, bundle, item_id, label_idx, name, label)
       VALUES (?, ?, ?, ?, ?, ?, ?)"
     )
-  
+    
     DBI::dbBind(
       statement,
       list(
