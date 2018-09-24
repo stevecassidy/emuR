@@ -328,7 +328,7 @@ list_sampleRates <- function(emuDBhandle, sessionPattern = '.*', bundlePattern =
     bndls$sample_rate_media_file[row_idx] = media_file_sample_rate
   }
   
-  res = dplyr::as_tibble(dplyr::select(bndls, session, bundle = name, sample_rate_media_file, sample_rate_annot_json))
+  res = dplyr::as_tibble(dplyr::select(bndls, "session", "bundle" = "name", "sample_rate_media_file", "sample_rate_annot_json"))
   return(res)
 }
 
