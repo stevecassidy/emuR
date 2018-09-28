@@ -361,8 +361,7 @@ resample_annots <- function(emuDBhandle, newSampleRate, verbose = TRUE) {
                                                 "SET sample_rate =  ", newSampleRate, ", ",
                                                 "sample_point = ROUND((sample_point / sample_rate) * ", newSampleRate, ") ",
                                                 "sample_start = ROUND(((sample_start - 0.5) / sample_rate) * ", newSampleRate, ") ",
-                                                "sample_dur = sample_dur ",
-                                                "WHERE sample_rate = ", oldSampleRate))
+                                                "sample_dur = sample_dur "))
   
   DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM items WHERE level = 'Tone'"))
 }
