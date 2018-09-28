@@ -214,10 +214,6 @@
   data <- NULL
   origFreq <- NULL
   
-  # empty tmp tables that hold result
-  DBI::dbExecute(emuDBhandle$connection, "DROP TABLE IF EXISTS gettrackdata_data_tmp")
-  DBI::dbExecute(emuDBhandle$connection, "DROP TABLE IF EXISTS gettrackdata_timeStampRowNames_tmp")
-  
   ###############################
   # set up function formals + pb
   if(!is.null(onTheFlyFunctionName)){
@@ -380,64 +376,24 @@
       stop('Can not extract data for the ', i, 'th row of the segment list: ', entry, ' start and/or end times out of bounds')
     }
     
-    ##############################
-    # Check if enough space (expand data matrix if necessary) 
-    # then append to data matrix 
-    # if(dim(data)[1] < curIndexEnd){
-    #   if(verbose){
-    #     cat('\n  INFO: allocating more space in data matrix')
-    #   }
-    #   # check if still to small (for a huge amount of samples)
-    #   if(nrow(data) + nrOfAllocationRows < nrow(data)){
-    #     expandBy = nrOfAllocationRows
-    #   }else{
-    #     expandBy = nrow(curData)
-    #   }
-    #   data = rbind(data, matrix(ncol = ncol(data), nrow = expandBy))
-    #   timeStampRowNames = c(timeStampRowNames, numeric(expandBy) - 1)
-    # }
-    
-    #data[curIndexStart:curIndexEnd,] = curData
-    #timeStampRowNames[curIndexStart:curIndexEnd] <- rowSeq
     curIndexStart <- curIndexEnd + 1
     
-    if(!DBI::dbExistsTable(emuDBhandle$connection, "gettrackdata_data_tmp")){
-      
-      DBI::dbWriteTable(emuDBhandle$connection, 
-                        "gettrackdata_data_tmp", 
-                        as.data.frame(curData), 
-                        append = F, 
-                        temporary = T)
-      DBI::dbWriteTable(emuDBhandle$connection, 
-                        "gettrackdata_timeStampRowNames_tmp", 
-                        as.data.frame(rowSeq), 
-                        append = F, 
-                        temporary = T)
-    }else{
-      DBI::dbAppendTable(emuDBhandle$connection, 
-                         "gettrackdata_data_tmp", 
-                         as.data.frame(curData))
-      DBI::dbAppendTable(emuDBhandle$connection, 
-                         "gettrackdata_timeStampRowNames_tmp", 
-                         as.data.frame(rowSeq))
+    if(!exists("data_list")){
+      # init lists
+      data_list = list()
+      timeStampRowNames_list = list()
     }
     
+    data_list[[i]] = curData
+    timeStampRowNames_list[[i]] = rowSeq
     
     prevUtt = curUtt
     
   }
   
-  ########################################
-  # remove superfluous NA vals from data
-  # if(verbose){
-  #   cat('\n  INFO: removing superfluous NA vals from over-allocated data matrix\n')
-  # }
-  #data = data[complete.cases(data),]
-  #data = as.matrix(data) # make sure it is a matrix to be able to set row names
-  data = as.matrix(DBI::dbReadTable(emuDBhandle$connection, "gettrackdata_data_tmp"))
-  
-  timeStampRowNames = as.matrix(DBI::dbReadTable(emuDBhandle$connection, "gettrackdata_timeStampRowNames_tmp"))
-  #timeStampRowNames = timeStampRowNames[timeStampRowNames != -1]
+  # combind lists to form result
+  data = do.call(rbind, data_list)
+  timeStampRowNames = unlist(timeStampRowNames_list)
   
   if(!consistentOutputType && ((!is.null(cut) && (npoints == 1 || is.null(npoints))) || (sum(seglist$end) == 0 && (npoints == 1 || is.null(npoints))))){
     resObj = as.data.frame(data)
@@ -475,10 +431,6 @@
   if(resultType == "tibble"){
     resObj = tibble::as_tibble(create_emuRtrackdata(seglist, resObj))
   }
-  
-  # remove temp tables
-  DBI::dbExecute(emuDBhandle$connection, "DROP TABLE IF EXISTS gettrackdata_data_tmp")
-  DBI::dbExecute(emuDBhandle$connection, "DROP TABLE IF EXISTS gettrackdata_timeStampRowNames_tmp")
   
   return(resObj)
   

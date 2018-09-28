@@ -1,14 +1,14 @@
-# emuR 1.0.0.9025
+# emuR 1.0.0.9027
 
 ## new features / performance tweaks / improvements
 
 * URL encoding of bundle and session names to allow for URL string reserved characters in bundle and session names
-* error message of `get_trackdata` now contains seglist row index if "Can not extract following"
+* error message of `get_trackdata()` now contains seglist row index if "Can not extract following"
 * `normalize_length()` now allows for additional non-numeric columns
-* changed `stop()` to warning in `get_trackdata()` when samplerates are inconsistent (closes \#190)
+* changed `stop()` to `warning()` in `get_trackdata()` when samplerates are inconsistent (closes \#190)
 * better error message when there is a naming mismatch of `_emuDB` dir `_DBconfig.json`
 * using `sub()` instead of `tools::file_path_sans_ext()` to handle `_` in file extensions
-* `query()`, `requery_seq()` and `requery_hier()` now supports the `resultType` `"tibble"` (and `get_trackdata()`, `requery_seq()`, `requery_hier()` support them as input)
+* `query()`, `requery_seq()` and `requery_hier()` now supports the `resultType` `"tibble"` (and `get_trackdata()`, `requery_seq()`, `requery_hier()` and `serve()` support them as input)
 * `serve()` function now uses `seglist$start` and  `seglist$end` instead of `seglist$sample_start` and `seglist$sample_end`
 * implemented first version of `update_itemsInLevel()` (only label updates for now)
 * now setting the `sample_start` and `sample_end` values in query results when EVENT levels are queried (previously only `start` was set)
@@ -19,6 +19,8 @@
 * avoiding negative `times_rel` and `times_norm` values in `create_emuRtrackdata()` by setting them to 0 (caused by string to numeric conversion precision errors)
 * `requery_seq()` now inserts NA values for the out of bounds rows instead of dropping them.
 * implemented `list_sampleRates()` function
+* `get_trackdata()` is now iteratively appending to a `list()` instead of into a SQLite temp table. This is a fairly large performance boost and also fixes \#206.
+
 
 ## bug fixes
 
