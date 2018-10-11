@@ -26,7 +26,7 @@ the annot.json files match those of the \code{.wav} files.
 # (see ?load_emuDB for more information)
 
 # resample
-resample_annots(ae, )
+resample_annots(ae, newSampleRate = 16000)
 
 }
 }

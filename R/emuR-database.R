@@ -323,7 +323,7 @@ remove_bundleAnnotDBI<-function(emuDBhandle, sessionName, bundleName){
 ##' # (see ?load_emuDB for more information)
 ##' 
 ##' # rename ae emuDB to "aeNew"
-##' rename(databaseDir = "/path/2/ae_emuDB", newName = "aeNew")
+##' rename_emuDB(databaseDir = "/path/2/ae_emuDB", newName = "aeNew")
 ##' 
 ##' }
 ##' 
