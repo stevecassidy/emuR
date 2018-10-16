@@ -94,11 +94,11 @@ create_emuRtrackdata <- function(sl, td){
   # check if every other column is of class numeric
   allColNames = c(emuRsegsNames, timeColNames)
   
-  dataCols = setdiff(names(td), allColNames)
+  additional_cols = setdiff(names(td), allColNames)
   
   numericDataClasses = c("complex", "single", "double", "integer", "numeric")
   
-  for(dc in dataCols){
+  for(dc in additional_cols){
     if(!class(td[[dc]]) %in% numericDataClasses){
       warning(paste0('Found additional column that is not of a number class ("complex", "single", "double", "integer", "numeric"). Column name is: "', 
                      dc, '". The first entry of each segment is reduplicated to match the length of each normalized segment.'))
@@ -129,10 +129,10 @@ create_emuRtrackdata <- function(sl, td){
   
   # extract data cols
   if(is.null(colNames)){
-    dataCols = setdiff(names(x), nonDataColNames)
+    additional_cols = setdiff(names(x), nonDataColNames)
   }else{
     if(all(colNames %in% names(x))){
-      dataCols = colNames
+      additional_cols = colNames
     }else{
       stop("Passed in column names don't exist in x")
     }
@@ -153,16 +153,16 @@ create_emuRtrackdata <- function(sl, td){
                            sample_end = integer(resLen), sample_rate = integer(resLen), times_orig = double(resLen), 
                            times_rel = double(resLen), times_norm = double(resLen))
   
-  # add other columns that are not emuRsegsColNames, hence data columns
-  for(colName in dataCols){
-      res_tbl[,colName] = numeric()
+  # add other columns that are not emuRsegsColNames, hence added columns
+  for(colName in additional_cols){
+      res_tbl[,colName] = class(x[[colName]])
   }
   
   segNr = 1
   
   for (i in unique(x$sl_rowIdx)){
     # get current segment and remove unwanted columns
-    eRtd = x[x$sl_rowIdx == i, names(x) %in% c(nonDataColNames, dataCols)]
+    eRtd = x[x$sl_rowIdx == i, names(x) %in% c(nonDataColNames, additional_cols)]
     
     xynew = approx(eRtd$times_norm, eRtd$T1, n = N)
     # create data.frame of correct length (all relevant entries are replaced)
@@ -171,7 +171,7 @@ create_emuRtrackdata <- function(sl, td){
     eRtd.normtemp[1:N,] = eRtd.normtemp[1,]
     eRtd.normtemp$times_norm = xynew$x
     # interpolate data columns
-    for (name in dataCols){
+    for (name in additional_cols){
       # y = dplyr::pull(eRtd, name)
       y = eRtd[[name]]
       if(class(y) != "character"){

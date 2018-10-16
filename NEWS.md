@@ -1,4 +1,4 @@
-# emuR 1.0.0.9027
+# emuR 1.0.0.9028
 
 ## new features / performance tweaks / improvements
 
@@ -33,6 +33,7 @@
 * fixed bug in `create_emuRtrackdata()` with handeling trackdata object of class `spectral`
 * correct recalculation of ITEM IDs of missing levels in .hlb files (== only present in ESPS files) in `convert_legacyEmuDB()`
 * fixed handling of completely empty levels in .hlb files
+* `normalize_length()` now handles various additional column types (not just `"numeric"`)
 
 # emuR 1.0.0
 
