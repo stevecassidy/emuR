@@ -12,7 +12,7 @@
 * `serve()` function now uses `seglist$start` and  `seglist$end` instead of `seglist$sample_start` and `seglist$sample_end`
 * implemented first version of `update_itemsInLevel()` (only label updates for now)
 * now setting the `sample_start` and `sample_end` values in query results when EVENT levels are queried (previously only `start` was set)
-* implemented first version of `create_links()` (currently not checking for anything)
+* implemented first versions of `create_links()` (currently not checking for anything), `create_itemsInLevel()` (only EVENTs and ITEMs) and `update_itemsInLevel()` (only labels) and `delete_itemsInLevel()`
 * `list_bundles()` outside of loop for performance bump in `get_trackdata()`
 * better error message in `add_files()` if no files are found
 * `consistentOutputType` of `get_trackdata()` is not set to `TRUE` and is reset to `T` if `resultType` is `"emuRtrackdata"` or `"tibble"` (fixes \#203)
