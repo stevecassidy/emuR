@@ -53,7 +53,7 @@ check_tibbleForServe <- function(tbl){
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param sessionPattern A regular expression pattern matching session names to be served
 ##' @param bundlePattern A regular expression pattern matching bundle names to be served
-##' @param seglist segment list to use for times anchors and session + bunde restriction (type: \link{emuRsegs})
+##' @param seglist segment list to use for times anchors and session + bundle restriction (type: \link{emuRsegs})
 ##' @param host host IP to listen to (default: 127.0.0.1  (localhost))
 ##' @param port the port number to listen on (default: 17890)
 ##' @param autoOpenURL URL passed to \code{\link{browseURL}} function. If NULL or an empty string are passed in

@@ -233,7 +233,7 @@
 ##' @param data data to classify
 ##' @param train training data
 ##' @param metric bayes or mahal
-##' @return The calssification matrix.
+##' @return The classification matrix.
 ##' @author Jonathan Harrington
 ##' @keywords models
 ##' @examples

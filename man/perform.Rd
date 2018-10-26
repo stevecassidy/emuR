@@ -10,7 +10,7 @@ perform(data)
 \item{data}{A confusion matrix.}
 }
 \value{
-Caluculates the accuracy (total score) of the confusion matrix,
+Calculates the accuracy (total score) of the confusion matrix,
 returning percentage of correct, and incorrect matches.
 }
 \description{

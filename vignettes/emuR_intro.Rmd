@@ -11,6 +11,14 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
+# DEPRECATION WARNING
+
+This vignette is considered depricated! It's content has been moved to
+the [the EMU-SDMS manual](https://ips-lmu.github.io/The-EMU-SDMS-Manual/) (+ expanded and updated). Specifially see
+the [An overview of the EMU-SDMS](https://ips-lmu.github.io/The-EMU-SDMS-Manual/chap-overview.html) as well as
+the [A tutorial on how to use the EMU-SDMS](https://ips-lmu.github.io/The-EMU-SDMS-Manual/chap-tutorial.html) chapters.
+
+
 # Introduction
   
 This document is an introduction to the `emuR` package and provides an overview of what the package is capable of and how it interacts with the other components of the EMU Speech Database Management System (EMU-SDMS). It is by no means a complete guide to the EMU-SDMS but rather tries to give an outline of what it is like working with and analyzing speech databases in the EMU-SDMS by walking you through a few typical use cases.

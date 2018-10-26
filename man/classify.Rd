@@ -14,7 +14,7 @@ classify(data, train, metric = "bayes")
 \item{metric}{bayes or mahal}
 }
 \value{
-The calssification matrix.
+The classification matrix.
 }
 \description{
 classifies data

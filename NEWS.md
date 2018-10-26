@@ -20,7 +20,7 @@
 * `requery_seq()` now inserts NA values for the out of bounds rows instead of dropping them.
 * implemented `list_sampleRates()` function
 * `get_trackdata()` is now iteratively appending to a `list()` instead of into a SQLite temp table. This is a fairly large performance boost and also fixes \#206.
-
+* added deprecation warnings to vignettes (added links to manual chapters)
 
 ## bug fixes
 

@@ -4,7 +4,7 @@
 \name{vowlax.l}
 \alias{vowlax.l}
 \title{Vector of phoneme labels from the segment list vowlax}
-\format{vector of phoenme labels}
+\format{vector of phoneme labels}
 \description{
 An EMU dataset
 }

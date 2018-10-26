@@ -8,7 +8,7 @@
 ##' first column is the y-data (in the case of locus equations, this is the
 ##' vowel onset) and the second column is the x-data (in the case of locus
 ##' equations, vowel target).
-##' @return The return value consists of the following componenets:
+##' @return The return value consists of the following components:
 ##' 
 ##' \item{separate}{ slope, intercept, r-squared, F-ratio, "d(egrees of)
 ##' f(reedom)" and "prob(ability that) line fits data" for the separate data

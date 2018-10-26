@@ -15,7 +15,7 @@ get_signalCanvasesOrder(emuDBhandle, perspectiveName)
 
 \item{perspectiveName}{name of perspective}
 
-\item{order}{character vector containig names of ssffTrackDefinitions or "OSCI" / "SPEC"}
+\item{order}{character vector containing names of ssffTrackDefinitions or "OSCI" / "SPEC"}
 }
 \description{
 Set / Get signalCanvasesOrder array that specifies which signals are 

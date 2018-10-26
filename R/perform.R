@@ -4,7 +4,7 @@
 ##' 
 ##' 
 ##' @param data A confusion matrix.
-##' @return Caluculates the accuracy (total score) of the confusion matrix,
+##' @return Calculates the accuracy (total score) of the confusion matrix,
 ##' returning percentage of correct, and incorrect matches.
 ##' @seealso confusion
 ##' @keywords misc

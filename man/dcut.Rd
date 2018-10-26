@@ -55,7 +55,7 @@ length as the number of segments in 'trackdata'.  If 'prop=TRUE' the time
 arguments should be single values between zero (the onset of the segment)
 and one (the offset).
 
-If 'right.time' is omitted then a single data point correponding to
+If 'right.time' is omitted then a single data point corresponding to
 'left.time' for each segment is returned.
 }
 \examples{

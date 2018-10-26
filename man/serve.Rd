@@ -16,7 +16,7 @@ serve(emuDBhandle, sessionPattern = ".*", bundlePattern = ".*",
 
 \item{bundlePattern}{A regular expression pattern matching bundle names to be served}
 
-\item{seglist}{segment list to use for times anchors and session + bunde restriction (type: \link{emuRsegs})}
+\item{seglist}{segment list to use for times anchors and session + bundle restriction (type: \link{emuRsegs})}
 
 \item{host}{host IP to listen to (default: 127.0.0.1  (localhost))}
 

@@ -695,7 +695,7 @@ NULL
 ##' 
 ##' @docType data
 ##' @keywords datasets
-##' @format vector of phoenme labels
+##' @format vector of phoneme labels
 ##' @name vowlax.l
 NULL
 

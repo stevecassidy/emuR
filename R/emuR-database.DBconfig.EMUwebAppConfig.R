@@ -136,7 +136,7 @@ remove_perspective <- function(emuDBhandle,
 ##' 
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param perspectiveName name of perspective
-##' @param order character vector containig names of ssffTrackDefinitions or "OSCI" / "SPEC"
+##' @param order character vector containing names of ssffTrackDefinitions or "OSCI" / "SPEC"
 ##' @name SetGetSignalCanvasesOrder
 ##' @keywords emuDB database DBconfig Emu
 ##' @examples 

@@ -32,7 +32,7 @@ In order to access an emuDB from R it is necessary to load the annotation and co
 files to an emuR internal database format. The function expects a emuDB file structure in directory 
 \code{databaseDir}. The emuDB configuration file is loaded first. On success the function iterates 
 through session and bundle directories and loads found annotation files. The parameter \code{inMemoryCache} 
-determines where the internal database is stored: If \code{FALSE} a databse cache file in \code{databaseDir} 
+determines where the internal database is stored: If \code{FALSE} a database cache file in \code{databaseDir} 
 is used. When the database is loaded for the first time the function will create a new cache file and store 
 the data to it. On subsequent loading of the same database the cache is only updated if files have changed, 
 therefore the loading is then much faster. For this to work the user needs write permissions to 
