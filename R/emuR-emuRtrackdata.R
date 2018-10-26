@@ -76,7 +76,8 @@ create_emuRtrackdata <- function(sl, td){
 "check_emuRtrackdataColumns" <- function(td){
   
   # check if all columns of emuRsegs object are present
-  emuRsegsNames = c("sl_rowIdx", "labels", "start", "end", "utts", "db_uuid", "session", 
+  emuRsegsNames = c("sl_rowIdx", "labels", "start", "end", 
+                    "db_uuid", "session", 
                     "bundle", "start_item_id", "end_item_id", "level", "start_item_seq_idx",
                     "end_item_seq_idx", "type", "sample_start", "sample_end", "sample_rate")
   
@@ -99,9 +100,11 @@ create_emuRtrackdata <- function(sl, td){
   numericDataClasses = c("complex", "single", "double", "integer", "numeric")
   
   for(dc in additional_cols){
-    if(!class(td[[dc]]) %in% numericDataClasses){
-      warning(paste0('Found additional column that is not of a number class ("complex", "single", "double", "integer", "numeric"). Column name is: "', 
-                     dc, '". The first entry of each segment is reduplicated to match the length of each normalized segment.'))
+    if(!dc %in% c("attribute", "utts")){ # ignore waring for columns that are part of tibble/emuRtrackdata (no common to both)
+      if(!class(td[[dc]]) %in% numericDataClasses){
+        warning(paste0('Found additional column that is not of a number class ("complex", "single", "double", "integer", "numeric"). Column name is: "', 
+                       dc, '". The first entry of each segment is reduplicated to match the length of each normalized segment.'))
+      }
     }
   }
   
@@ -155,7 +158,8 @@ create_emuRtrackdata <- function(sl, td){
   
   # add other columns that are not emuRsegsColNames, hence added columns
   for(colName in additional_cols){
-      res_tbl[,colName] = class(x[[colName]])
+    res_tbl[,colName] = NULL # add empty column
+    class(res_tbl[[colName]]) = class(x[[colName]]) # set col column class
   }
   
   segNr = 1
@@ -183,7 +187,7 @@ create_emuRtrackdata <- function(sl, td){
     # recalculate times_orig & rimes_rel
     eRtd.normtemp$times_orig = seq(unique(eRtd.normtemp$start), unique(eRtd.normtemp$end),length.out = N)
     eRtd.normtemp$times_rel = seq(0,unique(eRtd.normtemp$end) - unique(eRtd.normtemp$start), length.out = N)
-
+    
     curRowIdxStart = segNr * N - N + 1
     curRowIdxEnd = segNr * N
     
