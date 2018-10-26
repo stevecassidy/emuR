@@ -519,7 +519,13 @@ serve <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*', segl
   emuRserverRunning=TRUE
   if(length(autoOpenURL) != 0 && autoOpenURL != ""){
     # open browser with EMU-webApp
-    utils::browseURL(autoOpenURL, browser = browser)
+    viewer <- getOption("viewer")
+    if(FALSE){
+    # if (!is.null(viewer)){
+      viewer(file.path(tempdir(), "EMU-webApp/index.html"), height = 500)
+    }else{
+      utils::browseURL(autoOpenURL, browser = browser)
+    }
   }
   while(emuRserverRunning) {
     httpuv::service()
