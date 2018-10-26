@@ -1,5 +1,4 @@
 ##' Create new items programmatically
-##' @export
 ##' 
 ##' @description Allows creating annotation items programmatically on a single level. 
 ##' You have to pass in a data frame describing the new items. Each new item is identified by
@@ -9,8 +8,8 @@
 ##' \itemize{
 ##' \item \code{sequence index (start_item_seq_idx)}: when level type = \code{ITEM}
 ##' \item \code{start}: start time in ms * 1000 (see output of \link{query}) when level type = \code{EVENT}
-##' \item \code{start} and \code{end}: start and end time in ms * 1000 () when level type = \code{SEGMENT}
-##' }
+##' \item \code{start} and \code{end}: start and end time in ms * 1000 () when level type = \code{SEGMENT} (currently not yet supported!)
+##' } 
 ##' .
 ##' The \code{level} with its associated \code{attributes} determines how many
 ##' labels must be provided. You must provide a label for every existing attribute.
@@ -34,14 +33,14 @@
 ##' 
 ##' If you are appending multiple items at the same time, every sequence index
 ##' (including NA) can only be used once per session/bundle/level combination
-##' (because session/bundle/level/sequence index make the item's unique identifier).
+##' (because session/bundle/level/sequence index are a unique identifier of an item's ).
 ##' 
 ##' After creating the items, all sequence indexes (which may now be real-valued,
 ##' natural-valued or NA) are sorted in ascending order and then replaced with
 ##' the values 1..n, where n is the number of items on that level. While sorting,
 ##' NA values are placed at the end.
 ##' 
-##' Currently it is not possible to insert items into time-based levels (SEGMENT or EVENT).
+##' Currently it is not possible to insert items into levels of type SEGMENT.
 ##'
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param itemsToCreate A data frame with the columns
@@ -63,7 +62,7 @@
 ##'                         files) (intended for expert use only)
 ##' @param verbose if set to \code{TRUE}, more status messages are printed
 ##' 
-##' @importFrom rlang .data
+##' @export
 create_itemsInLevel = function(emuDBhandle,
                                itemsToCreate,
                                rewriteAllAnnots = TRUE,
@@ -448,7 +447,6 @@ update_itemsInLevel = function (emuDBhandle,
 
 
 ##' Delete new items programmatically
-##' @export
 ##' 
 ##' @description Allows to delete annotation items programmatically.
 ##' 
@@ -466,6 +464,7 @@ update_itemsInLevel = function (emuDBhandle,
 ##' @param rewriteAllAnnots should changes be written to file system (_annot.json
 ##'                         files) (intended for expert use only)
 ##' @param verbose if set to \code{TRUE}, more status messages are printed
+##' @export
 delete_itemsInLevel = function (emuDBhandle,
                                 itemsToDelete,
                                 rewriteAllAnnots = TRUE,
@@ -488,7 +487,7 @@ delete_itemsInLevel = function (emuDBhandle,
 ##' create links between items
 ##'
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
-##' @param links data.frame containing linking information. The required columns
+##' @param links data.frame like object containing linking information. The required columns
 ##' are: 
 ##' \itemize{
 ##' \item \code{session}: 

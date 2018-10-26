@@ -10,7 +10,7 @@ create_links(emuDBhandle, links, rewriteAllAnnots = TRUE,
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
 
-\item{links}{data.frame containing linking information. The required columns
+\item{links}{data.frame like object containing linking information. The required columns
 are: 
 \itemize{
 \item \code{session}: 

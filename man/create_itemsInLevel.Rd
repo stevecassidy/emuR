@@ -40,8 +40,8 @@ level type either:
 \itemize{
 \item \code{sequence index (start_item_seq_idx)}: when level type = \code{ITEM}
 \item \code{start}: start time in ms * 1000 (see output of \link{query}) when level type = \code{EVENT}
-\item \code{start} and \code{end}: start and end time in ms * 1000 () when level type = \code{SEGMENT}
-}
+\item \code{start} and \code{end}: start and end time in ms * 1000 () when level type = \code{SEGMENT} (currently not yet supported!)
+} 
 .
 The \code{level} with its associated \code{attributes} determines how many
 labels must be provided. You must provide a label for every existing attribute.
@@ -65,12 +65,12 @@ neighbors.
 
 If you are appending multiple items at the same time, every sequence index
 (including NA) can only be used once per session/bundle/level combination
-(because session/bundle/level/sequence index make the item's unique identifier).
+(because session/bundle/level/sequence index are a unique identifier of an item's ).
 
 After creating the items, all sequence indexes (which may now be real-valued,
 natural-valued or NA) are sorted in ascending order and then replaced with
 the values 1..n, where n is the number of items on that level. While sorting,
 NA values are placed at the end.
 
-Currently it is not possible to insert items into time-based levels (SEGMENT or EVENT).
+Currently it is not possible to insert items into levels of type SEGMENT.
 }
