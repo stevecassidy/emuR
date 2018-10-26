@@ -37,10 +37,7 @@ most people should already have on their systems.
 
 ## Quick start
 
-* for more information see the `An introduction to the emuR package` vignette:
-```r
-vignette('emuR_intro')
-```
+For more information see the [The EMU-SDMS Manual](https://ips-lmu.github.io/The-EMU-SDMS-Manual/)
 
 ## For Developers / Beta-Testers
 
