@@ -1,4 +1,10 @@
-# emuR 1.1.0
+# emuR 1.1.0.9000
+
+## new features / performance tweaks / improvements
+
+## bug fixes
+
+* fixed bad column init. in `normalize_length()` column
 
 ## new features / performance tweaks / improvements
 

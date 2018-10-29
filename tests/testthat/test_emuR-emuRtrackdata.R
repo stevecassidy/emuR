@@ -46,9 +46,41 @@ test_that("emuRtrackdata functions work", {
   #   print(propRes)
   #   })
   
+  
+  test_that("normalize_length returns normalized segments on tibble", {
+
+    sl = query(ae, "Phonetic = I", resultType = "tibble")
+    td = get_trackdata(ae,
+                       seglist = sl,
+                       ssffTrackName = 'fm',
+                       resultType = "tibble")
+  
+    N = 21
+    td_norm = normalize_length(td, N = N)
+    
+    expect_true(nrow(td_norm[td_norm$sl_rowIdx == 1,]) == N)
+    })
+
+  test_that("normalize_length returns normalized segments on emuRtrackdata", {
+    
+    sl = query(ae, "Phonetic = I")
+    td = get_trackdata(ae,
+                       seglist = sl,
+                       ssffTrackName = 'fm',
+                       resultType = "emuRtrackdata")
+    
+    N = 21
+    td_norm = normalize_length(td, N = N)
+    
+    expect_true(nrow(td_norm[td_norm$sl_rowIdx == 1,]) == N)
+  })
+  
+  
   # clean up
   DBI::dbDisconnect(ae$connection)
   ae = NULL
   unlink(path2db, recursive = T)
   
 })
+
+

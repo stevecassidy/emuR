@@ -158,7 +158,7 @@ create_emuRtrackdata <- function(sl, td){
   
   # add other columns that are not emuRsegsColNames, hence added columns
   for(colName in additional_cols){
-    res_tbl[,colName] = NULL # add empty column
+    res_tbl[,colName] = NA # add empty column
     class(res_tbl[[colName]]) = class(x[[colName]]) # set col column class
   }
   
@@ -217,4 +217,6 @@ create_emuRtrackdata <- function(sl, td){
 #######################
 # FOR DEVELOPMENT
 # library('testthat')
+# test_file('tests/testthat/test_aaa_initData.R')
 # test_file('tests/testthat/test_emuRtrackdata.R')
+# test_file('tests/testthat/test_zzz_cleanUp.R')
