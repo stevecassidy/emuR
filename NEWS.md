@@ -7,8 +7,6 @@
 * https default on serve
 
 
-https default on serve
-
 # emuR 1.1.1
 
 ## new features / performance tweaks / improvements
