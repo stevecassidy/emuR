@@ -1,6 +1,8 @@
-# emuR 1.1.1.9000
+# emuR 1.1.1.9001
 
 ## new features / performance tweaks / improvements
+
+* rewrite of `list_files()` that leads to massive speed bump
 
 ## bug fixes
 

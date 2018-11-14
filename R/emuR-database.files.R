@@ -254,27 +254,27 @@ list_files <- function(emuDBhandle,
                         path = file.path(emuDBhandle$basePath),
                         pattern = paste0(".*[.]", fileExtension, "$")) %>%
     dplyr::as_tibble() %>%
-    dplyr::separate(col = value,
+    tidyr::separate(col = .data$value,
                     into = c("session", "bundle", "file"),
                     sep = .Platform$file.sep,
                     extra = "drop",
                     fill = "right")  %>%
-    dplyr::filter(!is.na(session)) %>%
-    dplyr::filter(!is.na(bundle)) %>%
-    dplyr::filter(!is.na(file)) %>%
+    dplyr::filter(!is.na(.data$session)) %>%
+    dplyr::filter(!is.na(.data$bundle)) %>%
+    dplyr::filter(!is.na(.data$file)) %>%
     
-    dplyr::filter (endsWith(session, "_ses")) %>%
-    dplyr::filter (endsWith(bundle, "_bndl")) %>%
+    dplyr::filter (endsWith(.data$session, "_ses")) %>%
+    dplyr::filter (endsWith(.data$bundle, "_bndl")) %>%
     
-    dplyr::mutate(session = stringr::str_remove(session, "_ses$")) %>%
-    dplyr::mutate(bundle = stringr::str_remove(bundle, "_bndl$")) %>%
+    dplyr::mutate(session = stringr::str_remove(.data$session, "_ses$")) %>%
+    dplyr::mutate(bundle = stringr::str_remove(.data$bundle, "_bndl$")) %>%
     
-    dplyr::filter (stringr::str_detect(session, sessionPattern)) %>%
-    dplyr::filter (stringr::str_detect(bundle, bundlePattern)) %>%
+    dplyr::filter (stringr::str_detect(.data$session, sessionPattern)) %>%
+    dplyr::filter (stringr::str_detect(.data$bundle, bundlePattern)) %>%
     
     dplyr::mutate (absolute_file_path = file.path(emuDBhandle$basePath,
-                                                  paste0(session, "_ses"),
-                                                  paste0(bundle, "_bndl"),
+                                                  paste0(.data$session, "_ses"),
+                                                  paste0(.data$bundle, "_bndl"),
                                                   file))
   
   return (fileList)
