@@ -249,29 +249,35 @@ list_files <- function(emuDBhandle,
                        bundlePattern = ".*"){
 
   check_emuDBhandle(emuDBhandle)
-  bndls = list_bundles(emuDBhandle)
   
-  df = data.frame(session = character(), 
-                  bundle = character(),
-                  file = character(),
-                  stringsAsFactors = F)
-  # get files for each bundle
-  for(i in 1:nrow(bndls)){
+  fileList = list.files(recursive = T,
+                        path = file.path(emuDBhandle$basePath),
+                        pattern = paste0(".*[.]", fileExtension, "$")) %>%
+    dplyr::as_tibble() %>%
+    dplyr::separate(col = value,
+                    into = c("session", "bundle", "file"),
+                    sep = .Platform$file.sep,
+                    extra = "drop",
+                    fill = "right")  %>%
+    dplyr::filter(!is.na(session)) %>%
+    dplyr::filter(!is.na(bundle)) %>%
+    dplyr::filter(!is.na(file)) %>%
     
-    fps = list.files(file.path(emuDBhandle$basePath, paste0(bndls[i,]$session, "_ses"), paste0(bndls[i,]$name, "_bndl")), pattern = paste0(".*[.]",fileExtension,"$"))
-    absFps = list.files(file.path(emuDBhandle$basePath, paste0(bndls[i,]$session, "_ses"), paste0(bndls[i,]$name, "_bndl")), pattern = paste0(".*[.]",fileExtension,"$"), full.names = T)
-    df = rbind(df, data.frame(session = rep(bndls[i,]$session, length(fps)), 
-                              bundle = rep(bndls[i,]$name, length(fps)), 
-                              file = fps,
-                              absolute_file_path = absFps,
-                              stringsAsFactors = F))  
-  }
+    dplyr::filter (endsWith(session, "_ses")) %>%
+    dplyr::filter (endsWith(bundle, "_bndl")) %>%
+    
+    dplyr::mutate(session = stringr::str_remove(session, "_ses$")) %>%
+    dplyr::mutate(bundle = stringr::str_remove(bundle, "_bndl$")) %>%
+    
+    dplyr::filter (stringr::str_detect(session, sessionPattern)) %>%
+    dplyr::filter (stringr::str_detect(bundle, bundlePattern)) %>%
+    
+    dplyr::mutate (absolute_file_path = file.path(emuDBhandle$basePath,
+                                                  paste0(session, "_ses"),
+                                                  paste0(bundle, "_bndl"),
+                                                  file))
   
-  # filter for patterns
-  df = df[grepl(sessionPattern, df$session) & grepl(bundlePattern, df$bundle),]
-  
-  return(df)
-  
+  return (fileList)
 }
 
 modify_files <- function(){
