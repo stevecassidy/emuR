@@ -1,8 +1,9 @@
-# emuR 1.1.1.9001
+# emuR 1.1.1.9002
 
 ## new features / performance tweaks / improvements
 
 * rewrite of `list_files()` that leads to massive speed bump
+* implemented `convert_wideToLong()` function to convert trackdata tibble objects to their long form representation (useful for spectral analysis)
 
 ## bug fixes
 
