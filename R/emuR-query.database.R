@@ -169,7 +169,7 @@ create_conditionTextAlternatives<-function(opr,values){
 }
 
 emuR_regexprl<-function(pattern,x){
-  m=regexpr(pattern,x)
+  m=regexpr(pattern, x, perl = T)
   return((m==1) & (attr(m,'match.length')==nchar(x)))
 }
 

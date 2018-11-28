@@ -4,6 +4,7 @@
 
 * rewrite of `list_files()` that leads to massive speed bump
 * implemented `convert_wideToLong()` function to convert trackdata tibble objects to their long form representation (useful for spectral analysis)
+* `query()` sub-function now sets `perl = TRUE` arguments in `regexp` call when using `sessionPattern` and `bundlePattern` (useful for e.g. for negative look-around `bundlePattern = "^((?!msajc003).)*$"`)
 
 ## bug fixes
 
