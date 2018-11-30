@@ -37,6 +37,8 @@ Imports:
     purrr (>= 0.2.4),
     compare(>= 0.2.4),
     tidyr(>= 0.8.2),
+    git2r(>= 0.23.0),
+    servr(>= 0.11),
     rlang
 Suggests:
     ggplot2(>= 2.1.0),
