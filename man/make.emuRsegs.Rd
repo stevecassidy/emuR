@@ -13,8 +13,7 @@ make.emuRsegs(dbName, seglist, query, type)
 
 \item{query}{query string}
 
-\item{type}{type of list elements
-#@export make.emuRsegs}
+\item{type}{type of list elements}
 }
 \description{
 Make emuDB segment list

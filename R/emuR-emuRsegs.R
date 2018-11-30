@@ -23,7 +23,7 @@
 ##' @param seglist segment list data.frame
 ##' @param query query string
 ##' @param type type of list elements
-##' #@export make.emuRsegs
+##' @export make.emuRsegs
 make.emuRsegs <- function(dbName, seglist, query, type)
 {
   
@@ -79,3 +79,41 @@ as.emusegs.emuRsegs <- function(x, ...){
   emusegs = make.seglist(x$labels, x$start, x$end, x$utts, attr(x, "query"), type = attr(x, "type"), database = attr(x, "database"))
   return(emusegs)
 } 
+
+
+##' Exports a segment list to txt collection
+##' 
+##' Extract the media file (usually .wav file) snippets that correspond to 
+##' the segments of a segment list (see result of a \code{\link{query}}) and 
+##' save them to separate files and write the corresponding labels into a .txt file. Further,
+##' the segmentlist is also stored to the target directory (as a .csv file).
+##' 
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
+##' @param seglist \code{tibble}, \code{\link{emuRsegs}} or \code{\link{emusegs}} object obtained by \code{\link{query}}ing a loaded emuDB 
+##' @param targetDir target directory to store
+##' @export
+export_seglistToTxtCollection <- function(emuDBhandle, seglist, targetDir){
+  
+  if(!dir.exists(targetDir)){
+    stop("targetDir does not exist!")
+  }
+  
+  targetDir_full = file.path(targetDir, paste0(emuDBhandle$dbName, "_txt_col_from_seglist"))
+  dir.create(targetDir_full)
+  
+  for(i in 1:nrow(seglist)){
+    ado = wrassp::read.AsspDataObj(file.path(emuDBhandle$basePath, 
+                                             paste0(seglist[i,]$session, "_ses"),
+                                             paste0(seglist[i,]$bundle, "_bndl"),
+                                             paste0(seglist[i,]$bundle, ".wav")),
+                                   begin = seglist[i,]$start / 1000,
+                                   end = seglist[i,]$end / 1000) # hardcoded mediaFileExt!
+    
+    wrassp::write.AsspDataObj(ado, file = file.path(targetDir_full, paste0("sl_rowIdx_", i, ".wav")))
+    
+    readr::write_file(seglist[i,]$labels, path = file.path(targetDir_full, paste0("sl_rowIdx_", i, ".txt")))
+  }
+  
+  readr::write_csv(seglist, path = file.path(targetDir_full, paste0("seglist.csv")))
+  
+}
