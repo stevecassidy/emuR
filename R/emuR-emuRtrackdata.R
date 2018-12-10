@@ -162,7 +162,7 @@ create_emuRtrackdata <- function(sl, td){
     class(res_tbl[[colName]]) = class(x[[colName]]) # set col column class
   }
   
-  segNr = 1
+  res_list = list()
   
   for (i in unique(x$sl_rowIdx)){
     # get current segment and remove unwanted columns
@@ -188,14 +188,12 @@ create_emuRtrackdata <- function(sl, td){
     eRtd.normtemp$times_orig = seq(unique(eRtd.normtemp$start), unique(eRtd.normtemp$end),length.out = N)
     eRtd.normtemp$times_rel = seq(0,unique(eRtd.normtemp$end) - unique(eRtd.normtemp$start), length.out = N)
     
-    curRowIdxStart = segNr * N - N + 1
-    curRowIdxEnd = segNr * N
-    
-    res_tbl[curRowIdxStart:curRowIdxEnd,] = eRtd.normtemp
-    
-    segNr = segNr + 1
+    res_list[[i]] = eRtd.normtemp
     
   }
+  
+  res_tbl = do.call(rbind, res_list)
+  
   return(res_tbl)
 }
 
