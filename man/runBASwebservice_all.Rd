@@ -11,8 +11,8 @@ runBASwebservice_all(handle, transcriptionAttributeDefinitionName,
   minniAttributeDefinitionName = "MINNI",
   sylAttributeDefinitionName = "MAS",
   canoSylAttributeDefinitionName = "KAS",
-  chunkAttributeDefinitionName = "TRN", patience = 0, resume = FALSE,
-  verbose = TRUE)
+  chunkAttributeDefinitionName = "TRN", runMinni = TRUE,
+  patience = 0, resume = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{handle}{emuDB handle}
@@ -49,6 +49,9 @@ that caused the error), you can set resume=TRUE to recover any progress made up 
 will only work if your R temporary directory has not been deleted or emptied in the meantime.}
 
 \item{verbose}{Display progress bars and other information}
+
+\item{runMINNI}{if set to \code{TRUE} (the default) the MINNI service is also run. As the MINNI serice contains
+less languages than the others it can be useful to turn this off.}
 }
 \description{
 This function calls the BAS webservices G2P, MAUS, Pho2Syl, MINNI and (if necessary) Chunker.

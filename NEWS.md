@@ -7,11 +7,12 @@
 * `query()` sub-function now sets `perl = TRUE` arguments in `regexp` call when using `sessionPattern` and `bundlePattern` (useful for e.g. for negative look-around `bundlePattern = "^((?!msajc003).)*$"`)
 * implemented `export_seglistToTxtCollection()` 
 * normalize length now also using `list()` with `do.call(rbind, res_list)`
+* implemted new `runMINNI` boolean parameter in `runBASwebservice_all()`
+
 
 ## bug fixes
 
 * https default on serve
-
 
 # emuR 1.1.1
 

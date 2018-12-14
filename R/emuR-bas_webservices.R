@@ -39,7 +39,8 @@
 ##' @param minniAttributeDefinitionName attribute name for the MINNI segmentation
 ##' @param sylAttributeDefinitionName attribute name for syllable segmentation
 ##' @param canoSylAttributeDefinitionName attribute name for syllabified canonical pronunciations of words
-##'
+##' @param runMINNI if set to \code{TRUE} (the default) the MINNI service is also run. As the MINNI serice contains
+##' less languages than the others it can be useful to turn this off.
 ##' @param patience If a web service call fails, it is repeated a further n times, with n being the value of patience.
 ##' Must be set to a value between 0 and 3.
 ##' @param verbose Display progress bars and other information
@@ -58,7 +59,7 @@ runBASwebservice_all <- function(handle,
                                  sylAttributeDefinitionName = "MAS",
                                  canoSylAttributeDefinitionName = "KAS",
                                  chunkAttributeDefinitionName = "TRN",
-                                 
+                                 runMinni = TRUE,
                                  patience = 0,
                                  resume = FALSE,
                                  verbose = TRUE)
@@ -158,20 +159,21 @@ runBASwebservice_all <- function(handle,
     func = func,
     patience = patience
   )
-  
-  bas_run_minni_dbi(
-    handle = handle,
-    language = language,
-    minniAttributeDefinitionName = minniAttributeDefinitionName,
-    rootLevel = NULL,
-    verbose = verbose,
-    resume = resume,
-    params = list(),
-    oldBasePath = oldBasePath,
-    perspective = "default",
-    func = func,
-    patience = patience
-  )
+  if(runMinni){
+    bas_run_minni_dbi(
+      handle = handle,
+      language = language,
+      minniAttributeDefinitionName = minniAttributeDefinitionName,
+      rootLevel = NULL,
+      verbose = verbose,
+      resume = resume,
+      params = list(),
+      oldBasePath = oldBasePath,
+      perspective = "default",
+      func = func,
+      patience = patience
+    )
+  }
   
   bas_run_pho2syl_canonical_dbi(
     handle = handle,
