@@ -7,7 +7,8 @@
 serve(emuDBhandle, sessionPattern = ".*", bundlePattern = ".*",
   seglist = NULL, host = "127.0.0.1", port = 17890,
   autoOpenURL = "https://ips-lmu.github.io/EMU-webApp/?autoConnect=true",
-  browser = getOption("browser"), debug = FALSE, debugLevel = 0)
+  browser = getOption("browser"), debug = FALSE, debugLevel = 0,
+  useLocalWebApp = F)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
@@ -31,9 +32,13 @@ it's documentation for details )}
 \item{debug}{TRUE to enable debugging (default: no debugging messages)}
 
 \item{debugLevel}{integer higher values generate more detailed debug output}
+
+\item{useLocalWebApp}{host a local version of the EMU-webApp. Setting it to \code{TRUE} will envoke a \code{git clone} of the gh-pages 
+branch of the GitHub repository to the \code{\link{tempdir}} of the current R session. This local version will then be used. 
+If available, this will cause the EMU-webApp to be opened in RStudio's Viewer pane.}
 }
 \value{
-TRUE if the database was modified, FALSE otherwise
+TRUE (invisible) if the server was started
 }
 \description{
 Serves emuDB media files, SSFF tracks and annotations for EMU-webApp browser GUI \url{http://ips-lmu.github.io/EMU-webApp/}

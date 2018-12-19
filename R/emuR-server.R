@@ -1,17 +1,6 @@
 requireNamespace("httpuv", quietly = T)
 requireNamespace("base64enc", quietly = T)
 
-.server_env = new.env()
-assign("serverHandle", NULL, envir = .server_env)
-
-getServerHandle <- function() {
-  get("serverHandle", envir = .server_env)
-}
-
-setServerHandle <- function(sh) {
-  assign("serverHandle", sh, envir = .server_env)
-}
-
 check_tibbleForServe <- function(tbl){
   req_columns = c("db_uuid", "session", "bundle", "start", 
                   "end", "sample_rate")
@@ -62,7 +51,10 @@ check_tibbleForServe <- function(tbl){
 ##' it's documentation for details )
 ##' @param debug TRUE to enable debugging (default: no debugging messages)
 ##' @param debugLevel integer higher values generate more detailed debug output
-##' @return TRUE if the database was modified, FALSE otherwise
+##' @param useLocalWebApp host a local version of the EMU-webApp. Setting it to \code{TRUE} will envoke a \code{git clone} of the gh-pages 
+##' branch of the GitHub repository to the \code{\link{tempdir}} of the current R session. This local version will then be used. 
+##' If available, this will cause the EMU-webApp to be opened in RStudio's Viewer pane.
+##' @return TRUE (invisible) if the server was started
 ##' @export
 ##' @keywords emuDB EMU-webApp database websocket Emu
 ##' @examples
@@ -76,15 +68,16 @@ check_tibbleForServe <- function(tbl){
 serve <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*', seglist = NULL,
                   host = '127.0.0.1', port = 17890, 
                   autoOpenURL = "https://ips-lmu.github.io/EMU-webApp/?autoConnect=true", 
-                  browser = getOption("browser"), debug = FALSE, debugLevel = 0){
+                  browser = getOption("browser"), debug = FALSE, 
+                  debugLevel = 0,
+                  useLocalWebApp = F){
   
   check_emuDBhandle(emuDBhandle)
   
   if(debug && debugLevel==0){
     debugLevel=2
   }
-  modified=FALSE
-  emuDBserverRunning=FALSE
+  
   bundleCount=0
   DBconfig = load_DBconfig(emuDBhandle)
   if(is.null(seglist)){
@@ -146,7 +139,7 @@ serve <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*', segl
   }
   
   onHeaders<-function(req){
-    # following httuv docs we shoul return NULL here to proceed but that terminates the R session!
+    # following httuv docs we should return NULL here to proceed but that terminates the R session!
     #return(NULL)
   }
   
@@ -155,10 +148,7 @@ serve <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*', segl
     cat("emuR websocket service established\n")
     
     serverClosed = function(ws){
-      
       cat("emuR websocket service closed\n")
-      emuRserverRunning<<-FALSE
-      
     }
     
     sendError = function(ws,errMsg,callbackID){
@@ -286,25 +276,7 @@ serve <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*', segl
           # error
           err=simpleError(paste('Could not load bundle ',bundleName,' of session ',bundleSess))
         }
-        # if(is.null(err)){
-        #   mediaFilePath=normalizePath(file.path(emuDBhandle$basePath, paste0(bundleSess, session.suffix), 
-        #                                         paste0(bundleName, bundle.dir.suffix), 
-        #                                         paste0(bundleName, ".", DBconfig$mediafileExtension)))
-        #   if(debugLevel>4){
-        #     cat("Mediafile: ",mediaFilePath," for ",b$name,"\n")
-        #   }
-        #   audioFile=tryCatch(file(mediaFilePath, "rb"),error=function(e) err<<-e)
-        #   if(is.null(err)){
-        #     audioFileData=readBin(audioFile, raw(), n=file.info(mediaFilePath)$size)
-        #     if(inherits(audioFileData,'error')){
-        #       err=audioFileData
-        #     }else{
-        #       audioBase64=base64enc::base64encode(audioFileData)
-        #       mediaFile=list(encoding="BASE64",data=audioBase64)
-        #       close(audioFile)
-        #     }
-        #   }
-        # }
+        
         mediaFile=list(encoding="GETURL", data=paste0("http://", 
                                                       ws$request$HTTP_HOST, 
                                                       "?session=", utils::URLencode(bundleSess, reserved = T),
@@ -445,12 +417,7 @@ serve <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*', segl
             # use try mainly for permission problems on file system
             res=tryCatch(writeLines(json, annotFilePath, useBytes = TRUE), error=function(e) e)
             if(inherits(res,'error')){
-              err=res
-            }else{
-              # annotation saved
-              # set modified flag
-              modified<<-TRUE
-              
+              err = res
             }
             
             #### DBI ###
@@ -482,13 +449,18 @@ serve <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*', segl
         options(warn=warnOptionSave)
         
         # reset error
-        err=NULL
+        err = NULL
         
       }else if(jr[['type']]=='DISCONNECTWARNING'){
-        response=list(status=list(type='SUCCESS'),callbackID=jr[['callbackID']],responseContent='status',contentType='text/json')
-        responseJSON=jsonlite::toJSON(response,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
+        response = list(status = list(type = 'SUCCESS'), 
+                        callbackID = jr[['callbackID']], 
+                        responseContent = 'status', 
+                        contentType = 'text/json')
+        responseJSON = jsonlite::toJSON(response,
+                                        auto_unbox=TRUE,
+                                        force=TRUE,
+                                        pretty=TRUE)
         result=ws$send(responseJSON)
-        emuRserverRunning<<-FALSE
         ws$close()
         cat("emuR websocket service closed by EMU-webApp\n")
       }
@@ -497,48 +469,48 @@ serve <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*', segl
     ws$onClose(serverClosed)
   }
   
-  app=list(call=httpRequest,onHeaders=onHeaders,onWSOpen=serverEstablished)
-  sh=tryCatch(httpuv::startServer(host=host,port=port,app=app),error=function(e) e)
-  if(inherits(sh,'error')){
-    if(!is.null(getServerHandle())){
-      cat("Trying to stop orphaned server (handle: ",getServerHandle(),")\n")
-      httpuv::stopServer(getServerHandle())
-      sh=tryCatch(httpuv::startServer(host=host,port=port,app=app),error=function(e) e)
-      if(inherits(sh,'error')){
-        stop("Error starting server (second try): ",sh,"\n")
-      }
-    }else{
-      stop("Error starting server: ",sh,"\n")
-    }
-  }
-  # store handle global for recovery after crash otr terminated R session
-  setServerHandle(sh)
-  cat("Navigate your browser to the EMU-webApp URL: http://ips-lmu.github.io/EMU-webApp/ (should happen automatically)\n")
-  cat("Server connection URL: ws://localhost:",port,"\n",sep='')
-  cat("To stop the server press 'clear' button in the EMU-webApp or close/reload the webApp in your browser.\n")
-  emuRserverRunning=TRUE
+
+  
+  # either open browser of clone and host local EMU-webApp 
   if(length(autoOpenURL) != 0 && autoOpenURL != ""){
     # open browser with EMU-webApp
     viewer <- getOption("viewer")
-    if(FALSE){
-    # if (!is.null(viewer)){
-      viewer(file.path(tempdir(), "EMU-webApp/index.html"), height = 500)
+    if(useLocalWebApp){
+      if (!is.null(viewer)){
+        webApp_path = file.path(tempdir(), "EMU-webApp")
+        #can this be emulated? git clone --depth 1 -b gh-pages https://github.com/IPS-LMU/EMU-webApp
+        if(!dir.exists(webApp_path)){
+          dir.create(webApp_path)
+          git2r::clone("https://github.com/IPS-LMU/EMU-webApp", 
+                       local_path = webApp_path, 
+                       branch = "gh-pages")
+        }
+        servr::httd(dir = tempdir(), 
+                    initpath = "EMU-webApp/?autoConnect=true&serverUrl=ws://127.0.0.1:17890")
+      }else{
+        utils::browseURL(autoOpenURL, browser = browser)
+      }
+
     }else{
       utils::browseURL(autoOpenURL, browser = browser)
     }
   }
-  while(emuRserverRunning) {
-    httpuv::service()
-    Sys.sleep(0.01)
-    
-  }
-  httpuv::stopServer(sh)
-  # regular shutdown, remove handle 
-  setServerHandle(NULL)
-  if(debugLevel>0){
-    cat("Closed emuR websocket HTTP service\n")
-  }
-  return(modified)
+  
+  # user messages
+  cat("Navigate your browser to the EMU-webApp URL: http://ips-lmu.github.io/EMU-webApp/ (should happen automatically)\n")
+  cat("Server connection URL: ws://localhost:",port,"\n",sep='')
+  cat("To stop the server press 'clear' button in the EMU-webApp or close/reload the webApp in your browser.\n")
+  
+  # build app list
+  app = list(call = httpRequest, 
+             onHeaders = onHeaders, 
+             onWSOpen = serverEstablished)
+  
+  # start server
+  httpuv::startServer(host = host, port = port, app = app)
+  
+  return(invisible(TRUE))
+  
 }
 
 ## searches for all tracks needed by the EMUwebApp and
