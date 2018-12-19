@@ -10,10 +10,10 @@ Description: Provides the next iteration of the EMU Speech
     Database Management System (EMU-SDMS) with database management, data 
     extraction, data preparation and data visualization facilities.
 License: GPL (>= 2)
-Depends:
+Depends: 
     R (>= 3.2.0)
 VignetteBuilder: knitr
-Imports:
+Imports: 
     MASS,
     tools,
     utils,
@@ -40,7 +40,7 @@ Imports:
     git2r(>= 0.23.0),
     servr(>= 0.11),
     rlang
-Suggests:
+Suggests: 
     ggplot2(>= 2.1.0),
     testthat(>= 0.7.1.99),
     knitr(>= 1.7),
