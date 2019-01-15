@@ -1,5 +1,5 @@
 Package: emuR
-Version: 1.1.1.9004
+Version: 1.1.1.9005
 Title: Main Package of the EMU Speech Database Management System
 Authors@R: c(
     person("Raphael", "Winkelmann", , "raphael@phonetik.uni-muenchen.de", c("aut", "cre")),
