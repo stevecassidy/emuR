@@ -59,7 +59,7 @@ runBASwebservice_all <- function(handle,
                                  sylAttributeDefinitionName = "MAS",
                                  canoSylAttributeDefinitionName = "KAS",
                                  chunkAttributeDefinitionName = "TRN",
-                                 runMinni = TRUE,
+                                 runMINNI = TRUE,
                                  patience = 0,
                                  resume = FALSE,
                                  verbose = TRUE)
@@ -159,7 +159,7 @@ runBASwebservice_all <- function(handle,
     func = func,
     patience = patience
   )
-  if(runMinni){
+  if(runMINNI){
     bas_run_minni_dbi(
       handle = handle,
       language = language,
