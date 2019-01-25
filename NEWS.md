@@ -1,4 +1,4 @@
-# emuR 1.1.1.9005
+# emuR 1.1.2
 
 ## new features / performance tweaks / improvements
 
@@ -12,7 +12,7 @@
 
 ## bug fixes
 
-* https default on serve
+* https default on `serve()`
 
 # emuR 1.1.1
 
