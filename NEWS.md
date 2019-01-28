@@ -9,10 +9,11 @@
 * normalize length now also using `list()` with `do.call(rbind, res_list)`
 * implemted new `runMINNI` boolean parameter in `runBASwebservice_all()`
 
-
 ## bug fixes
 
 * https default on `serve()`
+* fixed problems of `calcFreqs = T` in `convert_wideToLong()` (possibly caused by newer version of dplyr?)
+
 
 # emuR 1.1.1
 

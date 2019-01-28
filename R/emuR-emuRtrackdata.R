@@ -237,22 +237,22 @@ convert_wideToLong <- function(td, calcFreqs = F){
   # get col idx values of tracks (T1-TN)
   tracks_colIdx = grep(pattern = "^T[0-9]+$", names(td))
   
-  tracks_long = dplyr::ungroup(td) %>%
+  tracks_long = dplyr::ungroup(td) %>% 
     tidyr::gather(key = "track_name", value = "track_value", min(tracks_colIdx):max(tracks_colIdx), convert = T) %>% 
-    dplyr::mutate(freq = as.numeric(substring(.data$track_name, 2))) %>%
-    dplyr::group_by(.data$sl_rowIdx) %>%
+    dplyr::mutate(freq = as.numeric(substring(.data$track_name, 2))) %>% 
+    dplyr::group_by(.data$sl_rowIdx)  %>%
     dplyr::arrange(.data$freq, .by_group = T)
   
   # calc freq if calcFreqs = F otherwise drop column
   if(calcFreqs) {
-    tracks_long = tracks_long %>%
-      dplyr::mutate(freq=seq(0, (unique(.data$sample_rate) / 2), length.out = length(tracks_colIdx)))
+    tracks_long = tracks_long %>% 
+      dplyr::mutate(freq = rep(seq(0, (unique(.data$sample_rate) / 2), length.out = length(tracks_colIdx)), each = n() / length(tracks_colIdx)))
   } else{
     tracks_long = tracks_long %>%
       dplyr::select(-.data$freq) 
   } 
   
-  return(tracks_long)
+  return(dplyr::ungroup(tracks_long))
 }
 
 #######################
