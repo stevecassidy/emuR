@@ -14,7 +14,7 @@ vignette: >
 
 # DEPRECATION WARNING
 
-This vignette is considered depricated! It's content has been moved to
+This vignette is considered deprecated! It's content has been moved to
 the [the EMU-SDMS manual](https://ips-lmu.github.io/The-EMU-SDMS-Manual/) (+ expanded and updated). Specifially see
 the [the query system](https://ips-lmu.github.io/The-EMU-SDMS-Manual/chap-querysys.html) as well as
 the [EQL: further examples](https://ips-lmu.github.io/The-EMU-SDMS-Manual/app-chap-eql.html) chapters.
