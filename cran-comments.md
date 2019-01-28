@@ -11,7 +11,3 @@ There were no ERRORs, WARNINGs or NOTEs.
 ## Downstream dependencies
 
 There are currently no downstream dependencies for this package.
-
-## Further comments
-
-removed detritus LaTex files in vignette directories as requested by CRAN maintainer
