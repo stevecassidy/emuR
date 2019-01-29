@@ -246,7 +246,7 @@ convert_wideToLong <- function(td, calcFreqs = F){
   # calc freq if calcFreqs = F otherwise drop column
   if(calcFreqs) {
     tracks_long = tracks_long %>% 
-      dplyr::mutate(freq = rep(seq(0, (unique(.data$sample_rate) / 2), length.out = length(tracks_colIdx)), each = n() / length(tracks_colIdx)))
+      dplyr::mutate(freq = rep(seq(0, (unique(.data$sample_rate) / 2), length.out = length(tracks_colIdx)), each = dplyr::n() / length(tracks_colIdx)))
   } else{
     tracks_long = tracks_long %>%
       dplyr::select(-.data$freq) 

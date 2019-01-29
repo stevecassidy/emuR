@@ -148,7 +148,7 @@
     }
   }
   
-  if(resultType == "emuRtrackdata" && class(seglist) =="emusegs"){
+  if(resultType == "emuRtrackdata" && class(seglist)[1] == "emusegs"){
     stop("resultType can only be 'trackdata', if a seglist of class 'emusegs' is passed in")
   }
   
