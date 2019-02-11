@@ -513,7 +513,7 @@ serve <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*', segl
   }
   # store handle global for recovery after crash otr terminated R session
   setServerHandle(sh)
-  cat("Navigate your browser to the EMU-webApp URL: http://ips-lmu.github.io/EMU-webApp/ (should happen automatically)\n")
+  cat("Navigate your browser to the EMU-webApp URL: https://ips-lmu.github.io/EMU-webApp/ (should happen automatically)\n")
   cat("Server connection URL: ws://localhost:",port,"\n",sep='')
   cat("To stop the server press 'clear' button in the EMU-webApp or close/reload the webApp in your browser.\n")
   emuRserverRunning=TRUE
