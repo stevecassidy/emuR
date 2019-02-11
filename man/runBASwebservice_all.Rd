@@ -11,7 +11,7 @@ runBASwebservice_all(handle, transcriptionAttributeDefinitionName,
   minniAttributeDefinitionName = "MINNI",
   sylAttributeDefinitionName = "MAS",
   canoSylAttributeDefinitionName = "KAS",
-  chunkAttributeDefinitionName = "TRN", runMinni = TRUE,
+  chunkAttributeDefinitionName = "TRN", runMINNI = TRUE,
   patience = 0, resume = FALSE, verbose = TRUE)
 }
 \arguments{
@@ -41,6 +41,9 @@ Up-to-date lists of the languages accepted by all webservices can be found here:
 Please note that the chunk segmentation will only be generated if your emuDB contains
 audio files beyond the one minute mark.}
 
+\item{runMINNI}{if set to \code{TRUE} (the default) the MINNI service is also run. As the MINNI serice contains
+less languages than the others it can be useful to turn this off.}
+
 \item{patience}{If a web service call fails, it is repeated a further n times, with n being the value of patience.
 Must be set to a value between 0 and 3.}
 
@@ -49,9 +52,6 @@ that caused the error), you can set resume=TRUE to recover any progress made up 
 will only work if your R temporary directory has not been deleted or emptied in the meantime.}
 
 \item{verbose}{Display progress bars and other information}
-
-\item{runMINNI}{if set to \code{TRUE} (the default) the MINNI service is also run. As the MINNI serice contains
-less languages than the others it can be useful to turn this off.}
 }
 \description{
 This function calls the BAS webservices G2P, MAUS, Pho2Syl, MINNI and (if necessary) Chunker.

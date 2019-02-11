@@ -255,8 +255,8 @@ ensureSequenceIndexesAreUnique = function (itemsOnAttribute) {
   
   if (length(uniqueSequenceIndexes) != length(itemsOnAttribute$start_item_seq_idx)) {
     stop(call. = FALSE,
-         paste("Sequence indexes must be uniqe within one level.",
-               "Found duplicate sequence indexes in",
+         paste("Sequence indexes must be unique within one level.",
+               "Found duplicate sequence indices in",
                paste(itemsOnAttribute[1, "session"],
                      itemsOnAttribute[1, "bundle"],
                      itemsOnAttribute[1, "level"],

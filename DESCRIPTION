@@ -1,5 +1,5 @@
 Package: emuR
-Version: 1.1.1.9004
+Version: 1.1.2.9000
 Title: Main Package of the EMU Speech Database Management System
 Authors@R: c(
     person("Raphael", "Winkelmann", , "raphael@phonetik.uni-muenchen.de", c("aut", "cre")),
@@ -31,7 +31,7 @@ Imports:
     RSQLite (>= 1.0.0),
     DBI (>= 0.3.1),
     httpuv (>= 1.3.2),
-    dplyr (>= 0.4.3),
+    dplyr (>= 0.7.8),
     readr (>= 1.1.1),
     tibble (>= 1.4.2),
     purrr (>= 0.2.4),

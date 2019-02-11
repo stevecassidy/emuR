@@ -70,7 +70,7 @@ N. Hewlett (eds). Coarticulation.  (pp. 229-245). Cambridge University
 Press: Cambridge.
 
 HARDCASTLE, W, GIBBON, F. and NICOLAIDIS, K. (1991) EPG data reduction
-methods and thier implications for studies of lingual coarticulation.
+methods and their implications for studies of lingual coarticulation.
 Journal of Phonetics, 19, 251-266.
 }
 \seealso{

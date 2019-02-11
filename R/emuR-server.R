@@ -469,9 +469,7 @@ serve <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*', segl
     ws$onClose(serverClosed)
   }
   
-
-  
-  # either open browser of clone and host local EMU-webApp 
+  # either open browser of clone and host local EMU-webApp
   if(length(autoOpenURL) != 0 && autoOpenURL != ""){
     # open browser with EMU-webApp
     viewer <- getOption("viewer")

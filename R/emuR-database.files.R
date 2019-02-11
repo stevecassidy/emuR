@@ -40,7 +40,7 @@ is_relativeFilePath<-function(nativeFilePathStr, forRunningPlatform=FALSE){
 ##' Import new recordings (media files) to emuDB and create bundles.
 ##' Looks for files with the defined mediafile extension of the emuDB 
 ##' (see \code{mediaFileExtension} in vignette \code{emuDB}) in \code{dir}
-##' or in sub-directories thereoff (interpreted as sessions), for each mediafile
+##' or in sub-directories thereof (interpreted as sessions), for each mediafile
 ##' create a bundle directory
 ##' named as the basename of the mediafile in the specified session, and copies 
 ##' the mediafile into the bundle. If not already present, adds 'OSCI' and 
