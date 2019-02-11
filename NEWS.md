@@ -2,6 +2,8 @@
 
 ## new features / performance tweaks / improvements
 
+* changed url in printed output of serve to https
+
 ## bug fixes
 
 # emuR 1.1.2
