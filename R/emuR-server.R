@@ -476,7 +476,7 @@ serve <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*', segl
     if(useLocalWebApp){
       if (!is.null(viewer)){
         webApp_path = file.path(tempdir(), "EMU-webApp")
-        #can this be emulated? git clone --depth 1 -b gh-pages https://github.com/IPS-LMU/EMU-webApp
+        # can this be emulated? git clone --depth 1 -b gh-pages https://github.com/IPS-LMU/EMU-webApp
         if(!dir.exists(webApp_path)){
           dir.create(webApp_path)
           git2r::clone("https://github.com/IPS-LMU/EMU-webApp", 
@@ -495,7 +495,7 @@ serve <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*', segl
   }
   
   # user messages
-  cat("Navigate your browser to the EMU-webApp URL: http://ips-lmu.github.io/EMU-webApp/ (should happen automatically)\n")
+  cat("Navigate your browser to the EMU-webApp URL: https://ips-lmu.github.io/EMU-webApp/ (should happen automatically)\n")
   cat("Server connection URL: ws://localhost:",port,"\n",sep='')
   cat("To stop the server press 'clear' button in the EMU-webApp or close/reload the webApp in your browser.\n")
   
@@ -505,7 +505,8 @@ serve <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*', segl
              onWSOpen = serverEstablished)
   
   # start server
-  httpuv::startServer(host = host, port = port, app = app)
+  # httpuv::stopAllServers() # why does this crash?
+  httpuv::runServer(host = host, port = port, app = app)
   
   return(invisible(TRUE))
   
