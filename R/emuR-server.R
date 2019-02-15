@@ -31,13 +31,13 @@ check_tibbleForServe <- function(tbl){
 ##' Disconnect and stop:
 ##' \itemize{
 ##' \item Disconnect and stop the server with the 'Clear' button of the webapp or the reload button of your browser.
-##' \item The server can also be interrupted with Ctrl-C if something went wrong.
+##' \item The server can also be interrupted by calling \code{httpuv::stopAllServers}
 ##' \item To serve only a subset of sessions or bundles use the parameters \code{sessionPattern} and/or \code{bundlePattern}.
 ##' }
 ##' 
-##' @details  Function opens a HTTP/websocket and waits in a loop for browser requests. Parameter host determines the IP address(es) of hosts allowed to connect to the server. By default the server only listens to localhost. If you want to allow connection from any host set the host parameter to \code{0.0.0.0}. Please note that this might be an safety issue! The \code{port} parameter determines the port the server listens on. The \code{host} and \code{port} parameters are intended only for expert users. When started the R console will be blocked. On successful connection the server sends the session and bundle list of the database referenced by name by parameter \code{dbName} or by UUID parameter \code{dbUUID}.
+##' @details Function opens a HTTP/websocket and waits in a loop for browser requests. Parameter host determines the IP address(es) of hosts allowed to connect to the server. By default the server only listens to localhost. If you want to allow connection from any host set the host parameter to \code{0.0.0.0}. Please note that this might be an safety issue! The \code{port} parameter determines the port the server listens on. The \code{host} and \code{port} parameters are intended only for expert users. When started the R console will be blocked. On successful connection the server sends the session and bundle list of the database referenced by name by parameter \code{dbName} or by UUID parameter \code{dbUUID}.
 ##' The Web application requests bundle data for viewing or editing. If a bundle is modified with the EMU-webApp and the save button is pressed the server modifies the internal database and saves the changes to disk.
-##' Communication between server and EMU webApp is defined by EMU-webApp-websocket-protocol version 0.0.2.
+##' Communication between server and EMU webApp is defined by EMU-webApp-websocket-protocol version 0.0.2 (\url{https://ips-lmu.github.io/The-EMU-SDMS-Manual/app-chap-wsProtocol.html}).
 ##' 
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param sessionPattern A regular expression pattern matching session names to be served
@@ -51,9 +51,6 @@ check_tibbleForServe <- function(tbl){
 ##' it's documentation for details )
 ##' @param debug TRUE to enable debugging (default: no debugging messages)
 ##' @param debugLevel integer higher values generate more detailed debug output
-##' @param useLocalWebApp host a local version of the EMU-webApp. Setting it to \code{TRUE} will envoke a \code{git clone} of the gh-pages 
-##' branch of the GitHub repository to the \code{\link{tempdir}} of the current R session. This local version will then be used. 
-##' If available, this will cause the EMU-webApp to be opened in RStudio's Viewer pane.
 ##' @return TRUE (invisible) if the server was started
 ##' @export
 ##' @keywords emuDB EMU-webApp database websocket Emu
@@ -69,8 +66,7 @@ serve <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*', segl
                   host = '127.0.0.1', port = 17890, 
                   autoOpenURL = "https://ips-lmu.github.io/EMU-webApp/?autoConnect=true", 
                   browser = getOption("browser"), debug = FALSE, 
-                  debugLevel = 0,
-                  useLocalWebApp = F){
+                  debugLevel = 0){
   
   check_emuDBhandle(emuDBhandle)
   
@@ -398,7 +394,7 @@ serve <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*', segl
                   err=res
                   break
                 }
-                modified<<-TRUE
+                # modified<<-TRUE
               }
             }
           }
@@ -473,25 +469,25 @@ serve <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*', segl
   if(length(autoOpenURL) != 0 && autoOpenURL != ""){
     # open browser with EMU-webApp
     viewer <- getOption("viewer")
-    if(useLocalWebApp){
-      if (!is.null(viewer)){
-        webApp_path = file.path(tempdir(), "EMU-webApp")
-        # can this be emulated? git clone --depth 1 -b gh-pages https://github.com/IPS-LMU/EMU-webApp
-        if(!dir.exists(webApp_path)){
-          dir.create(webApp_path)
-          git2r::clone("https://github.com/IPS-LMU/EMU-webApp", 
-                       local_path = webApp_path, 
-                       branch = "gh-pages")
-        }
-        servr::httd(dir = tempdir(), 
-                    initpath = "EMU-webApp/?autoConnect=true&serverUrl=ws://127.0.0.1:17890")
-      }else{
-        utils::browseURL(autoOpenURL, browser = browser)
-      }
-
-    }else{
-      utils::browseURL(autoOpenURL, browser = browser)
-    }
+    # if(useLocalWebApp){
+    #   if (!is.null(viewer)){
+    #     webApp_path = file.path(tempdir(), "EMU-webApp")
+    #     # can this be emulated? git clone --depth 1 -b gh-pages https://github.com/IPS-LMU/EMU-webApp
+    #     if(!dir.exists(webApp_path)){
+    #       dir.create(webApp_path)
+    #       git2r::clone("https://github.com/IPS-LMU/EMU-webApp", 
+    #                    local_path = webApp_path, 
+    #                    branch = "gh-pages")
+    #     }
+    #     servr::httd(dir = tempdir(), 
+    #                 initpath = "EMU-webApp/?autoConnect=true&serverUrl=ws://127.0.0.1:17890")
+    #   }else{
+    #     utils::browseURL(autoOpenURL, browser = browser)
+    #   }
+    # 
+    # }else{
+    utils::browseURL(autoOpenURL, browser = browser)
+    # }
   }
   
   # user messages
@@ -505,8 +501,8 @@ serve <- function(emuDBhandle, sessionPattern = '.*', bundlePattern = '.*', segl
              onWSOpen = serverEstablished)
   
   # start server
-  # httpuv::stopAllServers() # why does this crash?
-  httpuv::runServer(host = host, port = port, app = app)
+  httpuv::stopAllServers() # why does this crash?
+  httpuv::startServer(host = host, port = port, app = app)
   
   return(invisible(TRUE))
   

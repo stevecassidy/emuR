@@ -7,8 +7,7 @@
 serve(emuDBhandle, sessionPattern = ".*", bundlePattern = ".*",
   seglist = NULL, host = "127.0.0.1", port = 17890,
   autoOpenURL = "https://ips-lmu.github.io/EMU-webApp/?autoConnect=true",
-  browser = getOption("browser"), debug = FALSE, debugLevel = 0,
-  useLocalWebApp = F)
+  browser = getOption("browser"), debug = FALSE, debugLevel = 0)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
@@ -32,10 +31,6 @@ it's documentation for details )}
 \item{debug}{TRUE to enable debugging (default: no debugging messages)}
 
 \item{debugLevel}{integer higher values generate more detailed debug output}
-
-\item{useLocalWebApp}{host a local version of the EMU-webApp. Setting it to \code{TRUE} will envoke a \code{git clone} of the gh-pages 
-branch of the GitHub repository to the \code{\link{tempdir}} of the current R session. This local version will then be used. 
-If available, this will cause the EMU-webApp to be opened in RStudio's Viewer pane.}
 }
 \value{
 TRUE (invisible) if the server was started
@@ -58,14 +53,14 @@ Start and connect:
 Disconnect and stop:
 \itemize{
 \item Disconnect and stop the server with the 'Clear' button of the webapp or the reload button of your browser.
-\item The server can also be interrupted with Ctrl-C if something went wrong.
+\item The server can also be interrupted by calling \code{httpuv::stopAllServers}
 \item To serve only a subset of sessions or bundles use the parameters \code{sessionPattern} and/or \code{bundlePattern}.
 }
 }
 \details{
 Function opens a HTTP/websocket and waits in a loop for browser requests. Parameter host determines the IP address(es) of hosts allowed to connect to the server. By default the server only listens to localhost. If you want to allow connection from any host set the host parameter to \code{0.0.0.0}. Please note that this might be an safety issue! The \code{port} parameter determines the port the server listens on. The \code{host} and \code{port} parameters are intended only for expert users. When started the R console will be blocked. On successful connection the server sends the session and bundle list of the database referenced by name by parameter \code{dbName} or by UUID parameter \code{dbUUID}.
 The Web application requests bundle data for viewing or editing. If a bundle is modified with the EMU-webApp and the save button is pressed the server modifies the internal database and saves the changes to disk.
-Communication between server and EMU webApp is defined by EMU-webApp-websocket-protocol version 0.0.2.
+Communication between server and EMU webApp is defined by EMU-webApp-websocket-protocol version 0.0.2 (\url{https://ips-lmu.github.io/The-EMU-SDMS-Manual/app-chap-wsProtocol.html}).
 }
 \examples{
 \dontrun{ 

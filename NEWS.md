@@ -1,8 +1,9 @@
-# emuR 1.1.2.9000
+# emuR 1.1.2.9001
 
 ## new features / performance tweaks / improvements
 
 * changed url in printed output of serve to https
+* `serve()` doesn't block the R console any more
 
 ## bug fixes
 
