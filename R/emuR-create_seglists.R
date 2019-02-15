@@ -167,7 +167,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle, timeRefSegmentLevel=NULL,
                                                     "WHERE interm_res_items_tmp_root.db_uuid = items_seq_start.db_uuid AND interm_res_items_tmp_root.session = items_seq_start.session AND interm_res_items_tmp_root.bundle = items_seq_start.bundle AND interm_res_items_tmp_root.seq_start_id = items_seq_start.item_id ",
                                                     "AND interm_res_items_tmp_root.db_uuid = items_seq_end.db_uuid AND interm_res_items_tmp_root.session = items_seq_end.session AND interm_res_items_tmp_root.bundle = items_seq_end.bundle AND interm_res_items_tmp_root.seq_end_id = items_seq_end.item_id ",
                                                     "AND interm_res_items_tmp_root.db_uuid = labels.db_uuid AND interm_res_items_tmp_root.session = labels.session AND interm_res_items_tmp_root.bundle = labels.bundle AND interm_res_items_tmp_root.seq_end_id = labels.item_id AND labels.name = '", resultAttrDef, "' ",
-                                                    "ORDER BY items_seq_start.db_uuid, items_seq_start.session, items_seq_start.bundle, items_seq_start.sample_start"))
+                                                    "ORDER BY items_seq_start.db_uuid, items_seq_start.session, items_seq_start.bundle, items_seq_start.seq_idx"))
       
       
     }else{
