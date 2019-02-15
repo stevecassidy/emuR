@@ -39,9 +39,9 @@ check_emuRsegsForRequery <- function(sl){
   sl_df = as.data.frame(sl)
   
   sl_df_sorted = dplyr::arrange_(sl_df, "session", "bundle", "sample_start")
-  comp_res = compare::compare(sl_df, sl_df_sorted, allowAll = F)
+  comp_res = compare::compare(sl_df, sl_df_sorted, allowAll = F, ignoreAttrs = T)
   if(!comp_res$result){
-    warning("emuRsegs is not ordered correctly (by session; bundle; sample_start)! Hence, the ordering of the resulting emuRsegs object of the requery will NOT be the same! Use sort(emuRsegs) to sort the emuRsegs object correctly!")
+    warning("emuRsegs is not ordered correctly (by session; bundle; seq_idx)! Hence, the ordering of the resulting emuRsegs object of the requery will NOT be the same! Use sort(emuRsegs) to sort the emuRsegs object correctly!")
   }
   
 }
@@ -77,7 +77,7 @@ check_tibbleForRequery <- function(tbl){
 ##' calculate the times for large nested hierarchies, it can be turned off via this boolean parameter.
 ##' @param timeRefSegmentLevel set time segment level from which to derive time information. It is only necessary to set this parameter if more than one child level contains time information and the queried parent level is of type ITEM.
 ##' @param verbose be verbose. Set this to \code{TRUE} if you wish to choose which path to traverse on intersecting hierarchies. If set to \code{FALSE} (the default) all paths will be traversed (= legacy EMU bahaviour).
-##' @return result set object of class 'emuRsegs' containing the requeried segments
+##' @return result set object of class \link{emuRsegs} or \link{tibble}
 ##' @export
 ##' @seealso \code{\link{query}} \code{\link{requery_hier}} \code{\link{emuRsegs}}
 ##' @keywords emuDB database requery
@@ -288,7 +288,7 @@ requery_seq<-function(emuDBhandle, seglist, offset = 0, offsetRef = 'START',
 ##' calculate the times for large nested hierarchies, it can be turned off via this boolean parameter.
 ##' @param timeRefSegmentLevel set time segment level from which to derive time information. It is only necessary to set this parameter if more than one child level contains time information and the queried parent level is of type ITEM.
 ##' @param verbose be verbose. Set this to \code{TRUE} if you wish to choose which path to traverse on intersecting hierarchies. If set to \code{FALSE} (the default) all paths will be traversed (= legacy EMU bahaviour).
-##' @return result set object of class \link{emuRsegs}
+##' @return result set object of class \link{emuRsegs} or \link{tibble}
 ##' @export
 ##' @seealso \code{\link{query}} \code{\link{requery_seq}} \code{\link{emuRsegs}}
 ##' @keywords emuDB database requery
