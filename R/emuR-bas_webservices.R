@@ -51,7 +51,6 @@
 runBASwebservice_all <- function(handle,
                                  transcriptionAttributeDefinitionName,
                                  language,
-                                 
                                  orthoAttributeDefinitionName = "ORT",
                                  canoAttributeDefinitionName = "KAN",
                                  mausAttributeDefinitionName = "MAU",
@@ -262,14 +261,10 @@ runBASwebservice_all <- function(handle,
 runBASwebservice_maus <- function(handle,
                                   canoAttributeDefinitionName,
                                   language,
-                                  
                                   mausAttributeDefinitionName = "MAU",
-                                  
                                   chunkLevel = NULL,
                                   turnChunkLevelIntoItemLevel = TRUE,
-                                  
                                   params = NULL,
-                                  
                                   perspective = "default",
                                   patience = 0,
                                   resume = FALSE,
@@ -326,11 +321,8 @@ runBASwebservice_maus <- function(handle,
 runBASwebservice_g2pForTokenization <- function(handle,
                                                 transcriptionAttributeDefinitionName,
                                                 language,
-                                                
                                                 orthoAttributeDefinitionName = "ORT",
-                                                
                                                 params = list(),
-                                                
                                                 patience = 0,
                                                 resume = FALSE,
                                                 verbose = TRUE)
@@ -574,9 +566,7 @@ runBASwebservice_pho2sylCanonical <- function(handle,
                                               canoAttributeDefinitionName,
                                               language,
                                               canoSylAttributeDefinitionName = "KAS",
-                                              
                                               params = list(),
-                                              
                                               patience = 0,
                                               resume = FALSE,
                                               verbose = TRUE)
