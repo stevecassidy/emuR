@@ -1,9 +1,10 @@
-# emuR 1.1.2.9001
+# emuR 1.1.2.9002
 
 ## new features / performance tweaks / improvements
 
 * changed url in printed output of serve to https
 * `serve()` doesn't block the R console any more
+* suppressing requery differing length warnings in `runBASwebservice_*` functions
 
 ## bug fixes
 

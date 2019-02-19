@@ -162,21 +162,22 @@ bas_run_maus_dbi <- function(handle,
           
           if (nrow(trn_items_bundle) > 0)
           {
-            linked_kan_items = requery_hier(
+            # suppress differing length warning
+            linked_kan_items = suppressWarnings(requery_hier(
               handle,
               trn_items_bundle,
               canoAttributeDefinitionName,
               calcTimes = F,
               collapse = T
-            )
-            
-            linked_trn_items = requery_hier(
+            ))
+            # suppress differing length warning
+            linked_trn_items = suppressWarnings(requery_hier(
               handle,
               linked_kan_items,
               chunkLevel,
               calcTimes = T,
               collapse = T
-            )
+            ))
             
             if(nrow(linked_kan_items) != nrow(linked_trn_items))
             {
@@ -946,12 +947,13 @@ bas_run_chunker_dbi <- function(handle,
           
           if (!is.null(orthoAttributeDefinitionName))
           {
-            ortho_labels = requery_hier(
+            # suppress differing length warning
+            ortho_labels = suppressWarnings(requery_hier(
               handle,
               seglist = cano_items_bundle[label_idx,],
               level = orthoAttributeDefinitionName,
               calcTimes = F
-            )
+            ))
             
             if (length(ortho_labels) > 0)
             {
