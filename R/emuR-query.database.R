@@ -202,11 +202,11 @@ query_labels <- function(emuDBhandle, levelName, intermResTableSuffix, condition
   if(opr=='==' | opr=='='){
     for(value in values){
       DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_", intermResTableSuffix, " ", 
-                                                     "SELECT it.db_uuid, it.session, it.bundle, it.item_id AS seq_start_id, it.item_id AS seq_end_id, 1 AS seq_len,'", levelName, "' AS level, it.seq_idx AS seq_start_seq_idx, it.seq_idx AS seq_end_seq_idx ", 
-                                                     "FROM ", itemTableName, " AS it, ", labelTableName, " AS lt ",
-                                                     "WHERE it.db_uuid = lt.db_uuid AND it.session = lt.session AND it.bundle = lt.bundle AND it.item_id = lt.item_id ",
-                                                     "AND lt.name = '", levelName, "' AND lt.label = '", value, "' ",
-                                                     ""))
+                                                    "SELECT it.db_uuid, it.session, it.bundle, it.item_id AS seq_start_id, it.item_id AS seq_end_id, 1 AS seq_len,'", levelName, "' AS level, it.seq_idx AS seq_start_seq_idx, it.seq_idx AS seq_end_seq_idx ", 
+                                                    "FROM ", itemTableName, " AS it, ", labelTableName, " AS lt ",
+                                                    "WHERE it.db_uuid = lt.db_uuid AND it.session = lt.session AND it.bundle = lt.bundle AND it.item_id = lt.item_id ",
+                                                    "AND lt.name = '", levelName, "' AND lt.label = '", value, "' ",
+                                                    ""))
     }
   }else if(opr=='!='){   
     sqlStr = paste0("INSERT INTO interm_res_items_tmp_", intermResTableSuffix, " ", 
@@ -251,7 +251,7 @@ query_labels <- function(emuDBhandle, levelName, intermResTableSuffix, condition
   # clear insert result_level
   DBI::dbExecute(emuDBhandle$connection, paste0("DELETE FROM interm_res_meta_infos_tmp_", intermResTableSuffix))
   DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO interm_res_meta_infos_tmp_", intermResTableSuffix, " (result_level) ",
-                                                 "VALUES ('", levelName, "')"))
+                                                "VALUES ('", levelName, "')"))
 }
 
 ##############################
@@ -322,15 +322,15 @@ query_databaseEqlFUNCQ <- function(emuDBhandle, q, intermResTableSuffix, useSubs
       level1ItemsTableSuffix = "funcq_level1_items"
       create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = level1ItemsTableSuffix)
       DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_", level1ItemsTableSuffix, " ",
-                                                     "SELECT db_uuid, session, bundle, item_id AS start_item_id, item_id AS seq_end_id, 1 AS seq_len, level, item_id AS seq_start_seq_idx, item_id AS seq_end_seq_idx FROM items", filteredTablesSuffix, " ",
-                                                     "WHERE db_uuid ='", emuDBhandle$UUID, "' AND level = '", level1, "'"))
+                                                    "SELECT db_uuid, session, bundle, item_id AS start_item_id, item_id AS seq_end_id, 1 AS seq_len, level, item_id AS seq_start_seq_idx, item_id AS seq_end_seq_idx FROM items", filteredTablesSuffix, " ",
+                                                    "WHERE db_uuid ='", emuDBhandle$UUID, "' AND level = '", level1, "'"))
       
       # place all level2 items into temp table
       level2ItemsTableSuffix = "funcq_level2_items"
       create_intermResTmpQueryTablesDBI(emuDBhandle, suffix = level2ItemsTableSuffix)
       DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_", level2ItemsTableSuffix, " ",
-                                                     "SELECT db_uuid, session, bundle, item_id AS start_item_id, item_id AS seq_end_id, 1 AS seq_len, level, item_id AS seq_start_seq_idx, item_id AS seq_end_seq_idx FROM items", filteredTablesSuffix, " ",
-                                                     "WHERE db_uuid ='", emuDBhandle$UUID, "' AND level = '", level2, "'"))
+                                                    "SELECT db_uuid, session, bundle, item_id AS start_item_id, item_id AS seq_end_id, 1 AS seq_len, level, item_id AS seq_start_seq_idx, item_id AS seq_end_seq_idx FROM items", filteredTablesSuffix, " ",
+                                                    "WHERE db_uuid ='", emuDBhandle$UUID, "' AND level = '", level2, "'"))
       
       
       
@@ -340,35 +340,35 @@ query_databaseEqlFUNCQ <- function(emuDBhandle, q, intermResTableSuffix, useSubs
       
       # create temp table to insert 
       DBI::dbExecute(emuDBhandle$connection,paste0("CREATE TEMP TABLE IF NOT EXISTS seq_idx_tmp ( ",
-                                                    "db_uuid VARCHAR(36), ",
-                                                    "session TEXT, ",
-                                                    "bundle TEXT, ",
-                                                    "level TEXT,",
-                                                    "min_seq_idx INTEGER, ",
-                                                    "max_seq_idx INTEGER, ",
-                                                    "parent_item_id INTEGER",
-                                                    ")"))
+                                                   "db_uuid VARCHAR(36), ",
+                                                   "session TEXT, ",
+                                                   "bundle TEXT, ",
+                                                   "level TEXT,",
+                                                   "min_seq_idx INTEGER, ",
+                                                   "max_seq_idx INTEGER, ",
+                                                   "parent_item_id INTEGER",
+                                                   ")"))
       
       
       DBI::dbExecute(emuDBhandle$connection,paste0("CREATE TEMP TABLE IF NOT EXISTS items_as_seqs_tmp ( ",
-                                                    "db_uuid VARCHAR(36), ",
-                                                    "session TEXT, ",
-                                                    "bundle TEXT, ",
-                                                    "seq_start_id INTEGER, ",
-                                                    "seq_end_id INTEGER, ", 
-                                                    "seq_len INTEGER, ", 
-                                                    "level TEXT",
-                                                    ")"))
+                                                   "db_uuid VARCHAR(36), ",
+                                                   "session TEXT, ",
+                                                   "bundle TEXT, ",
+                                                   "seq_start_id INTEGER, ",
+                                                   "seq_end_id INTEGER, ", 
+                                                   "seq_len INTEGER, ", 
+                                                   "level TEXT",
+                                                   ")"))
       
       # first step in two step process to group by and get seq min/max
       # then extract according item_id
       DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO seq_idx_tmp ",
-                                                     "SELECT lr.db_uuid, lr.session, lr.bundle, r_level AS level, min(i_start.seq_idx) AS min_seq_idx, max(i_end.seq_idx) AS max_seq_idx, l_seq_start_id AS parent_item_id ",
-                                                     "FROM lr_exp_res_tmp AS lr, items AS i_start, items AS i_end ",
-                                                     "WHERE lr.db_uuid = i_start.db_uuid AND lr.session = i_start.session AND lr.bundle = i_start.bundle AND lr.r_seq_start_id = i_start.item_id ",
-                                                     "AND lr.db_uuid = i_end.db_uuid AND lr.session = i_end.session AND lr.bundle = i_end.bundle AND lr.r_seq_end_id = i_end.item_id ",
-                                                     "GROUP BY lr.db_uuid, lr.session, lr.bundle, lr.l_seq_start_id, lr.l_seq_end_id",
-                                                     ""))
+                                                    "SELECT lr.db_uuid, lr.session, lr.bundle, r_level AS level, min(i_start.seq_idx) AS min_seq_idx, max(i_end.seq_idx) AS max_seq_idx, l_seq_start_id AS parent_item_id ",
+                                                    "FROM lr_exp_res_tmp AS lr, items AS i_start, items AS i_end ",
+                                                    "WHERE lr.db_uuid = i_start.db_uuid AND lr.session = i_start.session AND lr.bundle = i_start.bundle AND lr.r_seq_start_id = i_start.item_id ",
+                                                    "AND lr.db_uuid = i_end.db_uuid AND lr.session = i_end.session AND lr.bundle = i_end.bundle AND lr.r_seq_end_id = i_end.item_id ",
+                                                    "GROUP BY lr.db_uuid, lr.session, lr.bundle, lr.l_seq_start_id, lr.l_seq_end_id",
+                                                    ""))
       
       
       # EBNF: COP = '=' | '!=' | '>' | '<' | '<=' | '>=';
@@ -396,18 +396,18 @@ query_databaseEqlFUNCQ <- function(emuDBhandle, q, intermResTableSuffix, useSubs
         if(funcValue=='0' | funcValue=='F' | funcValue=='FALSE'){
           #extract according items
           DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO items_as_seqs_tmp ",
-                                                         "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, sit.level AS level  ",
-                                                         "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
-                                                         "WHERE sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND sit.min_seq_idx < i1.seq_idx AND sit.max_seq_idx >= i1.seq_idx",
-                                                         ""))
+                                                        "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, sit.level AS level  ",
+                                                        "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
+                                                        "WHERE sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND sit.min_seq_idx < i1.seq_idx AND sit.max_seq_idx >= i1.seq_idx",
+                                                        ""))
           
         }else if(funcValue=='1' | funcValue=='T' | funcValue=='TRUE'){
           #extract according items
           DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO items_as_seqs_tmp ",
-                                                         "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, sit.level AS level  ",
-                                                         "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
-                                                         "WHERE sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND sit.min_seq_idx = i1.seq_idx ",
-                                                         ""))
+                                                        "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, sit.level AS level  ",
+                                                        "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
+                                                        "WHERE sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND sit.min_seq_idx = i1.seq_idx ",
+                                                        ""))
           
         }else{
           stop("Syntax error: Expected function value TRUE or FALSE / T OR F / 0 or 1 after '",op,"' in function term: '",qTrim,"'\n")
@@ -421,19 +421,19 @@ query_databaseEqlFUNCQ <- function(emuDBhandle, q, intermResTableSuffix, useSubs
         if(funcValue=='0' | funcValue=='F' | funcValue=='FALSE'){
           #extract according items
           DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO items_as_seqs_tmp ",
-                                                         "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, sit.level AS level  ",
-                                                         "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
-                                                         "WHERE (sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND i1.seq_idx = sit.min_seq_idx) ",
-                                                         "OR (sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND i1.seq_idx = sit.max_seq_idx)",
-                                                         ""))
+                                                        "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, sit.level AS level  ",
+                                                        "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
+                                                        "WHERE (sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND i1.seq_idx = sit.min_seq_idx) ",
+                                                        "OR (sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND i1.seq_idx = sit.max_seq_idx)",
+                                                        ""))
           
         }else if(funcValue=='1' | funcValue=='T' | funcValue=='TRUE'){
           #extract according items
           DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO items_as_seqs_tmp ",
-                                                         "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, sit.level AS level  ",
-                                                         "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
-                                                         "WHERE sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND i1.seq_idx > sit.min_seq_idx AND i1.seq_idx < sit.max_seq_idx",
-                                                         ""))
+                                                        "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, sit.level AS level  ",
+                                                        "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
+                                                        "WHERE sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND i1.seq_idx > sit.min_seq_idx AND i1.seq_idx < sit.max_seq_idx",
+                                                        ""))
         }else{
           stop("Syntax error: Expected function value 0 or 1 after '",op,"' in function term: '",qTrim,"'\n")
         }
@@ -444,18 +444,18 @@ query_databaseEqlFUNCQ <- function(emuDBhandle, q, intermResTableSuffix, useSubs
         if(funcValue=='0' | funcValue=='F' | funcValue=='FALSE'){
           #extract according items
           DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO items_as_seqs_tmp ",
-                                                         "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, sit.level AS level  ",
-                                                         "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
-                                                         "WHERE sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND i1.seq_idx >= sit.min_seq_idx AND i1.seq_idx < sit.max_seq_idx",
-                                                         ""))
+                                                        "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, sit.level AS level  ",
+                                                        "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
+                                                        "WHERE sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND i1.seq_idx >= sit.min_seq_idx AND i1.seq_idx < sit.max_seq_idx",
+                                                        ""))
           
         }else if(funcValue=='1'  | funcValue=='T' | funcValue=='TRUE'){
           #extract according items
           DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO items_as_seqs_tmp ",
-                                                         "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, sit.level AS level  ",
-                                                         "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
-                                                         "WHERE sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND sit.max_seq_idx = i1.seq_idx ",
-                                                         ""))
+                                                        "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, sit.level AS level  ",
+                                                        "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
+                                                        "WHERE sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.level = i1.level AND sit.max_seq_idx = i1.seq_idx ",
+                                                        ""))
           
         }else{
           stop("Syntax error: Expected function value 0 or 1 after '",op,"' in function term: '",qTrim,"'\n")
@@ -489,11 +489,11 @@ query_databaseEqlFUNCQ <- function(emuDBhandle, q, intermResTableSuffix, useSubs
         # EBNF: NUMQ = 'Num','(',Level,',',Level,')',COP,INTPN;
         # NOTE: return value level is param1 here
         DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO items_as_seqs_tmp ",
-                                                       "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, '", param1, "' AS level ",
-                                                       "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
-                                                       "WHERE sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.parent_item_id = i1.item_id ",
-                                                       "AND (sit.max_seq_idx - sit.min_seq_idx) + 1 ", sqlFuncOpr, " ",  funcVal, " ",
-                                                       ""))
+                                                      "SELECT sit.db_uuid, sit.session, sit.bundle, i1.item_id AS seq_start_id, i1.item_id AS seq_end_id, 1 AS seq_len, '", param1, "' AS level ",
+                                                      "FROM seq_idx_tmp AS sit, ", itemsTableName, " AS i1 ",
+                                                      "WHERE sit.db_uuid = i1.db_uuid AND sit.session = i1.session AND sit.bundle = i1.bundle AND sit.parent_item_id = i1.item_id ",
+                                                      "AND (sit.max_seq_idx - sit.min_seq_idx) + 1 ", sqlFuncOpr, " ",  funcVal, " ",
+                                                      ""))
         
         resultLevel=param1
       }else{
@@ -503,11 +503,11 @@ query_databaseEqlFUNCQ <- function(emuDBhandle, q, intermResTableSuffix, useSubs
       # merge results with itemsTableName table (in case filtered subsets are used) and place in interm_res_items_tmp_ + intermResTableSuffix table
       DBI::dbExecute(emuDBhandle$connection, paste0("DELETE FROM interm_res_items_tmp_", intermResTableSuffix))
       DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_", intermResTableSuffix, " ",
-                                                     "SELECT iast.db_uuid, iast.session, iast.bundle, iast.seq_start_id, iast.seq_end_id, iast.seq_len, iast.level, it.seq_idx AS seq_start_seq_idx, it.seq_idx AS seq_end_seq_idx ", 
-                                                     "FROM items_as_seqs_tmp AS iast, ", itemsTableName, " AS it ", 
-                                                     "WHERE iast.db_uuid = it.db_uuid AND iast.session = it.session AND iast.bundle = it.bundle ",
-                                                     "AND iast.seq_start_id = it.item_id ",
-                                                     ""))
+                                                    "SELECT iast.db_uuid, iast.session, iast.bundle, iast.seq_start_id, iast.seq_end_id, iast.seq_len, iast.level, it.seq_idx AS seq_start_seq_idx, it.seq_idx AS seq_end_seq_idx ", 
+                                                    "FROM items_as_seqs_tmp AS iast, ", itemsTableName, " AS it ", 
+                                                    "WHERE iast.db_uuid = it.db_uuid AND iast.session = it.session AND iast.bundle = it.bundle ",
+                                                    "AND iast.seq_start_id = it.item_id ",
+                                                    ""))
       # move meta infos to correct table
       DBI::dbExecute(emuDBhandle$connection, paste0("DELETE FROM interm_res_meta_infos_tmp_", intermResTableSuffix))
       DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO interm_res_meta_infos_tmp_", intermResTableSuffix, " VALUES ('", resultLevel, "', NULL, '", qTrim, "')"))
@@ -648,8 +648,8 @@ query_databaseEqlLABELQ <- function(emuDBhandle, q, useSubsets, intermResTableSu
       query_labels(emuDBhandle, levelName = lvlName, intermResTableSuffix = intermResTableSuffix, cond, useSubsets, filteredTablesSuffix)
       if(projectionLevel){
         DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO interm_res_proj_items_tmp_", intermResTableSuffix, " ",
-                                                       "SELECT db_uuid, session, bundle, seq_start_id, seq_end_id, seq_start_id AS p_seq_start_id, seq_end_id AS p_seq_end_id, seq_len AS p_seq_len, level AS p_level, seq_start_seq_idx AS p_seq_start_seq_idx, seq_end_seq_idx AS p_seq_end_seq_idx ",
-                                                       "FROM interm_res_items_tmp_", intermResTableSuffix))
+                                                      "SELECT db_uuid, session, bundle, seq_start_id, seq_end_id, seq_start_id AS p_seq_start_id, seq_end_id AS p_seq_end_id, seq_len AS p_seq_len, level AS p_level, seq_start_seq_idx AS p_seq_start_seq_idx, seq_end_seq_idx AS p_seq_end_seq_idx ",
+                                                      "FROM interm_res_items_tmp_", intermResTableSuffix))
         DBI::dbExecute(emuDBhandle$connection, paste0("UPDATE interm_res_meta_infos_tmp_", intermResTableSuffix, " SET projection_attr_level = '", lvlName, "'"))
       }
       return()
@@ -736,12 +736,12 @@ query_databaseEqlCONJQ<-function(emuDBhandle, q, intermResTableSuffix, filteredT
       
       # Proceed with items matching current condition by placeing them into subset tabels
       DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO items_filtered_subset_tmp ",
-                                                     "SELECT DISTINCT i.* FROM items", filteredTablesSuffix, " i, interm_res_items_tmp_", intermResTableSuffix, " imr ",
-                                                     "WHERE i.db_uuid=imr.db_uuid AND i.session=imr.session AND i.bundle=imr.bundle AND i.item_id=imr.seq_start_id"))
+                                                    "SELECT DISTINCT i.* FROM items", filteredTablesSuffix, " i, interm_res_items_tmp_", intermResTableSuffix, " imr ",
+                                                    "WHERE i.db_uuid=imr.db_uuid AND i.session=imr.session AND i.bundle=imr.bundle AND i.item_id=imr.seq_start_id"))
       
       DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO labels_filtered_subset_tmp ",
-                                                     "SELECT DISTINCT l.* FROM labels", filteredTablesSuffix, " l, interm_res_items_tmp_", intermResTableSuffix, " imr ",
-                                                     "WHERE l.db_uuid=imr.db_uuid AND l.session=imr.session AND l.bundle=imr.bundle AND l.item_id=imr.seq_start_id"))
+                                                    "SELECT DISTINCT l.* FROM labels", filteredTablesSuffix, " l, interm_res_items_tmp_", intermResTableSuffix, " imr ",
+                                                    "WHERE l.db_uuid=imr.db_uuid AND l.session=imr.session AND l.bundle=imr.bundle AND l.item_id=imr.seq_start_id"))
       
       useSubsets = TRUE
       
@@ -783,7 +783,16 @@ reduce_hierTrapezeIntermRes_minMaxSeqIdx <- function(emuDBhandle){
 }
 
 ##########################
-query_databaseHier <- function(emuDBhandle, firstLevelName, secondLevelName, leftTableSuffix, rightTableSuffix, filteredTablesSuffix, minMaxSeqIdxLeafOnly = F, verbose = F) {
+query_databaseHier <- function(emuDBhandle, 
+                               firstLevelName, 
+                               secondLevelName, 
+                               leftTableSuffix, 
+                               rightTableSuffix, 
+                               filteredTablesSuffix, 
+                               minMaxSeqIdxLeafOnly = F, 
+                               preserveLeafLength = F,
+                               preserveAnchorLength = F,
+                               verbose = F) {
   
   # create temp tables for hier query (should maybe be moved to external functions)
   hier_left_trapeze_interm_res_tmp = paste0("CREATE TEMP TABLE IF NOT EXISTS hier_left_trapeze_interm_res_tmp (",
@@ -842,15 +851,15 @@ query_databaseHier <- function(emuDBhandle, firstLevelName, secondLevelName, lef
   connectHierPaths = get_hierPathsConnectingLevels(emuDBhandle, firstLevelName, secondLevelName)
   
   if(verbose & length(connectHierPaths) >= 2){
-
+    
     cat(paste0("More than one path connecting: '", firstLevelName, "' and '", secondLevelName, "' was found! The paths were: \n" ))
     for(i in 1:length(connectHierPaths)){
       cat(paste0(i, ".) ", paste0(connectHierPaths[[i]], collapse = "->")), "\n")
     }
     idx <- readline(prompt="Choose a path by selecting its number (note that comma seperated numbers (e.g., 1, 2, 3) works to select multiple paths): ")
-
+    
     idx = as.integer(stringr::str_split(idx, ",\\s*", simplify = T))
-
+    
     connectHierPaths = connectHierPaths[idx]
   }
   
@@ -888,21 +897,21 @@ query_databaseHier <- function(emuDBhandle, firstLevelName, secondLevelName, lef
         # start at bottom of connectHierPath
         # walk up left side of trapeze
         DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO hier_left_trapeze_interm_res_tmp ",
-                                                       "SELECT DISTINCT lstn.db_uuid, lstn.session, lstn.bundle, ift.item_id AS seq_start_id, ift.item_id AS seq_end_id, 1 AS seq_len, ift.level, ift.seq_idx AS seq_start_seq_idx, ift.seq_idx AS seq_end_seq_idx, ",
-                                                       "lstn.db_uuid AS db_uuid_leaf, lstn.session AS session_leaf, lstn.bundle AS bundle_leaf, lstn.seq_start_id AS seq_start_id_leaf, lstn.seq_end_id AS seq_end_id_leaf, lstn.seq_len AS seq_len_leaf, lstn.level AS level_leaf, lstn.seq_start_seq_idx AS seq_start_seq_idx, lstn.seq_end_seq_idx AS seq_end_seq_idx ",
-                                                       "FROM ", leafSideTableName, " AS lstn, links", filteredTablesSuffix, " AS lft, items", filteredTablesSuffix, " AS ift ",
-                                                       "WHERE lstn.db_uuid = lft.db_uuid AND lstn.session = lft.session AND lstn.bundle = lft.bundle AND lstn.seq_start_id = lft.to_id ",
-                                                       "AND lft.db_uuid = ift.db_uuid AND lft.session = ift.session AND lft.bundle = ift.bundle AND lft.from_id = ift.item_id",
-                                                       ""))
+                                                      "SELECT DISTINCT lstn.db_uuid, lstn.session, lstn.bundle, ift.item_id AS seq_start_id, ift.item_id AS seq_end_id, 1 AS seq_len, ift.level, ift.seq_idx AS seq_start_seq_idx, ift.seq_idx AS seq_end_seq_idx, ",
+                                                      "lstn.db_uuid AS db_uuid_leaf, lstn.session AS session_leaf, lstn.bundle AS bundle_leaf, lstn.seq_start_id AS seq_start_id_leaf, lstn.seq_end_id AS seq_end_id_leaf, lstn.seq_len AS seq_len_leaf, lstn.level AS level_leaf, lstn.seq_start_seq_idx AS seq_start_seq_idx, lstn.seq_end_seq_idx AS seq_end_seq_idx ",
+                                                      "FROM ", leafSideTableName, " AS lstn, links", filteredTablesSuffix, " AS lft, items", filteredTablesSuffix, " AS ift ",
+                                                      "WHERE lstn.db_uuid = lft.db_uuid AND lstn.session = lft.session AND lstn.bundle = lft.bundle AND lstn.seq_start_id = lft.to_id ",
+                                                      "AND lft.db_uuid = ift.db_uuid AND lft.session = ift.session AND lft.bundle = ift.bundle AND lft.from_id = ift.item_id",
+                                                      ""))
         
         # walk up right side of trapeze
         DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO hier_right_trapeze_interm_res_tmp ",
-                                                       "SELECT DISTINCT lstn.db_uuid, lstn.session, lstn.bundle, ift.item_id AS seq_start_id, ift.item_id AS seq_end_id, 1 AS seq_len, ift.level, ift.seq_idx AS seq_start_seq_idx, ift.seq_idx AS seq_end_seq_idx, ",
-                                                       "lstn.db_uuid AS db_uuid_leaf, lstn.session AS session_leaf, lstn.bundle AS bundle_leaf, lstn.seq_start_id AS seq_start_id_leaf, lstn.seq_end_id AS seq_end_id_leaf, lstn.seq_len AS seq_len_leaf, lstn.level AS level_leaf, lstn.seq_start_seq_idx AS seq_start_seq_idx, lstn.seq_end_seq_idx AS seq_end_seq_idx  ",
-                                                       "FROM ", leafSideTableName, " AS lstn, links", filteredTablesSuffix, " AS lft, items", filteredTablesSuffix, " AS ift ",
-                                                       "WHERE lstn.db_uuid = lft.db_uuid AND lstn.session = lft.session AND lstn.bundle = lft.bundle AND lstn.seq_end_id = lft.to_id ",
-                                                       "AND lft.db_uuid = ift.db_uuid AND lft.session = ift.session AND lft.bundle = ift.bundle AND lft.from_id = ift.item_id",
-                                                       ""))
+                                                      "SELECT DISTINCT lstn.db_uuid, lstn.session, lstn.bundle, ift.item_id AS seq_start_id, ift.item_id AS seq_end_id, 1 AS seq_len, ift.level, ift.seq_idx AS seq_start_seq_idx, ift.seq_idx AS seq_end_seq_idx, ",
+                                                      "lstn.db_uuid AS db_uuid_leaf, lstn.session AS session_leaf, lstn.bundle AS bundle_leaf, lstn.seq_start_id AS seq_start_id_leaf, lstn.seq_end_id AS seq_end_id_leaf, lstn.seq_len AS seq_len_leaf, lstn.level AS level_leaf, lstn.seq_start_seq_idx AS seq_start_seq_idx, lstn.seq_end_seq_idx AS seq_end_seq_idx  ",
+                                                      "FROM ", leafSideTableName, " AS lstn, links", filteredTablesSuffix, " AS lft, items", filteredTablesSuffix, " AS ift ",
+                                                      "WHERE lstn.db_uuid = lft.db_uuid AND lstn.session = lft.session AND lstn.bundle = lft.bundle AND lstn.seq_end_id = lft.to_id ",
+                                                      "AND lft.db_uuid = ift.db_uuid AND lft.session = ift.session AND lft.bundle = ift.bundle AND lft.from_id = ift.item_id",
+                                                      ""))
         
         if(minMaxSeqIdxLeafOnly){
           reduce_hierTrapezeIntermRes_minMaxSeqIdx(emuDBhandle)
@@ -938,42 +947,43 @@ query_databaseHier <- function(emuDBhandle, firstLevelName, secondLevelName, lef
         
       }else{
         # at the top of the trapeze:
-        # extract leaf values as right values and hier_left/right_trapeze items as left values
+        # extract leaf and anchor values persicting the left and right sides as the input tables
+        # in the resulting lr_exp_res_tmp table
         if(leftIsLeaf){
           DBI::dbExecute(emuDBhandle$connection, paste0("INSERT OR IGNORE INTO lr_exp_res_tmp ",
-                                                         "SELECT DISTINCT hltirt.db_uuid,  hltirt.session, hltirt.bundle, ",
-                                                         "hrtirt.seq_start_id_leaf AS l_seq_start_id, hrtirt.seq_end_id_leaf AS l_seq_end_id, hrtirt.seq_len_leaf AS l_seq_len, hrtirt.level_leaf AS l_level, hrtirt.seq_start_seq_idx_leaf AS l_seq_start_seq_idx, hrtirt.seq_end_seq_idx_leaf AS l_seq_end_seq_idx, ",
-                                                         "hltirt.seq_start_id AS r_seq_start_id, hrtirt.seq_end_id AS r_seq_end_id, NULL AS r_seq_len, hltirt.level AS r_level, hltirt.seq_start_seq_idx AS r_seq_start_seq_idx, hrtirt.seq_end_seq_idx AS r_seq_end_seq_idx ",
-                                                         "FROM ", anchorSideTableName , " AS astn, hier_left_trapeze_interm_res_tmp AS hltirt, hier_right_trapeze_interm_res_tmp AS hrtirt ",
-                                                         "WHERE astn.db_uuid = hltirt.db_uuid AND astn.session = hltirt.session AND astn.bundle = hltirt.bundle AND astn.seq_start_id = hltirt.seq_start_id ",
-                                                         "AND astn.db_uuid = hrtirt.db_uuid AND astn.session = hrtirt.session AND astn.bundle = hrtirt.bundle AND astn.seq_end_id = hrtirt.seq_start_id ",
-                                                         ""))
+                                                        "SELECT DISTINCT hltirt.db_uuid,  hltirt.session, hltirt.bundle, ",
+                                                        "hrtirt.seq_start_id_leaf AS l_seq_start_id, hrtirt.seq_end_id_leaf AS l_seq_end_id, hrtirt.seq_len_leaf AS l_seq_len, hrtirt.level_leaf AS l_level, hrtirt.seq_start_seq_idx_leaf AS l_seq_start_seq_idx, hrtirt.seq_end_seq_idx_leaf AS l_seq_end_seq_idx, ",
+                                                        "hltirt.seq_start_id AS r_seq_start_id, hrtirt.seq_end_id AS r_seq_end_id, NULL AS r_seq_len, hltirt.level AS r_level, hltirt.seq_start_seq_idx AS r_seq_start_seq_idx, hrtirt.seq_end_seq_idx AS r_seq_end_seq_idx ",
+                                                        "FROM ", anchorSideTableName , " AS astn, hier_left_trapeze_interm_res_tmp AS hltirt, hier_right_trapeze_interm_res_tmp AS hrtirt ",
+                                                        "WHERE astn.db_uuid = hltirt.db_uuid AND astn.session = hltirt.session AND astn.bundle = hltirt.bundle AND astn.seq_start_id = hltirt.seq_start_id ",
+                                                        "AND astn.db_uuid = hrtirt.db_uuid AND astn.session = hrtirt.session AND astn.bundle = hrtirt.bundle AND astn.seq_end_id = hrtirt.seq_start_id ",
+                                                        ""))
           
           # calculate and update missing r_seq_len
           DBI::dbExecute(emuDBhandle$connection, paste0("UPDATE lr_exp_res_tmp ",
-                                                         "SET r_seq_len = (",
-                                                         "SELECT ift2.seq_idx - ift1.seq_idx + 1 ",
-                                                         "FROM lr_exp_res_tmp, items", filteredTablesSuffix, " AS ift1, items", filteredTablesSuffix, " AS ift2 ",
-                                                         "WHERE lr_exp_res_tmp.db_uuid = ift1.db_uuid AND lr_exp_res_tmp.session = ift1.session AND lr_exp_res_tmp.bundle = ift1.bundle AND lr_exp_res_tmp.l_seq_start_id = ift1.item_id ",
-                                                         "AND lr_exp_res_tmp.db_uuid = ift2.db_uuid AND lr_exp_res_tmp.session = ift2.session AND lr_exp_res_tmp.bundle = ift2.bundle AND lr_exp_res_tmp.l_seq_end_id = ift2.item_id ",
-                                                         ")"))
+                                                        "SET r_seq_len = (",
+                                                        "SELECT ift2.seq_idx - ift1.seq_idx + 1 ",
+                                                        "FROM lr_exp_res_tmp, items", filteredTablesSuffix, " AS ift1, items", filteredTablesSuffix, " AS ift2 ",
+                                                        "WHERE lr_exp_res_tmp.db_uuid = ift1.db_uuid AND lr_exp_res_tmp.session = ift1.session AND lr_exp_res_tmp.bundle = ift1.bundle AND lr_exp_res_tmp.l_seq_start_id = ift1.item_id ",
+                                                        "AND lr_exp_res_tmp.db_uuid = ift2.db_uuid AND lr_exp_res_tmp.session = ift2.session AND lr_exp_res_tmp.bundle = ift2.bundle AND lr_exp_res_tmp.l_seq_end_id = ift2.item_id ",
+                                                        ")"))
           
         }else{
           #
           DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO lr_exp_res_tmp ",
-                                                         "SELECT DISTINCT hltirt.db_uuid,  hltirt.session, hltirt.bundle, hltirt.seq_start_id AS l_seq_start_id, hrtirt.seq_end_id AS l_seq_end_id, NULL AS l_seq_len, hltirt.level AS l_level, hltirt.seq_start_seq_idx AS l_seq_start_seq_idx, hltirt.seq_end_seq_idx AS l_seq_end_seq_idx, ",
-                                                         "hrtirt.seq_start_id_leaf AS r_seq_start_id, hrtirt.seq_end_id_leaf AS r_seq_end_id, hrtirt.seq_len_leaf AS r_seq_len, hrtirt.level_leaf AS r_level, hrtirt.seq_start_seq_idx_leaf AS r_seq_start_seq_idx, hrtirt.seq_end_seq_idx_leaf AS r_seq_end_seq_idx ",
-                                                         "FROM ", anchorSideTableName , " AS astn, hier_left_trapeze_interm_res_tmp AS hltirt, hier_right_trapeze_interm_res_tmp AS hrtirt ",
-                                                         "WHERE astn.db_uuid = hltirt.db_uuid AND astn.session = hltirt.session AND astn.bundle = hltirt.bundle AND astn.seq_start_id = hltirt.seq_start_id ",
-                                                         "AND astn.db_uuid = hrtirt.db_uuid AND astn.session = hrtirt.session AND astn.bundle = hrtirt.bundle AND astn.seq_end_id = hrtirt.seq_start_id "))
+                                                        "SELECT DISTINCT hltirt.db_uuid,  hltirt.session, hltirt.bundle, hltirt.seq_start_id AS l_seq_start_id, hrtirt.seq_end_id AS l_seq_end_id, NULL AS l_seq_len, hltirt.level AS l_level, hltirt.seq_start_seq_idx AS l_seq_start_seq_idx, hltirt.seq_end_seq_idx AS l_seq_end_seq_idx, ",
+                                                        "hrtirt.seq_start_id_leaf AS r_seq_start_id, hrtirt.seq_end_id_leaf AS r_seq_end_id, hrtirt.seq_len_leaf AS r_seq_len, hrtirt.level_leaf AS r_level, hrtirt.seq_start_seq_idx_leaf AS r_seq_start_seq_idx, hrtirt.seq_end_seq_idx_leaf AS r_seq_end_seq_idx ",
+                                                        "FROM ", anchorSideTableName , " AS astn, hier_left_trapeze_interm_res_tmp AS hltirt, hier_right_trapeze_interm_res_tmp AS hrtirt ",
+                                                        "WHERE astn.db_uuid = hltirt.db_uuid AND astn.session = hltirt.session AND astn.bundle = hltirt.bundle AND astn.seq_start_id = hltirt.seq_start_id ",
+                                                        "AND astn.db_uuid = hrtirt.db_uuid AND astn.session = hrtirt.session AND astn.bundle = hrtirt.bundle AND astn.seq_end_id = hrtirt.seq_start_id "))
           # calculate and update missing l_seq_len
           DBI::dbExecute(emuDBhandle$connection, paste0("UPDATE lr_exp_res_tmp ",
-                                                         "SET l_seq_len = (",
-                                                         "SELECT ift2.seq_idx - ift1.seq_idx + 1 ",
-                                                         "FROM lr_exp_res_tmp, items", filteredTablesSuffix, " AS ift1, items", filteredTablesSuffix, " AS ift2 ",
-                                                         "WHERE lr_exp_res_tmp.db_uuid = ift1.db_uuid AND lr_exp_res_tmp.session = ift1.session AND lr_exp_res_tmp.bundle = ift1.bundle AND lr_exp_res_tmp.l_seq_start_id = ift1.item_id ",
-                                                         "AND lr_exp_res_tmp.db_uuid = ift2.db_uuid AND lr_exp_res_tmp.session = ift2.session AND lr_exp_res_tmp.bundle = ift2.bundle AND lr_exp_res_tmp.l_seq_end_id = ift2.item_id ",
-                                                         ")"))
+                                                        "SET l_seq_len = (",
+                                                        "SELECT ift2.seq_idx - ift1.seq_idx + 1 ",
+                                                        "FROM lr_exp_res_tmp, items", filteredTablesSuffix, " AS ift1, items", filteredTablesSuffix, " AS ift2 ",
+                                                        "WHERE lr_exp_res_tmp.db_uuid = ift1.db_uuid AND lr_exp_res_tmp.session = ift1.session AND lr_exp_res_tmp.bundle = ift1.bundle AND lr_exp_res_tmp.l_seq_start_id = ift1.item_id ",
+                                                        "AND lr_exp_res_tmp.db_uuid = ift2.db_uuid AND lr_exp_res_tmp.session = ift2.session AND lr_exp_res_tmp.bundle = ift2.bundle AND lr_exp_res_tmp.l_seq_end_id = ift2.item_id ",
+                                                        ")"))
         }
         
         
@@ -983,6 +993,67 @@ query_databaseHier <- function(emuDBhandle, firstLevelName, secondLevelName, lef
   # clean up tmp tables
   DBI::dbExecute(emuDBhandle$connection, "DELETE FROM hier_left_trapeze_interm_res_tmp")
   DBI::dbExecute(emuDBhandle$connection, "DELETE FROM hier_right_trapeze_interm_res_tmp")
+  
+  # insert NA rows if preserveLeafLength or preserveAnchorLength are set
+  if(preserveLeafLength){
+    preservedLengthTable = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT lr_exp_res_tmp.* ",
+                                                                          "FROM ", leafSideTableName, " AS lstn ",
+                                                                          "LEFT JOIN lr_exp_res_tmp ",
+                                                                          "ON lstn.db_uuid = lr_exp_res_tmp.db_uuid ",
+                                                                          " AND lstn.session = lr_exp_res_tmp.session ",
+                                                                          " AND lstn.bundle = lr_exp_res_tmp.bundle ",
+                                                                          " AND lstn.seq_start_id = lr_exp_res_tmp.l_seq_start_id ",
+                                                                          " AND lstn.seq_end_id = lr_exp_res_tmp.l_seq_end_id ",
+                                                                          "ORDER BY lstn.rowid ",
+                                                                          ""))
+    
+    DBI::dbExecute(emuDBhandle$connection, "DELETE FROM lr_exp_res_tmp")
+    DBI::dbWriteTable(emuDBhandle$connection, "lr_exp_res_tmp", preservedLengthTable, append = T, row.names = F)
+    
+  }else if(preserveAnchorLength){
+    if(leftIsLeaf){ 
+      seqIdPrefix = "r_"
+    }else{
+      seqIdPrefix = "l_"
+    }
+    
+    browser() # todo: collapse 
+    
+    preservedLengthTable = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT ",
+                                                                          " lr_exp_res_tmp.db_uuid, ", 
+                                                                          " lr_exp_res_tmp.session, ", 
+                                                                          " lr_exp_res_tmp.bundle, ", 
+                                                                          " lr_exp_res_tmp.l_seq_start_id, ", 
+                                                                          " lr_exp_res_tmp.l_seq_end_id, ", 
+                                                                          " lr_exp_res_tmp.l_seq_len, ", 
+                                                                          " lr_exp_res_tmp.l_level, ", 
+                                                                          " lr_exp_res_tmp.l_seq_start_seq_idx, ", 
+                                                                          " lr_exp_res_tmp.l_seq_end_seq_idx, ", 
+                                                                          " lr_exp_res_tmp.r_seq_start_id, ", 
+                                                                          " lr_exp_res_tmp.r_seq_end_id, ", 
+                                                                          " lr_exp_res_tmp.r_seq_len, ", 
+                                                                          " lr_exp_res_tmp.r_level, ", 
+                                                                          " MIN(lr_exp_res_tmp.r_seq_start_seq_idx), ", 
+                                                                          " MAX(lr_exp_res_tmp.r_seq_end_seq_idx) ", 
+                                                                          "FROM ", anchorSideTableName, " AS astn ",
+                                                                          "LEFT JOIN lr_exp_res_tmp ",
+                                                                          "ON astn.db_uuid = lr_exp_res_tmp.db_uuid ",
+                                                                          " AND astn.session = lr_exp_res_tmp.session ",
+                                                                          " AND astn.bundle = lr_exp_res_tmp.bundle ",
+                                                                          " AND astn.seq_start_id = lr_exp_res_tmp.", seqIdPrefix, "seq_start_id ",
+                                                                          " AND astn.seq_end_id = lr_exp_res_tmp.", seqIdPrefix, "seq_end_id ",
+                                                                          "LEFT JOIN items AS items_start ",
+                                                                          "ON lr_exp_res_tmp.db_uuid = items_start.db_uuid ",
+                                                                          " AND lr_exp_res_tmp.session = items_start.session ",
+                                                                          " AND lr_exp_res_tmp.bundle = items_start.bundle ",
+                                                                          " AND lr_exp_res_tmp.bundle = items_start.bundle ",
+                                                                          "GROUP BY astn.rowid ",
+                                                                          "ORDER BY astn.rowid ",
+                                                                          ""))
+    
+    DBI::dbExecute(emuDBhandle$connection, "DELETE FROM lr_exp_res_tmp")
+    DBI::dbWriteTable(emuDBhandle$connection, "lr_exp_res_tmp", preservedLengthTable, append = T, row.names = F)
+  }
   
 }
 
@@ -1240,7 +1311,12 @@ query_databaseWithEqlEmuRsegs<-function(emuDBhandle, query, timeRefSegmentLevel,
   # escape single quotes
   queryStr = gsub("'", "''", query)
   # DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE interm_res_meta_infos_tmp_root SET query_str = '", queryStr, "'"))
-  emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, timeRefSegmentLevel, filteredTablesSuffix, queryStr = queryStr, calcTimes, verbose)
+  emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, 
+                                           timeRefSegmentLevel, 
+                                           filteredTablesSuffix, 
+                                           queryStr = queryStr, 
+                                           calcTimes = calcTimes, 
+                                           verbose = verbose)
   return(emuRsegs)
   
 }
