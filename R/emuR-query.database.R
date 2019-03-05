@@ -1017,7 +1017,9 @@ query_databaseHier <- function(emuDBhandle,
       seqIdPrefix = "l_"
     }
     
-    browser() # todo: collapse 
+    browser() 
+    # todo: collapse by GROUP BY is done -> MIN(lr_exp_res_tmp.r_seq_start_seq_idx)  works but need according IDs
+    # -> left join items twice to get according IDs
     
     preservedLengthTable = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT ",
                                                                           " lr_exp_res_tmp.db_uuid, ", 
