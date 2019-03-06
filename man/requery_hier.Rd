@@ -5,8 +5,8 @@
 \title{Requery hierarchical context of a segment list in an emuDB}
 \usage{
 requery_hier(emuDBhandle, seglist, level, collapse = TRUE,
-  resultType = "emuRsegs", calcTimes = T, timeRefSegmentLevel = NULL,
-  verbose = FALSE)
+  resultType = "emuRsegs", calcTimes = TRUE,
+  timeRefSegmentLevel = NULL, verbose = FALSE)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
@@ -15,30 +15,42 @@ requery_hier(emuDBhandle, seglist, level, collapse = TRUE,
 
 \item{level}{character string: name of target level}
 
-\item{collapse}{collapse the found items in the requested level to a sequence (concatenated with ->). If set to \code{FALSE} separate items as new entries in the emuRsegs object are returned.}
+\item{collapse}{collapse the found items in the requested level to a sequence (concatenated with ->). 
+If set to \code{FALSE} separate items as new entries in the emuRsegs object are returned.}
 
 \item{resultType}{type of result (either 'tibble', 'emuRsegs' == default)}
 
-\item{calcTimes}{calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
+\item{calcTimes}{calculate times for resulting segments (results in \code{NA} values for start and end 
+times in emuseg/emuRsegs). As it can be very computationally expensive to 
 calculate the times for large nested hierarchies, it can be turned off via this boolean parameter.}
 
-\item{timeRefSegmentLevel}{set time segment level from which to derive time information. It is only necessary to set this parameter if more than one child level contains time information and the queried parent level is of type ITEM.}
+\item{timeRefSegmentLevel}{set time segment level from which to derive time information. It is only 
+necessary to set this parameter if more than one child level contains time information and the queried 
+parent level is of type ITEM.}
 
-\item{verbose}{be verbose. Set this to \code{TRUE} if you wish to choose which path to traverse on intersecting hierarchies. If set to \code{FALSE} (the default) all paths will be traversed (= legacy EMU bahaviour).}
+\item{verbose}{be verbose. Set this to \code{TRUE} if you wish to choose which path to traverse on intersecting 
+hierarchies. If set to \code{FALSE} (the default) all paths will be traversed (= legacy EMU bahaviour).}
 }
 \value{
 result set object of class \link{emuRsegs} or \link{tibble}
 }
 \description{
-Function to requery hierarchical context of a segment list queried from an emuDB
+Function to requery the hierarchical context of a segment list queried from an emuDB
 }
 \details{
-A segment is defined as a single item or a chain of items from the respective level, e.g. if a level in a bundle instance has labels 'a', 'b' and 'c' in that order, 'a' or 'a->b' or 'a->b->c' are all valid segments, but not 'a->c'.
-For each segment of the input segment list \code{seglist} the function checks the start and end item for hierarchically linked items in the given target level, and based on them constructs segments in the target level.
-As the start item in the resulting segment the item with the lowest sample position is chosen; for the end item that with the highest sample position.
-If result and input segment list have the same length (for each input segment one segment on the target level was found), the result segment list has the same length and order as the input list; 
-in 'upwards' requeries this can cause a resulting segment list to contain two (or more) copies of the same segment, if the same item from the input list was linked twice or more to an item of the target level, e.g. a phoneme 'p' requeried to the word level might result in two identical segments 'Papa' in the result list. 
-If the length of input and output list differ (e.g. because a link is missing in the emuDB), a synchronous ordering is not possible and therefore a warning is generated.
+A segment is defined as a single item or a chain of items from the respective level, e.g. 
+if a level in a bundle instance has labels 'a', 'b' and 'c' in that order, 'a' or 'a->b' or 'a->b->c' 
+are all valid segments, 'a->c' is not. For each segment of the input segment list \code{seglist} 
+the function checks the start and end item for hierarchically linked items in the given target 
+level, and based on them constructs segments in the target level. As the start item in the resulting 
+segment the item with the lowest sample position is chosen; for the end item that with the highest 
+sample position. If result and input segment list have the same length (for each input segment one 
+segment on the target level was found), the result segment list has the same length and order as the 
+input list; in 'upwards' requeries this can cause a resulting segment list to contain two (or more) 
+copies of the same segment, if the same item from the input list was linked twice or more to an item 
+of the target level, e.g. a phoneme 'p' requeried to the word level might result in two identical 
+segments 'Papa' in the result list. If the length of input and output list differ (e.g. because a link 
+is missing in the emuDB), a synchronous ordering is not possible and therefore a warning is generated.
 }
 \examples{
 \dontrun{

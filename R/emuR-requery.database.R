@@ -277,22 +277,34 @@ requery_seq<-function(emuDBhandle, seglist, offset = 0, offsetRef = 'START',
 }
 
 ##' Requery hierarchical context of a segment list in an emuDB
-##' @description Function to requery hierarchical context of a segment list queried from an emuDB
-##' @details A segment is defined as a single item or a chain of items from the respective level, e.g. if a level in a bundle instance has labels 'a', 'b' and 'c' in that order, 'a' or 'a->b' or 'a->b->c' are all valid segments, but not 'a->c'.
-##' For each segment of the input segment list \code{seglist} the function checks the start and end item for hierarchically linked items in the given target level, and based on them constructs segments in the target level.
-##' As the start item in the resulting segment the item with the lowest sample position is chosen; for the end item that with the highest sample position.
-##' If result and input segment list have the same length (for each input segment one segment on the target level was found), the result segment list has the same length and order as the input list; 
-##' in 'upwards' requeries this can cause a resulting segment list to contain two (or more) copies of the same segment, if the same item from the input list was linked twice or more to an item of the target level, e.g. a phoneme 'p' requeried to the word level might result in two identical segments 'Papa' in the result list. 
-##' If the length of input and output list differ (e.g. because a link is missing in the emuDB), a synchronous ordering is not possible and therefore a warning is generated.
+##' @description Function to requery the hierarchical context of a segment list queried from an emuDB
+##' @details A segment is defined as a single item or a chain of items from the respective level, e.g. 
+##' if a level in a bundle instance has labels 'a', 'b' and 'c' in that order, 'a' or 'a->b' or 'a->b->c' 
+##' are all valid segments, 'a->c' is not. For each segment of the input segment list \code{seglist} 
+##' the function checks the start and end item for hierarchically linked items in the given target 
+##' level, and based on them constructs segments in the target level. As the start item in the resulting 
+##' segment the item with the lowest sample position is chosen; for the end item that with the highest 
+##' sample position. If result and input segment list have the same length (for each input segment one 
+##' segment on the target level was found), the result segment list has the same length and order as the 
+##' input list; in 'upwards' requeries this can cause a resulting segment list to contain two (or more) 
+##' copies of the same segment, if the same item from the input list was linked twice or more to an item 
+##' of the target level, e.g. a phoneme 'p' requeried to the word level might result in two identical 
+##' segments 'Papa' in the result list. If the length of input and output list differ (e.g. because a link 
+##' is missing in the emuDB), a synchronous ordering is not possible and therefore a warning is generated.
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param seglist segment list to requery on (type: \link{emuRsegs})
 ##' @param level character string: name of target level
-##' @param collapse collapse the found items in the requested level to a sequence (concatenated with ->). If set to \code{FALSE} separate items as new entries in the emuRsegs object are returned.
+##' @param collapse collapse the found items in the requested level to a sequence (concatenated with ->). 
+##' If set to \code{FALSE} separate items as new entries in the emuRsegs object are returned.
 ##' @param resultType type of result (either 'tibble', 'emuRsegs' == default)
-##' @param calcTimes calculate times for resulting segments (results in \code{NA} values for start and end times in emuseg/emuRsegs). As it can be very computationally expensive to 
+##' @param calcTimes calculate times for resulting segments (results in \code{NA} values for start and end 
+##' times in emuseg/emuRsegs). As it can be very computationally expensive to 
 ##' calculate the times for large nested hierarchies, it can be turned off via this boolean parameter.
-##' @param timeRefSegmentLevel set time segment level from which to derive time information. It is only necessary to set this parameter if more than one child level contains time information and the queried parent level is of type ITEM.
-##' @param verbose be verbose. Set this to \code{TRUE} if you wish to choose which path to traverse on intersecting hierarchies. If set to \code{FALSE} (the default) all paths will be traversed (= legacy EMU bahaviour).
+##' @param timeRefSegmentLevel set time segment level from which to derive time information. It is only 
+##' necessary to set this parameter if more than one child level contains time information and the queried 
+##' parent level is of type ITEM.
+##' @param verbose be verbose. Set this to \code{TRUE} if you wish to choose which path to traverse on intersecting 
+##' hierarchies. If set to \code{FALSE} (the default) all paths will be traversed (= legacy EMU bahaviour).
 ##' @return result set object of class \link{emuRsegs} or \link{tibble}
 ##' @export
 ##' @seealso \code{\link{query}} \code{\link{requery_seq}} \code{\link{emuRsegs}}
@@ -331,8 +343,14 @@ requery_seq<-function(emuDBhandle, seglist, offset = 0, offsetRef = 'START',
 ##' requery_seq(ae, requery_hier(ae, sl1, level = 'Phoneme'), offsetRef = 'END')
 ##' 
 ##' }
-requery_hier <- function(emuDBhandle, seglist, level, collapse = TRUE, resultType = "emuRsegs",
-                         calcTimes = T, timeRefSegmentLevel = NULL, verbose = FALSE){
+requery_hier <- function(emuDBhandle, 
+                         seglist, 
+                         level, 
+                         collapse = TRUE, 
+                         resultType = "emuRsegs",
+                         calcTimes = TRUE, 
+                         timeRefSegmentLevel = NULL, 
+                         verbose = FALSE){
   
   check_emuDBhandle(emuDBhandle)
   
@@ -444,7 +462,9 @@ requery_hier <- function(emuDBhandle, seglist, level, collapse = TRUE, resultTyp
       }
       
       if(!collapse){
-        stop("not implemented yet")
+        # override perserveLengths if not collapsing
+        preserveLeafLength = FALSE
+        preserveAnchorLength = FALSE
       }
       
       query_databaseHier(emuDBhandle, 
@@ -473,8 +493,6 @@ requery_hier <- function(emuDBhandle, seglist, level, collapse = TRUE, resultTyp
                                                     " r_seq_end_seq_idx AS seq_end_seq_idx ",
                                                     " FROM lr_exp_res_tmp"))
       
-      # drop temp table
-      DBI::dbExecute(emuDBhandle$connection,paste0("DROP TABLE IF EXISTS seq_idx_tmp"))
     }else{
       # just reset level as convert_queryResultToEmuRsegs does the rest!
       create_intermResTmpQueryTablesDBI(emuDBhandle)

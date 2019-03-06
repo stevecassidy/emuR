@@ -116,7 +116,7 @@ test_that("Requery hierarchical with collapse works",{
   sl1 = query(ae, "Text =~ 'a[mn].*'")
   # requery to level Phoneme
   rsl1 = suppressWarnings(requery_hier(ae, sl1, level = 'Phonetic', collapse = F, verbose = F))
-  expect_false(nrow(sl1) == nrow(rsl1)) # shouldn't be the same length! 
+  expect_equal(nrow(rsl1), 12) # should have 12 elements
   allLabels = paste0(rsl1$labels, collapse = "->")
   expect_equal(allLabels, "V->m->V->N->s->t->H->E->n->i:->@->n")
 })
@@ -188,57 +188,120 @@ test_that("requery_hier inserts NAs",{
   DBI::dbExecute(ae$connection, "DELETE FROM links WHERE bundle = 'msajc023' AND from_id = 96 AND to_id = 120")
   rewrite_annots(ae, verbose = F)
   
+  ########################
   # parent requery
-  sl = query(ae, "Phonetic == m", resultType = "tibble")
+  sl = query(ae, 
+             "Phonetic == m", 
+             resultType = "tibble")
   
-  sl_req = requery_hier(ae, sl, level = "Phoneme", resultType = "tibble")
+  sl_req = requery_hier(ae, 
+                        sl, 
+                        level = "Phoneme", 
+                        resultType = "tibble")
+  
+  expect_equal(nrow(sl), nrow(sl_req))
+  expect_true(all(is.na(sl_req[1,])))
+  expect_true(all(is.na(sl_req[2,])))
+  expect_true(all(is.na(sl_req[5,])))
+  # calcTimes = F
+  sl_req = requery_hier(ae, 
+                        sl, 
+                        level = "Phoneme", 
+                        calcTimes = F,
+                        resultType = "tibble") 
   
   expect_equal(nrow(sl), nrow(sl_req))
   expect_true(all(is.na(sl_req[1,])))
   expect_true(all(is.na(sl_req[2,])))
   expect_true(all(is.na(sl_req[5,])))
   
-  # child reuqery
-  sl = query(ae, "Phoneme == m", resultType = "tibble", calcTimes = F)
   
-  sl_req = requery_hier(ae, sl, level = "Phonetic", resultType = "tibble")
+  sl = query(ae, "Phonetic == db", resultType = "tibble")
+  sl_req = requery_hier(ae, 
+                        sl, 
+                        level = "Phoneme", 
+                        resultType = "tibble")
+  
+  expect_equal(sl_req$labels[1], "d->b") # check that collapsing of multiple parents works
+  
+  sl_req = suppressWarnings(requery_hier(ae, 
+                                         sl, 
+                                         level = "Phoneme", 
+                                         collapse = F,
+                                         resultType = "tibble"))
+  
+  expect_equal(sl_req$labels[1], "d")
+  expect_equal(sl_req$labels[2], "b")
+  
+  
+  ########################
+  # child requery
+  sl = query(ae, 
+             "Phoneme == m", 
+             resultType = "tibble", 
+             calcTimes = F)
+  
+  sl_req = requery_hier(ae, 
+                        sl, 
+                        level = "Phonetic", 
+                        resultType = "tibble")
   
   expect_equal(nrow(sl), nrow(sl_req))
   expect_true(all(is.na(sl_req[1,])))
   expect_true(all(is.na(sl_req[2,])))
+  
+  # calcTimes = F
+  sl_req = requery_hier(ae, 
+                        sl, 
+                        level = "Phonetic", 
+                        calcTimes = F, 
+                        resultType = "tibble")
+  
+  expect_equal(sl_req$labels[6], 'Om->m') # callapsing works
 
-  # # todo:
-  # sl_req = requery_hier(ae, sl, level = "Phonetic", calcTimes = F, resultType = "tibble")
-  # 
-  # # over multiple levels (parent requery)
-  # sl = query(ae, "Phonetic == m", resultType = "tibble")
-  # 
-  # sl_req = requery_hier(ae, sl, level = "Text", resultType = "tibble")
-  # 
-  # expect_equal(nrow(sl), nrow(sl_req))
-  # expect_true(all(is.na(sl_req[1,])))
-  # expect_true(all(is.na(sl_req[2,])))
+   
+  # over multiple levels (parent requery)
+  sl = query(ae, 
+             "Phonetic == m", 
+             resultType = "tibble")
+
+  sl_req = requery_hier(ae, 
+                        sl, 
+                        level = "Text", 
+                        resultType = "tibble")
   
+  expect_equal(nrow(sl), nrow(sl_req))
+  expect_true(all(is.na(sl_req[1,])))
+  expect_true(all(is.na(sl_req[2,])))
+  expect_true(all(is.na(sl_req[5,])))
+
+  
+  sl = query(ae, 
+             "[[Phonetic == D -> Phonetic == @] -> Phonetic == m]", 
+             resultType = "tibble", 
+             calcTimes = F)
+  
+  # if only NAs in resulting seglist an empty object is returned
+  sl_req = suppressWarnings(requery_hier(ae, 
+                        sl, 
+                        level = "Word", 
+                        resultType = "tibble"))
+  
+  expect_equal(nrow(sl_req), 0)
+    
   # over multiple levels (child requery)
+  sl = query(ae, 
+             "Text == them", 
+             resultType = "tibble", 
+             calcTimes = F)
   
-  # first get labels
-  # sl = query(ae, "Phoneme == m", resultType = "tibble", calcTimes = F)
-  # 
-  # sl_req = requery_hier(ae, sl, level = "Text", resultType = "tibble")
-  # 
-  # sl_req = requery_hier(ae, sl, level = "Text", resultType = "tibble")
+  sl_req = requery_hier(ae, 
+                        sl, 
+                        level = "Phonetic", 
+                        resultType = "tibble")
   
-  # sl = query(ae,
-  #            paste0("Text == ", paste(sl_req$labels, collapse = " | ")),
-  #            resultType = "tibble",
-  #            calcTimes = F)
-  #
-  # sl_req = requery_hier(ae, sl, level = "Phonetic", resultType = "tibble")
-  
-  
-  # expect_equal(nrow(sl), nrow(sl_req))
-  # expect_true(all(is.na(sl_req[1,])))
-  # expect_true(all(is.na(sl_req[2,])))
+  # only dominates D->@ not D->@->m as link to m is missing
+  expect_equal(sl_req$labels[1], 'D->@')
   
 })
 
