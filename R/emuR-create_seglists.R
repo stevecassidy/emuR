@@ -106,8 +106,10 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
     
     dbConfig = load_DBconfig(emuDBhandle)
     
-    resultAttrDef = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT ", levelColName, " FROM ", itsTableName))[[levelColName]]
-    
+    resultAttrDef = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT ", levelColName, 
+                                                                   " FROM ", itsTableName, 
+                                                                   " WHERE level IS NOT NULL"))[[levelColName]]
+
     attrDefLn = get_levelNameForAttributeName(emuDBhandle, resultAttrDef)
     ld = get_levelDefinition(emuDBhandle, attrDefLn)
     
@@ -175,12 +177,10 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
                                                     " interm_res_items_tmp_root.seq_start_seq_idx, ",
                                                     " interm_res_items_tmp_root.seq_end_seq_idx AS end_item_seq_idx, ",
                                                     " items_seq_start.type AS type, ",
-                                                    # "items_seq_start.sample_start AS sample_start, ",
                                                     " CASE items_seq_start.type ",
                                                     "    WHEN 'SEGMENT' THEN items_seq_start.sample_start ",
                                                     "    WHEN 'EVENT' THEN items_seq_start.sample_point ",
                                                     " END AS sample_start, ",
-                                                    # "(items_seq_end.sample_start + items_seq_end.sample_dur) AS sampleEnd, ",
                                                     " CASE items_seq_start.type ",
                                                     "    WHEN 'SEGMENT' THEN (items_seq_end.sample_start + items_seq_end.sample_dur) ",
                                                     "    WHEN 'EVENT' THEN items_seq_start.sample_point ",
@@ -205,50 +205,6 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
                                                     " AND labels.name = '", resultAttrDef, "' ",
                                                     orderByString, 
                                                     ""))
-      browser()
-      # DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO emursegs_tmp ",
-      #                                               "SELECT 'XXX' AS labels, ",
-      #                                               "CASE items_seq_start.type ",
-      #                                               " WHEN 'SEGMENT' THEN ",
-      #                                               "  CASE items_seq_start.sample_start ",
-      #                                               "  WHEN 0 THEN CAST(0.0 AS REAL) ",
-      #                                               "  ELSE (CAST (items_seq_start.sample_start AS REAL) - 0.5 ) / CAST(items_seq_start.sample_rate AS REAL) * 1000.0 ",
-      #                                               "  END",
-      #                                               " WHEN 'EVENT' THEN CAST (items_seq_start.sample_point AS REAL) / CAST(items_seq_start.sample_rate AS REAL) * 1000.0 ",
-      #                                               " ELSE 'SIC!! Something went wrong' ",
-      #                                               "END AS start, ",
-      #                                               "CASE items_seq_start.type ",
-      #                                               " WHEN 'SEGMENT' THEN (CAST (items_seq_end.sample_start + items_seq_end.sample_dur AS REAL) + 0.5) / CAST (items_seq_end.sample_rate AS REAL) * 1000.0 ",
-      #                                               " WHEN 'EVENT' THEN 0.0",
-      #                                               " ELSE 'SIC!! Something went wrong' ",
-      #                                               "END AS end, ",
-      #                                               "interm_res_items_tmp_root.session || ':' || interm_res_items_tmp_root.bundle AS utts, ",
-      #                                               "interm_res_items_tmp_root.db_uuid, ",
-      #                                               "interm_res_items_tmp_root.session, ",
-      #                                               "interm_res_items_tmp_root.bundle, ",
-      #                                               "interm_res_items_tmp_root.seq_start_id AS start_item_id, ",
-      #                                               "interm_res_items_tmp_root.seq_end_id AS end_item_id, ",
-      #                                               "interm_res_items_tmp_root.level AS level, ",
-      #                                               "interm_res_items_tmp_root.seq_start_seq_idx, ",
-      #                                               "interm_res_items_tmp_root.seq_end_seq_idx AS end_item_seq_idx, ",
-      #                                               "items_seq_start.type AS type, ",
-      #                                               # "items_seq_start.sample_start AS sample_start, ",
-      #                                               "CASE items_seq_start.type ",
-      #                                               "   WHEN 'SEGMENT' THEN items_seq_start.sample_start ",
-      #                                               "   WHEN 'EVENT' THEN items_seq_start.sample_point ",
-      #                                               "END AS sample_start, ",
-      #                                               # "(items_seq_end.sample_start + items_seq_end.sample_dur) AS sampleEnd, ",
-      #                                               "CASE items_seq_start.type ",
-      #                                               "   WHEN 'SEGMENT' THEN (items_seq_end.sample_start + items_seq_end.sample_dur) ",
-      #                                               "   WHEN 'EVENT' THEN items_seq_start.sample_point ",
-      #                                               "END AS sample_end, ",
-      #                                               "items_seq_start.sample_rate AS sample_rate ",
-      #                                               "FROM interm_res_items_tmp_root, items AS items_seq_start, items AS items_seq_end, labels ",
-      #                                               "WHERE interm_res_items_tmp_root.db_uuid = items_seq_start.db_uuid AND interm_res_items_tmp_root.session = items_seq_start.session AND interm_res_items_tmp_root.bundle = items_seq_start.bundle AND interm_res_items_tmp_root.seq_start_id = items_seq_start.item_id ",
-      #                                               "AND interm_res_items_tmp_root.db_uuid = items_seq_end.db_uuid AND interm_res_items_tmp_root.session = items_seq_end.session AND interm_res_items_tmp_root.bundle = items_seq_end.bundle AND interm_res_items_tmp_root.seq_end_id = items_seq_end.item_id ",
-      #                                               "AND interm_res_items_tmp_root.db_uuid = labels.db_uuid AND interm_res_items_tmp_root.session = labels.session AND interm_res_items_tmp_root.bundle = labels.bundle AND interm_res_items_tmp_root.seq_end_id = labels.item_id AND labels.name = '", resultAttrDef, "' ",
-      #                                               "ORDER BY items_seq_start.db_uuid, items_seq_start.session, items_seq_start.bundle, items_seq_start.seq_idx"))
-      
       
     }else{
       
@@ -293,7 +249,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
                          leftTableSuffix = timeItemsTableSuffix, 
                          rightTableSuffix = "root", 
                          filteredTablesSuffix, 
-                         minMaxSeqIdxLeafOnly = T, # is this a good idea? 
+                         minMaxSeqIdxLeafOnly = F, # remove this parameter?
                          preserveLeafLength = F,
                          preserveAnchorLength = preserveAnchorLength,
                          verbose = verbose) # result written to lr_exp_res_tmp table

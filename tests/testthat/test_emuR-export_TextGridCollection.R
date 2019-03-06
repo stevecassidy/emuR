@@ -37,11 +37,11 @@ test_that("export_TextGridCollection works correctly", {
     expect_match(tgLines[4], ".*xmin = 0.*")
 
     # check number of levels by name
-    expect_equal(length(grep("name",tgLines)), 11)
+    expect_equal(length(grep("name", tgLines)), 11)
 
     #check same number of items are present as in items X label
     qr = DBI::dbGetQuery(ae$connection, "SELECT * FROM items AS it, labels AS l WHERE it.db_uuid = l.db_uuid AND it.session = l.session AND it.bundle = 'msajc003' AND l.bundle = 'msajc003' AND it.item_id = l.item_id")
-    expect_equal(length(grep("text|mark",tgLines)), nrow(qr) + 10 * 2 - length(grep("->",tgLines))) # 10*2 = left right padding for 10 tiers (from 10 attr. defs.) that are not of type EVENT mergers (containing "->") are deducted
+    expect_equal(length(grep("text|mark",tgLines)), nrow(qr) + 10 * 2 - length(grep("->", tgLines))) # 10*2 = left right padding for 10 tiers (from 10 attr. defs.) that are not of type EVENT mergers (containing "->") are deducted
 
 
     # clean up

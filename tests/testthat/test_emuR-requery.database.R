@@ -4,12 +4,12 @@ require(emuR)
 
 context("testing requeries")
 
-.aeSampleRate = 20000
+aeSampleRate = 20000
 
-.test_emu_ae_db = NULL
-# .test_emu_ae_db_uuid='3f627b7b-4fb5-4b4a-8c79-b5f49df4df25'
-.test_emu_ae_db_uuid = "0fc618dc-8980-414d-8c7a-144a649ce199"
-.test_emu_ae_db_dir = NULL
+test_emu_ae_db = NULL
+
+test_emu_ae_db_uuid = "0fc618dc-8980-414d-8c7a-144a649ce199"
+test_emu_ae_db_dir = NULL
 
 path2demoData = file.path(tempdir(),"emuR_demoData")
 path2testhatFolder = file.path(tempdir(),"emuR_testthat")
@@ -18,14 +18,14 @@ path2testhatFolder = file.path(tempdir(),"emuR_testthat")
 internalVars = get("internalVars", envir = .emuR_pkgEnv)
 
 legacyDbEmuAeTpl <- file.path(path2demoData, "legacy_ae", "ae.tpl")
-.test_emu_ae_db_dir <- file.path(path2testhatFolder, 'test_emu_ae')
-unlink(.test_emu_ae_db_dir, recursive = T)
+test_emu_ae_db_dir <- file.path(path2testhatFolder, 'test_emu_ae')
+unlink(test_emu_ae_db_dir, recursive = T)
 
 # copy 4 faster tests
-dir.create(.test_emu_ae_db_dir)
-file.copy(file.path(path2demoData, paste0('ae', emuDB.suffix)), .test_emu_ae_db_dir, recursive = T)
+dir.create(test_emu_ae_db_dir)
+file.copy(file.path(path2demoData, paste0('ae', emuDB.suffix)), test_emu_ae_db_dir, recursive = T)
 
-ae = load_emuDB(file.path(.test_emu_ae_db_dir, 
+ae = load_emuDB(file.path(test_emu_ae_db_dir, 
                           paste0('ae', emuDB.suffix)), 
                 inMemoryCache = internalVars$testingVars$inMemoryCache, 
                 verbose=FALSE)
@@ -54,7 +54,7 @@ test_that("Requery sequential",{
   
   # Bug ID 42
   sl1 = query(ae, "[[Phonetic == k -> Phonetic =~ .*] -> Phonetic =~ .*]")
-  sl1w = suppressWarnings(requery_hier(ae, sl1, level = 'Word', verbose = F)) # this will throw a warning because sl1 has 8 rows and sl1w has 7 msajc023 k->H->s not dominated by single C
+  sl1w = requery_hier(ae, sl1, level = 'Word', verbose = F) # this will insert an NA row because sl1 has 8 rows and sl1w has 7 msajc023 k->H->s not dominated by single C
   # sl1w has sequence length 1
   sl1w2 = requery_seq(ae, sl1w[1,])
   # Bug startItemID != endItemID, and label is not a sequence !!
@@ -116,14 +116,15 @@ test_that("Requery hierarchical with collapse works",{
   sl1 = query(ae, "Text =~ 'a[mn].*'")
   # requery to level Phoneme
   rsl1 = suppressWarnings(requery_hier(ae, sl1, level = 'Phonetic', collapse = F, verbose = F))
+  expect_false(nrow(sl1) == nrow(rsl1)) # shouldn't be the same length! 
   allLabels = paste0(rsl1$labels, collapse = "->")
   expect_equal(allLabels, "V->m->V->N->s->t->H->E->n->i:->@->n")
 })
 
 test_that("hierarchical requery on same attrDef without times calculates missing times",{
   
-  slTimes=query(ae, "Word=~.*", calcTimes = T)
-  slNoTime=query(ae, "Word=~.*", calcTimes = F)
+  slTimes = query(ae, "Word=~.*", calcTimes = T)
+  slNoTime = query(ae, "Word=~.*", calcTimes = F)
   
   # requery to same attrDef
   slRq = requery_hier(ae, slNoTime, level='Word')
@@ -202,10 +203,10 @@ test_that("requery_hier inserts NAs",{
   
   sl_req = requery_hier(ae, sl, level = "Phonetic", resultType = "tibble")
   
-  # expect_equal(nrow(sl), nrow(sl_req))
-  # expect_true(all(is.na(sl_req[1,])))
-  # expect_true(all(is.na(sl_req[2,])))
-  # 
+  expect_equal(nrow(sl), nrow(sl_req))
+  expect_true(all(is.na(sl_req[1,])))
+  expect_true(all(is.na(sl_req[2,])))
+
   # # todo:
   # sl_req = requery_hier(ae, sl, level = "Phonetic", calcTimes = F, resultType = "tibble")
   # 
@@ -244,4 +245,4 @@ test_that("requery_hier inserts NAs",{
 # clean up (also disconnects)
 DBI::dbDisconnect(ae$connection)
 ae = NULL
-unlink(.test_emu_ae_db_dir, recursive = T)
+unlink(test_emu_ae_db_dir, recursive = T)

@@ -995,63 +995,169 @@ query_databaseHier <- function(emuDBhandle,
   DBI::dbExecute(emuDBhandle$connection, "DELETE FROM hier_right_trapeze_interm_res_tmp")
   
   # insert NA rows if preserveLeafLength or preserveAnchorLength are set
-  if(preserveLeafLength){
-    preservedLengthTable = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT lr_exp_res_tmp.* ",
-                                                                          "FROM ", leafSideTableName, " AS lstn ",
-                                                                          "LEFT JOIN lr_exp_res_tmp ",
-                                                                          "ON lstn.db_uuid = lr_exp_res_tmp.db_uuid ",
-                                                                          " AND lstn.session = lr_exp_res_tmp.session ",
-                                                                          " AND lstn.bundle = lr_exp_res_tmp.bundle ",
-                                                                          " AND lstn.seq_start_id = lr_exp_res_tmp.l_seq_start_id ",
-                                                                          " AND lstn.seq_end_id = lr_exp_res_tmp.l_seq_end_id ",
-                                                                          "ORDER BY lstn.rowid ",
-                                                                          ""))
+  # if(preserveLeafLength){
+  #   preservedLengthTable = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT lr_exp_res_tmp.* ",
+  #                                                                         "FROM ", leafSideTableName, " AS lstn ",
+  #                                                                         "LEFT JOIN lr_exp_res_tmp ",
+  #                                                                         "ON lstn.db_uuid = lr_exp_res_tmp.db_uuid ",
+  #                                                                         " AND lstn.session = lr_exp_res_tmp.session ",
+  #                                                                         " AND lstn.bundle = lr_exp_res_tmp.bundle ",
+  #                                                                         " AND lstn.seq_start_id = lr_exp_res_tmp.l_seq_start_id ",
+  #                                                                         " AND lstn.seq_end_id = lr_exp_res_tmp.l_seq_end_id ",
+  #                                                                         "ORDER BY lstn.rowid ",
+  #                                                                         ""))
+  #   
+  #   DBI::dbExecute(emuDBhandle$connection, "DELETE FROM lr_exp_res_tmp")
+  #   DBI::dbWriteTable(emuDBhandle$connection, "lr_exp_res_tmp", preservedLengthTable, append = T, row.names = F)
+  #   
+  # }else 
+  
+  if(preserveLeafLength | preserveAnchorLength){
     
-    DBI::dbExecute(emuDBhandle$connection, "DELETE FROM lr_exp_res_tmp")
-    DBI::dbWriteTable(emuDBhandle$connection, "lr_exp_res_tmp", preservedLengthTable, append = T, row.names = F)
-    
-  }else if(preserveAnchorLength){
-    if(leftIsLeaf){ 
-      seqIdPrefix = "r_"
+    # set table name and seq_*_id prefix used for collapsing
+    # e.g.: if preserveLeafLength & leftIsLeaf -> use left side for grouping (hence collapsing)
+    if(preserveLeafLength){
+      preserveTableName = leafSideTableName
+      if(leftIsLeaf){ 
+        seqIdPrefix = "l_"
+      }else{
+        seqIdPrefix = "r_"
+      }
     }else{
-      seqIdPrefix = "l_"
+      preserveTableName = anchorSideTableName
+      if(leftIsLeaf){ 
+        seqIdPrefix = "r_"
+      }else{
+        seqIdPrefix = "l_"
+      }
+      
     }
     
-    browser() 
-    # todo: collapse by GROUP BY is done -> MIN(lr_exp_res_tmp.r_seq_start_seq_idx)  works but need according IDs
-    # -> left join items twice to get according IDs
     
-    preservedLengthTable = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT ",
-                                                                          " lr_exp_res_tmp.db_uuid, ", 
-                                                                          " lr_exp_res_tmp.session, ", 
-                                                                          " lr_exp_res_tmp.bundle, ", 
-                                                                          " lr_exp_res_tmp.l_seq_start_id, ", 
-                                                                          " lr_exp_res_tmp.l_seq_end_id, ", 
-                                                                          " lr_exp_res_tmp.l_seq_len, ", 
-                                                                          " lr_exp_res_tmp.l_level, ", 
-                                                                          " lr_exp_res_tmp.l_seq_start_seq_idx, ", 
-                                                                          " lr_exp_res_tmp.l_seq_end_seq_idx, ", 
-                                                                          " lr_exp_res_tmp.r_seq_start_id, ", 
-                                                                          " lr_exp_res_tmp.r_seq_end_id, ", 
-                                                                          " lr_exp_res_tmp.r_seq_len, ", 
-                                                                          " lr_exp_res_tmp.r_level, ", 
-                                                                          " MIN(lr_exp_res_tmp.r_seq_start_seq_idx), ", 
-                                                                          " MAX(lr_exp_res_tmp.r_seq_end_seq_idx) ", 
-                                                                          "FROM ", anchorSideTableName, " AS astn ",
-                                                                          "LEFT JOIN lr_exp_res_tmp ",
-                                                                          "ON astn.db_uuid = lr_exp_res_tmp.db_uuid ",
-                                                                          " AND astn.session = lr_exp_res_tmp.session ",
-                                                                          " AND astn.bundle = lr_exp_res_tmp.bundle ",
-                                                                          " AND astn.seq_start_id = lr_exp_res_tmp.", seqIdPrefix, "seq_start_id ",
-                                                                          " AND astn.seq_end_id = lr_exp_res_tmp.", seqIdPrefix, "seq_end_id ",
+    #####################################
+    # first step (in two step process): collapse into new table using MIN(seq_start_id) & MAX(seq_end_id)
+    # this avoids expanstion in e.g. MANY_TO_MANY relationships
+    DBI::dbExecute(emuDBhandle$connection, paste0("CREATE TEMP TABLE IF NOT EXISTS lr_minmax_seqidx_tmp ( ",
+                                                  " db_uuid VARCHAR(36), ",
+                                                  " session TEXT, ",
+                                                  " bundle TEXT, ",
+                                                  " l_level TEXT, ", # preserve other side for NA preservation
+                                                  " l_min_seq_idx TEXT,  ",
+                                                  " l_max_seq_idx TEXT, ",
+                                                  " r_level TEXT,",
+                                                  " r_min_seq_idx INTEGER, ",
+                                                  " r_max_seq_idx INTEGER ",
+                                                  ")"))
+    
+    DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO lr_minmax_seqidx_tmp ",
+                                                  "SELECT lr.db_uuid, ", 
+                                                  " lr.session, ", 
+                                                  " lr.bundle, ", 
+                                                  " l_level, ", 
+                                                  " min(lr.l_seq_start_seq_idx) AS l_min_seq_idx, ", 
+                                                  " max(lr.l_seq_end_seq_idx) AS l_max_seq_idx, ",
+                                                  " r_level, ",
+                                                  " min(lr.r_seq_start_seq_idx) AS r_min_seq_idx, ", 
+                                                  " max(lr.r_seq_end_seq_idx) AS r_max_seq_idx ",
+                                                  "FROM lr_exp_res_tmp AS lr ",
+                                                  "GROUP BY lr.db_uuid, ",
+                                                  " lr.session, ", 
+                                                  " lr.bundle, ", 
+                                                  " lr.", seqIdPrefix, "seq_start_id, ",
+                                                  " lr.", seqIdPrefix, "seq_end_id ",
+                                                  ""))
+    
+    # step two: extract according item_ids and place into new table
+    DBI::dbExecute(emuDBhandle$connection, paste0("CREATE TEMP TABLE lr_exp_res_collapsed_tmp (",
+                                                  "db_uuid VARCHAR(36),",
+                                                  "session TEXT,",
+                                                  "bundle TEXT,",
+                                                  "l_seq_start_id INTEGER,",
+                                                  "l_seq_end_id INTEGER,",
+                                                  "l_seq_len INTEGER,",
+                                                  "l_level TEXT,",
+                                                  "l_seq_start_seq_idx INTEGER,",
+                                                  "l_seq_end_seq_idx INTEGER,",
+                                                  "r_seq_start_id INTEGER,",
+                                                  "r_seq_end_id INTEGER,",
+                                                  "r_seq_len INTEGER,",
+                                                  "r_level TEXT,",
+                                                  "r_seq_start_seq_idx INTEGER,",
+                                                  "r_seq_end_seq_idx INTEGER",
+                                                  ");"))
+    
+    
+    
+    DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO lr_exp_res_collapsed_tmp ",
+                                                  "SELECT ",
+                                                  " lr_minmax_seqidx_tmp.db_uuid, ",
+                                                  " lr_minmax_seqidx_tmp.session, ",
+                                                  " lr_minmax_seqidx_tmp.bundle, ",
+                                                  " i_left_min_idx.item_id AS l_seq_start_id, ",
+                                                  " i_left_max_idx.item_id AS l_seq_end_id, ",
+                                                  " (i_left_max_idx.seq_idx - i_left_max_idx.seq_idx) + 1 AS seq_len, ",
+                                                  " i_left_min_idx.level, ",
+                                                  " i_left_min_idx.seq_idx AS l_seq_start_seq_idx, ",
+                                                  " i_left_max_idx.seq_idx AS l_seq_end_seq_idx, ",
+                                                  " i_right_min_idx.item_id AS l_seq_start_id, ",
+                                                  " i_right_max_idx.item_id AS l_seq_end_id, ",
+                                                  " (i_right_max_idx.seq_idx - i_right_max_idx.seq_idx) + 1 AS seq_len, ",
+                                                  " i_right_min_idx.level, ",
+                                                  " i_right_min_idx.seq_idx AS l_seq_start_seq_idx, ",
+                                                  " i_right_max_idx.seq_idx AS l_seq_end_seq_idx ",
+                                                  "FROM lr_minmax_seqidx_tmp ", # re-inserts NAs
+                                                  "LEFT JOIN items AS i_left_min_idx ",
+                                                  "ON lr_minmax_seqidx_tmp.db_uuid = i_left_min_idx.db_uuid ",
+                                                  " AND lr_minmax_seqidx_tmp.session = i_left_min_idx.session ",
+                                                  " AND lr_minmax_seqidx_tmp.bundle = i_left_min_idx.bundle ",
+                                                  " AND lr_minmax_seqidx_tmp.l_level = i_left_min_idx.level ",
+                                                  " AND lr_minmax_seqidx_tmp.l_min_seq_idx = i_left_min_idx.seq_idx ",
+                                                  "LEFT JOIN items AS i_left_max_idx ",
+                                                  "ON lr_minmax_seqidx_tmp.db_uuid = i_left_max_idx.db_uuid ",
+                                                  " AND lr_minmax_seqidx_tmp.session = i_left_max_idx.session ",
+                                                  " AND lr_minmax_seqidx_tmp.bundle = i_left_max_idx.bundle ",
+                                                  " AND lr_minmax_seqidx_tmp.l_level = i_left_max_idx.level ",
+                                                  " AND lr_minmax_seqidx_tmp.l_max_seq_idx = i_left_max_idx.seq_idx ",
+                                                  "LEFT JOIN items AS i_right_min_idx ",
+                                                  "ON lr_minmax_seqidx_tmp.db_uuid = i_right_min_idx.db_uuid ",
+                                                  " AND lr_minmax_seqidx_tmp.session = i_right_min_idx.session ",
+                                                  " AND lr_minmax_seqidx_tmp.bundle = i_right_min_idx.bundle ",
+                                                  " AND lr_minmax_seqidx_tmp.r_level = i_right_min_idx.level ",
+                                                  " AND lr_minmax_seqidx_tmp.r_min_seq_idx = i_right_min_idx.seq_idx ",
+                                                  "LEFT JOIN items AS i_right_max_idx ",
+                                                  "ON lr_minmax_seqidx_tmp.db_uuid = i_right_max_idx.db_uuid ",
+                                                  " AND lr_minmax_seqidx_tmp.session = i_right_max_idx.session ",
+                                                  " AND lr_minmax_seqidx_tmp.bundle = i_right_max_idx.bundle ",
+                                                  " AND lr_minmax_seqidx_tmp.r_level = i_right_max_idx.level ",
+                                                  " AND lr_minmax_seqidx_tmp.r_max_seq_idx = i_right_max_idx.seq_idx ",
+                                                  ""))
+    
+    # finally left join to preserveTableName
+    preservedLengthTable = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT lr.* ",
+                                                                          "FROM ", preserveTableName, " AS astn ",
+                                                                          "LEFT JOIN lr_exp_res_collapsed_tmp AS lr ",
+                                                                          "ON astn.db_uuid = lr.db_uuid ",
+                                                                          " AND astn.session = lr.session ",
+                                                                          " AND astn.bundle = lr.bundle ",
+                                                                          " AND astn.seq_start_id = lr.", seqIdPrefix, "seq_start_id ",
+                                                                          " AND astn.seq_end_id = lr.", seqIdPrefix, "seq_end_id ",
                                                                           "LEFT JOIN items AS items_start ",
-                                                                          "ON lr_exp_res_tmp.db_uuid = items_start.db_uuid ",
-                                                                          " AND lr_exp_res_tmp.session = items_start.session ",
-                                                                          " AND lr_exp_res_tmp.bundle = items_start.bundle ",
-                                                                          " AND lr_exp_res_tmp.bundle = items_start.bundle ",
-                                                                          "GROUP BY astn.rowid ",
-                                                                          "ORDER BY astn.rowid ",
+                                                                          "ON lr.db_uuid = items_start.db_uuid ",
+                                                                          " AND lr.session = items_start.session ",
+                                                                          " AND lr.bundle = items_start.bundle ",
+                                                                          " AND lr.", seqIdPrefix, "seq_start_id = items_start.item_id ",
+                                                                          "LEFT JOIN items AS items_end ",
+                                                                          "ON lr.db_uuid = items_end.db_uuid ",
+                                                                          " AND lr.session = items_end.session ",
+                                                                          " AND lr.bundle = items_end.bundle ",
+                                                                          " AND lr.", seqIdPrefix, "seq_end_id = items_end.item_id ",
+                                                                          "GROUP BY astn.rowid ", # preserve astn length
+                                                                          "ORDER BY astn.rowid ", # preserve astn ordering
                                                                           ""))
+    
+    # drop temp table
+    DBI::dbExecute(emuDBhandle$connection,paste0("DROP TABLE IF EXISTS lr_minmax_seqidx_tmp"))
+    DBI::dbExecute(emuDBhandle$connection,paste0("DROP TABLE IF EXISTS lr_exp_res_collapsed_tmp"))
     
     DBI::dbExecute(emuDBhandle$connection, "DELETE FROM lr_exp_res_tmp")
     DBI::dbWriteTable(emuDBhandle$connection, "lr_exp_res_tmp", preservedLengthTable, append = T, row.names = F)
