@@ -194,21 +194,21 @@ test_that("requery_hier inserts NAs",{
              "Phonetic == m", 
              resultType = "tibble")
   
-  sl_req = requery_hier(ae, 
-                        sl, 
-                        level = "Phoneme", 
-                        resultType = "tibble")
+  sl_req = suppressWarnings(requery_hier(ae, 
+                                         sl, 
+                                         level = "Phoneme", 
+                                         resultType = "tibble"))
   
   expect_equal(nrow(sl), nrow(sl_req))
   expect_true(all(is.na(sl_req[1,])))
   expect_true(all(is.na(sl_req[2,])))
   expect_true(all(is.na(sl_req[5,])))
   # calcTimes = F
-  sl_req = requery_hier(ae, 
-                        sl, 
-                        level = "Phoneme", 
-                        calcTimes = F,
-                        resultType = "tibble") 
+  sl_req = suppressWarnings(requery_hier(ae, 
+                                         sl, 
+                                         level = "Phoneme", 
+                                         calcTimes = F,
+                                         resultType = "tibble"))
   
   expect_equal(nrow(sl), nrow(sl_req))
   expect_true(all(is.na(sl_req[1,])))
@@ -241,40 +241,40 @@ test_that("requery_hier inserts NAs",{
              resultType = "tibble", 
              calcTimes = F)
   
-  sl_req = requery_hier(ae, 
-                        sl, 
-                        level = "Phonetic", 
-                        resultType = "tibble")
+  sl_req = suppressWarnings(requery_hier(ae, 
+                                         sl, 
+                                         level = "Phonetic", 
+                                         resultType = "tibble"))
   
   expect_equal(nrow(sl), nrow(sl_req))
   expect_true(all(is.na(sl_req[1,])))
   expect_true(all(is.na(sl_req[2,])))
   
   # calcTimes = F
-  sl_req = requery_hier(ae, 
-                        sl, 
-                        level = "Phonetic", 
-                        calcTimes = F, 
-                        resultType = "tibble")
+  sl_req = suppressWarnings(requery_hier(ae, 
+                                         sl, 
+                                         level = "Phonetic", 
+                                         calcTimes = F, 
+                                         resultType = "tibble"))
   
   expect_equal(sl_req$labels[6], 'Om->m') # callapsing works
-
-   
+  
+  
   # over multiple levels (parent requery)
   sl = query(ae, 
              "Phonetic == m", 
              resultType = "tibble")
-
-  sl_req = requery_hier(ae, 
-                        sl, 
-                        level = "Text", 
-                        resultType = "tibble")
+  
+  sl_req = suppressWarnings(requery_hier(ae, 
+                                         sl, 
+                                         level = "Text", 
+                                         resultType = "tibble"))
   
   expect_equal(nrow(sl), nrow(sl_req))
   expect_true(all(is.na(sl_req[1,])))
   expect_true(all(is.na(sl_req[2,])))
   expect_true(all(is.na(sl_req[5,])))
-
+  
   
   sl = query(ae, 
              "[[Phonetic == D -> Phonetic == @] -> Phonetic == m]", 
@@ -283,12 +283,12 @@ test_that("requery_hier inserts NAs",{
   
   # if only NAs in resulting seglist an empty object is returned
   sl_req = suppressWarnings(requery_hier(ae, 
-                        sl, 
-                        level = "Word", 
-                        resultType = "tibble"))
+                                         sl, 
+                                         level = "Word", 
+                                         resultType = "tibble"))
   
   expect_equal(nrow(sl_req), 0)
-    
+  
   # over multiple levels (child requery)
   sl = query(ae, 
              "Text == them", 

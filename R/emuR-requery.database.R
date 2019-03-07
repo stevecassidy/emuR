@@ -546,6 +546,10 @@ requery_hier <- function(emuDBhandle,
       stop("Unsupported resultType!") 
       
     }
+    if(any(is.na(result$db_uuid))){
+      warning("Found missing items in resulting segment list! Replaced missing rows with NA values.")
+    }
+    
     drop_allTmpTablesDBI(emuDBhandle)
     return(result)
   }
