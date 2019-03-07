@@ -1,10 +1,11 @@
-# emuR 1.1.2.9002
+# emuR 1.1.2.9003
 
 ## new features / performance tweaks / improvements
 
 * changed url in printed output of serve to https
 * `serve()` doesn't block the R console any more
 * suppressing requery differing length warnings in `runBASwebservice_*` functions
+* `requery_hier()` now persists the input segment list length by inserting NA rows for missing segments
 
 ## bug fixes
 
