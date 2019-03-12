@@ -1,4 +1,4 @@
-requireNamespace("tools", quietly = T)
+# requireNamespace("tools", quietly = T)
 
 ## Create a file-pair-list
 ##
@@ -7,9 +7,12 @@ requireNamespace("tools", quietly = T)
 ##
 ## 
 ## @param ext1Path2rootDir path to root directory of first file extention 
-## @param ext2Path2rootDir path to root directory of second file extention (CAUTION: think of DB size and search space!) 
-## @param ext1 first extention to look for. This extention is considered the primary extention. 
-## This means that this extentions genarates the basename list that the second extentions list is matched against.
+## @param ext2Path2rootDir path to root directory of second file 
+## extention (CAUTION: think of DB size and search space!) 
+## @param ext1 first extention to look for. This extention is considered 
+## the primary extention. 
+## This means that this extentions genarates the basename list that the 
+## second extentions list is matched against.
 ## @param ext2 second extention to pair base names of first extention with
 ## @import tools
 ##
@@ -30,10 +33,16 @@ create_filePairList <- function(ext1Path2rootDir, ext2Path2rootDir, ext1, ext2){
   
   
   # get all ext1 file paths
-  allExt1FilePaths = list.files(ext1Path2rootDir, pattern=paste(ext1, "$", sep = ""), recursive=T, full.names=T)
+  allExt1FilePaths = list.files(ext1Path2rootDir, 
+                                pattern = paste(ext1, "$", sep = ""), 
+                                recursive = T, 
+                                full.names = T)
   
   # get all ext2 file paths
-  allExt2FilePaths = list.files(ext2Path2rootDir, pattern=paste(ext2, "$", sep = ""), recursive=T, full.names=T)
+  allExt2FilePaths = list.files(ext2Path2rootDir, 
+                                pattern = paste(ext2, "$", sep = ""), 
+                                recursive = T, 
+                                full.names = T)
   
   # check more ext1 found than ext2
   if(length(allExt1FilePaths) > length(allExt2FilePaths)){
@@ -50,7 +59,14 @@ create_filePairList <- function(ext1Path2rootDir, ext2Path2rootDir, ext1, ext2){
   
   # check if found all allExt2FilePathsBNs in allExt1FilePathsBNs
   if(length(allExt1FilePathsBNs) != length(equalToExt1FilePathsBNs)){
-    stop('Not all ', ext2, ' files found for ', ext1, ' files found in ', ext1Path2rootDir, ' and ', ext2Path2rootDir ) 
+    stop('Not all ', 
+         ext2, 
+         ' files found for ', 
+         ext1, 
+         ' files found in ', 
+         ext1Path2rootDir, 
+         ' and ', 
+         ext2Path2rootDir ) 
   }
   
   

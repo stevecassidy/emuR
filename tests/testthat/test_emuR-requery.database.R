@@ -54,7 +54,7 @@ test_that("Requery sequential",{
   
   # Bug ID 42
   sl1 = query(ae, "[[Phonetic == k -> Phonetic =~ .*] -> Phonetic =~ .*]")
-  sl1w = requery_hier(ae, sl1, level = 'Word', verbose = F) # this will insert an NA row because sl1 has 8 rows and sl1w has 7 msajc023 k->H->s not dominated by single C
+  sl1w = suppressWarnings(requery_hier(ae, sl1, level = 'Word', verbose = F)) # this will insert an NA row because sl1 has 8 rows and sl1w has 7 msajc023 k->H->s not dominated by single C
   # sl1w has sequence length 1
   sl1w2 = requery_seq(ae, sl1w[1,])
   # Bug startItemID != endItemID, and label is not a sequence !!

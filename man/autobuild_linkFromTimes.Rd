@@ -16,23 +16,26 @@ autobuild_linkFromTimes(emuDBhandle, superlevelName, sublevelName,
 
 \item{sublevelName}{name of level to link to (link definition required in emuDB)}
 
-\item{rewriteAllAnnots}{should changes be written to file system (_annot.json files) after completing autobuild process (intended for expert use only)}
+\item{rewriteAllAnnots}{should changes be written to file system (_annot.json files) after 
+completing autobuild process (intended for expert use only)}
 
 \item{convertSuperlevel}{if set to TRUE a backup of the superlevel will be created and the actual
 superlevel will be converted to a level of type ITEM}
 
 \item{backupLevelAppendStr}{string appended to level name for backup level}
 
-\item{newLinkDefType}{type of new linkDefinition (either \code{"ONE_TO_MANY"}, \code{"MANY_TO_MANY"} or \code{"ONE_TO_ONE"}) 
-which is passed to \code{\link{add_linkDefinition}}. If NULL (the default) \code{\link{add_linkDefinition}} isn't called and a linkDefintion is expected to be present.}
+\item{newLinkDefType}{type of new linkDefinition (either \code{"ONE_TO_MANY"}, 
+\code{"MANY_TO_MANY"} or \code{"ONE_TO_ONE"}) which is passed to 
+\code{\link{add_linkDefinition}}. If NULL (the default) \code{\link{add_linkDefinition}} 
+isn't called and a linkDefintion is expected to be present.}
 
 \item{verbose}{show progress bars and further information}
 }
 \description{
 Autobuild links between two time levels. This is typically done when converting from 
-a database / annotation format that allows parallel time tiers / levels but does not permit annotational units 
-to be linked to each other, except by matching time information (such as Praat's TextGrid format). 
-The super-level has to be of the 
+a database / annotation format that allows parallel time tiers / levels but does 
+not permit annotational units to be linked to each other, except by 
+matching time information (such as Praat's TextGrid format). The super-level has to be of the 
 type SEGMENT and the sub-level either of type EVENT or of type SEGMENT. If
 this is the case and a according link definition is defined for the emuDB,
 this function automatically links the events or segments of the sub-level which occur

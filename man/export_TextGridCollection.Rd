@@ -34,10 +34,11 @@ The main compromises are:
 \itemize{
   \item If a MANY_TO_MANY relationship between two levels is present and 
   two items from the parent level are linked to a single item on the child level, the 
-  parent items are merged into a single annotation item and their labels are 
   concatenated using the '->' symbol. An example would be: the annotation items containing the labels 'd' and 'b' of the 
+  parent items are merged into a single annotation item and their labels are 
   Phoneme level are linked to 'db' on the Phonetic level. The generated Phoneme tier then has a segment with the 
-  start and end times of the 'db' item and contains the labels 'db' (see for example the bundle 0000_ses/msajc010_bndl of the ae_emuDB).
+  start and end times of the 'db' item and contains the labels 'db' (see for example the 
+  bundle 0000_ses/msajc010_bndl of the ae_emuDB).
   \item As annotations can contain gaps (e.g. incomplete hierarchies or orphaned items) and do not have to start at
   time 0 and be the length of the audio file this export routine pads these gaps with empty segments.
 }

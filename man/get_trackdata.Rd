@@ -14,27 +14,34 @@ get_trackdata(emuDBhandle, seglist = NULL, ssffTrackName = NULL,
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
 
-\item{seglist}{\code{tibble}, \code{\link{emuRsegs}} or \code{\link{emusegs}} object obtained by \code{\link{query}}ing a loaded emuDB}
+\item{seglist}{\code{tibble}, \code{\link{emuRsegs}} or \code{\link{emusegs}} 
+object obtained by \code{\link{query}}ing a loaded emuDB}
 
 \item{ssffTrackName}{The name of track that one wishes to extract (see 
 \code{\link{list_ssffTrackDefinitions}} for the defined ssffTracks of the 
 emuDB). If the parameter \code{onTheFlyFunctionName} is set, then 
 this corresponds to the column name af the AsspDataObj (see
-\code{wrassp::wrasspOutputInfos[[onTheFlyFunctionName]]$tracks} and \code{\link{wrasspOutputInfos}} - NOTE: \code{library(wrassp)} might be necessary to access the \code{wrasspOutputInfos} object without the \code{wrassp::} prefix). 
+\code{wrassp::wrasspOutputInfos[[onTheFlyFunctionName]]$tracks} and 
+\code{\link{wrasspOutputInfos}} - NOTE: \code{library(wrassp)} might be 
+necessary to access the \code{wrasspOutputInfos} object without the \code{wrassp::} prefix). 
 If the parameter \code{onTheFlyFunctionName} is set and this one isn't, then per default
-the first track listed in the \code{wrassp::wrasspOutputInfos} is chosen (\code{wrassp::wrasspOutputInfos[[onTheFlyFunctionName]]$tracks[1]}).
+the first track listed in the \code{wrassp::wrasspOutputInfos} is chosen 
+(\code{wrassp::wrasspOutputInfos[[onTheFlyFunctionName]]$tracks[1]}).
 
-\code{get_trackdata} has so called constant track names that are always available for every emuDB. The constant track names are:
+\code{get_trackdata} has so called constant track names that are always available 
+for every emuDB. The constant track names are:
 
 \itemize{
-\item{"MEDIAFILE_SAMPLES": }{refers to the audio sample values specified by the "mediafileExtension" entry of the DBconfig.json}
+\item{"MEDIAFILE_SAMPLES": }{refers to the audio sample values specified 
+by the "mediafileExtension" entry of the DBconfig.json}
 }}
 
 \item{cut}{An optional cut time for segment data, ranges between 
 0 and 1, a value of 0.5 will extract data only at the segment midpoint.}
 
 \item{npoints}{An optional number of points to retrieve for each segment or event. 
-For segments this requires the \code{cut} parameter to be set; if this is the case, then data is extracted around the resulting cut time. 
+For segments this requires the \code{cut} parameter to be set; if this is the 
+case, then data is extracted around the resulting cut time. 
 For events data is extracted around the event time. If npoints is an odd number, the 
 samples are centered around the cut-time-sample; if not, they are skewed to the
 right by one sample.}
@@ -49,12 +56,17 @@ parameter one wishes to change.}
 
 \item{onTheFlyOptLogFilePath}{Path to optional log file for on-the-fly function}
 
-\item{resultType}{Specify class of returned object. Either \code{"emuRtrackdata"}, \code{"trackdata"} or \code{"tibble"}  (see \code{\link{trackdata}}, \code{\link{emuRtrackdata}} and \code{\link{tibble}} for details about these objects).}
+\item{resultType}{Specify class of returned object. Either \code{"emuRtrackdata"}, 
+\code{"trackdata"} or \code{"tibble"}  (see \code{\link{trackdata}}, \code{\link{emuRtrackdata}} 
+and \code{\link{tibble}} for details about these objects).}
 
-\item{consistentOutputType}{Prevent converting the output object to a \code{data.frame} depending on the \code{npoint} and \code{cut} arguments (only applies to output type "trackdata"). Set 
-to \code{FALSE} if the following legacy \code{emu.track} output conversion behaviour is desired: If the \code{cut} parameter is not set (the default) an object of type \code{\link{trackdata}} 
-is returned. If \code{cut} is set and \code{npoints} is not, or the seglist 
-is of type event and npoints is not set, a \code{\link{data.frame}} is returned (see the \code{consistentOutputType} to change this behaviour).}
+\item{consistentOutputType}{Prevent converting the output object to a \code{data.frame} 
+depending on the \code{npoint} and \code{cut} arguments (only applies to output 
+type "trackdata"). Set to \code{FALSE} if the following legacy \code{emu.track} output 
+conversion behaviour is desired: If the \code{cut} parameter is not set (the default) an 
+object of type \code{\link{trackdata}} is returned. If \code{cut} is set and \code{npoints} 
+is not, or the seglist is of type event and npoints is not set, a \code{\link{data.frame}} is 
+returned (see the \code{consistentOutputType} to change this behaviour).}
 
 \item{verbose}{Show progress bars and further information}
 }
@@ -105,6 +117,7 @@ td = get_trackdata(emuDBhandle = ae,
 
 }
 \seealso{
-\code{\link{formals}}, \code{\link[wrassp]{wrasspOutputInfos}}, \code{\link{trackdata}}, \code{\link{emuRtrackdata}}
+\code{\link{formals}}, \code{\link[wrassp]{wrasspOutputInfos}}, 
+\code{\link{trackdata}}, \code{\link{emuRtrackdata}}
 }
 \keyword{misc}

@@ -38,10 +38,20 @@ create_emuRdemoData <- function(dir = tempdir(), precache = FALSE){
   dir.create(ddPath)
   #################################
   # create ae
-  configPath = list.files(path2data, pattern = "DBconfig.json$", recursive = T, full.names = T)
-  wavPaths = list.files(path2data, pattern = ".wav$", recursive = T, full.names = T)
-  annotPaths = list.files(path2data, pattern = "_annot.json$", recursive = T, full.names = T)
-  aePath = file.path(ddPath, paste0("ae", emuDB.suffix))
+  configPath = list.files(path2data, 
+                          pattern = "DBconfig.json$", 
+                          recursive = T, 
+                          full.names = T)
+  wavPaths = list.files(path2data, 
+                        pattern = ".wav$", 
+                        recursive = T, 
+                        full.names = T)
+  annotPaths = list.files(path2data, 
+                          pattern = "_annot.json$", 
+                          recursive = T, 
+                          full.names = T)
+  aePath = file.path(ddPath, 
+                     paste0("ae", emuDB.suffix))
   
   dir.create(aePath)
   
@@ -62,7 +72,10 @@ create_emuRdemoData <- function(dir = tempdir(), precache = FALSE){
   }
   
   # calc dft and fms files
-  wps = list.files(sesPath, pattern = ".wav$", recursive = T, full.names = T)
+  wps = list.files(sesPath, 
+                   pattern = ".wav$", 
+                   recursive = T, 
+                   full.names = T)
   wrassp::dftSpectrum(wps, verbose = F)
   wrassp::forest(wps, verbose = F)
   
@@ -75,13 +88,28 @@ create_emuRdemoData <- function(dir = tempdir(), precache = FALSE){
   
   ####################################
   # create TextGrid_collection, BPF_collection and txt_collection
-  fpltgc = create_filePairList(path2data, path2data, "wav", "TextGrid")
-  fplbpf_original = create_filePairList(path2data, path2data, "wav", "par")
-  fplbpf_manipulated = create_filePairList(path2data, path2data, "wav", "parmanipulated")
-  fpltxt = create_filePairList(path2data, path2data, "wav", "txt")
-  tgcPath = file.path(ddPath, "TextGrid_collection")
-  bpfPath_original = file.path(ddPath, "BPF_collection")
-  txtcPath = file.path(ddPath, "txt_collection")
+  fpltgc = create_filePairList(path2data, 
+                               path2data, 
+                               "wav", 
+                               "TextGrid")
+  fplbpf_original = create_filePairList(path2data, 
+                                        path2data, 
+                                        "wav", 
+                                        "par")
+  fplbpf_manipulated = create_filePairList(path2data, 
+                                           path2data, 
+                                           "wav", 
+                                           "parmanipulated")
+  fpltxt = create_filePairList(path2data, 
+                               path2data, 
+                               "wav", 
+                               "txt")
+  tgcPath = file.path(ddPath, 
+                      "TextGrid_collection")
+  bpfPath_original = file.path(ddPath, 
+                               "BPF_collection")
+  txtcPath = file.path(ddPath, 
+                       "txt_collection")
   
   dir.create(tgcPath)
   dir.create(bpfPath_original)
@@ -96,11 +124,26 @@ create_emuRdemoData <- function(dir = tempdir(), precache = FALSE){
   
   #################################
   # create legacyEmuDB
-  tplPath = list.files(path2data, pattern = ".tpl$", recursive = T, full.names = T)
-  wavPaths = list.files(path2data, pattern = ".wav$", recursive = T, full.names = T)
-  hlbPaths = list.files(path2data, pattern = "hlb$", recursive = T, full.names = T)
-  labPaths = list.files(path2data, pattern = "lab$", recursive = T, full.names = T)
-  tonePaths = list.files(path2data, pattern = "tone$", recursive = T, full.names = T)
+  tplPath = list.files(path2data, 
+                       pattern = ".tpl$", 
+                       recursive = T, 
+                       full.names = T)
+  wavPaths = list.files(path2data, 
+                        pattern = ".wav$", 
+                        recursive = T, 
+                        full.names = T)
+  hlbPaths = list.files(path2data, 
+                        pattern = "hlb$", 
+                        recursive = T, 
+                        full.names = T)
+  labPaths = list.files(path2data, 
+                        pattern = "lab$", 
+                        recursive = T, 
+                        full.names = T)
+  tonePaths = list.files(path2data, 
+                         pattern = "tone$", 
+                         recursive = T, 
+                         full.names = T)
   
   legacyAePath = file.path(ddPath, "legacy_ae")
   dir.create(legacyAePath)
@@ -139,11 +182,16 @@ create_BPFcollectionManipulated = function(dir){
   
   dir.create(bpfPath_manipulated)
   
-  fplbpf_manipulated = create_filePairList(path2data, path2data, "wav", "parmanipulated")
+  fplbpf_manipulated = create_filePairList(path2data, 
+                                           path2data, 
+                                           "wav", 
+                                           "parmanipulated")
   
   dir.create(file.path(bpfPath_manipulated, "0000"))
-  file.copy(fplbpf_manipulated[,1], file.path(bpfPath_manipulated, "0000"))
-  file.copy(fplbpf_manipulated[,2], file.path(bpfPath_manipulated, "0000"))
+  file.copy(fplbpf_manipulated[,1], 
+            file.path(bpfPath_manipulated, "0000"))
+  file.copy(fplbpf_manipulated[,2], 
+            file.path(bpfPath_manipulated, "0000"))
   
 }
 

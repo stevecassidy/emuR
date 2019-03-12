@@ -11,10 +11,11 @@
 ##' \itemize{
 ##'   \item If a MANY_TO_MANY relationship between two levels is present and 
 ##'   two items from the parent level are linked to a single item on the child level, the 
-##'   parent items are merged into a single annotation item and their labels are 
 ##'   concatenated using the '->' symbol. An example would be: the annotation items containing the labels 'd' and 'b' of the 
+##'   parent items are merged into a single annotation item and their labels are 
 ##'   Phoneme level are linked to 'db' on the Phonetic level. The generated Phoneme tier then has a segment with the 
-##'   start and end times of the 'db' item and contains the labels 'db' (see for example the bundle 0000_ses/msajc010_bndl of the ae_emuDB).
+##'   start and end times of the 'db' item and contains the labels 'db' (see for example the 
+##'   bundle 0000_ses/msajc010_bndl of the ae_emuDB).
 ##'   \item As annotations can contain gaps (e.g. incomplete hierarchies or orphaned items) and do not have to start at
 ##'   time 0 and be the length of the audio file this export routine pads these gaps with empty segments.
 ##' }
@@ -41,8 +42,12 @@
 ##' 
 ##' }
 ##' 
-export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '.*', bundlePattern = '.*', 
-                                      attributeDefinitionNames = NULL, verbose = TRUE) {
+export_TextGridCollection <- function(emuDBhandle, 
+                                      targetDir, 
+                                      sessionPattern = '.*', 
+                                      bundlePattern = '.*', 
+                                      attributeDefinitionNames = NULL, 
+                                      verbose = TRUE) {
   
   check_emuDBhandle(emuDBhandle)
   
@@ -53,7 +58,9 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
   if(!is.null(attributeDefinitionNames)){
     
     if(!all(attributeDefinitionNames %in% allAttrNames)){
-      stop("Bad attributeDefinitionNames given! Valid attributeDefinitionNames of the emuDB are: ", allAttrNames)
+      stop(paste0("Bad attributeDefinitionNames given! Valid ",
+                  "attributeDefinitionNames of the emuDB are: ", 
+                  allAttrNames))
     }
     allAttrNames = attributeDefinitionNames
   }
@@ -105,10 +112,16 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
     }
     
     # copy wav file
-    wavPath = file.path(emuDBhandle$basePath, paste0(curSes, session.suffix), paste0(curBndl, bundle.dir.suffix), paste0(curBndl, ".", dbConfig$mediafileExtension))
+    wavPath = file.path(emuDBhandle$basePath, 
+                        paste0(curSes, session.suffix), 
+                        paste0(curBndl, bundle.dir.suffix), 
+                        paste0(curBndl, ".", dbConfig$mediafileExtension))
     file.copy(wavPath, sesDir)
     # extract bundle sl
-    slBndl = slAll[grepl(paste0("^", curSes, "$"), slAll$session) & grepl(paste0("^", curBndl, "$"), slAll$bundle), ]
+    slBndl = slAll[grepl(paste0("^", curSes, "$"), 
+                         slAll$session) 
+                   & grepl(paste0("^", curBndl, "$"), 
+                           slAll$bundle), ]
     tgPath = file.path(sesDir, paste0(curBndl, ".TextGrid"))
     
     wavDur = wrassp::dur.AsspDataObj(wrassp::read.AsspDataObj(wavPath))
@@ -129,10 +142,23 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
       
       slTier = slBndl[slBndl$level == allAttrNames[attrNameIdx],]
       
-      emptyRow = data.frame(labels = "", start = -1, end = -1, 
-                            utts = "", db_uuid = "", session = "", bundle = "", 
-                            start_item_id = "", end_item_id = "", level = "", start_item_seq_idx = "", end_item_seq_idx = "",
-                            type = "", sample_start = "", sample_end = "", sample_rate = "", stringsAsFactors = F)
+      emptyRow = data.frame(labels = "", 
+                            start = -1, 
+                            end = -1, 
+                            utts = "", 
+                            db_uuid = "", 
+                            session = "", 
+                            bundle = "", 
+                            start_item_id = "", 
+                            end_item_id = "", 
+                            level = "", 
+                            start_item_seq_idx = "", 
+                            end_item_seq_idx = "",
+                            type = "", 
+                            sample_start = "", 
+                            sample_end = "", 
+                            sample_rate = "", 
+                            stringsAsFactors = F)
       # tier header
       if(all(slTier$end == 0)){
         tierType = "TextTier"
@@ -162,10 +188,23 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
         if(any(problemSegs) | any(overlSegs) | any(dupliSegs)){
           slTierTmpNrow = nrow(slTier) + length(which(problemSegs)) - length(which(overlSegs)) - length(which(dupliSegs)) # remove overlSegs + dupliSegs from problemSegs (reason for minus)
           # preallocate data.frame
-          slTierTmp = data.frame(labels = character(slTierTmpNrow), start = integer(slTierTmpNrow), end = integer(slTierTmpNrow), 
-                                 utts = character(slTierTmpNrow), db_uuid = character(slTierTmpNrow), session = character(slTierTmpNrow), bundle = character(slTierTmpNrow), 
-                                 start_item_id = character(slTierTmpNrow), end_item_id = character(slTierTmpNrow), level = character(slTierTmpNrow), start_item_seq_idx = integer(slTierTmpNrow), end_item_seq_idx = integer(slTierTmpNrow),
-                                 type = character(slTierTmpNrow), sampleStart = integer(slTierTmpNrow), sample_end = integer(slTierTmpNrow), sample_rate = integer(slTierTmpNrow), stringsAsFactors = F)
+          slTierTmp = data.frame(labels = character(slTierTmpNrow), 
+                                 start = integer(slTierTmpNrow), 
+                                 end = integer(slTierTmpNrow), 
+                                 utts = character(slTierTmpNrow), 
+                                 db_uuid = character(slTierTmpNrow), 
+                                 session = character(slTierTmpNrow), 
+                                 bundle = character(slTierTmpNrow), 
+                                 start_item_id = character(slTierTmpNrow), 
+                                 end_item_id = character(slTierTmpNrow), 
+                                 level = character(slTierTmpNrow), 
+                                 start_item_seq_idx = integer(slTierTmpNrow), 
+                                 end_item_seq_idx = integer(slTierTmpNrow),
+                                 type = character(slTierTmpNrow), 
+                                 sampleStart = integer(slTierTmpNrow), 
+                                 sample_end = integer(slTierTmpNrow), 
+                                 sample_rate = integer(slTierTmpNrow), 
+                                 stringsAsFactors = F)
           
           slTierTmp[1,] = slTier[1,]
           curRowIdx = 2
@@ -181,10 +220,14 @@ export_TextGridCollection <- function(emuDBhandle, targetDir, sessionPattern = '
               curRowIdx = curRowIdx + 1
               
             }else{
-              if(slTier[slTierRowIdx - 1,]$end > slTier[slTierRowIdx,]$start | slTier[slTierRowIdx - 1,]$start == slTier[slTierRowIdx,]$start & slTier[slTierRowIdx - 1,]$end == slTier[slTierRowIdx,]$end){ 
+              if(slTier[slTierRowIdx - 1,]$end > slTier[slTierRowIdx,]$start 
+                 | slTier[slTierRowIdx - 1,]$start == slTier[slTierRowIdx,]$start 
+                 & slTier[slTierRowIdx - 1,]$end == slTier[slTierRowIdx,]$end){ 
                 # overlapping or duplicate
                 slTierTmp[curRowIdx,] = slTier[slTierRowIdx,]
-                slTierTmp[curRowIdx,]$labels = paste0(slTier[slTierRowIdx - 1,]$labels, "->", slTier[slTierRowIdx,]$labels)
+                slTierTmp[curRowIdx,]$labels = paste0(slTier[slTierRowIdx - 1,]$labels, 
+                                                      "->", 
+                                                      slTier[slTierRowIdx,]$labels)
                 slTierTmp[curRowIdx,]$start = slTier[slTierRowIdx - 1,]$start
                 slTierTmp[curRowIdx,]$end = slTier[slTierRowIdx - 1,]$end
                 dupliSegsRowIdx = c(dupliSegsRowIdx, curRowIdx - 1)

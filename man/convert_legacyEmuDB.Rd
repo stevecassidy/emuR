@@ -18,10 +18,15 @@ convert_legacyEmuDB(emuTplPath, targetDir, dbUUID = uuid::UUIDgenerate(),
 
 \item{...}{currently available additional options:
 \itemize{
-\item{\code{rewriteSSFFTracks}: if \code{TRUE}, rewrite SSFF tracks instead of copying the file to get rid of big endian encoded SSFF files (SPARC), default: \code{TRUE}}
-\item{\code{ignoreMissingSSFFTrackFiles}: if \code{TRUE}, missing SSFF track files are ignored, if \code{FALSE} an error will be generated, default: \code{TRUE}}
-\item{\code{sourceFileTextEncoding}: encoding of legacy database text files (template, label and hlb files), possible values: NULL, "latin1", "UTF-8" "bytes" or "unknown" :default \code{NULL} (uses encoding of operating system platform)}
-\item{\code{symbolicLinkSignalFiles}: if \code{TRUE}, signal files are symbolic linked instead of copied. Implies: \code{rewriteSSFFTracks=FALSE}, Default: \code{FALSE}}
+\item{\code{rewriteSSFFTracks}: if \code{TRUE}, rewrite SSFF tracks instead of copying 
+the file to get rid of big endian encoded SSFF files (SPARC), default: \code{TRUE}}
+\item{\code{ignoreMissingSSFFTrackFiles}: if \code{TRUE}, missing SSFF track files 
+are ignored, if \code{FALSE} an error will be generated, default: \code{TRUE}}
+\item{\code{sourceFileTextEncoding}: encoding of legacy database text files (template, 
+label and hlb files), possible values: NULL, "latin1", "UTF-8" "bytes" or "unknown" 
+:default \code{NULL} (uses encoding of operating system platform)}
+\item{\code{symbolicLinkSignalFiles}: if \code{TRUE}, signal files are symbolic 
+linked instead of copied. Implies: \code{rewriteSSFFTracks=FALSE}, Default: \code{FALSE}}
 }}
 }
 \description{

@@ -10,13 +10,14 @@ replace_itemLabels(emuDBhandle, attributeDefinitionName, origLabels,
 \arguments{
 \item{emuDBhandle}{emuDB handle object (see \link{load_emuDB})}
 
-\item{attributeDefinitionName}{name of a attributeDefinition of a emuDB where the labels are to be 
-replaced}
+\item{attributeDefinitionName}{name of a attributeDefinition of a emuDB 
+where the labels are to be replaced}
 
 \item{origLabels}{character vector containing labels that are to be replaced}
 
-\item{newLabels}{character vector containing labels that are to replaced the labels of \code{origLabels}. 
-This vector has to be of equal length to the \code{origLabels} vector.}
+\item{newLabels}{character vector containing labels that are to replaced 
+the labels of \code{origLabels}. This vector has to be of equal length 
+to the \code{origLabels} vector.}
 
 \item{verbose}{Show progress bars and further information}
 }

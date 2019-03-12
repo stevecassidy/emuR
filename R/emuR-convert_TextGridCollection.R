@@ -109,7 +109,15 @@ convert_TextGridCollection <- function(dir, dbName,
   for(i in 1:dim(fpl)[1]){
     
     # create session name
-    sesName = gsub('^_', '', gsub(.Platform$file.sep, '_', gsub(normalizePath(dir, winslash = .Platform$file.sep),'',dirname(normalizePath(fpl[i,1], winslash = .Platform$file.sep)))))
+    sesName = gsub('^_', 
+                   '', 
+                   gsub(.Platform$file.sep, 
+                        '_', 
+                        gsub(normalizePath(dir, 
+                                           winslash = .Platform$file.sep),
+                             '',
+                             dirname(normalizePath(fpl[i,1], 
+                                                   winslash = .Platform$file.sep)))))
     
     # session file path
     if(sesName == ""){
@@ -129,7 +137,9 @@ convert_TextGridCollection <- function(dir, dbName,
     # create session entry if it doesn't already exist
     sesDF = DBI::dbGetQuery(dbHandle$connection, paste0("SELECT * FROM session WHERE name = '", sesName, "'"))
     if(nrow(sesDF) == 0){    
-      DBI::dbExecute(dbHandle$connection, paste0("INSERT INTO session VALUES('", dbHandle$UUID, "', '", sesName, "')"))
+      DBI::dbExecute(dbHandle$connection, paste0("INSERT INTO ",
+                                                 " session ",
+                                                 "VALUES('", dbHandle$UUID, "', '", sesName, "')"))
     }
     
     # media file
@@ -143,7 +153,10 @@ convert_TextGridCollection <- function(dir, dbName,
     bndlName = sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(fpl[i,1]))
     
     # parse TextGrid
-    bundleAnnotDFs = TextGridToBundleAnnotDFs(fpl[i,2], sampleRate = sampleRate, name = bndlName, annotates = paste0(bndlName, ".wav"))
+    bundleAnnotDFs = TextGridToBundleAnnotDFs(fpl[i,2], 
+                                              sampleRate = sampleRate, 
+                                              name = bndlName, 
+                                              annotates = paste0(bndlName, ".wav"))
     
     # remove unwanted levels
     if(!is.null(tierNames)){
@@ -154,13 +167,23 @@ convert_TextGridCollection <- function(dir, dbName,
     }
     
     # add to bundle table
-    add_bundleDBI(dbHandle, sessionName = sesName, name = bndlName, annotates = bundleAnnotDFs$annotates, sampleRate = bundleAnnotDFs$sampleRate, MD5annotJSON = "")
+    add_bundleDBI(dbHandle, 
+                  sessionName = sesName, 
+                  name = bndlName, 
+                  annotates = bundleAnnotDFs$annotates, 
+                  sampleRate = bundleAnnotDFs$sampleRate, 
+                  MD5annotJSON = "")
     # add to items, links, labels tables
-    store_bundleAnnotDFsDBI(dbHandle, bundleAnnotDFs, sessionName = sesName, bundleName = bndlName)
+    store_bundleAnnotDFsDBI(dbHandle, 
+                            bundleAnnotDFs, 
+                            sessionName = sesName, 
+                            bundleName = bndlName)
     
     
     # validate bundle
-    valRes = validate_bundleDBI(dbHandle, session=sesName, bundle=bndlName)
+    valRes = validate_bundleDBI(dbHandle, 
+                                session = sesName, 
+                                bundle = bndlName)
     
     if(valRes$type != 'SUCCESS'){
       stop('Parsed TextGrid did not pass validator! The validator message is: ', valRes$message)

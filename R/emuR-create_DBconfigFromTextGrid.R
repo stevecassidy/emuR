@@ -1,4 +1,4 @@
-requireNamespace("RSQLite", quietly = T)
+# requireNamespace("RSQLite", quietly = T)
 
 ## Create emuDB DBconfig object from a TextGrid file
 ## 
@@ -28,7 +28,10 @@ create_DBconfigFromTextGrid = function(tgPath, dbName, basePath, tierNames = NUL
   ####################
   
   # parse TextGrid  
-  tgAnnotDFs = TextGridToBundleAnnotDFs(tgPath, sampleRate = 2000, name = "tmpBundleName", annotates = "tmpBundleName.wav") # sampleRate/name/annotates don't matter!! -> hardcoded
+  tgAnnotDFs = TextGridToBundleAnnotDFs(tgPath, 
+                                        sampleRate = 2000, 
+                                        name = "tmpBundleName", 
+                                        annotates = "tmpBundleName.wav") # sampleRate/name/annotates don't matter!! -> hardcoded
   
   # remove unwanted levels
   if(!is.null(tierNames)){
@@ -52,7 +55,9 @@ create_DBconfigFromTextGrid = function(tgPath, dbName, basePath, tierNames = NUL
     if(lev$type == 'SEGMENT' || lev$type == 'EVENT'){
       defaultLvlOrder[[length(defaultLvlOrder)+1L]]=lev$level
     }else{
-      stop(paste0('Found levelDefinition that is not of type SEGMENT|EVENT while parsing TextGrid...this should not occur! This TextGrid file caused the problem:', tgPath))
+      stop(paste0('Found levelDefinition that is not of type SEGMENT|EVENT ",
+                  "while parsing TextGrid...this should not occur! This ",
+                  "TextGrid file caused the problem:', tgPath))
     }
     # add new leveDef.
     levelDefinitions[[levIdx]] = list(name = lev$level, 

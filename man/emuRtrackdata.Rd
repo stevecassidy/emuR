@@ -30,8 +30,8 @@ contains the information stored in both objects.
  The following methods are implemented for emuRtrackdata objects: 
 
 \describe{ 
-  \item{cut}{Function to extract a \code{\link{emuRtrackdata}} object from an emuRtrackdata at a single time point 
-            or between two times}
+  \item{cut}{Function to extract a \code{\link{emuRtrackdata}} object from an 
+  emuRtrackdata at a single time point or between two times}
 }
 }
 

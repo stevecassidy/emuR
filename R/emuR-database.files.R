@@ -60,66 +60,88 @@ is_relativeFilePath<-function(nativeFilePathStr, forRunningPlatform=FALSE){
 ##'  import_mediaFiles(myEmuDB,dir="/data/mymedia/")
 ##' 
 ##' }
-import_mediaFiles<-function(emuDBhandle,dir,targetSessionName='0000', verbose=TRUE){
+import_mediaFiles<-function(emuDBhandle,
+                            dir,
+                            targetSessionName = '0000', 
+                            verbose = TRUE){
   check_emuDBhandle(emuDBhandle)
-  dbCfg=load_DBconfig(emuDBhandle)
+  dbCfg = load_DBconfig(emuDBhandle)
   if(is.null(dbCfg[['mediafileExtension']])){
-    pattern=NULL
+    pattern = NULL
     #stop("The DB has no media file extension defined.")
   }else{
-    pattern=paste0('.*[.]',dbCfg[['mediafileExtension']],'$')
+    pattern = paste0('.*[.]', dbCfg[['mediafileExtension']],'$')
   }
-  mfList=list.files(dir,pattern=pattern)
-  if(length(mfList)>0){
+  mfList = list.files(dir, pattern = pattern)
+  if(length(mfList) > 0){
     # create session dir and session list object if required
-    sessDir=file.path(emuDBhandle$basePath, paste0(targetSessionName,session.suffix))
+    sessDir = file.path(emuDBhandle$basePath, 
+                        paste0(targetSessionName, session.suffix))
     if(!file.exists(sessDir)){
       dir.create(sessDir)
     }
     
-    qSessSql=paste0("SELECT * FROM session WHERE db_uuid='",emuDBhandle$UUID,"' AND name='",targetSessionName,"'")
+    qSessSql = paste0("SELECT * ",
+                      "FROM session ",
+                      "WHERE db_uuid='",emuDBhandle$UUID,"' ",
+                      " AND name='",targetSessionName,"'")
     sessDf <- DBI::dbGetQuery(emuDBhandle$connection,qSessSql)
-    if(nrow(sessDf)==0){
+    if(nrow(sessDf) == 0){
       add_sessionDBI(emuDBhandle, sessionName = targetSessionName)
     }
     
   }
-  mediaAdded=FALSE
+  mediaAdded = FALSE
   
   progress = 0
   if(verbose){
     cat("INFO: Importing ", length(mfList), " media files...\n")
-    pb = utils::txtProgressBar(min = 0, max = length(mfList), initial = progress, style=3)
+    pb = utils::txtProgressBar(min = 0, 
+                               max = length(mfList), 
+                               initial = progress, 
+                               style = 3)
     utils::setTxtProgressBar(pb, progress)
   }
   
   for(mf in mfList){
-    mfFullPath=file.path(dir,mf)
-    bundleName=sub('[.][^.]*$','',mf)
+    mfFullPath = file.path(dir,mf)
+    bundleName = sub('[.][^.]*$','',mf)
     
-    bundleDir=file.path(sessDir,paste0(bundleName,bundle.dir.suffix))
+    bundleDir=file.path(sessDir,paste0(bundleName, bundle.dir.suffix))
     dir.create(bundleDir)
-    newMediaFileFullPath=file.path(bundleDir,mf)
-    file.copy(from = mfFullPath,to=newMediaFileFullPath)
+    newMediaFileFullPath = file.path(bundleDir,mf)
+    file.copy(from = mfFullPath, to = newMediaFileFullPath)
     
-    pfAssp=wrassp::read.AsspDataObj(newMediaFileFullPath,0,4000)
-    sampleRate=attr(pfAssp,'sampleRate')
-    b = list(name = bundleName, annotates=mf, sampleRate=sampleRate, levels=list(),links=list())
+    pfAssp = wrassp::read.AsspDataObj(newMediaFileFullPath, 0, 4000)
+    sampleRate = attr(pfAssp,'sampleRate')
+    b = list(name = bundleName, 
+             annotates = mf, 
+             sampleRate = sampleRate, 
+             levels = list(),
+             links = list())
     
     # add empty levels
     for(ld in dbCfg[['levelDefinitions']]){
-      b$levels[[length(b$levels) + 1]] = list(name=ld[['name']],type = ld[['type']],items = list())
+      b$levels[[length(b$levels) + 1]] = list(name=ld[['name']],
+                                              type = ld[['type']],
+                                              items = list())
     }
     
     # write to file
     annotJSONchar = jsonlite::toJSON(b, auto_unbox = T, pretty = T)
-    newAnnotFileFullPath=file.path(bundleDir, paste0(bundleName, bundle.annotation.suffix, ".json"))
+    newAnnotFileFullPath = file.path(bundleDir, 
+                                     paste0(bundleName, bundle.annotation.suffix, ".json"))
     writeLines(annotJSONchar, newAnnotFileFullPath, useBytes = TRUE)
     
     # calculate MD5 sum of bundle annotJSON
     MD5annotJSON = tools::md5sum(newAnnotFileFullPath)
     
-    add_bundleDBI(emuDBhandle, sessionName = targetSessionName, name = bundleName, annotates = mf, sampleRate = sampleRate, MD5annotJSON = MD5annotJSON)
+    add_bundleDBI(emuDBhandle, 
+                  sessionName = targetSessionName, 
+                  name = bundleName, 
+                  annotates = mf, 
+                  sampleRate = sampleRate, 
+                  MD5annotJSON = MD5annotJSON)
     
     # update pb
     progress = progress + 1
@@ -130,11 +152,14 @@ import_mediaFiles<-function(emuDBhandle,dir,targetSessionName='0000', verbose=TR
   }
   
   # create an EMUwebapp default perspective if media has been added 
-  perspectives=dbCfg[['EMUwebAppConfig']][['perspectives']]
-  if(mediaAdded & (is.null(perspectives) | length(perspectives)==0)){
-    sc=list(order=c("OSCI","SPEC"),assign=list(),contourLims=list())
-    defPersp=list(name='default',signalCanvases=sc,levelCanvases=list(order=list()),twoDimCanvases=list(order=list()))
-    dbCfg[['EMUwebAppConfig']][['perspectives']]=list(defPersp)
+  perspectives = dbCfg[['EMUwebAppConfig']][['perspectives']]
+  if(mediaAdded & (is.null(perspectives) | length(perspectives) == 0)){
+    sc = list(order = c("OSCI","SPEC"), assign = list(), contourLims = list())
+    defPersp=list(name = 'default', 
+                  signalCanvases = sc, 
+                  levelCanvases = list(order = list()), 
+                  twoDimCanvases = list(order = list()))
+    dbCfg[['EMUwebAppConfig']][['perspectives']] = list(defPersp)
     store_DBconfig(emuDBhandle, dbConfig = dbCfg)
   }
   return(invisible(NULL))
@@ -189,14 +214,21 @@ import_mediaFiles<-function(emuDBhandle,dir,targetSessionName='0000', verbose=TR
 ##'           targetSessionName = "0000")
 ##' 
 ##' }
-add_files <- function(emuDBhandle, dir, fileExtension, targetSessionName='0000'){
-
+add_files <- function(emuDBhandle, 
+                      dir, 
+                      fileExtension, 
+                      targetSessionName = '0000'){
+  
   check_emuDBhandle(emuDBhandle)
   bndls = list_bundles(emuDBhandle, session = targetSessionName)
   
-  sourcePaths = list.files(dir, pattern = paste0(fileExtension, '$'), full.names = T)
+  sourcePaths = list.files(dir, 
+                           pattern = paste0(fileExtension, '$'), 
+                           full.names = T)
   
-  destDirs = file.path(emuDBhandle$basePath, paste0(bndls$session, '_ses'), paste0(bndls$name, '_bndl'))
+  destDirs = file.path(emuDBhandle$basePath, 
+                       paste0(bndls$session, '_ses'), 
+                       paste0(bndls$name, '_bndl'))
   
   if(length(sourcePaths) == 0){
     stop("no files found in 'dir' that match the provided 'fileExtension'")
@@ -247,7 +279,7 @@ list_files <- function(emuDBhandle,
                        fileExtension = ".*",
                        sessionPattern = ".*",
                        bundlePattern = ".*"){
-
+  
   check_emuDBhandle(emuDBhandle)
   
   fileList = list.files(recursive = T,

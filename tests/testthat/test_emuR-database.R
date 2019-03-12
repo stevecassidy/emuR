@@ -218,7 +218,7 @@ test_that("database functions work", {
     bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(b015mChar[1])
     remove_bundleAnnotDBI(ae, "0000", bundleName = "msajc015")
     store_bundleAnnotDFsDBI(ae, bundleAnnotDFs, "0000", "msajc015")
-
+    
     mod2Items=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"'"))
     mod2Labels=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM labels WHERE db_uuid='",ae$UUID,"'"))
     mod2Links=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM links WHERE db_uuid='",ae$UUID,"'"))
@@ -299,7 +299,7 @@ test_that("database functions work", {
     bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(b015Char[1])
     remove_bundleAnnotDBI(ae, "0000", bundleName = "msajc015")
     store_bundleAnnotDFsDBI(ae, bundleAnnotDFs, "0000", "msajc015")
-
+    
     #   
     modOrgItems=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM items WHERE db_uuid='",ae$UUID,"'"))
     modOrgLabels=DBI::dbGetQuery(ae$connection,paste0("SELECT * FROM labels WHERE db_uuid='",ae$UUID,"'"))

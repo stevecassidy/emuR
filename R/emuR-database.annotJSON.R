@@ -95,7 +95,9 @@ annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
   allToIds = sapply(jsonObj$links, function(l) l$toID)
   if(is.null(allToIds)) allToIds = integer()
   
-  links = data.frame(from_id = allFromIds, to_id = allToIds, stringsAsFactors = F)
+  links = data.frame(from_id = allFromIds, 
+                     to_id = allToIds, 
+                     stringsAsFactors = F)
   
   
   ##############################
@@ -137,9 +139,18 @@ annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
   }))
   if(is.null(allLabelValues)) allLabelValues = character()
   
-  labels = data.frame(item_id = allLabelItemIds, label_idx = allLabelLabelIdx, name = allLabelNames, label = allLabelValues, stringsAsFactors = F)
+  labels = data.frame(item_id = allLabelItemIds, 
+                      label_idx = allLabelLabelIdx, 
+                      name = allLabelNames, 
+                      label = allLabelValues, 
+                      stringsAsFactors = F)
   
-  return(list(name = jsonObj$name, annotates = jsonObj$annotates, sampleRate = jsonObj$sampleRate, items = items, links = links, labels = labels))
+  return(list(name = jsonObj$name, 
+              annotates = jsonObj$annotates, 
+              sampleRate = jsonObj$sampleRate, 
+              items = items, 
+              links = links, 
+              labels = labels))
   
 }
 

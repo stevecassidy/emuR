@@ -5,10 +5,13 @@
 ## is.seglist OK
 ## modify.seglist Problematic. No S3 method we cannot overload. Warning?
 ## emusegs.database OK
-## emusegs.type OK (question: are mixed (EVENT and SEGMENT) seglist possible in legacy Emu ?)
+## emusegs.type OK (question: are mixed (EVENT and SEGMENT) 
+## seglist possible in legacy Emu ?)
 ## emusegs.query
-## print.emusegs OK But shows too many columns: TODO select a good set of columns for an S3 override method
-## [.emusegs OK But not clear what emusegs really does (and code includes version$major switch (on S versions?))
+## print.emusegs OK But shows too many columns: TODO select a 
+## good set of columns for an S3 override method
+## [.emusegs OK But not clear what emusegs really does (and 
+## code includes version$major switch (on S versions?))
 ## summary.emusegs OK
 ## label.emusegs OK
 ## as.matrix.emusegs OK
@@ -27,8 +30,10 @@
 make.emuRsegs <- function(dbName, seglist, query, type)
 {
   
-  class(seglist) <- c("emuRsegs","emusegs", "data.frame")
-
+  class(seglist) <- c("emuRsegs",
+                      "emusegs", 
+                      "data.frame")
+  
   attr(seglist, "query") <- query
   attr(seglist, "type") <- type
   attr(seglist, "database") <- dbName
@@ -43,13 +48,23 @@ make.emuRsegs <- function(dbName, seglist, query, type)
 ##' @export
 "print.emuRsegs" <-  function(x, ...) 
 {
-  cat(attributes(x)$type, " list from database: ", attributes(x)$database, "\n")
-  cat("query was: ", attributes(x)$query, "\n" )
-  printX='[.data.frame'(x,c('labels','start','end','session','bundle','level','type'))
+  cat(attributes(x)$type, 
+      " list from database: ", 
+      attributes(x)$database, 
+      "\n")
+  cat("query was: ", 
+      attributes(x)$query, 
+      "\n" )
+  printX = '[.data.frame'(x, c('labels',
+                               'start',
+                               'end',
+                               'session',
+                               'bundle',
+                               'level',
+                               'type'))
   
   print.data.frame(printX, ...)
   
-  #cat("\nNOTE: to reduce the verboseness of the output not all colums of an emuRsegs object are printed. Use print.data.frame() to print all columns.\n")
 }
 
 ##' Sort emuRsegs segment list by session, bundle and sample_start 
@@ -59,7 +74,7 @@ make.emuRsegs <- function(dbName, seglist, query, type)
 ##' @export
 "sort.emuRsegs" <-  function(x, decreasing, ...) 
 {
-
+  
   old_atts = attributes(x)
   
   sl_df_sorted = dplyr::arrange_(x, "session", "bundle", "sample_start")
@@ -76,7 +91,13 @@ as.emusegs <- function(x, ...){
 }
 
 as.emusegs.emuRsegs <- function(x, ...){
-  emusegs = make.seglist(x$labels, x$start, x$end, x$utts, attr(x, "query"), type = attr(x, "type"), database = attr(x, "database"))
+  emusegs = make.seglist(x$labels, 
+                         x$start, 
+                         x$end, 
+                         x$utts, 
+                         attr(x, "query"), 
+                         type = attr(x, "type"), 
+                         database = attr(x, "database"))
   return(emusegs)
 } 
 
@@ -89,16 +110,21 @@ as.emusegs.emuRsegs <- function(x, ...){
 ##' the segmentlist is also stored to the target directory (as a .csv file).
 ##' 
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
-##' @param seglist \code{tibble}, \code{\link{emuRsegs}} or \code{\link{emusegs}} object obtained by \code{\link{query}}ing a loaded emuDB 
+##' @param seglist \code{tibble}, \code{\link{emuRsegs}} or 
+##' \code{\link{emusegs}} object obtained by \code{\link{query}}ing a loaded emuDB 
 ##' @param targetDir target directory to store
 ##' @export
-export_seglistToTxtCollection <- function(emuDBhandle, seglist, targetDir){
+export_seglistToTxtCollection <- function(emuDBhandle, 
+                                          seglist, 
+                                          targetDir){
   
   if(!dir.exists(targetDir)){
     stop("targetDir does not exist!")
   }
   
-  targetDir_full = file.path(targetDir, paste0(emuDBhandle$dbName, "_txt_col_from_seglist"))
+  targetDir_full = file.path(targetDir, 
+                             paste0(emuDBhandle$dbName, 
+                                    "_txt_col_from_seglist"))
   dir.create(targetDir_full)
   
   for(i in 1:nrow(seglist)){
@@ -109,11 +135,17 @@ export_seglistToTxtCollection <- function(emuDBhandle, seglist, targetDir){
                                    begin = seglist[i,]$start / 1000,
                                    end = seglist[i,]$end / 1000) # hardcoded mediaFileExt!
     
-    wrassp::write.AsspDataObj(ado, file = file.path(targetDir_full, paste0("sl_rowIdx_", i, ".wav")))
+    wrassp::write.AsspDataObj(ado, 
+                              file = file.path(targetDir_full, 
+                                               paste0("sl_rowIdx_", i, ".wav")))
     
-    readr::write_file(seglist[i,]$labels, path = file.path(targetDir_full, paste0("sl_rowIdx_", i, ".txt")))
+    readr::write_file(seglist[i,]$labels, 
+                      path = file.path(targetDir_full, 
+                                       paste0("sl_rowIdx_", i, ".txt")))
   }
   
-  readr::write_csv(seglist, path = file.path(targetDir_full, paste0("seglist.csv")))
+  readr::write_csv(seglist, 
+                   path = file.path(targetDir_full, 
+                                    paste0("seglist.csv")))
   
 }

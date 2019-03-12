@@ -309,7 +309,9 @@ parse_bpfHeader <- function(bpfLines,
   # ---------------------------------- Return  --------------------------------
   # ---------------------------------------------------------------------------
   
-  returnContainer = list(header = header, bsKeyPosition = bsKeyPosition, samplerate = samplerate)
+  returnContainer = list(header = header, 
+                         bsKeyPosition = bsKeyPosition, 
+                         samplerate = samplerate)
   
   return(returnContainer)
 }
@@ -383,16 +385,32 @@ write_bpfUtteranceToDb <- function(emuDBhandle,
   # Collect label keys ("bundle" + all header keys found).
   labelTracker = list("bundle")
   
-  queryTxt = paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
-                    utteranceItemID, ", 'bundle', 'ITEM', 1, ", samplerate, ", NULL, NULL, NULL)")
+  queryTxt = paste0("INSERT INTO items VALUES"," (", 
+                    " '", emuDBhandle$UUID, "', ",
+                    " '", session, "', ",
+                    " '", bundle, "', ",
+                    utteranceItemID, ", ",
+                    " 'bundle', ",
+                    " 'ITEM', ",
+                    " 1, ", 
+                    samplerate, ", ",
+                    " NULL, ",
+                    " NULL, ",
+                    " NULL)")
   
   DBI::dbExecute(emuDBhandle$connection, queryTxt)
   
   labelIdxCounter = 1
   
   # First label: 'bundle' -> empty string
-  queryTxt = paste0("INSERT INTO labels VALUES","('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
-    utteranceItemID, ", ", labelIdxCounter, ", 'bundle', '')")
+  queryTxt = paste0("INSERT INTO labels VALUES","(",
+                    " '", emuDBhandle$UUID, "', ",
+                    " '", session, "', ",
+                    " '", bundle, "', ",
+                    utteranceItemID, ", ", 
+                    labelIdxCounter, ", ",
+                    " 'bundle', ",
+                    " ''", ")")
   
   DBI::dbExecute(emuDBhandle$connection, queryTxt)
   
@@ -402,8 +420,15 @@ write_bpfUtteranceToDb <- function(emuDBhandle,
   # Subsequent labels: Key -> value pairs found in BPF header.
   for(key in names(header))
   {
-    queryTxt = paste0("INSERT INTO labels VALUES","('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
-                      utteranceItemID, ", ", labelIdxCounter, ", '", key,"', '", header[[key]], "')")
+    queryTxt = paste0("INSERT INTO labels VALUES","(",
+                      " '", emuDBhandle$UUID, "', ",
+                      " '", session, "', ",
+                      " '", bundle, "', ",
+                      utteranceItemID, ", ", 
+                      labelIdxCounter, ", ",
+                      " '", key,"', ",
+                      " '", header[[key]], "' ",
+                      ")")
     
     DBI::dbExecute(emuDBhandle$connection, queryTxt)
     
@@ -517,7 +542,11 @@ parse_bpfBody <- function(bpfLines,
     
     if(!key %in% names(levelClasses))
     {
-      stop("Unknown level name in line ", idx, " of the following BPF: ", bpfPath, ". If this level is not one of the standard BPF tiers, you have to declare it using the newLevels argument.")
+      stop("Unknown level name in line ", 
+           idx, 
+           " of the following BPF: ", 
+           bpfPath, 
+           ". If this level is not one of the standard BPF tiers, you have to declare it using the newLevels argument.")
     }
     
     if(!key %in% names(levels))
@@ -619,17 +648,35 @@ parse_bpfBody <- function(bpfLines,
         labels_end[[key]] = paste0(labels[[key]], "_end")
       }
       
-      levels[[key]][[length(levels[[key]]) + 1L]] = list(itemID = itemID_start, start = start, duration = duration, point = point_start,
-                                                         labels = labels_start, links = links, seqIdx = seqIdx, type = type)
+      levels[[key]][[length(levels[[key]]) + 1L]] = list(itemID = itemID_start, 
+                                                         start = start, 
+                                                         duration = duration, 
+                                                         point = point_start,
+                                                         labels = labels_start, 
+                                                         links = links, 
+                                                         seqIdx = seqIdx, 
+                                                         type = type)
       
-      levels[[key]][[length(levels[[key]]) + 1L]] = list(itemID = itemID_end, start = start, duration = duration, point = point_end,
-                                                         labels = labels_end, links = links, seqIdx = seqIdx, type = type)
+      levels[[key]][[length(levels[[key]]) + 1L]] = list(itemID = itemID_end, 
+                                                         start = start, 
+                                                         duration = duration, 
+                                                         point = point_end,
+                                                         labels = labels_end, 
+                                                         links = links, 
+                                                         seqIdx = seqIdx, 
+                                                         type = type)
     }
     
     else
     {
-      levels[[key]][[length(levels[[key]]) + 1L]] = list(itemID = itemID, start = start, duration = duration, point = point,
-                                                         labels = labels, links = links, seqIdx = seqIdx, type = type)
+      levels[[key]][[length(levels[[key]]) + 1L]] = list(itemID = itemID, 
+                                                         start = start, 
+                                                         duration = duration, 
+                                                         point = point,
+                                                         labels = labels, 
+                                                         links = links, 
+                                                         seqIdx = seqIdx, 
+                                                         type = type)
     }
   }
   
@@ -637,7 +684,9 @@ parse_bpfBody <- function(bpfLines,
   # -------------------------------- Return -----------------------------------
   # ---------------------------------------------------------------------------
   
-  returnContainer = list(levels = levels, currentItemID = currentItemID, semicolonFound = semicolonFound)
+  returnContainer = list(levels = levels, 
+                         currentItemID = currentItemID, 
+                         semicolonFound = semicolonFound)
   return(returnContainer)
 }
 
@@ -705,8 +754,11 @@ parse_bpfLine <- function(levelClass,
     linksString = splitline[3]
   }
   
-  return(list(start = start, duration = duration, point = point, 
-              labelString = labelString, linksString = linksString))
+  return(list(start = start, 
+              duration = duration, 
+              point = point, 
+              labelString = labelString, 
+              linksString = linksString))
 }
 
 ###############################################################################
@@ -823,7 +875,8 @@ evaluate_bpfLinksString <- function(linksString,
       }
       if(is.na(links[[1]]))
       {
-        stop("The reference level must contain valid symbolic links. Valid symbolic links are neither '-1', nor do they contain the ';' operator. BPF: ", bpfPath)
+        stop("The reference level must contain valid symbolic links. Valid symbolic ",
+             "links are neither '-1', nor do they contain the ';' operator. BPF: ", bpfPath)
       }
     }
   }
@@ -870,8 +923,23 @@ check_bpfOverlap <- function(levels,
         )
         {
           currentElement = levels[[key]][[idx]]
-          segmentBPF = paste0(key, ": ", currentElement[[2]], " ", currentElement[[3]], " ", currentElement[[6]], " ", currentElement[[5]][[1]])
-          stop("The following BPF contains overlapping segments on level '", key, "'; ", " : ", bpfPath, " (BPF segment: ", segmentBPF,")")
+          segmentBPF = paste0(key, 
+                              ": ", 
+                              currentElement[[2]], 
+                              " ", 
+                              currentElement[[3]], 
+                              " ", 
+                              currentElement[[6]], 
+                              " ", 
+                              currentElement[[5]][[1]])
+          stop("The following BPF contains overlapping segments on level '", 
+               key, 
+               "'; ", 
+               " : ", 
+               bpfPath, 
+               " (BPF segment: ", 
+               segmentBPF,
+               ")")
         }
       }
     }
@@ -891,7 +959,11 @@ check_bpfOverlap <- function(levels,
         {
           if(key %in% segmentToEventLevels)
           {
-            stop("The following BPF contains simultaneous events on level '", key, "' after segment overlap resolution: ", bpfPath, ". Check whether there are any segments with simultaneous starting and/or end points in this BPF.")
+            stop("The following BPF contains simultaneous events on level '", 
+                 key, 
+                 "' after segment overlap resolution: ", 
+                 bpfPath, 
+                 ". Check whether there are any segments with simultaneous starting and/or end points in this BPF.")
           }
           else
           {
@@ -1051,10 +1123,18 @@ write_bpfItemsLabelsToDb <- function(emuDBhandle,
     {
       
       # Write item information.
-      queryTxt = paste0("INSERT INTO items VALUES"," ('", emuDBhandle$UUID, "', '", session, "', '", bundle, "', ",
-                        levels[[key]][[idx]][["itemID"]], ", '", key, "', '", levels[[key]][[idx]][["type"]], "', ",
-                        levels[[key]][[idx]][["seqIdx"]], ", ", samplerate, ", ", levels[[key]][[idx]][["point"]], ", ",
-                        levels[[key]][[idx]][["start"]], ", ", levels[[key]][[idx]][["duration"]], ")")
+      queryTxt = paste0("INSERT INTO items VALUES"," (",
+                        " '", emuDBhandle$UUID, "', ",
+                        " '", session, "', ",
+                        " '", bundle, "', ",
+                        levels[[key]][[idx]][["itemID"]], ", ",
+                        " '", key, "', ",
+                        " '", levels[[key]][[idx]][["type"]], "', ",
+                        levels[[key]][[idx]][["seqIdx"]], ", ", 
+                        samplerate, ", ", 
+                        levels[[key]][[idx]][["point"]], ", ",
+                        levels[[key]][[idx]][["start"]], ", ", 
+                        levels[[key]][[idx]][["duration"]], ")")
       
       DBI::dbExecute(emuDBhandle$connection, queryTxt)
       
@@ -1062,9 +1142,15 @@ write_bpfItemsLabelsToDb <- function(emuDBhandle,
       
       for(labelKey in names(levels[[key]][[idx]][["labels"]]))
       {
-        queryTxt = paste0("INSERT INTO labels VALUES","('", emuDBhandle$UUID, "', '", session, "', '", bundle, 
-                          "', ", levels[[key]][[idx]][["itemID"]], ", ", labelIdxCounter,", '", 
-                          labelKey, "', '", levels[[key]][[idx]][["labels"]][[labelKey]], "')")
+        queryTxt = paste0("INSERT INTO labels VALUES","(",
+                          " '", emuDBhandle$UUID, "', ",
+                          " '", session, "', ",
+                          " '", bundle, "', ", 
+                          levels[[key]][[idx]][["itemID"]], ", ", 
+                          labelIdxCounter,", ",
+                          " '", labelKey, "', ",
+                          " '", levels[[key]][[idx]][["labels"]][[labelKey]], "' ",
+                          ")")
         
         DBI::dbExecute(emuDBhandle$connection, queryTxt)
         
@@ -1075,7 +1161,9 @@ write_bpfItemsLabelsToDb <- function(emuDBhandle,
         labelIdxCounter = labelIdxCounter + 1
       }
     }
-    levelInfo[[length(levelInfo) + 1L]] = list(key = key, type = levels[[key]][[1]][["type"]], labels = labelTracker)
+    levelInfo[[length(levelInfo) + 1L]] = list(key = key, 
+                                               type = levels[[key]][[1]][["type"]], 
+                                               labels = labelTracker)
   }
   
   return(levelInfo)
@@ -1190,22 +1278,34 @@ write_bpfLinksToDb <- function(emuDBhandle,
       {
         if(!(link %in% names(linkIdxMap)))
         {
-          stop("There is a symbolic link on level ", key, " in the following BPF that does not point to any item on the reference level: ", bpfPath)
+          stop("There is a symbolic link on level ", 
+               key, 
+               " in the following BPF that does not point to any item on the reference level: ", 
+               bpfPath)
         }
         
         if(upper == refLevel)
         {
-          queryTxt = paste0("INSERT INTO links VALUES","('", emuDBhandle$UUID, "', '", session, "', '", 
-                            bundle, "', ", linkIdxMap[[toString(link)]], ", ", 
-                            levels[[key]][[idx]][["itemID"]],", NULL)")
+          queryTxt = paste0("INSERT INTO links VALUES","(",
+                            " '", emuDBhandle$UUID, "', ",
+                            " '", session, "', ",
+                            " '", bundle, "', ", 
+                            linkIdxMap[[toString(link)]], ", ", 
+                            levels[[key]][[idx]][["itemID"]],", ",
+                            " NULL", 
+                            ")")
           
           DBI::dbExecute(emuDBhandle$connection, queryTxt)
         }
         else if(lower == refLevel)
         {
-          queryTxt =  paste0("INSERT INTO links VALUES","('", emuDBhandle$UUID, "', '", session, "', '", 
-                             bundle, "', ", levels[[key]][[idx]][["itemID"]], ", ", 
-                             linkIdxMap[[toString(link)]],", NULL)")
+          queryTxt =  paste0("INSERT INTO links VALUES","(",
+                             " '", emuDBhandle$UUID, "', ",
+                             " '", session, "', ",
+                             " '", bundle, "', ", 
+                             levels[[key]][[idx]][["itemID"]], ", ", 
+                             linkIdxMap[[toString(link)]], ", ",
+                             " NULL)")
           
           
           DBI::dbExecute(emuDBhandle$connection, queryTxt)
@@ -1264,7 +1364,9 @@ get_bpfLinkCounts <- function(levels,
     }
   }
   
-  return(list(oneToMany = oneToMany, manyToOne = manyToOne, seenLinks = seenLinks))
+  return(list(oneToMany = oneToMany, 
+              manyToOne = manyToOne, 
+              seenLinks = seenLinks))
 }
 
 ###############################################################################
@@ -1330,8 +1432,11 @@ bpf_get_link_info_entry <- function(key,
   # ------------------------------------ Return -------------------------------
   # ---------------------------------------------------------------------------
   
-  linkInfoEntry = list(fromkey = upper, tokey = lower, type = linkType, 
-                       countRight = countRight, countWrong = countWrong)
+  linkInfoEntry = list(fromkey = upper, 
+                       tokey = lower, 
+                       type = linkType, 
+                       countRight = countRight, 
+                       countWrong = countWrong)
   
   return(linkInfoEntry)
 }
@@ -1385,28 +1490,44 @@ unify_bpfLevels <- function(emuDBhandle,
       
       if(levels[[key]][[idx]][["links"]][1] %in% seenLinks)
       {
-        stop("If you want to unify level ", key, " with the reference level, you cannot have more than one item on ", key, " pointing to one item on the reference level. BPF: ", bpfPath)
+        stop("If you want to unify level ", 
+             key, 
+             " with the reference level, you cannot have more than one item on ", 
+             key, 
+             " pointing to one item on the reference level. BPF: ", 
+             bpfPath)
       }
       
       if(is.na(levels[[key]][[idx]][["links"]][1]))
       {
-        stop("If you want to unify level, ", key, " with the reference level, it must not contain any link-less items. BPF: ", bpfPath)
+        stop("If you want to unify level, ", 
+             key, 
+             " with the reference level, it must not contain any link-less items. BPF: ", 
+             bpfPath)
       }
       
       if(!toString(levels[[key]][[idx]][["links"]][1]) %in% names(linkIdxMap))
       {
-        stop("There is a symbolic link on level ", key, " in the following BPF that does not point to any item on the reference level: ", bpfPath)
+        stop("There is a symbolic link on level ", 
+             key, 
+             " in the following BPF that does not point to any item on the reference level: ", 
+             bpfPath)
       }
       
       for(labelKey in names(levels[[key]][[idx]][["labels"]]))
       {
         for(link in 1:length(levels[[key]][[idx]][["links"]]))
         {
-          queryTxt = paste0("INSERT INTO labels VALUES('", emuDBhandle$UUID, "', '", session, "', '", 
-                            bundle, "', ", linkIdxMap[[toString(levels[[key]][[idx]][["links"]][link])]], 
-                            ", ", currentLabelIdx, ", '", labelKey, "', '", 
-                            levels[[key]][[idx]][["labels"]][[labelKey]], "')")
-            
+          queryTxt = paste0("INSERT INTO labels VALUES(",
+                            " '", emuDBhandle$UUID, "', ",
+                            " '", session, "', ",
+                            " '", bundle, "', ", 
+                            linkIdxMap[[toString(levels[[key]][[idx]][["links"]][link])]], ", ", 
+                            currentLabelIdx, ", ",
+                            " '", labelKey, "', ",
+                            " '", levels[[key]][[idx]][["labels"]][[labelKey]], "' ",
+                            ")")
+          
           DBI::dbExecute(emuDBhandle$connection, queryTxt)
           seenLinks[[length(seenLinks) + 1L]] = levels[[key]][[idx]][["links"]][link]
         }

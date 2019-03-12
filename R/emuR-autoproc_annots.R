@@ -9,11 +9,12 @@
 ##' 
 ##' 
 ##' @param emuDBhandle emuDB handle object (see \link{load_emuDB})
-##' @param attributeDefinitionName name of a attributeDefinition of a emuDB where the labels are to be 
-##' replaced
+##' @param attributeDefinitionName name of a attributeDefinition of a emuDB 
+##' where the labels are to be replaced
 ##' @param origLabels character vector containing labels that are to be replaced
-##' @param newLabels character vector containing labels that are to replaced the labels of \code{origLabels}. 
-##' This vector has to be of equal length to the \code{origLabels} vector.
+##' @param newLabels character vector containing labels that are to replaced 
+##' the labels of \code{origLabels}. This vector has to be of equal length 
+##' to the \code{origLabels} vector.
 ##' @param verbose Show progress bars and further information
 ##' @export
 ##' @seealso \code{\link{load_emuDB}}
@@ -32,7 +33,11 @@
 ##' 
 ##' }
 ##' 
-replace_itemLabels <- function(emuDBhandle, attributeDefinitionName, origLabels, newLabels, verbose = TRUE) {
+replace_itemLabels <- function(emuDBhandle, 
+                               attributeDefinitionName, 
+                               origLabels, 
+                               newLabels, 
+                               verbose = TRUE) {
   
   #############################
   # check input parameters
@@ -41,7 +46,9 @@ replace_itemLabels <- function(emuDBhandle, attributeDefinitionName, origLabels,
   
   allAttrNames = get_allAttributeNames(emuDBhandle)
   if(!attributeDefinitionName %in% allAttrNames){
-    stop(paste0("No attributeDefinitionName: ", attributeDefinitionName, " found in emuDB! The available attributeNames are: ", paste0(get_allAttributeNames(emuDBhandle), collapse = "; ")))
+    stop(paste0("No attributeDefinitionName: ", attributeDefinitionName, 
+                " found in emuDB! The available attributeNames are: ", 
+                paste0(get_allAttributeNames(emuDBhandle), collapse = "; ")))
   }
   
   if(class(origLabels) != "character" | class(newLabels) != "character" | length(origLabels) != length(newLabels)){
@@ -54,7 +61,8 @@ replace_itemLabels <- function(emuDBhandle, attributeDefinitionName, origLabels,
     cat("\n  INFO: creating temporary index...\n")
   }
   # create temp index
-  DBI::dbExecute(emuDBhandle$connection, paste0("CREATE INDEX IF NOT EXISTS label_replace_tmp_idx ON labels(db_uuid, name, label)"))
+  DBI::dbExecute(emuDBhandle$connection, paste0("CREATE INDEX IF NOT EXISTS label_replace_tmp_idx ",
+                                                "ON labels(db_uuid, name, label)"))
   
   # progressbar 
   if(verbose){
@@ -66,8 +74,11 @@ replace_itemLabels <- function(emuDBhandle, attributeDefinitionName, origLabels,
   DBI::dbBegin(emuDBhandle$connection)
   
   for(i in 1:length(origLabels)){
-    DBI::dbExecute(emuDBhandle$connection, paste0("UPDATE labels SET label = '", newLabels[i], "' ",
-                                                  "WHERE db_uuid='", emuDBhandle$UUID, "' AND name = '", attributeDefinitionName, "' AND label = '", origLabels[i], "'"))
+    DBI::dbExecute(emuDBhandle$connection, paste0("UPDATE labels ",
+                                                  "SET label = '", newLabels[i], "' ",
+                                                  "WHERE db_uuid='", emuDBhandle$UUID, "' ",
+                                                  " AND name = '", attributeDefinitionName, "' ",
+                                                  " AND label = '", origLabels[i], "'"))
     if(verbose){
       utils::setTxtProgressBar(pb, i)
     }
@@ -123,16 +134,21 @@ replace_itemLabels <- function(emuDBhandle, attributeDefinitionName, origLabels,
 ##' 
 ##' }
 ##' 
-duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName, 
-                            duplicateLinks = TRUE, linkDuplicates = FALSE, 
-                            linkDefType = "ONE_TO_ONE", verbose = TRUE) {
+duplicate_level <- function(emuDBhandle, 
+                            levelName, 
+                            duplicateLevelName, 
+                            duplicateLinks = TRUE, 
+                            linkDuplicates = FALSE, 
+                            linkDefType = "ONE_TO_ONE", 
+                            verbose = TRUE) {
   
   check_emuDBhandle(emuDBhandle)
   
   ldefs = list_levelDefinitions(emuDBhandle)
   
   if(!levelName %in% ldefs$name){
-    stop(paste0(levelName, " is not a valid level name! Available levels are: ", paste0(ldefs$name, collapse = "; ")))
+    stop(paste0(levelName, " is not a valid level name! Available levels are: ", 
+                paste0(ldefs$name, collapse = "; ")))
   }
   
   if(duplicateLevelName %in% ldefs$name){
@@ -149,33 +165,65 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
   # duplicate item entries
   
   # create temp tables
-  DBI::dbExecute(emuDBhandle$connection, "CREATE TEMP TABLE IF NOT EXISTS bndl_max_item_id_tmp (
-                  db_uuid VARCHAR(36),
-                  session TEXT,
-                  bundle TEXT,
-                  bndl_max_item_id INTEGER,
-                  PRIMARY KEY (db_uuid, session, bundle)
-  )")
+  DBI::dbExecute(emuDBhandle$connection, paste0("CREATE TEMP TABLE IF NOT EXISTS bndl_max_item_id_tmp ",
+                                                "(db_uuid VARCHAR(36), ",
+                                                " session TEXT, ",
+                                                " bundle TEXT, ",
+                                                " bndl_max_item_id INTEGER, ",
+                                                "PRIMARY KEY (db_uuid, session, bundle))"))
   # create bndl_max_item_id_tmp table
   DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO bndl_max_item_id_tmp ",
-                                                "SELECT db_uuid, session, bundle, max(item_id) AS bndl_max_item_id FROM items WHERE db_uuid = '", emuDBhandle$UUID, "' ",
+                                                "SELECT ",
+                                                " db_uuid, ",
+                                                " session, ",
+                                                " bundle, ",
+                                                " max(item_id) AS bndl_max_item_id ",
+                                                "FROM items ",
+                                                "WHERE db_uuid = '", emuDBhandle$UUID, "' ",
                                                 "GROUP BY db_uuid, session, bundle"))
   # duplicate level items table elements
   DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO items ",
-                                                "SELECT items.db_uuid, items.session, items.bundle, (item_id + bndl_max_item_id) AS item_id, '", duplicateLevelName, "' AS level, type, seq_idx, sample_rate, sample_point, sample_start, sample_dur ",
-                                                "FROM items, bndl_max_item_id_tmp ", 
-                                                "WHERE items.db_uuid = bndl_max_item_id_tmp.db_uuid AND items.session = bndl_max_item_id_tmp.session ",
-                                                "AND items.bundle = bndl_max_item_id_tmp.bundle AND items.level = '", levelName, "'"))
+                                                "SELECT ",
+                                                " items.db_uuid, ",
+                                                " items.session, ",
+                                                " items.bundle, ",
+                                                " (item_id + bndl_max_item_id) AS item_id, ' ", 
+                                                duplicateLevelName, "' AS level, ",
+                                                " type, ",
+                                                " seq_idx, ",
+                                                " sample_rate, ",
+                                                " sample_point, ",
+                                                " sample_start, ",
+                                                " sample_dur ",
+                                                "FROM items, ",
+                                                " bndl_max_item_id_tmp ", 
+                                                "WHERE items.db_uuid = bndl_max_item_id_tmp.db_uuid ",
+                                                " AND items.session = bndl_max_item_id_tmp.session ",
+                                                " AND items.bundle = bndl_max_item_id_tmp.bundle ",
+                                                " AND items.level = '", levelName, "'"))
   
   ##########################
   # duplicate labels entries
   DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO labels ",
-                                                "SELECT l.db_uuid, l.session, l.bundle, (l.item_id + mid.bndl_max_item_id) AS item_id, l.label_idx, ",
-                                                "CASE WHEN l.name = '", levelName, "' THEN '", duplicateLevelName, "' ELSE l.name END AS name, l.label ",
-                                                "FROM items AS it, labels AS l, bndl_max_item_id_tmp AS mid ",
-                                                "WHERE it.db_uuid = l.db_uuid AND it.session = l.session AND it.bundle = l.bundle AND it.item_id = l.item_id ",
-                                                "AND it.db_uuid = mid.db_uuid AND it.session = mid.session AND it.bundle = mid.bundle ",
-                                                "AND it.level = '", levelName, "'"))
+                                                "SELECT l.db_uuid, ",
+                                                " l.session, ",
+                                                " l.bundle, ",
+                                                " (l.item_id + mid.bndl_max_item_id) AS item_id, ",
+                                                " l.label_idx, ",
+                                                "CASE WHEN l.name = '", levelName, "' ",
+                                                "THEN '", duplicateLevelName, "' ",
+                                                "ELSE l.name END AS name, l.label ",
+                                                "FROM items AS it, ",
+                                                " labels AS l, ",
+                                                " bndl_max_item_id_tmp AS mid ",
+                                                "WHERE it.db_uuid = l.db_uuid ",
+                                                " AND it.session = l.session ",
+                                                " AND it.bundle = l.bundle ",
+                                                " AND it.item_id = l.item_id ",
+                                                " AND it.db_uuid = mid.db_uuid ",
+                                                " AND it.session = mid.session ",
+                                                " AND it.bundle = mid.bundle ",
+                                                " AND it.level = '", levelName, "'"))
   
   if(duplicateLinks){
     ##########################
@@ -183,28 +231,65 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
     
     # where duplicate items are parents
     DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO links ",
-                                                  "SELECT li.db_uuid, li.session, li.bundle, (li.from_id + mid.bndl_max_item_id) AS from_id, li.to_id, li.label ",
-                                                  "FROM items AS it, links AS li, bndl_max_item_id_tmp AS mid ",
-                                                  "WHERE it.db_uuid = li.db_uuid AND it.session = li.session AND it.bundle = li.bundle AND it.item_id = li.from_id ",
-                                                  "AND it.db_uuid = mid.db_uuid AND it.session = mid.session AND it.bundle = mid.bundle ",
-                                                  "AND it.level = '", levelName, "'"))
+                                                  "SELECT ",
+                                                  " li.db_uuid, ",
+                                                  " li.session, ",
+                                                  " li.bundle, ",
+                                                  " (li.from_id + mid.bndl_max_item_id) AS from_id, ",
+                                                  " li.to_id, ",
+                                                  " li.label ",
+                                                  "FROM items AS it, ",
+                                                  " links AS li, ",
+                                                  " bndl_max_item_id_tmp AS mid ",
+                                                  "WHERE it.db_uuid = li.db_uuid ",
+                                                  " AND it.session = li.session ",
+                                                  " AND it.bundle = li.bundle ",
+                                                  " AND it.item_id = li.from_id ",
+                                                  " AND it.db_uuid = mid.db_uuid ",
+                                                  " AND it.session = mid.session ",
+                                                  " AND it.bundle = mid.bundle ",
+                                                  " AND it.level = '", levelName, "'"))
     
     # where duplicate items are children
     DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO links ",
-                                                  "SELECT li.db_uuid, li.session, li.bundle, li.from_id, (li.to_id + mid.bndl_max_item_id) AS to_id, li.label ",
-                                                  "FROM items AS it, links AS li, bndl_max_item_id_tmp AS mid ",
-                                                  "WHERE it.db_uuid = li.db_uuid AND it.session = li.session AND it.bundle = li.bundle AND it.item_id = li.to_id ",
-                                                  "AND it.db_uuid = mid.db_uuid AND it.session = mid.session AND it.bundle = mid.bundle ",
-                                                  "AND it.level = '", levelName, "'"))
+                                                  "SELECT ",
+                                                  " li.db_uuid, ",
+                                                  " li.session, ",
+                                                  " li.bundle, ",
+                                                  " li.from_id, ",
+                                                  " (li.to_id + mid.bndl_max_item_id) AS to_id, ",
+                                                  " li.label ",
+                                                  "FROM items AS it, ",
+                                                  " links AS li, ",
+                                                  " bndl_max_item_id_tmp AS mid ",
+                                                  "WHERE it.db_uuid = li.db_uuid ",
+                                                  " AND it.session = li.session ",
+                                                  " AND it.bundle = li.bundle ",
+                                                  " AND it.item_id = li.to_id ",
+                                                  " AND it.db_uuid = mid.db_uuid ",
+                                                  " AND it.session = mid.session ",
+                                                  " AND it.bundle = mid.bundle ",
+                                                  " AND it.level = '", levelName, "'"))
     
   }else{
     if(linkDuplicates){
       DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO links ",
-                                                    "SELECT it1.db_uuid, it1.session, it1.bundle, it1.item_id AS from_id, it2.item_id AS to_id, null AS label ",
-                                                    "FROM items AS it1, items AS it2 ",
-                                                    "WHERE it1.db_uuid = it2.db_uuid AND it1.session = it2.session AND it1.bundle = it2.bundle ",
-                                                    "AND it1.level = '", levelName,"' ",
-                                                    "AND it2.level = '", duplicateLevelName,"' AND it1.type = it2.type AND it1.seq_idx = it2.seq_idx"))
+                                                    "SELECT ",
+                                                    " it1.db_uuid, ",
+                                                    " it1.session, ",
+                                                    " it1.bundle, ",
+                                                    " it1.item_id AS from_id, ",
+                                                    " it2.item_id AS to_id, ",
+                                                    " null AS label ",
+                                                    "FROM items AS it1, ",
+                                                    " items AS it2 ",
+                                                    "WHERE it1.db_uuid = it2.db_uuid ",
+                                                    " AND it1.session = it2.session ",
+                                                    " AND it1.bundle = it2.bundle ",
+                                                    " AND it1.level = '", levelName,"' ",
+                                                    " AND it2.level = '", duplicateLevelName,"' ",
+                                                    " AND it1.type = it2.type ",
+                                                    " AND it1.seq_idx = it2.seq_idx"))
     }
   }
   
@@ -213,7 +298,11 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
   
   ########################
   # add levelDefs 
-  add_levelDefinition(emuDBhandle, duplicateLevelName, type = ldef$type, rewriteAllAnnots = FALSE, verbose = verbose)
+  add_levelDefinition(emuDBhandle, 
+                      duplicateLevelName, 
+                      type = ldef$type, 
+                      rewriteAllAnnots = FALSE, 
+                      verbose = verbose)
   
   ########################
   # add linkDefinitions
@@ -223,7 +312,10 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
     superLds = linkDefs[linkDefs$superlevelName == levelName,]
     if(nrow(superLds) > 0){
       for(i in 1:nrow(superLds)){
-        add_linkDefinition(emuDBhandle, type = superLds[i,]$type, superlevelName = duplicateLevelName, sublevelName = superLds[i,]$sublevelName)
+        add_linkDefinition(emuDBhandle, 
+                           type = superLds[i,]$type, 
+                           superlevelName = duplicateLevelName, 
+                           sublevelName = superLds[i,]$sublevelName)
       }
     }
     
@@ -231,13 +323,19 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
     subLds = linkDefs[linkDefs$sublevelName == levelName,]
     if(nrow(subLds) > 0){
       for(i in 1:nrow(subLds)){
-        add_linkDefinition(emuDBhandle, type = subLds[i,]$type, superlevelName = subLds[i,]$superlevelName, sublevelName = duplicateLevelName)
+        add_linkDefinition(emuDBhandle, 
+                           type = subLds[i,]$type, 
+                           superlevelName = subLds[i,]$superlevelName, 
+                           sublevelName = duplicateLevelName)
       }
     }
   }
   
   if(linkDuplicates){
-    add_linkDefinition(emuDBhandle, type = linkDefType, superlevelName = levelName, sublevelName = duplicateLevelName)
+    add_linkDefinition(emuDBhandle, 
+                       type = linkDefType, 
+                       superlevelName = levelName, 
+                       sublevelName = duplicateLevelName)
   }
   
   ########################
@@ -248,15 +346,23 @@ duplicate_level <- function(emuDBhandle, levelName, duplicateLevelName,
       internal_add_attributeDefinition(emuDBhandle,
                                        levelName = duplicateLevelName,
                                        name = attrDefs[i,]$name,
-                                       type = attrDefs[i,]$type, rewriteAllAnnots = FALSE, verbose = verbose, insertLabels = F)
+                                       type = attrDefs[i,]$type, 
+                                       rewriteAllAnnots = FALSE, 
+                                       verbose = verbose, 
+                                       insertLabels = F)
     }
     # copy legalLabels
     ll = get_legalLabels(emuDBhandle, levelName, attrDefs[i,]$name)
     if(!is.na(ll)){
-      set_legalLabels(emuDBhandle, duplicateLevelName, attrDefs[i,]$name, legalLabels = ll)
+      set_legalLabels(emuDBhandle, 
+                      duplicateLevelName, 
+                      attrDefs[i,]$name, 
+                      legalLabels = ll)
     }
     # copy labelGroups
-    attrDefLgs = list_attrDefLabelGroups(emuDBhandle, levelName, attributeDefinitionName = attrDefs[i,]$name)
+    attrDefLgs = list_attrDefLabelGroups(emuDBhandle, 
+                                         levelName, 
+                                         attributeDefinitionName = attrDefs[i,]$name)
     if(nrow(attrDefLgs) > 0){
       for(j in 1:nrow(attrDefLgs)){
         if(attrDefs[i,]$name == levelName){
@@ -359,9 +465,9 @@ resample_annots <- function(emuDBhandle, newSampleRate, verbose = TRUE) {
   
   DBI::dbExecute(emuDBhandle$connection, paste0("UPDATE items ",
                                                 "SET sample_rate =  ", newSampleRate, ", ",
-                                                "sample_point = ROUND((sample_point / sample_rate) * ", newSampleRate, ") ",
-                                                "sample_start = ROUND(((sample_start - 0.5) / sample_rate) * ", newSampleRate, ") ",
-                                                "sample_dur = sample_dur "))
+                                                " sample_point = ROUND((sample_point / sample_rate) * ", newSampleRate, ") ",
+                                                " sample_start = ROUND(((sample_start - 0.5) / sample_rate) * ", newSampleRate, ") ",
+                                                " sample_dur = sample_dur "))
   
   DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT * FROM items WHERE level = 'Tone'"))
 }

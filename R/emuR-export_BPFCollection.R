@@ -20,7 +20,7 @@
 ##' @return NULL
 ##' @seealso export_TextGridCollection
 ##' @export
- 
+
 export_BPFCollection <- function(handle,
                                  targetDir,
                                  extractLevels,
@@ -51,7 +51,7 @@ export_BPFCollection <- function(handle,
     utils::setTxtProgressBar(pb, 0)
   }
   
-
+  
   for(kdx in 1:nrow(bundles))
   {
     bundle = bundles[kdx,"name"]
@@ -60,21 +60,32 @@ export_BPFCollection <- function(handle,
     bpfLines = c("LBD:")
     headerLines = c("LHD: Partitur 1.3")
     seen_sam = FALSE
-      
+    
     bpf_target = file.path(targetDir, handle$dbName, session, paste0(bundle, ".par"))
-
+    
     link_map = make_link_map(handle, session, bundle, refLevel)
     
     extract_set_string = paste0("('", paste(names(extractLevels), collapse="','"), "')")
-      
-    queryTxt = paste0("SELECT items.item_id, items.sample_start, items.sample_dur, items.sample_point, labels.name, labels.label ",
-                      "FROM items JOIN labels ON items.item_id=labels.item_id ",
-                      "AND items.db_uuid=labels.db_uuid AND items.session=labels.session AND items.bundle=labels.bundle",
-                      basic_cond(handle, session, bundle, prefix = "items"), "AND labels.name in ", extract_set_string, 
-                      " ORDER BY labels.name, items.seq_idx")
+    
+    queryTxt = paste0("SELECT ",
+                      " items.item_id, ",
+                      " items.sample_start, ",
+                      " items.sample_dur, ",
+                      " items.sample_point, ",
+                      " labels.name, ",
+                      " labels.label ",
+                      "FROM items ",
+                      "JOIN labels ",
+                      "ON items.item_id = labels.item_id ",
+                      " AND items.db_uuid = labels.db_uuid ",
+                      " AND items.session = labels.session ",
+                      " AND items.bundle = labels.bundle",
+                      basic_cond(handle, session, bundle, prefix = "items"), 
+                      " AND labels.name in ", extract_set_string, " ",
+                      "ORDER BY labels.name, items.seq_idx")
     
     labels = DBI::dbGetQuery(handle$connection, queryTxt)
-      
+    
     if(nrow(labels) > 0)
     {
       for(idx in 1:nrow(labels))
@@ -86,9 +97,14 @@ export_BPFCollection <- function(handle,
         if(!(bpfkey %in% names(levelClasses)))
         {
           queryTxt = paste0("SELECT items.item_id ",
-                            "FROM items JOIN labels ON items.item_id=labels.item_id ",
-                            "AND items.db_uuid=labels.db_uuid AND items.session=labels.session AND items.bundle=labels.bundle",
-                            basic_cond(handle, session, bundle, prefix = "items"), "AND labels.name = '", key, "'")
+                            "FROM items ",
+                            "JOIN labels ",
+                            "ON items.item_id = labels.item_id ",
+                            " AND items.db_uuid = labels.db_uuid ",
+                            " AND items.session = labels.session ",
+                            " AND items.bundle = labels.bundle ",
+                            basic_cond(handle, session, bundle, prefix = "items"), 
+                            " AND labels.name = '", key, "'")
           tmp = DBI::dbGetQuery(handle$connection, queryTxt)
           
           if(nrow(tmp) > 1)
@@ -106,44 +122,52 @@ export_BPFCollection <- function(handle,
         else
         {
           class = levelClasses[[bpfkey]]
-
+          
           label = labels[idx, "label"]
           item_id = labels[idx, "item_id"]
           
           if(class %in% c(1,4,5))
           {
             link = "-1"
-          
+            
             if(toString(item_id) %in% names(link_map))
             {
               link = paste(unique(link_map[[toString(item_id)]]), collapse=",")
             }
           }
-                
+          
           if(class %in% c(2,4))
           {
             start = labels[idx, "sample_start"]
             dur = labels[idx, "sample_dur"]
-                  
+            
             if(is.na(start) || is.na(dur))
             {
-              container = infer_temporal_info(handle, session, bundle, item_id, type="SEGMENT")
+              container = infer_temporal_info(handle, 
+                                              session, 
+                                              bundle, 
+                                              item_id, 
+                                              type = "SEGMENT")
               start = container$sample_start
               dur = container$sample_dur
             }
-                  
+            
             if(is.na(start) || is.na(dur))
             {
               stop("Invalid segment of class 2 or 4 ", labels[idx,], ". Could not infer start and duration.")
             }
           }
-                
+          
           if(class %in% c(3,5))
           {
             point = labels[idx, "sample_point"]
             if(is.na(point))
             {
-              container = infer_temporal_info(handle, session, bundle, item_id, type="EVENT")
+              container = infer_temporal_info(handle, 
+                                              session, 
+                                              bundle, 
+                                              item_id, 
+                                              type="EVENT")
               point = container$sample_point
             }
             if(is.na(point))
@@ -151,7 +175,7 @@ export_BPFCollection <- function(handle,
               stop("Invalid segment of class 3 or 5 ", labels[idx,], ". Could not infer sample point.")
             }
           }
-
+          
           if(class == 1)
           {
             bpfLines = c(bpfLines, paste0(bpfkey, ": ", link, " ", label))
@@ -179,15 +203,16 @@ export_BPFCollection <- function(handle,
     
     if(!seen_sam)
     {
-      queryTxt = paste0("SELECT DISTINCT sample_rate FROM items", basic_cond(handle, session, bundle))
+      queryTxt = paste0("SELECT DISTINCT sample_rate ",
+                        "FROM items", basic_cond(handle, session, bundle))
       samplerate = DBI::dbGetQuery(handle$connection, queryTxt)
-    
+      
       if(nrow(samplerate) > 0)
       {
         headerLines = c(headerLines, paste0("SAM: ", samplerate[1,1]))
       }
     }
-
+    
     writeLines(c(headerLines, bpfLines), con = bpf_target, sep = "\n", useBytes = TRUE)
     
     if(verbose)
@@ -207,14 +232,16 @@ make_link_map <- function(handle, session, bundle, refLevel)
   if(!is.null(refLevel))
   {
     ref_id_map = list()
-    queryTxt = paste0("SELECT item_id FROM items", basic_cond(handle, session, bundle), 
-                      "AND level='", refLevel, "' ORDER BY seq_idx")
+    queryTxt = paste0("SELECT item_id ",
+                      "FROM items", basic_cond(handle, session, bundle), 
+                      " AND level = '", refLevel, "' ",
+                      "ORDER BY seq_idx")
     refItems = DBI::dbGetQuery(handle$connection, queryTxt)
     
     if(nrow(refItems) > 0)
     {
       ref_id_map[refItems$item_id] = 0:(nrow(refItems)-1)
-
+      
       for(ref_id in refItems$item_id)
       {
         for(id in get_links(handle, session, bundle, ref_id))
@@ -248,7 +275,7 @@ get_links <- function(handle, session, bundle, ref_id, direction="all",
   {
     directions = list(c("to_id", "from_id"))
   }
-
+  
   for(direction in directions)
   {
     current_anchors = c(ref_id)
@@ -261,18 +288,23 @@ get_links <- function(handle, session, bundle, ref_id, direction="all",
       
       if(is.null(level))
       {
-        queryTxt = paste0("SELECT l.", this, " FROM ", link_table, " AS l", basic_cond(handle, session, bundle, prefix = "l"), 
-                          "AND l.", other, " in ", id_set_string)
+        queryTxt = paste0("SELECT l.", this, " FROM ", link_table, " AS l", 
+                          basic_cond(handle, session, bundle, prefix = "l"), 
+                          " AND l.", other, " in ", id_set_string)
       }
       else
       {
-        queryTxt = paste0("SELECT l.", this, " FROM ", link_table, " AS l JOIN ", item_table, " AS i ON ",
-                          "l.db_uuid == i.db_uuid AND l.session == i.session AND l.bundle == i.bundle ",
-                          "AND l.", this, " == i.item_id",
+        queryTxt = paste0("SELECT l.", this, " FROM ", link_table, " AS l ",
+                          "JOIN ", item_table, " AS i ",
+                          "ON l.db_uuid == i.db_uuid ",
+                          " AND l.session == i.session ",
+                          " AND l.bundle == i.bundle ",
+                          " AND l.", this, " == i.item_id",
                           basic_cond(handle, session, bundle, prefix = "i"), 
-                          "AND l.", other, " in ", id_set_string, " AND i.level=='", level, "'")
+                          " AND l.", other, " in ", id_set_string, 
+                          " AND i.level=='", level, "'")
       }
-
+      
       current_anchors = DBI::dbGetQuery(handle$connection, queryTxt)[[this]]
       links = c(links, current_anchors)
     }
@@ -281,15 +313,17 @@ get_links <- function(handle, session, bundle, ref_id, direction="all",
   if(!is.null(level))
   {
     id_set_string = paste0("(", paste(links, collapse = "," ) ,")")
-    queryTxt = paste0("SELECT item_id FROM ", item_table, " ", basic_cond(handle, session, bundle), "AND level=='", level,
-                      "' AND item_id in ", id_set_string) 
+    queryTxt = paste0("SELECT item_id FROM ", item_table, " ", 
+                      basic_cond(handle, session, bundle), 
+                      " AND level=='", level, "' ",
+                      " AND item_id in ", id_set_string) 
     links = DBI::dbGetQuery(handle$connection, queryTxt)[["item_id"]]
   }
   
   return(links)
 }
 
-    
+
 build_skeleton <- function(handle, targetDir, copyAudio, verbose)
 {
   if(file.exists(file.path(targetDir, handle$dbName)))
@@ -329,20 +363,20 @@ build_skeleton <- function(handle, targetDir, copyAudio, verbose)
       for(bundle in list_bundles(handle, session = session)$name)
       {
         queryTxt = paste0("SELECT annotates FROM bundle", 
-                        basic_cond(handle, session, bundle, bundlename="name"))
-      
+                          basic_cond(handle, session, bundle, bundlename = "name"))
+        
         annotates = DBI::dbGetQuery(handle$connection, queryTxt)[1,1]
         
         wav_target = file.path(targetDir, 
-                             handle$dbName,
-                             session,
-                             annotates)
-
+                               handle$dbName,
+                               session,
+                               annotates)
+        
         wav_source = file.path(handle$basePath,
-                             paste0(session, session.suffix),
-                             paste0(bundle, bundle.dir.suffix),
-                             annotates)
-      
+                               paste0(session, session.suffix),
+                               paste0(bundle, bundle.dir.suffix),
+                               annotates)
+        
         file.copy(wav_source, wav_target)
         if(verbose)
         {
@@ -359,7 +393,11 @@ build_skeleton <- function(handle, targetDir, copyAudio, verbose)
 }
 
 
-basic_cond <- function(handle, session, bundle, bundlename="bundle", prefix = NULL)
+basic_cond <- function(handle, 
+                       session, 
+                       bundle, 
+                       bundlename = "bundle", 
+                       prefix = NULL)
 {
   if(is.null(prefix))
   {
@@ -389,8 +427,9 @@ infer_temporal_info <- function(handle, session, bundle, item_id, type="SEGMENT"
   
   links_down = get_links(handle, session, bundle, item_id, direction="down")
   
-  queryTxt = paste0("SELECT DISTINCT type FROM items", basic_cond(handle, session, bundle),
-                    "AND type=='", type, "'")
+  queryTxt = paste0("SELECT DISTINCT type FROM items", 
+                    basic_cond(handle, session, bundle),
+                    " AND type=='", type, "'")
   
   types = DBI::dbGetQuery(handle$connection, queryTxt)
   if(nrow(types) > 0)
@@ -400,8 +439,11 @@ infer_temporal_info <- function(handle, session, bundle, item_id, type="SEGMENT"
     
     for(t in types$type)
     {
-      queryTxt = paste0("SELECT ", needed_as_set, " FROM items", basic_cond(handle, session, bundle),
-                        "AND type='", t, "' AND item_id in ", ids_as_set, " ORDER by ", needed[1])
+      queryTxt = paste0("SELECT ", needed_as_set, " FROM items", 
+                        basic_cond(handle, session, bundle),
+                        " AND type='", t, "' ",
+                        " AND item_id in ", ids_as_set, 
+                        " ORDER by ", needed[1])
       tmp = DBI::dbGetQuery(handle$connection, queryTxt)
       
       if(nrow(tmp) > 0)
@@ -428,7 +470,7 @@ infer_temporal_info <- function(handle, session, bundle, item_id, type="SEGMENT"
       }
     }
   }
-
+  
   return(container)
 }
 

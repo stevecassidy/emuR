@@ -38,9 +38,12 @@ Typical work-flow in emuR (emuDB required):
 
 \enumerate{
 \item Load database into current R session - \code{\link{load_emuDB}}
-\item Database annotation / visual inspection - \code{\link{serve}} and connect the EMU-webApp to the local server
-\item Query database - \code{\link{query}} (sometimes followed by \code{\link{requery_hier}} or \code{\link{requery_seq}})
-\item Get trackdata (e.g. formant values) for the result of a query - \code{\link{get_trackdata}}
+\item Database annotation / visual inspection - 
+\code{\link{serve}} and connect the EMU-webApp to the local server
+\item Query database - \code{\link{query}} (sometimes 
+followed by \code{\link{requery_hier}} or \code{\link{requery_seq}})
+\item Get trackdata (e.g. formant values) for the result 
+of a query - \code{\link{get_trackdata}}
 \item Data preparation
 \item Visual data inspection
 \item Further analysis and statistical processing

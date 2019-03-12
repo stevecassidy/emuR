@@ -12,8 +12,12 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
   DBconfig = load_DBconfig(emuDBhandle)
   
   # add missing index to cache
-  DBI::dbExecute(emuDBhandle$connection, "CREATE INDEX IF NOT EXISTS items_level_seq_idx ON items(db_uuid, session, bundle, level, seq_idx)")
-  DBI::dbExecute(emuDBhandle$connection, "CREATE INDEX IF NOT EXISTS label_nameLabel_idx ON labels(name, label)")
+  DBI::dbExecute(emuDBhandle$connection, paste0("CREATE INDEX IF NOT EXISTS ",
+                                                " items_level_seq_idx ",
+                                                "ON items(db_uuid, session, bundle, level, seq_idx)"))
+  DBI::dbExecute(emuDBhandle$connection, paste0("CREATE INDEX IF NOT EXISTS ",
+                                                " label_nameLabel_idx ",
+                                                "ON labels(name, label)"))
   
   # list sessions & bundles
   sessions = list_sessions(emuDBhandle)
@@ -55,9 +59,13 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
   
   
   # calculate all md5sums
-  allAnnotFps = file.path(emuDBhandle$basePath, paste0(bundles$session, session.suffix), paste0(bundles$name, bundle.dir.suffix), paste0(bundles$name, bundle.annotation.suffix, ".json"))
+  allAnnotFps = file.path(emuDBhandle$basePath, 
+                          paste0(bundles$session, session.suffix), 
+                          paste0(bundles$name, bundle.dir.suffix), 
+                          paste0(bundles$name, bundle.annotation.suffix, ".json"))
   # remove all paths that don't contain _ses & _bndl just in case
-  allAnnotFps_onlyAnnots = stringr::str_match(allAnnotFps, pattern = ".*_ses.*_bndl.*_annot.json")
+  allAnnotFps_onlyAnnots = stringr::str_match(allAnnotFps, 
+                                              pattern = ".*_ses.*_bndl.*_annot.json")
   
   if(verbose){
     cat("INFO: Performing precheck and calculating checksums (== MD5 sums) for _annot.json files ...\n")
@@ -65,15 +73,30 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
   
   file_md5sums = tools::md5sum(allAnnotFps_onlyAnnots)
   
-  files_sesBndlMd5DF = data.frame(session = bundles$session, name = bundles$name, md5_annot_json = file_md5sums, row.names = NULL, stringsAsFactors = F)
-  cache_sesBndlMd5DF = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT session, name, md5_annot_json FROM bundle"))
+  files_sesBndlMd5DF = data.frame(session = bundles$session, 
+                                  name = bundles$name, 
+                                  md5_annot_json = file_md5sums, 
+                                  row.names = NULL, 
+                                  stringsAsFactors = F)
+  cache_sesBndlMd5DF = DBI::dbGetQuery(emuDBhandle$connection, 
+                                       paste0("SELECT session, name, md5_annot_json FROM bundle"))
   
-  bndlsDelta_new = dplyr::anti_join(files_sesBndlMd5DF, cache_sesBndlMd5DF, by = c("session", "name"))
-  bndlsDelta_toDelete = dplyr::anti_join(cache_sesBndlMd5DF, files_sesBndlMd5DF, by = c("session", "name"))
+  bndlsDelta_new = dplyr::anti_join(files_sesBndlMd5DF, 
+                                    cache_sesBndlMd5DF, 
+                                    by = c("session", "name"))
+  bndlsDelta_toDelete = dplyr::anti_join(cache_sesBndlMd5DF, 
+                                         files_sesBndlMd5DF, 
+                                         by = c("session", "name"))
   
-  bndlsDelta_updated = dplyr::anti_join(files_sesBndlMd5DF, cache_sesBndlMd5DF, by = c("session", "name", "md5_annot_json"))
-  bndlsDelta_updated = dplyr::anti_join(bndlsDelta_updated, bndlsDelta_new, by = c("session", "name", "md5_annot_json"))  # remove new
-  bndlsDelta_updated = dplyr::anti_join(bndlsDelta_updated, bndlsDelta_toDelete, by = c("session", "name", "md5_annot_json"))  # remove toDelete
+  bndlsDelta_updated = dplyr::anti_join(files_sesBndlMd5DF, 
+                                        cache_sesBndlMd5DF, 
+                                        by = c("session", "name", "md5_annot_json"))
+  bndlsDelta_updated = dplyr::anti_join(bndlsDelta_updated, 
+                                        bndlsDelta_new, 
+                                        by = c("session", "name", "md5_annot_json"))  # remove new
+  bndlsDelta_updated = dplyr::anti_join(bndlsDelta_updated, 
+                                        bndlsDelta_toDelete, 
+                                        by = c("session", "name", "md5_annot_json"))  # remove toDelete
   
   # return if data.frames are the same
   if(nrow(bndlsDelta_new) == 0 & nrow(bndlsDelta_toDelete) == 0 & nrow(bndlsDelta_updated) == 0){
@@ -99,12 +122,14 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
       bndl = bndlsDelta_load[bndlIdx,]
       
       # construct path to annotJSON
-      annotFilePath = normalizePath(file.path(emuDBhandle$basePath, paste0(bndl$session, session.suffix), 
+      annotFilePath = normalizePath(file.path(emuDBhandle$basePath, 
+                                              paste0(bndl$session, session.suffix), 
                                               paste0(bndl$name, bundle.dir.suffix), 
                                               paste0(bndl$name, bundle.annotation.suffix, '.json')))
       
       # extract MD5 sum of bundle annotJSON
-      newMD5annotJSON = files_sesBndlMd5DF[files_sesBndlMd5DF$session == bndl$session & files_sesBndlMd5DF$name == bndl$name,]$md5_annot_json
+      newMD5annotJSON = files_sesBndlMd5DF[files_sesBndlMd5DF$session == bndl$session 
+                                           & files_sesBndlMd5DF$name == bndl$name,]$md5_annot_json
       # read annotJSON as charac 
       #annotJSONchar = enc2utf8(readChar(annotFilePath, file.info(annotFilePath)$size)) # wrapped in enc2utf8 as readChar respects the system default (windows iso 88591)
       annotJSONchar = readr::read_file(annotFilePath)
@@ -113,7 +138,12 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
       # removing old bundle entry
       remove_bundleDBI(emuDBhandle, bndl$session, bndl$name)
       # and adding to bundle table
-      add_bundleDBI(emuDBhandle, bndl$session, bndl$name, bundleAnnotDFs$annotates, bundleAnnotDFs$sampleRate, newMD5annotJSON)
+      add_bundleDBI(emuDBhandle, 
+                    bndl$session, 
+                    bndl$name, 
+                    bundleAnnotDFs$annotates, 
+                    bundleAnnotDFs$sampleRate, 
+                    newMD5annotJSON)
       # and remove bundleAnnotDBI
       remove_bundleAnnotDBI(emuDBhandle, bndl$session, bndl$name)
       # add to items, links, labels tables
@@ -130,7 +160,9 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
   # delete
   if(nrow(bndlsDelta_toDelete) > 0 ){
     for(i in 1:nrow(bndlsDelta_toDelete)){
-      remove_bundleDBI(emuDBhandle, bndlsDelta_toDelete[i,]$session, bndlsDelta_toDelete[i,]$name)
+      remove_bundleDBI(emuDBhandle, 
+                       bndlsDelta_toDelete[i,]$session, 
+                       bndlsDelta_toDelete[i,]$name)
       progress=progress+1L
       if(verbose){
         utils::setTxtProgressBar(pb,progress)

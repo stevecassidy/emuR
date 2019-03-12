@@ -9,7 +9,8 @@ export_seglistToTxtCollection(emuDBhandle, seglist, targetDir)
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
 
-\item{seglist}{\code{tibble}, \code{\link{emuRsegs}} or \code{\link{emusegs}} object obtained by \code{\link{query}}ing a loaded emuDB}
+\item{seglist}{\code{tibble}, \code{\link{emuRsegs}} or 
+\code{\link{emusegs}} object obtained by \code{\link{query}}ing a loaded emuDB}
 
 \item{targetDir}{target directory to store}
 }

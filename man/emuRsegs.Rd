@@ -36,17 +36,26 @@ Attributes:
   \item type: type ('segment' or 'event') (for compatibility to \link{emusegs} class)
 }}
 \description{
-An emuR segment list is a list of segment descriptors. Each segment descriptor describes a sequence of annotation elements. The list is usually a result of an emuDB query using function \code{\link{query}}.
+An emuR segment list is a list of segment descriptors. Each segment 
+descriptor describes a sequence of annotation elements. The list is
+usually a result of an emuDB query using function \code{\link{query}}.
 }
 \details{
-Each row shows the annotation label sequence, the start and end position in time, session and bundle names, level name and type.
-Additionally the row contains the UUID of the emuDB, the ID's of start and end elements and the corresponding start and end position as sample count and the sample rate.
-These columns are not printed by default. The print method of emuRsegs hides them. To print all columns of a segment list object use the print method of \code{\link{data.frame}}.
+Each row shows the annotation label sequence, the start and end position 
+in time, session and bundle names, level name and type.
+Additionally the row contains the UUID of the emuDB, the ID's of start 
+and end elements and the corresponding start and end position as sample 
+count and the sample rate. These columns are not printed by default. 
+The print method of emuRsegs hides them. To print all columns of a segment 
+list object use the print method of \code{\link{data.frame}}.
 For example to print all columns of an emuRsegs segmentlist \code{sl} type:
 \code{print.data.frame(sl)}
-Though the segment descriptors have references to the annotations, the label and sample/time position information is not updated if any of them change. The values of the segment list may get invalid if the the database is modified.
+Though the segment descriptors have references to the annotations, the label 
+and sample/time position information is not updated if any of them change. The 
+values of the segment list may get invalid if the the database is modified.
 A segment may consist only of one single element, in this case start and end ID are equal.
-An emuR segment list is the default result of \code{\link{query}} and can be used to get track data using \code{\link{get_trackdata}}.
+An emuR segment list is the default result of \code{\link{query}} and can 
+be used to get track data using \code{\link{get_trackdata}}.
 The emuRsegs class inherits \link{emusegs} and hence \code{\link{data.frame}}
 }
 \seealso{
