@@ -1,7 +1,3 @@
-require(testthat)
-require(compare)
-require(emuR)
-
 context("testing requeries")
 
 aeSampleRate = 20000

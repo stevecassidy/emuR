@@ -1,8 +1,6 @@
 ##' testthat tests for convert_TextGridCollection
 ##'
 
-requireNamespace("RSQLite", quietly = T)
-
 context("testing convert_TextGridCollection function")
 
 path2demoData = file.path(tempdir(), "emuR_demoData")
@@ -11,7 +9,8 @@ path2tgCol = file.path(path2demoData, "TextGrid_collection")
 
 emuDBname = 'convert-TextGridCollection-testDB'
 
-path2newDb = file.path(path2testData, paste0(emuDBname, emuDB.suffix))
+path2newDb = file.path(path2testData, 
+                       paste0(emuDBname, emuDB.suffix))
 
 
 # clean up
@@ -27,7 +26,9 @@ test_that("bad calls cause errors", {
   expect_error(convert_TextGridCollection(dir = path2tgCol, 
                                           dbName = emuDBname,
                                           targetDir = path2testData, 
-                                          verbose=F), regexp = "already exists!", ignore.case = T)
+                                          verbose=F), 
+               regexp = "already exists!", 
+               ignore.case = T)
   # clean up
   unlink(path2newDb, recursive = T)
   
@@ -38,7 +39,8 @@ test_that("correct emuDB is created", {
   
   convert_TextGridCollection(dir = path2tgCol, 
                              dbName = emuDBname,
-                             path2testData, verbose=F)
+                             path2testData, 
+                             verbose = F)
   
   test_that("emuDB has correct file format on disc", {
     # 2 files in top level
@@ -46,15 +48,21 @@ test_that("correct emuDB is created", {
     expect_equal(length(tmp), 2)
     
     # 14 files in 0000_ses
-    tmp = list.files(file.path(path2newDb,'0000_ses'), recursive = T)
+    tmp = list.files(file.path(path2newDb,'0000_ses'), 
+                     recursive = T)
     expect_equal(length(tmp), 14)
   })
   
   test_that("emuDB _DBconfig.json is correct", {
     # read config
-    dbCfgJSONLns = readLines(file.path(path2newDb, paste0(emuDBname, '_DBconfig.json')), warn = FALSE)
-    dbCfgJSON = paste(dbCfgJSONLns,collapse='')
-    dbCfgPersisted = jsonlite::fromJSON(dbCfgJSON, simplifyVector=FALSE)
+    dbCfgJSONLns = readLines(file.path(path2newDb, 
+                                       paste0(emuDBname, 
+                                              '_DBconfig.json')), 
+                             warn = FALSE)
+    dbCfgJSON = paste(dbCfgJSONLns, 
+                      collapse = '')
+    dbCfgPersisted = jsonlite::fromJSON(dbCfgJSON, 
+                                        simplifyVector = FALSE)
     
     # correct name
     expect_equal(dbCfgPersisted$name, emuDBname)
@@ -75,7 +83,9 @@ test_that("correct emuDB is created", {
   
   test_that("emuDB _annot.json is correct", {
     # read annot
-    annotJSONLns = readLines(file.path(path2newDb, '0000_ses/msajc003_bndl/msajc003_annot.json'), warn = FALSE)
+    annotJSONLns = readLines(file.path(path2newDb, 
+                                       '0000_ses/msajc003_bndl/msajc003_annot.json'), 
+                             warn = FALSE)
     annotJSON = paste(annotJSONLns,collapse='')
     annotPersisted = jsonlite::fromJSON(annotJSON,simplifyVector=FALSE)
     # general stuff
@@ -115,7 +125,9 @@ test_that("only specified tiers are converted when tierNames is set", {
   
   convert_TextGridCollection(dir = path2tgCol, 
                              dbName = emuDBname,
-                             path2testData, tierNames=c("Phonetic", "Tone"), verbose=F)
+                             path2testData, 
+                             tierNames = c("Phonetic", "Tone"), 
+                             verbose = F)
   
   test_that("emuDB has correct file format on disc", {
     # 2 files in top level
@@ -123,15 +135,20 @@ test_that("only specified tiers are converted when tierNames is set", {
     expect_equal(length(tmp), 2)
     
     # 14 files in 0000_ses
-    tmp = list.files(file.path(path2newDb,'0000_ses'), recursive = T)
+    tmp = list.files(file.path(path2newDb,'0000_ses'), 
+                     recursive = T)
     expect_equal(length(tmp), 14)
   })
   
   test_that("emuDB _DBconfig.json is correct", {
     # read config
-    dbCfgJSONLns=readLines(file.path(path2newDb, paste0(emuDBname, '_DBconfig.json')),warn=FALSE)
-    dbCfgJSON=paste(dbCfgJSONLns,collapse='')
-    dbCfgPersisted=jsonlite::fromJSON(dbCfgJSON,simplifyVector=FALSE)
+    dbCfgJSONLns=readLines(file.path(path2newDb, 
+                                     paste0(emuDBname, 
+                                            '_DBconfig.json')),
+                           warn = FALSE)
+    dbCfgJSON = paste(dbCfgJSONLns, collapse = '')
+    dbCfgPersisted = jsonlite::fromJSON(dbCfgJSON,
+                                        simplifyVector = FALSE)
     
     # correct name
     expect_equal(dbCfgPersisted$name, emuDBname)
@@ -155,9 +172,11 @@ test_that("only specified tiers are converted when tierNames is set", {
   
   test_that("emuDB _annot.json is correct", {
     # read annot
-    annotJSONLns=readLines(file.path(path2newDb, '0000_ses/msajc003_bndl/msajc003_annot.json'),warn=FALSE)
-    annotJSON=paste(annotJSONLns,collapse='')
-    annotPersisted=jsonlite::fromJSON(annotJSON,simplifyVector=FALSE)
+    annotJSONLns = readLines(file.path(path2newDb, 
+                                       '0000_ses/msajc003_bndl/msajc003_annot.json'),
+                             warn = FALSE)
+    annotJSON = paste(annotJSONLns, collapse = '')
+    annotPersisted = jsonlite::fromJSON(annotJSON, simplifyVector = FALSE)
     # general stuff
     expect_equal(annotPersisted$name, 'msajc003')
     expect_equal(annotPersisted$annotates, 'msajc003.wav')

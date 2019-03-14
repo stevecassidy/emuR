@@ -6,20 +6,30 @@ suppressMessages(require('jsonlite'))
 
 dbName = "ae"
 
-path2orig = file.path(tempdir(), "emuR_demoData", paste0(dbName, emuDB.suffix))
-path2testData = file.path(tempdir(), "emuR_testthat")
-path2db = file.path(path2testData, paste0(dbName, emuDB.suffix))
+path2orig = file.path(tempdir(), 
+                      "emuR_demoData", 
+                      paste0(dbName, emuDB.suffix))
+path2testData = file.path(tempdir(), 
+                          "emuR_testthat")
+path2db = file.path(path2testData, 
+                    paste0(dbName, emuDB.suffix))
 
 # extract internalVars from environment .emuR_pkgEnv
-internalVars = get("internalVars", envir = .emuR_pkgEnv)
+internalVars = get("internalVars", 
+                   envir = .emuR_pkgEnv)
 
 ###########################
 test_that("update_cache works", {
   
   # delete, copy and load
-  unlink(path2db, recursive = T)
-  file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
+  unlink(path2db, 
+         recursive = T)
+  file.copy(path2orig, 
+            path2testData, 
+            recursive = T)
+  ae = load_emuDB(path2db, 
+                  inMemoryCache = internalVars$testingVars$inMemoryCache, 
+                  verbose = F)
 
   ################################
   # 
@@ -36,7 +46,7 @@ test_that("update_cache works", {
     b = list_bundlesDBI(ae)
     expect_true(any(b$session == "new" & b$name == 'msajc010'))
     
-    sl = query(ae, "Phonetic=n")
+    sl = query(ae, "Phonetic == n")
     expect_true(any(sl$session == "new"))
   })
   
@@ -44,16 +54,32 @@ test_that("update_cache works", {
   # 
   test_that("change in _annot.json is re-cached", {
     # change entry
-    annotJson = jsonlite::fromJSON(readLines(file.path(path2db, "new_ses", "msajc010_bndl", "msajc010_annot.json")), simplifyVector=T)
+    annotJson = jsonlite::fromJSON(readLines(file.path(path2db, 
+                                                       "new_ses", 
+                                                       "msajc010_bndl", 
+                                                       "msajc010_annot.json")), 
+                                   simplifyVector = T)
     
     annotJson$levels$items[[1]]$id = 666666
     
-    pbpJSON=jsonlite::toJSON(annotJson,auto_unbox=TRUE,force=TRUE,pretty=TRUE)
-    writeLines(pbpJSON,file.path(path2db, "new_ses", "msajc010_bndl", "msajc010_annot.json"), useBytes = TRUE)
+    pbpJSON = jsonlite::toJSON(annotJson, 
+                               auto_unbox = TRUE, 
+                               force = TRUE, 
+                               pretty = TRUE)
+    writeLines(pbpJSON,file.path(path2db, 
+                                 "new_ses", 
+                                 "msajc010_bndl", 
+                                 "msajc010_annot.json"), 
+               useBytes = TRUE)
     
     update_cache(ae, verbose = F)
     
-    res = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='", ae$UUID, "' AND session='new' AND bundle='msajc010' AND level='Utterance'"))$item_id
+    res = DBI::dbGetQuery(ae$connection, paste0("SELECT * ",
+                                                "FROM items ",
+                                                "WHERE db_uuid = '", ae$UUID, "' ",
+                                                " AND session = 'new' ",
+                                                " AND bundle = 'msajc010' ",
+                                                " AND level = 'Utterance'"))$item_id
 
     expect_true(res == 666666)
     
@@ -63,11 +89,18 @@ test_that("update_cache works", {
   ################################
   # 
   test_that("deleted bundle is re-cached", {
-    unlink(file.path(path2db, 'new_ses', 'msajc010_bndl'), recursive = TRUE)
+    unlink(file.path(path2db, 
+                     'new_ses', 
+                     'msajc010_bndl'), 
+           recursive = TRUE)
     
     update_cache(ae, verbose = F)
     
-    res = DBI::dbGetQuery(ae$connection, paste0("SELECT * FROM items WHERE db_uuid='", ae$UUID, "' AND session='new' AND bundle='msajc010'"))
+    res = DBI::dbGetQuery(ae$connection, paste0("SELECT * ",
+                                                "FROM items ",
+                                                "WHERE db_uuid = '", ae$UUID, "' ",
+                                                " AND session = 'new' ",
+                                                " AND bundle = 'msajc010'"))
     
     expect_true(nrow(res) == 0)
     

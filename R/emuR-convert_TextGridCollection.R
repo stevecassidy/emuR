@@ -1,5 +1,3 @@
-requireNamespace("RSQLite", quietly = T)
-
 ##' Convert a TextGridCollection (e.g. .wav & .TextGrid files) to emuDB
 ##' 
 ##' Converts a TextGridCollection to an emuDB by searching a given directory for .wav & .TextGrid files (default

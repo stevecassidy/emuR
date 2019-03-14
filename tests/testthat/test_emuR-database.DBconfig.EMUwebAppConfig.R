@@ -4,9 +4,12 @@ context("testing database.DBconfig.EMUwebAppConfig functions")
 
 dbName = 'ae'
 
-path2orig = file.path(tempdir(), "emuR_demoData", paste0(dbName, emuDB.suffix))
+path2orig = file.path(tempdir(), 
+                      "emuR_demoData", 
+                      paste0(dbName, emuDB.suffix))
 path2testData = file.path(tempdir(), "emuR_testthat")
-path2db = file.path(path2testData, paste0(dbName, emuDB.suffix))
+path2db = file.path(path2testData, 
+                    paste0(dbName, emuDB.suffix))
 
 # extract internalVars from environment .emuR_pkgEnv
 internalVars = get("internalVars", envir = .emuR_pkgEnv)
@@ -18,7 +21,9 @@ test_that("CRUD operations work for perspectives", {
   # delete, copy and load
   unlink(path2db, recursive = T)
   file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
+  ae = load_emuDB(path2db, 
+                  inMemoryCache = internalVars$testingVars$inMemoryCache, 
+                  verbose = F)
   
   test_that("add = (C)RUD", {
     # bad call persp. already exists
@@ -66,7 +71,9 @@ test_that("CRUD operations work for signalCanvasesOrder", {
   # delete, copy and load
   unlink(path2db, recursive = T)
   file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
+  ae = load_emuDB(path2db, 
+                  inMemoryCache = internalVars$testingVars$inMemoryCache, 
+                  verbose = F)
   
   
   test_that("set = (C)RUD", {
@@ -107,7 +114,9 @@ test_that("CRUD operations work for levelCanvasesOrder", {
   # delete, copy and load
   unlink(path2db, recursive = T)
   file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
+  ae = load_emuDB(path2db, 
+                  inMemoryCache = internalVars$testingVars$inMemoryCache, 
+                  verbose = F)
   
   
   test_that("set = (C)RUD", {
@@ -128,7 +137,8 @@ test_that("CRUD operations work for levelCanvasesOrder", {
   })
   
   test_that("get = C(R)UD", {
-    order = get_levelCanvasesOrder(ae, perspectiveName = "default")
+    order = get_levelCanvasesOrder(ae, 
+                                   perspectiveName = "default")
     
     expect_equal(order[1], "Tone")
     expect_equal(order[2], "Phonetic")

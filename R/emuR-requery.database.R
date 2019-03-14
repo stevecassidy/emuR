@@ -1,5 +1,3 @@
-requireNamespace("stringr", quietly = T)
-
 database.DDL.emuRsegsTmp = paste0("CREATE TEMP TABLE emursegs_tmp (",
                                   " labels TEXT, ",
                                   " start FLOAT, ",

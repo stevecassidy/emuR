@@ -1,5 +1,3 @@
-# requireNamespace("RSQLite", quietly = T)
-
 ## Create emuDB DBconfig object from a TextGrid file
 ## 
 ## @param tgPath path to TextGrid file

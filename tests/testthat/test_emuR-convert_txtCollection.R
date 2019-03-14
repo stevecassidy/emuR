@@ -23,17 +23,29 @@ configPath = file.path(newDbPath, paste0(dbName, '_DBconfig.json'))
 # ---------------------------------------------------------------------------
 test_that("testing txt collection conversion",
           {
-            convert_txtCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = F)
+            convert_txtCollection(sourceDir = sourceDir, 
+                                  targetDir = testDir, 
+                                  dbName = dbName, 
+                                  verbose = F)
             
             # Format of data base.
-            expect_true(newDbFolderName %in% list.dirs(testDir, full.names = F, recursive = F))
-            expect_equal(length(list.files(newDbPath, recursive = F)), 2)
-            expect_equal(length(list.files(file.path(newDbPath, "0000_ses"), recursive = F)), 7)
-            expect_equal(length(list.files(file.path(newDbPath, "0000_ses", "msajc003_bndl"), recursive = F)), 2)
+            expect_true(newDbFolderName %in% list.dirs(testDir, 
+                                                       full.names = F, 
+                                                       recursive = F))
+            expect_equal(length(list.files(newDbPath, 
+                                           recursive = F)), 2)
+            expect_equal(length(list.files(file.path(newDbPath, 
+                                                     "0000_ses"), 
+                                           recursive = F)), 7)
+            expect_equal(length(list.files(file.path(newDbPath, 
+                                                     "0000_ses", 
+                                                     "msajc003_bndl"), 
+                                           recursive = F)), 2)
             
             # Correctness of config file.
-            dbConfigLines = readLines(configPath, warn=F)
-            dbConfig = jsonlite::fromJSON(paste(dbConfigLines, collapse=''), simplifyVector=F)
+            dbConfigLines = readLines(configPath, warn = F)
+            dbConfig = jsonlite::fromJSON(paste(dbConfigLines, 
+                                                collapse = ''), simplifyVector = F)
             
             # General & webAppConfig
             expect_equal(dbConfig$name, dbName)
@@ -60,9 +72,14 @@ test_that("testing txt collection conversion",
             expect_equal(length(dbConfig$linkDefinitions), 0)
             
             # Correctness of one annot file (msajc003_annot)
-            annotPath = file.path(newDbPath, "0000_ses", "msajc003_bndl", "msajc003_annot.json")
-            dbAnnotLines = readLines(annotPath, warn=F)
-            dbAnnot = jsonlite::fromJSON(paste(dbAnnotLines, collapse=''), simplifyVector=F)
+            annotPath = file.path(newDbPath, 
+                                  "0000_ses", 
+                                  "msajc003_bndl", 
+                                  "msajc003_annot.json")
+            dbAnnotLines = readLines(annotPath, warn = F)
+            dbAnnot = jsonlite::fromJSON(paste(dbAnnotLines, 
+                                               collapse = ''), 
+                                         simplifyVector = F)
                                     
             # Check that all levels have the appropriate number of items
             expect_equal(length(dbAnnot$levels[[1]]$items), 1)

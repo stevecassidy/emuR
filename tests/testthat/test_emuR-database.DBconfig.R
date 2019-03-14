@@ -5,9 +5,12 @@ context("testing database.DBconfig functions")
 dbName = 'ae'
 useInMemoryCache = F
 
-path2orig = file.path(tempdir(), "emuR_demoData", paste0(dbName, emuDB.suffix))
+path2orig = file.path(tempdir(), 
+                      "emuR_demoData", 
+                      paste0(dbName, emuDB.suffix))
 path2testData = file.path(tempdir(), "emuR_testthat")
-path2db = file.path(path2testData, paste0(dbName, emuDB.suffix))
+path2db = file.path(path2testData, 
+                    paste0(dbName, emuDB.suffix))
 
 
 ##############################
@@ -15,8 +18,12 @@ test_that("get_levelDefinition returns correct levelDef", {
   
   # delete, copy and load
   unlink(path2db, recursive = T)
-  file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = useInMemoryCache, verbose = F)
+  file.copy(path2orig, 
+            path2testData, 
+            recursive = T)
+  ae = load_emuDB(path2db, 
+                  inMemoryCache = useInMemoryCache, 
+                  verbose = F)
   
   #########################
   # get dbObj
@@ -39,19 +46,35 @@ test_that("CRUD operations work for ssffTrackDefinitions", {
   
   # delete, copy and load
   unlink(path2db, recursive = T)
-  file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = useInMemoryCache, verbose = F)
+  file.copy(path2orig, 
+            path2testData, 
+            recursive = T)
+  ae = load_emuDB(path2db, 
+                  inMemoryCache = useInMemoryCache, 
+                  verbose = F)
   
   test_that("add = (C)RUD", {
     expect_error(add_ssffTrackDefinition(ae, 'fm'))
     expect_error(add_ssffTrackDefinition(ae, 'fm', 'bla'))
-    expect_error(add_ssffTrackDefinition(ae, 'newTrackName', 'badColName', 'pit', 
-                                         onTheFlyFunctionName = 'mhsF0', interactive = T, verbose = F))
+    expect_error(add_ssffTrackDefinition(ae, 
+                                         'newTrackName', 
+                                         'badColName', 
+                                         'pit', 
+                                         onTheFlyFunctionName = 'mhsF0', 
+                                         interactive = T, 
+                                         verbose = F))
     
-    add_ssffTrackDefinition(ae, 'newTrackName', 'pitch', 'pit', 
-                            onTheFlyFunctionName = 'mhsF0', interactive = F, verbose = F)
+    add_ssffTrackDefinition(ae, 
+                            'newTrackName', 
+                            'pitch', 
+                            'pit', 
+                            onTheFlyFunctionName = 'mhsF0', 
+                            interactive = F, 
+                            verbose = F)
     
-    pitFilePaths = list.files(path2db, pattern = 'pit$', recursive = T)
+    pitFilePaths = list.files(path2db, 
+                              pattern = 'pit$', 
+                              recursive = T)
     expect_equal(length(pitFilePaths), 7)
     
   })
@@ -67,7 +90,9 @@ test_that("CRUD operations work for ssffTrackDefinitions", {
   test_that("remove = CRU(D)", {
     # bad name
     expect_error(remove_ssffTrackDefinition(ae, name="asdf"))
-    remove_ssffTrackDefinition(ae, name="newTrackName", deleteFiles = T)
+    remove_ssffTrackDefinition(ae, 
+                               name = "newTrackName", 
+                               deleteFiles = T)
     # check that _DBconfig entry is deleted
     dbConfig = load_DBconfig(ae)
     expect_equal(dbConfig$ssffTrackDefinitions[[1]]$name, "dft")
@@ -80,18 +105,35 @@ test_that("CRUD operations work for ssffTrackDefinitions", {
   })
   
   test_that("remove = CRU(D) with force", {
-    remove_linkDefinition(ae, "Intermediate", "Word", force = T, verbose = F)
-    remove_linkDefinition(ae, "Word", "Syllable", force = T, verbose = F)
-    remove_levelDefinition(ae, "Word", force = T, verbose = F)
+    remove_linkDefinition(ae, 
+                          "Intermediate", 
+                          "Word", 
+                          force = T, 
+                          verbose = F)
+    remove_linkDefinition(ae, 
+                          "Word", 
+                          "Syllable", 
+                          force = T, 
+                          verbose = F)
+    remove_levelDefinition(ae, 
+                           "Word", 
+                           force = T, 
+                           verbose = F)
     
     # check items table 
-    df = DBI::dbGetQuery(ae$connection, "SELECT * FROM items WHERE level='Word'")
+    df = DBI::dbGetQuery(ae$connection, paste0("SELECT * ",
+                                               "FROM items ",
+                                               "WHERE level = 'Word'"))
     expect_equal(nrow(df), 0)
     
     # TODO: probably should also check labels table
     
     # check annot json 
-    ajson = jsonlite::fromJSON(file.path(path2db, "0000_ses", "msajc003_bndl", "msajc003_annot.json"), simplifyVector = F)
+    ajson = jsonlite::fromJSON(file.path(path2db, 
+                                         "0000_ses", 
+                                         "msajc003_bndl", 
+                                         "msajc003_annot.json"), 
+                               simplifyVector = F)
     expect_false(ajson$levels[[4]]$name == "Word")
   })
   
@@ -107,8 +149,12 @@ test_that("CRUD operations work for levelDefinitions", {
   
   # delete, copy and load
   unlink(path2db, recursive = T)
-  file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = useInMemoryCache, verbose = F)
+  file.copy(path2orig, 
+            path2testData, 
+            recursive = T)
+  ae = load_emuDB(path2db, 
+                  inMemoryCache = useInMemoryCache, 
+                  verbose = F)
   
   
   test_that("add = (C)RUD", {
@@ -124,31 +170,59 @@ test_that("CRUD operations work for levelDefinitions", {
   
   test_that("list = C(R)UD", {
     df = list_levelDefinitions(ae)
-    expect_equal(as.vector(df$name[8:10]), c('Tone','Foot', 'Phonetic2'))
-    expect_equal(as.vector(df$type[8:10]), c('EVENT','ITEM', 'SEGMENT'))
-    expect_equal(as.vector(df$nrOfAttrDefs[1:4]), c(1, 1, 1, 3))
+    expect_equal(as.vector(df$name[8:10]), 
+                 c('Tone',
+                   'Foot', 
+                   'Phonetic2'))
+    expect_equal(as.vector(df$type[8:10]), 
+                 c('EVENT',
+                   'ITEM', 
+                   'SEGMENT'))
+    expect_equal(as.vector(df$nrOfAttrDefs[1:4]), 
+                 c(1, 1, 1, 3))
   })
   
   test_that("remove = CRU(D)", {
     
     expect_error(remove_levelDefinition(ae, name="asdf")) # bad name
     expect_error(remove_levelDefinition(ae, name="Phonetic")) # linkDef present
-
-    DBI::dbExecute(ae$connection, paste0("INSERT INTO session VALUES ('", ae$UUID,
-                                          "', '0001')")) # add item
-
-    DBI::dbExecute(ae$connection, paste0("INSERT INTO bundle VALUES ('", ae$UUID,
-                                          "', '0001', 'fakeBundle', 'fakeBundle.wav', 20000, '785c7cdb6d4bd5e8b5cd7c56a5946ddf')")) # add item
     
-    DBI::dbExecute(ae$connection, paste0("INSERT INTO items VALUES ('", ae$UUID,
-                                     "', '0001', 'fakeBundle', 1, 'Phonetic2', 'ITEM', 20000, 1, NULL, NULL, NULL)")) # add item
+    DBI::dbExecute(ae$connection, paste0("INSERT INTO session ",
+                                         "VALUES (",
+                                         " '", ae$UUID, "', ",
+                                         "'0001')")) # add item
     
-    expect_error(remove_levelDefinition(ae, name="Phonetic2")) # item present
+    DBI::dbExecute(ae$connection, paste0("INSERT INTO bundle ",
+                                         "VALUES (",
+                                         " '", ae$UUID, "', ",
+                                         " '0001', ",
+                                         " 'fakeBundle', ",
+                                         " 'fakeBundle.wav', ",
+                                         " 20000, ",
+                                         " '785c7cdb6d4bd5e8b5cd7c56a5946ddf' ",
+                                         ")")) # add item
     
-    DBI::dbExecute(ae$connection, paste0("DELETE FROM items WHERE db_uuid='", 
-                                     ae$UUID,"'")) # items present
+    DBI::dbExecute(ae$connection, paste0("INSERT INTO items ",
+                                         "VALUES (",
+                                         " '", ae$UUID, "', ",
+                                         " '0001', ",
+                                         " 'fakeBundle', ",
+                                         " 1, ",
+                                         " 'Phonetic2', ",
+                                         " 'ITEM', ",
+                                         " 20000, ",
+                                         " 1, ",
+                                         " NULL, ",
+                                         " NULL, ",
+                                         " NULL",
+                                         ")")) # add item
     
-    remove_levelDefinition(ae, name="Phonetic2", verbose = F)
+    expect_error(remove_levelDefinition(ae, name = "Phonetic2")) # item present
+    
+    DBI::dbExecute(ae$connection, paste0("DELETE FROM items ",
+                                         "WHERE db_uuid = '", ae$UUID, "'")) # items present
+    
+    remove_levelDefinition(ae, name = "Phonetic2", verbose = F)
     dbConfig = load_DBconfig(ae)
     expect_equal(length(dbConfig$levelDefinition), 9)
     
@@ -166,14 +240,24 @@ test_that("CRUD operations work for attributeDefinitions", {
   
   # delete, copy and load
   unlink(path2db, recursive = T)
-  file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = useInMemoryCache, verbose = F)
+  file.copy(path2orig, 
+            path2testData, 
+            recursive = T)
+  ae = load_emuDB(path2db, 
+                  inMemoryCache = useInMemoryCache, 
+                  verbose = F)
   
   
   test_that("add = (C)RUD", {
-    expect_error(add_attributeDefinition(ae, 'Word', 'Word', verbose = F)) # present attrDef
+    expect_error(add_attributeDefinition(ae, 
+                                         'Word', 
+                                         'Word', 
+                                         verbose = F)) # present attrDef
     
-    add_attributeDefinition(ae, 'Word', 'testAttrDef', verbose = F)
+    add_attributeDefinition(ae, 
+                            'Word', 
+                            'testAttrDef', 
+                            verbose = F)
     df = list_attributeDefinitions(ae, 'Word')
     expect_true('testAttrDef' %in% df$name)
   })
@@ -186,11 +270,20 @@ test_that("CRUD operations work for attributeDefinitions", {
     expect_equal(df$hasLegalLabels, c(F, F, F, F))
   })
   
-
+  
   test_that("remove = CRU(D)", {
-    expect_error(remove_attributeDefinition(ae, 'Word', 'Word', verbose = F))
-    expect_error(remove_attributeDefinition(ae, 'Word', 'Accent', verbose = F))
-    remove_attributeDefinition(ae, 'Word', 'testAttrDef', force = T, verbose = F)
+    expect_error(remove_attributeDefinition(ae, 
+                                            'Word', 
+                                            'Word', 
+                                            verbose = F))
+    expect_error(remove_attributeDefinition(ae, 
+                                            'Word', 
+                                            'Accent', 
+                                            verbose = F))
+    remove_attributeDefinition(ae, 'Word', 
+                               'testAttrDef', 
+                               force = T, 
+                               verbose = F)
     df = list_attributeDefinitions(ae, 'Word')
     expect_equal(nrow(df), 3)
   })
@@ -207,15 +300,19 @@ test_that("CRUD operations work for legalLabels", {
   
   # delete, copy and load
   unlink(path2db, recursive = T)
-  file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = useInMemoryCache, verbose = F)
+  file.copy(path2orig, 
+            path2testData, 
+            recursive = T)
+  ae = load_emuDB(path2db, 
+                  inMemoryCache = useInMemoryCache,
+                  verbose = F)
   
   test_that("set = (C)RUD", {
     # non character vector causes error:
     expect_error(set_legalLabels(ae, 
-                    levelName = 'Word', 
-                    attributeDefinitionName = 'Word',
-                    legalLabels=c(1:3)))
+                                 levelName = 'Word', 
+                                 attributeDefinitionName = 'Word',
+                                 legalLabels=c(1:3)))
     
     
     set_legalLabels(ae,
@@ -232,7 +329,7 @@ test_that("CRUD operations work for legalLabels", {
     expect_equal(ll, c('A', 'B', 'C'))
   })
   
-
+  
   test_that("remove = CRU(D)", {
     remove_legalLabels(ae, 
                        levelName = 'Word', 
@@ -257,8 +354,12 @@ test_that("CRUD operations work for labelGroups", {
   
   # delete, copy and load
   unlink(path2db, recursive = T)
-  file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = useInMemoryCache, verbose = F)
+  file.copy(path2orig, 
+            path2testData, 
+            recursive = T)
+  ae = load_emuDB(path2db, 
+                  inMemoryCache = useInMemoryCache, 
+                  verbose = F)
   
   test_that("add = (C)RUD", {
     # bad call already def. labelGroup
@@ -324,8 +425,12 @@ test_that("CRUD operations work for linkDefinitions", {
   
   # delete, copy and load
   unlink(path2db, recursive = T)
-  file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = useInMemoryCache, verbose = F)
+  file.copy(path2orig, 
+            path2testData, 
+            recursive = T)
+  ae = load_emuDB(path2db, 
+                  inMemoryCache = useInMemoryCache, 
+                  verbose = F)
   
   test_that("add = (C)RUD", {
     # bad call (bad type)
@@ -380,8 +485,16 @@ test_that("CRUD operations work for linkDefinitions", {
   })
   
   test_that("remove = CRU(D) with force", {
-    remove_linkDefinition(ae, "Word", "Syllable", force = T, verbose = F)
-    remove_linkDefinition(ae, "Syllable", "Phoneme", force = T, verbose = F)
+    remove_linkDefinition(ae, 
+                          "Word", 
+                          "Syllable", 
+                          force = T, 
+                          verbose = F)
+    remove_linkDefinition(ae, 
+                          "Syllable", 
+                          "Phoneme", 
+                          force = T, 
+                          verbose = F)
     ldefs = list_linkDefinitions(ae)
     expect_false("Word" %in% ldefs$superlevelName)  
     expect_false("Phoneme" %in% ldefs$sublevelName)
@@ -400,8 +513,12 @@ test_that("CRUD operations work for labelGroups", {
   
   # delete, copy and load
   unlink(path2db, recursive = T)
-  file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = useInMemoryCache, verbose = F)
+  file.copy(path2orig, 
+            path2testData, 
+            recursive = T)
+  ae = load_emuDB(path2db, 
+                  inMemoryCache = useInMemoryCache, 
+                  verbose = F)
   
   
   test_that("add = (C)RUD", {

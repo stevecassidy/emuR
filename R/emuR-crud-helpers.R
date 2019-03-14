@@ -68,14 +68,20 @@ insertItemIntoDatabase = function(emuDBhandle,
   
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
-    "INSERT INTO items_annot_crud_tmp (
-    db_uuid, session, bundle, item_id, level, type, seq_idx, sample_rate,
-    sample_point, sample_start, sample_dur
-  )
-    VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-    )"
-  )
+    paste0("INSERT INTO items_annot_crud_tmp (",
+           " db_uuid, ",
+           " session, ",
+           " bundle, ",
+           " item_id, ",
+           " level, ",
+           " type, ",
+           " seq_idx, ",
+           " sample_rate, ",
+           " sample_point, ",
+           " sample_start, ",
+           " sample_dur) ",
+           "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    ))
   
   DBI::dbBind(
     statement,
@@ -99,13 +105,17 @@ insertItemIntoDatabase = function(emuDBhandle,
   # now labels
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
-    "INSERT INTO labels_annot_crud_tmp (
-    db_uuid, session, bundle, item_id, label_idx, name, label
-  )
-    VALUES (
-    ?, ?, ?, ?, ?, ?, ?
-    )"
-  )
+    paste0("INSERT INTO labels_annot_crud_tmp ( ",
+           " db_uuid, ",
+           " session, ",
+           " bundle, ",
+           " item_id, ",
+           " label_idx, ",
+           " name, ",
+           " label",
+           ")",
+           "VALUES (?, ?, ?, ?, ?, ?, ?)"
+    ))
   
   itemToInsert$dbUuid = emuDBhandle$UUID
   itemToInsert$itemId = itemId
@@ -229,9 +239,13 @@ rewrite_sequenceIndexesOneLevel = function (emuDBhandle,
   
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
-    "UPDATE items_annot_crud_tmp SET seq_idx = ? WHERE db_uuid = ? AND session = ? AND bundle = ? AND item_id = ?"
-  )
-
+    paste0("UPDATE items_annot_crud_tmp ",
+           "SET seq_idx = ? ",
+           "WHERE db_uuid = ? ",
+           " AND session = ? ",
+           " AND bundle = ? ",
+           " AND item_id = ?"))
+  
   DBI::dbBind(
     statement,
     list(
@@ -267,50 +281,58 @@ ensureSequenceIndexesAreUnique = function (itemsOnAttribute) {
   invisible(itemsOnAttribute)
 }
 
-database.DDL.emuDB_items_annot_crud_tmp = 'CREATE TEMP TABLE items_annot_crud_tmp (
-  db_uuid VARCHAR(36),
-  session TEXT,
-  bundle TEXT,
-  item_id INTEGER,
-  level TEXT,
-  type TEXT,
-  seq_idx FLOAT,
-  sample_rate FLOAT,
-  sample_point INTEGER,
-  sample_start INTEGER,
-  sample_dur INTEGER,
-  PRIMARY KEY (db_uuid, session, bundle, item_id)
-  -- FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
-);'
+database.DDL.emuDB_items_annot_crud_tmp = paste0("CREATE TEMP TABLE items_annot_crud_tmp (",
+                                                 " db_uuid VARCHAR(36), ",
+                                                 " session TEXT, ",
+                                                 " bundle TEXT, ",
+                                                 " item_id INTEGER, ",
+                                                 " level TEXT, ",
+                                                 " type TEXT, ",
+                                                 " seq_idx FLOAT, ",
+                                                 " sample_rate FLOAT, ",
+                                                 " sample_point INTEGER, ",
+                                                 " sample_start INTEGER, ",
+                                                 " sample_dur INTEGER, ",
+                                                 "PRIMARY KEY (db_uuid, session, bundle, item_id) ",
+                                                 #"FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
+                                                 ");")
 
-database.DDL.emuDB_labels_annot_crud_tmp = 'CREATE TEMP TABLE labels_annot_crud_tmp (
-  db_uuid VARCHAR(36),
-  session TEXT,
-  bundle TEXT,
-  item_id INTEGER,
-  label_idx INTEGER,
-  name TEXT,
-  label TEXT,
-  PRIMARY KEY (db_uuid, session, bundle, item_id, label_idx)
--- FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
--- FOREIGN KEY (db_uuid, session, bundle, item_id) REFERENCES items(db_uuid, session, bundle, item_id) ON DELETE CASCADE
-);'
+database.DDL.emuDB_labels_annot_crud_tmp = paste0("CREATE TEMP TABLE labels_annot_crud_tmp ( ",
+                                                  " db_uuid VARCHAR(36), ",
+                                                  " session TEXT, ",
+                                                  " bundle TEXT, ", 
+                                                  " item_id INTEGER, ",
+                                                  " label_idx INTEGER, ",
+                                                  " name TEXT, ",
+                                                  " label TEXT, ",
+                                                  "PRIMARY KEY (db_uuid, session, bundle, item_id, label_idx) ",
+                                                  #"FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE",
+                                                  #"FOREIGN KEY (db_uuid, session, bundle, item_id) REFERENCES items(db_uuid, session, bundle, item_id) ON DELETE CASCADE",
+                                                  ");")
 
 create_annotCrudTmpTables = function(emuDBhandle) {
-  DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB_items_annot_crud_tmp)
-  DBI::dbExecute(emuDBhandle$connection, "INSERT INTO items_annot_crud_tmp SELECT * FROM items")
-  DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB_labels_annot_crud_tmp)
-  DBI::dbExecute(emuDBhandle$connection, "INSERT INTO labels_annot_crud_tmp SELECT * FROM labels")
+  DBI::dbExecute(emuDBhandle$connection, 
+                 database.DDL.emuDB_items_annot_crud_tmp)
+  DBI::dbExecute(emuDBhandle$connection, 
+                 "INSERT INTO items_annot_crud_tmp SELECT * FROM items")
+  DBI::dbExecute(emuDBhandle$connection, 
+                 database.DDL.emuDB_labels_annot_crud_tmp)
+  DBI::dbExecute(emuDBhandle$connection, 
+                 "INSERT INTO labels_annot_crud_tmp SELECT * FROM labels")
 }
 
 remove_annotCrudTmpTables = function(emuDBhandle) {
-  DBI::dbExecute(emuDBhandle$connection, "DROP TABLE IF EXISTS items_annot_crud_tmp")
-  DBI::dbExecute(emuDBhandle$connection, "DROP TABLE IF EXISTS labels_annot_crud_tmp")
+  DBI::dbExecute(emuDBhandle$connection, 
+                 "DROP TABLE IF EXISTS items_annot_crud_tmp")
+  DBI::dbExecute(emuDBhandle$connection, 
+                 "DROP TABLE IF EXISTS labels_annot_crud_tmp")
 }
 
 
 moveback_annotCrudTmpTables = function(emuDBhandle) {
-  DBI::dbExecute(emuDBhandle$connection, "INSERT OR REPLACE INTO items SELECT * FROM items_annot_crud_tmp")
-  DBI::dbExecute(emuDBhandle$connection, "INSERT OR REPLACE INTO labels SELECT * FROM labels_annot_crud_tmp")
+  DBI::dbExecute(emuDBhandle$connection, 
+                 "INSERT OR REPLACE INTO items SELECT * FROM items_annot_crud_tmp")
+  DBI::dbExecute(emuDBhandle$connection, 
+                 "INSERT OR REPLACE INTO labels SELECT * FROM labels_annot_crud_tmp")
   remove_annotCrudTmpTables(emuDBhandle)
 }

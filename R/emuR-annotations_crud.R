@@ -145,7 +145,10 @@ create_itemsInLevel = function(emuDBhandle,
     ## check for conflicting seq index
     in_both = dplyr::inner_join(itemsToCreate, 
                                 items_all, 
-                                by = c("session", "bundle", "level", "start_item_seq_idx" = "seq_idx"))
+                                by = c("session", 
+                                       "bundle", 
+                                       "level", 
+                                       "start_item_seq_idx" = "seq_idx"))
     if(nrow(in_both) > 0){
       stop("Found existing items with same 'session', 'bundle', 'level', 'start_item_seq_idx'!")
     }
@@ -170,7 +173,10 @@ create_itemsInLevel = function(emuDBhandle,
     # check that times don't exist
     in_both = dplyr::inner_join(itemsToCreate, 
                                 items_all, 
-                                by = c("session", "bundle", "level", "sample_point"))
+                                by = c("session", 
+                                       "bundle", 
+                                       "level", 
+                                       "sample_point"))
     
     if(nrow(in_both) > 0){
       stop("Found existing items with same 'session', 'bundle', 'level', 'sample_point'!")
@@ -181,7 +187,9 @@ create_itemsInLevel = function(emuDBhandle,
     # find existing items on same levels that are in itemsToCreate
     items_exist_in_levels = dplyr::left_join(items_all,
                                              itemsToCreate,
-                                             by = c("session", "bundle", "level"))
+                                             by = c("session", 
+                                                    "bundle", 
+                                                    "level"))
     
     items_exist_in_levels = items_exist_in_levels[!is.na(items_exist_in_levels$db_uuid.y),]
     
@@ -246,8 +254,12 @@ create_itemsInLevel = function(emuDBhandle,
     if(nrow(itemsToUpdate) >= 1){
       statement = DBI::dbSendStatement(
         emuDBhandle$connection,
-        "UPDATE items_annot_crud_tmp SET seq_idx = ? WHERE db_uuid = ? AND session = ? AND bundle = ? AND item_id = ?"
-      )
+        paste0("UPDATE items_annot_crud_tmp ",
+               "SET seq_idx = ? ",
+               "WHERE db_uuid = ? ",
+               " AND session = ? ",
+               " AND bundle = ? ",
+               " AND item_id = ?"))
       
       DBI::dbBind(
         statement,
@@ -270,8 +282,13 @@ create_itemsInLevel = function(emuDBhandle,
   ## and proceed separately for each of them
   ##
   itemsToCreate %>%
-    dplyr::group_by(.data$session, .data$bundle, .data$level, .data$start_item_seq_idx) %>%
-    dplyr::do(insertItemIntoDatabase(emuDBhandle, .data, levelDefinition$type))
+    dplyr::group_by(.data$session, 
+                    .data$bundle, 
+                    .data$level, 
+                    .data$start_item_seq_idx) %>%
+    dplyr::do(insertItemIntoDatabase(emuDBhandle, 
+                                     .data, 
+                                     levelDefinition$type))
   
   
   ##
@@ -341,14 +358,13 @@ update_itemsInLevel = function (emuDBhandle,
   ##
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
-    "SELECT count(*) FROM items
-    WHERE
-    db_uuid = ? AND
-    session = ? AND
-    bundle = ? AND
-    level = ? AND
-    seq_idx = ?"
-  )
+    paste0("SELECT count(*) ",
+           "FROM items ",
+           "WHERE db_uuid = ? ",
+           " AND session = ? ",
+           " AND bundle = ? ",
+           " AND level = ? ",
+           " AND seq_idx = ?"))
   DBI::dbBind(
     statement,
     list(
@@ -387,14 +403,13 @@ update_itemsInLevel = function (emuDBhandle,
   #  get item_ids of matching entries
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
-    "SELECT item_id FROM items
-    WHERE
-    db_uuid = ? AND
-    session = ? AND
-    bundle = ? AND
-    level = ? AND
-    seq_idx = ?"
-  )
+    paste0("SELECT item_id ",
+           "FROM items ",
+           "WHERE db_uuid = ? ",
+           " AND session = ? ",
+           " AND bundle = ? ",
+           " AND level = ? ",
+           " AND seq_idx = ?"))
   
   DBI::dbBind(
     statement,
@@ -412,12 +427,17 @@ update_itemsInLevel = function (emuDBhandle,
   
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
-    "INSERT OR REPLACE INTO labels
-    (db_uuid, session, bundle, item_id, label_idx, name, label)
-    VALUES (?, ?, ?, ?, ?, ?, ?)"
-  )
+    paste0("INSERT OR REPLACE INTO labels (",
+           " db_uuid, ",
+           " session, ",
+           " bundle, ",
+           " item_id, ",
+           " label_idx, ",
+           " name, ",
+           " label ",
+           ") VALUES (?, ?, ?, ?, ?, ?, ?)"))
   # rename labels column to label to match labels SQL table column name
-  colnames(itemsToUpdate)[colnames(itemsToUpdate)=="labels"] <- "label"
+  colnames(itemsToUpdate)[colnames(itemsToUpdate) == "labels"] <- "label"
   
   DBI::dbBind(
     statement,
@@ -504,7 +524,7 @@ create_links = function(emuDBhandle,
                         rewriteAllAnnots = TRUE,
                         verbose = TRUE) {
   
-  input_key <- readline(prompt="Currently no checks are performed so use at own risk! Do you wish to continue anyway (y/N)?")
+  input_key <- readline(prompt = "Currently no checks are performed so use at own risk! Do you wish to continue anyway (y/N)?")
   if(input_key != "y") return()
   
   # todo check if items are all present in database
@@ -514,13 +534,14 @@ create_links = function(emuDBhandle,
   
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
-    "INSERT INTO links (
-    db_uuid, session, bundle, from_id, to_id, label
-    )
-    VALUES (
-    ?, ?, ?, ?, ?, NULL
-    )"
-  )
+    paste0("INSERT INTO links (",
+           " db_uuid, ",
+           " session, ",
+           " bundle, ",
+           " from_id, ",
+           " to_id, ",
+           " label",
+           ") VALUES (?, ?, ?, ?, ?, NULL)"))
   
   DBI::dbBind(
     statement,
@@ -542,12 +563,11 @@ create_links = function(emuDBhandle,
   
   invisible(NULL)
 }
-  
-  
+
+
 #######################
 # FOR DEVELOPMENT
 # library('testthat')
 # test_file('tests/testthat/test_aaa_initData.R')
 # test_file('tests/testthat/test_emuR-annotations_crud.R')
 # test_file('tests/testthat/test_zzz_cleanUp.R')
-  

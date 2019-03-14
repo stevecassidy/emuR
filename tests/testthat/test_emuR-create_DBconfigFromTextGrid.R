@@ -29,7 +29,10 @@ test_that("test that correct values are set for msajc003", {
 
 ##############################
 test_that("test only correct tiers are extracted if tierNames is set", {
-  conf = create_DBconfigFromTextGrid(path2tg, dbName, basePath, c("Phonetic", "Tone"))
+  conf = create_DBconfigFromTextGrid(path2tg, 
+                                     dbName, 
+                                     basePath, 
+                                     c("Phonetic", "Tone"))
 
   expect_equal(conf$levelDefinitions[[1]]$name, 'Phonetic')
   expect_equal(conf$levelDefinitions[[1]]$type, 'SEGMENT')
