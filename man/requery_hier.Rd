@@ -5,7 +5,7 @@
 \title{Requery hierarchical context of a segment list in an emuDB}
 \usage{
 requery_hier(emuDBhandle, seglist, level, collapse = TRUE,
-  resultType = "emuRsegs", calcTimes = TRUE,
+  resultType = "tibble", calcTimes = TRUE,
   timeRefSegmentLevel = NULL, verbose = FALSE)
 }
 \arguments{
@@ -18,7 +18,7 @@ requery_hier(emuDBhandle, seglist, level, collapse = TRUE,
 \item{collapse}{collapse the found items in the requested level to a sequence (concatenated with ->). 
 If set to \code{FALSE} separate items as new entries in the emuRsegs object are returned.}
 
-\item{resultType}{type of result (either 'tibble', 'emuRsegs' == default)}
+\item{resultType}{type of result (either 'tibble' == default or 'emuRsegs')}
 
 \item{calcTimes}{calculate times for resulting segments (results in \code{NA} values for start and end 
 times in emuseg/emuRsegs). As it can be very computationally expensive to 
@@ -43,14 +43,12 @@ if a level in a bundle instance has labels 'a', 'b' and 'c' in that order, 'a' o
 are all valid segments, 'a->c' is not. For each segment of the input segment list \code{seglist} 
 the function checks the start and end item for hierarchically linked items in the given target 
 level, and based on them constructs segments in the target level. As the start item in the resulting 
-segment the item with the lowest sample position is chosen; for the end item that with the highest 
-sample position. If result and input segment list have the same length (for each input segment one 
-segment on the target level was found), the result segment list has the same length and order as the 
-input list; in 'upwards' requeries this can cause a resulting segment list to contain two (or more) 
-copies of the same segment, if the same item from the input list was linked twice or more to an item 
-of the target level, e.g. a phoneme 'p' requeried to the word level might result in two identical 
-segments 'Papa' in the result list. If the length of input and output list differ (e.g. because a link 
-is missing in the emuDB), a synchronous ordering is not possible and therefore a warning is generated.
+segment the item with the lowest sequence index is chosen; for the end item that with the highest 
+sequence index. If the parameter \code{collapse} is set to \code{TRUE} (the default), it is guaranteed 
+that result and input segment list have the same length (for each input 
+segment one or multiple segments on the target level was found). If multiple linked segments where found
+they are collapsed into a sequence of segments ('a->b->c') and if no linked items where found an NA row 
+is inserted.
 }
 \examples{
 \dontrun{

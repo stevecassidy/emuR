@@ -199,7 +199,7 @@ The first thing that we will need to do to answer this fairly simple question, i
 This can easily be achieved using the `query()` function:
 
 ```{r message=FALSE, warning=FALSE}
-sl = query(ae, query = "Phonetic==n")
+sl = query(ae, query = "Phonetic == n", resultType = "emuRsegs")
 
 head(sl)
 ```

@@ -84,7 +84,10 @@ export_TextGridCollection <- function(emuDBhandle,
   
   slAll = NULL
   for(i in 1:length(allAttrNames)){
-    sl = query(emuDBhandle, paste0(allAttrNames[i], "=~ .*"), verbose = FALSE)
+    sl = query(emuDBhandle, 
+               paste0(allAttrNames[i], "=~ .*"), 
+               resultType = "emuRsegs", # still uses old emuRsegs obj
+               verbose = FALSE)
     slAll = dplyr::bind_rows(slAll, sl)
   }
   

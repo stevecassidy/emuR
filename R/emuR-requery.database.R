@@ -82,14 +82,14 @@ check_tibbleForRequery <- function(tbl){
 ##' length and order as the input \code{seglist}; if \code{ignoreOutOfBounds=FALSE}, 
 ##' the resulting segment list may be out of sync.
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
-##' @param seglist segment list to requery on (type: 'emuRsegs')
+##' @param seglist segment list to requery on (type: 'tibble' or 'emuRsegs')
 ##' @param offset start item offset in sequence (default is 0, meaning the start 
 ##' or end item of the input segment)
 ##' @param offsetRef reference item for offset: 'START' for first and 'END' 
 ##' for last item of segment
 ##' @param length item length of segments in the returned segment list
 ##' @param ignoreOutOfBounds ignore result segments that are out of bundle bounds
-##' @param resultType type of result (either 'tibble', 'emuRsegs' == default)
+##' @param resultType type of result (either 'tibble' == default, 'emuRsegs')
 ##' @param calcTimes calculate times for resulting segments (results in \code{NA} 
 ##' values for start and end times in emuseg/emuRsegs). As it can be very 
 ##' computationally expensive to calculate the times for large nested hierarchies, 
@@ -154,7 +154,7 @@ requery_seq <- function(emuDBhandle,
                         offsetRef = 'START', 
                         length = 1, 
                         ignoreOutOfBounds = FALSE, 
-                        resultType = "emuRsegs", 
+                        resultType = "tibble", 
                         calcTimes = TRUE, 
                         timeRefSegmentLevel = NULL, 
                         verbose = FALSE){
@@ -370,20 +370,18 @@ requery_seq <- function(emuDBhandle,
 ##' are all valid segments, 'a->c' is not. For each segment of the input segment list \code{seglist} 
 ##' the function checks the start and end item for hierarchically linked items in the given target 
 ##' level, and based on them constructs segments in the target level. As the start item in the resulting 
-##' segment the item with the lowest sample position is chosen; for the end item that with the highest 
-##' sample position. If result and input segment list have the same length (for each input segment one 
-##' segment on the target level was found), the result segment list has the same length and order as the 
-##' input list; in 'upwards' requeries this can cause a resulting segment list to contain two (or more) 
-##' copies of the same segment, if the same item from the input list was linked twice or more to an item 
-##' of the target level, e.g. a phoneme 'p' requeried to the word level might result in two identical 
-##' segments 'Papa' in the result list. If the length of input and output list differ (e.g. because a link 
-##' is missing in the emuDB), a synchronous ordering is not possible and therefore a warning is generated.
+##' segment the item with the lowest sequence index is chosen; for the end item that with the highest 
+##' sequence index. If the parameter \code{collapse} is set to \code{TRUE} (the default), it is guaranteed 
+##' that result and input segment list have the same length (for each input 
+##' segment one or multiple segments on the target level was found). If multiple linked segments where found
+##' they are collapsed into a sequence of segments ('a->b->c') and if no linked items where found an NA row 
+##' is inserted. 
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param seglist segment list to requery on (type: \link{emuRsegs})
 ##' @param level character string: name of target level
 ##' @param collapse collapse the found items in the requested level to a sequence (concatenated with ->). 
 ##' If set to \code{FALSE} separate items as new entries in the emuRsegs object are returned.
-##' @param resultType type of result (either 'tibble', 'emuRsegs' == default)
+##' @param resultType type of result (either 'tibble' == default or 'emuRsegs')
 ##' @param calcTimes calculate times for resulting segments (results in \code{NA} values for start and end 
 ##' times in emuseg/emuRsegs). As it can be very computationally expensive to 
 ##' calculate the times for large nested hierarchies, it can be turned off via this boolean parameter.
@@ -434,7 +432,7 @@ requery_hier <- function(emuDBhandle,
                          seglist, 
                          level, 
                          collapse = TRUE, 
-                         resultType = "emuRsegs",
+                         resultType = "tibble",
                          calcTimes = TRUE, 
                          timeRefSegmentLevel = NULL, 
                          verbose = FALSE){

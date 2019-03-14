@@ -682,7 +682,7 @@ test_that("load of read only emuDB works",{
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
                   verbose = F)
   sl = query(ae, "Phonetic == n")
-  expect_true("emuRsegs" %in% class(sl))
+  expect_true("tbl_df" %in% class(sl))
   Sys.chmod(path2db, mode = "755") # change back
   
   # change emuDBcache.sqlite to 
@@ -691,7 +691,7 @@ test_that("load of read only emuDB works",{
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
                   verbose = F)
   sl = query(ae, "Phonetic == n")
-  expect_true("emuRsegs" %in% class(sl))
+  expect_true("tbl_df" %in% class(sl))
   Sys.chmod(path2db, mode = "755") # change back
   
   # cleanup

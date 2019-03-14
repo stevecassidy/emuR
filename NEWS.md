@@ -1,7 +1,8 @@
-# emuR 1.1.2.9003
+# emuR 1.9.9.9000
 
 ## new features / performance tweaks / improvements
 
+* changed default `resultTypes` to `"tibble"` (`query()`, `requery_hier()`, `requery_seq()`, `get_trackdata()`)
 * changed url in printed output of serve to https
 * `serve()` doesn't block the R console any more
 * suppressing requery differing length warnings in `runBASwebservice_*` functions

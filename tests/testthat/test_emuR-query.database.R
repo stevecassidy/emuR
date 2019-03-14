@@ -14,7 +14,7 @@ path2testhatFolder = file.path(tempdir(),
 # extract internalVars from environment .emuR_pkgEnv
 internalVars = get("internalVars", envir = .emuR_pkgEnv)
 
-test_that("Convert example database ae",{
+test_that("Convert example database ae", {
   legacyDbEmuAeTpl <- file.path(path2demoData, "legacy_ae", "ae.tpl")
   .test_emu_ae_db_dir <<- file.path(path2testhatFolder, 'test_emu_ae')
   unlink(.test_emu_ae_db_dir, recursive = T)
@@ -24,7 +24,7 @@ test_that("Convert example database ae",{
                       verbose = FALSE)
 })
 
-test_that("Load example database ae",{  
+test_that("Load example database ae", {  
   ae = load_emuDB(file.path(.test_emu_ae_db_dir,'ae_emuDB'), 
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
                   verbose = FALSE)
@@ -372,7 +372,7 @@ test_that("Load example database ae",{
     skip_on_cran()
     # SQ
     qs = "Phonetic == m"
-    sl = query(ae, qs)
+    sl = query(ae, qs, resultType = "emuRsegs")
     expect_equal(nrow(sl), 7)
     expect_equal(attributes(sl)$query, qs)
     sl = query(ae, "[Phonetic == m]")
@@ -395,7 +395,7 @@ test_that("Load example database ae",{
     sl = query(ae, "[Text = to -> #Text =~ .*]")
     expect_equal(nrow(sl), 3)
     qs = "[Phonetic == m -> Phonetic == I]"
-    sl = query(ae, qs)
+    sl = query(ae, qs, resultType = "emuRsegs")
     expect_equal(nrow(sl), 0)
     expect_equal(attributes(sl)$query, qs)
     sl = query(ae, "[#Phonetic == m -> Phonetic == I]")

@@ -8,8 +8,7 @@
 get_trackdata(emuDBhandle, seglist = NULL, ssffTrackName = NULL,
   cut = NULL, npoints = NULL, onTheFlyFunctionName = NULL,
   onTheFlyParams = NULL, onTheFlyOptLogFilePath = NULL,
-  resultType = "trackdata", consistentOutputType = TRUE,
-  verbose = TRUE)
+  resultType = "tibble", consistentOutputType = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
@@ -57,7 +56,7 @@ parameter one wishes to change.}
 \item{onTheFlyOptLogFilePath}{Path to optional log file for on-the-fly function}
 
 \item{resultType}{Specify class of returned object. Either \code{"emuRtrackdata"}, 
-\code{"trackdata"} or \code{"tibble"}  (see \code{\link{trackdata}}, \code{\link{emuRtrackdata}} 
+\code{"trackdata"} or \code{"tibble"} == the default  (see \code{\link{trackdata}}, \code{\link{emuRtrackdata}} 
 and \code{\link{tibble}} for details about these objects).}
 
 \item{consistentOutputType}{Prevent converting the output object to a \code{data.frame} 
@@ -71,7 +70,7 @@ returned (see the \code{consistentOutputType} to change this behaviour).}
 \item{verbose}{Show progress bars and further information}
 }
 \value{
-object of type that is specified with \code{resultType}
+object of type specified with \code{resultType}
 }
 \description{
 Extract trackdata information from a loaded emuDB that 
@@ -83,12 +82,13 @@ SSFF/audio file handling. It reads time relevant data from a given
 segment list (\code{\link{emuRsegs}} or \code{\link{emusegs}}), extracts the 
 specified trackdata and places it into a 
 trackdata object (analogous to the deprecated \code{emu.track}). This function
-replaces the deprecated \code{emu.track} function. Note that an error is thrown
+replaces the deprecated \code{emu.track} function. Note that an warning is issued
 if the bundles in the \code{\link{emuRsegs}} or \code{\link{emusegs}} object 
-have in-homogeneous sampling rates as this will lead to inconsistent/erroneous
+have in-homogeneous sampling rates as this could lead to inconsistent/erroneous
 \code{\link{trackdata}}, \code{\link{emuRtrackdata}} or \code{\link{tibble}} result objects. For 
 more information on the structural elements of an emuDB 
-see \code{vignette{emuDB}}.
+see the signal data extraction chapter of the EMU-SDMS manual 
+(\url{https://ips-lmu.github.io/The-EMU-SDMS-Manual/chap-sigDataExtr.html}).
 }
 \examples{
 \dontrun{

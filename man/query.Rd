@@ -5,8 +5,8 @@
 \title{Query emuDB}
 \usage{
 query(emuDBhandle, query, sessionPattern = ".*", bundlePattern = ".*",
-  queryLang = "EQL2", timeRefSegmentLevel = NULL, resultType = NULL,
-  calcTimes = TRUE, verbose = FALSE)
+  queryLang = "EQL2", timeRefSegmentLevel = NULL,
+  resultType = "tibble", calcTimes = TRUE, verbose = FALSE)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle object (see \link{load_emuDB})}
@@ -47,18 +47,19 @@ Function to query annotation items/structures in a emuDB
 }
 \details{
 Evaluates a query string of query language queryLang on an 
-emuDB referenced by dbName and returns a segment list of desired type resultType.  
-For details of the query language please refer to the EQL vignette (type: \code{vignette('EQL')} ).
+emuDB referenced by dbName and returns a segment list of the desired type resultType.  
+For details of the query language please refer to the EMU-SDMS manual's query 
+system chapter (\url{https://ips-lmu.github.io/The-EMU-SDMS-Manual/chap-querysys.html}).
 Returns a list of segments which meet the conditions given by the query string. 
 A segment can consist of one (e.g. 's') or more (e.g. 's->t') items from 
 the specified emuDB level. Segment objects (type 'SEGMENT') contain the label 
-string and the start and end time information of the segment (in msec). 
+string and the start and end time information of the segment (in ms). 
 \link{emuRsegs} objects additionally contain sample position of start and end item. 
 Time information of symbolic elements (type 'ITEM') are derived from linked SEGMENT 
 levels if available. If multiple linked SEGMENT levels exist, you can specify the 
-level by argument \code{timeRefSegmentLevel}. If time and sample values cannot be 
+level with the \code{timeRefSegmentLevel} argument. If time and sample values cannot be 
 derived they will be set to \code{\link{NA}}. \link{emuRsegs} result lists will 
-be ordered by the hidden columns UUID, session, bundle and sample start position. 
+be ordered by the hidden columns UUID, session, bundle and sequence index (seq_idx). 
 Legacy \link{emusegs} lists are ordered by the columns utts and start.
 The query may be limited to session and/or bundle names specified by regular 
 expression pattern strings (see \link{regex}) in parameters \code{sessionPattern} 

@@ -5,13 +5,13 @@
 \title{Requery sequential context of segment list in an emuDB}
 \usage{
 requery_seq(emuDBhandle, seglist, offset = 0, offsetRef = "START",
-  length = 1, ignoreOutOfBounds = FALSE, resultType = "emuRsegs",
+  length = 1, ignoreOutOfBounds = FALSE, resultType = "tibble",
   calcTimes = TRUE, timeRefSegmentLevel = NULL, verbose = FALSE)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
 
-\item{seglist}{segment list to requery on (type: 'emuRsegs')}
+\item{seglist}{segment list to requery on (type: 'tibble' or 'emuRsegs')}
 
 \item{offset}{start item offset in sequence (default is 0, meaning the start 
 or end item of the input segment)}
@@ -23,7 +23,7 @@ for last item of segment}
 
 \item{ignoreOutOfBounds}{ignore result segments that are out of bundle bounds}
 
-\item{resultType}{type of result (either 'tibble', 'emuRsegs' == default)}
+\item{resultType}{type of result (either 'tibble' == default, 'emuRsegs')}
 
 \item{calcTimes}{calculate times for resulting segments (results in \code{NA} 
 values for start and end times in emuseg/emuRsegs). As it can be very 

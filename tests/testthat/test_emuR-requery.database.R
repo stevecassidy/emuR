@@ -37,7 +37,7 @@ test_that("Requery sequential",{
   # equivalent requery results should be equal
   expect_equal(rsl1, rsl2)
   
-  expect_that(class(rsl1), is_identical_to(c('emuRsegs', 'emusegs', 'data.frame')))
+  expect_that(class(rsl1), is_identical_to(c('tbl_df', 'tbl', 'data.frame')))
   expect_that(nrow(sl1), equals(2))
   expect_that(nrow(rsl1), equals(2))
   expect_that('[.data.frame'(rsl1, 1, 'labels'), is_equivalent_to('l->@->n->t->l'))
@@ -89,7 +89,7 @@ test_that("Requery hierarchical",{
   sl1 = query(ae, "Text =~ 'a[mn].*'")
   # requery to level Phoneme
   rsl1 = suppressWarnings(requery_hier(ae, sl1, level = 'Phoneme'))
-  expect_that(class(rsl1), is_identical_to(c('emuRsegs', 'emusegs', 'data.frame')))
+  expect_that(class(rsl1), is_identical_to(c('tbl_df', 'tbl', 'data.frame')))
   expect_that(nrow(sl1),equals(3))
   expect_that(nrow(rsl1),equals(3))
   expect_that('[.data.frame'(rsl1, 1, 'labels'), is_equivalent_to('V->m->V->N->s->t'))
@@ -164,8 +164,8 @@ test_that("hierarchical throws warning if badly ordered/multiple levels",{
   expect_warning(check_emuRsegsForRequery(sl))
   
   
-  sl1 = query(ae, "Phonetic == n")
-  sl2 = query(ae, "Phonetic == @")
+  sl1 = query(ae, "Phonetic == n", resultType = "emuRsegs")
+  sl2 = query(ae, "Phonetic == @", resultType = "emuRsegs")
   
   sl = rbind(sl1, sl2)
   
@@ -173,7 +173,19 @@ test_that("hierarchical throws warning if badly ordered/multiple levels",{
   
   sl = sort(sl)
   check_emuRsegsForRequery(sl)
+
+  # check with new default tibble result type as well
+  sl1 = query(ae, "Phonetic == n")
+  sl2 = query(ae, "Phonetic == @")
   
+  sl = rbind(sl1, sl2)
+  
+  expect_warning(check_emuRsegsForRequery(sl))
+  
+  sl = dplyr::arrange(sl, db_uuid, session, bundle, start_item_seq_idx)
+  check_emuRsegsForRequery(sl)
+  
+    
 })
 
 test_that("requery_hier inserts NAs",{
