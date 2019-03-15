@@ -5,7 +5,7 @@
 \title{Load emuDB}
 \usage{
 load_emuDB(databaseDir, inMemoryCache = FALSE, connection = NULL,
-  verbose = TRUE, ...)
+  gitSnapshot = FALSE, verbose = TRUE, ...)
 }
 \arguments{
 \item{databaseDir}{directory of the emuDB}
@@ -15,6 +15,10 @@ load_emuDB(databaseDir, inMemoryCache = FALSE, connection = NULL,
 \item{connection}{pass in DBI connection to SQL database if you want to override the default which is to 
 use an SQLite database either in memory (\code{inMemoryCache = TRUE}) or in the emuDB folder. This is intended
 for expert use only!}
+
+\item{gitSnapshot}{if set to TRUE, first a git repository is created (only if it doesn't already exist).
+Then a \code{.gitignore} file is created (again only if it doesn't already exist) telling git to ignore 
+the \code{_emuDBcache.sql} file. Finally, all files are added to the git repository and a git commit is performed.}
 
 \item{verbose}{be verbose}
 
