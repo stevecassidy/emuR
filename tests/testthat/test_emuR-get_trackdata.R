@@ -39,6 +39,7 @@ test_that("correct classes are returned", {
                        n, 
                        'fm', 
                        consistentOutputType = F, 
+                       resultType = "trackdata",
                        verbose = F)
     expect_that(class(td), equals('trackdata'))
     
@@ -46,6 +47,7 @@ test_that("correct classes are returned", {
                        n, 
                        'fm', 
                        cut = .5, 
+                       resultType = "trackdata",
                        consistentOutputType = F, 
                        verbose = F)
     expect_that(class(td), equals('data.frame'))
@@ -55,6 +57,7 @@ test_that("correct classes are returned", {
                        'fm', 
                        cut = .5, 
                        npoints = 3, 
+                       resultType = "trackdata",
                        consistentOutputType = F, 
                        verbose = F)
     expect_that(class(td), 
@@ -65,6 +68,7 @@ test_that("correct classes are returned", {
                        'fm', 
                        cut = .5, 
                        npoints = 1, 
+                       resultType = "trackdata",
                        consistentOutputType = F, 
                        verbose = F)
     expect_that(class(td), equals('data.frame'))
@@ -72,6 +76,7 @@ test_that("correct classes are returned", {
     td = get_trackdata(ae, 
                        hStar, 
                        'fm',
+                       resultType = "trackdata",
                        consistentOutputType = F, 
                        verbose = F)
     expect_that(class(td), equals('data.frame'))
@@ -80,6 +85,7 @@ test_that("correct classes are returned", {
                        hStar, 
                        'fm', 
                        npoints = 3, 
+                       resultType = "trackdata",
                        consistentOutputType = F, 
                        verbose = F)
     expect_that(class(td), equals('trackdata'))
@@ -139,6 +145,7 @@ test_that("correct classes are returned", {
                        'fm',
                        cut = .5, 
                        npoints = 3, 
+                       resultType = "trackdata",
                        verbose = F)
     expect_that(dim(td$data)[1], equals(length(n$utts)*3))
     
@@ -147,6 +154,7 @@ test_that("correct classes are returned", {
                        'fm',
                        cut = .5, 
                        npoints = 5, 
+                       resultType = "trackdata",
                        verbose = F)
     expect_that(dim(td$data)[1], equals(length(n$utts)*5))
     
@@ -161,6 +169,7 @@ test_that("correct classes are returned", {
                          'fm',
                          cut = cutV, 
                          consistentOutputType = F, 
+                         resultType = "trackdata",
                          verbose = F)
       expect_that(class(td), equals('data.frame'))
     }
@@ -174,6 +183,7 @@ test_that("correct classes are returned", {
                        'fm', 
                        cut = 0.5, 
                        npoints = 20, 
+                       resultType = "trackdata",
                        verbose = F)
     expect_that(class(td), equals('trackdata'))
   })
@@ -188,6 +198,7 @@ test_that("correct classes are returned", {
                            n, 
                            wrasspOutputInfos[[wrasspFun]]$tracks[1], 
                            onTheFlyFunctionName = wrasspFun, 
+                           resultType = "trackdata",
                            verbose = F)
       }
       expect_that(class(td), equals('trackdata'))
@@ -199,6 +210,7 @@ test_that("correct classes are returned", {
     td = get_trackdata(ae, 
                        n, 
                        onTheFlyFunctionName = "ksvF0", 
+                       resultType = "trackdata",
                        verbose = F)
     expect_equal(dim(td$index)[1], 12)
   })
@@ -209,6 +221,7 @@ test_that("correct classes are returned", {
     td = get_trackdata(ae, 
                        n, 
                        'fm',
+                       resultType = "trackdata",
                        verbose = F)
     expect_that(td$data[10,1], equals(256))
     expect_that(td$data[10,2], equals(1521))
@@ -218,6 +231,7 @@ test_that("correct classes are returned", {
     td = get_trackdata(ae, 
                        n, 
                        onTheFlyFunctionName = "forest", 
+                       resultType = "trackdata",
                        verbose = F)
     expect_that(td$data[10,1], equals(256))
     expect_that(td$data[10,2], equals(1521))
@@ -235,6 +249,7 @@ test_that("correct classes are returned", {
     td = get_trackdata(ae, 
                        sl, 
                        onTheFlyFunctionName = "ksvF0", 
+                       resultType = "trackdata",
                        verbose = F)
     expect_equal(dim(td$index)[1], 12)
   })

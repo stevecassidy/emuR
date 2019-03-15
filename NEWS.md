@@ -1,4 +1,4 @@
-# emuR 1.9.9.9000
+# emuR 1.9.9.9001
 
 ## new features / performance tweaks / improvements
 
@@ -7,6 +7,7 @@
 * `serve()` doesn't block the R console any more
 * suppressing requery differing length warnings in `runBASwebservice_*` functions
 * `requery_hier()` now persists the input segment list length by inserting NA rows for missing segments
+* depricated vignettes are now stubs only (== empty containing notice pointing to the EMU-SDMS manual)
 
 ## bug fixes
 

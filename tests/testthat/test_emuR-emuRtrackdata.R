@@ -28,10 +28,12 @@ test_that("emuRtrackdata functions work", {
   ##############################
   test_that("correct classes are returned", {
     
-    sl = query(ae, "Phonetic == @ | i:")
+    sl = query(ae, "Phonetic == @ | i:", 
+               resultType = "emuRsegs")
     td = get_trackdata(ae, 
                        seglist = sl, 
                        ssffTrackName = 'fm',
+                       resultType = "trackdata",
                        verbose = F)
     
     newTd = create_emuRtrackdata(sl, td)
