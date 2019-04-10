@@ -390,7 +390,7 @@ bas_run_minni_dbi <- function(handle,
       
       curlParams = list(
         LANGUAGE = language,
-        OUTFORMAT = "mau",
+        OUTFORMAT = "par",
         SIGNAL = RCurl::fileUpload(signalfile)
       )
       
