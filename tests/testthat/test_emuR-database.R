@@ -1,6 +1,6 @@
 context("testing database functions")
 
-aeSampleRate=20000
+aeSampleRate = 20000
 
 dbName = "ae"
 path2demoData = file.path(tempdir(),
@@ -639,7 +639,7 @@ test_that("store works correctly",{
   unlink(path2db, recursive = T)
 })
 
-test_that("rename works correctly",{
+test_that("rename emuDB works correctly",{
   
   # delete, copy and load
   unlink(path2db, recursive = T)
@@ -663,6 +663,53 @@ test_that("rename works correctly",{
   # cleanup
   unlink(newPath, recursive = T)
 })
+
+test_that("rename bundles works correctly",{
+  
+  # delete, copy and load
+  unlink(path2db, recursive = T)
+  unlink(file.path(path2testData, "fromStore"), 
+         recursive = T)
+  file.copy(path2orig, 
+            path2testData, 
+            recursive = T)
+  
+  db = load_emuDB(path2db, verbose = F)
+  bundles = list_bundles(db)
+  # missing col
+  expect_error(rename_bundles(db, bundles))
+  bundles$name_new = paste0(bundles$name, "XXX")
+  # bad bundle/session names
+  bad_bundles = bundles
+  bad_bundles[1,]$name = "bad_bundle_name"
+  expect_error(rename_bundles(db, bad_bundles))
+  bad_bundles = bundles
+  bad_bundles[1,]$session = "bad_session_name"
+  expect_error(rename_bundles(db, bad_bundles))
+  
+    
+  rename_bundles(db, bundles)
+  
+  new_bundles = list_bundles(db)
+  
+  expect_true(all(stringr::str_detect(new_bundles$name, "XXX"))) 
+  
+  new_bundles = list_bundlesDBI(db)
+  
+  expect_true(all(stringr::str_detect(new_bundles$name, "XXX"))) 
+  
+  files = list_files(db)
+  
+  expect_true(all(stringr::str_detect(files$bundle, "XXX"))) 
+  expect_true(all(stringr::str_detect(files$file, "XXX")))
+  expect_true(all(stringr::str_detect(files$absolute_file_path, "XXX"))) 
+  
+  # cleanup
+  DBI::dbDisconnect(db$connection)
+  db = NULL
+  unlink(path2db, recursive = T)
+})
+
 
 test_that("load of read only emuDB works",{
   skip_on_cran() # probably won't work on windows (because of mode) so skip on cran

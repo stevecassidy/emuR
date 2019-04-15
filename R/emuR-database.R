@@ -33,7 +33,7 @@ database.DDL.emuDB_session = 'CREATE TABLE session (
   db_uuid VARCHAR(36),
   name TEXT,
   PRIMARY KEY (db_uuid,name),
-  FOREIGN KEY (db_uuid) REFERENCES emu_db(uuid) ON DELETE CASCADE
+  FOREIGN KEY (db_uuid) REFERENCES emu_db(uuid) ON DELETE CASCADE ON UPDATE CASCADE
 );'
 
 database.DDL.emuDB_bundle = 'CREATE TABLE bundle (
@@ -44,7 +44,7 @@ database.DDL.emuDB_bundle = 'CREATE TABLE bundle (
   sample_rate FLOAT,
   md5_annot_json TEXT,
   PRIMARY KEY (db_uuid, session, name),
-  FOREIGN KEY (db_uuid, session) REFERENCES session(db_uuid, name) ON DELETE CASCADE
+  FOREIGN KEY (db_uuid, session) REFERENCES session(db_uuid, name) ON DELETE CASCADE ON UPDATE CASCADE
 );'
 
 database.DDL.emuDB_items = 'CREATE TABLE items (
@@ -60,7 +60,7 @@ database.DDL.emuDB_items = 'CREATE TABLE items (
   sample_start INTEGER,
   sample_dur INTEGER,
   PRIMARY KEY (db_uuid, session, bundle, item_id),
-  FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
+  FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE ON UPDATE CASCADE
 );'
 
 database.DDL.emuDB_items_level_seq_idx = "CREATE INDEX IF NOT EXISTS items_level_seq_idx ON items(db_uuid, session, bundle, level, seq_idx)"
@@ -82,7 +82,7 @@ database.DDL.emuDB_labels = 'CREATE TABLE labels (
   name TEXT,
   label TEXT,
   PRIMARY KEY (db_uuid, session, bundle, item_id, label_idx),
-  FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
+  FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE ON UPDATE CASCADE
   -- FOREIGN KEY (db_uuid, session, bundle, item_id) REFERENCES items(db_uuid, session, bundle, item_id) ON DELETE CASCADE
 );'
 
@@ -96,7 +96,7 @@ database.DDL.emuDB_links = 'CREATE TABLE links (
   from_id INTEGER,
   to_id INTEGER,
   label TEXT,
-  FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
+  FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE ON UPDATE CASCADE
 );'
 
 database.DDL.emuDB_links_both_ids_idx = paste0("CREATE INDEX IF NOT EXISTS ",
@@ -569,7 +569,126 @@ list_bundles <- function(emuDBhandle, session=NULL){
                              stringsAsFactors = F))
     }
   }
-  return(res)
+  return(tibble::as_tibble(res))
+}
+
+##' Rename bundles in emuDB
+##' 
+##' Rename bundles of emuDB.
+##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
+##' @param bundles data.frame like object with the columns
+##' \itemize{
+##' \item \code{session}: name of sessions containing bundle
+##' \item \code{name}: name of bundle
+##' \item \code{name_new}: new name given to bundle
+##' }
+##' It is worth noting that \code{session} and \code{name} are the columns returned by 
+##' \code{\link{list_bundles}}.
+##' @export
+##' @examples 
+##' \dontrun{
+##' 
+##' ##################################
+##' # prerequisite: loaded ae emuDB
+##' # (see ?load_emuDB for more information)
+##' 
+##' # list bundles of session "0000" of ae emuDB
+##' bundles = list_bundles(emuDBhandle = ae,
+##'                        session = "0000")
+##'
+##' # append "XXX" to bundle names and rename
+##' bundles$name_new = paste0(bundles$name, "XXX")
+##' rename_bundles(emuDBhandle, bundles)
+##' }
+##' 
+rename_bundles <- function(emuDBhandle, bundles){
+  
+  # check that all cols are present
+  if(!all(c("session", "name", "name_new") %in% colnames(bundles))){
+    stop(paste0("Missing requiered column(s)! ",
+                "The requiered columns are: 'session', 'name' and 'name_new'"))
+  }
+  # check if all bundles exits
+  all_bundles = list_bundles(emuDBhandle)
+  all_bundles$leftjoinNA = "should_not_be_na"
+  joined = dplyr::left_join(bundles, 
+                            all_bundles, 
+                            by = c("session", "name"))
+  
+  if(any(is.na(joined$leftjoinNA))){
+    stop(paste0("The following bundles where not found in the emuDB:\n"), 
+         paste(utils::capture.output(print(bundles[is.na(joined$leftjoinNA),])), collapse = "\n"))
+  }
+  
+  # bundles$db_uuid = emuDBhandle$UUID
+  # DBI::dbExecute(emuDBhandle$connection, "DROP TABLE IF EXISTS bundles_tmp;")
+  # 
+  # DBI::dbWriteTable(emuDBhandle$connection, 
+  #                   "bundles_tmp", 
+  #                   bundles, 
+  #                   append = T, 
+  #                   row.names = F) # append to avoid rewirte of col names
+  
+  
+  foreign_key_list = DBI::dbGetQuery(emuDBhandle$connection, "PRAGMA foreign_key_list(bundle);")
+  
+  # check if ON UPDATE CASCADE ist set
+  if(!all(foreign_key_list$on_update == "CASCADE")){
+    stop(paste0("'ON UPDATE CASCADE' not set on emuDBcache SQL tables (Previous version of emuR didn't set this). ",
+                "Deleting the emuDBcache and reloading the emuDB should resolve this issue."))
+  }
+  
+  db_config = load_DBconfig(emuDBhandle)
+  
+  # update bundle table
+  statement = DBI::dbSendStatement(emuDBhandle$connection, 
+                                   paste0("UPDATE bundle ",
+                                          "SET name =  ?,",
+                                          " annotates = ? ", 
+                                          "WHERE bundle.db_uuid = ? ",
+                                          " AND bundle.session = ? ",
+                                          " AND bundle.name = ? "))
+  
+  DBI::dbBind(
+    statement,
+    list(
+      bundles$name_new,
+      paste0(bundles$name_new, ".", db_config$mediafileExtension),
+      rep(emuDBhandle$UUID, nrow(bundles)),
+      bundles$session,
+      bundles$name
+    )
+  )
+  
+  DBI::dbClearResult(statement)
+
+  # rename files
+  old_file_paths = list_files(emuDBhandle, 
+                              sessionPattern = paste0("(", paste(bundles$session, collapse = "|"), ")"),
+                              bundlePattern = paste0("(", paste(bundles$name, collapse = "|"), ")"))$absolute_file_path
+  
+  old_basenames = basename(old_file_paths)
+  
+  new_basenames = stringr::str_replace_all(old_basenames, 
+                                           setNames(bundles$name_new, bundles$name))
+  
+  file.rename(from = old_file_paths, 
+              to = file.path(dirname(old_file_paths), new_basenames))
+  
+  # rename bundle dirs  
+  old_bundle_paths = file.path(emuDBhandle$basePath,
+                               paste0(bundles$session, session.suffix),
+                               paste0(bundles$name, bundle.dir.suffix))
+  
+  new_bundle_paths = file.path(emuDBhandle$basePath,
+                               paste0(bundles$session, session.suffix),
+                               paste0(bundles$name_new, bundle.dir.suffix))
+  
+  file.rename(from = old_bundle_paths, 
+              to = new_bundle_paths)
+  
+  rewrite_annots(emuDBhandle)
+  
 }
 
 ## rewrite annot json files from the cache

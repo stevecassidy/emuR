@@ -1,4 +1,4 @@
-# emuR 1.9.9.9002
+# emuR 1.9.9.9003
 
 ## new features / performance tweaks / improvements
 
@@ -10,6 +10,7 @@ the new `gitSnapshot` parameter to `TRUE`.
 * suppressing requery differing length warnings in `runBASwebservice_*` functions
 * `requery_hier()` now persists the input segment list length by inserting NA rows for missing segments
 * depricated vignettes are now stubs only (== empty containing notice pointing to the EMU-SDMS manual)
+* implemented `rename_bundles()` function
 
 ## bug fixes
 
