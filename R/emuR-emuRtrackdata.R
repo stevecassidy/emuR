@@ -199,7 +199,6 @@ create_emuRtrackdata <- function(sl, td){
     eRtd.normtemp[1:N,] = eRtd.normtemp[1,]
     eRtd.normtemp$times_norm = seq(0, 1, length.out = N) #xynew$x - use seq instead of xynew$x to avoid approx rounding issues
     # interpolate data columns
-    browser()
     for (name in additional_cols){
       # y = dplyr::pull(eRtd, name)
       y = eRtd[[name]]

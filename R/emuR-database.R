@@ -146,7 +146,7 @@ initialize_emuDbDBI <- function(emuDBhandle,
     DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB_links)
   }
   if(createTables & !DBI::dbExistsTable(emuDBhandle$connection, "meta_jsons")){
-    browser()
+    # browser()
   }
   if(createIndices){
     create_emuDBindicesDBI(emuDBhandle)
