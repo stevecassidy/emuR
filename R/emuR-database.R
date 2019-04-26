@@ -113,7 +113,9 @@ database.DDL.emuDB_links_to_id_idx = paste0("CREATE INDEX IF NOT EXISTS ",
 ####################################
 # init functions (create tables and indices)
 
-initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TRUE){
+initialize_emuDbDBI <- function(emuDBhandle, 
+                                createTables = TRUE, 
+                                createIndices = TRUE){
   # check of old tables are present and rename them
   if(DBI::dbExistsTable(emuDBhandle$connection, "emuDB")){
     cat(paste0("INFO: Deprecated cache tables found. Deleting these and recreating ",
@@ -142,6 +144,9 @@ initialize_emuDbDBI <- function(emuDBhandle, createTables=TRUE, createIndices=TR
     DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB_items)
     DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB_labels)
     DBI::dbExecute(emuDBhandle$connection, database.DDL.emuDB_links)
+  }
+  if(createTables & !DBI::dbExistsTable(emuDBhandle$connection, "meta_jsons")){
+    browser()
   }
   if(createIndices){
     create_emuDBindicesDBI(emuDBhandle)
@@ -1103,6 +1108,7 @@ load_emuDB <- function(databaseDir,
       pb=utils::txtProgressBar(min = 0L, max = pMax, style = 3)
       utils::setTxtProgressBar(pb, progress)
     }
+    
     # bundles
     for(bndlIdx in 1:nrow(bundles)){
       bndl = bundles[bndlIdx,]
@@ -1123,7 +1129,6 @@ load_emuDB <- function(databaseDir,
       names(newMD5annotJSON) = NULL
       
       # read annotJSON as charac 
-      #annotJSONchar = enc2utf8(readChar(annotFilePath, file.info(annotFilePath)$size)) # wrapped in enc2utf8 as readChar respects the system default (windows iso 88591)
       annotJSONchar = readr::read_file(annotFilePath)
       # convert to bundleAnnotDFs
       bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(annotJSONchar)
