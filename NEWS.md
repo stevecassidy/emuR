@@ -1,4 +1,4 @@
-# emuR 1.9.9.9003
+# emuR 1.9.9.9004
 
 ## new features / performance tweaks / improvements
 
@@ -11,6 +11,8 @@ the new `gitSnapshot` parameter to `TRUE`.
 * `requery_hier()` now persists the input segment list length by inserting NA rows for missing segments
 * depricated vignettes are now stubs only (== empty containing notice pointing to the EMU-SDMS manual)
 * implemented `rename_bundles()` function
+* better `times_norm` calculation for `normalize_lenght()`
+
 
 ## bug fixes
 
