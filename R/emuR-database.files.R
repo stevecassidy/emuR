@@ -223,7 +223,7 @@ add_files <- function(emuDBhandle,
   bndls = list_bundles(emuDBhandle, session = targetSessionName)
   
   if(nrow(bndls) == 0){
-    stop("No bundles found in session! Make sure to specify an existing session that contains bundles?")
+    stop("No bundles found in session! Make sure to specify an existing session that contains bundles!")
   }
   
   
