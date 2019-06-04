@@ -222,6 +222,11 @@ add_files <- function(emuDBhandle,
   check_emuDBhandle(emuDBhandle)
   bndls = list_bundles(emuDBhandle, session = targetSessionName)
   
+  if(nrow(bndls) == 0){
+    stop("No bundles found in session! Make sure to specify an existing session that contains bundles?")
+  }
+  
+  
   sourcePaths = list.files(dir, 
                            pattern = paste0(fileExtension, '$'), 
                            full.names = T)
@@ -240,7 +245,7 @@ add_files <- function(emuDBhandle,
     cbndl = bndls[bndls$name == cbn, ]
     # check that only one bundle folder
     if(nrow(cbndl) != 1){
-      stop(paste0("more or less then one bundle found that matches the base name of the file '", sourcePaths[i], "'"))
+      stop(paste0("more or less than one bundle found that matches the base name of the file '", sourcePaths[i], "'"))
     }
     
     destDir = file.path(emuDBhandle$basePath, paste0(cbndl$session, '_ses'), paste0(cbndl$name, '_bndl'))

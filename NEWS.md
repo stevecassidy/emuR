@@ -1,4 +1,4 @@
-# emuR 1.9.9.9004
+# emuR 1.9.9.9005
 
 ## new features / performance tweaks / improvements
 
@@ -12,7 +12,7 @@ the new `gitSnapshot` parameter to `TRUE`.
 * depricated vignettes are now stubs only (== empty containing notice pointing to the EMU-SDMS manual)
 * implemented `rename_bundles()` function
 * better `times_norm` calculation for `normalize_lenght()`
-
+* better error message when empty or non existing session is passed into `add_files()`
 
 ## bug fixes
 
