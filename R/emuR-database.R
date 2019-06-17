@@ -959,9 +959,6 @@ create_emuDB <- function(name,
 ##' @param connection pass in DBI connection to SQL database if you want to override the default which is to 
 ##' use an SQLite database either in memory (\code{inMemoryCache = TRUE}) or in the emuDB folder. This is intended
 ##' for expert use only!
-##' @param gitSnapshot if set to TRUE, first a git repository is created (only if it doesn't already exist).
-##' Then a \code{.gitignore} file is created (again only if it doesn't already exist) telling git to ignore 
-##' the \code{_emuDBcache.sql} file. Finally, all files are added to the git repository and a git commit is performed.
 ##' @param verbose be verbose
 ##' @param ... additional parameters
 ##' @return emuDB handle object
@@ -990,9 +987,9 @@ create_emuDB <- function(name,
 load_emuDB <- function(databaseDir, 
                        inMemoryCache = FALSE, 
                        connection = NULL, 
-                       gitSnapshot = FALSE,
                        verbose = TRUE, 
                        ...){
+  
   progress = 0
   # check database dir
   if(!dir.exists(databaseDir)){
@@ -1071,6 +1068,8 @@ load_emuDB <- function(databaseDir,
                              connection = connection)
     }
   }
+
+  
   # check if cache exist -> update cache if true
   dbsDf = get_emuDbDBI(dbHandle)
   if(nrow(dbsDf)>0){
@@ -1083,10 +1082,6 @@ load_emuDB <- function(databaseDir,
   # write to DBI emuDB table
   add_emuDbDBI(dbHandle)
   
-  # handle gitSnapshots
-  if(gitSnapshot){
-    update_emuDBgit(dbHandle)
-  }
   
   # list sessions & bundles
   sessions = list_sessions(dbHandle)

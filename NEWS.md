@@ -1,18 +1,17 @@
-# emuR 1.9.9.9005
+# emuR 1.9.9.9006
 
 ## new features / performance tweaks / improvements
 
 * changed default `resultTypes` to `"tibble"` (`query()`, `requery_hier()`, `requery_seq()`, `get_trackdata()`)
 * changed url in printed output of serve to https
 * `serve()` doesn't block the R console any more
-* `load_emuDB()` can now automatically create a load snapshot of an emuDB using git (using the git2r package). For this, set
-the new `gitSnapshot` parameter to `TRUE`.
 * suppressing requery differing length warnings in `runBASwebservice_*` functions
 * `requery_hier()` now persists the input segment list length by inserting NA rows for missing segments
 * depricated vignettes are now stubs only (== empty containing notice pointing to the EMU-SDMS manual)
 * implemented `rename_bundles()` function
 * better `times_norm` calculation for `normalize_lenght()`
 * better error message when empty or non existing session is passed into `add_files()`
+* `useViewer` parameter now implemented
 
 ## bug fixes
 

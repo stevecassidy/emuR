@@ -65,6 +65,10 @@ check_tibbleForServe <- function(tbl){
 ##' it's documentation for details )
 ##' @param debug TRUE to enable debugging (default: no debugging messages)
 ##' @param debugLevel integer higher values generate more detailed debug output
+##' @param useViewer Use the viewer provided by \code{getOption("viewer")} (the viewer pane when using RStudio) 
+##' and host a local version of the EMU-webApp in it. This will clone the EMU-webApp into the directory provided by 
+##' \code{\link{tempdir}} and serve this local version. A clone will 
+##' only be performed if no \code{file.path(tempdir(), "EMU-webApp")} directory is present.
 ##' @return TRUE (invisible) if the server was started
 ##' @export
 ##' @keywords emuDB EMU-webApp database websocket Emu
@@ -84,6 +88,7 @@ serve <- function(emuDBhandle,
                   port = 17890, 
                   autoOpenURL = "https://ips-lmu.github.io/EMU-webApp/?autoConnect=true", 
                   browser = getOption("browser"), 
+                  useViewer = TRUE,
                   debug = FALSE, 
                   debugLevel = 0){
   
@@ -117,44 +122,47 @@ serve <- function(emuDBhandle,
   
   
   httpRequest = function(req){
-    # process GET request by client 
-    # this is used if URL is used instead of BASE64 in encoding of media file in bundle
-    queryStr = shiny::parseQueryString(req$QUERY_STRING)
-    # SIC this should also have a third parameter "ext/extension"
-    if(!is.null(queryStr$session) && !is.null(queryStr$bundle)){
-      #print("processing GET request to media file...")
-      mediaFilePath = file.path(emuDBhandle$basePath, 
-                                paste0(queryStr$session, session.suffix), 
-                                paste0(queryStr$bundle, bundle.dir.suffix),
-                                paste0(queryStr$bundle, ".", DBconfig$mediafileExtension))
-      
-      audioFile = file(mediaFilePath, "rb")
-      audioFileData = readBin(audioFile, 
-                              raw(), 
-                              n = file.info(mediaFilePath)$size)
-      close(audioFile)
-      # Only 
-      # Rook conform answer
-      res = list(
-        status = 200L, # 
-        headers = list(
-          'Content-Type' = 'audio/x-wav',
-          'Access-Control-Allow-Origin' = "*"
-        ),
-        body = audioFileData
-      )
-    }else{
-      body = paste('<p>http protocol not supported, please use ws protocol.</p>')
-      res = list(
-        status = 501L, 
-        headers = list(
-          'Content-Type' = 'text/html'
-        ),
-        body = body
-      )
-      
+    # See here: https://github.com/jeffreyhorner/Rook/blob/a5e45f751/README.md
+    # for req env params
+    if(req$REQUEST_METHOD == "GET"){
+      # this is used if URL is used instead of BASE64 in encoding of media file in bundle
+      queryStr = shiny::parseQueryString(req$QUERY_STRING)
+      # SIC this should also have a third parameter "ext/extension"
+      if(!is.null(queryStr$session) && !is.null(queryStr$bundle)){
+        #print("processing GET request to media file...")
+        mediaFilePath = file.path(emuDBhandle$basePath, 
+                                  paste0(queryStr$session, session.suffix), 
+                                  paste0(queryStr$bundle, bundle.dir.suffix),
+                                  paste0(queryStr$bundle, ".", DBconfig$mediafileExtension))
+        
+        audioFile = file(mediaFilePath, "rb")
+        audioFileData = readBin(audioFile, 
+                                raw(), 
+                                n = file.info(mediaFilePath)$size)
+        close(audioFile)
+        # Only 
+        # Rook conform answer
+        res = list(
+          status = 200L, # 
+          headers = list(
+            'Content-Type' = 'audio/x-wav',
+            'Access-Control-Allow-Origin' = "*"
+          ),
+          body = audioFileData
+        )
+      } else {
+        body = paste('<p>http protocol not supported, please use ws protocol.</p>')
+        res = list(
+          status = 501L, 
+          headers = list(
+            'Content-Type' = 'text/html'
+          ),
+          body = body
+        )
+        
+      }
+      return(res)
     }
-    res
   }
   
   onHeaders <- function(req){
@@ -581,29 +589,36 @@ serve <- function(emuDBhandle,
     ws$onClose(serverClosed)
   }
   
+  # stop all running servers
+  httpuv::stopAllServers()
+  
   # either open browser of clone and host local EMU-webApp
   if(length(autoOpenURL) != 0 && autoOpenURL != ""){
     # open browser with EMU-webApp
     viewer <- getOption("viewer")
-    # if(useLocalWebApp){
-    #   if (!is.null(viewer)){
-    #     webApp_path = file.path(tempdir(), "EMU-webApp")
-    #     # can this be emulated? git clone --depth 1 -b gh-pages https://github.com/IPS-LMU/EMU-webApp
-    #     if(!dir.exists(webApp_path)){
-    #       dir.create(webApp_path)
-    #       git2r::clone("https://github.com/IPS-LMU/EMU-webApp", 
-    #                    local_path = webApp_path, 
-    #                    branch = "gh-pages")
-    #     }
-    #     servr::httd(dir = tempdir(), 
-    #                 initpath = "EMU-webApp/?autoConnect=true&serverUrl=ws://127.0.0.1:17890")
-    #   }else{
-    #     utils::browseURL(autoOpenURL, browser = browser)
-    #   }
-    # 
-    # }else{
-    utils::browseURL(autoOpenURL, browser = browser)
-    # }
+    if(useViewer){
+      webApp_path = file.path(tempdir(), "EMU-webApp")
+      # TODO: can this be emulated? git clone --depth 1 -b gh-pages https://github.com/IPS-LMU/EMU-webApp
+      if(!dir.exists(webApp_path)){
+        dir.create(webApp_path)
+        git2r::clone("https://github.com/IPS-LMU/EMU-webApp",
+                     local_path = webApp_path,
+                     branch = "gh-pages")
+      }
+      if (!is.null(viewer)){
+        # host in viewer
+        servr::httd(dir = tempdir(),
+                    initpath = "EMU-webApp/?autoConnect=true&serverUrl=ws://127.0.0.1:17890")
+      }else{
+        # default port of httd is 4321 so use that
+        utils::browseURL("http://127.0.0.1:4321/EMU-webApp/?autoConnect=true&serverUrl=ws://127.0.0.1:17890", 
+                         browser = browser)
+      }
+
+    }else{
+      # use online version
+      utils::browseURL(autoOpenURL, browser = browser)
+    }
   }
   
   # user messages
@@ -617,7 +632,6 @@ serve <- function(emuDBhandle,
              onWSOpen = serverEstablished)
   
   # start server
-  httpuv::stopAllServers() # why does this crash?
   httpuv::startServer(host = host, 
                       port = port, 
                       app = app)

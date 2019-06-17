@@ -7,7 +7,8 @@
 serve(emuDBhandle, sessionPattern = ".*", bundlePattern = ".*",
   seglist = NULL, host = "127.0.0.1", port = 17890,
   autoOpenURL = "https://ips-lmu.github.io/EMU-webApp/?autoConnect=true",
-  browser = getOption("browser"), debug = FALSE, debugLevel = 0)
+  browser = getOption("browser"), useViewer = TRUE, debug = FALSE,
+  debugLevel = 0)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
@@ -27,6 +28,11 @@ serve(emuDBhandle, sessionPattern = ".*", bundlePattern = ".*",
 
 \item{browser}{argument passed on to \code{browser} argument of \code{\link{browseURL}} (see 
 it's documentation for details )}
+
+\item{useViewer}{Use the viewer provided by \code{getOption("viewer")} (the viewer pane when using RStudio) 
+and host a local version of the EMU-webApp in it. This will clone the EMU-webApp into the directory provided by 
+\code{\link{tempdir}} and serve this local version. This clone will 
+only be performed if no tempdir()/EMU-webApp directory is present.}
 
 \item{debug}{TRUE to enable debugging (default: no debugging messages)}
 
