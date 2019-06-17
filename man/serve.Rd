@@ -31,8 +31,8 @@ it's documentation for details )}
 
 \item{useViewer}{Use the viewer provided by \code{getOption("viewer")} (the viewer pane when using RStudio) 
 and host a local version of the EMU-webApp in it. This will clone the EMU-webApp into the directory provided by 
-\code{\link{tempdir}} and serve this local version. This clone will 
-only be performed if no tempdir()/EMU-webApp directory is present.}
+\code{\link{tempdir}} and serve this local version. A clone will 
+only be performed if no \code{file.path(tempdir(), "EMU-webApp")} directory is present.}
 
 \item{debug}{TRUE to enable debugging (default: no debugging messages)}
 
