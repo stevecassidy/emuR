@@ -599,16 +599,28 @@ serve <- function(emuDBhandle,
     if(useViewer){
       webApp_path = file.path(tempdir(), "EMU-webApp")
       # TODO: can this be emulated? git clone --depth 1 -b gh-pages https://github.com/IPS-LMU/EMU-webApp
+      # unlink(webApp_path, recursive = T)
       if(!dir.exists(webApp_path)){
+      
         dir.create(webApp_path)
+        # for devel 
+        # file.copy(from = "~/Developer/EMU-webApp/dist/", 
+        #           to = tempdir(),
+        #           recursive = T)
+        # 
+        # file.rename(from = file.path(tempdir(), "dist"),
+        #             to = webApp_path)
+        
         git2r::clone("https://github.com/IPS-LMU/EMU-webApp",
                      local_path = webApp_path,
                      branch = "gh-pages")
+        
+        unlink(file.path(webApp_path, "manifest.appcache"))
       }
       if (!is.null(viewer)){
         # host in viewer
         servr::httd(dir = tempdir(),
-                    initpath = "EMU-webApp/?autoConnect=true&serverUrl=ws://127.0.0.1:17890")
+                    initpath = "/EMU-webApp/?autoConnect=true&serverUrl=ws://127.0.0.1:17890")
       }else{
         # default port of httd is 4321 so use that
         utils::browseURL("http://127.0.0.1:4321/EMU-webApp/?autoConnect=true&serverUrl=ws://127.0.0.1:17890", 
