@@ -159,7 +159,7 @@
   
   # check resultType if valid string
   if(!resultType %in% c("tibble", "emuRtrackdata", "trackdata")){
-    stop("resultType has to either be 'emuRtrackdata' or 'trackdata'")
+    stop("resultType has to either be 'tibble ', 'emuRtrackdata' or 'trackdata'")
   }
   
   # 

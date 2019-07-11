@@ -150,18 +150,87 @@ serve <- function(emuDBhandle,
           ),
           body = audioFileData
         )
+        return(res)
       } else {
-        body = paste('<p>http protocol not supported, please use ws protocol.</p>')
-        res = list(
-          status = 501L, 
-          headers = list(
-            'Content-Type' = 'text/html'
-          ),
-          body = body
-        )
+        # Serve local EMU-webApp files
+        # adopted from servr:::serve_dir()
+        #owd = setwd(dir)
+        #on.exit(setwd(owd))
+        path = httpuv::decodeURIComponent(req$PATH_INFO)
+        Encoding(path) = "UTF-8"
         
+        status = 200L
+        if (grepl("^/EMU-webApp", path)) {
+          path = paste(tempdir(), path, sep = "")
+        } else {
+          # TODO reject all other requests
+          return(list(
+            status = 404L,
+            headers = list(
+              'Content-Type' = 'text/html'
+            ),
+            body = paste0("404: Requested path that doesn't start with /EMU-webApp")
+          ))
+        }
+        
+        # test if dir is requested -> use index.html as body 
+        body = if (utils::file_test("-d", path)) {
+          type = "text/html"
+          if (file.exists(idx <- file.path(path, "index.html"))) {
+            readLines(idx, warn = FALSE)
+          }
+          else {
+            # this should currently never be reached! 
+            d = file.info(list.files(path, all.files = TRUE, 
+                                     full.names = TRUE))
+            title = utils::URLencode(path,reserved = T)
+            c("<!DOCTYPE html>", 
+              "<html>", 
+              "<head>", 
+              sprintf("<title>%s</title>", title), 
+              "</head>", 
+              "<body>", 
+              c(sprintf("<h1>Index of %s</h1>", title), 
+                fileinfo_table(d)), 
+              "</body>", 
+              "</html>")
+            
+          }
+        }
+        else {
+          type = guess_type(path)
+          range = req$HTTP_RANGE
+          if (is.null(range) || identical(range, "bytes=0-")){
+            readBin(path, "raw", file.info(path)[, "size"])
+            #read_raw(path)
+          } else {
+            # handle range requests
+            range = strsplit(range, split = "(=|-)")[[1]]
+            b2 = as.numeric(range[2])
+            b3 = as.numeric(range[3])
+            if (length(range) < 3 || (range[1] != "bytes") || 
+                (b2 >= b3) || (b3 == 0)) 
+              return(list(status = 416L, 
+                          headers = list(`Content-Type` = "text/plain"), 
+                          body = "Requested range not satisfiable\r\n"))
+            status = 206L
+            con = file(path, open = "rb", raw = TRUE)
+            on.exit(close(con))
+            seek(con, where = b2, origin = "start")
+            readBin(con, "raw", b3 - b2 + 1)
+          }
+        }
+        if (is.character(body) && length(body) > 1){
+          body = paste(body, collapse = "\n")
+        }
+        res = list(status = status, 
+                   body = body, 
+                   headers = c(list(`Content-Type` = type), 
+                               if (status == 206L) list(`Content-Range` = paste(sub("=", " ", req$HTTP_RANGE), file.info(path)[, "size"], sep = "/"))))
+        
+        return(res)  
       }
-      return(res)
+      
     }
   }
   
@@ -592,47 +661,6 @@ serve <- function(emuDBhandle,
   # stop all running servers
   httpuv::stopAllServers()
   
-  # either open browser of clone and host local EMU-webApp
-  if(length(autoOpenURL) != 0 && autoOpenURL != ""){
-    # open browser with EMU-webApp
-    viewer <- getOption("viewer")
-    if(useViewer){
-      webApp_path = file.path(tempdir(), "EMU-webApp")
-      # TODO: can this be emulated? git clone --depth 1 -b gh-pages https://github.com/IPS-LMU/EMU-webApp
-      # unlink(webApp_path, recursive = T)
-      if(!dir.exists(webApp_path)){
-      
-        dir.create(webApp_path)
-        # for devel 
-        # file.copy(from = "~/Developer/EMU-webApp/dist/", 
-        #           to = tempdir(),
-        #           recursive = T)
-        # 
-        # file.rename(from = file.path(tempdir(), "dist"),
-        #             to = webApp_path)
-        
-        git2r::clone("https://github.com/IPS-LMU/EMU-webApp",
-                     local_path = webApp_path,
-                     branch = "gh-pages")
-        
-        unlink(file.path(webApp_path, "manifest.appcache"))
-      }
-      if (!is.null(viewer)){
-        # host in viewer
-        servr::httd(dir = tempdir(),
-                    initpath = "/EMU-webApp/?autoConnect=true&serverUrl=ws://127.0.0.1:17890")
-      }else{
-        # default port of httd is 4321 so use that
-        utils::browseURL("http://127.0.0.1:4321/EMU-webApp/?autoConnect=true&serverUrl=ws://127.0.0.1:17890", 
-                         browser = browser)
-      }
-
-    }else{
-      # use online version
-      utils::browseURL(autoOpenURL, browser = browser)
-    }
-  }
-  
   # user messages
   cat("Navigate your browser to the EMU-webApp URL: https://ips-lmu.github.io/EMU-webApp/ (should happen automatically)\n")
   cat("Server connection URL: ws://localhost:",port,"\n",sep='')
@@ -647,6 +675,56 @@ serve <- function(emuDBhandle,
   httpuv::startServer(host = host, 
                       port = port, 
                       app = app)
+  
+  # either open browser of clone and host local EMU-webApp
+  if(length(autoOpenURL) != 0 && autoOpenURL != ""){
+    # open browser with EMU-webApp
+    viewer <- getOption("viewer")
+    if(useViewer){
+      webApp_path = file.path(tempdir(), "EMU-webApp")
+      # TODO: can this be emulated? git clone --depth 1 -b gh-pages https://github.com/IPS-LMU/EMU-webApp
+      #unlink(webApp_path, recursive = T)
+      if(!dir.exists(webApp_path)){
+        
+        dir.create(webApp_path)
+        # for devel 
+        # file.copy(from = "~/Developer/EMU-webApp/dist/",
+        #           to = tempdir(),
+        #           recursive = T)
+        # 
+        # file.rename(from = file.path(tempdir(), "dist"),
+        #             to = webApp_path)
+        
+        git2r::clone("https://github.com/IPS-LMU/EMU-webApp",
+                     local_path = webApp_path,
+                     branch = "gh-pages")
+        
+        #unlink(file.path(webApp_path, "manifest.appcache"))
+      }
+      if (!is.null(viewer)){
+        # host in viewer
+        viewer(paste0("http://127.0.0.1:", 
+                      port, 
+                      "/EMU-webApp/?autoConnect=true&serverUrl=ws://127.0.0.1:", 
+                      port))
+        #servr::httd(dir = tempdir(),
+        #            initpath = "/EMU-webApp/?autoConnect=true&serverUrl=ws://127.0.0.1:17890")
+      }else{
+        # default port of httd is 4321 so use that
+        utils::browseURL(paste0("http://127.0.0.1:", 
+                                port, 
+                                "/EMU-webApp/?autoConnect=true&serverUrl=ws://127.0.0.1:", 
+                                port),
+                         browser = browser)
+      }
+      
+    }else{
+      # use online version
+      utils::browseURL(autoOpenURL, browser = browser)
+    }
+  }
+  
+
   
   return(invisible(TRUE))
   
@@ -705,3 +783,38 @@ get_ssffTracksUsedByDBconfig <- function(DBconfig){
   
   return(allTrackDefs)
 }
+
+
+# copy of servr:::fileinfo_table
+fileinfo_table = function (info) {
+  info = info[order(info$isdir, decreasing = TRUE), ]
+  d = info$isdir
+  i = !is.na(d)
+  x1 = paste(basename(rownames(info)), ifelse(d & i, "/", ""), 
+             sep = "")
+  x1 = utils::URLencode(x1, reserved = T)
+  x1[i] = sprintf("<a href=\"%s\">%s</a>", x1[i], x1[i])
+  x2 = paste(format(info$size, scientific = FALSE, big.mark = ","), 
+             "B")
+  x2[is.na(info$size) | d] = ""
+  x3 = as.character(info$mtime)
+  x3[is.na(x3)] = ""
+  c("<table>", "<thead><tr>", sprintf("<th>%s</th>", c("Name", 
+                                                       "Size", "Date Modified")), "</tr></thead>", apply(cbind("<tr>", 
+                                                                                                               sprintf("<td>%s</td>", x1), sprintf("<td align=\"right\">%s</td>", 
+                                                                                                                                                   x2), sprintf("<td>%s</td>", x3), "</tr>"), 1, paste, 
+                                                                                                         collapse = ""), "</table>")
+}
+
+# copy of servr:::guess_type
+guess_type <- function (path) 
+{
+  mimetype = function(...) {
+    system2("mimetype", c("-b", shQuote(path)), ...)
+  }
+  if (Sys.which("mimetype") == "" || mimetype(stdout = NULL) != 
+      0) 
+    return(mime::guess_type(path))
+  mimetype(stdout = TRUE)
+}
+
