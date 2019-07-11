@@ -160,7 +160,7 @@ serve <- function(emuDBhandle,
         Encoding(path) = "UTF-8"
         
         status = 200L
-        if (grepl("^/EMU-webApp", path)) {
+        if (grepl("/EMU-webApp/", path)) {
           path = paste(tempdir(), path, sep = "")
         } else {
           # TODO reject all other requests
