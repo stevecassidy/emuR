@@ -703,11 +703,18 @@ serve <- function(emuDBhandle,
         #unlink(file.path(webApp_path, "manifest.appcache"))
         
         # replace <base href> tag because rstudio changes this 
-        # in the web version of it
+        # in the web version of it 
+        
+        if(rstudioapi::translateLocalUrl("http://localhost:17890/") == "http://localhost:17890/"){
+          base_path = "/"
+        } else {
+          base_path = rstudioapi::translateLocalUrl("http://localhost:17890/")
+        }
+        
         index_html = readr::read_file(file.path(webApp_path, "index.html"))
         index_html_new = stringr::str_replace(index_html, 
                                               pattern = "<base href=\"/EMU-webApp/\">",
-                                              replacement = "")
+                                              replacement = paste0("<base href=\"", base_path, "\">"))
         readr::write_file(x = index_html_new, 
                           path = file.path(webApp_path, "index.html"))
       }
