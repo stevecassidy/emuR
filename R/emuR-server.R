@@ -169,7 +169,7 @@ serve <- function(emuDBhandle,
             headers = list(
               'Content-Type' = 'text/html'
             ),
-            body = paste0("404: Requested path that doesn't start with /EMU-webApp")
+            body = paste0("404: Requested path that doesn't contain /EMU-webApp/")
           ))
         }
         
@@ -700,6 +700,15 @@ serve <- function(emuDBhandle,
                      branch = "gh-pages")
         
         #unlink(file.path(webApp_path, "manifest.appcache"))
+        
+        # replace <base href> tag because rstudio changes this 
+        # in the web version of it
+        index_html = readr::read_file(file.path(webApp_path, "index.html"))
+        index_html_new = stringr::str_replace(index_html, 
+                                              pattern = "<base href=\"/EMU-webApp/\">",
+                                              replacement = "<base href=\"/\">")
+        readr::write_file(x = index_html_new, 
+                          path = file.path(webApp_path, "index.html"))
       }
       if (!is.null(viewer)){
         # host in viewer
@@ -724,7 +733,7 @@ serve <- function(emuDBhandle,
     }
   }
   
-
+  
   
   return(invisible(TRUE))
   
