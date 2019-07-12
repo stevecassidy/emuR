@@ -158,12 +158,13 @@ serve <- function(emuDBhandle,
         #on.exit(setwd(owd))
         path = httpuv::decodeURIComponent(req$PATH_INFO)
         Encoding(path) = "UTF-8"
-        
+        #print(path)
         status = 200L
-        if (grepl("/EMU-webApp/", path)) {
-          path = paste(tempdir(), path, sep = "")
+        # only allow requests to / -> mapped to tempdir()/EMU-webApp dir
+        if (T) { # TODO: check if correct path
+          path = file.path(tempdir(), "EMU-webApp", path)
         } else {
-          # TODO reject all other requests
+          # reject all other requests
           return(list(
             status = 404L,
             headers = list(
@@ -714,7 +715,7 @@ serve <- function(emuDBhandle,
         # host in viewer
         viewer(paste0("http://127.0.0.1:", 
                       port, 
-                      "/EMU-webApp/?autoConnect=true&serverUrl=ws://127.0.0.1:", 
+                      "?autoConnect=true&serverUrl=ws://127.0.0.1:", 
                       port))
         #servr::httd(dir = tempdir(),
         #            initpath = "/EMU-webApp/?autoConnect=true&serverUrl=ws://127.0.0.1:17890")
@@ -722,7 +723,7 @@ serve <- function(emuDBhandle,
         # default port of httd is 4321 so use that
         utils::browseURL(paste0("http://127.0.0.1:", 
                                 port, 
-                                "/EMU-webApp/?autoConnect=true&serverUrl=ws://127.0.0.1:", 
+                                "?autoConnect=true&serverUrl=ws://127.0.0.1:", 
                                 port),
                          browser = browser)
       }
