@@ -707,7 +707,7 @@ serve <- function(emuDBhandle,
         index_html = readr::read_file(file.path(webApp_path, "index.html"))
         index_html_new = stringr::str_replace(index_html, 
                                               pattern = "<base href=\"/EMU-webApp/\">",
-                                              replacement = "<base href=\"/\">")
+                                              replacement = "")
         readr::write_file(x = index_html_new, 
                           path = file.path(webApp_path, "index.html"))
       }
