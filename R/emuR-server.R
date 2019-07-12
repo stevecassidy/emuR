@@ -699,33 +699,35 @@ serve <- function(emuDBhandle,
         git2r::clone("https://github.com/IPS-LMU/EMU-webApp",
                      local_path = webApp_path,
                      branch = "gh-pages")
-        
-        #unlink(file.path(webApp_path, "manifest.appcache"))
-        
-        # replace <base href> tag because rstudio changes this 
-        # in the web version of it 
-        
-        if(rstudioapi::translateLocalUrl("http://localhost:17890/") == "http://localhost:17890/"){
-          base_path = "/"
-        } else {
-          base_path = rstudioapi::translateLocalUrl("http://localhost:17890/")
-        }
-        
-        index_html = readr::read_file(file.path(webApp_path, "index.html"))
-        index_html_new = stringr::str_replace(index_html, 
-                                              pattern = "<base href=\"/EMU-webApp/\">",
-                                              replacement = paste0("<base href=\"", base_path, "\">"))
-        readr::write_file(x = index_html_new, 
-                          path = file.path(webApp_path, "index.html"))
       }
+      
+      # replace <base href> tag because rstudio changes this 
+      # in the web version and Angular needs it to be set
+      if(rstudioapi::translateLocalUrl("http://localhost:17890/") == "http://localhost:17890/"){
+        base_path = "/"
+      } else {
+        base_path = paste0("/", rstudioapi::translateLocalUrl("http://localhost:17890/"))
+      }
+      
+      index_html = readr::read_file(file.path(webApp_path, "index.html"))
+      index_html_new = stringr::str_replace(index_html, 
+                                            pattern = "<base href=\"/EMU-webApp/\">",
+                                            replacement = paste0("<base href=\"", base_path, "\">"))
+      # remove manifest entry to avoid caching of local version
+      index_html_new = stringr::str_replace(index_html_new, 
+                                            pattern = "manifest=\"manifest.appcache\"",
+                                            replacement = "")
+      
+      
+      readr::write_file(x = index_html_new, 
+                        path = file.path(webApp_path, "index.html"))
+      
       if (!is.null(viewer)){
         # host in viewer
         viewer(paste0("http://127.0.0.1:", 
                       port, 
-                      "?autoConnect=true&serverUrl=ws://127.0.0.1:", 
+                      "/?autoConnect=true&serverUrl=ws://127.0.0.1:", 
                       port))
-        #servr::httd(dir = tempdir(),
-        #            initpath = "/EMU-webApp/?autoConnect=true&serverUrl=ws://127.0.0.1:17890")
       }else{
         # default port of httd is 4321 so use that
         utils::browseURL(paste0("http://127.0.0.1:", 
