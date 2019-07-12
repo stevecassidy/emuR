@@ -1,4 +1,4 @@
-# emuR 1.9.9.9011
+# emuR 1.9.9.9012
 
 ## new features / performance tweaks / improvements
 
@@ -13,6 +13,7 @@
 * better error message when empty or non existing session is passed into `add_files()`
 * `useViewer` parameter now implemented
 * `serve()` now uses a single server to host the EMU-webApp and provide the websocket server for the emuDB
+* `serve()` now works within RStudio when it is run as a web application
 
 ## bug fixes
 
