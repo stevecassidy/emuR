@@ -1,4 +1,4 @@
-# emuR 1.9.9.9007
+# emuR 1.9.9.9008
 
 ## new features / performance tweaks / improvements
 
