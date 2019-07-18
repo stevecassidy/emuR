@@ -732,7 +732,7 @@ serve <- function(emuDBhandle,
         # default port of httd is 4321 so use that
         utils::browseURL(paste0("http://127.0.0.1:", 
                                 port, 
-                                "?autoConnect=true&serverUrl=ws://127.0.0.1:", 
+                                "/?autoConnect=true&serverUrl=ws://127.0.0.1:", 
                                 port),
                          browser = browser)
       }
