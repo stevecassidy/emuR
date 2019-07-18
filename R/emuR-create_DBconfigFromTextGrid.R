@@ -34,12 +34,12 @@ create_DBconfigFromTextGrid = function(tgPath, dbName, basePath, tierNames = NUL
   # remove unwanted levels
   if(!is.null(tierNames)){
     # filter items
-    tgAnnotDFs$items = dplyr::filter_(tgAnnotDFs$items, ~(level %in% tierNames))
+    tgAnnotDFs$items = dplyr::filter(tgAnnotDFs$items, level %in% tierNames)
     # filter labels
-    tgAnnotDFs$labels = dplyr::filter_(tgAnnotDFs$labels, ~(name %in% tierNames))
+    tgAnnotDFs$labels = dplyr::filter(tgAnnotDFs$labels, name %in% tierNames)
   }
   
-  levels = dplyr::distinct_(tgAnnotDFs$items, "level", .keep_all = TRUE)
+  levels = dplyr::distinct(tgAnnotDFs$items, level, .keep_all = TRUE)
   
   # create level definitions
   levelDefinitions = list()

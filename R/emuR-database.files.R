@@ -287,10 +287,10 @@ list_files <- function(emuDBhandle,
   
   check_emuDBhandle(emuDBhandle)
   
-  fileList = list.files(recursive = T,
-                        path = file.path(emuDBhandle$basePath),
+  fileList = list.files(path = file.path(emuDBhandle$basePath),
+                        recursive = T,
                         pattern = paste0(".*[.]", fileExtension, "$")) %>%
-    dplyr::as_tibble() %>%
+    tibble::enframe(name = NULL) %>%
     tidyr::separate(col = .data$value,
                     into = c("session", "bundle", "file"),
                     sep = .Platform$file.sep,

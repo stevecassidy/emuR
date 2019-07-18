@@ -554,7 +554,7 @@ list_bundles <- function(emuDBhandle, session=NULL){
   check_emuDBhandle(emuDBhandle, checkCache = F)
   sesDf = list_sessions(emuDBhandle)
   if(!is.null(session)){
-    sesDf = dplyr::filter_(sesDf, ~(name == session))
+    sesDf = dplyr::filter(sesDf, name == session)
   }
   bndlPattern = paste0("^.*", bundle.dir.suffix ,"$")
   res = data.frame(session = character(), 

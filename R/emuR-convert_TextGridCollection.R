@@ -159,9 +159,9 @@ convert_TextGridCollection <- function(dir, dbName,
     # remove unwanted levels
     if(!is.null(tierNames)){
       # filter items
-      bundleAnnotDFs$items = dplyr::filter_(bundleAnnotDFs$items, ~(level %in% tierNames))
+      bundleAnnotDFs$items = dplyr::filter(bundleAnnotDFs$items, level %in% tierNames)
       # filter labels
-      bundleAnnotDFs$labels = dplyr::filter_(bundleAnnotDFs$labels, ~(name %in% tierNames))
+      bundleAnnotDFs$labels = dplyr::filter(bundleAnnotDFs$labels, name %in% tierNames)
     }
     
     # add to bundle table

@@ -213,13 +213,13 @@
   ###################################
   # check for sample rate consistancy
   if(!("emuRsegs" %in% class(seglist)) & !("tbl_df" %in% class(seglist))){
-    uniqSessionBndls = utils::read.table(text = as.character(dplyr::distinct_(seglist, "utts")$utts), 
+    uniqSessionBndls = utils::read.table(text = as.character(dplyr::distinct(seglist, utts)$utts), 
                                          sep = ":", 
                                          col.names = c("session", "bundle"), 
                                          colClasses = c("character", "character"), 
                                          stringsAsFactors = F)
   }else{
-    uniqSessionBndls = dplyr::distinct_(as.data.frame(seglist), "bundle", "session")
+    uniqSessionBndls = dplyr::distinct(as.data.frame(seglist), bundle, session)
   }
   DBI::dbExecute(emuDBhandle$connection,"CREATE TEMP TABLE uniq_session_bndls_tmp (session TEXT,bundle TEXT)")
   DBI::dbWriteTable(emuDBhandle$connection, "uniq_session_bndls_tmp", uniqSessionBndls, append = T)

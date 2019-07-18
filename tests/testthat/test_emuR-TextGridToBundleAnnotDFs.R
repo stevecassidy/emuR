@@ -12,7 +12,7 @@ tgBundleAnnotDFs = TextGridToBundleAnnotDFs(path2tg, sampleRate = 20000, annotat
 test_that("correct SEGMENT values are parsed and calculated in data.frame tables", {  
   
   # get Phonetic table
-  phoneticTbl = dplyr::filter_(tgBundleAnnotDFs$items, ~(level=="Phonetic"))
+  phoneticTbl = dplyr::filter(tgBundleAnnotDFs$items, level == "Phonetic")
   
   expect_that(phoneticTbl[1,]$type, equals('SEGMENT'))
   
@@ -24,7 +24,7 @@ test_that("correct SEGMENT values are parsed and calculated in data.frame tables
   expect_that(phoneticTbl[2,]$sample_start, equals(3749))
   expect_that(phoneticTbl[2,]$sample_dur, equals(1389))
   tmpItemID = phoneticTbl[2,]$item_id
-  labelsRow = dplyr::filter_(tgBundleAnnotDFs$labels, ~(item_id==tmpItemID))
+  labelsRow = dplyr::filter(tgBundleAnnotDFs$labels, item_id == tmpItemID)
   
   expect_that(labelsRow$label, equals('V'))
   
@@ -33,7 +33,7 @@ test_that("correct SEGMENT values are parsed and calculated in data.frame tables
   expect_that(phoneticTbl[18,]$sample_start, equals(30124))
   expect_that(phoneticTbl[18,]$sample_dur, equals(844))
   tmpItemID = phoneticTbl[18,]$item_id
-  labelsRow = dplyr::filter_(tgBundleAnnotDFs$labels, ~(item_id==tmpItemID))
+  labelsRow = dplyr::filter(tgBundleAnnotDFs$labels, item_id == tmpItemID)
   
   expect_that(labelsRow$label, equals('@'))
   
@@ -42,7 +42,7 @@ test_that("correct SEGMENT values are parsed and calculated in data.frame tables
   expect_that(phoneticTbl[35,]$sample_start, equals(50126))
   expect_that(phoneticTbl[35,]$sample_dur, equals(1962))
   tmpItemID = phoneticTbl[35,]$item_id
-  labelsRow = dplyr::filter_(tgBundleAnnotDFs$labels, ~(item_id==tmpItemID))
+  labelsRow = dplyr::filter(tgBundleAnnotDFs$labels, item_id == tmpItemID)
   
   expect_that(labelsRow$label, equals('l'))
   
@@ -52,13 +52,13 @@ test_that("correct SEGMENT values are parsed and calculated in data.frame tables
 test_that("correct EVENT values are parsed and calculated in SQLite items table", {
   
   # get Tone table
-  toneTbl = dplyr::filter_(tgBundleAnnotDFs$items, ~(level=="Tone"))
+  toneTbl = dplyr::filter(tgBundleAnnotDFs$items, level == "Tone")
   
   # first event
   # item[0] = {id: XYZ, labels: [{name: ’tone', value: ‘H*'}], samplePoint: 8381}
   expect_that(toneTbl[1,]$sample_point, equals(8381))
   tmpItemID = toneTbl[1,]$item_id
-  labelsRow = dplyr::filter_(tgBundleAnnotDFs$labels, ~(item_id==tmpItemID))
+  labelsRow = dplyr::filter(tgBundleAnnotDFs$labels, item_id == tmpItemID)
   
   expect_that(labelsRow$label, equals('H*'))
   
@@ -66,7 +66,7 @@ test_that("correct EVENT values are parsed and calculated in SQLite items table"
   # item[3] = {id: XYZ, labels: [{name: ’tone', value: ‘H*'}], samplePoint: 38255}
   expect_that(toneTbl[4,]$sample_point, equals(38255))
   tmpItemID = toneTbl[4,]$item_id
-  labelsRow = dplyr::filter_(tgBundleAnnotDFs$labels, ~(item_id==tmpItemID))
+  labelsRow = dplyr::filter(tgBundleAnnotDFs$labels, item_id == tmpItemID)
   
   expect_that(labelsRow$label, equals('H*'))
   
@@ -74,7 +74,7 @@ test_that("correct EVENT values are parsed and calculated in SQLite items table"
   # item[6] = {id: XYZ, labels: [{name: ’tone', value: ‘L%'}], samplePoint: 51552}
   expect_that(toneTbl[7,]$sample_point, equals(51552))
   tmpItemID = toneTbl[7,]$item_id
-  labelsRow = dplyr::filter_(tgBundleAnnotDFs$labels, ~(item_id==tmpItemID))
+  labelsRow = dplyr::filter(tgBundleAnnotDFs$labels, item_id == tmpItemID)
   
   expect_that(labelsRow$label, equals('L%'))
   
@@ -84,10 +84,10 @@ test_that("correct EVENT values are parsed and calculated in SQLite items table"
 test_that("SEGMENTs & EVENTs have correct itemIDs in data.frame tables", {
   
   # get Tone table
-  toneTbl = dplyr::filter_(tgBundleAnnotDFs$items, ~(level=="Tone"))
+  toneTbl = dplyr::filter(tgBundleAnnotDFs$items, level == "Tone")
   
   # get Phonetic table
-  phoneticTbl = dplyr::filter_(tgBundleAnnotDFs$items, ~(level=="Phonetic"))
+  phoneticTbl = dplyr::filter(tgBundleAnnotDFs$items, level == "Phonetic")
 
   # increment IDs for EVENTs
   expect_equal(toneTbl[2,]$item_id, toneTbl[1,]$item_id + 1)
@@ -103,10 +103,10 @@ test_that("SEGMENTs & EVENTs have correct itemIDs in data.frame tables", {
 ##############################
 test_that("data.frame labels table has correct values", {
   # get Tone table
-  toneTbl = dplyr::filter_(tgBundleAnnotDFs$items, ~(level=="Tone"))
+  toneTbl = dplyr::filter(tgBundleAnnotDFs$items, level == "Tone")
   
   # get Phonetic table
-  phoneticTbl = dplyr::filter_(tgBundleAnnotDFs$items, ~(level=="Phonetic"))
+  phoneticTbl = dplyr::filter(tgBundleAnnotDFs$items, level == "Phonetic")
   
   # check phoneticsTable are ok
   expect_equal(phoneticTbl[1,]$item_id, 86)
@@ -119,9 +119,9 @@ test_that("data.frame labels table has correct values", {
   expect_equal(toneTbl[1,]$level, 'Tone')
   
   # check labelTbl
-  labelsTbl = dplyr::filter_(tgBundleAnnotDFs$labels, ~(name=="Phonetic"))
+  labelsTbl = dplyr::filter(tgBundleAnnotDFs$labels, name == "Phonetic")
   expect_equal(paste0(labelsTbl$label, collapse = ''), 'VmVNstH@:frEnzSi:w@zkH@nsId@dbju:dH@f@l')
-  labelsTbl = dplyr::filter_(tgBundleAnnotDFs$labels, ~(name=="Tone"))
+  labelsTbl = dplyr::filter(tgBundleAnnotDFs$labels, name == "Tone")
   expect_equal(paste0(labelsTbl$label, collapse = ''), 'H*H*L-H*H*L-L%')
   
 })

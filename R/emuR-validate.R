@@ -43,9 +43,9 @@ validate_bundleDBI <- function(emuDBhandle,
   
   joinedLevelDefs = bundleLevels %>% 
     dplyr::left_join(dbLevelDefs, by = "name") %>% 
-    dplyr::select_(~name, 
-                   DBconfigType = ~type.x, 
-                   bundleType = ~type.y)
+    dplyr::select(name, 
+                  DBconfigType = type.x, 
+                  bundleType = type.y)
   
   if(!all(joinedLevelDefs$DBconfigType == joinedLevelDefs$bundleType)){
     return(list(type = 'ERROR',
