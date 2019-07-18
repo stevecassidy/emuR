@@ -61,8 +61,8 @@ create_emuRtrackdata <- function(sl, td){
   resTmp = data.frame(sl_rowIdx = inds, expSl, times_orig = times, times_rel = n.time)
   # calculate normalized time (between 0-1)
   resTmp = resTmp %>% 
-    dplyr::group_by(sl_rowIdx) %>% 
-    dplyr::mutate(times_norm = times_rel / max(times_rel))
+    dplyr::group_by(.data$sl_rowIdx) %>% 
+    dplyr::mutate(times_norm = .data$times_rel / max(.data$times_rel))
   # remove class spectral to avoid usage of [] overide which affects indexing
   class(td$data) = "matrix"
   # add data
