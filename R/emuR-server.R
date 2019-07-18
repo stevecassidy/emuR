@@ -17,7 +17,7 @@ check_tibbleForServe <- function(tbl){
 ##' 
 ##' Instructions:
 ##' 
-##' Start and connect:
+##' Start and connect (this should happen automatically):
 ##' 
 ##' \itemize{
 ##' \item Call this function to start the server.
@@ -32,12 +32,19 @@ check_tibbleForServe <- function(tbl){
 ##' \itemize{
 ##' \item Disconnect and stop the server with the 'Clear' button of 
 ##' the webapp or the reload button of your browser.
-##' \item The server can also be interrupted by 
-##' calling \code{httpuv::stopAllServers}
-##' \item To serve only a subset of sessions or bundles use 
-##' the parameters \code{sessionPattern} and/or \code{bundlePattern}.
+##' \item The server can also be stopped by 
+##' calling \code{\link{httpuv::stopAllServers}}
 ##' }
 ##' 
+##' Hints:
+##' \itemize{
+##' \item To serve only a subset of sessions or bundles use 
+##' the parameters \code{sessionPattern} and/or \code{bundlePattern}.
+##' \item Use the \code{seglist} parameter to pass in a segment list
+##' which was generated using the \code{query} function. This will
+##' allow quick navigation to those segments.
+##' }
+##'
 ##' @details Function opens a HTTP/websocket and waits in a loop for browser requests. 
 ##' Parameter host determines the IP address(es) of hosts allowed to connect to the 
 ##' server. By default the server only listens to localhost. If you want to allow 
@@ -664,8 +671,9 @@ serve <- function(emuDBhandle,
   
   # user messages
   cat("Navigate your browser to the EMU-webApp URL: https://ips-lmu.github.io/EMU-webApp/ (should happen automatically)\n")
-  cat("Server connection URL: ws://localhost:",port,"\n",sep='')
-  cat("To stop the server press 'clear' button in the EMU-webApp or close/reload the webApp in your browser.\n")
+  cat("Server connection URL: ws://localhost:", port, "\n", sep = '')
+  cat("To stop the server either press the 'clear' button in the EMU-webApp, close/reload the webApp in your browser,\n")
+  cat("or call the httpuv::stopAllServers() function\n")
   
   # build app list
   app = list(call = httpRequest, 

@@ -47,7 +47,7 @@ EMU-webApp browser GUI \url{http://ips-lmu.github.io/EMU-webApp/}
 
 Instructions:
 
-Start and connect:
+Start and connect (this should happen automatically):
 
 \itemize{
 \item Call this function to start the server.
@@ -62,10 +62,17 @@ Disconnect and stop:
 \itemize{
 \item Disconnect and stop the server with the 'Clear' button of 
 the webapp or the reload button of your browser.
-\item The server can also be interrupted by 
-calling \code{httpuv::stopAllServers}
+\item The server can also be stopped by 
+calling \code{\link{httpuv::stopAllServers}}
+}
+
+Hints:
+\itemize{
 \item To serve only a subset of sessions or bundles use 
 the parameters \code{sessionPattern} and/or \code{bundlePattern}.
+\item Use the \code{seglist} parameter to pass in a segment list
+which was generated using the \code{query} function. This will
+allow quick navigation to those segments.
 }
 }
 \details{
