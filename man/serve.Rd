@@ -34,7 +34,7 @@ and host a local version of the EMU-webApp in it. This will clone the current
 EMU-webApp build (\url{https://github.com/IPS-LMU/EMU-webApp/tree/gh-pages/}) into the directory provided by 
 \code{\link{tempdir}} and serve this local version. A clone will 
 only be performed if no \code{file.path(tempdir(), "EMU-webApp")} directory is present. An alternative
-directory can be also set: \code{options(emuR.EMUwebApp.dir="path/to/EMU-webApp")} (use if offline functionality is required).}
+directory can be also set: \code{options(emuR.emuWebApp.dir="path/to/EMU-webApp")} (use if offline functionality is required).}
 
 \item{debug}{TRUE to enable debugging (default: no debugging messages)}
 

@@ -1,4 +1,4 @@
-# emuR 2.0.1
+# emuR 2.0.2
 
 ## new features / performance tweaks / improvements
 

@@ -12,3 +12,9 @@ There were no ERRORs, WARNINGs or NOTEs.
 ## Downstream dependencies
 
 There are currently no downstream dependencies for this package.
+
+## Message for CRAN maintainer
+
+We noticed two separate issues that break a vital function of this package, which is why 
+we resubmitted the package twice on the same day. We are really sorry for this - we know 
+this is against CRANs policies and will definitely refrain from doing so in future submits.
