@@ -1,4 +1,4 @@
-# emuR 1.9.9.9012
+# emuR 2.0.0
 
 ## new features / performance tweaks / improvements
 
@@ -9,9 +9,9 @@
 * `requery_hier()` now persists the input segment list length by inserting NA rows for missing segments
 * depricated vignettes are now stubs only (== empty containing notice pointing to the EMU-SDMS manual)
 * implemented `rename_bundles()` function
-* better `times_norm` calculation for `normalize_lenght()`
+* better `times_norm` calculation for `normalize_length()`
 * better error message when empty or non existing session is passed into `add_files()`
-* `useViewer` parameter now implemented
+* `serve()` `useViewer` parameter now implemented and the default. If a ver
 * `serve()` now uses a single server to host the EMU-webApp and provide the websocket server for the emuDB
 * `serve()` now works within RStudio when it is run as a web application
 

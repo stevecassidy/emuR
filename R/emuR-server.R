@@ -73,9 +73,11 @@ check_tibbleForServe <- function(tbl){
 ##' @param debug TRUE to enable debugging (default: no debugging messages)
 ##' @param debugLevel integer higher values generate more detailed debug output
 ##' @param useViewer Use the viewer provided by \code{getOption("viewer")} (the viewer pane when using RStudio) 
-##' and host a local version of the EMU-webApp in it. This will clone the EMU-webApp into the directory provided by 
+##' and host a local version of the EMU-webApp in it. This will clone the current 
+##' EMU-webApp build (\url{https://github.com/IPS-LMU/EMU-webApp/tree/gh-pages/}) into the directory provided by 
 ##' \code{\link{tempdir}} and serve this local version. A clone will 
-##' only be performed if no \code{file.path(tempdir(), "EMU-webApp")} directory is present.
+##' only be performed if no \code{file.path(tempdir(), "EMU-webApp")} directory is present. An alternative
+##' directory can be also set: \code{options(emuR.EMUwebApp.dir="path/to/EMU-webApp")} (use if offline functionality is required).
 ##' @return TRUE (invisible) if the server was started
 ##' @export
 ##' @keywords emuDB EMU-webApp database websocket Emu
@@ -167,9 +169,9 @@ serve <- function(emuDBhandle,
         Encoding(path) = "UTF-8"
         #print(path)
         status = 200L
-        # only allow requests to / -> mapped to tempdir()/EMU-webApp dir
+        # only allow requests to / -> mapped to getOption("emuR.emuWebApp.dir")
         if (T) { # TODO: check if correct path
-          path = file.path(tempdir(), "EMU-webApp", path)
+          path = file.path(getOption("emuR.emuWebApp.dir"), path)
         } else {
           # reject all other requests
           return(list(
@@ -690,7 +692,7 @@ serve <- function(emuDBhandle,
     # open browser with EMU-webApp
     viewer <- getOption("viewer")
     if(useViewer){
-      webApp_path = file.path(tempdir(), "EMU-webApp")
+      webApp_path = getOption("emuR.emuWebApp.dir")
       # TODO: can this be emulated? git clone --depth 1 -b gh-pages https://github.com/IPS-LMU/EMU-webApp
       #unlink(webApp_path, recursive = T)
       if(!dir.exists(webApp_path)){

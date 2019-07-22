@@ -1,6 +1,6 @@
 ## Test environments
 
-* local OS X (x86_64-apple-darwin15.6.0) install, R version 3.5.2 (2018-12-20) -- "Eggshell Igloo"
+* local OS X (x86_64-apple-darwin15.6.0) install, R version 3.6.1 (2019-07-05) -- "Action of the Toes"
 * Ubuntu 14.04.5 LTS (on travis-ci), R version 3.5.1 (2017-01-27)
 * win-builder (devel and release)
 
