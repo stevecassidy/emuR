@@ -41,7 +41,7 @@ Up-to-date lists of the languages accepted by all webservices can be found here:
 Please note that the chunk segmentation will only be generated if your emuDB contains
 audio files beyond the one minute mark.}
 
-\item{runMINNI}{if set to \code{TRUE} (the default) the MINNI service is also run. As the MINNI serice contains
+\item{runMINNI}{if set to \code{TRUE} (the default) the MINNI service is also run. As the MINNI service contains
 less languages than the others it can be useful to turn this off.}
 
 \item{patience}{If a web service call fails, it is repeated a further n times, with n being the value of patience.

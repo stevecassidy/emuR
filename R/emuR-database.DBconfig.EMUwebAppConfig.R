@@ -220,7 +220,7 @@ get_signalCanvasesOrder <- function(emuDBhandle,
 ##' 
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param perspectiveName name of perspective
-##' @param order character vector containig names of levelDefinitions
+##' @param order character vector containing names of levelDefinitions
 ##' @name SetGetlevelCanvasesOrder
 ##' @keywords emuDB database DBconfig Emu 
 ##' @examples 
