@@ -423,8 +423,7 @@ serve <- function(emuDBhandle,
         }
         
         mediaFile = list(encoding = "GETURL", 
-                         data = paste0("http://", 
-                                       ws$request$HTTP_HOST, 
+                         data = paste0(rstudioapi::translateLocalUrl(paste0("http://", ws$request$HTTP_HOST)), 
                                        "?session=", 
                                        utils::URLencode(bundleSess, reserved = T),
                                        "&bundle=", 
