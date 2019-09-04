@@ -1,4 +1,4 @@
-# emuR 2.0.3
+# emuR 2.0.3.9000
 
 ## new features / performance tweaks / improvements
 
@@ -19,7 +19,7 @@
 * implemented `rename_bundles()` function
 * better `times_norm` calculation for `normalize_length()`
 * better error message when empty or non existing session is passed into `add_files()`
-* `serve()` `useViewer` parameter now implemented and the default. If a ver
+* `serve()` `useViewer` parameter now implemented and the default.
 * `serve()` now uses a single server to host the EMU-webApp and provide the websocket server for the emuDB
 * `serve()` now works within RStudio when it is run as a web application
 
