@@ -4,7 +4,7 @@
 
 ## bug fixes
 
-- fixed options(emuR.emuWebApp.dir = file.path(tempdir(), "EMU-webApp")) setting
+- using rstudioapi::translateLocalUrl for ws connection url to permit RStudio to connect
 
 # emuR 2.0.2
 
