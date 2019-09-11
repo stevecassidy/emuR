@@ -1,6 +1,8 @@
-# emuR 2.0.3.9000
+# emuR 2.0.3.9001
 
 ## new features / performance tweaks / improvements
+
+- `export_seglistToTxtCollection()` now zero pads it's file names (should fix #219)
 
 ## bug fixes
 
