@@ -2,7 +2,7 @@
 
 ## new features / performance tweaks / improvements
 
-- `export_seglistToTxtCollection()` now zero pads it's file names (should fix #219)
+- `export_seglistToTxtCollection()` now zero pads file names (should fix #219)
 
 ## bug fixes
 
