@@ -1,4 +1,4 @@
-# emuR 2.0.3.9001
+# emuR 2.0.3.9002
 
 ## new features / performance tweaks / improvements
 
@@ -7,6 +7,7 @@
 ## bug fixes
 
 - using rstudioapi::translateLocalUrl for ws connection url to permit RStudio to connect
+- fixed bug in duplicate levels (bad level name insert into items table) that was causing the items array in the JSON file to stay empty
 
 # emuR 2.0.2
 
