@@ -690,7 +690,7 @@ serve <- function(emuDBhandle,
   if(length(autoOpenURL) != 0 && autoOpenURL != ""){
     # open browser with EMU-webApp
     viewer <- getOption("viewer")
-    if(useViewer){
+    if(useViewer & rstudioapi::isAvailable()){
       webApp_path = getOption("emuR.emuWebApp.dir")
       # TODO: can this be emulated? git clone --depth 1 -b gh-pages https://github.com/IPS-LMU/EMU-webApp
       #unlink(webApp_path, recursive = T)
@@ -753,6 +753,7 @@ serve <- function(emuDBhandle,
     }else{
       # use online version
       utils::browseURL(autoOpenURL, browser = browser)
+      cat("Unable to detect RStudio. Serving to online version.\n")
     }
   }
   

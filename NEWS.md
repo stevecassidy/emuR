@@ -1,4 +1,4 @@
-# emuR 2.0.3.9002
+# emuR 2.0.3.9003
 
 ## new features / performance tweaks / improvements
 
@@ -6,8 +6,10 @@
 
 ## bug fixes
 
-- using rstudioapi::translateLocalUrl for ws connection url to permit RStudio to connect
+- using `rstudioapi::translateLocalUrl()` for ws connection url to permit RStudio to connect
 - fixed bug in duplicate levels (bad level name insert into items table) that was causing the items array in the JSON file to stay empty
+- `serve()` working outside of RStudio again (overlooked that `rstudioapi::translateLocalUrl()` needs RStudio)
+- improved error formatting in `load_emuDB()` and `export_TextGridCollection`
 
 # emuR 2.0.2
 

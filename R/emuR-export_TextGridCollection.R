@@ -60,7 +60,7 @@ export_TextGridCollection <- function(emuDBhandle,
     if(!all(attributeDefinitionNames %in% allAttrNames)){
       stop(paste0("Bad attributeDefinitionNames given! Valid ",
                   "attributeDefinitionNames of the emuDB are: ", 
-                  allAttrNames))
+                  paste0(allAttrNames, collapse = "; ")))
     }
     allAttrNames = attributeDefinitionNames
   }
