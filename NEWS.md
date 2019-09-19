@@ -1,4 +1,4 @@
-# emuR 2.0.3.9003
+# emuR 2.0.3.9004
 
 ## new features / performance tweaks / improvements
 
@@ -10,6 +10,8 @@
 - fixed bug in duplicate levels (bad level name insert into items table) that was causing the items array in the JSON file to stay empty
 - `serve()` working outside of RStudio again (overlooked that `rstudioapi::translateLocalUrl()` needs RStudio)
 - improved error formatting in `load_emuDB()` and `export_TextGridCollection`
+- fixed `rename_bundles()` issue with sub-string matching of names (fixes \#220)
+
 
 # emuR 2.0.2
 
