@@ -1,4 +1,4 @@
-# emuR 2.0.3.9004
+# emuR 2.0.4
 
 ## new features / performance tweaks / improvements
 
@@ -11,7 +11,7 @@
 - `serve()` working outside of RStudio again (overlooked that `rstudioapi::translateLocalUrl()` needs RStudio)
 - improved error formatting in `load_emuDB()` and `export_TextGridCollection`
 - fixed `rename_bundles()` issue with sub-string matching of names (fixes \#220)
-
+- `requery_hier()` works with non-main attributes again (always returned levels main attribute labels) 
 
 # emuR 2.0.2
 
