@@ -1,8 +1,20 @@
+# emuR 2.0.4.9000
+
+## new features / performance tweaks / improvements
+
+- implemented `write_bundleList()` and `read_bundleList()` functions
+- new `bundleListName` `serve()` parameter implemented
+
+## bug fixes
+
+
 # emuR 2.0.4
 
 ## new features / performance tweaks / improvements
 
 - `export_seglistToTxtCollection()` now zero pads file names (should fix #219)
+- implemented `write_bundleList()` and `read_bundleList()` functions
+- new `bundleListName` `serve()` parameter implemented
 
 ## bug fixes
 

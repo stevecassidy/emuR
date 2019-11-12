@@ -39,8 +39,8 @@ path to traverse on intersecting hierarchies. If set to \code{FALSE} (the defaul
 all paths will be traversed (= legacy EMU behaviour).}
 }
 \value{
-result set object of class resultType (default: \link{emuRsegs}, 
-compatible to legacy type \link{emusegs})
+result set object of class resultType (default: \link{tibble}, 
+compatible to legacy types \link{emuRsegs} and \link{emusegs})
 }
 \description{
 Function to query annotation items/structures in a emuDB

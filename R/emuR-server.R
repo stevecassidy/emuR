@@ -64,6 +64,7 @@ check_tibbleForServe <- function(tbl){
 ##' @param sessionPattern A regular expression pattern matching session names to be served
 ##' @param bundlePattern A regular expression pattern matching bundle names to be served
 ##' @param seglist segment list to use for times anchors and session + bundle restriction (type: \link{emuRsegs})
+##' @param bundleListName name of bundleList stored in emuDB/bundleLists subdir to send to EMU-webApp
 ##' @param host host IP to listen to (default: 127.0.0.1  (localhost))
 ##' @param port the port number to listen on (default: 17890)
 ##' @param autoOpenURL URL passed to \code{\link{browseURL}} function. If NULL or an empty string are passed in
@@ -93,6 +94,7 @@ serve <- function(emuDBhandle,
                   sessionPattern = '.*', 
                   bundlePattern = '.*', 
                   seglist = NULL,
+                  bundleListName = NULL,
                   host = '127.0.0.1', 
                   port = 17890, 
                   autoOpenURL = "https://ips-lmu.github.io/EMU-webApp/?autoConnect=true", 
@@ -107,10 +109,10 @@ serve <- function(emuDBhandle,
     debugLevel=2
   }
   
-  bundleCount=0
+  bundleCount = 0
   DBconfig = load_DBconfig(emuDBhandle)
   if(is.null(seglist)){
-    allBundlesDf=list_bundles(emuDBhandle)
+    allBundlesDf = list_bundles(emuDBhandle)
   }else{
     check_tibbleForServe(seglist)
     tmp = data.frame(session = seglist$session, 
@@ -120,6 +122,20 @@ serve <- function(emuDBhandle,
   }
   
   bundlesDf = allBundlesDf
+  
+  if(!is.null(bundleListName)){
+    if(!is.null(seglist)){
+      stop("both seglist & bundleListName can't be set at the same time!")
+    }
+    bundlesDf = read_bundleList(emuDBhandle, bundleListName)
+    if(is.null(DBconfig$EMUwebAppConfig$restrictions$bundleComments) || is.null(DBconfig$EMUwebAppConfig$restrictions$bundleFinishedEditing)){
+      # TODO ask user to set?
+      DBconfig$EMUwebAppConfig$restrictions$bundleComments = TRUE
+      DBconfig$EMUwebAppConfig$restrictions$bundleFinishedEditing = TRUE
+      store_DBconfig(emuDBhandle, DBconfig)
+    }
+  }
+  
   if(!is.null(sessionPattern) && sessionPattern!='.*'){
     ssl = emuR_regexprl(sessionPattern, bundlesDf[['session']])
     bundlesDf = bundlesDf[ssl,]
@@ -127,6 +143,10 @@ serve <- function(emuDBhandle,
   if(!is.null(bundlePattern) && bundlePattern!='.*'){
     bsl = emuR_regexprl(bundlePattern,bundlesDf[['name']])
     bundlesDf = bundlesDf[bsl,]
+  }
+  
+  if(!is.null(bundleListName)){
+    bundlesDf = read_bundleList(emuDBhandle, bundleListName)
   }
   
   
@@ -519,7 +539,7 @@ serve <- function(emuDBhandle,
         # reset error
         err = NULL
         
-      }else if(jr[['type']] == 'SAVEBUNDLE'){
+      } else if(jr[['type']] == 'SAVEBUNDLE'){
         jrData = jr[['data']]
         jrAnnotation = jrData[['annotation']]
         bundleSession = jrData[['session']]
@@ -621,6 +641,23 @@ serve <- function(emuDBhandle,
                                     bundleAnnotDFs, 
                                     sessionName = bundleSession, 
                                     bundleName = bundleName)
+            
+            # update bundlesDf and store as bundleList
+            if(!is.null(bundleListName)){
+              if(is.null(bundlesDf$comment)){
+                bundlesDf$comment = ""
+              }
+              if(is.null(bundlesDf$comment)){
+                bundlesDf$finishedEditing = FALSE
+              }
+              # print(jr[['data']][['comment']])
+              bundlesDf[bundlesDf$session == bundleSession & 
+                          bundlesDf$name == bundleName,]$comment = jr[['data']][['comment']]
+              bundlesDf[bundlesDf$session == bundleSession & 
+                          bundlesDf$name == bundleName,]$finishedEditing = jr[['data']][['finishedEditing']]
+              write_bundleList(emuDBhandle, bundleListName, bundlesDf)
+
+            }
           }
         }
         if(is.null(err)){
