@@ -54,7 +54,7 @@ write_bundleList <- function(emuDBhandle,
   bl_dir_path = file.path(emuDBhandle$basePath, "bundleLists")
   
   if(!dir.exists(bl_dir_path)){
-    print("No bundleList dir found in emuDB in dir: ", bl_dir_path, "! Create directory...")
+    print(paste0("INFO: No bundleList dir found in emuDB (path: ", bl_dir_path, ")! Creating directory..."))
     dir.create(bl_dir_path)
   }
   
