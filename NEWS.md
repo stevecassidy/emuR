@@ -1,9 +1,10 @@
-# emuR 2.0.4.9000
+# emuR 2.0.4.9001
 
 ## new features / performance tweaks / improvements
 
 - implemented `write_bundleList()` and `read_bundleList()` functions
 - new `bundleListName` `serve()` parameter implemented
+- added warning to `serve()` when either bundleComments or bundleFinishedEditing is set to true and no bundleListName was set (closes \#268)
 
 ## bug fixes
 

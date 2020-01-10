@@ -136,6 +136,16 @@ serve <- function(emuDBhandle,
     }
   }
   
+  if(!is.null(DBconfig$EMUwebAppConfig$restrictions$bundleComments) || !is.null(DBconfig$EMUwebAppConfig$restrictions$bundleFinishedEditing)){
+    if(is.null(bundleListName)){
+      warning(paste0("'bundleComments' and/or 'bundleFinishedEditing' are set to true ",
+                     "in the DBconfig and the bundleListName parameter wasn't set! Any changes made ",
+                     "to those fields in the bundleListSideBar in the EMU-webApp won't be saved as ",
+                     "those values are stored in the bundleLists!"))
+    }
+  }
+  
+  
   if(!is.null(sessionPattern) && sessionPattern!='.*'){
     ssl = emuR_regexprl(sessionPattern, bundlesDf[['session']])
     bundlesDf = bundlesDf[ssl,]
