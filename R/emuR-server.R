@@ -654,18 +654,14 @@ serve <- function(emuDBhandle,
             
             # update bundlesDf and store as bundleList
             if(!is.null(bundleListName)){
-              if(is.null(bundlesDf$comment)){
-                bundlesDf$comment = ""
-              }
-              if(is.null(bundlesDf$comment)){
-                bundlesDf$finishedEditing = FALSE
-              }
+              bl = read_bundleList(emuDBhandle, bundleListName)
               # print(jr[['data']][['comment']])
-              bundlesDf[bundlesDf$session == bundleSession & 
-                          bundlesDf$name == bundleName,]$comment = jr[['data']][['comment']]
-              bundlesDf[bundlesDf$session == bundleSession & 
-                          bundlesDf$name == bundleName,]$finishedEditing = jr[['data']][['finishedEditing']]
-              write_bundleList(emuDBhandle, bundleListName, bundlesDf)
+              bl[bl$session == bundleSession & 
+                   bl$name == bundleName,]$comment = jr[['data']][['comment']]
+              bl[bl$session == bundleSession & 
+                          bl$name == bundleName,]$finishedEditing = jr[['data']][['finishedEditing']]
+              
+              write_bundleList(emuDBhandle, bundleListName, bl)
 
             }
           }
