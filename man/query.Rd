@@ -4,9 +4,17 @@
 \alias{query}
 \title{Query emuDB}
 \usage{
-query(emuDBhandle, query, sessionPattern = ".*", bundlePattern = ".*",
-  queryLang = "EQL2", timeRefSegmentLevel = NULL,
-  resultType = "tibble", calcTimes = TRUE, verbose = FALSE)
+query(
+  emuDBhandle,
+  query,
+  sessionPattern = ".*",
+  bundlePattern = ".*",
+  queryLang = "EQL2",
+  timeRefSegmentLevel = NULL,
+  resultType = "tibble",
+  calcTimes = TRUE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle object (see \link{load_emuDB})}

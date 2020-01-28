@@ -4,12 +4,20 @@
 \alias{serve}
 \title{Serve EMU database to EMU-webApp}
 \usage{
-serve(emuDBhandle, sessionPattern = ".*", bundlePattern = ".*",
-  seglist = NULL, bundleListName = NULL, host = "127.0.0.1",
+serve(
+  emuDBhandle,
+  sessionPattern = ".*",
+  bundlePattern = ".*",
+  seglist = NULL,
+  bundleListName = NULL,
+  host = "127.0.0.1",
   port = 17890,
   autoOpenURL = "https://ips-lmu.github.io/EMU-webApp/?autoConnect=true",
-  browser = getOption("browser"), useViewer = TRUE, debug = FALSE,
-  debugLevel = 0)
+  browser = getOption("browser"),
+  useViewer = TRUE,
+  debug = FALSE,
+  debugLevel = 0
+)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}

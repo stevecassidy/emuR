@@ -2453,7 +2453,6 @@ query <- function(emuDBhandle,
       filteredTablesSuffix = ""
     }else{
       # extract all items for session/bundlePattern matching regex
-      browser()
       queryItems <- DBI::dbGetQuery(emuDBhandle$connection, 
                                     paste0("SELECT * FROM items ",
                                            "WHERE db_uuid = '", emuDBhandle$UUID, "'",

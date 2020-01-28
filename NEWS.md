@@ -1,10 +1,11 @@
-# emuR 2.0.4.9001
+# emuR 2.0.4.9002
 
 ## new features / performance tweaks / improvements
 
 - implemented `write_bundleList()` and `read_bundleList()` functions
 - new `bundleListName` `serve()` parameter implemented
 - added warning to `serve()` when either bundleComments or bundleFinishedEditing is set to true and no bundleListName was set (closes \#268)
+- implemented `onTheFlyFunction` parameter for `get_trackdata()` which allows users to implement their own functions (input: path to wav file; output tibble/data.frame that has a column called `"frame_time"`)
 
 ## bug fixes
 
