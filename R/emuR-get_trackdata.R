@@ -120,6 +120,11 @@
   # get DBconfig
   DBconfig = load_DBconfig(emuDBhandle)
   
+  # convert factors into characters
+  if("tbl_df" %in% class(seglist)){
+    seglist = seglist %>% dplyr::mutate_if(is.factor, as.character)
+  }
+  
   #########################
   # parameter checks  
   
@@ -135,7 +140,6 @@
     }
     ssffTrackName = "CUSTOM_FUNCTION"
   }
-  
   
   # check if all values for minimal call are set
   if(!is.function(onTheFlyFunction) && (is.null(emuDBhandle) || is.null(seglist) || is.null(ssffTrackName))) {

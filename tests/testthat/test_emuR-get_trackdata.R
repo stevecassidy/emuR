@@ -258,7 +258,9 @@ test_that("non wrassp functions work", {
   # write TSV files containing fm & bw
   for(fp in fps){
     ado = wrassp::read.AsspDataObj(fp)
-    tbl = tibble::as_tibble(cbind(ado$fm, ado$bw))
+    track_vals = cbind(ado$fm, ado$bw)
+    colnames(track_vals) = c("F1", "F2", "F3", "F4", "bw1", "bw2", "bw3", "bw4")
+    tbl = tibble::as_tibble(track_vals)
     tbl$frame_time = seq(from = attributes(ado)$startTime, 
                         by = 1/wrassp::rate.AsspDataObj(ado), 
                         length.out = nrow(tbl)) * 1000
