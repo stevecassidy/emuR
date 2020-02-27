@@ -50,7 +50,7 @@ export_TextGridCollection <- function(emuDBhandle,
                                       sessionPattern = '.*', 
                                       bundlePattern = '.*', 
                                       attributeDefinitionNames = NULL, 
-                                      timeRefSegmentLevel = NULL
+                                      timeRefSegmentLevel = NULL,
                                       verbose = TRUE) {
   
   check_emuDBhandle(emuDBhandle)
