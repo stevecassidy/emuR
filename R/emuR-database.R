@@ -936,7 +936,9 @@ create_emuDB <- function(name,
                          uuid::UUIDgenerate(), 
                          ":memory:")
   if(store){
-    store(dbHandle, targetDir=targetDir, verbose = verbose)
+    store(dbHandle, 
+          targetDir = targetDir, 
+          verbose = verbose)
   }
   
   return(invisible())
