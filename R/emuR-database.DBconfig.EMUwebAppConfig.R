@@ -65,7 +65,10 @@ add_perspective <- function(emuDBhandle,
   l = length(DBconfig$EMUwebAppConfig$perspectives)
   
   DBconfig$EMUwebAppConfig$perspectives[[l + 1]] = persp
-  
+  # show perspectives side bar
+  if(is.null(DBconfig$EMUwebAppConfig$restrictions$showPerspectivesSidebar) && l > 1){
+    DBconfig$EMUwebAppConfig$restrictions$showPerspectivesSidebar = TRUE
+  }
   # store changes
   store_DBconfig(emuDBhandle, DBconfig)
   
