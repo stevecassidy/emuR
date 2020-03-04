@@ -10,6 +10,7 @@ export_TextGridCollection(
   sessionPattern = ".*",
   bundlePattern = ".*",
   attributeDefinitionNames = NULL,
+  timeRefSegmentLevel = NULL,
   verbose = TRUE
 )
 }
@@ -24,6 +25,10 @@ export_TextGridCollection(
 
 \item{attributeDefinitionNames}{list of names of attributeDefinitions that are to be 
 exported as tiers. If set to NULL (the default) all attribute definitions will be exported as separate tiers.}
+
+\item{timeRefSegmentLevel}{parameter passed into \link{query} function. (set time segment level from which to derive time 
+information. It is only necessary to set this parameter if more than one child 
+level contains time information and the queried parent level is of type ITEM.)}
 
 \item{verbose}{Show progress bars and further information}
 }
