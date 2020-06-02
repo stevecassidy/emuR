@@ -454,7 +454,27 @@
       
       # check if it is possible to extract curData 
       if(curStartDataIdx > 0 && curEndDataIdx <= dim(tmpData)[1]){
-        curData[,] <- tmpData[curStartDataIdx:curEndDataIdx,]
+        ############ new #############
+        possibleError_a <- tryCatch(
+          curData[, ] <- tmpData[curStartDataIdx:curEndDataIdx, ],
+          error=function(e) e
+        )
+        # catch error and move on
+        if(inherits(possibleError_a, "error")){
+          rowSeq <- timeStampSeq[curStartDataIdx:curEndDataIdx]
+          curData <- matrix(ncol = ncol(tmpData), nrow = length(rowSeq))
+          tmp_len <- length(curStartDataIdx:curEndDataIdx) - length(rowSeq)
+          tmp_range <-  curStartDataIdx:curEndDataIdx
+          possibleError <- tryCatch(
+            curData[, ] <- tmpData[curStartDataIdx:curEndDataIdx, ],
+            error=function(e) e
+          )
+          if(inherits(possibleError, "error")) {
+            warning("There was a problem, some meaningful message.")
+            next
+          }
+        }
+        ############# new ##############
       }else{
         entry= paste(seglist[i,], collapse = " ")
         stop('Can not extract data for the ', i, 'th row of the segment list: ', entry, ' start and/or end times out of bounds')
