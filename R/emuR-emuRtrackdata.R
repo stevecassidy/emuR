@@ -197,9 +197,8 @@ create_emuRtrackdata <- function(sl, td){
     
     xynew = approx(eRtd$times_norm, eRtd$T1, n = N)
     # create data.frame of correct length (all relevant entries are replaced)
-    eRtd.normtemp = eRtd[1:N,]
-    # fill with values of first row (only rel. for redundant columns such as sl_rowIdx, labels)
-    eRtd.normtemp[1:N,] = eRtd.normtemp[1,]
+    # and fill with values of first row (only rel. for redundant columns such as sl_rowIdx, labels)
+    eRtd.normtemp = tibble::tibble(eRtd[1,], .rows = N)
     eRtd.normtemp$times_norm = seq(0, 1, length.out = N) #xynew$x - use seq instead of xynew$x to avoid approx rounding issues
     # interpolate data columns
     for (name in additional_cols){

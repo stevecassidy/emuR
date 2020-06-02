@@ -454,13 +454,17 @@
       
       # check if it is possible to extract curData 
       if(curStartDataIdx > 0 && curEndDataIdx <= dim(tmpData)[1]){
-        ############ new #############
         possibleError_a <- tryCatch(
           curData[, ] <- tmpData[curStartDataIdx:curEndDataIdx, ],
           error=function(e) e
         )
         # catch error and move on
         if(inherits(possibleError_a, "error")){
+          warning(paste0("The amount of data extracted doesn't match the \n",
+                         "expected segment length in segment list row ", i, ".\n",
+                         "This can be caused by slight rounding errors in \n",
+                         "sample rates and start times. Adapting to extracted \n",
+                         "sample length."))
           rowSeq <- timeStampSeq[curStartDataIdx:curEndDataIdx]
           curData <- matrix(ncol = ncol(tmpData), nrow = length(rowSeq))
           tmp_len <- length(curStartDataIdx:curEndDataIdx) - length(rowSeq)
@@ -470,8 +474,8 @@
             error=function(e) e
           )
           if(inherits(possibleError, "error")) {
-            warning("There was a problem, some meaningful message.")
-            next
+            stop(paste0("Even after length adaptation an error occured. This shouldn't happen!\n",
+                        "Problematic segment list row: ", i))
           }
         }
         ############# new ##############

@@ -1,4 +1,4 @@
-# emuR 2.0.4.9004
+# emuR 2.0.4.9005
 
 ## new features / performance tweaks / improvements
 
@@ -8,8 +8,11 @@
 - implemented `onTheFlyFunction` parameter for `get_trackdata()` which allows users to implement their own functions (input: path to wav file; output tibble/data.frame that has a column called `"frame_time"`)
 - converting factors into characters in `get_trackdata()` and `normalize_length()` (closes \#224 and \#223) 
 - `add_perspective()` now sets `"restrictions"` -> `"showPerspectivesSidebar"` to `true` to make the side bar visible
+- `normalize_length()` now doesn't throw tibble 3.0.0 warnings any more
 
 ## bug fixes
+
+- try catching rounding errors of sample rate and start time in `get_trackdata()`
 
 
 # emuR 2.0.4
