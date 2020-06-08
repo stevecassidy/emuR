@@ -384,9 +384,9 @@ test_that("Load example database ae", {
     expect_equal(nrow(sl), 234)
     sl = query(ae, "[Syllable =~ .*]")
     expect_equal(nrow(sl), 83)
-    sl = query(ae, "[Text =~ am.*]")
+    sl = suppressWarnings(query(ae, "[Text =~ am.*]"))
     expect_equal(nrow(sl), 1)
-    sl = query(ae, "[Text !~ am.*]")
+    sl = suppressWarnings(query(ae, "[Text !~ am.*]"))
     expect_equal(nrow(sl), 53)
     
     # SEQQ
@@ -452,9 +452,9 @@ test_that("Load example database ae", {
     expect_equal(sl$labels, c("S", "S", "S"))
     sl = query(ae, "[[Phoneme == p ^ Syllable =~ .*] ^ #Word =~.*]")
     expect_equal(sl$labels, c("C", "C", "C"))
-    sl = query(ae, "[[Phoneme == p ^ Syllable =~.*] ^ Text =~ emphasized | tempting]")
+    sl = suppressWarnings(query(ae, "[[Phoneme == p ^ Syllable =~.*] ^ Text =~ emphasized | tempting]"))
     expect_equal(sl$labels, c("p", "p"))
-    sl = query(ae, "[[Phoneme == p ^ Syllable =~.*] ^ #Text =~ emphasized | tempting]")
+    sl = suppressWarnings(query(ae, "[[Phoneme == p ^ Syllable =~.*] ^ #Text =~ emphasized | tempting]"))
     expect_equal(sl$labels, c("emphasized", "tempting"))
     
     # Position

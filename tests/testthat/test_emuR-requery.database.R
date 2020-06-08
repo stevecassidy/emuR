@@ -86,7 +86,7 @@ test_that("Requery sequential produces correct NA rows",{
 test_that("Requery hierarchical",{
   
   # Text beginning with 'a'
-  sl1 = query(ae, "Text =~ 'a[mn].*'")
+  sl1 = suppressWarnings(query(ae, "Text =~ '^a[mn].*'"))
   # requery to level Phoneme
   rsl1 = suppressWarnings(requery_hier(ae, sl1, level = 'Phoneme'))
   expect_that(class(rsl1), is_identical_to(c('tbl_df', 'tbl', 'data.frame')))
@@ -109,7 +109,7 @@ test_that("Requery hierarchical",{
 test_that("Requery hierarchical with collapse works",{
   
   # Text beginning with 'a'
-  sl1 = query(ae, "Text =~ 'a[mn].*'")
+  sl1 = suppressWarnings(query(ae, "Text =~ '^a[mn].*'"))
   # requery to level Phoneme
   rsl1 = suppressWarnings(requery_hier(ae, sl1, level = 'Phonetic', collapse = F, verbose = F))
   expect_equal(nrow(rsl1), 12) # should have 12 elements
@@ -136,7 +136,7 @@ test_that("hierarchical requery on same attrDef without times calculates missing
 test_that("hierarchical requery on parallel attrDef works",{
   
   # Text beginning with 'a'
-  sl1 = query(ae, "Text =~ 'a[mn].*'")
+  sl1 = suppressWarnings(query(ae, "Text =~ '^a[mn].*'"))
   
   # requery to same attrDef
   slRq = requery_hier(ae, sl1, level = 'Word')
