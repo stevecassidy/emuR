@@ -5,7 +5,9 @@
 \alias{vowlax.fund.5}
 \title{Vector of fundamental frequency extracted at the temporal midpoint from the
 segment list vowlax.}
-\format{vector of fundamental frequency}
+\format{
+vector of fundamental frequency
+}
 \description{
 An EMU dataset
 }

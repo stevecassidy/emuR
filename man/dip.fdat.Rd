@@ -4,7 +4,9 @@
 \name{dip.fdat}
 \alias{dip.fdat}
 \title{Trackdata of formants from the segment list dip}
-\format{trackdata object}
+\format{
+trackdata object
+}
 \description{
 An EMU dataset
 }

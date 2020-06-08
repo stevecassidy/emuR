@@ -4,10 +4,12 @@
 \name{demo.all.fm}
 \alias{demo.all.fm}
 \title{Formant track data for segment list demo.vowels}
-\format{index: a two columned matrix with the range of the \$data rows that
+\format{
+index: a two columned matrix with the range of the \$data rows that
 belong to the segment ftime: a two columned matrix with the times marks of
 the segment data: a three columned matrix with the formant values of the
-first three formants for each segment}
+first three formants for each segment
+}
 \description{
 A track list of the demo database that is part of the Emu system.  It is
 the result of get fm data for the segment list demo.vowels (see

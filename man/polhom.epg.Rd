@@ -4,7 +4,9 @@
 \name{polhom.epg}
 \alias{polhom.epg}
 \title{EPG-compressed trackdata from the segment list polhom}
-\format{trackdata object}
+\format{
+trackdata object
+}
 \description{
 An EMU dataset
 }

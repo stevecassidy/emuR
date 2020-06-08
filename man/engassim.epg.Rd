@@ -4,7 +4,9 @@
 \name{engassim.epg}
 \alias{engassim.epg}
 \title{EPG-compressed trackdata from the segment list engassim}
-\format{trackdata object}
+\format{
+trackdata object
+}
 \description{
 An EMU dataset
 }

@@ -4,7 +4,9 @@
 \name{coutts.sam}
 \alias{coutts.sam}
 \title{Trackdata of acoustic waveforms from the segment list coutts}
-\format{trackdata object}
+\format{
+trackdata object
+}
 \description{
 An EMU dataset
 }

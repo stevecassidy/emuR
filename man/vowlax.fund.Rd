@@ -4,7 +4,9 @@
 \name{vowlax.fund}
 \alias{vowlax.fund}
 \title{Trackdata of fundamental frequency from the segment list vowlax}
-\format{trackdata object}
+\format{
+trackdata object
+}
 \description{
 An EMU dataset
 }

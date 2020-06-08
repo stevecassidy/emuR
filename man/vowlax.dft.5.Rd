@@ -5,7 +5,9 @@
 \alias{vowlax.dft.5}
 \title{Spectral matrix centred at the temporal midpoint of the vowels from the
 segment list vowlax.}
-\format{spectral matrix}
+\format{
+spectral matrix
+}
 \description{
 An EMU dataset
 }

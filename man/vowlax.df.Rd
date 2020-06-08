@@ -4,7 +4,9 @@
 \name{vowlax.df}
 \alias{vowlax.df}
 \title{Data frame of various parameters and labels from the segment list vowlax}
-\format{dataframe}
+\format{
+dataframe
+}
 \description{
 An EMU dataset
 }

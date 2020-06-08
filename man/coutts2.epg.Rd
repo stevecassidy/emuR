@@ -4,7 +4,9 @@
 \name{coutts2.epg}
 \alias{coutts2.epg}
 \title{EPG-compressed trackdata from the segment list coutts2}
-\format{trackdata object}
+\format{
+trackdata object
+}
 \description{
 An EMU dataset
 }

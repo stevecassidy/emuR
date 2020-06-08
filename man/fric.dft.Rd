@@ -4,7 +4,9 @@
 \name{fric.dft}
 \alias{fric.dft}
 \title{Spectral trackdata object from the segment list fric.}
-\format{trackdata object}
+\format{
+trackdata object
+}
 \description{
 An EMU dataset
 }

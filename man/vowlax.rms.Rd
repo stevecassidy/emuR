@@ -4,7 +4,9 @@
 \name{vowlax.rms}
 \alias{vowlax.rms}
 \title{Trackdata of RMS energy from the segment list vowlax}
-\format{trackdata object}
+\format{
+trackdata object
+}
 \description{
 An EMU dataset
 }

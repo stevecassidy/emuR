@@ -5,7 +5,8 @@
 \alias{segment}
 \alias{list}
 \title{emuR segment list}
-\format{Attributed data.frame, one row per segment descriptor.
+\format{
+Attributed data.frame, one row per segment descriptor.
 
 Data frame columns are:
 \itemize{ 
@@ -34,7 +35,8 @@ Attributes:
   \item database: name of emuDB
   \item query: Query string
   \item type: type ('segment' or 'event') (for compatibility to \link{emusegs} class)
-}}
+}
+}
 \description{
 An emuR segment list is a list of segment descriptors. Each segment 
 descriptor describes a sequence of annotation elements. The list is

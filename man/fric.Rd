@@ -5,7 +5,9 @@
 \alias{fric}
 \title{Segment list of word-medial s or z one male speaker of Standard North
 German, read speech from database kielread.}
-\format{segmentlist}
+\format{
+segmentlist
+}
 \description{
 An EMU dataset
 }

@@ -4,7 +4,9 @@
 \name{isol.fdat}
 \alias{isol.fdat}
 \title{Trackdata of formants from the segment list isol}
-\format{trackdata object}
+\format{
+trackdata object
+}
 \description{
 An EMU dataset
 }

@@ -4,7 +4,9 @@
 \name{coutts2}
 \alias{coutts2}
 \title{Segment list, same as coutts but at a slower speech rate}
-\format{segmentlist}
+\format{
+segmentlist
+}
 \description{
 An EMU dataset
 }

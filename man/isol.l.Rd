@@ -4,7 +4,9 @@
 \name{isol.l}
 \alias{isol.l}
 \title{Vector of vowel phoneme labels from the segment list isol}
-\format{vector of vowel phoneme labels}
+\format{
+vector of vowel phoneme labels
+}
 \description{
 An EMU dataset
 }

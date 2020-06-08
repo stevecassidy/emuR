@@ -5,7 +5,9 @@
 \alias{vowlax.rms.5}
 \title{Vector of RMS energy values at the temporal midpoint extracted at the
 temporal midpoint from the segment list vowlax}
-\format{vector of RMS energy values}
+\format{
+vector of RMS energy values
+}
 \description{
 An EMU dataset
 }

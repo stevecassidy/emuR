@@ -4,7 +4,9 @@
 \name{coutts.l}
 \alias{coutts.l}
 \title{Vector of word label from the segment list coutts}
-\format{segmentlist}
+\format{
+segmentlist
+}
 \description{
 An EMU dataset
 }

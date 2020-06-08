@@ -4,7 +4,9 @@
 \name{wordlax.l}
 \alias{wordlax.l}
 \title{Vector of word labels from segment list wordlax}
-\format{vector of word labels}
+\format{
+vector of word labels
+}
 \description{
 For wordlax (see data(vowlax))
 }

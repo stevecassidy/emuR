@@ -6,7 +6,9 @@
 \title{Segment list of a sequence of syllable final n or N preceding k or g ,
 isolated words single speaker, Australian English female from database
 epgassim.}
-\format{segmentlist}
+\format{
+segmentlist
+}
 \description{
 An EMU dataset
 }

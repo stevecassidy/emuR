@@ -4,7 +4,9 @@
 \name{vowlax.spkr}
 \alias{vowlax.spkr}
 \title{Vector of speaker labels from the segment list vowlax.}
-\format{vector of speaker labels}
+\format{
+vector of speaker labels
+}
 \description{
 An EMU dataset
 }

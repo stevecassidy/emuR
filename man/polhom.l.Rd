@@ -4,7 +4,9 @@
 \name{polhom.l}
 \alias{polhom.l}
 \title{Vector of phonetic labels from the segment list polhom}
-\format{vector of phonetic labels}
+\format{
+vector of phonetic labels
+}
 \description{
 An EMU dataset
 }

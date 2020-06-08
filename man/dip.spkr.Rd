@@ -4,7 +4,9 @@
 \name{dip.spkr}
 \alias{dip.spkr}
 \title{Vector of speaker labels from the segment list dip}
-\format{vector of speaker labels}
+\format{
+vector of speaker labels
+}
 \description{
 An EMU dataset
 }

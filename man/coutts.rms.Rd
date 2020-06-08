@@ -4,7 +4,9 @@
 \name{coutts.rms}
 \alias{coutts.rms}
 \title{rms Data to coutts segment list}
-\format{segmentlist}
+\format{
+segmentlist
+}
 \description{
 An EMU dataset
 }

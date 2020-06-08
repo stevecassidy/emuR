@@ -4,7 +4,9 @@
 \name{polhom}
 \alias{polhom}
 \title{Segment list of four Polish homorganic fricatives from database epgpolish.}
-\format{segmentlist}
+\format{
+segmentlist
+}
 \description{
 An EMU dataset
 }

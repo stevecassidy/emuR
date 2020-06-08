@@ -252,7 +252,7 @@ runBASwebservice_all <- function(handle,
 ##' ensure that these parameters are compatible with the webservice API
 ##' (see \url{https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help}).
 ##' Some options accepted by the API (e.g. output format) cannot be set when calling a webservice from within emuR,
-##' and will be overridden.
+##' and will be overridden. If file parameters are used please wrap the file path in \code{RCurl::fileUpload("/path/2/file/rules.nrul")}.
 ##' @param perspective the webApp perspective that the new level will be added to.
 ##' If NULL, the new level is not added to any perspectives.
 ##'

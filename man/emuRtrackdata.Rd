@@ -3,7 +3,8 @@
 \name{emuRtrackdata}
 \alias{emuRtrackdata}
 \title{emuR track data object}
-\format{The \code{\link{data.frame}} has the following columns:
+\format{
+The \code{\link{data.frame}} has the following columns:
 
 \describe{
   \item{$sl_rowIdx}{column to indicate \code{\link{emuRsegs}} row index that 
@@ -15,7 +16,8 @@
 }
 
 Note that $labels - $sampleRate as well as $T1 - $TN (where the N in TN is to be read as the n-th T value) 
-refer to multiple columns of the object.}
+refer to multiple columns of the object.
+}
 \description{
 A emuR track data object is the result of \code{\link{get_trackdata}} if the 
 \code{resultType} parameter is set to \code{"emuRtrackdata"} or the result of 

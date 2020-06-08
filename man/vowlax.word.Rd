@@ -4,7 +4,9 @@
 \name{vowlax.word}
 \alias{vowlax.word}
 \title{Vector of word labels from the segment list vowlax.}
-\format{vector of word labels}
+\format{
+vector of word labels
+}
 \description{
 An EMU dataset
 }

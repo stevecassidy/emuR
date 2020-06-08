@@ -4,7 +4,9 @@
 \name{bridge}
 \alias{bridge}
 \title{Three-columned matrix}
-\format{Three-columned matrix}
+\format{
+Three-columned matrix
+}
 \description{
 An EMU dataset
 }

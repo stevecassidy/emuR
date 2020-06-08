@@ -4,13 +4,15 @@
 \alias{segmentlist}
 \alias{emusegs}
 \title{Segment list}
-\format{multi-columned matrix one row per segment 
+\format{
+multi-columned matrix one row per segment 
 \itemize{ 
   \item columnlabel 
   \item columnsegment onset time 
   \item columnsegment offset time 
   \item columnutterance name 
-}}
+}
+}
 \description{
 A segment list is the result type of legacy Emu query.
 }

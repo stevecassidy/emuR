@@ -4,7 +4,9 @@
 \name{vowlax.fdat}
 \alias{vowlax.fdat}
 \title{Trackdata of formants from the segment list vowlax}
-\format{trackdata object}
+\format{
+trackdata object
+}
 \description{
 An EMU dataset
 }

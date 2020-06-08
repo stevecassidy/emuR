@@ -4,7 +4,9 @@
 \name{engassim.w}
 \alias{engassim.w}
 \title{Vector of word labels from the segment list engassim.}
-\format{vector of word labels}
+\format{
+vector of word labels
+}
 \description{
 An EMU dataset
 }

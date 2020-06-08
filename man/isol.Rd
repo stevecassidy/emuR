@@ -5,7 +5,9 @@
 \alias{isol}
 \title{Segment list of vowels in a d d context isolated word speech, one male
 speaker of Australian English from database isolated.}
-\format{segmentlist}
+\format{
+segmentlist
+}
 \description{
 An EMU dataset
 }

@@ -4,7 +4,9 @@
 \name{fric.w}
 \alias{fric.w}
 \title{Vector of word labels from the segment list fric.}
-\format{vector of word labels}
+\format{
+vector of word labels
+}
 \description{
 An EMU dataset
 }

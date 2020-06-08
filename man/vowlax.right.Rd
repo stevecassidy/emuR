@@ -4,7 +4,9 @@
 \name{vowlax.right}
 \alias{vowlax.right}
 \title{Vector of labels following the vowels from the segment list vowlax}
-\format{vector of phoenme labels}
+\format{
+vector of phoenme labels
+}
 \description{
 An EMU dataset
 }

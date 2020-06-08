@@ -4,7 +4,9 @@
 \name{dip.l}
 \alias{dip.l}
 \title{Vector of phoneme labels from the segment list dip}
-\format{vector of phoneme lables}
+\format{
+vector of phoneme lables
+}
 \description{
 An EMU dataset
 }

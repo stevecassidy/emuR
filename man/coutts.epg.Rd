@@ -4,7 +4,9 @@
 \name{coutts.epg}
 \alias{coutts.epg}
 \title{EPG-compressed trackdata from the segment list coutts}
-\format{segmentlist}
+\format{
+segmentlist
+}
 \description{
 An EMU dataset
 }
