@@ -1,4 +1,4 @@
-# emuR 2.0.4.9005
+# emuR 2.0.4.9006
 
 ## new features / performance tweaks / improvements
 
@@ -9,6 +9,7 @@
 - converting factors into characters in `get_trackdata()` and `normalize_length()` (closes \#224 and \#223) 
 - `add_perspective()` now sets `"restrictions"` -> `"showPerspectivesSidebar"` to `true` to make the side bar visible
 - `normalize_length()` now doesn't throw tibble 3.0.0 warnings any more
+- `query()` RegEx operators `=~` now using SQLites native support (wasn't available in earlier versions)
 
 ## bug fixes
 
