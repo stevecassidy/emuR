@@ -79,11 +79,11 @@ bas_run_maus_dbi <- function(handle,
     }
     
     queryTxt = paste0("[", canoAttributeDefinitionName, "=~.*\\S.*]")
-    cano_items = query(handle, queryTxt, calcTimes = F)
+    cano_items = suppressWarnings(query(handle, queryTxt, calcTimes = F))
     
     if (!is.null(chunkLevel))
     {
-      queryTxt = paste0("[", list_attributeDefinitions(handle, chunkLevel)[1, "name"], "=~.*]")
+      queryTxt = paste0("[", list_attributeDefinitions(handle, chunkLevel)[1, "name"], "=~ .*]")
       trn_items_tmp = query(handle, queryTxt, calcTimes = F)
       
       if (nrow(trn_items_tmp) > 0)
@@ -211,8 +211,8 @@ bas_run_maus_dbi <- function(handle,
         curlParams = list(
           LANGUAGE = language,
           OUTFORMAT = "par",
-          SIGNAL = RCurl::fileUpload(signalfile),
-          BPF = RCurl::fileUpload(kanfile)
+          SIGNAL = httr::upload_file(signalfile),
+          BPF = httr::upload_file(kanfile)
         )
         
         for (key in names(params))
@@ -391,7 +391,7 @@ bas_run_minni_dbi <- function(handle,
       curlParams = list(
         LANGUAGE = language,
         OUTFORMAT = "par",
-        SIGNAL = RCurl::fileUpload(signalfile)
+        SIGNAL = httr::upload_file(signalfile)
       )
       
       for (key in names(params))
@@ -537,7 +537,7 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
     }
     
     queryTxt = paste0("[", transcriptionAttributeDefinitionName, "=~.*\\S.*]")
-    transcription_items = query(handle, queryTxt, calcTimes = F)
+    transcription_items = suppressWarnings(query(handle, queryTxt, calcTimes = F))
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
@@ -590,7 +590,7 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
             lng = language,
             iform = "txt",
             oform = "bpfs",
-            i = RCurl::fileUpload(textfile)
+            i = httr::upload_file(textfile)
           )
           
           for (key in names(params))
@@ -719,7 +719,7 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
     }
     
     queryTxt = paste0("[", orthoAttributeDefinitionName, "=~.*\\S.*]")
-    ortho_items = query(handle, queryTxt, calcTimes = F)
+    ortho_items = suppressWarnings(query(handle, queryTxt, calcTimes = F))
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
@@ -774,7 +774,7 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
           lng = language,
           iform = "bpf",
           oform = "bpfs",
-          i = RCurl::fileUpload(orthofile)
+          i = httr::upload_file(orthofile)
         )
         
         for (key in names(params))
@@ -898,7 +898,7 @@ bas_run_chunker_dbi <- function(handle,
     }
     
     queryTxt = paste0("[", canoAttributeDefinitionName, "=~.*\\S.*]")
-    cano_items = query(handle, queryTxt, calcTimes = F)
+    cano_items = suppressWarnings(query(handle, queryTxt, calcTimes = F))
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
@@ -973,8 +973,8 @@ bas_run_chunker_dbi <- function(handle,
         
         curlParams = list(
           language = language,
-          audio = RCurl::fileUpload(signalfile),
-          bpf = RCurl::fileUpload(kanfile)
+          audio = httr::upload_file(signalfile),
+          bpf = httr::upload_file(kanfile)
         )
         
         for (key in names(params))
@@ -1133,7 +1133,7 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
     }
     
     queryTxt = paste0("[", canoAttributeDefinitionName, "=~.*\\S.*]")
-    cano_items = query(handle, queryTxt, calcTimes = F)
+    cano_items = suppressWarnings(query(handle, queryTxt, calcTimes = F))
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
@@ -1188,7 +1188,7 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
         
         curlParams = list(
           lng = language,
-          i = RCurl::fileUpload(kanfile),
+          i = httr::upload_file(kanfile),
           tier = "KAN",
           oform = "bpf"
         )
@@ -1422,17 +1422,17 @@ bas_run_pho2syl_segmental_dbi_anchored <- function(handle,
       utils::setTxtProgressBar(pb, progress)
     }
     
-    queryTxt = paste0("[", list_attributeDefinitions(handle, superLevel)[1, "name"], "=~.*]")
+    queryTxt = paste0("[", list_attributeDefinitions(handle, superLevel)[1, "name"], "=~ .*]")
     word_items = query(handle,
                        queryTxt,
                        calcTimes = T,
                        timeRefSegmentLevel = segmentLevel)
     
     queryTxt = paste0("[", segmentAttributeDefinitionName, "=~.*\\S.*]")
-    maus_items = query(handle,
+    maus_items = suppressWarnings(query(handle,
                        queryTxt,
                        calcTimes = T,
-                       timeRefSegmentLevel = segmentLevel)
+                       timeRefSegmentLevel = segmentLevel))
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
@@ -1533,7 +1533,7 @@ bas_run_pho2syl_segmental_dbi_anchored <- function(handle,
             lng = language,
             tier = "MAU",
             oform = "bpf",
-            i = RCurl::fileUpload(maufile)
+            i = httr::upload_file(maufile)
           )
           
           for (key in names(params))
@@ -1670,10 +1670,10 @@ bas_run_pho2syl_segmental_dbi_unanchored <- function(handle,
     }
     
     queryTxt = paste0("[", segmentAttributeDefinitionName, "=~.*\\S\\.*]")
-    maus_items = query(handle,
+    maus_items = suppressWarnings(query(handle,
                        queryTxt,
                        calcTimes = T,
-                       timeRefSegmentLevel = segmentLevel)
+                       timeRefSegmentLevel = segmentLevel))
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
@@ -1738,7 +1738,7 @@ bas_run_pho2syl_segmental_dbi_unanchored <- function(handle,
           lng = language,
           tier = "MAU",
           oform = "bpf",
-          i = RCurl::fileUpload(maufile)
+          i = httr::upload_file(maufile)
         )
         
         for (key in names(params))
@@ -1868,6 +1868,7 @@ bas_prepare <- function(handle, resume, verbose, func)
   }
   
   handle$connection <- DBI::dbConnect(RSQLite::SQLite(), tmpCache)
+  RSQLite::initRegExp(handle$connection)
   
   update_cache(handle, verbose = verbose)
   
@@ -2233,8 +2234,7 @@ bas_ping <- function(verbose)
     cat("INFO: Sending ping to webservices provider.\n")
   }
   
-  res = RCurl::getURL(url = "https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/getLoadIndicator",
-                      .opts = RCurl::curlOptions(connecttimeout = 10, timeout = 30, sslversion = 5L))
+  res = httr::GET(url = "https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/getLoadIndicator")
 }
 
 
@@ -2429,16 +2429,23 @@ set_attributeDescription <-
 bas_curl_inner <- function(service, params, file, session, bundle)
 {
   success = tryCatch({
-    res = RCurl::postForm(
-      paste0(
-        "https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/",
-        service
+    # res = RCurl::postForm(
+    #   paste0(
+    #     "https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/",
+    #     service
+    #   ),
+    #   .params = params,
+    #   style = "HTTPPOST",
+    #   .opts = RCurl::curlOptions(connecttimeout = 10, timeout = 10000)
+    # )
+    res = httr::POST(url = paste0(
+      "https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/",
+      service
       ),
-      .params = params,
-      style = "HTTPPOST",
-      .opts = RCurl::curlOptions(connecttimeout = 10, timeout = 10000)
-    )
-    lines = bas_download(res, file, session, bundle)
+      body = params
+      )
+    
+    lines = bas_download(httr::content(res, "text"), file, session, bundle)
     return(T)
   },
   error = function (cond)
@@ -2478,15 +2485,13 @@ bas_curl <- function(service, params, file, session, bundle, patience)
 bas_paste_description <-
   function(description, source, service, params)
   {
-    version = RCurl::getURL(
-      paste0(
-        "https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/runGetVersion?service=",
-        service
-      ),
-      .opts = RCurl::curlOptions(connecttimeout = 10, timeout = 30)
-    )
+
+    version_resp = httr::GET(url = paste0(
+      "https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/runGetVersion?service=",
+      service
+    ))
     
-    version = stringr::str_trim(version)
+    version = stringr::str_trim(httr::content(version_resp, "text"))
     
     if(nchar(version) == 0)
     {

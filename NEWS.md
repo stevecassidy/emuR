@@ -1,4 +1,4 @@
-# emuR 2.0.4.9006
+# emuR 2.0.4.9007
 
 ## new features / performance tweaks / improvements
 
@@ -10,6 +10,7 @@
 - `add_perspective()` now sets `"restrictions"` -> `"showPerspectivesSidebar"` to `true` to make the side bar visible
 - `normalize_length()` now doesn't throw tibble 3.0.0 warnings any more
 - `query()` RegEx operators `=~` now using SQLites native support (wasn't available in earlier versions)
+- replaced RCurl with httr dep
 
 ## bug fixes
 

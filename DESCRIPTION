@@ -23,7 +23,6 @@ Imports:
     grDevices,
     stringr,
     uuid,
-    RCurl,
     base64enc,
     shiny,
     wrassp (>= 0.1.4),
@@ -40,6 +39,7 @@ Imports:
     git2r(>= 0.23.0),
     mime(>= 0.6),
     rstudioapi(>= 0.10),
+    httr(>= 1.4.1),
     rlang
 Suggests: 
     ggplot2(>= 2.1.0),
