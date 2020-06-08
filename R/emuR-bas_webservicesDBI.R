@@ -2233,8 +2233,8 @@ bas_ping <- function(verbose)
     cat("INFO: Sending ping to webservices provider.\n")
   }
   
-  res = RCurl::getURL(url = "https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/help",
-                      .opts = RCurl::curlOptions(connecttimeout = 10, timeout = 30))
+  res = RCurl::getURL(url = "https://clarin.phonetik.uni-muenchen.de/BASWebServices/services/getLoadIndicator",
+                      .opts = RCurl::curlOptions(connecttimeout = 10, timeout = 30, sslversion = 5L))
 }
 
 
