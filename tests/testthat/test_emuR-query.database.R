@@ -33,6 +33,19 @@ test_that("Load example database ae", {
   expect_that(dbConfig[['name']],
               is_equivalent_to('ae'))
   
+  test_that("sessionPattern and bundlePattern work ",{
+    # sequence as seglist
+    sl1 = query(ae, "Phonetic == n", bundlePattern = "msajc003")
+    
+    expect_equal(unique(sl1$bundle), "msajc003")
+    
+    sl2 = query(ae, "Phonetic == n")
+    sl3 = query(ae, "Phonetic == n", sessionPattern = "0000")
+    
+    expect_true(all(sl2$bundle == sl3$bundle))
+    
+  })
+  
   test_that("Query labels",{
     # sequence as seglist
     sl1 = query(ae,"[Text == more -> Text == customers]",
@@ -600,3 +613,5 @@ test_that("Load example database ae", {
   ae = NULL
   unlink(.test_emu_ae_db_dir, recursive = T)
 })
+
+

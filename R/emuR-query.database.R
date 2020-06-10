@@ -404,15 +404,16 @@ query_labels <- function(emuDBhandle,
 query_databaseEqlFUNCQ <- function(emuDBhandle, 
                                    q, 
                                    intermResTableSuffix, 
+                                   sessionPattern, 
+                                   bundlePattern, 
                                    useSubsets, 
-                                   filteredTablesSuffix, 
                                    verbose){
   # EBNF: FUNCQ = POSQ | NUMQ;
   qTrim = stringr::str_trim(q)
   if(useSubsets){
     itemsTableName = "items_filtered_subset_tmp"
   }else{
-    itemsTableName = paste0("items", filteredTablesSuffix)
+    itemsTableName = "items"
   }
   
   
@@ -1090,8 +1091,9 @@ query_databaseEqlSQ <- function(emuDBhandle,
       query_databaseEqlFUNCQ(emuDBhandle, 
                              qTrim, 
                              intermResTableSuffix, 
+                             sessionPattern, 
+                             bundlePattern, 
                              useSubsets, 
-                             filteredTablesSuffix, 
                              verbose = verbose)
     }
   }else{
@@ -2349,7 +2351,8 @@ query_databaseWithEqlEmusegs <- function(emuDBhandle,
                  paste0("UPDATE interm_res_meta_infos_tmp_root SET query_str = '", query, "'"))
   emusegs = convert_queryResultToEmusegs(emuDBhandle, 
                                          timeRefSegmentLevel, 
-                                         filteredTablesSuffix, 
+                                         sessionPattern,
+                                         bundlePattern,
                                          calcTimes, 
                                          verbose)
   return(emusegs)
@@ -2381,7 +2384,8 @@ query_databaseWithEqlEmuRsegs <- function(emuDBhandle,
   # DBI::dbGetQuery(emuDBhandle$connection, paste0("UPDATE interm_res_meta_infos_tmp_root SET query_str = '", queryStr, "'"))
   emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, 
                                            timeRefSegmentLevel, 
-                                           filteredTablesSuffix, 
+                                           sessionPattern, 
+                                           bundlePattern, 
                                            queryStr = queryStr, 
                                            calcTimes = calcTimes, 
                                            verbose = verbose)
@@ -2481,67 +2485,9 @@ query <- function(emuDBhandle,
     # create temp tables 
     drop_allTmpTablesDBI(emuDBhandle)
     create_tmpFilteredQueryTablesDBI(emuDBhandle)
-    # precheck if sessionPattern & bundlePattern are not set
-    if(sessionPattern == '.*' && bundlePattern == '.*'){
-      # simply use original tables (no "_filtered_tmp suffix")
-      filteredTablesSuffix = ""
-    }else{
-      # extract all items for session/bundlePattern matching regex
-      queryItems <- DBI::dbGetQuery(emuDBhandle$connection, 
-                                    paste0("SELECT * FROM items ",
-                                           "WHERE db_uuid = '", emuDBhandle$UUID, "'",
-                                           " AND session REGEXP '", sessionPattern, "'",
-                                           " AND bundle REGEXP '", bundlePattern, "'"
-                                           ))
-      queryLabels <- DBI::dbGetQuery(emuDBhandle$connection, 
-                                     paste0("SELECT * FROM labels WHERE db_uuid='", emuDBhandle$UUID, "'",
-                                            " AND session REGEXP '", sessionPattern, "'",
-                                            " AND bundle REGEXP '", bundlePattern, "'"
-                                            ))
-      queryLinks <- DBI::dbGetQuery(emuDBhandle$connection, 
-                                    paste0("SELECT * FROM links WHERE db_uuid='", emuDBhandle$UUID,"'",
-                                           " AND session REGEXP '", sessionPattern, "'",
-                                           " AND bundle REGEXP '", bundlePattern, "'"
-                                           ))
-      
-      # if set get logical vectors that match sessionPattern and bundlePattern
-      if(!is.null(sessionPattern) && sessionPattern!='.*'){
-        sesSelIts = emuR_regexprl(sessionPattern, queryItems$session)
-        sesSelLbls = emuR_regexprl(sessionPattern, queryLabels$session)
-        sesSelLks = emuR_regexprl(sessionPattern, queryLinks$session)
-      }else{
-        sesSelIts = rep(TRUE, nrow(queryItems))
-        sesSelLbls = rep(TRUE, nrow(queryLabels))
-        sesSelLks = rep(TRUE, nrow(queryLinks))
-      }
-      if(!is.null(bundlePattern) && bundlePattern!='.*'){
-        bndlSelIts = emuR_regexprl(bundlePattern, queryItems$bundle)
-        bndlSelLbls = emuR_regexprl(bundlePattern, queryLabels$bundle)
-        bndlSelLks = emuR_regexprl(bundlePattern, queryLinks$bundle)
-      }else{
-        bndlSelIts = rep(TRUE, nrow(queryItems))
-        bndlSelLbls = rep(TRUE, nrow(queryLabels))
-        bndlSelLks = rep(TRUE, nrow(queryLinks))
-      }
-      # write to tmp tables
-      DBI::dbWriteTable(emuDBhandle$connection, 
-                        "items_filtered_tmp", 
-                        queryItems[sesSelIts & bndlSelIts, ], 
-                        append = TRUE, 
-                        row.names = FALSE)
-      DBI::dbWriteTable(emuDBhandle$connection, 
-                        "labels_filtered_tmp", 
-                        queryLabels[sesSelLbls & bndlSelLbls, ], 
-                        append = TRUE, 
-                        row.names = FALSE)
-      DBI::dbWriteTable(emuDBhandle$connection, 
-                        "links_filtered_tmp", 
-                        queryLinks[sesSelLks & bndlSelLks, ], 
-                        append = TRUE, 
-                        row.names = FALSE)
-      
-      filteredTablesSuffix = "_filtered_tmp"
-    }
+    
+    filteredTablesSuffix = ""
+
     if(is.null(resultType)){
       emuRsegs = query_databaseWithEqlEmuRsegs(emuDBhandle,
                                                query,

@@ -38,11 +38,19 @@ convert_queryEmuRsegsToTibble <- function(emuDBhandle, emuRsegs){
   
 }
 
-convert_queryResultToEmusegs<-function(emuDBhandle, timeRefSegmentLevel=NULL, filteredTablesSuffix, calcTimes = T, verbose){
+convert_queryResultToEmusegs<-function(emuDBhandle, 
+                                       timeRefSegmentLevel=NULL, 
+                                       sessionPattern,
+                                       bundlePattern,
+                                       calcTimes = T, 
+                                       verbose){
+  
   queryStr = DBI::dbGetQuery(emuDBhandle$connection, "SELECT query_str FROM interm_res_meta_infos_tmp_root")$query_str
+  
   emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, 
                                            timeRefSegmentLevel, 
-                                           filteredTablesSuffix, 
+                                           sessionPattern,
+                                           bundlePattern,
                                            queryStr = queryStr, 
                                            calcTimes = calcTimes, 
                                            verbose = verbose)
@@ -54,14 +62,15 @@ convert_queryResultToEmusegs<-function(emuDBhandle, timeRefSegmentLevel=NULL, fi
 #
 convert_queryResultToEmuRsegs <- function(emuDBhandle, 
                                           timeRefSegmentLevel=NULL, 
-                                          filteredTablesSuffix, 
+                                          sessionPattern = ".*",
+                                          bundlePattern = ".*",
                                           queryStr = "", 
                                           calcTimes = TRUE, 
                                           preserveAnchorLength = FALSE, # only set T by requery_hier
                                           verbose){
   
-  itemsTableName = paste0("items", filteredTablesSuffix)
-  labelsTableName = paste0("labels", filteredTablesSuffix)
+  itemsTableName = "items"
+  labelsTableName ="labels"
   projectionItemsN = 0 
   if(DBI::dbExistsTable(emuDBhandle$connection, "interm_res_proj_items_tmp_root")){
     projectionItemsN = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT COUNT(*) AS n ",
@@ -310,7 +319,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
                          secondLevelName = attrDefLn, 
                          leftTableSuffix = timeItemsTableSuffix, 
                          rightTableSuffix = "root", 
-                         filteredTablesSuffix, 
+                         filteredTablesSuffix = "", 
                          minMaxSeqIdxLeafOnly = F, # remove this parameter from function?
                          preserveLeafLength = F,
                          preserveAnchorLength = preserveAnchorLength,
