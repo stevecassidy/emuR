@@ -526,7 +526,7 @@ query_databaseEqlFUNCQ <- function(emuDBhandle,
                          secondLevelName = level2, 
                          leftTableSuffix = level1ItemsTableSuffix, 
                          rightTableSuffix = level2ItemsTableSuffix, 
-                         filteredTablesSuffix = filteredTablesSuffix, 
+                         filteredTablesSuffix = "", 
                          verbose = verbose) # result written to lr_exp_res_tmp table
       
       
