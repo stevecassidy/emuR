@@ -491,9 +491,12 @@ query_databaseEqlFUNCQ <- function(emuDBhandle,
                                                     " level, ",
                                                     " item_id AS seq_start_seq_idx, ",
                                                     " item_id AS seq_end_seq_idx ",
-                                                    "FROM items", filteredTablesSuffix, " ",
+                                                    "FROM items ",
                                                     "WHERE db_uuid ='", emuDBhandle$UUID, "' ",
-                                                    " AND level = '", level1, "'"))
+                                                    " AND level = '", level1, "'",
+                                                    " AND items.session REGEXP '", sessionPattern, "' ",
+                                                    " AND items.bundle REGEXP '", bundlePattern, "' ",
+                                                    ""))
       
       # place all level2 items into temp table
       level2ItemsTableSuffix = "funcq_level2_items"
@@ -509,9 +512,12 @@ query_databaseEqlFUNCQ <- function(emuDBhandle,
                                                     " level, ",
                                                     " item_id AS seq_start_seq_idx, ",
                                                     " item_id AS seq_end_seq_idx ",
-                                                    "FROM items", filteredTablesSuffix, " ",
+                                                    "FROM items ",
                                                     "WHERE db_uuid ='", emuDBhandle$UUID, "' ",
-                                                    " AND level = '", level2, "'"))
+                                                    " AND level = '", level2, "'",
+                                                    " AND items.session REGEXP '", sessionPattern, "' ",
+                                                    " AND items.bundle REGEXP '", bundlePattern, "' ",
+                                                    ""))
       
       
       
