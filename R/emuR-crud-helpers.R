@@ -207,8 +207,7 @@ get_labelIndex = function(emuDBhandle,
 ## of the sequence.
 ## 
 ## @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
-## 
-## @importFrom rlang .data
+##
 rewrite_allSequenceIndexes = function (emuDBhandle) {
   allItems = DBI::dbReadTable(emuDBhandle$connection, "items_annot_crud_tmp")
   
@@ -222,7 +221,6 @@ rewrite_allSequenceIndexes = function (emuDBhandle) {
 ## @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ## @param itemsOnLevel Data frame describing all items on a particular level.
 ## 
-## @importFrom rlang .data
 rewrite_sequenceIndexesOneLevel = function (emuDBhandle,
                                             itemsOnLevel) {
   # Sort items by their current sequence_index

@@ -526,7 +526,8 @@ query_databaseEqlFUNCQ <- function(emuDBhandle,
                          secondLevelName = level2, 
                          leftTableSuffix = level1ItemsTableSuffix, 
                          rightTableSuffix = level2ItemsTableSuffix, 
-                         filteredTablesSuffix = "", 
+                         sessionPattern = sessionPattern, 
+                         bundlePattern = bundlePattern,
                          verbose = verbose) # result written to lr_exp_res_tmp table
       
       
@@ -882,8 +883,7 @@ query_databaseEqlLABELQ <- function(emuDBhandle,
                                     sessionPattern, 
                                     bundlePattern, 
                                     useSubsets, 
-                                    intermResTableSuffix, 
-                                    filteredTablesSuffix){
+                                    intermResTableSuffix){
   # EBNF: LABELQ = ['#'],LEVEL,("=" | "==" | "!=" | "=~" | "!~"),LABELALTERNATIVES;
   
   qTrim = stringr::str_trim(q)
@@ -1065,8 +1065,7 @@ query_databaseEqlSQ <- function(emuDBhandle,
                                 sessionPattern, 
                                 bundlePattern, 
                                 intermResTableSuffix, 
-                                useSubsets, 
-                                filteredTablesSuffix, 
+                                useSubsets,
                                 verbose){
   # EBNF: SQ = LABELQ | FUNCQ;
   qTrim = stringr::str_trim(q)
@@ -1109,8 +1108,7 @@ query_databaseEqlSQ <- function(emuDBhandle,
                             sessionPattern, 
                             bundlePattern, 
                             useSubsets, 
-                            intermResTableSuffix = intermResTableSuffix, 
-                            filteredTablesSuffix)
+                            intermResTableSuffix = intermResTableSuffix)
   }
 }
 
@@ -1118,8 +1116,7 @@ query_databaseEqlCONJQ <- function(emuDBhandle,
                                    q,
                                    sessionPattern, 
                                    bundlePattern, 
-                                   intermResTableSuffix, 
-                                   filteredTablesSuffix, 
+                                   intermResTableSuffix,
                                    verbose){
   # EBNF: CONJQ = SQ,{'&',SQ};
   qTrim = stringr::str_trim(q)
@@ -1164,8 +1161,7 @@ query_databaseEqlCONJQ <- function(emuDBhandle,
                         sessionPattern, 
                         bundlePattern, 
                         intermResTableSuffix, 
-                        useSubsets = useSubsets, 
-                        filteredTablesSuffix, 
+                        useSubsets = useSubsets,
                         verbose = verbose)
     # set resultLevel of first term
     if(is.null(resultLevel)){
@@ -1189,21 +1185,27 @@ query_databaseEqlCONJQ <- function(emuDBhandle,
       # Proceed with items matching current condition by placeing them into subset tabels
       DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO items_filtered_subset_tmp ",
                                                     "SELECT DISTINCT i.* ",
-                                                    "FROM items", filteredTablesSuffix, " i, ", 
+                                                    "FROM items AS i, ", 
                                                     " interm_res_items_tmp_", intermResTableSuffix, " imr ",
                                                     "WHERE i.db_uuid = imr.db_uuid ",
                                                     " AND i.session = imr.session ",
                                                     " AND i.bundle = imr.bundle ",
-                                                    " AND i.item_id = imr.seq_start_id"))
+                                                    " AND i.item_id = imr.seq_start_id ",
+                                                    " AND i.session REGEXP '", sessionPattern, "' ",
+                                                    " AND i.bundle REGEXP '", bundlePattern, "' ",
+                                                    ""))
       
       DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO labels_filtered_subset_tmp ",
                                                     "SELECT DISTINCT l.* ",
-                                                    "FROM labels", filteredTablesSuffix, " l, ",
+                                                    "FROM labels AS l, ",
                                                     " interm_res_items_tmp_", intermResTableSuffix, " imr ",
                                                     "WHERE l.db_uuid = imr.db_uuid ",
                                                     " AND l.session = imr.session ",
                                                     " AND l.bundle = imr.bundle ",
-                                                    " AND l.item_id = imr.seq_start_id"))
+                                                    " AND l.item_id = imr.seq_start_id ",
+                                                    " AND l.session REGEXP '", sessionPattern, "' ",
+                                                    " AND l.bundle REGEXP '", bundlePattern, "' ",
+                                                    ""))
       
       useSubsets = TRUE
       
@@ -1266,7 +1268,8 @@ query_databaseHier <- function(emuDBhandle,
                                secondLevelName, 
                                leftTableSuffix, 
                                rightTableSuffix, 
-                               filteredTablesSuffix, 
+                               sessionPattern, 
+                               bundlePattern, 
                                minMaxSeqIdxLeafOnly = F, 
                                preserveLeafLength = F,
                                preserveAnchorLength = F,
@@ -1438,8 +1441,8 @@ query_databaseHier <- function(emuDBhandle,
                                                       " lstn.seq_start_seq_idx AS seq_start_seq_idx, ",
                                                       " lstn.seq_end_seq_idx AS seq_end_seq_idx ",
                                                       "FROM ", leafSideTableName, " AS lstn, ",
-                                                      " links", filteredTablesSuffix, " AS lft, ",
-                                                      " items", filteredTablesSuffix, " AS ift ",
+                                                      " links AS lft, ",
+                                                      " items AS ift ",
                                                       "WHERE lstn.db_uuid = lft.db_uuid ",
                                                       " AND lstn.session = lft.session ",
                                                       " AND lstn.bundle = lft.bundle ",
@@ -1448,6 +1451,8 @@ query_databaseHier <- function(emuDBhandle,
                                                       " AND lft.session = ift.session ",
                                                       " AND lft.bundle = ift.bundle ",
                                                       " AND lft.from_id = ift.item_id",
+                                                      " AND lft.session REGEXP '", sessionPattern, "' ",
+                                                      " AND lft.bundle REGEXP '", bundlePattern, "' ",
                                                       ""))
         
         # walk up right side of trapeze
@@ -1472,8 +1477,8 @@ query_databaseHier <- function(emuDBhandle,
                                                       " lstn.seq_start_seq_idx AS seq_start_seq_idx, ",
                                                       " lstn.seq_end_seq_idx AS seq_end_seq_idx  ",
                                                       "FROM ", leafSideTableName, " AS lstn, ",
-                                                      " links", filteredTablesSuffix, " AS lft, ",
-                                                      " items", filteredTablesSuffix, " AS ift ",
+                                                      " links AS lft, ",
+                                                      " items AS ift ",
                                                       "WHERE lstn.db_uuid = lft.db_uuid ",
                                                       " AND lstn.session = lft.session ",
                                                       " AND lstn.bundle = lft.bundle ",
@@ -1482,6 +1487,8 @@ query_databaseHier <- function(emuDBhandle,
                                                       " AND lft.session = ift.session ",
                                                       " AND lft.bundle = ift.bundle ",
                                                       " AND lft.from_id = ift.item_id",
+                                                      " AND lft.session REGEXP '", sessionPattern, "' ",
+                                                      " AND lft.bundle REGEXP '", bundlePattern, "' ",
                                                       ""))
         
         if(minMaxSeqIdxLeafOnly){
@@ -1511,8 +1518,8 @@ query_databaseHier <- function(emuDBhandle,
                                                                         " hltirt.seq_start_seq_idx_leaf, ",
                                                                         " hltirt.seq_end_seq_idx_leaf ",
                                                                         "FROM hier_left_trapeze_interm_res_tmp AS hltirt, ",
-                                                                        " links", filteredTablesSuffix, " AS lft, ",
-                                                                        " items", filteredTablesSuffix, " AS ift ",
+                                                                        " links AS lft, ",
+                                                                        " items AS ift ",
                                                                         "WHERE hltirt.db_uuid = lft.db_uuid ",
                                                                         " AND hltirt.session = lft.session ",
                                                                         " AND hltirt.bundle = lft.bundle ",
@@ -1521,6 +1528,8 @@ query_databaseHier <- function(emuDBhandle,
                                                                         " AND lft.session = ift.session ",
                                                                         " AND lft.bundle = ift.bundle ",
                                                                         " AND lft.from_id = ift.item_id", 
+                                                                        " AND lft.session REGEXP '", sessionPattern, "' ",
+                                                                        " AND lft.bundle REGEXP '", bundlePattern, "' ",
                                                                         ""))
         
         # walk up right side of trapeze
@@ -1544,8 +1553,8 @@ query_databaseHier <- function(emuDBhandle,
                                                                          " hrtirt.seq_start_seq_idx_leaf, ",
                                                                          " hrtirt.seq_end_seq_idx_leaf ",
                                                                          "FROM hier_right_trapeze_interm_res_tmp AS hrtirt, ",
-                                                                         " links", filteredTablesSuffix, " AS lft, ",
-                                                                         " items", filteredTablesSuffix, " AS ift ",
+                                                                         " links AS lft, ",
+                                                                         " items AS ift ",
                                                                          "WHERE hrtirt.db_uuid = lft.db_uuid ",
                                                                          " AND hrtirt.session = lft.session ",
                                                                          " AND hrtirt.bundle = lft.bundle ",
@@ -1554,6 +1563,8 @@ query_databaseHier <- function(emuDBhandle,
                                                                          " AND lft.session = ift.session ",
                                                                          " AND lft.bundle = ift.bundle ",
                                                                          " AND lft.from_id = ift.item_id ",
+                                                                         " AND lft.session REGEXP '", sessionPattern, "' ",
+                                                                         " AND lft.bundle REGEXP '", bundlePattern, "' ",
                                                                          ""))
         
         DBI::dbExecute(emuDBhandle$connection, "DELETE FROM hier_left_trapeze_interm_res_tmp")
@@ -1611,8 +1622,9 @@ query_databaseHier <- function(emuDBhandle,
           DBI::dbExecute(emuDBhandle$connection, paste0("UPDATE lr_exp_res_tmp ",
                                                         "SET r_seq_len = (",
                                                         "SELECT ift2.seq_idx - ift1.seq_idx + 1 ",
-                                                        "FROM lr_exp_res_tmp, items", filteredTablesSuffix, " AS ift1, ",
-                                                        " items", filteredTablesSuffix, " AS ift2 ",
+                                                        "FROM lr_exp_res_tmp, ",
+                                                        " items AS ift1, ",
+                                                        " items AS ift2 ",
                                                         "WHERE lr_exp_res_tmp.db_uuid = ift1.db_uuid ",
                                                         " AND lr_exp_res_tmp.session = ift1.session ",
                                                         " AND lr_exp_res_tmp.bundle = ift1.bundle ",
@@ -1621,6 +1633,8 @@ query_databaseHier <- function(emuDBhandle,
                                                         " AND lr_exp_res_tmp.session = ift2.session ",
                                                         " AND lr_exp_res_tmp.bundle = ift2.bundle ",
                                                         " AND lr_exp_res_tmp.l_seq_end_id = ift2.item_id ",
+                                                        " AND ift1.session REGEXP '", sessionPattern, "' ",
+                                                        " AND ift1.bundle REGEXP '", bundlePattern, "' ",
                                                         ")"))
           
         }else{
@@ -1658,8 +1672,9 @@ query_databaseHier <- function(emuDBhandle,
           DBI::dbExecute(emuDBhandle$connection, paste0("UPDATE lr_exp_res_tmp ",
                                                         "SET l_seq_len = (",
                                                         "SELECT ift2.seq_idx - ift1.seq_idx + 1 ",
-                                                        "FROM lr_exp_res_tmp, items", filteredTablesSuffix, " AS ift1, ",
-                                                        " items", filteredTablesSuffix, " AS ift2 ",
+                                                        "FROM lr_exp_res_tmp, ",
+                                                        " items AS ift1, ",
+                                                        " items AS ift2 ",
                                                         "WHERE lr_exp_res_tmp.db_uuid = ift1.db_uuid ",
                                                         " AND lr_exp_res_tmp.session = ift1.session ",
                                                         " AND lr_exp_res_tmp.bundle = ift1.bundle ",
@@ -1668,6 +1683,8 @@ query_databaseHier <- function(emuDBhandle,
                                                         " AND lr_exp_res_tmp.session = ift2.session ",
                                                         " AND lr_exp_res_tmp.bundle = ift2.bundle ",
                                                         " AND lr_exp_res_tmp.l_seq_end_id = ift2.item_id ",
+                                                        " AND ift1.session REGEXP '", sessionPattern, "' ",
+                                                        " AND ift1.bundle REGEXP '", bundlePattern, "' ",
                                                         ")"))
         }
         
@@ -1857,8 +1874,7 @@ query_databaseEqlInBracket<-function(emuDBhandle,
                                      sessionPattern, 
                                      bundlePattern, 
                                      intermResTableSuffix, 
-                                     leftRightTableNrCounter = 0, 
-                                     filteredTablesSuffix, 
+                                     leftRightTableNrCounter = 0,
                                      verbose){
   parseRes = list()
   qTrim = stringr::str_trim(q)
@@ -1890,8 +1906,7 @@ query_databaseEqlInBracket<-function(emuDBhandle,
                           sessionPattern, 
                           bundlePattern, 
                           intermResTableSuffix = leftTableSuffix, 
-                          leftRightTableNrCounter, 
-                          filteredTablesSuffix, 
+                          leftRightTableNrCounter,
                           verbose)
     query_databaseWithEql(emuDBhandle, 
                           right, 
@@ -1899,7 +1914,6 @@ query_databaseEqlInBracket<-function(emuDBhandle,
                           bundlePattern, 
                           intermResTableSuffix = rightTableSuffix, 
                           leftRightTableNrCounter + 1, 
-                          filteredTablesSuffix, 
                           verbose)
     
     # check if left or right side results are empty -> clear tabels and return
@@ -1961,7 +1975,9 @@ query_databaseEqlInBracket<-function(emuDBhandle,
       # parse DOMQ
       # query the result level of left term
       nLinks = DBI::dbGetQuery(emuDBhandle$connection, 
-                               paste0("SELECT COUNT(*) AS n FROM links", filteredTablesSuffix))$n
+                               paste0("SELECT COUNT(*) AS n FROM links", 
+                                      " WHERE links.session REGEXP '", sessionPattern, "' ",
+                                      " AND links.bundle REGEXP '", bundlePattern, "' "))$n
       if(nLinks == 0){
         clear_intermResTabels(emuDBhandle, leftTableSuffix)
         clear_intermResTabels(emuDBhandle, rightTableSuffix)
@@ -1973,7 +1989,8 @@ query_databaseEqlInBracket<-function(emuDBhandle,
                          rResLvl, 
                          leftTableSuffix, 
                          rightTableSuffix, 
-                         filteredTablesSuffix, 
+                         sessionPattern = sessionPattern, 
+                         bundlePattern = bundlePattern,
                          verbose = verbose) # result written to lr_exp_res_tmp
       
       nLrExpRes = DBI::dbGetQuery(emuDBhandle$connection, 
@@ -2098,8 +2115,8 @@ query_databaseEqlInBracket<-function(emuDBhandle,
                              " rid.seq_end_seq_idx AS r_seq_end_seq_idx ",
                              "FROM interm_res_items_tmp_", leftTableSuffix, " AS lid, ",
                              " interm_res_items_tmp_", rightTableSuffix, " AS rid, ",
-                             " items", filteredTablesSuffix, " AS il, ",
-                             " items", filteredTablesSuffix, " AS ir ",
+                             " items AS il, ",
+                             " items AS ir ",
                              "WHERE il.db_uuid = ir.db_uuid ",
                              " AND il.session=ir.session ",
                              " AND il.bundle=ir.bundle ",
@@ -2113,6 +2130,8 @@ query_databaseEqlInBracket<-function(emuDBhandle,
                              " AND ir.item_id = rid.seq_start_id ",
                              " AND il.level = ir.level ",
                              " AND ir.seq_idx = il.seq_idx + 1 ",
+                             " AND il.session REGEXP '", sessionPattern, "' ",
+                             " AND il.bundle REGEXP '", bundlePattern, "' ",
                              "")
       
       
@@ -2271,8 +2290,7 @@ query_databaseEqlInBracket<-function(emuDBhandle,
                           sessionPattern, 
                           bundlePattern, 
                           intermResTableSuffix, 
-                          leftRightTableNrCounter, 
-                          filteredTablesSuffix, 
+                          leftRightTableNrCounter,
                           verbose = verbose)
   }
 }
@@ -2284,7 +2302,6 @@ query_databaseWithEql <- function(emuDBhandle,
                                   bundlePattern, 
                                   intermResTableSuffix, 
                                   leftRightTableNrCounter, 
-                                  filteredTablesSuffix, 
                                   verbose){
   parseRes = list()
   qTrim = stringr::str_trim(query)
@@ -2294,8 +2311,7 @@ query_databaseWithEql <- function(emuDBhandle,
                            qTrim, 
                            sessionPattern, 
                            bundlePattern, 
-                           intermResTableSuffix = intermResTableSuffix, 
-                           filteredTablesSuffix, 
+                           intermResTableSuffix = intermResTableSuffix,
                            verbose)
     return()
   }else{
@@ -2323,7 +2339,6 @@ query_databaseWithEql <- function(emuDBhandle,
                                bundlePattern, 
                                intermResTableSuffix, 
                                leftRightTableNrCounter, 
-                               filteredTablesSuffix, 
                                verbose = verbose)
     return()
     
@@ -2337,7 +2352,6 @@ query_databaseWithEqlEmusegs <- function(emuDBhandle,
                                          sessionPattern, 
                                          bundlePattern, 
                                          timeRefSegmentLevel, 
-                                         filteredTablesSuffix, 
                                          calcTimes, 
                                          verbose){
   # create "root" intermediate result tables
@@ -2349,7 +2363,6 @@ query_databaseWithEqlEmusegs <- function(emuDBhandle,
                         bundlePattern, 
                         intermResTableSuffix = "root", 
                         leftRightTableNrCounter = 0, 
-                        filteredTablesSuffix, 
                         verbose)
   # escape singel quotes
   query = gsub("'", "''", query)
@@ -2371,7 +2384,6 @@ query_databaseWithEqlEmuRsegs <- function(emuDBhandle,
                                           sessionPattern, 
                                           bundlePattern, 
                                           timeRefSegmentLevel, 
-                                          filteredTablesSuffix, 
                                           calcTimes, 
                                           verbose){
   # create "root" intermediate result tables
@@ -2383,7 +2395,6 @@ query_databaseWithEqlEmuRsegs <- function(emuDBhandle,
                         bundlePattern, 
                         intermResTableSuffix = "root", 
                         leftRightTableNrCounter = 0, 
-                        filteredTablesSuffix, 
                         verbose = verbose)
   # escape single quotes
   queryStr = gsub("'", "''", query)
@@ -2492,15 +2503,12 @@ query <- function(emuDBhandle,
     drop_allTmpTablesDBI(emuDBhandle)
     create_tmpFilteredQueryTablesDBI(emuDBhandle)
     
-    filteredTablesSuffix = ""
-
     if(is.null(resultType)){
       emuRsegs = query_databaseWithEqlEmuRsegs(emuDBhandle,
                                                query,
                                                sessionPattern, 
                                                bundlePattern, 
                                                timeRefSegmentLevel, 
-                                               filteredTablesSuffix, 
                                                calcTimes, 
                                                verbose = verbose)
       drop_allTmpTablesDBI(emuDBhandle)
@@ -2512,7 +2520,6 @@ query <- function(emuDBhandle,
                                                  sessionPattern, 
                                                  bundlePattern, 
                                                  timeRefSegmentLevel, 
-                                                 filteredTablesSuffix, 
                                                  calcTimes, 
                                                  verbose)
         drop_allTmpTablesDBI(emuDBhandle)
@@ -2528,7 +2535,6 @@ query <- function(emuDBhandle,
                                             sessionPattern, 
                                             bundlePattern, 
                                             timeRefSegmentLevel, 
-                                            filteredTablesSuffix, 
                                             calcTimes, 
                                             verbose))
       }else if(resultType == 'tibble'){
@@ -2537,7 +2543,6 @@ query <- function(emuDBhandle,
                                                  sessionPattern, 
                                                  bundlePattern, 
                                                  timeRefSegmentLevel, 
-                                                 filteredTablesSuffix, 
                                                  calcTimes, 
                                                  verbose)
         res_tibble = convert_queryEmuRsegsToTibble(emuDBhandle, emuRsegs)
