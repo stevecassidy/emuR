@@ -362,6 +362,10 @@
   # for all palatograms in p; a white
   # square means that it was always off.
   
+  if (!requireNamespace("grDevices", quietly = TRUE)){
+    stop("'grDevices' package required to run 'grDevices::gray()'")
+  }
+  
   if(!inherits(epgdata, "EPG")) p <- palate(epgdata)
   else p <- epgdata
   # in case there is only one palate

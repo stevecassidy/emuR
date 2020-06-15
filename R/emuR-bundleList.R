@@ -31,6 +31,7 @@ read_bundleList <- function(emuDBhandle,
 ##' @param bundleList tibble/data.frame with the columns \code{session}, \code{name}, 
 ##' \code{comment} (optional), \code{finishedEditing} (optional). Use \link{list_bundles}
 ##' @export
+##' @importFrom rlang .data
 write_bundleList <- function(emuDBhandle, 
                              name, 
                              bundleList){

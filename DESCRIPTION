@@ -16,10 +16,9 @@ VignetteBuilder: knitr
 Imports: 
     tools,
     utils,
-    stats,
-    methods,
     graphics,
-    grDevices,
+    methods,
+    rlang,
     stringr (>= 1.4.0),
     uuid,
     base64enc,
@@ -37,10 +36,11 @@ Imports:
     mime(>= 0.6),
     rstudioapi(>= 0.10),
     httr(>= 1.4.1),
-    git2r,
-    rlang,
-    MASS
+    git2r(>= 0.27.1),
 Suggests: 
+    stats,
+    grDevices,
+    MASS,
     ggplot2(>= 2.1.0),
     testthat(>= 0.7.1.99),
     compare(>= 0.2.4),

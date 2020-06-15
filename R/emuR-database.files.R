@@ -264,6 +264,7 @@ add_files <- function(emuDBhandle,
 ##' @param bundlePattern A (RegEx) pattern matching bundles to be searched from the database
 ##' @return file paths as character vector
 ##' @export
+##' @importFrom rlang .data
 ##' @keywords emuDB database schema Emu 
 ##' @examples 
 ##' \dontrun{

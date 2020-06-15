@@ -22,6 +22,7 @@
 ##' @param verbose display infos & show progress bar
 ##' @export
 ##' @import tools
+##' @importFrom rlang .data
 ##' @return NULL
 ##' @examples 
 ##' \dontrun{

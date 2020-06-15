@@ -1,5 +1,3 @@
-library(stats)
-
 ##' Find the inter-euclidean distance for a data matrix
 ##' 
 ##' Finds the inter-euclidean distance for a data matrix
@@ -27,9 +25,12 @@ library(stats)
   ## It  makes use of the Splus program dist
   ## m and n are the columns of data over which the euclidean
   ## distances are to be calculated (defaults to all the columns)
+  if (!requireNamespace("stats", quietly = TRUE)){
+    stop("'stats' package required to run 'stats::dist()'")
+  }
   data <- data[, m:n]
   lengths <- nrow(data)
   downstep <- seq((lengths - 1), 2, -1)
   values <- c(1, 1 + cumsum(downstep))
-  dist(data)[values]
+  stats::dist(data)[values]
 }

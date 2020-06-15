@@ -63,6 +63,7 @@
 ##' @param verbose if set to \code{TRUE}, more status messages are printed
 ##' 
 ##' @export
+##' @importFrom rlang .data
 create_itemsInLevel = function(emuDBhandle,
                                itemsToCreate,
                                rewriteAllAnnots = TRUE,
@@ -139,8 +140,8 @@ create_itemsInLevel = function(emuDBhandle,
     
     ## Make sure all sequence indexes are unique within their respective level/attribute pair.
     itemsToCreate %>%
-      dplyr::group_by(rlang::.data$session, rlang::.data$bundle, rlang::.data$level, rlang::.data$attribute) %>%
-      dplyr::do(ensureSequenceIndexesAreUnique(rlang::.data))
+      dplyr::group_by(.data$session, .data$bundle, .data$level, .data$attribute) %>%
+      dplyr::do(ensureSequenceIndexesAreUnique(.data))
     
     ## check for conflicting seq index
     in_both = dplyr::inner_join(itemsToCreate, 
@@ -217,16 +218,16 @@ create_itemsInLevel = function(emuDBhandle,
     )
     
     items_sorted = items_to_sort %>% 
-      dplyr::group_by(rlang::.data$session, rlang::.data$bundle, rlang::.data$level) %>% 
-      dplyr::arrange(rlang::.data$sample_point, .by_group = T) %>%
+      dplyr::group_by(.data$session, .data$bundle, .data$level) %>% 
+      dplyr::arrange(.data$sample_point, .by_group = T) %>%
       dplyr::mutate(start_item_seq_idx = dplyr::row_number())
     
     itemsToCreate = items_sorted %>% 
-      dplyr::filter(rlang::.data$item_from == "itemsToCreate") %>% 
+      dplyr::filter(.data$item_from == "itemsToCreate") %>% 
       dplyr::ungroup()
     
     itemsToUpdate = items_sorted %>% 
-      dplyr::filter(rlang::.data$item_from == "items_exist_in_levels") %>% 
+      dplyr::filter(.data$item_from == "items_exist_in_levels") %>% 
       dplyr::ungroup()
     
     
@@ -302,12 +303,12 @@ create_itemsInLevel = function(emuDBhandle,
   ## and proceed separately for each of them
   ##
   itemsToCreate %>%
-    dplyr::group_by(rlang::.data$session, 
-                    rlang::.data$bundle, 
-                    rlang::.data$level, 
-                    rlang::.data$start_item_seq_idx) %>%
+    dplyr::group_by(.data$session, 
+                    .data$bundle, 
+                    .data$level, 
+                    .data$start_item_seq_idx) %>%
     dplyr::do(insertItemIntoDatabase(emuDBhandle, 
-                                     rlang::.data, 
+                                     .data, 
                                      levelDefinition$type))
   
   

@@ -11,6 +11,7 @@
 - `normalize_length()` now doesn't throw tibble 3.0.0 warnings any more
 - `query()` RegEx operators `=~` now using SQLites native support (wasn't available in earlier versions)
 - replaced RCurl with httr dep
+- moved some dependencies to `Suggests` field in DESCRIPTION file
 
 ## bug fixes
 
