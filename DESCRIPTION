@@ -12,7 +12,6 @@ Description: Provides the next iteration of the EMU Speech
 License: GPL (>= 2)
 Depends: 
     R (>= 3.2.0)
-VignetteBuilder: knitr
 Imports: 
     tools,
     utils,
