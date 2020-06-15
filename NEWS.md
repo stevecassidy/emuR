@@ -12,6 +12,7 @@
 - `query()` RegEx operators `=~` now using SQLites native support (wasn't available in earlier versions)
 - replaced RCurl with httr dep
 - moved some dependencies to `Suggests` field in DESCRIPTION file
+- removed vignette stubs
 
 ## bug fixes
 
