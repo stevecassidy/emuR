@@ -55,8 +55,7 @@
 ##' \dontrun{xlim = range(vowlax.fdat.5[temp,1])}
 ##' \dontrun{ylim = range(vowlax.fdat.5[temp,2])}
 ##' \dontrun{classplot(fm.svm, xlim=xlim, ylim=ylim, xlab="F1", ylab="F2", main="SVM")}          
-##' 
-##' @import MASS
+##'
 ##' @export classplot
 `classplot` <- function(model, xlim, ylim, N = 100,  
                         pch=15, col=NULL, legend=TRUE, 

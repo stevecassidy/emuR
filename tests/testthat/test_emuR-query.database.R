@@ -390,7 +390,7 @@ test_that("Load example database ae", {
     expect_equal(attributes(sl)$query, qs)
     sl = query(ae, "[Phonetic == m]")
     expect_equal(nrow(sl), 7)
-    expect_equal(attr(sl, "query"), "[Phonetic == m]")
+    expect_equal(attr(sl, "query"), NULL)
     sl = query(ae, "[Phonetic == m | n]")
     expect_equal(nrow(sl), 19)
     sl = query(ae, "[Phonetic != m | n]")
@@ -555,7 +555,7 @@ test_that("Load example database ae", {
     qs = "[Text =~ .* ^ #Tone == L* | L+H*]"
     sl = query(ae, qs)
     expect_equal(nrow(sl), 2)
-    expect_equal(attr(sl, "query"), qs)
+    expect_equal(attr(sl, "query"), NULL) # used to be qs but not with tibble
     sl = query(ae, 
                "[Tone =~.* ^ [End(Word, Syllable) == 1 ^ Num(Word, Syllable) == 2]]")
     expect_equal(nrow(sl), 1)
