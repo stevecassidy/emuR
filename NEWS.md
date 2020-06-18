@@ -1,3 +1,12 @@
+# emuR 2.1.0.9000
+
+## new features / performance tweaks / improvements
+
+## bug fixes
+
+- implemented first version of `delete_itemsInLevel()`
+  
+
 # emuR 2.1.0
 
 ## new features / performance tweaks / improvements

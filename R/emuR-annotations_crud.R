@@ -486,17 +486,18 @@ update_itemsInLevel = function (emuDBhandle,
 
 
 
-##' Delete new items programmatically
+##' Delete items programmatically
 ##' 
 ##' @description Allows to delete annotation items programmatically.
 ##' 
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param itemsToDelete A data frame with the columns
 ##' \itemize{
-##' \item\code{session},
-##' \item\code{bundle},
-##' \item\code{level}, and
-##' \item\code{sequenceIndex}.
+##' \item \code{session},
+##' \item \code{bundle},
+##' \item \code{level},
+##' \item \code{start_item_seq_idx} (\code{start_item_seq_idx} is used instead of e.g.
+##' \code{seq_idx} so that the result of a \code{\link{query}} call can be used directly.
 ##' }
 ##' *None* of the columns should be factors.
 ##' \code{sequenceIndex} must be numeric (natural-valued), all other columns must
@@ -509,12 +510,113 @@ delete_itemsInLevel = function (emuDBhandle,
                                 itemsToDelete,
                                 rewriteAllAnnots = TRUE,
                                 verbose = TRUE) {
-  stop("Not implemented yet!")
-  print(itemsToDelete)
   
-  ##
-  ## ...
-  ##
+  input_key <- readline(prompt = "Currently no checks are performed so use at own risk! Do you wish to continue anyway (y/N)?")
+  if(input_key != "y") return()
+  
+  if(any((itemsToDelete$end_item_id - itemsToDelete$end_item_id) != 0)){
+    stop("itemsToDelete contains sequences (itemsToDelete$end_item_id - itemsToDelete$end_item_id != 0)")
+  }
+  
+  #########################
+  # items
+  
+  statement = DBI::dbSendStatement(
+    emuDBhandle$connection,
+    paste0("DELETE FROM items ",
+           "WHERE db_uuid = ? ",
+           " AND session = ? ",
+           " AND bundle = ? ",
+           " and item_id = ?"))
+  
+  DBI::dbBind(
+    statement,
+    list(
+      rep(emuDBhandle$UUID, nrow(itemsToDelete)),
+      itemsToDelete$session,
+      itemsToDelete$bundle,
+      itemsToDelete$start_item_seq_idx
+    )
+  )
+  
+  
+  rowsAffected = DBI::dbGetRowsAffected(statement)
+  DBI::dbClearResult(statement)
+
+  #########################
+  # labels
+  
+  statement = DBI::dbSendStatement(
+    emuDBhandle$connection,
+    paste0("DELETE FROM labels ",
+           "WHERE db_uuid = ? ",
+           " AND session = ? ",
+           " AND bundle = ? ",
+           " and item_id = ?"))
+  
+  DBI::dbBind(
+    statement,
+    list(
+      rep(emuDBhandle$UUID, nrow(itemsToDelete)),
+      itemsToDelete$session,
+      itemsToDelete$bundle,
+      itemsToDelete$start_item_seq_idx
+    )
+  )
+  
+  
+  rowsAffected = DBI::dbGetRowsAffected(statement)
+  DBI::dbClearResult(statement)
+  
+  #########################
+  # links from
+  
+  statement = DBI::dbSendStatement(
+    emuDBhandle$connection,
+    paste0("DELETE FROM links ",
+           "WHERE db_uuid = ? ",
+           " AND session = ? ",
+           " AND bundle = ? ",
+           " and from_id = ?"))
+  
+  DBI::dbBind(
+    statement,
+    list(
+      rep(emuDBhandle$UUID, nrow(itemsToDelete)),
+      itemsToDelete$session,
+      itemsToDelete$bundle,
+      itemsToDelete$start_item_seq_idx
+    )
+  )
+  
+  
+  rowsAffected = DBI::dbGetRowsAffected(statement)
+  DBI::dbClearResult(statement)
+  
+  #########################
+  # links to
+  
+  statement = DBI::dbSendStatement(
+    emuDBhandle$connection,
+    paste0("DELETE FROM links ",
+           "WHERE db_uuid = ? ",
+           " AND session = ? ",
+           " AND bundle = ? ",
+           " and to_id = ?"))
+  
+  DBI::dbBind(
+    statement,
+    list(
+      rep(emuDBhandle$UUID, nrow(itemsToDelete)),
+      itemsToDelete$session,
+      itemsToDelete$bundle,
+      itemsToDelete$start_item_seq_idx
+    )
+  )
+  
+  
+  rowsAffected = DBI::dbGetRowsAffected(statement)
+  DBI::dbClearResult(statement)
   
   if (rewriteAllAnnots) {
     rewrite_annots(emuDBhandle, 

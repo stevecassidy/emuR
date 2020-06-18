@@ -173,7 +173,7 @@ bas_run_maus_dbi <- function(handle,
             # suppress differing length warning
             linked_trn_items = suppressWarnings(requery_hier(
               handle,
-              linked_kan_items,
+              linked_kan_items %>% tidyr::drop_na(labels),
               chunkLevel,
               calcTimes = T,
               collapse = T

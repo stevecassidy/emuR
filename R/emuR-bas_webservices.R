@@ -271,7 +271,6 @@ runBASwebservice_maus <- function(handle,
                                   verbose = TRUE)
 {
   check_emuDBhandle(handle)
-  
   func = "maus"
   oldBasePath = handle$basePath
   handle = bas_prepare(handle, resume, verbose, func)

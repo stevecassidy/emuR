@@ -2,7 +2,7 @@
 % Please edit documentation in R/emuR-annotations_crud.R
 \name{delete_itemsInLevel}
 \alias{delete_itemsInLevel}
-\title{Delete new items programmatically}
+\title{Delete items programmatically}
 \usage{
 delete_itemsInLevel(
   emuDBhandle,
@@ -16,10 +16,11 @@ delete_itemsInLevel(
 
 \item{itemsToDelete}{A data frame with the columns
 \itemize{
-\item\code{session},
-\item\code{bundle},
-\item\code{level}, and
-\item\code{sequenceIndex}.
+\item \code{session},
+\item \code{bundle},
+\item \code{level},
+\item \code{start_item_seq_idx} (\code{start_item_seq_idx} is used instead of e.g.
+\code{seq_idx} so that the result of a \code{\link{query}} call can be used directly.
 }
 *None* of the columns should be factors.
 \code{sequenceIndex} must be numeric (natural-valued), all other columns must
