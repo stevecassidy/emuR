@@ -331,7 +331,7 @@ query_labels <- function(emuDBhandle,
     
   }else if(opr == '=~'){
     for(value in values){
-      if(value == ".*" || stringr::str_starts(value, "\\^")){
+      if(value == ".*" || value == ".+" || stringr::str_starts(value, "\\^")){
       }else{
         warning(paste0("=~ now requires ^ if you wish to match the\n", 
                        "first character in a sequence i.e. 'a.*' now also matches\n",
