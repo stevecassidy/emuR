@@ -57,6 +57,17 @@ test_that("Requery sequential",{
   expect_that('[.data.frame'(sl1w2, 1, 'start_item_id'), equals(61))
   expect_that('[.data.frame'(sl1w2, 1, 'end_item_id'), equals(61))
   
+  sl1 = query(ae, "Text == her")
+  rsl1 = requery_seq(ae, sl1, offset = 1)
+  expect_equal(rsl1$labels, "friends")
+  expect_equal(rsl1$attribute, "Text")
+  
+  sl1 = query(ae, "Text == her")
+  rsl1 = requery_seq(ae, sl1, offset = 1, offsetRef = "END")
+  expect_equal(rsl1$labels, "friends")
+  expect_equal(rsl1$attribute, "Text")
+  
+  
 })
 
 test_that("Requery sequential produces correct NA rows",{

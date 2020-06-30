@@ -1,11 +1,11 @@
-# emuR 2.1.0.9000
+# emuR 2.1.0.9001
 
 ## new features / performance tweaks / improvements
 
 ## bug fixes
 
 - implemented first version of `delete_itemsInLevel()`
-  
+- `requery_seq()` now returns correct attribute label vs. the level attribute
 
 # emuR 2.1.0
 
