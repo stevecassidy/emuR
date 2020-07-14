@@ -1073,7 +1073,7 @@ load_emuDB <- function(databaseDir,
     }
   }
 
-  
+
   # check if cache exist -> update cache if true
   dbsDf = get_emuDbDBI(dbHandle)
   if(nrow(dbsDf)>0){
@@ -1085,7 +1085,6 @@ load_emuDB <- function(databaseDir,
   
   # write to DBI emuDB table
   add_emuDbDBI(dbHandle)
-  
   
   # list sessions & bundles
   sessions = list_sessions(dbHandle)

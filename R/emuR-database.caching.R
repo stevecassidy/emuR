@@ -34,6 +34,7 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
     cat("INFO: Checking if cache needs update for", nrow(sessions), "sessions ")
   }
   
+  
   # handle session
   sesDelta_new = dplyr::anti_join(sessions, notUpdatedSessionDBI, by = "name")
   sesDelta_toDelete = dplyr::anti_join(notUpdatedSessionDBI, sessions, by = "name")
@@ -57,6 +58,14 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
     cat("and", nrow(bundles), "bundles ...\n")
   }
   
+  # delete all entries in all tables that don't have the uuid of the emuDB (happens by on delete cascade)
+  numberOfRowsAffected = DBI::dbExecute(emuDBhandle$connection, 
+                                        paste0("DELETE FROM emu_db WHERE uuid != '", emuDBhandle$UUID, "'"))
+  if(numberOfRowsAffected != 0){
+    cat(paste0("INFO: Found and deleted ",
+               numberOfRowsAffected, 
+               " elements in emuDBcache of emuDB with other UUID \n"))
+  }
   
   # calculate all md5sums
   allAnnotFps = file.path(emuDBhandle$basePath, 
