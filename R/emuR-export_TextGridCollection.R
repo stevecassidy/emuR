@@ -92,6 +92,8 @@ export_TextGridCollection <- function(emuDBhandle,
                paste0(allAttrNames[i], "=~ .*"), 
                resultType = "emuRsegs", # still uses old emuRsegs obj
                timeRefSegmentLevel = timeRefSegmentLevel,
+               sessionPattern = sessionPattern,
+               bundlePattern = bundlePattern,
                verbose = FALSE)
     slAll = dplyr::bind_rows(slAll, sl)
   }
@@ -149,6 +151,9 @@ export_TextGridCollection <- function(emuDBhandle,
     for(attrNameIdx in 1:length(allAttrNames)){
       
       slTier = slBndl[slBndl$level == allAttrNames[attrNameIdx],]
+      if(allAttrNames[attrNameIdx] =="MAS"){
+        browser()
+      }
       
       emptyRow = data.frame(labels = "", 
                             start = -1, 
@@ -278,6 +283,7 @@ export_TextGridCollection <- function(emuDBhandle,
                               paste0("            mark = \"", slTier$labels, "\" "))))
         
       }
+      browser()
       write(tierItems, tgPath, append=TRUE)
     }
     
