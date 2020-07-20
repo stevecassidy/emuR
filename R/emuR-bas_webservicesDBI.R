@@ -2503,6 +2503,12 @@ bas_paste_description <-
     {
       description = paste0(description, "from '", source, "' ")
     }
+    
+    if(!is.null(params$RULESET)){
+      # fix dual entry in RULESET which is caused by file
+      # file upload
+      params$RULESET = params$RULESET$path
+    }
     description =
       paste0(
         description,
