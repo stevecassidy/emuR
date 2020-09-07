@@ -105,6 +105,7 @@ convert_TextGridCollection <- function(dir, dbName,
   
   
   # loop through fpl
+  DBI::dbBegin(dbHandle$connection)
   for(i in 1:dim(fpl)[1]){
     
     # create session name
@@ -211,6 +212,7 @@ convert_TextGridCollection <- function(dir, dbName,
     }
     
   }
+  DBI::dbCommit(dbHandle$connection)
   
   if(verbose){
     cat('\n') # hack to have newline after pb

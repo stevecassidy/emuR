@@ -266,6 +266,57 @@ get_MD5annotJsonDBI <- function(emuDBhandle, sessionName, name){
 ####################################
 # items, links, labels DBI functions
 
+create_insertStatements <- function(emuDBhandle){
+  storeItemsStatement <- DBI::dbSendStatement(
+    emuDBhandle$connection,
+    paste0("INSERT INTO items (",
+           " db_uuid, ",
+           " session, ",
+           " bundle, ",
+           " item_id, ",
+           " level, ",
+           " type, ",
+           " seq_idx, ",
+           " sample_rate, ",
+           " sample_point, ",
+           " sample_start, ",
+           " sample_dur) ",
+           "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"))
+  
+  DBI::dbClearResult(storeItemsStatement)
+  
+  storeLabelsStatement <- DBI::dbSendStatement(
+    emuDBhandle$connection,
+    paste0("INSERT INTO labels (",
+           " db_uuid, ",
+           " session, ",
+           " bundle, ",
+           " item_id, ",
+           " label_idx, ",
+           " name, ",
+           " label) ",
+           "VALUES (?, ?, ?, ?, ?, ?, ?)"))
+  
+  DBI::dbClearResult(storeLabelsStatement)
+  
+  storeLinksStatement <- DBI::dbSendStatement(
+    emuDBhandle$connection,
+    paste0("INSERT INTO links (",
+           " db_uuid, ",
+           " session, ",
+           " bundle, ",
+           " from_id, ",
+           " to_id, ",
+           " label) ",
+           "VALUES (?, ?, ?, ?, ?, ?)"))
+  
+  DBI::dbClearResult(storeLinksStatement)
+  
+  return(list(storeItemsStatement = storeItemsStatement, 
+              storeLabelsStatement = storeLabelsStatement, 
+              storeLinksStatement = storeLinksStatement))
+}
+
 store_bundleAnnotDFsDBI <- function(emuDBhandle, 
                                     bundleAnnotDFs, 
                                     sessionName, 
@@ -276,13 +327,55 @@ store_bundleAnnotDFsDBI <- function(emuDBhandle,
     bundleAnnotDFs$items = data.frame(db_uuid = emuDBhandle$UUID, 
                                       session = sessionName,
                                       bundle = bundleName,
-                                      bundleAnnotDFs$items)
+                                      bundleAnnotDFs$items, 
+                                      stringsAsFactors = F)
+    # 
+    # DBI::dbWriteTable(emuDBhandle$connection,
+    #                   "items",
+    #                   bundleAnnotDFs$items,
+    #                   append = T,
+    #                   row.names = F)
     
-    DBI::dbWriteTable(emuDBhandle$connection, 
-                      "items", 
-                      bundleAnnotDFs$items, 
-                      append = T, 
-                      row.names = F)
+    # DBI::dbAppendTable(emuDBhandle$connection,
+    #                    "items",
+    #                    bundleAnnotDFs$items)
+    
+    
+    storeItemsStatement <- DBI::dbSendStatement(
+      emuDBhandle$connection,
+      paste0("INSERT INTO items (",
+             " db_uuid, ",
+             " session, ",
+             " bundle, ",
+             " item_id, ",
+             " level, ",
+             " type, ",
+             " seq_idx, ",
+             " sample_rate, ",
+             " sample_point, ",
+             " sample_start, ",
+             " sample_dur) ",
+             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"))
+
+    DBI::dbBind(
+      storeItemsStatement,
+      list(
+        bundleAnnotDFs$items$db_uuid,
+        bundleAnnotDFs$items$session,
+        bundleAnnotDFs$items$bundle,
+        bundleAnnotDFs$items$item_id,
+        bundleAnnotDFs$items$level,
+        bundleAnnotDFs$items$type,
+        bundleAnnotDFs$items$seq_idx,
+        bundleAnnotDFs$items$sample_rate,
+        bundleAnnotDFs$items$sample_point,
+        bundleAnnotDFs$items$sample_start,
+        bundleAnnotDFs$items$sample_dur
+      )
+    )
+
+    DBI::dbClearResult(storeItemsStatement)
+    
   }
   
   # insert labels table entries (fist exanding it with db_uuid, session and bundle columns)
@@ -290,13 +383,45 @@ store_bundleAnnotDFsDBI <- function(emuDBhandle,
     bundleAnnotDFs$labels =  data.frame(db_uuid = emuDBhandle$UUID, 
                                         session = sessionName,
                                         bundle = bundleName,
-                                        bundleAnnotDFs$labels)
+                                        bundleAnnotDFs$labels,
+                                        stringsAsFactors = F)
     
-    DBI::dbWriteTable(emuDBhandle$connection, 
-                      "labels", 
-                      bundleAnnotDFs$labels, 
-                      append = T, 
-                      row.names = F)
+    # DBI::dbWriteTable(emuDBhandle$connection,
+    #                   "labels",
+    #                   bundleAnnotDFs$labels,
+    #                   append = T,
+    #                   row.names = F)
+    
+    # DBI::dbAppendTable(emuDBhandle$connection,
+    #                    "labels",
+    #                    bundleAnnotDFs$labels)
+    
+    storeLabelsStatement <- DBI::dbSendStatement(
+      emuDBhandle$connection,
+      paste0("INSERT INTO labels (",
+             " db_uuid, ",
+             " session, ",
+             " bundle, ",
+             " item_id, ",
+             " label_idx, ",
+             " name, ",
+             " label) ",
+             "VALUES (?, ?, ?, ?, ?, ?, ?)"))
+
+    DBI::dbBind(
+      storeLabelsStatement,
+      list(
+        bundleAnnotDFs$labels$db_uuid,
+        bundleAnnotDFs$labels$session,
+        bundleAnnotDFs$labels$bundle,
+        bundleAnnotDFs$labels$item_id,
+        bundleAnnotDFs$labels$label_idx,
+        bundleAnnotDFs$labels$name,
+        bundleAnnotDFs$labels$label
+      )
+    )
+
+    DBI::dbClearResult(storeLabelsStatement)
   }
   
   # insert links table entries (fist exanding it with db_uuid, session and bundle columns)
@@ -305,13 +430,43 @@ store_bundleAnnotDFsDBI <- function(emuDBhandle,
                                        session = sessionName,
                                        bundle = bundleName,
                                        bundleAnnotDFs$links,
-                                       label = NA)
+                                       label = NA,
+                                       stringsAsFactors = F)
     
-    DBI::dbWriteTable(emuDBhandle$connection, 
-                      "links", 
-                      bundleAnnotDFs$links, 
-                      append = T, 
-                      row.names = F)
+    # DBI::dbWriteTable(emuDBhandle$connection,
+    #                   "links",
+    #                   bundleAnnotDFs$links,
+    #                   append = T,
+    #                   row.names = F)
+    
+    # DBI::dbAppendTable(emuDBhandle$connection,
+    #                    "links",
+    #                    bundleAnnotDFs$links)
+
+    storeLinksStatement <- DBI::dbSendStatement(
+      emuDBhandle$connection,
+      paste0("INSERT INTO links (",
+             " db_uuid, ",
+             " session, ",
+             " bundle, ",
+             " from_id, ",
+             " to_id, ",
+             " label) ",
+             "VALUES (?, ?, ?, ?, ?, ?)"))
+
+    DBI::dbBind(
+      storeLinksStatement,
+      list(
+        bundleAnnotDFs$links$db_uuid,
+        bundleAnnotDFs$links$session,
+        bundleAnnotDFs$links$bundle,
+        bundleAnnotDFs$links$from_id,
+        bundleAnnotDFs$links$to_id,
+        bundleAnnotDFs$links$label
+      )
+    )
+
+    DBI::dbClearResult(storeLinksStatement)
   }
 }
 
@@ -666,7 +821,7 @@ rename_bundles <- function(emuDBhandle, bundles){
   )
   
   DBI::dbClearResult(statement)
-
+  
   # rename bundle dirs  
   old_bundle_paths = file.path(emuDBhandle$basePath,
                                paste0(bundles$session, session.suffix),
@@ -1072,8 +1227,8 @@ load_emuDB <- function(databaseDir,
                              connection = connection)
     }
   }
-
-
+  
+  
   # check if cache exist -> update cache if true
   dbsDf = get_emuDbDBI(dbHandle)
   if(nrow(dbsDf)>0){
@@ -1108,6 +1263,7 @@ load_emuDB <- function(databaseDir,
     }
     
     # bundles
+    DBI::dbBegin(dbHandle$connection)
     for(bndlIdx in 1:nrow(bundles)){
       bndl = bundles[bndlIdx,]
       # check if session has to be added to DBI
@@ -1150,6 +1306,7 @@ load_emuDB <- function(databaseDir,
       }
       
     }
+    DBI::dbCommit(dbHandle$connection)
     if(verbose){
       cat("\n")
     }

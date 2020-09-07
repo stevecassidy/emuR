@@ -126,6 +126,7 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
   }
   # add
   if(nrow(bndlsDelta_load) > 0){
+    DBI::dbBegin(emuDBhandle$connection)
     for(bndlIdx in 1:nrow(bndlsDelta_load)){
       
       bndl = bndlsDelta_load[bndlIdx,]
@@ -154,9 +155,14 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
                     bundleAnnotDFs$sampleRate, 
                     newMD5annotJSON)
       # and remove bundleAnnotDBI
-      remove_bundleAnnotDBI(emuDBhandle, bndl$session, bndl$name)
+      remove_bundleAnnotDBI(emuDBhandle, 
+                            bndl$session, 
+                            bndl$name)
       # add to items, links, labels tables
-      store_bundleAnnotDFsDBI(emuDBhandle, bundleAnnotDFs, bndl$session, bndl$name)
+      store_bundleAnnotDFsDBI(emuDBhandle, 
+                              bundleAnnotDFs, 
+                              bndl$session, 
+                              bndl$name)
       
       # increase progress bar  
       progress=progress+1L
@@ -164,6 +170,7 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
         utils::setTxtProgressBar(pb,progress)
       }
     }
+    DBI::dbCommit(emuDBhandle$connection)
   }
   
   # delete
