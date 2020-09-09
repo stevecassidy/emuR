@@ -637,15 +637,15 @@ rename_emuDB <- function(databaseDir, newName){
   if(file.exists(cachePath_old)){ # because it doesn't have to exist if it hasn't been created yet
     file.rename(cachePath_old, 
                 cachePath_new)
+  
+  
+    con <- DBI::dbConnect(RSQLite::SQLite(), cachePath_new)
+    DBI::dbExecute(con, paste0("UPDATE emu_db ",
+                               "SET name = '", newName, "' ",
+                               "WHERE uuid = '", dbConfig$UUID, "'"))
+    DBI::dbDisconnect(con)
+    con = NULL # delete -> disconnect
   }
-  
-  con <- DBI::dbConnect(RSQLite::SQLite(), cachePath_new)
-  DBI::dbExecute(con, paste0("UPDATE emu_db ",
-                             "SET name = '", newName, "' ",
-                             "WHERE uuid = '", dbConfig$UUID, "'"))
-  DBI::dbDisconnect(con)
-  con = NULL # delete -> disconnect
-  
   ############################
   # handle _emuDB folder
   databaseDir_new = file.path(stringr::str_replace_all(normalizePath(databaseDir), 

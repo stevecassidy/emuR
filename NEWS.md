@@ -10,6 +10,7 @@
 - `requery_seq()` now returns correct attribute label vs. the level attribute
 - fixed `In rbind(names(params), unlist(params, recursive = F)): number of columns of result is not a multiple of vector length (arg 1)` warning in `runBASwebservice_maus()` with `httr::upload_file()`
 - added missing `()` to `return` statement
+- no emuDBcache needed for `rename_emuDB()`
 
 # emuR 2.1.0
 
