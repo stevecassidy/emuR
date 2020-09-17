@@ -91,7 +91,7 @@ create_emuRtrackdata <- function(sl, td){
   
   if(!all(emuRsegsNames %in% names(td))){
     stop(paste0("Not all emuRsegs columns are present in emuRtrackdata object, ",
-                "hence it is not an emuRtrackdata oject!"))
+                "hence it is not an emuRtrackdata object!"))
   }
   
   # check if all time columns are present
