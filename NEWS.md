@@ -1,8 +1,9 @@
-# emuR 2.1.0.9002
+# emuR 2.1.1
 
 ## new features / performance tweaks / improvements
 
 - `load_emuDB()` performance bump due to SQLite transaction improvement + using prep. statements 
+- `create_itemsInLevel()` now supports items of type SEGMENT
 
 ## bug fixes
 

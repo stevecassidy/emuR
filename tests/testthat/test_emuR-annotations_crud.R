@@ -163,6 +163,60 @@ test_that("create_itemsInLevel in EVENT levels works as expected", {
   
 })
 
+test_that("create_itemsInLevel in SEGMENT levels works as expected", {
+  
+  # delete, copy and load
+  unlink(path2db, recursive = T)
+  file.copy(path2orig, 
+            path2testData, 
+            recursive = T)
+  ae = load_emuDB(path2db, 
+                  inMemoryCache = internalVars$testingVars$inMemoryCache, 
+                  verbose = F)
+  
+  sl = query(ae,
+             "Phonetic =~ .*",
+             resultType = "tibble")
+  
+  sl$labels = "new_labels"
+  # sl$sample_end = -1
+  
+  expect_error(create_itemsInLevel(ae, 
+                                   itemsToCreate = sl, 
+                                   verbose = F))
+  
+  # add new level
+  add_levelDefinition(ae, 
+                      name = "new_level", 
+                      type = "SEGMENT", 
+                      verbose = F)
+  
+  sl$level = "new_level"
+  sl$attribute = "new_level"
+  
+  create_itemsInLevel(ae, 
+                      itemsToCreate = sl, 
+                      verbose = F)
+  
+  
+  sl_new = query(ae,
+                 "new_level =~ .*",
+                 resultType = "tibble")
+  
+  # same nr of segs
+  expect_equal(nrow(sl), nrow(sl_new))
+  # same length of segs (not all coz last segment as long as )
+  expect_equal(sl[1:6,]$sample_start, sl_new[1:6,]$sample_start)
+  expect_equal(sl[1:6,]$sample_end, sl_new[1:6,]$sample_end)
+  
+  # set_levelCanvasesOrder(ae, "default", c("Phonetic", "Tone", "new_level"))
+  # serve(ae)
+  
+  # clean up
+  DBI::dbDisconnect(ae$connection)
+  ae = NULL
+  
+})
 
 test_that("update_itemsInLevel updates labels correctly", {
   
@@ -197,4 +251,3 @@ test_that("update_itemsInLevel updates labels correctly", {
   ae = NULL
   
 })
-

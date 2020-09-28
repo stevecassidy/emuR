@@ -44,7 +44,8 @@ level type either:
 \itemize{
 \item \code{sequence index (start_item_seq_idx)}: when level type = \code{ITEM}
 \item \code{start}: start time in ms * 1000 (see output of \link{query}) when level type = \code{EVENT}
-\item \code{start} and \code{end}: start and end time in ms * 1000 () when level type = \code{SEGMENT} (currently not yet supported!)
+\item \code{start}: start time in ms * 1000 () when level type = \code{SEGMENT} 
+(creates gapless segment groups where the last segment ends at the end of the audio file)
 } 
 .
 The \code{level} with its associated \code{attributes} determines how many
@@ -56,7 +57,7 @@ index is explained below.
 Within each bundle, there can be multiple annotation items on every level.
 Their order within the level is given by their sequence index. All *existing*
 items have a natural-valued sequence index and there are no gaps in the
-sequences (i.e. if a level contains n annotation items, they are indexed 1..n).
+sequences (i.e. if a level contains N annotation items, they are indexed 1..N).
 
 Any newly created item must be given a sequence index. The sequence index may
 be real-valued (it will automatically be replaced with a natural value). To
@@ -75,6 +76,4 @@ After creating the items, all sequence indexes (which may now be real-valued,
 natural-valued or NA) are sorted in ascending order and then replaced with
 the values 1..n, where n is the number of items on that level. While sorting,
 NA values are placed at the end.
-
-Currently it is not possible to insert items into levels of type SEGMENT.
 }

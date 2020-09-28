@@ -1,12 +1,12 @@
 Package: emuR
-Version: 2.1.0.9002
+Version: 2.1.1
 Title: Main Package of the EMU Speech Database Management System
 Authors@R: c(
     person("Raphael", "Winkelmann", , "raphael@phonetik.uni-muenchen.de", c("aut", "cre")),
     person("Klaus", "Jaensch", , "klausj@phonetik.uni-muenchen.de", c("aut", "ctb")),
     person("Steve", "Cassidy", , "steve.cassidy@mq.edu.au", c("aut", "ctb")),
     person("Jonathan", "Harrington", , "jmh@phonetik.uni-muenchen.de", c("aut", "ctb")))
-Description: Provides the next iteration of the EMU Speech 
+Description: An R package that provides the EMU Speech 
     Database Management System (EMU-SDMS) with database management, data 
     extraction, data preparation and data visualization facilities.
 License: GPL (>= 2)
@@ -49,6 +49,6 @@ Encoding: UTF-8
 LazyLoad: yes
 LazyData: yes
 ZipData: no
-URL: https://github.com/IPS-LMU/emuR
+URL: https://github.com/IPS-LMU/emuR, https://ips-lmu.github.io/The-EMU-SDMS-Manual/
 BugReports: https://github.com/IPS-LMU/emuR/issues
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1

@@ -8,7 +8,8 @@
 ##' \itemize{
 ##' \item \code{sequence index (start_item_seq_idx)}: when level type = \code{ITEM}
 ##' \item \code{start}: start time in ms * 1000 (see output of \link{query}) when level type = \code{EVENT}
-##' \item \code{start} and \code{end}: start and end time in ms * 1000 () when level type = \code{SEGMENT} (currently not yet supported!)
+##' \item \code{start}: start time in ms * 1000 () when level type = \code{SEGMENT} 
+##' (creates gapless segment groups where the last segment ends at the end of the audio file)
 ##' } 
 ##' .
 ##' The \code{level} with its associated \code{attributes} determines how many
@@ -20,7 +21,7 @@
 ##' Within each bundle, there can be multiple annotation items on every level.
 ##' Their order within the level is given by their sequence index. All *existing*
 ##' items have a natural-valued sequence index and there are no gaps in the
-##' sequences (i.e. if a level contains n annotation items, they are indexed 1..n).
+##' sequences (i.e. if a level contains N annotation items, they are indexed 1..N).
 ##' 
 ##' Any newly created item must be given a sequence index. The sequence index may
 ##' be real-valued (it will automatically be replaced with a natural value). To
@@ -40,7 +41,6 @@
 ##' the values 1..n, where n is the number of items on that level. While sorting,
 ##' NA values are placed at the end.
 ##' 
-##' Currently it is not possible to insert items into levels of type SEGMENT.
 ##'
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
 ##' @param itemsToCreate A data frame with the columns
@@ -83,8 +83,8 @@ create_itemsInLevel = function(emuDBhandle,
   ## check the level is of type ITEM or EVENT (SEGMENT to follow)
   levelDefinition = get_levelDefinition(emuDBhandle, levelName)
   if(is.null(levelDefinition)) stop("level '", levelName, "' doesn't exist!")
-  if (!(levelDefinition$type %in% c("ITEM", "EVENT"))) {
-    stop(paste0("The level:", levelName, " provided is not of type ITEM or EVENT"))
+  if (!(levelDefinition$type %in% c("ITEM", "EVENT", "SEGMENT"))) {
+    stop(paste0("The level:", levelName, " provided is not of type ITEM, EVENT or SEGMENT"))
   }
   
   ## check that all required columns are available
@@ -114,7 +114,6 @@ create_itemsInLevel = function(emuDBhandle,
   }else if(levelDefinition$type == "EVENT"){
     if(!is.numeric(itemsToCreate$start)) stop(paste0("Not all columns match the required type!"))
   }
-  
   # rename labels column to label to match labels SQL table column name
   colnames(itemsToCreate)[colnames(itemsToCreate)=="labels"] <- "label"
   
@@ -243,16 +242,52 @@ create_itemsInLevel = function(emuDBhandle,
                                    by = c("session", "bundle" = "name")) %>% 
       dplyr::select(dplyr::starts_with("sample_rate"))
     
-    sample_rate = dplyr::as_tibble(sample_rate) # incase it isn't already
+    sample_rate = dplyr::as_tibble(sample_rate) # in case it isn't already
     sample_rate = dplyr::pull(sample_rate[,ncol(sample_rate)]) # relevant when multiple sample_rate.x sample_rate.y cols are present
     
     
     # calc. sample_start & sample_dur
-    # TODO: fix the calculation (look at create_seglist code for time calc)
-    itemsToCreate$sample_start = round((itemsToCreate$start / 1000) * sample_rate)
-    itemsToCreate$sample_dur = round(((itemsToCreate$end - itemsToCreate$start) / 1000) * sample_rate)
+    itemsToCreate$sample_start = round((itemsToCreate$start / 1000 + 0.5 / sample_rate) * sample_rate)
+    # itemsToCreate$sample_dur = round(((itemsToCreate$end - itemsToCreate$start) / 1000) * sample_rate)
     
+    
+    itemsToCreate %>% 
+      dplyr::group_by(.data$session, .data$bundle, .data$level) %>% 
+      dplyr::arrange(.data$session, .data$bundle, .data$level, .data$sample_start, .group_by = T) %>% 
+      dplyr::mutate(sample_end = dplyr::lead(.data$sample_start) - 1) -> itemsToCreate
+    
+    # test if no duplicate sample_start values exists
+    itemsToCreate %>% 
+      dplyr::select(.data$session, .data$bundle, .data$level, .data$sample_start) %>%
+      dplyr::distinct() -> distinct_sample_start_rows
+    
+    if(nrow(distinct_sample_start_rows) != nrow(itemsToCreate)){
+      stop("Found duplicate sample_start values on same level")
     }
+    
+    # fix end times of last segments (set to length of wavs) 
+    # -> currently NA due to dplyr::lead not having a next value 4 them
+    last_items = itemsToCreate[is.na(itemsToCreate$sample_end),]
+    
+    wav_paths = file.path(emuDBhandle$basePath, 
+                          paste0(last_items$session, session.suffix),
+                          paste0(last_items$bundle, bundle.dir.suffix),
+                          paste0(last_items$bundle, ".wav"))
+    
+    itemsToCreate[is.na(itemsToCreate$sample_end),]$sample_end = sapply(wav_paths, FUN = function(wav_path){attr(wrassp::read.AsspDataObj(wav_paths), "endRecord")})
+    
+    # check if there are already any segments in bundles
+    
+    sl = query(emuDBhandle, 
+               query = paste0(unique(itemsToCreate$level), " =~ .* "), 
+               sessionPattern = paste0(unique(itemsToCreate$session), collapse = "|"),
+               bundlePattern = paste0(unique(itemsToCreate$bundle), collapse = "|"))
+    
+    if(nrow(sl) != 0){
+      stop("SEGMENT items already exist on the specified bundles & level. This is not permitted!")
+    }
+    
+  }
   
   ##
   ## Get the label index for each attribute (the label index marks the order of attributes within their level)
@@ -542,7 +577,7 @@ delete_itemsInLevel = function (emuDBhandle,
   
   rowsAffected = DBI::dbGetRowsAffected(statement)
   DBI::dbClearResult(statement)
-
+  
   #########################
   # labels
   

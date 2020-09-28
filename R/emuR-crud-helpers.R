@@ -43,7 +43,9 @@ insertItemIntoDatabase = function(emuDBhandle,
   
   # set sample_point, sample_start and sample_dur values based on levelType
   if(levelType == "SEGMENT"){
-    stop("Not implemented yet!")
+    samplePoint = NA
+    sampleStart = itemToInsert$sample_start[1]
+    sampleDur = itemToInsert$sample_end[1] - itemToInsert$sample_start[1]
   }else if(levelType == "EVENT"){
     samplePoint = itemToInsert$sample_point[1]
     sampleStart = NA
