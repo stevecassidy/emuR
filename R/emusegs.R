@@ -524,7 +524,7 @@ summary.emusegs <- function(object, ...)
 
 
 
-##' Duration of segments
+##' Duration of segments (NOTE: does not work for new default resultType = "tibble" of \code{query()})
 ##' 
 ##' duration of segments is calculated for each segment in the segment list
 ##' 

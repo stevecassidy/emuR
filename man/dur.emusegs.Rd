@@ -2,7 +2,7 @@
 % Please edit documentation in R/emusegs.R
 \name{dur.emusegs}
 \alias{dur.emusegs}
-\title{Duration of segments}
+\title{Duration of segments (NOTE: does not work for new default resultType = "tibble" of \code{query()})}
 \usage{
 \method{dur}{emusegs}(x)
 }

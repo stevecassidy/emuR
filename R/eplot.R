@@ -1,7 +1,9 @@
-##' Plot ellipses for two-dimensional data
+##' Plot ellipses for two-dimensional data (DEPRECATED see below)
 ##' 
 ##' The function plots ellipses for different categories from two-dimensional
-##' data.
+##' data. DEPRECATED as this function does not play well with with the new 
+##' resultType = "tibble" of \code{get_trackdata()}. See \url{https://ips-lmu.github.io/The-EMU-SDMS-Manual/recipe-plottingSnippets.html}
+##' for an alternative plotting routines using ggplot2.
 ##' 
 ##' 
 ##' @param x A two-columned matrix of data

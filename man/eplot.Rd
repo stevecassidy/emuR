@@ -2,7 +2,7 @@
 % Please edit documentation in R/eplot.R
 \name{eplot}
 \alias{eplot}
-\title{Plot ellipses for two-dimensional data}
+\title{Plot ellipses for two-dimensional data (DEPRECATED see below)}
 \usage{
 eplot(
   x,
@@ -79,7 +79,9 @@ default is NULL in which case all lines are drawn with lwd=1}
 }
 \description{
 The function plots ellipses for different categories from two-dimensional
-data.
+data. DEPRECATED as this function does not play well with with the new 
+resultType = "tibble" of \code{get_trackdata()}. See \url{https://ips-lmu.github.io/The-EMU-SDMS-Manual/recipe-plottingSnippets.html}
+for an alternative plotting routines using ggplot2.
 }
 \examples{
 

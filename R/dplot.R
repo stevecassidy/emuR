@@ -1,10 +1,13 @@
 ##' A function to plot one or more columns of EMU-trackdata as a function of
-##' time
+##' time (DEPRECATED see below)
 ##' 
 ##' A general purpose routine for plotting EMU-trackdata on a single plot.
 ##' Tracks can be aligned at an arbitrary position, length normalised or
 ##' averaged. The plots can be colour-coded for different category types.
-##' 
+##' DEPRECATED as this function does not play well with with the new 
+##' resultType = "tibble" of \code{get_trackdata()}. See 
+##' \url{https://ips-lmu.github.io/The-EMU-SDMS-Manual/recipe-plottingSnippets.html}
+##' for an alternative plotting routines using ggplot2.
 ##' 
 ##' @aliases dplot dplot.norm dplot.time
 ##' @param x An EMU-trackdata object
