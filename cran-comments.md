@@ -1,7 +1,7 @@
 ## Test environments
 
-* local OSX & Windows 10 x64 installs, R version 4.0.1 (2020-06-06) -- "See Things Now"
-* Ubuntu 16.04.6 LTS (on travis-ci), R version 4.0.0 (2020-04-24)
+* local OSX & Windows 10 x64 installs, R version 4.0.2 (2020-06-22) -- "Taking Off Again"
+* Ubuntu 16.04.6 LTS (on travis-ci), R version 4.0.2 (2020-06-22)
 * devtools::check_rhub(); devtools::check_win_devel(); devtools::check_win_release()
 
 ## R CMD check results
