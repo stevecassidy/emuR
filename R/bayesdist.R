@@ -161,7 +161,7 @@
 
 "euclidean.metric" <- function( data, mean )
 {
-  return ()
+  return()
 }
 
 
