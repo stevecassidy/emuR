@@ -1,3 +1,11 @@
+# emuR 2.1.1.9000
+
+## new features / performance tweaks / improvements
+
+- `save()` -> save bundle performance bump due to SQLite transaction improvement + using prep. statements 
+
+## bug fixes
+
 # emuR 2.1.1
 
 ## new features / performance tweaks / improvements

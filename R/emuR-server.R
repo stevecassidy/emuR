@@ -629,6 +629,7 @@ serve <- function(emuDBhandle,
             
             #### DBI ###
             # remove
+            DBI::dbBegin(emuDBhandle$connection)
             remove_bundleDBI(emuDBhandle, 
                              sessionName = bundleSession, 
                              name = bundleName)
@@ -651,6 +652,8 @@ serve <- function(emuDBhandle,
                                     bundleAnnotDFs, 
                                     sessionName = bundleSession, 
                                     bundleName = bundleName)
+            
+            DBI::dbCommit(emuDBhandle$connection)
             
             # update bundlesDf and store as bundleList
             if(!is.null(bundleListName)){
