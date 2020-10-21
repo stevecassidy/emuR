@@ -265,7 +265,7 @@ test_that("non wrassp functions work", {
                         by = 1/wrassp::rate.AsspDataObj(ado), 
                         length.out = nrow(tbl)) * 1000
     readr::write_tsv(x = tbl, 
-                     path = paste0(tools::file_path_sans_ext(fp), ".tsv"))
+                     file = paste0(tools::file_path_sans_ext(fp), ".tsv"))
   }
   
   myFun <- function(mediaFilePath){

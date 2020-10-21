@@ -145,12 +145,12 @@ export_seglistToTxtCollection <- function(emuDBhandle,
                                                paste0("sl_rowIdx_", i_padded, ".wav")))
     
     readr::write_file(seglist[i,]$labels, 
-                      path = file.path(targetDir_full, 
+                      file = file.path(targetDir_full, 
                                        paste0("sl_rowIdx_", i_padded, ".txt")))
   }
   
   readr::write_csv(seglist, 
-                   path = file.path(targetDir_full, 
+                   file = file.path(targetDir_full, 
                                     paste0("seglist.csv")))
   
 }

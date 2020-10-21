@@ -775,7 +775,7 @@ serve <- function(emuDBhandle,
       
       
       readr::write_file(x = index_html_new, 
-                        path = file.path(webApp_path, "index.html"))
+                        file = file.path(webApp_path, "index.html"))
       
       if (!is.null(viewer)){
         # host in viewer
