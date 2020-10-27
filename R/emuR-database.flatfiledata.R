@@ -70,23 +70,23 @@ join_tsvs <- function(emuDBhandle,
 
 # move to unit test
 
-db = load_emuDB("~/emuR_demoData/ae_emuDB/")
+# db = load_emuDB("~/emuR_demoData/ae_emuDB/")
 
 # key value emuDB data
-flat_data = tibble::tibble(key = c("location of creation", "institution"), value = c("Muenchen", "IPS"))
+# flat_data = tibble::tibble(key = c("location of creation", "institution"), value = c("Muenchen", "IPS"))
 
-readr::write_tsv(x = flat_data, file = file.path(db$basePath, paste0(db$dbName, "_keyValue.", "tsv")))
+# readr::write_tsv(x = flat_data, file = file.path(db$basePath, paste0(db$dbName, "_keyValue.", "tsv")))
 
 # long emuDB data
 
-long_data = tibble::tibble(session = c("0000", "0000"), 
-                           bundle = c("msajc003", "msajc012"),
-                           eyecolor = c("blue", "brown"))
+# long_data = tibble::tibble(session = c("0000", "0000"), 
+#                            bundle = c("msajc003", "msajc012"),
+#                            eyecolor = c("blue", "brown"))
+# 
+# readr::write_tsv(x = long_data, file = file.path(db$basePath, paste0(db$dbName, "_long.", "tsv")))
 
-readr::write_tsv(x = long_data, file = file.path(db$basePath, paste0(db$dbName, "_long.", "tsv")))
+# sl = query(db, "Phonetic == S")
 
-sl = query(db, "Phonetic == S")
+# x = sl
 
-x = sl
-
-join_tsvs(db, sl)
+# join_tsvs(db, sl)
