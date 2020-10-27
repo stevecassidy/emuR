@@ -172,7 +172,7 @@ serve <- function(emuDBhandle,
         mediaFilePath = file.path(emuDBhandle$basePath, 
                                   paste0(queryStr$session, session.suffix), 
                                   paste0(queryStr$bundle, bundle.dir.suffix),
-                                  paste0(queryStr$bundle, ".", DBconfig$mediafileExtension))
+                                  paste0(queryStr$bundle, ".", queryStr$fileExtension))
         
         audioFile = file(mediaFilePath, "rb")
         audioFileData = readBin(audioFile, 
@@ -457,7 +457,11 @@ serve <- function(emuDBhandle,
                                        "?session=", 
                                        utils::URLencode(bundleSess, reserved = T),
                                        "&bundle=", 
-                                       utils::URLencode(bundleName, reserved = T)))
+                                       utils::URLencode(bundleName, reserved = T),
+                                       "&fileExtension=",
+                                       utils::URLencode(DBconfig$mediafileExtension, reserved = T)))
+        print(mediaFile)
+        
         if(is.null(err)){
           ssffTracksInUse = get_ssffTracksUsedByDBconfig(DBconfig)
           ssffTrackNmsInUse = c()
@@ -536,7 +540,8 @@ serve <- function(emuDBhandle,
         responseBundleJSON = jsonlite::toJSON(responseBundle,
                                               auto_unbox = TRUE,
                                               force = TRUE,
-                                              pretty = TRUE)
+                                              pretty = FALSE)
+        # print(mediaFile)
         result = ws$send(responseBundleJSON)
         
         if(is.null(err) & debugLevel >= 2){
