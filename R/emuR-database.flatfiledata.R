@@ -41,6 +41,7 @@ join_tsvs <- function(emuDBhandle,
   # handle emuDB level
   
   # get keyValue tsv file on emuDB level
+  browser()
   path2tsv = file.path(emuDBhandle$basePath, paste0(emuDBhandle$dbName, "_keyValue.", "tsv"))
   if(file.exists(path2tsv)){
     key_value_tsv = readr::read_tsv(path2tsv, col_types = readr::cols())
@@ -68,25 +69,9 @@ join_tsvs <- function(emuDBhandle,
   
 }
 
-# move to unit test
+#######################
+# FOR DEVELOPMENT
+# library('testthat')
+# test_file('tests/testthat/test_aaa_initData.R')
+# test_file('tests/testthat/test_emuR-database.flatfiledata.R')
 
-# db = load_emuDB("~/emuR_demoData/ae_emuDB/")
-
-# key value emuDB data
-# flat_data = tibble::tibble(key = c("location of creation", "institution"), value = c("Muenchen", "IPS"))
-
-# readr::write_tsv(x = flat_data, file = file.path(db$basePath, paste0(db$dbName, "_keyValue.", "tsv")))
-
-# long emuDB data
-
-# long_data = tibble::tibble(session = c("0000", "0000"), 
-#                            bundle = c("msajc003", "msajc012"),
-#                            eyecolor = c("blue", "brown"))
-# 
-# readr::write_tsv(x = long_data, file = file.path(db$basePath, paste0(db$dbName, "_long.", "tsv")))
-
-# sl = query(db, "Phonetic == S")
-
-# x = sl
-
-# join_tsvs(db, sl)
