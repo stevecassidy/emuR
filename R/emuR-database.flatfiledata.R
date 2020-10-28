@@ -41,7 +41,7 @@ join_tsvs <- function(emuDBhandle,
   # handle emuDB level
   
   # get keyValue tsv file on emuDB level
-  browser()
+  #browser()
   path2tsv = file.path(emuDBhandle$basePath, paste0(emuDBhandle$dbName, "_keyValue.", "tsv"))
   if(file.exists(path2tsv)){
     key_value_tsv = readr::read_tsv(path2tsv, col_types = readr::cols())
