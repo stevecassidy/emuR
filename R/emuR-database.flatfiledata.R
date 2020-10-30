@@ -1,4 +1,44 @@
-##' List sample rates of media and annotation (_annot.json) files
+read_and_join_key_value_tsv <- function(emuDBhandle, 
+                                        file, 
+                                        x, 
+                                        bundleName, 
+                                        sessionName){
+  if(file.exists(file)){
+    key_value_tsv = readr::read_tsv(file, col_types = readr::cols())
+    if(all(names(key_value_tsv) == c("key", "value"))){
+      key_value_tsv_pivoted = tidyr::pivot_wider(key_value_tsv, names_from = "key", values_from = "value")
+      if(missing(bundleName) && missing(sessionName)){
+        res = dplyr::full_join(x, key_value_tsv_pivoted, by = character())
+      } else if(missing(bundleName) && !missing(sessionName)) {
+        # join by session
+        browser()
+        key_value_tsv_pivoted$session = sessionName
+        res = dplyr::left_join(x, key_value_tsv_pivoted, by = "session")
+      } 
+    } else {
+      stop(path2tsv, " doesn't only contain the columns 'key' and 'value'. Only these two columns are permitted!")
+    }
+    return(res)
+  }else{
+    return(x)
+  }
+}
+
+read_and_join_long_tsv <- function(emuDBhandle, file, x){
+  if(file.exists(file)){
+    long_tsv = readr::read_tsv(file, col_types = readr::cols())
+    if(all(c("session", "bundle") %in% names(long_tsv))){
+      res = dplyr::left_join(x, long_tsv, by = c("bundle", "session"))
+    } else {
+      stop(file, " doesn't only contain the columns 'session' and 'value'. Only these two columns are permitted!")
+    }
+    return(res)
+  } else {
+    return(x)
+  }
+}
+
+##' Join flat file .tsv data to x 
 ##' 
 ##' @param emuDBhandle emuDB handle object (see \link{load_emuDB})
 ##' @param sessionPattern A regular expression pattern matching session names to be searched from the database
@@ -28,44 +68,26 @@ join_tsvs <- function(emuDBhandle,
     & grepl(pattern = bundlePattern, x = all_bundles, perl = T)
     ]
   
-
-  ##############################
-  # handle session level
-  
-  for(sessio_name in unique(all_bundles$session)){
-    # get keyValue tsv file on session level
-    path2tsv = file.path(emuDBhandle$basePath, sessio_name, paste0(sessio_name, "_keyValue.", "tsv"))  
-  }
-  
   ##############################
   # handle emuDB level
   
   # get keyValue tsv file on emuDB level
-  #browser()
   path2tsv = file.path(emuDBhandle$basePath, paste0(emuDBhandle$dbName, "_keyValue.", "tsv"))
-  if(file.exists(path2tsv)){
-    key_value_tsv = readr::read_tsv(path2tsv, col_types = readr::cols())
-    if(all(names(key_value_tsv) == c("key", "value"))){
-      res = dplyr::full_join(x, key_value_tsv, by = character())
-    } else {
-      stop(path2tsv, " doesn't only contain the columns 'key' and 'value'. Only these two columns are permitted!")
-    }
-    
-  }
+  x = read_and_join_key_value_tsv(emuDBhandle, file = path2tsv, x = x)
 
   # get long tsv file on emuDB level
   path2tsv = file.path(emuDBhandle$basePath, paste0(emuDBhandle$dbName, "_long.", "tsv"))
-  if(file.exists(path2tsv)){
-    long_tsv = readr::read_tsv(path2tsv, col_types = readr::cols())
-    if(all(c("session", "bundle") %in% names(long_tsv))){
-      res = dplyr::left_join(res, long_tsv, by = c("bundle", "session"))
-    } else {
-      stop(path2tsv, " doesn't only contain the columns 'key' and 'value'. Only these two columns are permitted!")
-    }
+  x = read_and_join_long_tsv(emuDBhandle, file = path2tsv, x)
+  
+  ##############################
+  # handle session level
+  for(session_name in unique(all_bundles$session)){
+    # get keyValue tsv file on session level
+    path2tsv = file.path(emuDBhandle$basePath, paste0(session_name, session.suffix), paste0(session_name, "_keyValue.", "tsv"))  
+    x = read_and_join_key_value_tsv(emuDBhandle, file = path2tsv, x = x, sessionName = session_name)
   }
   
-  
-  return(res)
+  return(x)
   
 }
 
