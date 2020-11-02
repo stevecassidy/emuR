@@ -31,7 +31,7 @@ db = load_emuDB(path2db,
                 inMemoryCache = internalVars$testingVars$inMemoryCache, 
                 verbose = F)
 
-test_that("join_tsvs works on emuDB level", {
+test_that("join_flatFileData works on emuDB level", {
   
   # key value emuDB data
   flat_data = tibble::tibble(key = c("location", "institution"), value = c("Muenchen", "IPS"))
@@ -40,7 +40,7 @@ test_that("join_tsvs works on emuDB level", {
   
   sl = query(db, "Phonetic == S")
   
-  sl_joined = join_tsvs(db, sl)
+  sl_joined = join_flatFileData(db, sl)
   
   expect_true(all(c("location", "institution") %in% names(sl_joined)))
   
@@ -56,11 +56,11 @@ test_that("join_tsvs works on emuDB level", {
   
   readr::write_tsv(x = long_data, file = file.path(db$basePath, paste0(db$dbName, "_long.", "tsv")))
   
-  sl_joined = join_tsvs(db, sl)
+  sl_joined = join_flatFileData(db, sl)
   expect_equal(length(which(is.na(sl_joined$eyecolor))), 7)
 })
 
-test_that("join_tsvs works on session level", {
+test_that("join_flatFileData works on session level", {
   
   # key value session data
   flat_data = tibble::tibble(key = c("location", "fudge", "speed"), value = c("Muenchen", "yummy", "fast"))
@@ -69,7 +69,7 @@ test_that("join_tsvs works on session level", {
   
   sl = query(db, "Phonetic == S")
   
-  sl_joined = join_tsvs(db, sl)
+  sl_joined = join_flatFileData(db, sl)
   
   expect_true(all(c("location.x", "location.y") %in% names(sl_joined)))
   
