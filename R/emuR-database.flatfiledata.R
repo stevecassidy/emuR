@@ -1,9 +1,9 @@
-read_and_join_key_value_flatData <- function(emuDBhandle, 
-                                             file, 
-                                             x, 
-                                             bundleName, 
-                                             sessionName,
-                                             readFunction){
+read_and_join_long_flatData <- function(emuDBhandle, 
+                                        file, 
+                                        x, 
+                                        bundleName, 
+                                        sessionName,
+                                        readFunction){
   if(file.exists(file)){
     key_value_data = suppressMessages(readFunction(file = file,
                                                    col_types = readr::cols()))
@@ -14,10 +14,12 @@ read_and_join_key_value_flatData <- function(emuDBhandle,
         res = dplyr::full_join(x, key_value_data_pivoted, by = character())
       } else if(missing(bundleName) && !missing(sessionName)) {
         # join by session
-        key_value_tsv_pivoted$session = sessionName
-        res = dplyr::left_join(x, key_value_tsv_pivoted, by = "session")
+        key_value_data_pivoted$session = sessionName
+        res = dplyr::left_join(x, key_value_data_pivoted, by = "session")
       } else if(!missing(bundleName) && !missing(sessionName)){
-        stop("handeling bundle key value pairs not implemented yet!")
+        key_value_data_pivoted$session = sessionName
+        key_value_data_pivoted$bundle = bundleName
+        res = dplyr::left_join(x, key_value_data_pivoted, by = c("session", "bundle"))
       }
     } else {
       stop(file, " doesn't only contain the columns 'key' and 'value'. Only these two columns are permitted!")
@@ -28,17 +30,38 @@ read_and_join_key_value_flatData <- function(emuDBhandle,
   }
 }
 
-read_and_join_long_flatData <- function(emuDBhandle, 
+read_and_join_wide_flatData <- function(emuDBhandle, 
                                         file, 
                                         x, 
+                                        bundleName, 
+                                        sessionName,
                                         readFunction){
   if(file.exists(file)){
     long_flatData = suppressMessages(readFunction(file, 
                                                   col_types = readr::cols()))
     
-    if(all(c("session", "bundle") %in% names(long_flatData))){
-      res = dplyr::left_join(x, long_flatData, by = c("bundle", "session"))
-    } else {
+    if(missing(bundleName) && missing(sessionName)){
+      # emuDB level
+      if(all(c("session", "bundle") %in% names(long_flatData))){
+        res = dplyr::left_join(x, long_flatData, by = c("bundle", "session"))
+      } else {
+        stop(paste0("session and/or bundle columns not found in ", file))
+      }
+    } else if(missing(bundleName) && !missing(sessionName)){
+      # session level 
+      if("bundle" %in% names(long_flatData)){
+        long_flatData$session = sessionName
+        res = dplyr::left_join(x, long_flatData, by = c("session", "bundle"))
+      } else {
+        stop(paste0("bundle column not found in ", file))
+      }
+    } else if(!missing(bundleName) && !missing(sessionName)){
+      # bundle level
+      browser()
+      long_flatData$session = sessionName
+      long_flatData$bundle = bundleName
+      res = dplyr::left_join(x, long_flatData, by = c("session", "bundle"))
+    } else{
       stop(file, " doesn't only contain the columns 'session' and 'bundle'. Only these two columns are permitted!")
     }
     return(res)
@@ -97,13 +120,13 @@ join_flatFileData <- function(emuDBhandle,
   # get long flat data file on emuDB level
   path2flatDataFile = file.path(emuDBhandle$basePath, 
                                 paste0(emuDBhandle$dbName, "_long", fileExtension))
-  x = read_and_join_key_value_flatData(emuDBhandle, 
-                                       file = path2flatDataFile, 
-                                       x = x,
-                                       readFunction = readFunction)
+  x = read_and_join_long_flatData(emuDBhandle, 
+                                  file = path2flatDataFile, 
+                                  x = x,
+                                  readFunction = readFunction)
   # get wide flat data file on emuDB level
   path2tsv = file.path(emuDBhandle$basePath, paste0(emuDBhandle$dbName, "_wide", fileExtension))
-  x = read_and_join_long_flatData(emuDBhandle, 
+  x = read_and_join_wide_flatData(emuDBhandle, 
                                   file = path2tsv, 
                                   x = x,
                                   readFunction = readFunction)
@@ -111,16 +134,61 @@ join_flatFileData <- function(emuDBhandle,
   ##############################
   # handle session level
   for(session_name in unique(all_bundles$session)){
-    # get keyValue tsv file on session level
-    path2tsv = file.path(emuDBhandle$basePath, 
-                         paste0(session_name, session.suffix), 
-                         paste0(session_name, "_long", fileExtension))  
-    x = read_and_join_key_value_flatData(emuDBhandle, 
-                                         file = path2tsv, 
-                                         x = x, 
-                                         sessionName = session_name,
-                                         readFunction = readFunction)
+    # get long flat data file on session level
+    path2flatDataFile = file.path(emuDBhandle$basePath, 
+                                  paste0(session_name, session.suffix), 
+                                  paste0(session_name, "_long", fileExtension))
+    
+    x = read_and_join_long_flatData(emuDBhandle, 
+                                    file = path2flatDataFile, 
+                                    x = x, 
+                                    sessionName = session_name,
+                                    readFunction = readFunction)
+    
+    # get wide flat data file on session level
+    path2flatDataFile = file.path(emuDBhandle$basePath, 
+                                  paste0(session_name, session.suffix), 
+                                  paste0(session_name, "_wide", fileExtension))
+    
+    x = read_and_join_wide_flatData(emuDBhandle, 
+                                    file = path2flatDataFile, 
+                                    x = x, 
+                                    sessionName = session_name,
+                                    readFunction = readFunction)
+    
   }
+  
+  ##############################
+  # handle bundle level
+  for(bndl_row_idx in 1:nrow(all_bundles)){
+    
+    cur_bndl = all_bundles[bndl_row_idx,]
+    # get long flat data file on session level
+    path2flatDataFile = file.path(emuDBhandle$basePath, 
+                                  paste0(cur_bndl$session, session.suffix), 
+                                  paste0(cur_bndl$name, bundle.dir.suffix),
+                                  paste0(cur_bndl$name, "_long", fileExtension))
+    
+    x = read_and_join_long_flatData(emuDBhandle, 
+                                    file = path2flatDataFile, 
+                                    x = x, 
+                                    sessionName = cur_bndl$session,
+                                    bundleName = cur_bndl$name,
+                                    readFunction = readFunction)
+    
+    # get wide flat data file on session level
+    path2flatDataFile = file.path(emuDBhandle$basePath, 
+                                  paste0(session_name, session.suffix), 
+                                  paste0(session_name, "_wide", fileExtension))
+    
+    x = read_and_join_wide_flatData(emuDBhandle, 
+                                    file = path2flatDataFile, 
+                                    x = x, 
+                                    sessionName = session_name,
+                                    readFunction = readFunction)
+    
+  }
+  
   
   # browser()
   return(x)
