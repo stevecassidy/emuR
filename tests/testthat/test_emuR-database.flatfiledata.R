@@ -33,41 +33,67 @@ db = load_emuDB(path2db,
 
 test_that("join_flatFileData works on emuDB level", {
   
-  # key value emuDB data
-  flat_data = tibble::tibble(key = c("location", "institution"), value = c("Muenchen", "IPS"))
-  
-  readr::write_tsv(x = flat_data, file = file.path(db$basePath, paste0(db$dbName, "_keyValue.", "tsv")))
-  
   sl = query(db, "Phonetic == S")
+  
+  # check error is thrown for bad columns in long data
+  keyValue_data = tibble::tibble(bad_col_name = c("location", "institution"), 
+                                 value = c("Muenchen", "IPS"))
+  
+  file_path = file.path(db$basePath, paste0(db$dbName, "_long.", "csv"))
+  
+  readr::write_excel_csv2(x = keyValue_data, file = file_path)
+  expect_error(join_flatFileData(db, sl), 
+               ".*doesn't only contain the columns.*")
+  
+  # long emuDB data
+  keyValue_data = tibble::tibble(key = c("location", "institution"), 
+                                 value = c("Muenchen", "IPS"))
+  
+  file_path = file.path(db$basePath, paste0(db$dbName, "_long.", "csv"))
+  
+  readr::write_excel_csv2(x = keyValue_data, file = file_path)
   
   sl_joined = join_flatFileData(db, sl)
   
   expect_true(all(c("location", "institution") %in% names(sl_joined)))
-  
   expect_equal(sl_joined$location, rep("Muenchen", 10))
-  
   expect_equal(sl_joined$institution, rep("IPS", 10))
   
-  # long emuDB data
-  # specify session and bundle
-  long_data = tibble::tibble(session = c("0000", "0000"),
-                             bundle = c("msajc003", "msajc012"),
-                             eyecolor = c("blue", "brown"))
+  unlink(file_path)
   
-  readr::write_tsv(x = long_data, file = file.path(db$basePath, paste0(db$dbName, "_long.", "tsv")))
+  # wide emuDB data
+  # specify session and bundle
+  wide_data = tibble::tibble(session = c("0000", "0000", "0001"),
+                             bundle = c("msajc003", "msajc012", "msajc022"),
+                             eyecolor = c("blue", "brown", "green"),
+                             height = c("1.80", "1.60", "2.00"))
+  
+  file_path = file.path(db$basePath, paste0(db$dbName, "_wide.", "csv"))
+  
+  readr::write_csv2(x = wide_data, file = file_path)
   
   sl_joined = join_flatFileData(db, sl)
-  expect_equal(length(which(is.na(sl_joined$eyecolor))), 7)
+  # check that long is still the same
+  expect_true(all(c("location", "institution") %in% names(sl_joined)))
+  expect_equal(sl_joined$location, rep("Muenchen", 10))
+  expect_equal(sl_joined$institution, rep("IPS", 10))
+  # plus new wide data is added and correct
+  expect_equal(sl_joined$eyecolor[1:3], c("blue", "brown", "brown"))
+  expect_equal(sl_joined$eyecolor[9:10], c("green", "green"))
+  expect_equal(length(which(is.na(sl_joined$eyecolor))), 5)
+  
 })
 
 test_that("join_flatFileData works on session level", {
   
-  # key value session data
-  flat_data = tibble::tibble(key = c("location", "fudge", "speed"), value = c("Muenchen", "yummy", "fast"))
-  
-  readr::write_tsv(x = flat_data, file = file.path(db$basePath, "0000_ses", paste0("0000", "_keyValue.", "tsv")))
-  
   sl = query(db, "Phonetic == S")
+  # long session data
+  flat_data = tibble::tibble(key = c("location", "fudge", "speed"), 
+                             value = c("Muenchen", "yummy", "fast"))
+  
+  readr::write_csv2(x = flat_data, 
+                    file = file.path(db$basePath, "0000_ses", paste0("0000", "_long.", "csv")))
+  
   
   sl_joined = join_flatFileData(db, sl)
   
