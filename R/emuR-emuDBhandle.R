@@ -133,7 +133,7 @@ summary.emuDBhandle = function(object, ...){
 
 ##########################
 # FOR DEVELOPMENT
-# handle = emuDBhandle(dbName = "test12", basePath = "/you/smell/like/poo", UUID = "3412D5E3-E0EA-4E81-9F1C-E0A864D0D403", ":memory:")
+# handle = emuDBhandle(dbName = "test12", basePath = "/path/2/emuDB", UUID = "3412D5E3-E0EA-4E81-9F1C-E0A864D0D403", ":memory:")
 # ae1 = load_emuDB("~/Desktop/emuR_demoData/ae", inMemoryCache = T)
 # ae2 = load_emuDB("~/Desktop/emuR_demoData/ae", inMemoryCache = F)
 # print(summary(ae1))
