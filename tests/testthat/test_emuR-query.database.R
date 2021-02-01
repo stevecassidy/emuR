@@ -608,6 +608,23 @@ test_that("Load example database ae", {
     all(round(sl$start, 3) == round(c(256.925, 571.925, 379.525, 425.375, 299.975, 513.925, 475.775), 3))
     all(round(sl$end, 3) == round(c(2604.425, 2753.975, 2692.325, 3456.825, 2469.525, 2554.175, 2794.925), 3))
   })
+  
+  test_that("correct times are calculated for sequence dom. queries",{
+    skip_on_cran()
+    sl = query(ae, "[[Phonetic == N -> Phonetic == s] -> Phonetic == t]")
+    expect_equal(sl$sample_start, 8534)
+    expect_equal(sl$sample_end, 11933)
+    # move up one level
+    sl = query(ae, "[[Phoneme == N -> Phoneme == s] -> Phoneme == t]")
+    expect_equal(sl$sample_start, 8534)
+    expect_equal(sl$sample_end, 13483)
+    # even further up the hierarchy
+    sl = query(ae,"[Text == more -> Text == customers]")
+    expect_equal(sl$sample_start, 36489)
+    expect_equal(sl$sample_end, 47355)
+    
+  })
+  
   # clean up (also disconnect)
   DBI::dbDisconnect(ae$connection)
   ae = NULL
