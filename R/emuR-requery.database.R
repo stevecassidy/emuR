@@ -547,21 +547,21 @@ requery_hier <- function(emuDBhandle,
       seglistLevelIndexInPath = match(seglistAttrDefLn, connectHierPaths[[1]])
       reqLevelIndexInPath = match(reqAttrDefLn, connectHierPaths[[1]])
       
-      preserveLeafLength = FALSE
-      preserveAnchorLength = FALSE
+      preserveChildLength = FALSE
+      preserveParentLength = FALSE
       
       if(reqLevelIndexInPath < seglistLevelIndexInPath){
         # going up
-        preserveLeafLength = TRUE
+        preserveChildLength = TRUE
       }else{
         # going down
-        preserveAnchorLength = TRUE
+        preserveParentLength = TRUE
       }
       
       if(!collapse){
         # override perserveLengths if not collapsing
-        preserveLeafLength = FALSE
-        preserveAnchorLength = FALSE
+        preserveChildLength = FALSE
+        preserveParentLength = FALSE
       }
       
       query_databaseHier(emuDBhandle, 
@@ -571,8 +571,8 @@ requery_hier <- function(emuDBhandle,
                          rightTableSuffix = reqLevelItemsTableSuffix, 
                          sessionPattern = ".*", 
                          bundlePattern = ".*",
-                         preserveLeafLength = preserveLeafLength,
-                         preserveAnchorLength = preserveAnchorLength,
+                         preserveChildLength = preserveChildLength,
+                         preserveParentLength = preserveParentLength,
                          verbose = verbose) # result written to lr_exp_res_tmp table
       
       # move query_databaseHier results into interm_res_items_tmp_root
@@ -630,7 +630,7 @@ requery_hier <- function(emuDBhandle,
                                          bundlePattern = ".*",
                                          queryStr = "FROM REQUERY", 
                                          calcTimes = calcTimes, 
-                                         preserveAnchorLength = T,
+                                         preserveParentLength = T,
                                          verbose = verbose)
     
     inSlLen = nrow(seglist)

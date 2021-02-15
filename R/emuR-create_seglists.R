@@ -66,7 +66,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
                                           bundlePattern = ".*",
                                           queryStr = "", 
                                           calcTimes = TRUE, 
-                                          preserveAnchorLength = FALSE, # only set T by requery_hier
+                                          preserveParentLength = FALSE, # only set T by requery_hier
                                           verbose){
   
   itemsTableName = "items"
@@ -111,7 +111,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
     levelColName = "level"
     
     # set type of join depending on preserve*Length args
-    if(preserveAnchorLength){
+    if(preserveParentLength){
       joinType = "LEFT JOIN"
       orderByString = "" # don't reorder if left joining to perserve NA/NULL row placement
     }else{
@@ -156,8 +156,8 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
     
     if(!calcTimes){ # no times are requested then that makes things a lot easier :-)
       
-      # set type of join depending on preserveAnchorLength
-      if(preserveAnchorLength){
+      # set type of join depending on preserveParentLength
+      if(preserveParentLength){
         joinType = "LEFT JOIN"
         orderByString = "ORDER BY interm_res_items_tmp_root.rowid" # don't reorder if left joining to perserve NA/NULL row placement
       }else{
@@ -321,13 +321,12 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
                          rightTableSuffix = "root", 
                          sessionPattern = sessionPattern, 
                          bundlePattern = bundlePattern, 
-                         minMaxSeqIdxLeafOnly = F, # remove this parameter from function?
-                         preserveLeafLength = F,
-                         preserveAnchorLength = preserveAnchorLength,
+                         preserveChildLength = F,
+                         preserveParentLength = preserveParentLength,
                          verbose = verbose) # result written to lr_exp_res_tmp table
 
-      # set type of join depending on preserveAnchorLength
-      if(preserveAnchorLength){
+      # set type of join depending on preserveParentLength
+      if(preserveParentLength){
         joinType = "LEFT JOIN"
         orderByString = "ORDER BY irit.rowid" # don't reorder if left joining to perserve NA/NULL row placement
       }else{
@@ -398,7 +397,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
     DBI::dbExecute(emuDBhandle$connection, paste0("CREATE INDEX IF NOT EXISTS emursegs_tmp_idx ON emursegs_tmp(db_uuid, session, bundle, start_item_id, end_item_id)"))
     
     # set type of join depending on preserve*Length args
-    if(preserveAnchorLength){
+    if(preserveParentLength){
       joinType = "LEFT JOIN"
       # orderByString =  "" # don't reorder if left joining to perserve NA/NULL row placement
     }else{

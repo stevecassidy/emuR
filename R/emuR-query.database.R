@@ -806,6 +806,7 @@ query_databaseEqlFUNCQ <- function(emuDBhandle,
         
         # EBNF: NUMQ = 'Num','(',Level,',',Level,')',COP,INTPN;
         # NOTE: return value level is param1 here
+        browser()
         DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO items_as_seqs_tmp ",
                                                       "SELECT ",
                                                       " sit.db_uuid, ",
@@ -1219,49 +1220,6 @@ query_databaseEqlCONJQ <- function(emuDBhandle,
                                                 "SET result_level = '", resultLevel, "'"))
 }
 
-# reduces the results stored in hier_left/right_trapeze_interm_res tables to min and max seq_idx of leafs
-reduce_hierTrapezeIntermRes_minMaxSeqIdx <- function(emuDBhandle){
-  # reduce hier_left_trapeze_interm_res_tmp to leftest leaf per parent group
-  hltirt_tmp = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT hltirt1.* ",
-                                                              "FROM  hier_left_trapeze_interm_res_tmp AS hltirt1 ",
-                                                              "LEFT OUTER JOIN hier_left_trapeze_interm_res_tmp AS hltirt2 ",
-                                                              " ON hltirt1.db_uuid = hltirt2.db_uuid ",
-                                                              " AND hltirt1.session = hltirt2.session ",
-                                                              " AND hltirt1.bundle = hltirt2.bundle ",
-                                                              " AND hltirt1.seq_start_id = hltirt2.seq_start_id ",
-                                                              " AND hltirt1.seq_end_id = hltirt2.seq_end_id ",
-                                                              " AND hltirt1.seq_start_seq_idx_leaf > hltirt2.seq_start_seq_idx_leaf ",
-                                                              "WHERE hltirt2.db_uuid IS NULL",
-                                                              ""))
-  
-  DBI::dbExecute(emuDBhandle$connection, "DELETE FROM hier_left_trapeze_interm_res_tmp")
-  
-  DBI::dbWriteTable(emuDBhandle$connection, "hier_left_trapeze_interm_res_tmp", 
-                    hltirt_tmp, 
-                    append = T, 
-                    row.names = F)
-  
-  # reduce hier_right_trapeze_interm_res_tmp to rightest leaf per parent group
-  hrtirt_tmp = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT * ",
-                                                              "FROM  hier_right_trapeze_interm_res_tmp AS hrtirt1 ",
-                                                              "LEFT OUTER JOIN hier_right_trapeze_interm_res_tmp AS hrtirt2 ",
-                                                              " ON hrtirt1.db_uuid = hrtirt2.db_uuid ",
-                                                              " AND hrtirt1.session = hrtirt2.session ",
-                                                              " AND hrtirt1.bundle = hrtirt2.bundle ",
-                                                              " AND hrtirt1.seq_start_id = hrtirt2.seq_start_id ",
-                                                              " AND hrtirt1.seq_end_id = hrtirt2.seq_end_id ",
-                                                              " AND hrtirt1.seq_end_seq_idx_leaf < hrtirt2.seq_end_seq_idx_leaf ",
-                                                              "WHERE hrtirt2.db_uuid IS NULL",
-                                                              ""))
-  
-  DBI::dbExecute(emuDBhandle$connection, "DELETE FROM hier_right_trapeze_interm_res_tmp")
-  
-  DBI::dbWriteTable(emuDBhandle$connection, "hier_right_trapeze_interm_res_tmp", 
-                    hltirt_tmp, 
-                    append = T, 
-                    row.names = F)
-  
-}
 
 createHierarchyQueryTmpTables <- function(emuDBhandle){
   # create temp tables for hier query (should maybe be moved to external functions)
@@ -1275,26 +1233,26 @@ createHierarchyQueryTmpTables <- function(emuDBhandle){
                                             " level TEXT,",
                                             " seq_start_seq_idx INTEGER,",
                                             " seq_end_seq_idx INTEGER,",
-                                            " db_uuid_leaf VARCHAR(36),",
-                                            " session_leaf TEXT,",
-                                            " bundle_leaf TEXT,",
-                                            " seq_start_id_leaf INTEGER,",
-                                            " seq_end_id_leaf INTEGER,",
-                                            " seq_len_leaf INTEGER,",
-                                            " level_leaf TEXT,",
-                                            " seq_start_seq_idx_leaf INTEGER,",
-                                            " seq_end_seq_idx_leaf INTEGER,",
+                                            " db_uuid_child VARCHAR(36),",
+                                            " session_child TEXT,",
+                                            " bundle_child TEXT,",
+                                            " seq_start_id_child INTEGER,",
+                                            " seq_end_id_child INTEGER,",
+                                            " seq_len_child INTEGER,",
+                                            " level_child TEXT,",
+                                            " seq_start_seq_idx_child INTEGER,",
+                                            " seq_end_seq_idx_child INTEGER,",
                                             " PRIMARY KEY (",
                                             "  db_uuid, ",
                                             "  session, ",
                                             "  bundle, ",
                                             "  seq_start_id, ",
                                             "  seq_end_id, ",
-                                            "  db_uuid_leaf, ",
-                                            "  session_leaf, ",
-                                            "  bundle_leaf, ",
-                                            "  seq_start_id_leaf, ",
-                                            "  seq_end_id_leaf)",
+                                            "  db_uuid_child, ",
+                                            "  session_child, ",
+                                            "  bundle_child, ",
+                                            "  seq_start_id_child, ",
+                                            "  seq_end_id_child)",
                                             ");")
   
   hier_right_trapeze_interm_res_tmp = paste0("CREATE TEMP TABLE IF NOT EXISTS hier_right_trapeze_interm_res_tmp (",
@@ -1307,26 +1265,26 @@ createHierarchyQueryTmpTables <- function(emuDBhandle){
                                              " level TEXT,",
                                              " seq_start_seq_idx INTEGER,",
                                              " seq_end_seq_idx INTEGER,",
-                                             " db_uuid_leaf VARCHAR(36),",
-                                             " session_leaf TEXT,",
-                                             " bundle_leaf TEXT,",
-                                             " seq_start_id_leaf INTEGER,",
-                                             " seq_end_id_leaf INTEGER,",
-                                             " seq_len_leaf INTEGER,",
-                                             " level_leaf TEXT,",
-                                             " seq_start_seq_idx_leaf INTEGER,",
-                                             " seq_end_seq_idx_leaf INTEGER,",
+                                             " db_uuid_child VARCHAR(36),",
+                                             " session_child TEXT,",
+                                             " bundle_child TEXT,",
+                                             " seq_start_id_child INTEGER,",
+                                             " seq_end_id_child INTEGER,",
+                                             " seq_len_child INTEGER,",
+                                             " level_child TEXT,",
+                                             " seq_start_seq_idx_child INTEGER,",
+                                             " seq_end_seq_idx_child INTEGER,",
                                              "PRIMARY KEY (",
                                              "  db_uuid, ",
                                              "  session, ",
                                              "  bundle, ",
                                              "  seq_start_id, ",
                                              "  seq_end_id, ",
-                                             "  db_uuid_leaf, ",
-                                             "  session_leaf, ",
-                                             "  bundle_leaf, ",
-                                             "  seq_start_id_leaf, ",
-                                             "  seq_end_id_leaf)",
+                                             "  db_uuid_child, ",
+                                             "  session_child, ",
+                                             "  bundle_child, ",
+                                             "  seq_start_id_child, ",
+                                             "  seq_end_id_child)",
                                              ");")
   
   
@@ -1360,10 +1318,9 @@ query_databaseHier <- function(emuDBhandle,
                                leftTableSuffix, 
                                rightTableSuffix, 
                                sessionPattern, 
-                               bundlePattern, 
-                               minMaxSeqIdxLeafOnly = F, 
-                               preserveLeafLength = F,
-                               preserveAnchorLength = F,
+                               bundlePattern,
+                               preserveChildLength = F,
+                               preserveParentLength = F,
                                verbose = F) {
   
   createHierarchyQueryTmpTables(emuDBhandle)
@@ -1404,21 +1361,21 @@ query_databaseHier <- function(emuDBhandle,
     DBI::dbExecute(emuDBhandle$connection, "DELETE FROM hier_right_trapeze_interm_res_tmp")
     DBI::dbExecute(emuDBhandle$connection, paste0("DELETE FROM lr_exp_res_tmp"))
     
-    # depending on what side is the leaf (== further down in hierarchy) get the correct table name
+    # depending on what side is the child (== further down in hierarchy) get the correct table name
     if(firstLevelName == connectHierPath[length(connectHierPath)]){
-      # left is leaf
-      leafSideTableName = paste0("interm_res_items_tmp_", leftTableSuffix)
-      # right is anchor
-      anchorSideTableName = paste0("interm_res_items_tmp_", rightTableSuffix)
+      # left is child
+      childSideTableName = paste0("interm_res_items_tmp_", leftTableSuffix)
+      # right is parent
+      parentSideTableName = paste0("interm_res_items_tmp_", rightTableSuffix)
       # 
-      leftIsLeaf = TRUE
+      leftIsChild = TRUE
     }else if(secondLevelName == connectHierPath[length(connectHierPath)]){
-      # right is leaf
-      leafSideTableName = paste0("interm_res_items_tmp_", rightTableSuffix)
-      # left is anchor
-      anchorSideTableName = paste0("interm_res_items_tmp_", leftTableSuffix)
+      # right is child
+      childSideTableName = paste0("interm_res_items_tmp_", rightTableSuffix)
+      # left is parent
+      parentSideTableName = paste0("interm_res_items_tmp_", leftTableSuffix)
       # 
-      leftIsLeaf = FALSE
+      leftIsChild = FALSE
     }
     
     for(i in length(connectHierPath):1){
@@ -1436,16 +1393,16 @@ query_databaseHier <- function(emuDBhandle,
                                                       " items.level, ",
                                                       " items.seq_idx AS seq_start_seq_idx, ",
                                                       " items.seq_idx AS seq_end_seq_idx, ",
-                                                      " lstn.db_uuid AS db_uuid_leaf, ",
-                                                      " lstn.session AS session_leaf, ",
-                                                      " lstn.bundle AS bundle_leaf, ",
-                                                      " lstn.seq_start_id AS seq_start_id_leaf, ",
-                                                      " lstn.seq_end_id AS seq_end_id_leaf, ",
-                                                      " lstn.seq_len AS seq_len_leaf, ",
-                                                      " lstn.level AS level_leaf, ",
+                                                      " lstn.db_uuid AS db_uuid_child, ",
+                                                      " lstn.session AS session_child, ",
+                                                      " lstn.bundle AS bundle_child, ",
+                                                      " lstn.seq_start_id AS seq_start_id_child, ",
+                                                      " lstn.seq_end_id AS seq_end_id_child, ",
+                                                      " lstn.seq_len AS seq_len_child, ",
+                                                      " lstn.level AS level_child, ",
                                                       " lstn.seq_start_seq_idx AS seq_start_seq_idx, ",
                                                       " lstn.seq_end_seq_idx AS seq_end_seq_idx ",
-                                                      "FROM ", leafSideTableName, " AS lstn, ",
+                                                      "FROM ", childSideTableName, " AS lstn, ",
                                                       " links, ",
                                                       " items ",
                                                       "WHERE lstn.db_uuid = links.db_uuid ",
@@ -1473,16 +1430,16 @@ query_databaseHier <- function(emuDBhandle,
                                                       " items.level, ",
                                                       " items.seq_idx AS seq_start_seq_idx, ",
                                                       " items.seq_idx AS seq_end_seq_idx, ",
-                                                      " lstn.db_uuid AS db_uuid_leaf, ",
-                                                      " lstn.session AS session_leaf, ",
-                                                      " lstn.bundle AS bundle_leaf, ",
-                                                      " lstn.seq_start_id AS seq_start_id_leaf, ",
-                                                      " lstn.seq_end_id AS seq_end_id_leaf, ",
-                                                      " lstn.seq_len AS seq_len_leaf, ",
-                                                      " lstn.level AS level_leaf, ",
+                                                      " lstn.db_uuid AS db_uuid_child, ",
+                                                      " lstn.session AS session_child, ",
+                                                      " lstn.bundle AS bundle_child, ",
+                                                      " lstn.seq_start_id AS seq_start_id_child, ",
+                                                      " lstn.seq_end_id AS seq_end_id_child, ",
+                                                      " lstn.seq_len AS seq_len_child, ",
+                                                      " lstn.level AS level_child, ",
                                                       " lstn.seq_start_seq_idx AS seq_start_seq_idx, ",
                                                       " lstn.seq_end_seq_idx AS seq_end_seq_idx  ",
-                                                      "FROM ", leafSideTableName, " AS lstn, ",
+                                                      "FROM ", childSideTableName, " AS lstn, ",
                                                       " links, ",
                                                       " items ",
                                                       "WHERE lstn.db_uuid = links.db_uuid ",
@@ -1498,10 +1455,6 @@ query_databaseHier <- function(emuDBhandle,
                                                       " AND items.bundle REGEXP '", bundlePattern, "' ", # limit to bundle RegEx
                                                       ""))
         
-        if(minMaxSeqIdxLeafOnly){
-          reduce_hierTrapezeIntermRes_minMaxSeqIdx(emuDBhandle)
-        }
-        
       }else if(i != 1){
         
         # walk up left side of trapeze
@@ -1515,15 +1468,15 @@ query_databaseHier <- function(emuDBhandle,
                                                                         " items.level, ",
                                                                         " items.seq_idx AS seq_start_seq_idx, ",
                                                                         " items.seq_idx AS seq_end_seq_idx, ",
-                                                                        " hltirt.db_uuid_leaf, ",
-                                                                        " hltirt.session_leaf, ",
-                                                                        " hltirt.bundle_leaf, ",
-                                                                        " hltirt.seq_start_id_leaf, ",
-                                                                        " hltirt.seq_end_id_leaf, ",
-                                                                        " hltirt.seq_len_leaf, ",
-                                                                        " hltirt.level_leaf, ",
-                                                                        " hltirt.seq_start_seq_idx_leaf, ",
-                                                                        " hltirt.seq_end_seq_idx_leaf ",
+                                                                        " hltirt.db_uuid_child, ",
+                                                                        " hltirt.session_child, ",
+                                                                        " hltirt.bundle_child, ",
+                                                                        " hltirt.seq_start_id_child, ",
+                                                                        " hltirt.seq_end_id_child, ",
+                                                                        " hltirt.seq_len_child, ",
+                                                                        " hltirt.level_child, ",
+                                                                        " hltirt.seq_start_seq_idx_child, ",
+                                                                        " hltirt.seq_end_seq_idx_child ",
                                                                         "FROM hier_left_trapeze_interm_res_tmp AS hltirt, ",
                                                                         " links, ",
                                                                         " items ",
@@ -1551,15 +1504,15 @@ query_databaseHier <- function(emuDBhandle,
                                                                          " items.level, ",
                                                                          " items.seq_idx AS seq_start_seq_idx, ",
                                                                          " items.seq_idx AS seq_end_seq_idx, ",
-                                                                         " hrtirt.db_uuid_leaf, ",
-                                                                         " hrtirt.session_leaf, ",
-                                                                         " hrtirt.bundle_leaf, ",
-                                                                         " hrtirt.seq_start_id_leaf, ",
-                                                                         " hrtirt.seq_end_id_leaf, ",
-                                                                         " hrtirt.seq_len_leaf, ",
-                                                                         " hrtirt.level_leaf, ",
-                                                                         " hrtirt.seq_start_seq_idx_leaf, ",
-                                                                         " hrtirt.seq_end_seq_idx_leaf ",
+                                                                         " hrtirt.db_uuid_child, ",
+                                                                         " hrtirt.session_child, ",
+                                                                         " hrtirt.bundle_child, ",
+                                                                         " hrtirt.seq_start_id_child, ",
+                                                                         " hrtirt.seq_end_id_child, ",
+                                                                         " hrtirt.seq_len_child, ",
+                                                                         " hrtirt.level_child, ",
+                                                                         " hrtirt.seq_start_seq_idx_child, ",
+                                                                         " hrtirt.seq_end_seq_idx_child ",
                                                                          "FROM hier_right_trapeze_interm_res_tmp AS hrtirt, ",
                                                                          " links, ",
                                                                          " items ",
@@ -1588,50 +1541,58 @@ query_databaseHier <- function(emuDBhandle,
                           append = T, 
                           row.names = F)
         
-        if(minMaxSeqIdxLeafOnly){
-          reduce_hierTrapezeIntermRes_minMaxSeqIdx(emuDBhandle)
-        }
-        
       }else{
         # at the top of the trapeze:
-        # extract leaf and anchor values persisting the left and right sides as the input tables
+        # extract child and parent values persisting the left and right sides as the input tables
         # in the resulting lr_exp_res_tmp table
-        if(leftIsLeaf){
-          DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO lr_exp_res_tmp ",
-                                                        "SELECT ",
-                                                        " astn.db_uuid, ",
-                                                        " astn.session, ",
-                                                        " astn.bundle, ",
-                                                        " NULL AS l_seq_start_id, ", # the MIN()/MAX() make the IDs useless
-                                                        " NULL AS l_seq_end_id, ",
-                                                        " MAX(hrtirt.seq_end_seq_idx_leaf) - MIN(hltirt.seq_start_seq_idx_leaf) + 1  AS l_seq_len, ",
-                                                        " hrtirt.level_leaf AS l_level, ",
-                                                        " MIN(hltirt.seq_start_seq_idx_leaf) AS l_seq_start_seq_idx, ",
-                                                        " MAX(hrtirt.seq_end_seq_idx_leaf) AS l_seq_end_seq_idx, ",
-                                                        " astn.seq_start_id AS r_seq_start_id, ",
-                                                        " astn.seq_end_id AS r_seq_end_id, ",
-                                                        " astn.seq_end_id - hltirt.seq_start_id + 1 AS r_seq_len, ",
-                                                        " astn.level AS r_level, ",
-                                                        " astn.seq_start_seq_idx AS r_seq_start_seq_idx, ",
-                                                        " astn.seq_end_seq_idx AS r_seq_end_seq_idx ",
-                                                        "FROM ", anchorSideTableName , " AS astn, ",
+        
+        if(leftIsChild){
+          browser()
+          DBI::dbGetQuery(emuDBhandle$connection, paste0(#"INSERT INTO lr_exp_res_tmp ",
+                                                        "SELECT *",
+                                                        # " pstn.db_uuid, ",
+                                                        # " pstn.session, ",
+                                                        # " pstn.bundle, ",
+                                                        # " NULL AS l_seq_start_id, ", # the MIN()/MAX() make the IDs useless
+                                                        # " NULL AS l_seq_end_id, ",
+                                                        # " MAX(hrtirt.seq_end_seq_idx_child) - MIN(hltirt.seq_start_seq_idx_child) + 1  AS l_seq_len, ",
+                                                        # " hrtirt.level_child AS l_level, ",
+                                                        # " MIN(hltirt.seq_start_seq_idx_child) AS l_seq_start_seq_idx, ",
+                                                        # " MAX(hrtirt.seq_end_seq_idx_child) AS l_seq_end_seq_idx, ",
+                                                        # " pstn.seq_start_id AS r_seq_start_id, ",
+                                                        # " pstn.seq_end_id AS r_seq_end_id, ",
+                                                        # " pstn.seq_end_seq_idx - hltirt.seq_start_seq_idx + 1 AS r_seq_len, ",
+                                                        # " pstn.level AS r_level, ",
+                                                        # " pstn.seq_start_seq_idx AS r_seq_start_seq_idx, ",
+                                                        # " pstn.seq_end_seq_idx AS r_seq_end_seq_idx ",
+                                                        "FROM ", parentSideTableName , " AS pstn, ",
                                                         " hier_left_trapeze_interm_res_tmp AS hltirt, ",
                                                         " hier_right_trapeze_interm_res_tmp AS hrtirt ",
-                                                        "WHERE astn.db_uuid = hltirt.db_uuid ",
-                                                        " AND astn.session = hltirt.session ",
-                                                        " AND astn.bundle = hltirt.bundle ",
-                                                        " AND astn.seq_start_id = hltirt.seq_start_id ",
-                                                        " AND astn.db_uuid = hrtirt.db_uuid ",
-                                                        " AND astn.session = hrtirt.session ",
-                                                        " AND astn.bundle = hrtirt.bundle ",
-                                                        " AND astn.seq_end_id = hrtirt.seq_end_id ",
-                                                        "GROUP BY astn.db_uuid, ",
-                                                        " astn.session, ",
-                                                        " astn.bundle, ",
-                                                        " astn.level, ",
-                                                        " astn.seq_start_seq_idx, ",
-                                                        " astn.seq_end_seq_idx ",
+                                                        "WHERE pstn.db_uuid = hltirt.db_uuid ",
+                                                        " AND pstn.session = hltirt.session ",
+                                                        " AND pstn.bundle = hltirt.bundle ",
+                                                        " AND pstn.seq_start_id = hltirt.seq_start_id ",
+                                                        " AND pstn.db_uuid = hrtirt.db_uuid ",
+                                                        " AND pstn.session = hrtirt.session ",
+                                                        " AND pstn.bundle = hrtirt.bundle ",
+                                                        " AND pstn.seq_end_id = hrtirt.seq_end_id ",
+                                                        # " AND hltirt.db_uuid = hrtirt.db_uuid ",
+                                                        # " AND hltirt.session = hrtirt.session ",
+                                                        # " AND hltirt.bundle = hrtirt.bundle ",
+                                                        # " AND hltirt.seq_start_id = hrtirt.seq_start_id",
+                                                        # " AND hltirt.seq_end_id = hrtirt.seq_end_id",
+                                                        #" AND pstn.session = hltirt.session ",
+                                                        #" AND pstn.bundle = hltirt.bundle ",
+                                                        # " AND pstn.seq_start_id = hltirt.seq_start_id ",
+                                                        #" AND pstn.seq_start_seq_idx >= h", 
+                                                        # "GROUP BY pstn.db_uuid, ",
+                                                        # " pstn.session, ",
+                                                        # " pstn.bundle, ",
+                                                        # " pstn.level, ",
+                                                        # " pstn.seq_start_seq_idx, ",
+                                                        # " pstn.seq_end_seq_idx ",
                                                         ""))
+          
           # calculate and update missing l_seq_start_id & l_seq_end_id
           DBI::dbExecute(emuDBhandle$connection, paste0("UPDATE lr_exp_res_tmp ",
                                                         "SET l_seq_start_id = joined.item_id ",
@@ -1687,38 +1648,38 @@ query_databaseHier <- function(emuDBhandle,
           
           DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO lr_exp_res_tmp ",
                                                         "SELECT ",
-                                                        " astn.db_uuid, ",
-                                                        " astn.session, ",
-                                                        " astn.bundle, ",
-                                                        " astn.seq_start_id AS l_seq_start_id, ",
-                                                        " astn.seq_end_id AS l_seq_end_id, ",
-                                                        " astn.seq_end_id - hltirt.seq_start_id + 1 AS l_seq_len, ",
-                                                        " astn.level AS l_level, ",
-                                                        " astn.seq_start_seq_idx AS l_seq_start_seq_idx, ",
-                                                        " astn.seq_end_seq_idx AS l_seq_end_seq_idx, ",
+                                                        " pstn.db_uuid, ",
+                                                        " pstn.session, ",
+                                                        " pstn.bundle, ",
+                                                        " pstn.seq_start_id AS l_seq_start_id, ",
+                                                        " pstn.seq_end_id AS l_seq_end_id, ",
+                                                        " pstn.seq_end_id - hltirt.seq_start_id + 1 AS l_seq_len, ",
+                                                        " pstn.level AS l_level, ",
+                                                        " pstn.seq_start_seq_idx AS l_seq_start_seq_idx, ",
+                                                        " pstn.seq_end_seq_idx AS l_seq_end_seq_idx, ",
                                                         " NULL AS r_seq_start_id, ", # the MIN()/MAX() make the IDs useless
                                                         " NULL AS r_seq_end_id, ",
-                                                        " MAX(hrtirt.seq_end_seq_idx_leaf) - MIN(hltirt.seq_start_seq_idx_leaf) + 1  AS r_seq_len, ",
-                                                        " hrtirt.level_leaf AS r_level, ",
-                                                        " MIN(hltirt.seq_start_seq_idx_leaf) AS r_seq_start_seq_idx, ",
-                                                        " MAX(hrtirt.seq_end_seq_idx_leaf) AS r_seq_end_seq_idx ",
-                                                        "FROM ", anchorSideTableName , " AS astn, ",
+                                                        " MAX(hrtirt.seq_end_seq_idx_child) - MIN(hltirt.seq_start_seq_idx_child) + 1  AS r_seq_len, ",
+                                                        " hrtirt.level_child AS r_level, ",
+                                                        " MIN(hltirt.seq_start_seq_idx_child) AS r_seq_start_seq_idx, ",
+                                                        " MAX(hrtirt.seq_end_seq_idx_child) AS r_seq_end_seq_idx ",
+                                                        "FROM ", parentSideTableName , " AS pstn, ",
                                                         " hier_left_trapeze_interm_res_tmp AS hltirt, ",
                                                         " hier_right_trapeze_interm_res_tmp AS hrtirt ",
-                                                        "WHERE astn.db_uuid = hltirt.db_uuid ",
-                                                        " AND astn.session = hltirt.session ",
-                                                        " AND astn.bundle = hltirt.bundle ",
-                                                        " AND astn.seq_start_id = hltirt.seq_start_id ",
-                                                        " AND astn.db_uuid = hrtirt.db_uuid ",
-                                                        " AND astn.session = hrtirt.session ",
-                                                        " AND astn.bundle = hrtirt.bundle ",
-                                                        " AND astn.seq_end_id = hrtirt.seq_end_id ",
-                                                        "GROUP BY astn.db_uuid, ",
-                                                        " astn.session, ",
-                                                        " astn.bundle, ",
-                                                        " astn.level, ",
-                                                        " astn.seq_start_seq_idx, ",
-                                                        " astn.seq_end_seq_idx ",
+                                                        "WHERE pstn.db_uuid = hltirt.db_uuid ",
+                                                        " AND pstn.session = hltirt.session ",
+                                                        " AND pstn.bundle = hltirt.bundle ",
+                                                        " AND pstn.seq_start_id = hltirt.seq_start_id ",
+                                                        " AND pstn.db_uuid = hrtirt.db_uuid ",
+                                                        " AND pstn.session = hrtirt.session ",
+                                                        " AND pstn.bundle = hrtirt.bundle ",
+                                                        " AND pstn.seq_end_id = hrtirt.seq_end_id ",
+                                                        "GROUP BY pstn.db_uuid, ",
+                                                        " pstn.session, ",
+                                                        " pstn.bundle, ",
+                                                        " pstn.level, ",
+                                                        " pstn.seq_start_seq_idx, ",
+                                                        " pstn.seq_end_seq_idx ",
                                                         ""))
           
           # calculate and update missing r_seq_start_id & r_seq_end_id
@@ -1781,10 +1742,10 @@ query_databaseHier <- function(emuDBhandle,
   DBI::dbExecute(emuDBhandle$connection, "DELETE FROM hier_left_trapeze_interm_res_tmp")
   DBI::dbExecute(emuDBhandle$connection, "DELETE FROM hier_right_trapeze_interm_res_tmp")
   
-  # insert NA rows if preserveLeafLength or preserveAnchorLength are set
-  # if(preserveLeafLength){
+  # insert NA rows if preserveChildLength or preserveParentLength are set
+  # if(preserveChildLength){
   #   preservedLengthTable = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT lr_exp_res_tmp.* ",
-  #                                                                         "FROM ", leafSideTableName, " AS lstn ",
+  #                                                                         "FROM ", childSideTableName, " AS lstn ",
   #                                                                         "LEFT JOIN lr_exp_res_tmp ",
   #                                                                         "ON lstn.db_uuid = lr_exp_res_tmp.db_uuid ",
   #                                                                         " AND lstn.session = lr_exp_res_tmp.session ",
@@ -1798,20 +1759,20 @@ query_databaseHier <- function(emuDBhandle,
   #   DBI::dbWriteTable(emuDBhandle$connection, "lr_exp_res_tmp", preservedLengthTable, append = T, row.names = F)
   #   
   # }else 
-  if(preserveLeafLength | preserveAnchorLength){
+  if(preserveChildLength | preserveParentLength){
     
     # set table name and seq_*_id prefix used for collapsing
-    # e.g.: if preserveLeafLength & leftIsLeaf -> use left side for grouping (hence collapsing)
-    if(preserveLeafLength){
-      preserveTableName = leafSideTableName
-      if(leftIsLeaf){ 
+    # e.g.: if preserveChildLength & leftIsChild -> use left side for grouping (hence collapsing)
+    if(preserveChildLength){
+      preserveTableName = childSideTableName
+      if(leftIsChild){ 
         seqIdPrefix = "l_"
       }else{
         seqIdPrefix = "r_"
       }
     }else{
-      preserveTableName = anchorSideTableName
-      if(leftIsLeaf){ 
+      preserveTableName = parentSideTableName
+      if(leftIsChild){ 
         seqIdPrefix = "r_"
       }else{
         seqIdPrefix = "l_"
@@ -1920,13 +1881,13 @@ query_databaseHier <- function(emuDBhandle,
     # 
     # # finally left join to preserveTableName
     # preservedLengthTable = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT lr.* ",
-    #                                                                       "FROM ", preserveTableName, " AS astn ",
+    #                                                                       "FROM ", preserveTableName, " AS pstn ",
     #                                                                       "LEFT JOIN lr_exp_res_collapsed_tmp AS lr ",
-    #                                                                       "ON astn.db_uuid = lr.db_uuid ",
-    #                                                                       " AND astn.session = lr.session ",
-    #                                                                       " AND astn.bundle = lr.bundle ",
-    #                                                                       " AND astn.seq_start_id = lr.", seqIdPrefix, "seq_start_id ",
-    #                                                                       " AND astn.seq_end_id = lr.", seqIdPrefix, "seq_end_id ",
+    #                                                                       "ON pstn.db_uuid = lr.db_uuid ",
+    #                                                                       " AND pstn.session = lr.session ",
+    #                                                                       " AND pstn.bundle = lr.bundle ",
+    #                                                                       " AND pstn.seq_start_id = lr.", seqIdPrefix, "seq_start_id ",
+    #                                                                       " AND pstn.seq_end_id = lr.", seqIdPrefix, "seq_end_id ",
     #                                                                       "LEFT JOIN items AS items_start ",
     #                                                                       "ON lr.db_uuid = items_start.db_uuid ",
     #                                                                       " AND lr.session = items_start.session ",
@@ -1937,8 +1898,8 @@ query_databaseHier <- function(emuDBhandle,
     #                                                                       " AND lr.session = items_end.session ",
     #                                                                       " AND lr.bundle = items_end.bundle ",
     #                                                                       " AND lr.", seqIdPrefix, "seq_end_id = items_end.item_id ",
-    #                                                                       "GROUP BY astn.rowid ", # preserve astn length
-    #                                                                       "ORDER BY astn.rowid ", # preserve astn ordering
+    #                                                                       "GROUP BY pstn.rowid ", # preserve pstn length
+    #                                                                       "ORDER BY pstn.rowid ", # preserve pstn ordering
     #                                                                       ""))
     # 
     # # drop temp table
