@@ -151,7 +151,8 @@ export_TextGridCollection <- function(emuDBhandle,
     for(attrNameIdx in 1:length(allAttrNames)){
       
       slTier = slBndl[slBndl$level == allAttrNames[attrNameIdx],]
-      
+      levelDef = get_levelDefinition(emuDBhandle, 
+                                     name = get_levelNameForAttributeName(emuDBhandle, allAttrNames[attrNameIdx]))
       emptyRow = data.frame(labels = "", 
                             start = -1, 
                             end = -1, 
@@ -170,90 +171,92 @@ export_TextGridCollection <- function(emuDBhandle,
                             sample_rate = "", 
                             stringsAsFactors = F)
       # tier header
-      if(all(slTier$end == 0)){
+      if(levelDef$type == "EVENT"){
         tierType = "TextTier"
       }else{
         tierType = "IntervalTier"
-        if(min(slTier$start) > 0){
-          # add empty segment to left (== pad left)
-          emptyRow$start = 0
-          emptyRow$end = min(slTier$start)
-          slTier = rbind(emptyRow, slTier)
-        }
-        
-        if(max(slTier$end) < wavDur){
-          # add empty segment to right (== pad right)
-          emptyRow$start = max(slTier$end)
-          emptyRow$end = wavDur
-          slTier = rbind(slTier, emptyRow)
-        }
-        
-        # check for empty and overlapping segments (caused by orphaned children in hierarchy)
-        problemSegs = slTier[-nrow(slTier),]$end - slTier[-1,]$start != 0
-        # check for overlapping segs
-        overlSegs = slTier[-nrow(slTier),]$end - slTier[-1,]$start > 0
-        # check for duplicate segs (caused by many_to_many -> elisions)
-        dupliSegs = slTier[-nrow(slTier),]$start == slTier[-1,]$start & slTier[-nrow(slTier),]$end == slTier[-1,]$end
-        
-        if(any(problemSegs) | any(overlSegs) | any(dupliSegs)){
-          slTierTmpNrow = nrow(slTier) + length(which(problemSegs)) - length(which(overlSegs)) - length(which(dupliSegs)) # remove overlSegs + dupliSegs from problemSegs (reason for minus)
-          # preallocate data.frame
-          slTierTmp = data.frame(labels = character(slTierTmpNrow), 
-                                 start = integer(slTierTmpNrow), 
-                                 end = integer(slTierTmpNrow), 
-                                 utts = character(slTierTmpNrow), 
-                                 db_uuid = character(slTierTmpNrow), 
-                                 session = character(slTierTmpNrow), 
-                                 bundle = character(slTierTmpNrow), 
-                                 start_item_id = character(slTierTmpNrow), 
-                                 end_item_id = character(slTierTmpNrow), 
-                                 level = character(slTierTmpNrow), 
-                                 start_item_seq_idx = integer(slTierTmpNrow), 
-                                 end_item_seq_idx = integer(slTierTmpNrow),
-                                 type = character(slTierTmpNrow), 
-                                 sampleStart = integer(slTierTmpNrow), 
-                                 sample_end = integer(slTierTmpNrow), 
-                                 sample_rate = integer(slTierTmpNrow), 
-                                 stringsAsFactors = F)
-          
-          slTierTmp[1,] = slTier[1,]
-          curRowIdx = 2
-          dupliSegsRowIdx = NULL
-          for(slTierRowIdx in 2:nrow(slTier)){
-            if(slTier[slTierRowIdx - 1,]$end < slTier[slTierRowIdx,]$start){
-              # add empty segment
-              emptyRow$start = slTier[slTierRowIdx - 1,]$end
-              emptyRow$end = slTier[slTierRowIdx,]$start
-              slTierTmp[curRowIdx,] = emptyRow
-              curRowIdx = curRowIdx + 1
-              slTierTmp[curRowIdx,] = slTier[slTierRowIdx,]
-              curRowIdx = curRowIdx + 1
-              
-            }else{
-              if(slTier[slTierRowIdx - 1,]$end > slTier[slTierRowIdx,]$start 
-                 | slTier[slTierRowIdx - 1,]$start == slTier[slTierRowIdx,]$start 
-                 & slTier[slTierRowIdx - 1,]$end == slTier[slTierRowIdx,]$end){ 
-                # overlapping or duplicate
-                slTierTmp[curRowIdx,] = slTier[slTierRowIdx,]
-                slTierTmp[curRowIdx,]$labels = paste0(slTier[slTierRowIdx - 1,]$labels, 
-                                                      "->", 
-                                                      slTier[slTierRowIdx,]$labels)
-                slTierTmp[curRowIdx,]$start = slTier[slTierRowIdx - 1,]$start
-                slTierTmp[curRowIdx,]$end = slTier[slTierRowIdx - 1,]$end
-                dupliSegsRowIdx = c(dupliSegsRowIdx, curRowIdx - 1)
-                curRowIdx = curRowIdx + 1
-              }else{
-                slTierTmp[curRowIdx,] = slTier[slTierRowIdx,]
-                curRowIdx = curRowIdx + 1
-              }
-            }
+        if(nrow(slTier) > 0){
+          if(min(slTier$start) > 0){
+            # add empty segment to left (== pad left)
+            emptyRow$start = 0
+            emptyRow$end = min(slTier$start)
+            slTier = rbind(emptyRow, slTier)
           }
           
+          if(max(slTier$end) < wavDur){
+            # add empty segment to right (== pad right)
+            emptyRow$start = max(slTier$end)
+            emptyRow$end = wavDur
+            slTier = rbind(slTier, emptyRow)
+          }
           
-          if(is.null(dupliSegsRowIdx)){
-            slTier = slTierTmp 
-          }else{
-            slTier = slTierTmp[-1 * dupliSegsRowIdx,]
+          # check for empty and overlapping segments (caused by orphaned children in hierarchy)
+          problemSegs = slTier[-nrow(slTier),]$end - slTier[-1,]$start != 0
+          # check for overlapping segs
+          overlSegs = slTier[-nrow(slTier),]$end - slTier[-1,]$start > 0
+          # check for duplicate segs (caused by many_to_many -> elisions)
+          dupliSegs = slTier[-nrow(slTier),]$start == slTier[-1,]$start & slTier[-nrow(slTier),]$end == slTier[-1,]$end
+          
+          if(any(problemSegs) | any(overlSegs) | any(dupliSegs)){
+            slTierTmpNrow = nrow(slTier) + length(which(problemSegs)) - length(which(overlSegs)) - length(which(dupliSegs)) # remove overlSegs + dupliSegs from problemSegs (reason for minus)
+            # preallocate data.frame
+            slTierTmp = data.frame(labels = character(slTierTmpNrow), 
+                                   start = integer(slTierTmpNrow), 
+                                   end = integer(slTierTmpNrow), 
+                                   utts = character(slTierTmpNrow), 
+                                   db_uuid = character(slTierTmpNrow), 
+                                   session = character(slTierTmpNrow), 
+                                   bundle = character(slTierTmpNrow), 
+                                   start_item_id = character(slTierTmpNrow), 
+                                   end_item_id = character(slTierTmpNrow), 
+                                   level = character(slTierTmpNrow), 
+                                   start_item_seq_idx = integer(slTierTmpNrow), 
+                                   end_item_seq_idx = integer(slTierTmpNrow),
+                                   type = character(slTierTmpNrow), 
+                                   sampleStart = integer(slTierTmpNrow), 
+                                   sample_end = integer(slTierTmpNrow), 
+                                   sample_rate = integer(slTierTmpNrow), 
+                                   stringsAsFactors = F)
+            
+            slTierTmp[1,] = slTier[1,]
+            curRowIdx = 2
+            dupliSegsRowIdx = NULL
+            for(slTierRowIdx in 2:nrow(slTier)){
+              if(slTier[slTierRowIdx - 1,]$end < slTier[slTierRowIdx,]$start){
+                # add empty segment
+                emptyRow$start = slTier[slTierRowIdx - 1,]$end
+                emptyRow$end = slTier[slTierRowIdx,]$start
+                slTierTmp[curRowIdx,] = emptyRow
+                curRowIdx = curRowIdx + 1
+                slTierTmp[curRowIdx,] = slTier[slTierRowIdx,]
+                curRowIdx = curRowIdx + 1
+                
+              }else{
+                if(slTier[slTierRowIdx - 1,]$end > slTier[slTierRowIdx,]$start 
+                   | slTier[slTierRowIdx - 1,]$start == slTier[slTierRowIdx,]$start 
+                   & slTier[slTierRowIdx - 1,]$end == slTier[slTierRowIdx,]$end){ 
+                  # overlapping or duplicate
+                  slTierTmp[curRowIdx,] = slTier[slTierRowIdx,]
+                  slTierTmp[curRowIdx,]$labels = paste0(slTier[slTierRowIdx - 1,]$labels, 
+                                                        "->", 
+                                                        slTier[slTierRowIdx,]$labels)
+                  slTierTmp[curRowIdx,]$start = slTier[slTierRowIdx - 1,]$start
+                  slTierTmp[curRowIdx,]$end = slTier[slTierRowIdx - 1,]$end
+                  dupliSegsRowIdx = c(dupliSegsRowIdx, curRowIdx - 1)
+                  curRowIdx = curRowIdx + 1
+                }else{
+                  slTierTmp[curRowIdx,] = slTier[slTierRowIdx,]
+                  curRowIdx = curRowIdx + 1
+                }
+              }
+            }
+            
+            
+            if(is.null(dupliSegsRowIdx)){
+              slTier = slTierTmp 
+            }else{
+              slTier = slTierTmp[-1 * dupliSegsRowIdx,]
+            }
           }
         }
       }
@@ -267,17 +270,28 @@ export_TextGridCollection <- function(emuDBhandle,
       
       # tier items
       if(tierType == "IntervalTier"){
-        tierItems = c(paste0("        intervals: size = ", nrow(slTier), " "), 
-                      c(rbind(paste0("        intervals [",1:nrow(slTier), "]:"), 
-                              paste0("            xmin = ", slTier$start, " "),
-                              paste0("            xmax = ", slTier$end, " "),
-                              paste0("            text = \"", slTier$labels, "\" "))))
+        if(nrow(slTier) > 0 ){
+          tierItems = c(paste0("        intervals: size = ", nrow(slTier), " "), 
+                        c(rbind(paste0("        intervals [",1:nrow(slTier), "]:"), 
+                                paste0("            xmin = ", slTier$start, " "),
+                                paste0("            xmax = ", slTier$end, " "),
+                                paste0("            text = \"", slTier$labels, "\" "))))
+        } else {
+          # Praat can handle this but should this be an 
+          # interval the length of the bundle? That is 
+          # how Praat creates empty tiers
+          tierItems = "        intervals: size = 0 " 
+        }
         
-      }else{
-        tierItems = c(paste0("        points: size = ", nrow(slTier), " "), 
-                      c(rbind(paste0("        points [",1:nrow(slTier), "]:"), 
-                              paste0("            number = ", slTier$start, " "),
-                              paste0("            mark = \"", slTier$labels, "\" "))))
+      } else {
+        if(nrow(slTier) > 0){
+          tierItems = c(paste0("        points: size = ", nrow(slTier), " "), 
+                        c(rbind(paste0("        points [",1:nrow(slTier), "]:"), 
+                                paste0("            number = ", slTier$start, " "),
+                                paste0("            mark = \"", slTier$labels, "\" "))))
+        } else {
+          tierItems = "        points: size = 0 "
+        }
         
       }
       

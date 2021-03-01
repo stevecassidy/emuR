@@ -1,4 +1,4 @@
-# emuR 2.1.1.9000
+# emuR 2.1.1.9001
 
 ## new features / performance tweaks / improvements
 
@@ -6,6 +6,8 @@
 - fixed a few more readr:: file vs path parameter warnings
 
 ## bug fixes
+
+- fixed invalid TextGrid export on empty levels
 
 # emuR 2.1.1
 
