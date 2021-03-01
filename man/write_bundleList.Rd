@@ -4,7 +4,7 @@
 \alias{write_bundleList}
 \title{write bundleList}
 \usage{
-write_bundleList(emuDBhandle, name, bundleList)
+write_bundleList(emuDBhandle, name, bundleList, seglist, updateDBconfig = T)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle object (see \link{load_emuDB})}
@@ -13,6 +13,17 @@ write_bundleList(emuDBhandle, name, bundleList)
 
 \item{bundleList}{tibble/data.frame with the columns \code{session}, \code{name}, 
 \code{comment} (optional), \code{finishedEditing} (optional). Use \link{list_bundles}}
+
+\item{seglist}{segment list returned by \link{query} function. If set the 
+\code{bundleList} parameter will be ignored and a bundleList will be created by
+collapsing the segments as timeAnchors into the \code{_bundleList.json}}
+
+\item{updateDBconfig}{if set to TRUE (the default) DBconfig will be updated 
+with the fields       
+\itemize{
+ \item \code{"bundleComments": true}
+ \item \code{"bundleFinishedEditing": true}
+}}
 }
 \description{
 write bundleList JSON file to emuDB
