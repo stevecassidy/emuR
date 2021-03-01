@@ -272,10 +272,10 @@ test_that("Load example database ae", {
     expect_that(nrow(r4), equals(1))
     expect_that(r4[1, 'start_item_id'], equals(122))
     
-    r5=query(ae,
-             "Phoneme == p & Start(Word, Phoneme) == 0",
-             bundlePattern = '.*7',
-             resultType = NULL)
+    r5 = query(ae,
+               "Phoneme == p & Start(Word, Phoneme) == 0",
+               bundlePattern = '.*7',
+               resultType = NULL)
     
     expect_that(nrow(r5), equals(1))
     expect_that(r5[1, 'start_item_id'], equals(136))
