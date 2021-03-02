@@ -301,7 +301,7 @@ test_that("Load example database ae", {
               resultType = NULL) 
     expect_that(nrow(r), equals(6))
     
-    # Test for GitHub Issue #41
+    # Test for GitHub Issue #41 
     # Num() function returns no values if level of first parameter is sublevel of second parameter.
     r = query(ae, 
               "Num(Phonetic, Phoneme) == 1")
@@ -563,7 +563,7 @@ test_that("Load example database ae", {
                "[[[Phoneme =~ .* ^ Phonetic == H] ^ Start(Word, Syllable) == 1] ^ Accent == S]")
     expect_equal(nrow(sl), 10)
     sl  = query (ae ,
-                 "[[[Phonetic = n -> Phonetic =z] -> Phonetic = S ] ^ [Text = friends -> Text = she]]")
+                 "[[[Phonetic = n -> Phonetic = z] -> Phonetic = S ] ^ [Text = friends -> Text = she]]")
     expect_equal(sl$labels, "n->z->S")
     sl = query(ae, "[Utterance =~ .* ^ Phonetic == @]", 
                verbose = F)
