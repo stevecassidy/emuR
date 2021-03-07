@@ -1293,19 +1293,79 @@ query_getChildren <- function(emuDBhandle, seglist, childAttributeName) {
                                                  "      ON o.staff_id = e.manager_id ",
                                                  ") ",
                                                  "SELECT * FROM cte_org;"))
-  db
+  
   DBI::dbWriteTable(emuDBhandle$connection, name = "parent_level_tmp", seglist)
   
-  DBI::dbGetQuery(emuDBhandle$connection, paste0(#"WITH cte_org AS (",
-                                                 "  SELECT *",
+  # get hierarchy paths
+  parentLevelName = unique(seglist$level) # check that this is unique
+  childLevelName = get_levelNameForAttributeName(emuDBhandle, childAttributeName)
+  
+  connectHierPaths = get_hierPathsConnectingLevels(emuDBhandle, 
+                                                   parentLevelName,
+                                                   childLevelName)
+  
+  curHierPath = connectHierPaths[[1]] # 
+  
+  DBI::dbGetQuery(emuDBhandle$connection, paste0("WITH RECURSIVE cte_get_children AS (",
+                                                 "  SELECT i.*", # anchor query -> get child items from next down level
                                                  "  FROM ",       
                                                  "    parent_level_tmp AS plt, ",
-                                                 "    links as l ",
-                                                 "  WHERE plt.db_uuid == l.db_uuid ",
-                                                 "    AND plt.session == l.session ",
-                                                 "    AND plt.bundle == l.bundle ",
-                                                 "    AND plt.start_item_id == l.from_id"))
-   
+                                                 "    links as l, ",
+                                                 "    items as i ",
+                                                 "  WHERE plt.db_uuid = l.db_uuid ",
+                                                 "    AND plt.session = l.session ",
+                                                 "    AND plt.bundle = l.bundle ",
+                                                 "    AND plt.start_item_id = l.from_id", 
+                                                 "    AND plt.db_uuid = i.db_uuid ",
+                                                 "    AND plt.session = i.session ",
+                                                 "    AND plt.bundle = i.bundle ",
+                                                 "    AND l.to_id = i.item_id ",
+                                                 #"    AND i.level IN ('", paste0(curHierPath, collapse = "', '"), "')", # check that on path
+                                                 "  UNION ALL ",
+                                                 "  SELECT i_recursive.db_uuid AS db_uuid, ", # recursive query
+                                                 "    i_recursive.session AS session, ",
+                                                 "    i_recursive.bundle AS bundle, ",
+                                                 "    i_recursive.item_id AS item_id, ",
+                                                 "    i_recursive.level AS level, ",
+                                                 "    i_recursive.type AS type, ",
+                                                 "    i_recursive.seq_idx AS seq_idx, ",
+                                                 "    i_recursive.sample_rate AS sample_rate, ",
+                                                 "    i_recursive.sample_point AS sample_point, ",
+                                                 "    i_recursive.sample_start AS sample_start, ",
+                                                 "    i_recursive.sample_dur AS sample_dur ", 
+                                                 "  FROM ",
+                                                 "    cte_get_children cgc, ",
+                                                 "    links AS l_recursive, ",
+                                                 "    items AS i_recursive, ",
+                                                 "  WHERE cgc.db_uuid = l_recursive.db_uuid ",
+                                                 "    AND cgc.session = l_recursive.session ",
+                                                 "    AND cgc.bundle = l_recursive.bundle ",
+                                                 "    AND cgc.item_id = l_recursive.from_id ",
+                                                 "    AND cgc.db_uuid = i_recursive.db_uuid ",
+                                                 "    AND cgc.session = i_recursive.session ",
+                                                 "    AND cgc.bundle = i_recursive.bundle ",
+                                                 "    AND l_recursive.to_id = cgc.item_id ",
+                                                 #"    AND i_recursive.level IN ('", paste0(curHierPath, collapse = "', '"), "')", # check that on path
+                                                 ") ",
+                                                 "SELECT * FROM cte_get_children;"
+  ))
+  
+  DBI::dbGetQuery(emuDBhandle$connection, paste0("WITH RECURSIVE cte_hier AS (",
+                                                 " SELECT links.* ",
+                                                 " FROM parent_level_tmp AS plt, ",
+                                                 "    links ",
+                                                 "  WHERE plt.db_uuid = links.db_uuid ",
+                                                 "    AND plt.session = links.session ",
+                                                 "    AND plt.bundle = links.bundle ",
+                                                 "    AND plt.start_item_id = links.from_id", # sick only start seq.
+                                                 " UNION ",
+                                                 " SELECT l.* ",
+                                                 " FROM links AS l, cte_hier AS ch ",
+                                                 " WHERE ch.to_id = l.from_id AND l.bundle = 'msajc003'",
+                                                 ")",
+                                                 "SELECT * from cte_hier;"
+  ))
+  
 }
 
 
