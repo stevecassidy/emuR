@@ -285,8 +285,7 @@ test_that("Load example database ae", {
   
   test_that("Query using End function",{
     r1 = query(ae,
-               "Phoneme == n & End(Word, Phoneme) == 1",
-               resultType = NULL)
+               "Phoneme == n & End(Word, Phoneme) == 1")
     
     expect_that(nrow(r1), equals(2))
     expect_that(r1[1, 'start_item_id'], equals(103))
@@ -297,8 +296,7 @@ test_that("Load example database ae", {
   test_that("Query using Num function",{
     
     # query words with exactly four phonemes
-    r = query(ae,"Num(Word, Phoneme) = 4",
-              resultType = NULL) 
+    r = query(ae,"Num(Word, Phoneme) = 4")
     expect_that(nrow(r), equals(6))
     
     # Test for GitHub Issue #41 
@@ -483,6 +481,8 @@ test_that("Load example database ae", {
     expect_equal(nrow(sl), nWord)
     sl = query(ae, "[Medial(Word, Syllable) == 1]")
     expect_equal(nrow(sl), 9)
+    sl = query(ae, "[Medial(Word, Syllable) == 0]")
+    expect_equal(nrow(sl), 73)
     # Position and Boolean &
     sl = query(ae, "[Phoneme == m & Start(Word, Phoneme) == 1]") # word initial m's
     expect_equal(nrow(sl), 2)
@@ -620,7 +620,7 @@ test_that("Load example database ae", {
     expect_equal(sl$sample_end, 13483)
     # even further up the hierarchy
     sl = query(ae,"[Text == more -> Text == customers]")
-    expect_equal(sl$sample_start, 36489)
+    expect_equal(sl$sample_start, 31574)
     expect_equal(sl$sample_end, 47355)
     
   })

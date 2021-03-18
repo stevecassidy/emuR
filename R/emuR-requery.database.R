@@ -537,7 +537,7 @@ requery_hier <- function(emuDBhandle,
                             "FROM items ",
                             "WHERE db_uuid ='", emuDBhandle$UUID, "' ",
                             " AND level = '", reqAttrDefLn, "'"))
-
+      
       # get hierarchy paths to check if going up or 
       # down the hierarchy (requery to parent or to child level)
       connectHierPaths = get_hierPathsConnectingLevels(emuDBhandle, 
@@ -553,27 +553,37 @@ requery_hier <- function(emuDBhandle,
       if(reqLevelIndexInPath < seglistLevelIndexInPath){
         # going up
         preserveChildLength = TRUE
+        if(!collapse){
+          # override perserveLengths if not collapsing
+          preserveChildLength = FALSE
+        }
+        
+        if(any(seglist$end_item_seq_idx - seglist$start_item_seq_idx + 1 != 1)){
+          browser()
+          stop("not implemented yet!")
+        } else {
+        
+          query_hierarchyWalk(emuDBhandle, 
+                              startItemsTableSuffix = origSeglistItemsTableSuffix, 
+                              targetItemsAttributeName = reqAttrDef,
+                              preserveStartItemsRowLength = preserveChildLength,
+                              walkDown = FALSE,
+                              verbose = verbose) # result written to lr_exp_res_tmp table
+        }
+        
       }else{
         # going down
-        preserveParentLength = TRUE
+        if(collapse){
+          # override perserveLengths if not collapsing
+          preserveParentLength = TRUE
+        }
+        query_hierarchyWalk(emuDBhandle, 
+                            startItemsTableSuffix = origSeglistItemsTableSuffix, 
+                            targetItemsAttributeName = reqAttrDef,
+                            preserveStartItemsRowLength = T,
+                            verbose = verbose) # result written to lr_exp_res_tmp table
+        
       }
-      
-      if(!collapse){
-        # override perserveLengths if not collapsing
-        preserveChildLength = FALSE
-        preserveParentLength = FALSE
-      }
-      
-      query_databaseHier(emuDBhandle, 
-                         firstLevelName = seglistAttrDefLn, 
-                         secondLevelName = reqAttrDefLn, 
-                         leftTableSuffix = origSeglistItemsTableSuffix, 
-                         rightTableSuffix = reqLevelItemsTableSuffix, 
-                         sessionPattern = ".*", 
-                         bundlePattern = ".*",
-                         preserveChildLength = preserveChildLength,
-                         preserveParentLength = preserveParentLength,
-                         verbose = verbose) # result written to lr_exp_res_tmp table
       
       # move query_databaseHier results into interm_res_items_tmp_root
       # and reset level back to requested attribute
@@ -593,7 +603,7 @@ requery_hier <- function(emuDBhandle,
                             " r_seq_end_seq_idx AS seq_end_seq_idx ",
                             " FROM lr_exp_res_tmp"))
       
-    }else{
+    } else {
       # just reset level as convert_queryResultToEmuRsegs does the rest!
       create_intermResTmpQueryTablesDBI(emuDBhandle)
       
