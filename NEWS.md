@@ -3,7 +3,8 @@
 ## new features / performance tweaks / improvements
 
 - `save()` -> save bundle performance bump due to SQLite transaction improvement + using prep. statements 
-- fixed a few more readr:: file vs path parameter warnings
+- fixed a few more `readr::` file vs path parameter warnings
+- using `readr::write_lines()` function in `export_TextGridCollection()` to better support UTF-8 symbols
 
 ## bug fixes
 
