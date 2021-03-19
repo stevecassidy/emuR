@@ -288,8 +288,8 @@ test_that("Load example database ae", {
                "Phoneme == n & End(Word, Phoneme) == 1")
     
     expect_that(nrow(r1), equals(2))
-    expect_that(r1[1, 'start_item_id'], equals(103))
-    expect_that(r1[2, 'start_item_id'], equals(158))
+    expect_that(r1[1,]$start_item_id, equals(103))
+    expect_that(r1[2,]$start_item_id, equals(158))
     
   })
   
@@ -301,17 +301,12 @@ test_that("Load example database ae", {
     
     # Test for GitHub Issue #41 
     # Num() function returns no values if level of first parameter is sublevel of second parameter.
-    r = query(ae, 
-              "Num(Phonetic, Phoneme) == 1")
-    expect_that(nrow(r), equals(247))
-    r = query(ae,
-              "Num(Phonetic, Phoneme) > 1")
-    expect_that(nrow(r), equals(6))
-    r = query(ae,
-              "Num(Phonetic, Phoneme) >= 1")
-    # 247 + 6 = 253
-    expect_that(nrow(r), equals(253))
-    
+    # not this now produces an error as the legacy behaviour 
+    # mentioned in #41 is not consistent with anything 
+    # and makes no sense!
+    # Hence, decided to brake with backward compat. here...
+    expect_error(query(ae, 
+              "Num(Phonetic, Phoneme) == 1"), regexp = "Second level/attribute name")
     
   })
   
@@ -569,6 +564,30 @@ test_that("Load example database ae", {
                verbose = F)
     expect_equal(nrow(sl), 7)
     expect_equal(sl$labels[1], "")
+    
+    sl = query(db, "[Text == she ^ [Phonetic == S -> Phonetic == i:]]")
+    expect_equal(sl$labels, "she")
+
+    sl = query(db, "[[Phonetic == S -> Phonetic == i:] ^ Text == she]")
+    expect_equal(sl$labels, "S->i:")
+
+    # a few more for -> + ^ queries
+    # overlap start -> empty as not dominated
+    sl = query(db, "[[Phonetic == z -> Phonetic == S] ^ Text == she]")
+    expect_equal(nrow(sl), 0)
+
+    sl = query(db, "[Text == she ^ [Phonetic == z -> Phonetic == S]]")
+    expect_equal(nrow(sl), 0)
+    
+    # overlap end -> empty as not dominated    
+    sl = query(db, "[[Phonetic == i: -> Phonetic == w] ^ Text == she]")
+    expect_equal(nrow(sl), 0)
+
+    sl = query(db, "[Text == she ^ [Phonetic == i: -> Phonetic == w]]")
+    expect_equal(nrow(sl), 0)
+    
+    sl = query(db, "[Tone =~ .* ^ [[Text == amongst -> Text == her] -> Text == friends]]")
+    expect_equal(nrow(sl), 3)
   })
   
   # 

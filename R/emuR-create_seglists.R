@@ -299,7 +299,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
                           preserveStartItemsRowLength = TRUE, # we always want the seqs.
                           sessionPattern = sessionPattern,
                           bundlePattern = bundlePattern,
-                          verbose = verbose )# result written to lr_exp_res_tmp table (left parents/right children)
+                          verbose = verbose) # result written to lr_exp_res_tmp table (left parents/right children)
       
       # set type of join depending on preserveParentLength
       # if(preserveParentLength){

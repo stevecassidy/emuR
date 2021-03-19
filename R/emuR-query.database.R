@@ -1263,9 +1263,9 @@ query_hierarchyWalk <- function(emuDBhandle,
   
   # get hierarchy paths
   startItemsLevelName = get_levelNameForAttributeName(emuDBhandle, 
-                                                  unique(DBI::dbReadTable(emuDBhandle$connection, 
-                                                                          paste0("interm_res_items_tmp_", 
-                                                                                 startItemsTableSuffix))$level))
+                                                      unique(DBI::dbReadTable(emuDBhandle$connection, 
+                                                                              paste0("interm_res_items_tmp_", 
+                                                                                     startItemsTableSuffix))$level))
   targetItemsLevelName = get_levelNameForAttributeName(emuDBhandle, targetItemsAttributeName)
   
   connectHierPaths = get_hierPathsConnectingLevels(emuDBhandle, 
@@ -2270,15 +2270,120 @@ query_databaseEqlInBracket<-function(emuDBhandle,
         clear_intermResTabels(emuDBhandle, rightTableSuffix)
         return()
       }
+      # check which side is parent
+      hierPaths = get_hierPathsConnectingLevels(emuDBhandle, 
+                                                lResLvl,
+                                                rResLvl)
+      if(which(hierPaths[[1]] == lResLvl) < which(hierPaths[[1]] == rResLvl)) {
+        leftIsParent = T
+      } else {
+        leftIsParent = F
+      }
       
-      query_databaseHier(emuDBhandle, 
-                         lResLvl, 
-                         rResLvl, 
-                         leftTableSuffix, 
-                         rightTableSuffix, 
-                         sessionPattern = sessionPattern, 
-                         bundlePattern = bundlePattern,
-                         verbose = verbose) # result written to lr_exp_res_tmp
+      if(leftIsParent){
+        # get all child sequences of childLevel that are linked to items on parentLevel
+        query_hierarchyWalk(emuDBhandle, 
+                            startItemsTableSuffix = leftTableSuffix, 
+                            targetItemsAttributeName = rResLvl,
+                            preserveStartItemsRowLength = TRUE, # get sequences (i.e. collapse)
+                            sessionPattern = sessionPattern,
+                            bundlePattern = bundlePattern,
+                            walkDown = TRUE,
+                            verbose = verbose) # result written to lr_exp_res_tmp table (left parents/right children)
+        # reduce to sequences in rightTableSuffix
+        DBI::dbReadTable(emuDBhandle$connection, "lr_exp_res_tmp")
+        DBI::dbReadTable(emuDBhandle$connection, paste0("interm_res_items_tmp_", rightTableSuffix))
+        # TODO don't extract and rewrite but to all in SQL
+        lrertTmp = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT lrert.db_uuid,", # retain left side as parents
+                                                                  " lrert.session, ",
+                                                                  " lrert.bundle, ",
+                                                                  " lrert.l_seq_start_id, ",
+                                                                  " lrert.l_seq_end_id, ",
+                                                                  " lrert.l_seq_len, ",
+                                                                  " lrert.l_level, ",
+                                                                  " lrert.l_seq_start_seq_idx, ",
+                                                                  " lrert.l_seq_end_seq_idx, ",
+                                                                  " irit.seq_start_id AS r_seq_start_id, ",
+                                                                  " irit.seq_end_id AS r_seq_end_id, ",
+                                                                  " irit.seq_len AS r_seq_len, ",
+                                                                  " irit.level AS r_level, ",
+                                                                  " irit.seq_start_seq_idx AS r_seq_start_seq_idx, ",
+                                                                  " irit.seq_end_seq_idx AS r_seq_end_seq_idx ",
+                                                                  "FROM interm_res_items_tmp_", rightTableSuffix, " AS irit ",
+                                                                  "JOIN lr_exp_res_tmp AS lrert ",
+                                                                  "ON irit.db_uuid = lrert.db_uuid ",
+                                                                  " AND irit.session = lrert.session ", 
+                                                                  " AND irit.bundle = lrert.bundle ", 
+                                                                  " AND irit.level = lrert.r_level ", 
+                                                                  " AND irit.seq_start_seq_idx ", 
+                                                                  "  BETWEEN lrert.r_seq_start_seq_idx ",
+                                                                  "   AND lrert.r_seq_end_seq_idx ", # r_seq_start_seq_idx coz all have length 1
+                                                                  " AND irit.seq_end_seq_idx ", 
+                                                                  "  BETWEEN lrert.r_seq_start_seq_idx ",
+                                                                  "   AND lrert.r_seq_end_seq_idx ", # r_seq_start_seq_idx coz all have length 1
+                                                                  "")) 
+        
+      } else {
+        # get all child sequences of childLevel that are linked to items on parentLevel
+        query_hierarchyWalk(emuDBhandle, 
+                            startItemsTableSuffix = rightTableSuffix, 
+                            targetItemsAttributeName = lResLvl,
+                            preserveStartItemsRowLength = TRUE, # get sequences (i.e. collapse)
+                            sessionPattern = sessionPattern,
+                            bundlePattern = bundlePattern,
+                            walkDown = TRUE,
+                            verbose = verbose) # result written to lr_exp_res_tmp table (left parents/right children)
+
+        # reduce to sequences in rightTableSuffix
+        # TODO don't extract and rewrite but to all in SQL
+        lrertTmp = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT lrert.db_uuid,", # switch sides to maint. lr_ order of query
+                                                                  " lrert.session, ",
+                                                                  " lrert.bundle, ",
+                                                                  " irit.seq_start_id AS l_seq_start_id, ",
+                                                                  " irit.seq_end_id AS l_seq_end_id, ",
+                                                                  " irit.seq_len AS l_seq_len, ",
+                                                                  " irit.level AS l_level, ",
+                                                                  " irit.seq_start_seq_idx AS l_seq_start_seq_idx, ",
+                                                                  " irit.seq_end_seq_idx AS l_seq_end_seq_idx, ",
+                                                                  " lrert.l_seq_start_id AS r_seq_start_id, ",
+                                                                  " lrert.l_seq_end_id AS r_seq_end_id, ",
+                                                                  " lrert.l_seq_len AS r_seq_len, ",
+                                                                  " lrert.l_level AS r_level, ",
+                                                                  " lrert.l_seq_start_seq_idx AS r_seq_start_seq_idx, ",
+                                                                  " lrert.l_seq_end_seq_idx AS r_seq_end_seq_idx ",
+                                                                  "FROM interm_res_items_tmp_", leftTableSuffix, " AS irit ",
+                                                                  "JOIN lr_exp_res_tmp AS lrert ",
+                                                                  "ON irit.db_uuid = lrert.db_uuid ",
+                                                                  " AND irit.session = lrert.session ", 
+                                                                  " AND irit.bundle = lrert.bundle ", 
+                                                                  " AND irit.level = lrert.r_level ", 
+                                                                  " AND irit.seq_start_seq_idx ", 
+                                                                  "  BETWEEN lrert.r_seq_start_seq_idx ",
+                                                                  "   AND lrert.r_seq_end_seq_idx ",
+                                                                  " AND irit.seq_end_seq_idx ", 
+                                                                  "  BETWEEN lrert.r_seq_start_seq_idx ",
+                                                                  "   AND lrert.r_seq_end_seq_idx ", 
+                                                                  ""))
+        
+        
+      }
+      # write back to table
+      DBI::dbExecute(emuDBhandle$connection, paste0("DELETE FROM lr_exp_res_tmp"))
+      
+      DBI::dbWriteTable(emuDBhandle$connection, 
+                        name = "lr_exp_res_tmp",
+                        value = lrertTmp, 
+                        append = T)
+      
+      
+      # query_databaseHier(emuDBhandle, 
+      #                    lResLvl, 
+      #                    rResLvl, 
+      #                    leftTableSuffix, 
+      #                    rightTableSuffix, 
+      #                    sessionPattern = sessionPattern, 
+      #                    bundlePattern = bundlePattern,
+      #                    verbose = verbose) # result written to lr_exp_res_tmp
       
       nLrExpRes = DBI::dbGetQuery(emuDBhandle$connection, 
                                   "SELECT COUNT(*) AS n FROM lr_exp_res_tmp")$n
@@ -2373,6 +2478,7 @@ query_databaseEqlInBracket<-function(emuDBhandle,
                                         " l_seq_start_seq_idx AS seq_start_seq_idx, ",
                                         " l_seq_end_seq_idx AS seq_end_seq_idx ",
                                         "FROM lr_exp_res_tmp"))
+      
       DBI::dbExecute(emuDBhandle$connection, 
                      paste0("DELETE FROM interm_res_items_tmp_", intermResTableSuffix))
       DBI::dbWriteTable(emuDBhandle$connection, 
