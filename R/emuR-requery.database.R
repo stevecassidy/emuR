@@ -584,7 +584,7 @@ requery_hier <- function(emuDBhandle,
           alreadyInInterm_res_items_tmp_root = TRUE
           create_intermResTmpQueryTablesDBI(emuDBhandle)
           # DBI::dbReadTable(emuDBhandle$connection, "interm_res_items_tmp_root")
-          DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_root ",
+          DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_root ",
                                                          "SELECT lrert.db_uuid, ",
                                                          " lrert.session, ",
                                                          " lrert.bundle, ",

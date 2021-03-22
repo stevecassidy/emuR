@@ -1263,9 +1263,9 @@ query_hierarchyWalk <- function(emuDBhandle,
   
   # get hierarchy paths
   startItemsLevelName = get_levelNameForAttributeName(emuDBhandle, 
-                                                      unique(DBI::dbReadTable(emuDBhandle$connection, 
+                                                      unique(na.omit(DBI::dbReadTable(emuDBhandle$connection, 
                                                                               paste0("interm_res_items_tmp_", 
-                                                                                     startItemsTableSuffix))$level))
+                                                                                     startItemsTableSuffix))$level)))
   targetItemsLevelName = get_levelNameForAttributeName(emuDBhandle, targetItemsAttributeName)
   
   connectHierPaths = get_hierPathsConnectingLevels(emuDBhandle, 

@@ -9,6 +9,7 @@ get_levelNameForAttributeName <- function(emuDBhandle, attributeName){
     aNames = character(0)
     for(ad in lvlD$attributeDefinitions){
       aNames = c(aNames, ad[['name']])
+      print(attributeName)
       if(attributeName %in% aNames){
         return(lvlD[['name']])
       }
