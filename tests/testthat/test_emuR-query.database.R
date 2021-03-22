@@ -565,29 +565,29 @@ test_that("Load example database ae", {
     expect_equal(nrow(sl), 7)
     expect_equal(sl$labels[1], "")
     
-    sl = query(db, "[Text == she ^ [Phonetic == S -> Phonetic == i:]]")
+    sl = query(ae, "[Text == she ^ [Phonetic == S -> Phonetic == i:]]")
     expect_equal(sl$labels, "she")
 
-    sl = query(db, "[[Phonetic == S -> Phonetic == i:] ^ Text == she]")
+    sl = query(ae, "[[Phonetic == S -> Phonetic == i:] ^ Text == she]")
     expect_equal(sl$labels, "S->i:")
 
     # a few more for -> + ^ queries
     # overlap start -> empty as not dominated
-    sl = query(db, "[[Phonetic == z -> Phonetic == S] ^ Text == she]")
+    sl = query(ae, "[[Phonetic == z -> Phonetic == S] ^ Text == she]")
     expect_equal(nrow(sl), 0)
 
-    sl = query(db, "[Text == she ^ [Phonetic == z -> Phonetic == S]]")
+    sl = query(ae, "[Text == she ^ [Phonetic == z -> Phonetic == S]]")
     expect_equal(nrow(sl), 0)
     
     # overlap end -> empty as not dominated    
-    sl = query(db, "[[Phonetic == i: -> Phonetic == w] ^ Text == she]")
+    sl = query(ae, "[[Phonetic == i: -> Phonetic == w] ^ Text == she]")
     expect_equal(nrow(sl), 0)
 
-    sl = query(db, "[Text == she ^ [Phonetic == i: -> Phonetic == w]]")
+    sl = query(ae, "[Text == she ^ [Phonetic == i: -> Phonetic == w]]")
     expect_equal(nrow(sl), 0)
     
-    sl = query(db, "[Tone =~ .* ^ [[Text == amongst -> Text == her] -> Text == friends]]")
-    expect_equal(nrow(sl), 3)
+    sl = query(ae, "[Tone =~ .* ^ [[Text == amongst -> Text == her] -> Text == friends]]")
+    expect_equal(nrow(sl), 2)
   })
   
   # 
@@ -611,6 +611,19 @@ test_that("Load example database ae", {
     query(ae, 
           "[Syllable == W]", 
           timeRefSegmentLevel = "Phonetic2")
+    
+    # clean up
+    remove_linkDefinition(ae, 
+                          superlevelName = "Phoneme",
+                          sublevelName = "Phonetic2",
+                          force = T,
+                          verbose = F)
+    
+        
+    remove_levelDefinition(ae, 
+                           name = "Phonetic2",
+                           force = T, 
+                           verbose = F)
   })
   
   # 
@@ -630,15 +643,21 @@ test_that("Load example database ae", {
   
   test_that("correct times are calculated for sequence dom. queries",{
     skip_on_cran()
-    sl = query(ae, "[[Phonetic == N -> Phonetic == s] -> Phonetic == t]")
+    sl = query(ae, 
+               "[[Phonetic == N -> Phonetic == s] -> Phonetic == t]", 
+               verbose = F)
     expect_equal(sl$sample_start, 8534)
     expect_equal(sl$sample_end, 11933)
     # move up one level
-    sl = query(ae, "[[Phoneme == N -> Phoneme == s] -> Phoneme == t]")
+    sl = query(ae, 
+               "[[Phoneme == N -> Phoneme == s] -> Phoneme == t]",
+               verbose = F)
     expect_equal(sl$sample_start, 8534)
     expect_equal(sl$sample_end, 13483)
     # even further up the hierarchy
-    sl = query(ae,"[Text == more -> Text == customers]")
+    sl = query(ae,
+               "[Text == more -> Text == customers]",
+               verbose = F)
     expect_equal(sl$sample_start, 31574)
     expect_equal(sl$sample_end, 47355)
     

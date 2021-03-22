@@ -463,7 +463,6 @@ requery_hier <- function(emuDBhandle,
     
     # place in emursegs_tmp table
     DBI::dbExecute(emuDBhandle$connection, "DELETE FROM emursegs_tmp;")
-    
     DBI::dbWriteTable(emuDBhandle$connection, 
                       "emursegs_tmp", 
                       as.data.frame(seglist), 
@@ -478,7 +477,6 @@ requery_hier <- function(emuDBhandle,
       stop("Multiple levels found in seglist! This is not supported by requery_hier()!")
     }
     
-    
     seglistAttrDefLn = get_levelNameForAttributeName(emuDBhandle, segListLevel)
     # get level for req level (which is actually a attribute definition)
     reqAttrDef = level
@@ -486,57 +484,40 @@ requery_hier <- function(emuDBhandle,
     
     reqAttrDefLn = get_levelNameForAttributeName(emuDBhandle, reqAttrDef)
     
+    alreadyInInterm_res_items_tmp_root = FALSE
+    
     if(seglistAttrDefLn != reqAttrDefLn){
       # insert all original emuRsegs items new table
       origSeglistItemsTableSuffix = "orig_seglist_items"
       create_intermResTmpQueryTablesDBI(emuDBhandle, 
                                         suffix = origSeglistItemsTableSuffix)
-      
       DBI::dbExecute(emuDBhandle$connection, 
                      paste0("INSERT INTO interm_res_items_tmp_", origSeglistItemsTableSuffix, " ",
-                            "SELECT erst.db_uuid, ", 
-                            " erst.session, ", 
-                            " erst.bundle, ", 
-                            " erst.start_item_id AS seq_start_id, ", 
-                            " erst.end_item_id AS seq_end_id, ", 
-                            " (i_end.seq_idx - i_start.seq_idx) + 1 AS seq_len, ", 
-                            " erst.level AS level, ", 
-                            " erst.start_item_seq_idx AS seq_start_seq_idx, ", 
+                            "SELECT  ",
+                            " erst.db_uuid,",
+                            " erst.session, ",
+                            " erst.bundle, ",
+                            " erst.start_item_id AS seq_start_id, ",
+                            " erst.end_item_id AS seq_end_id, ",
+                            " (i_end.seq_idx - i_start.seq_idx) + 1 AS seq_len, ",
+                            " erst.level AS level, ",
+                            " erst.start_item_seq_idx AS seq_start_seq_idx, ",
                             " erst.end_item_seq_idx AS seq_end_seq_idx ",
                             "FROM emursegs_tmp AS erst, ", 
-                            " items AS i_start, ", 
+                            " items AS i_start, ",
                             " items AS i_end ",
-                            "WHERE erst.db_uuid = i_start.db_uuid ", 
-                            " AND erst.session = i_start.session ", 
-                            " AND erst.bundle = i_start.bundle ", 
-                            " AND erst.start_item_id = i_start.item_id ", 
-                            " AND erst.db_uuid = i_end.db_uuid ", 
-                            " AND erst.session = i_end.session ", 
-                            " AND erst.bundle = i_end.bundle ", 
-                            " AND erst.end_item_id = i_end.item_id "))
+                            "WHERE erst.db_uuid = i_start.db_uuid ",
+                            " AND erst.session = i_start.session ",
+                            " AND erst.bundle = i_start.bundle ",
+                            " AND erst.start_item_id = i_start.item_id ",
+                            " AND erst.db_uuid = i_end.db_uuid ",
+                            " AND erst.session = i_end.session ",
+                            " AND erst.bundle = i_end.bundle ",
+                            " AND erst.end_item_id = i_end.item_id ",
+                            ""))
       
       # don't need requery tmp tables any more -> drop them
       drop_requeryTmpTables(emuDBhandle)
-      
-      # insert all items from requested level into new table
-      reqLevelItemsTableSuffix = "req_level_items"
-      create_intermResTmpQueryTablesDBI(emuDBhandle, 
-                                        suffix = reqLevelItemsTableSuffix)
-      
-      DBI::dbExecute(emuDBhandle$connection, 
-                     paste0("INSERT INTO interm_res_items_tmp_", reqLevelItemsTableSuffix, " ",
-                            "SELECT db_uuid, ", 
-                            " session, ", 
-                            " bundle, ", 
-                            " item_id AS start_item_id, ", 
-                            " item_id AS seq_end_id, ", 
-                            " 1 AS seq_len, ", 
-                            " level, ", 
-                            " seq_idx AS seq_start_seq_idx, ", 
-                            " seq_idx AS seq_end_seq_idx ",
-                            "FROM items ",
-                            "WHERE db_uuid ='", emuDBhandle$UUID, "' ",
-                            " AND level = '", reqAttrDefLn, "'"))
       
       # get hierarchy paths to check if going up or 
       # down the hierarchy (requery to parent or to child level)
@@ -559,10 +540,73 @@ requery_hier <- function(emuDBhandle,
         }
         
         if(any(seglist$end_item_seq_idx - seglist$start_item_seq_idx + 1 != 1)){
-          browser()
-          stop("not implemented yet!")
+          
+          # first get all parents
+          query_hierarchyWalk(emuDBhandle, 
+                              startItemsTableSuffix = origSeglistItemsTableSuffix, 
+                              targetItemsAttributeName = reqAttrDef,
+                              preserveStartItemsRowLength = FALSE,
+                              walkDown = FALSE,
+                              verbose = verbose) # result written to lr_exp_res_tmp table
+          # DBI::dbReadTable(emuDBhandle$connection, "lr_exp_res_tmp")
+          # place parents into new table 
+          allParentsItemsTableSuffix = "all_parents_items"
+          create_intermResTmpQueryTablesDBI(emuDBhandle, 
+                                            suffix = allParentsItemsTableSuffix)
+          DBI::dbExecute(emuDBhandle$connection, 
+                         paste0("INSERT INTO interm_res_items_tmp_", allParentsItemsTableSuffix, " ", 
+                                "SELECT ",
+                                " db_uuid, ",
+                                " session, ",
+                                " bundle, ",
+                                " r_seq_start_id AS seq_start_id, ",
+                                " r_seq_end_id AS seq_end_id, ",
+                                " r_seq_len AS seq_len, ",
+                                " '", reqAttrDef, "' AS level, ",
+                                " r_seq_start_seq_idx AS seq_start_seq_idx, ",
+                                " r_seq_end_seq_idx AS seq_end_seq_idx ",
+                                " FROM lr_exp_res_tmp"))
+          # DBI::dbReadTable(emuDBhandle$connection, 
+          #                  paste0("interm_res_items_tmp_", allParentsItemsTableSuffix))
+          # get all seqs on seglist level that are dominated by parents
+          query_hierarchyWalk(emuDBhandle, 
+                              startItemsTableSuffix = allParentsItemsTableSuffix, 
+                              targetItemsAttributeName = seglistAttrDefLn,
+                              preserveStartItemsRowLength = TRUE,
+                              walkDown = TRUE,
+                              verbose = verbose) # result written to lr_exp_res_tmp table
+          # DBI::dbReadTable(emuDBhandle$connection, "lr_exp_res_tmp")
+          # DBI::dbReadTable(emuDBhandle$connection, 
+          #                  paste0("interm_res_items_tmp_", origSeglistItemsTableSuffix))
+          
+          # extract parents that are parents of sequences that encapsulate the seglist seqs
+          # and write to new table
+          alreadyInInterm_res_items_tmp_root = TRUE
+          create_intermResTmpQueryTablesDBI(emuDBhandle)
+          # DBI::dbReadTable(emuDBhandle$connection, "interm_res_items_tmp_root")
+          DBI::dbGetQuery(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_root ",
+                                                         "SELECT lrert.db_uuid, ",
+                                                         " lrert.session, ",
+                                                         " lrert.bundle, ",
+                                                         " lrert.l_seq_start_id AS seq_start_id, ",
+                                                         " lrert.l_seq_end_id AS seq_end_id, ",
+                                                         " lrert.l_seq_len AS seq_len, ",
+                                                         " lrert.l_level AS level, ",
+                                                         " lrert.l_seq_start_seq_idx AS seq_start_seq_idx, ",
+                                                         " lrert.l_seq_end_seq_idx AS seq_end_seq_idx ",
+                                                         "FROM interm_res_items_tmp_", origSeglistItemsTableSuffix, " AS irit ",
+                                                         "LEFT JOIN lr_exp_res_tmp AS lrert ",
+                                                         "ON irit.db_uuid == lrert.db_uuid ",
+                                                         " AND irit.session == lrert.session ", 
+                                                         " AND irit.bundle == lrert.bundle ", 
+                                                         " AND irit.level == lrert.r_level ", 
+                                                         " AND irit.seq_start_seq_idx BETWEEN lrert.r_seq_start_seq_idx ",
+                                                         "  AND lrert.r_seq_end_seq_idx",
+                                                         " AND irit.seq_end_seq_idx BETWEEN lrert.r_seq_start_seq_idx ", 
+                                                         "  AND lrert.r_seq_end_seq_idx",
+                                                         ""))
+          
         } else {
-        
           query_hierarchyWalk(emuDBhandle, 
                               startItemsTableSuffix = origSeglistItemsTableSuffix, 
                               targetItemsAttributeName = reqAttrDef,
@@ -580,29 +624,30 @@ requery_hier <- function(emuDBhandle,
         query_hierarchyWalk(emuDBhandle, 
                             startItemsTableSuffix = origSeglistItemsTableSuffix, 
                             targetItemsAttributeName = reqAttrDef,
-                            preserveStartItemsRowLength = T,
+                            preserveStartItemsRowLength = preserveParentLength,
                             verbose = verbose) # result written to lr_exp_res_tmp table
         
       }
       
-      # move query_databaseHier results into interm_res_items_tmp_root
-      # and reset level back to requested attribute
-      create_intermResTmpQueryTablesDBI(emuDBhandle)
-      
-      DBI::dbExecute(emuDBhandle$connection, 
-                     paste0("INSERT INTO interm_res_items_tmp_root ",
-                            "SELECT ",
-                            " db_uuid, ",
-                            " session, ",
-                            " bundle, ",
-                            " r_seq_start_id AS seq_start_id, ",
-                            " r_seq_end_id AS seq_end_id, ",
-                            " r_seq_len AS seq_len, ",
-                            " '", reqAttrDef, "' AS level, ",
-                            " r_seq_start_seq_idx AS seq_start_seq_idx, ",
-                            " r_seq_end_seq_idx AS seq_end_seq_idx ",
-                            " FROM lr_exp_res_tmp"))
-      
+      if(!alreadyInInterm_res_items_tmp_root){
+        # move query_databaseHier results into interm_res_items_tmp_root
+        # and reset level back to requested attribute
+        create_intermResTmpQueryTablesDBI(emuDBhandle)
+        
+        DBI::dbExecute(emuDBhandle$connection, 
+                       paste0("INSERT INTO interm_res_items_tmp_root ",
+                              "SELECT ",
+                              " db_uuid, ",
+                              " session, ",
+                              " bundle, ",
+                              " r_seq_start_id AS seq_start_id, ",
+                              " r_seq_end_id AS seq_end_id, ",
+                              " r_seq_len AS seq_len, ",
+                              " '", reqAttrDef, "' AS level, ",
+                              " r_seq_start_seq_idx AS seq_start_seq_idx, ",
+                              " r_seq_end_seq_idx AS seq_end_seq_idx ",
+                              " FROM lr_exp_res_tmp"))
+      }
     } else {
       # just reset level as convert_queryResultToEmuRsegs does the rest!
       create_intermResTmpQueryTablesDBI(emuDBhandle)

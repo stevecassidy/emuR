@@ -57,7 +57,6 @@ read_and_join_wide_flatData <- function(emuDBhandle,
       }
     } else if(!missing(bundleName) && !missing(sessionName)){
       # bundle level
-      browser()
       long_flatData$session = sessionName
       long_flatData$bundle = bundleName
       res = dplyr::left_join(x, long_flatData, by = c("session", "bundle"))
@@ -70,34 +69,34 @@ read_and_join_wide_flatData <- function(emuDBhandle,
   }
 }
 
-##' Join flat file data (UTF-8 .csv/.tsv files) to x 
-##' 
-##' Join flat file data that is present within 
-##' the directories of an emuDB to a tibble/data.frame object
-##' usually either produced by \link{query} or \link{get_trackdata}. As
-##' it uses the "session" and "bundle" columns to perform the joins these
-##' have to be present in x. 
-##' 
-##' This function recognizes 2 types flat files files:
-##' \itemize{
-##' \item *_keyValue files
-##' }
-##' 
-##' @param emuDBhandle emuDB handle object (see \link{load_emuDB})
-##' @param sessionPattern A regular expression pattern matching session names to be searched from the database
-##' @param bundlePattern A regular expression pattern matching bundle names to be searched from the database
-##' @param fileExtension file extension of flat data files (default: '.csv')
-##' @param readFunction function used to read in flat data files (default: \link{readr::read_csv2})
-##' 
-##' @return tibble with the columns 
-##' \itemize{
-##' \item session
-##' \item bundle
-##' \item sample_rate_annot_json
-##' \item sample_rate_media_file
-##' }
-##' \code{session}, \code{b}
-##' @export
+## Join flat file data (UTF-8 .csv/.tsv files) to x 
+## 
+## Join flat file data that is present within 
+## the directories of an emuDB to a tibble/data.frame object
+## usually either produced by \link{query} or \link{get_trackdata}. As
+## it uses the "session" and "bundle" columns to perform the joins these
+## have to be present in x. 
+## 
+## This function recognizes 2 types flat files files:
+## \itemize{
+## \item *_keyValue files
+## }
+## 
+## @param emuDBhandle emuDB handle object (see \link{load_emuDB})
+## @param sessionPattern A regular expression pattern matching session names to be searched from the database
+## @param bundlePattern A regular expression pattern matching bundle names to be searched from the database
+## @param fileExtension file extension of flat data files (default: '.csv')
+## @param readFunction function used to read in flat data files (default: \link{readr::read_csv2})
+## 
+## @return tibble with the columns 
+## \itemize{
+## \item session
+## \item bundle
+## \item sample_rate_annot_json
+## \item sample_rate_media_file
+## }
+## \code{session}, \code{b}
+## @export
 join_flatFileData <- function(emuDBhandle, 
                               x,
                               sessionPattern = '.*', 
@@ -190,7 +189,6 @@ join_flatFileData <- function(emuDBhandle,
   }
   
   
-  # browser()
   return(x)
   
 }

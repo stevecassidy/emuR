@@ -1277,9 +1277,9 @@ query_hierarchyWalk <- function(emuDBhandle,
   if(verbose & length(connectHierPaths) >= 2){
     
     cat(paste0("More than one path connecting: '", 
-               firstLevelName, 
+               startItemsLevelName, 
                "' and '", 
-               secondLevelName, 
+               targetItemsLevelName, 
                "' was found! The paths were: \n" ))
     for(i in 1:length(connectHierPaths)){
       cat(paste0(i, ".) ", 
@@ -1352,7 +1352,7 @@ query_hierarchyWalk <- function(emuDBhandle,
                                                 "    AND irit.bundle = items.bundle ",
                                                 "    AND items.level = '", startItemsLevelName, "' ",
                                                 "    AND items.seq_idx BETWEEN irit.seq_start_seq_idx AND irit.seq_end_seq_idx ",  
-                                                " UNION ALL ", # no repeats -> faster coz no checking of duplicates
+                                                " UNION ALL ", # contains repeats -> faster coz no checking of duplicates
                                                 " SELECT ch.start_items_table_row_idx, i.* ", # recursive part of CTE: join cte_hier to items using links
                                                 " FROM cte_hier AS ch ",
                                                 " INNER JOIN links AS l ",
@@ -1372,6 +1372,7 @@ query_hierarchyWalk <- function(emuDBhandle,
                                                 sqlStr_checkIfOnPath, # check that on path (if str is set)
                                                 ") ",
                                                 "INSERT INTO lr_exp_res_tmp ",
+                                                # "SELECT * FROM cte_hier",
                                                 "SELECT DISTINCT ", # distinct because UNION ALL doesn't check for duplicates
                                                 " irit.db_uuid, ",
                                                 " irit.session, ",
@@ -1780,7 +1781,7 @@ query_databaseHier <- function(emuDBhandle,
         # in the resulting lr_exp_res_tmp table
         
         if(leftIsChild){
-          View(DBI::dbGetQuery(emuDBhandle$connection, paste0(#"INSERT INTO lr_exp_res_tmp ",
+          DBI::dbGetQuery(emuDBhandle$connection, paste0(#"INSERT INTO lr_exp_res_tmp ",
             "SELECT *",
             # " pstn.db_uuid, ",
             # " pstn.session, ",
@@ -1818,7 +1819,7 @@ query_databaseHier <- function(emuDBhandle,
             " AND cstn.session = hrtirt.session ",
             " AND cstn.bundle = hrtirt.bundle ",
             " AND cstn.seq_end_id = hrtirt.seq_end_id_child ",
-            "")))
+            ""))
           
           # calculate and update missing l_seq_start_id & l_seq_end_id
           # DBI::dbExecute(emuDBhandle$connection, paste0("UPDATE lr_exp_res_tmp ",

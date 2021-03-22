@@ -11,7 +11,7 @@ Description: An R package that provides the EMU Speech
     extraction, data preparation and data visualization facilities.
 License: GPL (>= 2)
 Depends: 
-    R (>= 3.2.0)
+    R (>= 3.5.0)
 Imports: 
     tools,
     utils,
