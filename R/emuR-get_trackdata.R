@@ -196,6 +196,11 @@
     stop("resultType can only be 'trackdata', if a seglist of class 'emusegs' is passed in")
   }
   
+  if(nrow(seglist) == 0){
+    stop("'seglist' is empty! Can't get trackdata if no segments are specified...")
+  }
+  
+  
   #########################
   # get track definition
   if(ssffTrackName %in% c("MEDIAFILE_SAMPLES")){
