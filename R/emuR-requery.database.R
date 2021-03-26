@@ -211,7 +211,8 @@ requery_seq <- function(emuDBhandle,
                           " items_start.item_id AS seq_start_id, ",
                           " items_end.item_id AS seq_end_id, ",
                           length, " AS seq_len, ",
-                          " sl.attribute AS level, ",
+                          " sl.level AS level, ",
+                          " sl.attribute AS attribute, ",
                           " items_start.seq_idx AS seq_start_seq_idx, ",
                           " items_end.seq_idx AS seq_end_seq_idx ",
                           "FROM emursegs_tmp sl ",
@@ -239,7 +240,8 @@ requery_seq <- function(emuDBhandle,
                         " items_start.item_id AS seq_start_id, ",
                         " items_end.item_id AS seq_end_id, ", 
                         length, " AS seq_len, ",
-                        " sl.attribute AS level, ",
+                        " sl.level AS level, ",
+                        " sl.attribute AS attribute, ",
                         " items_start.seq_idx AS seq_start_seq_idx, ",
                         " items_end.seq_idx AS seq_end_seq_idx ",
                         "FROM emursegs_tmp AS sl ",
@@ -479,7 +481,7 @@ requery_hier <- function(emuDBhandle,
     
     seglistAttrDefLn = get_levelNameForAttributeName(emuDBhandle, segListLevel)
     # get level for req level (which is actually a attribute definition)
-    reqAttrDef = level
+    reqAttrDef = level # TODO rename input parameter
     check_levelAttributeName(emuDBhandle, reqAttrDef) # check if valid attr. def
     
     reqAttrDefLn = get_levelNameForAttributeName(emuDBhandle, reqAttrDef)
@@ -501,6 +503,7 @@ requery_hier <- function(emuDBhandle,
                             " erst.end_item_id AS seq_end_id, ",
                             " (i_end.seq_idx - i_start.seq_idx) + 1 AS seq_len, ",
                             " erst.level AS level, ",
+                            " erst.attribute AS attribute, ",
                             " erst.start_item_seq_idx AS seq_start_seq_idx, ",
                             " erst.end_item_seq_idx AS seq_end_seq_idx ",
                             "FROM emursegs_tmp AS erst, ", 
@@ -562,12 +565,14 @@ requery_hier <- function(emuDBhandle,
                                 " r_seq_start_id AS seq_start_id, ",
                                 " r_seq_end_id AS seq_end_id, ",
                                 " r_seq_len AS seq_len, ",
-                                " '", reqAttrDef, "' AS level, ",
+                                " '", reqAttrDef, "' AS attribute, ",
+                                " '", reqAttrDefLn, "' AS level, ",
                                 " r_seq_start_seq_idx AS seq_start_seq_idx, ",
                                 " r_seq_end_seq_idx AS seq_end_seq_idx ",
                                 " FROM lr_exp_res_tmp"))
           # DBI::dbReadTable(emuDBhandle$connection, 
           #                  paste0("interm_res_items_tmp_", allParentsItemsTableSuffix))
+          
           # get all seqs on seglist level that are dominated by parents
           query_hierarchyWalk(emuDBhandle, 
                               startItemsTableSuffix = allParentsItemsTableSuffix, 
@@ -575,6 +580,7 @@ requery_hier <- function(emuDBhandle,
                               preserveStartItemsRowLength = TRUE,
                               walkDown = TRUE,
                               verbose = verbose) # result written to lr_exp_res_tmp table
+          
           # DBI::dbReadTable(emuDBhandle$connection, "lr_exp_res_tmp")
           # DBI::dbReadTable(emuDBhandle$connection, 
           #                  paste0("interm_res_items_tmp_", origSeglistItemsTableSuffix))
@@ -583,7 +589,9 @@ requery_hier <- function(emuDBhandle,
           # and write to new table
           alreadyInInterm_res_items_tmp_root = TRUE
           create_intermResTmpQueryTablesDBI(emuDBhandle)
+          
           # DBI::dbReadTable(emuDBhandle$connection, "interm_res_items_tmp_root")
+          
           DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_root ",
                                                          "SELECT lrert.db_uuid, ",
                                                          " lrert.session, ",
@@ -591,7 +599,8 @@ requery_hier <- function(emuDBhandle,
                                                          " lrert.l_seq_start_id AS seq_start_id, ",
                                                          " lrert.l_seq_end_id AS seq_end_id, ",
                                                          " lrert.l_seq_len AS seq_len, ",
-                                                         " lrert.l_level AS level, ",
+                                                         "'", reqAttrDefLn, "' AS level, ",
+                                                         "'", reqAttrDef, "' AS attribute,", 
                                                          " lrert.l_seq_start_seq_idx AS seq_start_seq_idx, ",
                                                          " lrert.l_seq_end_seq_idx AS seq_end_seq_idx ",
                                                          "FROM interm_res_items_tmp_", origSeglistItemsTableSuffix, " AS irit ",
@@ -633,7 +642,6 @@ requery_hier <- function(emuDBhandle,
         # move query_databaseHier results into interm_res_items_tmp_root
         # and reset level back to requested attribute
         create_intermResTmpQueryTablesDBI(emuDBhandle)
-        
         DBI::dbExecute(emuDBhandle$connection, 
                        paste0("INSERT INTO interm_res_items_tmp_root ",
                               "SELECT ",
@@ -643,7 +651,8 @@ requery_hier <- function(emuDBhandle,
                               " r_seq_start_id AS seq_start_id, ",
                               " r_seq_end_id AS seq_end_id, ",
                               " r_seq_len AS seq_len, ",
-                              " '", reqAttrDef, "' AS level, ",
+                              " r_level AS level, ",
+                              " r_attribute AS attribute, ",
                               " r_seq_start_seq_idx AS seq_start_seq_idx, ",
                               " r_seq_end_seq_idx AS seq_end_seq_idx ",
                               " FROM lr_exp_res_tmp"))
@@ -661,6 +670,7 @@ requery_hier <- function(emuDBhandle,
                             " erst.end_item_id AS seq_end_id, ",
                             " (i_end.seq_idx - i_start.seq_idx) + 1 AS seq_len, ",
                             " '", level, "' AS level, ",
+                            " '", level, "' AS attribute, ",
                             " erst.start_item_seq_idx AS seq_start_seq_idx, ",
                             " erst.end_item_seq_idx AS seq_end_seq_idx ",
                             "FROM emursegs_tmp AS erst, ",

@@ -632,6 +632,11 @@ test_that("Load example database ae", {
     sl = query(ae, 
                "[Syllable == W]", 
                calcTimes = F)
+  
+    expect_true(all(is.na(sl$start)))
+    expect_true(all(is.na(sl$end)))
+    expect_true(all(is.na(sl$sample_start)))
+    expect_true(all(is.na(sl$sample_end)))
   })
   
   test_that("correct times are calculated for Intonational",{

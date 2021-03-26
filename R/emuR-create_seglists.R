@@ -15,7 +15,6 @@ convert_queryEmuRsegsToTibble <- function(emuDBhandle, emuRsegs){
   if(length(resultAttrDef) > 1){
     stop("Could not convert the emuRsegs object to a tibble as it contains multiple attribute definitions.")
   }
-  
   attrDefLn = get_levelNameForAttributeName(emuDBhandle, resultAttrDef)
   # fix attribute/level 
   emuRsegs$attribute = resultAttrDef
@@ -82,6 +81,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
     
     # insert everything into interm_res_items_tmp_root for query_hierarchyWalk
     DBI::dbExecute(emuDBhandle$connection, paste0("DELETE FROM interm_res_items_tmp_root"))
+    
     DBI::dbExecute(emuDBhandle$connection, paste0("INSERT INTO interm_res_items_tmp_root ",
                                                   "SELECT DISTINCT ",
                                                   " db_uuid, ",
@@ -91,6 +91,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
                                                   " p_seq_end_id AS seq_end_id, ",
                                                   " p_seq_len AS seq_len, ",
                                                   " p_level AS level, ",
+                                                  " p_attribute AS attribute, ",
                                                   " p_seq_start_seq_idx AS seq_start_seq_idx, ",
                                                   " p_seq_end_seq_idx AS seq_end_seq_idx ", 
                                                   "FROM interm_res_proj_items_tmp_root"))
@@ -104,7 +105,6 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
   if(itemsN > 0 ){
     
     # use "normal" items
-    itsTableName = "interm_res_items_tmp_root"
     seqStartIdColName = "seq_start_id"
     seqEndIdColName = "seq_end_id"
     seqLenColName = "seq_len"
@@ -125,10 +125,9 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
     
     
     dbConfig = load_DBconfig(emuDBhandle)
-    
-    resultAttrDef = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT ", levelColName, 
-                                                                   " FROM ", itsTableName, 
-                                                                   " WHERE level IS NOT NULL"))[[levelColName]]
+    resultAttrDef = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT DISTINCT attribute ", 
+                                                                   " FROM interm_res_items_tmp_root", 
+                                                                   " WHERE level IS NOT NULL"))$attribute
     
     attrDefLn = get_levelNameForAttributeName(emuDBhandle, resultAttrDef)
     ld = get_levelDefinition(emuDBhandle, attrDefLn)
@@ -366,7 +365,6 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
     # }else{
     # joinType = "INNER JOIN"
     # }
-    
     seglist = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT ",
                                                              " GROUP_CONCAT(ungrouped.label, '->') AS labels, ",
                                                              " start, ",
@@ -453,8 +451,11 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
       slType='event'
     }
   }
-  # queryStr = DBI::dbGetQuery(emuDBhandle$connection, "SELECT query_str FROM interm_res_meta_infos_tmp_root")$query_str
-  segmentList = make.emuRsegs(dbName = emuDBhandle$dbName, seglist = seglist, query = queryStr, type = slType)
+  
+  segmentList = make.emuRsegs(dbName = emuDBhandle$dbName, 
+                              seglist = seglist, 
+                              query = queryStr, 
+                              type = slType)
   
   # if contains NAs -> also set everything to NA
   if(any(is.na(segmentList$labels))){
@@ -468,7 +469,11 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
 ##################################
 ##################################
 ##################################
-equal.emusegs<-function(seglist1,seglist2,compareAttributes=TRUE,tolerance=0.0,uttsPrefix2=''){
+equal.emusegs<-function(seglist1,
+                        seglist2,
+                        compareAttributes = TRUE,
+                        tolerance=0.0,
+                        uttsPrefix2 = ''){
   
   if(!inherits(seglist1,"emusegs")){
     stop("seglist1 is not of class emusegs")
