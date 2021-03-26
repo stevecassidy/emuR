@@ -122,7 +122,7 @@ serve <- function(emuDBhandle,
   }
   
   bundlesDf = allBundlesDf
-  
+    
   if(!is.null(bundleListName)){
     if(!is.null(seglist)){
       stop("both seglist & bundleListName can't be set at the same time!")
@@ -451,16 +451,20 @@ serve <- function(emuDBhandle,
                                   ' of session ',
                                   bundleSess))
         }
-        
+        if(rstudioapi::isAvailable()){
+          translateFunction = rstudioapi::translateLocalUrl
+        } else {
+          translateFunction = paste0
+        }
         mediaFile = list(encoding = "GETURL", 
-                         data = paste0(rstudioapi::translateLocalUrl(paste0("http://", ws$request$HTTP_HOST)), 
+                         data = paste0(translateFunction(paste0("http://", ws$request$HTTP_HOST)), 
                                        "?session=", 
                                        utils::URLencode(bundleSess, reserved = T),
                                        "&bundle=", 
                                        utils::URLencode(bundleName, reserved = T),
                                        "&fileExtension=",
                                        utils::URLencode(DBconfig$mediafileExtension, reserved = T)))
-        print(mediaFile)
+        #print(mediaFile)
         
         if(is.null(err)){
           ssffTracksInUse = get_ssffTracksUsedByDBconfig(DBconfig)
@@ -763,10 +767,11 @@ serve <- function(emuDBhandle,
       
       # replace <base href> tag because rstudio changes this 
       # in the web version and Angular needs it to be set
-      if(rstudioapi::translateLocalUrl(paste0("http://localhost:", port, "/")) == paste0("http://localhost:", port, "/")){
-        base_path = "/"
-      } else {
-        base_path = paste0("/", rstudioapi::translateLocalUrl(paste0("http://localhost:", port, "/")))
+      base_path = "/"
+      if(rstudioapi::isAvailable()){
+        if(rstudioapi::translateLocalUrl(paste0("http://localhost:", port, "/")) != paste0("http://localhost:", port, "/")){
+          base_path = paste0("/", rstudioapi::translateLocalUrl(paste0("http://localhost:", port, "/")))
+        }
       }
       
       index_html = readr::read_file(file.path(webApp_path, "index.html"))
