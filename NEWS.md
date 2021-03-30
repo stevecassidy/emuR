@@ -167,7 +167,7 @@ JavaScript code to draw a spectrogram as a raster
 * `emuRtrackdata` object now contains a `times_norm` (normalized time values between 0 and 1 for each segment) column by default
 * added note to `print.emuRsegs()` to give the user a hint about missing columns
 * implemented `print.emuRtrackdata()` to avoid overly verbose output
-* implemented `normalize_length()` function as S3 function to normalize the lenght of each segment in an `emuRtrackdata` object
+* implemented `normalize_length()` function as S3 function to normalize the length of each segment in an `emuRtrackdata` object
 * added `absolute_file_path` column to output of `list_files()`
 * query engine does not rely on label index in label array any more (updated `convert_queryResultToEmuRsegs()` to use `resultAttrDef` instead of `labelIdx`). Closes \#164.
 * added `browser` argument to `serve()` function which is passed on to `utils::browseURL()` function

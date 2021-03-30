@@ -7,7 +7,7 @@
 sortmatrix(mat, labs = dimnames(mat)[[2]])
 }
 \arguments{
-\item{mat}{A mu+ sement matrix.}
+\item{mat}{A mu+ segment matrix.}
 
 \item{labs}{A label vector which has the same number of columns as
 \code{mat}.}

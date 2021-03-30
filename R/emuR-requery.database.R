@@ -99,7 +99,7 @@ check_tibbleForRequery <- function(tbl){
 ##' child level contains time information and the queried parent level is of type ITEM.
 ##' @param verbose be verbose. Set this to \code{TRUE} if you wish to choose which 
 ##' path to traverse on intersecting hierarchies. If set to \code{FALSE} (the 
-##' default) all paths will be traversed (= legacy EMU bahaviour).
+##' default) all paths will be traversed (= legacy EMU behaviour).
 ##' @return result set object of class \link{emuRsegs} or \link{tibble}
 ##' @export
 ##' @seealso \code{\link{query}} \code{\link{requery_hier}} \code{\link{emuRsegs}}
@@ -392,7 +392,7 @@ requery_seq <- function(emuDBhandle,
 ##' necessary to set this parameter if more than one child level contains time information and the queried 
 ##' parent level is of type ITEM.
 ##' @param verbose be verbose. Set this to \code{TRUE} if you wish to choose which path to traverse on intersecting 
-##' hierarchies. If set to \code{FALSE} (the default) all paths will be traversed (= legacy EMU bahaviour).
+##' hierarchies. If set to \code{FALSE} (the default) all paths will be traversed (= legacy EMU behaviour).
 ##' @return result set object of class \link{emuRsegs} or \link{tibble}
 ##' @export
 ##' @seealso \code{\link{query}} \code{\link{requery_seq}} \code{\link{emuRsegs}}

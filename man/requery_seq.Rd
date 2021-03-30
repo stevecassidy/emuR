@@ -45,7 +45,7 @@ child level contains time information and the queried parent level is of type IT
 
 \item{verbose}{be verbose. Set this to \code{TRUE} if you wish to choose which 
 path to traverse on intersecting hierarchies. If set to \code{FALSE} (the 
-default) all paths will be traversed (= legacy EMU bahaviour).}
+default) all paths will be traversed (= legacy EMU behaviour).}
 }
 \value{
 result set object of class \link{emuRsegs} or \link{tibble}

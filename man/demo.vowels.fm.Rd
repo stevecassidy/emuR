@@ -15,7 +15,7 @@ result of get fm data for the segment list demo.vowels (see
 data(demo.vowels)).
 }
 \details{
-A track list is created via the \code{\link{get_trackdata}} funciton.
+A track list is created via the \code{\link{get_trackdata}} function.
 }
 \seealso{
 \code{\link{demo.all.rms}} \code{\link{segmentlist}}

@@ -247,7 +247,7 @@
 ##' Sorts matrix by label
 ##' 
 ##' 
-##' @param mat A mu+ sement matrix.
+##' @param mat A mu+ segment matrix.
 ##' @param labs A label vector which has the same number of columns as
 ##' \code{mat}.
 ##' @return Returns a sorted matrix by label, created from \code{mat}.

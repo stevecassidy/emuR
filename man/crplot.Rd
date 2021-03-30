@@ -72,7 +72,7 @@ of movement.}
 \item{textplot}{A list containing \$radius, \$textin, \$pivals for plotting
 text at specified angles and radii on the circle. \$radius: a vector of
 amplitudes of the radii at which the text is to be plotted; \$textin: a
-vector of chacacter labels to be plotted; \$pivals: the angle, in radians
+vector of character labels to be plotted; \$pivals: the angle, in radians
 relative to zero radians (top of the circle) at which the text is to be
 plotted. Defaults to NULL}
 

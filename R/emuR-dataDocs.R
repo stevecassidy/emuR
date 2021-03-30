@@ -288,7 +288,7 @@ NULL
 #' result of get fm data for the segment list demo.vowels (see
 #' data(demo.vowels)).
 #' 
-#' A track list is created via the \code{\link{get_trackdata}} funciton.
+#' A track list is created via the \code{\link{get_trackdata}} function.
 #' 
 #' @format index: a two columned matrix with the range of the \$data rows that
 #' belong to the segment ftime: a two columned matrix with the times marks of
