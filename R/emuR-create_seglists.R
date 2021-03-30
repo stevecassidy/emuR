@@ -42,16 +42,15 @@ convert_queryResultToEmusegs<-function(emuDBhandle,
                                        timeRefSegmentLevel=NULL, 
                                        sessionPattern,
                                        bundlePattern,
+                                       query = "",
                                        calcTimes = T, 
                                        verbose){
-  
-  queryStr = DBI::dbGetQuery(emuDBhandle$connection, "SELECT query_str FROM interm_res_meta_infos_tmp_root")$query_str
   
   emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, 
                                            timeRefSegmentLevel, 
                                            sessionPattern,
                                            bundlePattern,
-                                           queryStr = queryStr, 
+                                           queryStr = query, 
                                            calcTimes = calcTimes, 
                                            verbose = verbose)
   emusegs = as.emusegs(emuRsegs)
