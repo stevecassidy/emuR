@@ -4,7 +4,7 @@
 \alias{modify.seglist}
 \title{Modify one of the components of an Emu segment list}
 \usage{
-\method{modify}{seglist}(
+modify.seglist(
   segs,
   labels = label.emusegs(segs),
   start = start.emusegs(segs),

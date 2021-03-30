@@ -1,10 +1,14 @@
-# emuR 2.1.1.9001
+# emuR 2.2.0
 
 ## new features / performance tweaks / improvements
 
-- `save()` -> save bundle performance bump due to SQLite transaction improvement + using prep. statements 
+- compete rewrite of hierarchical queries + requeries (now using CTEs) + clean-up of the EQL engine
+- `serve()` -> save bundle performance bump due to SQLite transaction improvement + using prep. statements 
+- `serve()` function now downloads current release .zip instead of cloning repo to save time and bandwidth
 - fixed a few more `readr::` file vs path parameter warnings
 - using `readr::write_lines()` function in `export_TextGridCollection()` to better support UTF-8 symbols
+- added `create_spectrogram_image_as_raster` function that used the EMU-webApp
+JavaScript code to draw a spectrogram as a raster 
 
 ## bug fixes
 
