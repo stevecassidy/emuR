@@ -447,7 +447,6 @@ requery_hier <- function(emuDBhandle,
          "for 'resultType' parameter for the query, the default resultType will be used)")
   }
   
-  
   if(nrow(seglist) == 0){
     # empty seglist, return the empty list
     return(seglist)
@@ -541,7 +540,6 @@ requery_hier <- function(emuDBhandle,
           # override perserveLengths if not collapsing
           preserveChildLength = FALSE
         }
-        
         if(any(seglist$end_item_seq_idx - seglist$start_item_seq_idx + 1 != 1)){
           
           # first get all parents
@@ -688,7 +686,6 @@ requery_hier <- function(emuDBhandle,
       drop_requeryTmpTables(emuDBhandle)
       
     }
-    
     trSl = convert_queryResultToEmuRsegs(emuDBhandle, 
                                          timeRefSegmentLevel = timeRefSegmentLevel, 
                                          sessionPattern = ".*", 

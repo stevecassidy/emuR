@@ -289,7 +289,6 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
         }
         lnwt = segLvlNms[1] # level name with time
       }
-      
       # get children and collapse 
       query_hierarchyWalk(emuDBhandle, 
                           startItemsTableSuffix = "root", 

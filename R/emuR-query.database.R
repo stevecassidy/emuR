@@ -1241,6 +1241,8 @@ query_hierarchyWalk <- function(emuDBhandle,
   if(preserveStartItemsRowLength){
     joinType = "LEFT JOIN"
     
+    selectString = "SELECT " # carefull but this is needed to not : UNION ALL doesn't check for duplicates
+    
     groupByString = paste0("GROUP BY irit.rowid, ", # using irit.rowid to preserve duplicates (requery only)
                            " irit.db_uuid, ", 
                            " irit.session, ",
@@ -1251,6 +1253,8 @@ query_hierarchyWalk <- function(emuDBhandle,
     orderByString = "ORDER BY irit.rowid" # don't reorder if left joining to perserve NA/NULL row placement
   }else{
     joinType = "INNER JOIN"
+    
+    selectString = "SELECT DISTINCT " # distinct because UNION ALL doesn't check for duplicates
     
     groupByString = paste0("GROUP BY cte_hier.db_uuid, ",
                            " cte_hier.session, ", 
@@ -1304,7 +1308,7 @@ query_hierarchyWalk <- function(emuDBhandle,
                                                 ") ",
                                                 "INSERT INTO lr_exp_res_tmp ",
                                                 # "SELECT * FROM cte_hier",
-                                                "SELECT DISTINCT ", # distinct because UNION ALL doesn't check for duplicates
+                                                selectString,
                                                 " irit.db_uuid, ",
                                                 " irit.session, ",
                                                 " irit.bundle, ",

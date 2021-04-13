@@ -117,6 +117,12 @@ test_that("Requery hierarchical",{
   
 })
 
+test_that("Requery hierarchical preserves lengths when walking up",{
+  sl = query(ae, "[Phonetic== V]")[1:2,]
+  rsl = requery_hier(ae, sl, level = "Text")
+  expect_equal(nrow(sl), nrow(rsl))
+})
+
 test_that("Requery hierarchical with collapse works",{
   
   # Text beginning with 'a'

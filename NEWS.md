@@ -1,3 +1,11 @@
+# emuR 2.2.0.9000
+
+## new features / performance tweaks / improvements
+
+## bug fixes
+
+- fixed bug in requery workflows like: `sl = query(ae, "[Phonetic== V]"); requery_hier(ae, sl[1:2,], level = "Text")` 
+
 # emuR 2.2.0
 
 ## new features / performance tweaks / improvements
