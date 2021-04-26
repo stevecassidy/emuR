@@ -58,7 +58,7 @@ replace_itemLabels <- function(emuDBhandle,
   #
   #############################
   if(verbose){
-    cat("\n  INFO: creating temporary index...\n")
+    cat("INFO: creating temporary index...\n")
   }
   # create temp index
   DBI::dbExecute(emuDBhandle$connection, paste0("CREATE INDEX IF NOT EXISTS label_replace_tmp_idx ",

@@ -549,7 +549,10 @@ list_attributeDefinitions <- function(emuDBhandle, levelName){
 
 ##' @rdname AddListRenameRemoveAttributeDefinitions
 ##' @export
-rename_attributeDefinition <- function(emuDBhandle, origAttrDef, newAttrDef, verbose = TRUE) {
+rename_attributeDefinition <- function(emuDBhandle, 
+                                       origAttrDef, 
+                                       newAttrDef, 
+                                       verbose = TRUE) {
   
   #############################
   # check input parameters
