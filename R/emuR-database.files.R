@@ -72,8 +72,14 @@ import_mediaFiles<-function(emuDBhandle,
   }else{
     pattern = paste0('.*[.]', dbCfg[['mediafileExtension']],'$')
   }
+  if(!dir.exists(dir)){
+    stop(dir, " doesn't exist!")
+  }
+  
   mfList = list.files(dir, pattern = pattern)
-  if(length(mfList) > 0){
+  if(length(mfList) == 0){
+    stop("no media files found in ", dir)
+  } else {
     # create session dir and session list object if required
     sessDir = file.path(emuDBhandle$basePath, 
                         paste0(targetSessionName, session.suffix))

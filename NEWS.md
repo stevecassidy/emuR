@@ -1,8 +1,9 @@
-# emuR 2.2.0.9001
+# emuR 2.2.0.9002
 
 ## new features / performance tweaks / improvements
 
-- added explicit checks for all `dir.create()` (closed #49)
+- added explicit checks for all `dir.create()` (closes #49)
+- checking dir parameter in `import_mediaFiles()` (closes #108)
 
 ## bug fixes
 
