@@ -64,7 +64,7 @@
 ##' 
 ##' @export
 ##' @importFrom rlang .data
-create_itemsInLevel = function(emuDBhandle,
+  create_itemsInLevel = function(emuDBhandle,
                                itemsToCreate,
                                rewriteAllAnnots = TRUE,
                                verbose = TRUE) {

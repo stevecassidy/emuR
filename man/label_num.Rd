@@ -9,4 +9,8 @@ label_num(labs)
 \description{
 see function
 }
+\details{
+depricated function of the legacy EMU system
+still available for backward compatibility
+}
 \keyword{internal}

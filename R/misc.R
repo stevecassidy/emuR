@@ -29,6 +29,8 @@
 ##' 
 ##' see function
 ##' 
+##' depricated function of the legacy EMU system
+##' still available for backward compatibility 
 ##' 
 ##' @keywords internal
 ##' @export label_num
