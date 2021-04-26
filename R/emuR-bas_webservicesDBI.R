@@ -1834,7 +1834,10 @@ bas_prepare <- function(handle, resume, verbose, func)
     unlink(workdir, recursive = TRUE)
   }
   
-  dir.create(workdir, recursive = TRUE)
+  created = dir.create(workdir, recursive = TRUE)
+  if(!created){
+    stop("Couldn't create ", workdir)
+  }
   
   dbConfig = load_DBconfig(handle)
   
@@ -1858,7 +1861,10 @@ bas_prepare <- function(handle, resume, verbose, func)
       unlink(tmpdbdir, recursive = TRUE)
     }
     
-    dir.create(tmpBasePath, recursive = TRUE)
+    created = dir.create(tmpBasePath, recursive = TRUE)
+    if(!created){
+      stop("Couldn't create ", tmpBasePath)
+    }
     
     
     if (!file.copy(oldCache, tmpCache, overwrite = T))

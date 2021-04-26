@@ -78,7 +78,10 @@ import_mediaFiles<-function(emuDBhandle,
     sessDir = file.path(emuDBhandle$basePath, 
                         paste0(targetSessionName, session.suffix))
     if(!file.exists(sessDir)){
-      dir.create(sessDir)
+      created = dir.create(sessDir)
+      if(!created){
+        stop("Couldn't create ", sessDir)
+      }
     }
     
     qSessSql = paste0("SELECT * ",
@@ -108,7 +111,10 @@ import_mediaFiles<-function(emuDBhandle,
     bundleName = sub('[.][^.]*$','',mf)
     
     bundleDir=file.path(sessDir,paste0(bundleName, bundle.dir.suffix))
-    dir.create(bundleDir)
+    created = dir.create(bundleDir)
+    if(!created){
+      stop("Couldn't create ", bundleDir)
+    }
     newMediaFileFullPath = file.path(bundleDir,mf)
     file.copy(from = mfFullPath, to = newMediaFileFullPath)
     

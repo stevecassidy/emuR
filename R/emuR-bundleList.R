@@ -55,7 +55,10 @@ write_bundleList <- function(emuDBhandle,
   
   if(!dir.exists(bl_dir_path)){
     print(paste0("INFO: No bundleList dir found in emuDB (path: ", bl_dir_path, ")! Creating directory..."))
-    dir.create(bl_dir_path)
+    created = dir.create(bl_dir_path)
+    if(!created){
+      stop("Couldn't create ", bl_dir_path)
+    }
   }
   
   bl_path = file.path(bl_dir_path, paste0(name, "_bundleList.json"))

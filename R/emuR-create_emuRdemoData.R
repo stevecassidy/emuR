@@ -35,7 +35,10 @@ create_emuRdemoData <- function(dir = tempdir(), precache = FALSE){
     stop("Path '", ddPath,"' already exists!")
   }
   
-  dir.create(ddPath)
+  created = dir.create(ddPath)
+  if(!created){
+    stop("Couldn't created ", ddPath)
+  }
   #################################
   # create ae
   configPath = list.files(path2data, 
@@ -53,13 +56,18 @@ create_emuRdemoData <- function(dir = tempdir(), precache = FALSE){
   aePath = file.path(ddPath, 
                      paste0("ae", emuDB.suffix))
   
-  dir.create(aePath)
+  created = dir.create(aePath)
+  if(!created){
+    stop("Couldn't create ", aePath)
+  }
   
   file.copy(configPath, aePath)
   
   sesPath = file.path(aePath, "0000_ses")
-  dir.create(sesPath)
-  
+  created = dir.create(sesPath)
+  if(!created){
+    stop("Couldn't create ", sesPath)
+  }
   for(p in wavPaths){
     bndlName = gsub(".wav$", "", basename(p))
     bndlPath = file.path(sesPath, paste0(bndlName, "_bndl"))
@@ -111,9 +119,21 @@ create_emuRdemoData <- function(dir = tempdir(), precache = FALSE){
   txtcPath = file.path(ddPath, 
                        "txt_collection")
   
-  dir.create(tgcPath)
-  dir.create(bpfPath_original)
-  dir.create(txtcPath)
+  created = dir.create(tgcPath)
+  if(!created){
+    stop("Couldn't create ", tgcPath)
+  }
+  
+  created = dir.create(bpfPath_original)
+  if(!created){
+    stop("Couldn't create ", bpfPath_original)
+  }
+  
+  created = dir.create(txtcPath)
+  if(!created){
+    stop("Couldn't create ", txtcPath)
+  }
+  
   
   file.copy(fpltgc[,1], tgcPath)
   file.copy(fpltgc[,2], tgcPath)
@@ -146,11 +166,22 @@ create_emuRdemoData <- function(dir = tempdir(), precache = FALSE){
                          full.names = T)
   
   legacyAePath = file.path(ddPath, "legacy_ae")
-  dir.create(legacyAePath)
+  created = dir.create(legacyAePath)
+  if(!created){
+    stop("Couldn't create ", legacyAePath)
+  }
+  
   labelsPath = file.path(legacyAePath, "labels")
-  dir.create(labelsPath)
+  created = dir.create(labelsPath)
+  if(!created){
+    stop("Couldn't create ", legacyAePath)
+  }
+  
   signalsPath = file.path(legacyAePath, "signals")
-  dir.create(signalsPath)
+  created = dir.create(signalsPath)
+  if(!created){
+    stop("Couldn't create ", legacyAePath)
+  }
   
   # copy files
   file.copy(tplPath, legacyAePath)
@@ -180,14 +211,21 @@ create_BPFcollectionManipulated = function(dir){
     stop("Path '", bpfPath_manipulated,"' already exists!")
   }
   
-  dir.create(bpfPath_manipulated)
+  created = dir.create(bpfPath_manipulated)
+  if(!created){
+    stop("Couldn't create ", bpfPath_manipulated)
+  }
+  
   
   fplbpf_manipulated = create_filePairList(path2data, 
                                            path2data, 
                                            "wav", 
                                            "parmanipulated")
   
-  dir.create(file.path(bpfPath_manipulated, "0000"))
+  created = dir.create(file.path(bpfPath_manipulated, "0000"))
+  if(!created){
+    stop("Couldn't create ", file.path(bpfPath_manipulated, "0000"))
+  }
   file.copy(fplbpf_manipulated[,1], 
             file.path(bpfPath_manipulated, "0000"))
   file.copy(fplbpf_manipulated[,2], 

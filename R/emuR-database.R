@@ -969,7 +969,10 @@ store <- function(emuDBhandle,
     }
   }else{
     # create target dir
-    dir.create(targetDir)
+    created = dir.create(targetDir)
+    if(!created){
+      stop("Couldn't create ", targetDir)
+    }
   }
   
   # build db dir name
@@ -981,7 +984,10 @@ store <- function(emuDBhandle,
     stop(pp," already exists.")
   }
   
-  dir.create(pp)
+  created = dir.create(pp)
+  if(!created){
+    stop("Couldn't create ", pp)
+  }
   
   # check if handle has basePath if not -> emuDB doesn't extist yet -> create new DBconfig
   if(is.null(emuDBhandle$basePath)){
@@ -1011,7 +1017,10 @@ store <- function(emuDBhandle,
   }
   sesDirPaths = file.path(pp, paste0(sessions$name, session.suffix))
   for(path in sesDirPaths){
-    dir.create(path)
+    created = dir.create(path)
+    if(!created){
+      stop("Coudln't create", path)
+    }
   }
   
   # create bundle dirs
@@ -1023,7 +1032,10 @@ store <- function(emuDBhandle,
                            paste0(sessions$name, session.suffix), 
                            paste0(bndls$name, bundle.dir.suffix))
   for(path in bndlDirPaths){
-    dir.create(path)
+    created = dir.create(path)
+    if(!created){
+      stop("Coudln't create", path)
+    }
   }
   
   # copy media files
@@ -1206,7 +1218,10 @@ load_emuDB <- function(databaseDir,
         }
         tmpDirSubDir = file.path(tempdir(), "emuR_readOnlyCacheCopies")
         if(!dir.exists(tmpDirSubDir)){
-          dir.create(tmpDirSubDir)
+          created = dir.create(tmpDirSubDir)
+          if(!created){
+            stop("Couldn't create", tmpDirSubDir)
+          }
         }
         file.copy(cachePath, tmpDirSubDir, overwrite = T)
         cacheCopyPath = file.path(normalizePath(tmpDirSubDir), paste0(dbName, database.cache.suffix))

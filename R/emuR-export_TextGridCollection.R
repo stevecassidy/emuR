@@ -74,7 +74,10 @@ export_TextGridCollection <- function(emuDBhandle,
     if(verbose){
       cat("targetDir DOESN'T exist! Creating new dir...\n")
     }
-    dir.create(targetDir)
+    created = dir.create(targetDir)
+    if(!created){
+      stop("Couldn't create ", targetDir)
+    }
   }else{
     if(verbose){
       cat("targetDir exists! Using specified dir...\n")
@@ -118,7 +121,10 @@ export_TextGridCollection <- function(emuDBhandle,
     # check if session folder exists
     sesDir = file.path(targetDir, bndls[i, ]$session)
     if(!dir.exists(sesDir)){
-      dir.create(sesDir)
+      created = dir.create(sesDir)
+      if(!created){
+        stop("Couldn't create ", sesDir)
+      }
     }
     
     # copy wav file

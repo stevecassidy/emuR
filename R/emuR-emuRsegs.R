@@ -125,7 +125,10 @@ export_seglistToTxtCollection <- function(emuDBhandle,
   targetDir_full = file.path(targetDir, 
                              paste0(emuDBhandle$dbName, 
                                     "_txt_col_from_seglist"))
-  dir.create(targetDir_full)
+  created = dir.create(targetDir_full)
+  if(!created){
+    stop("Couldn't create ", targetDir_full)
+  }
   
   for(i in 1:nrow(seglist)){
     ado = wrassp::read.AsspDataObj(file.path(emuDBhandle$basePath, 

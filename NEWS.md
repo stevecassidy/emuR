@@ -1,10 +1,12 @@
-# emuR 2.2.0.9000
+# emuR 2.2.0.9001
 
 ## new features / performance tweaks / improvements
 
+- added explicit checks for all `dir.create()` (closed #49)
+
 ## bug fixes
 
-- fixed bug in requery workflows like: `sl = query(ae, "[Phonetic== V]"); requery_hier(ae, sl[1:2,], level = "Text")` 
+- fixed bug in requery workflows like: `sl = query(ae, "[Phonetic== V]"); requery_hier(ae, sl[1:2,], level = "Text")`
 
 # emuR 2.2.0
 

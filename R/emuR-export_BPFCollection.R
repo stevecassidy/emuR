@@ -331,7 +331,10 @@ build_skeleton <- function(handle, targetDir, copyAudio, verbose)
     stop(file.path(targetDir, handle$dbName), " already exists.")
   }
   
-  dir.create(file.path(targetDir, handle$dbName))
+  created = dir.create(file.path(targetDir, handle$dbName))
+  if(!created){
+    stop("Couldn't create ", file.path(targetDir, handle$dbName))
+  }
   
   bundles = list_bundles(handle)
   sessions = list_sessions(handle)
@@ -351,7 +354,10 @@ build_skeleton <- function(handle, targetDir, copyAudio, verbose)
   
   for(session in sessions$name)
   {
-    dir.create(file.path(targetDir, handle$dbName, session))
+    created = dir.create(file.path(targetDir, handle$dbName, session))
+    if(!created){
+      stop("Couldn't create ", file.path(targetDir, handle$dbName, session))
+    }
     if(verbose)
     {
       progress = progress + 1
