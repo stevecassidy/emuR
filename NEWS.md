@@ -1,9 +1,10 @@
-# emuR 2.2.0.9002
+# emuR 2.2.0.9003
 
 ## new features / performance tweaks / improvements
 
 - added explicit checks for all `dir.create()` (closes #49)
 - checking dir parameter in `import_mediaFiles()` (closes #108)
+- `add_files()` now works with strings like `_annot.json` as `fileExtension` 
 
 ## bug fixes
 
