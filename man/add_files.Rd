@@ -11,7 +11,11 @@ add_files(emuDBhandle, dir, fileExtension, targetSessionName = "0000")
 
 \item{dir}{directory containing files to be added}
 
-\item{fileExtension}{file extension of files to be added}
+\item{fileExtension}{file extension of files to be added. If no . (dot) is found 
+in this string (e.g. "zcr") then the bundle name matching is performed by removing 
+\code{paste0(".", fileExtension)} from the files ("/path/to/msajc003.zcr" will become "msajc003") 
+and the according bundle name will be searched. If a . (dot) if found within this string 
+(e.g. "_annot.json") then the entire string is remove without prepending a . (dot) ("/path/to/msajc003_annot.json" will then become "msajc003")}
 
 \item{targetSessionName}{name of sessions containing 
 bundles that the files will be added to}

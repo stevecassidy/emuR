@@ -1,4 +1,4 @@
-# emuR 2.2.0.9004
+# emuR 2.2.0.9005
 
 ## new features / performance tweaks / improvements
 
@@ -6,6 +6,7 @@
 - checking dir parameter in `import_mediaFiles()` (closes #108)
 - `add_files()` now works with strings like `_annot.json` as `fileExtension` (closes #246)
 - now prechecking user defined options in `.onLoad()` (closes #240)
+- added new `sessionPattern` and `bundlePattern` args to `list_bundles()` and `list_sessions()` (closes #201)
 
 ## bug fixes
 

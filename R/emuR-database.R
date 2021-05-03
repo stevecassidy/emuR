@@ -663,6 +663,8 @@ rename_emuDB <- function(databaseDir, newName){
 ##' List sessions of emuDB
 ##' @description List session names of emuDB
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
+##' @param sessionPattern A regular expression pattern matching session names to 
+##' be searched for in the database. Note: "_ses$" is appended to this RegEx automatically
 ##' @return data.frame object with session names
 ##' @export
 ##' @examples 
@@ -677,9 +679,10 @@ rename_emuDB <- function(databaseDir, newName){
 ##' 
 ##' }
 ##' 
-list_sessions <- function(emuDBhandle){
+list_sessions <- function(emuDBhandle, 
+                          sessionPattern = ".*"){
   check_emuDBhandle(emuDBhandle, checkCache = F)
-  sesPattern = paste0("^.*", session.suffix ,"$")
+  sesPattern = paste0(sessionPattern, session.suffix ,"$")
   sesDirs = dir(emuDBhandle$basePath, pattern = sesPattern)
   sesDirs = gsub(paste0(session.suffix, "$"), "", sesDirs)
   return(data.frame(name = sesDirs, stringsAsFactors = F))
@@ -689,7 +692,11 @@ list_sessions <- function(emuDBhandle){
 ##' 
 ##' List all bundles of emuDB or of particular session.
 ##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
-##' @param session optional session
+##' @param session optional session (depricated!)
+##' @param sessionPattern A regular expression pattern matching session names to 
+##' be searched for in the database. Note: "_ses$" is appended to this RegEx automatically
+##' @param bundlePattern A regular expression pattern matching bundle names to 
+##' be searched for in the database. Note: "_bndl$" is appended to this RegEx automatically
 ##' @return data.frame object with columns session and name of bundles
 ##' @export
 ##' @examples 
@@ -705,13 +712,18 @@ list_sessions <- function(emuDBhandle){
 ##' 
 ##' }
 ##' 
-list_bundles <- function(emuDBhandle, session=NULL){
+list_bundles <- function(emuDBhandle, 
+                         session = NULL, 
+                         sessionPattern = ".*",
+                         bundlePattern = ".*"){
+  
   check_emuDBhandle(emuDBhandle, checkCache = F)
-  sesDf = list_sessions(emuDBhandle)
+  sesDf = list_sessions(emuDBhandle, sessionPattern)
   if(!is.null(session)){
+    warning("the session parameter is depricated! Please use sessionPattern insead.")
     sesDf = dplyr::filter(sesDf, .data$name == session)
   }
-  bndlPattern = paste0("^.*", bundle.dir.suffix ,"$")
+  bndlPattern = paste0(bundlePattern, bundle.dir.suffix ,"$")
   res = data.frame(session = character(), 
                    name = character(), 
                    stringsAsFactors = F)
