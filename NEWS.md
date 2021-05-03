@@ -5,6 +5,7 @@
 - added explicit checks for all `dir.create()` (closes #49)
 - checking dir parameter in `import_mediaFiles()` (closes #108)
 - `add_files()` now works with strings like `_annot.json` as `fileExtension` (closes #246)
+- now prechecking user defined options in `.onLoad()` (closes #240)
 
 ## bug fixes
 

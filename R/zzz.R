@@ -1,7 +1,12 @@
 .onLoad <- function(libname, pkgname) {
-  # set package options
-  options(emuR.emuWebApp.dir = file.path(tempdir(), "EMU-webApp"))
-  # options(emuR.emuWebApp.dir = file.path("~/Developer/EMU-webApp/dist/")) # for devel
+  op <- options()
+  op.emuR <- list(
+    emuR.emuWebApp.dir = file.path(tempdir(), "EMU-webApp")
+    # emuR.emuWebApp.dir = file.path("~/Developer/EMU-webApp/dist/") # for devel
+  )
+  # set package options 
+  toset <- !(names(op.emuR) %in% names(op))
+  if(any(toset)) options(op.emuR[toset])
   
-  invisible()
+  invisible() 
 }
