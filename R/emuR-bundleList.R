@@ -61,6 +61,8 @@ write_bundleList <- function(emuDBhandle,
     }
   }
   
+  DBconfig = load_DBconfig(emuDBhandle)
+  
   bl_path = file.path(bl_dir_path, paste0(name, "_bundleList.json"))
   
   # update DBconfig to display 

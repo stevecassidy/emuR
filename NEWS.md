@@ -1,14 +1,15 @@
-# emuR 2.2.0.9003
+# emuR 2.2.0.9004
 
 ## new features / performance tweaks / improvements
 
 - added explicit checks for all `dir.create()` (closes #49)
 - checking dir parameter in `import_mediaFiles()` (closes #108)
-- `add_files()` now works with strings like `_annot.json` as `fileExtension` 
+- `add_files()` now works with strings like `_annot.json` as `fileExtension` (closes #246)
 
 ## bug fixes
 
 - fixed bug in requery workflows like: `sl = query(ae, "[Phonetic== V]"); requery_hier(ae, sl[1:2,], level = "Text")`
+- added missing loading of DBconfig to `write_bundleList()` (fixes #248)
 
 # emuR 2.2.0
 
