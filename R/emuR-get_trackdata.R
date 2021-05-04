@@ -272,7 +272,11 @@
   if(length(unique(sesBndls$sample_rate)) != 1){
     warning(paste0("The emusegs/emuRsegs object passed in refers to bundles with in-homogeneous sampling rates in their ",
                    "audio files! Here is a list of all refered to bundles incl. their sampling rate: \n"), 
-            paste(utils::capture.output(print(sesBndls)), 
+            paste(utils::capture.output(print(sesBndls %>% 
+                                                dplyr::rename(
+                                                  bundle = .data$name,
+                                                  media_file = .data$annotates
+                                                ))), 
                   collapse = "\n"))
   }
   
@@ -501,7 +505,7 @@
                                                      paste0(splUtt[1], session.suffix), 
                                                      paste0(splUtt[2], bundle.dir.suffix), 
                                                      paste0(splUtt[2], ".", DBconfig$mediafileExtension)))
-
+      
       if(!"frame_time" %in% colnames(customFunctionRes)){
         stop("The function passed in to onTheFlyFunction didn't return a data.frame with a column called 'frame_time'!")  
       }
@@ -558,7 +562,7 @@
   if(exists('pb')){
     close(pb)
   }
-
+  
   # convert to emuRtrackdata if resultType is 'emuRtrackdata'
   if(resultType =="emuRtrackdata"){
     resObj = create_emuRtrackdata(seglist, resObj)

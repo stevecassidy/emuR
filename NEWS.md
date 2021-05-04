@@ -1,4 +1,4 @@
-# emuR 2.2.0.9005
+# emuR 2.2.0.9006
 
 ## new features / performance tweaks / improvements
 
@@ -7,6 +7,7 @@
 - `add_files()` now works with strings like `_annot.json` as `fileExtension` (closes #246)
 - now prechecking user defined options in `.onLoad()` (closes #240)
 - added new `sessionPattern` and `bundlePattern` args to `list_bundles()` and `list_sessions()` (closes #201)
+- better output for warning in `get_trackdata()` regarding heterogeneous sampling rates (closes \#189) 
 
 ## bug fixes
 
