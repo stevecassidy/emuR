@@ -53,7 +53,6 @@ convert_TextGridCollection <- function(dir, dbName,
   # normalize paths
   dir = suppressWarnings(normalizePath(dir))
   targetDir = suppressWarnings(normalizePath(targetDir))
-  
   # check if dir exists
   if(!dir.exists(dir)){
     stop("dir does not exist!")
@@ -117,7 +116,10 @@ convert_TextGridCollection <- function(dir, dbName,
                                            winslash = .Platform$file.sep),
                              '',
                              dirname(normalizePath(fpl[i,1], 
-                                                   winslash = .Platform$file.sep)))))
+                                                   winslash = .Platform$file.sep)), 
+                             fixed = T),
+                        fixed = T),
+                   fixed = T)
     
     # session file path
     if(sesName == ""){
