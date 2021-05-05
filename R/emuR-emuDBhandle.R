@@ -117,21 +117,21 @@ summary.emuDBhandle = function(object, ...){
   dbConfig = load_DBconfig(object)
   cli::cli_h2("SSFF track definitions")
   ssffTrackDefs = list_ssffTrackDefinitions(object)
-  cli::cat_line(capture.output(ssffTrackDefs))
+  pr <- print.data.frame(ssffTrackDefs, right = FALSE, row.names = FALSE)
   cat("\n")
   cli::cli_h2("Level definitions")
   levelDefs = list_levelDefinitions(object)
-  cli::cat_line(capture.output(levelDefs))
+  pr <- print.data.frame(levelDefs, right = FALSE, row.names = FALSE)
   cat("\n")
   lblGrps = list_labelGroups(object)
   if(nrow(lblGrps) > 0){
     cli::cli_h2("Database label group definitions")
-    cli::cat_line(capture.output(lblGrps))
+    pr <- print.data.frame(lblGrps, right = FALSE, row.names = FALSE)
     cat("\n")
   }
   cli::cli_h2("Link definitions")
   linkDefs = list_linkDefinitions(object)
-  cli::cat_line(capture.output(linkDefs))
+  pr <- print.data.frame(linkDefs, right = FALSE, row.names = FALSE)
 }
 
 ##########################

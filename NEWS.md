@@ -8,6 +8,7 @@
 - now prechecking user defined options in `.onLoad()` (closes #240)
 - added new `sessionPattern` and `bundlePattern` args to `list_bundles()` and `list_sessions()` (closes #201)
 - better output for warning in `get_trackdata()` regarding heterogeneous sampling rates (closes #189) 
+- using `cli` package to improve output of `summary(emuDBhandle)`
 
 ## bug fixes
 
