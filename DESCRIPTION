@@ -35,7 +35,8 @@ Imports:
     mime(>= 0.6),
     rstudioapi(>= 0.10),
     httr(>= 1.4.1),
-    V8(>= 3.4.0)
+    V8(>= 3.4.0),
+    cli(>= 2.5.0)
 Suggests: 
     stats,
     grDevices,

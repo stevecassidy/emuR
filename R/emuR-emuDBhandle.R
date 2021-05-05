@@ -90,6 +90,8 @@ summary.emuDBhandle = function(object, ...){
   
   check_emuDBhandle(object)
   
+  cli::cli_h1("Summary of emuDB")
+  
   cat("Name:\t", object$dbName, "\n")
   cat("UUID:\t", object$UUID, "\n")
   cat("Directory:\t", object$basePath, "\n")
@@ -110,25 +112,26 @@ summary.emuDBhandle = function(object, ...){
   cat("Annotation item count: ", itemCnt, "\n")
   cat("Label count: ", labCnt, "\n")
   cat("Link count: ", linkCnt, "\n")
-  cat("\nDatabase configuration:\n\n")
+  cli::cli_h1("Database configuration")
   
   dbConfig = load_DBconfig(object)
-  cat("SSFF track definitions:\n")
+  cli::cli_h2("SSFF track definitions")
   ssffTrackDefs = list_ssffTrackDefinitions(object)
-  print(ssffTrackDefs)
+  cli::cat_line(capture.output(ssffTrackDefs))
   cat("\n")
-  cat("Level definitions:\n")
+  cli::cli_h2("Level definitions")
   levelDefs = list_levelDefinitions(object)
-  print(levelDefs)
+  cli::cat_line(capture.output(levelDefs))
+  cat("\n")
   lblGrps = list_labelGroups(object)
   if(nrow(lblGrps) > 0){
-    cat("Database label group definitions:\n")
-    print(lblGrps)
+    cli::cli_h2("Database label group definitions")
+    cli::cat_line(capture.output(lblGrps))
+    cat("\n")
   }
-  cat("\n")
-  cat("Link definitions:\n")
+  cli::cli_h2("Link definitions")
   linkDefs = list_linkDefinitions(object)
-  print(linkDefs)
+  cli::cat_line(capture.output(linkDefs))
 }
 
 ##########################

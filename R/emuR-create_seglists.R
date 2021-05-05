@@ -67,7 +67,6 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
                                           calcTimes = TRUE, 
                                           preserveParentLength = FALSE, # only set T by requery_hier
                                           verbose){
-  
   itemsTableName = "items"
   labelsTableName ="labels"
   projectionItemsN = 0 
