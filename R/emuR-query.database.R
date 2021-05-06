@@ -1077,6 +1077,7 @@ query_databaseEqlCONJQ <- function(emuDBhandle,
   resultAttribute = NULL
   projection = FALSE
   useSubsets = FALSE
+  
   # parse through all terms of and (&) operation
   while(p >= 0){
     # find ampersand '&' char
@@ -1105,7 +1106,6 @@ query_databaseEqlCONJQ <- function(emuDBhandle,
         projection = TRUE
       }
     }
-    DBI::dbBegin(emuDBhandle$connection)
     # execute query on term
     query_databaseEqlSQ(emuDBhandle, 
                         condStr, 
@@ -1163,8 +1163,6 @@ query_databaseEqlCONJQ <- function(emuDBhandle,
   DBI::dbExecute(emuDBhandle$connection, 
                  paste0("UPDATE interm_res_items_tmp_", intermResTableSuffix, " ",
                         "SET attribute ='", resultAttribute, "'"))
-  
-  DBI::dbCommit(emuDBhandle$connection)
 }
 
 
@@ -1280,8 +1278,6 @@ query_hierarchyWalk <- function(emuDBhandle,
     sqlStr_secondItemTableLinkId = "    AND l.from_id = i.item_id "
   }
   
-  DBI::dbBegin(emuDBhandle$connection)
-  
   DBI::dbExecute(emuDBhandle$connection, paste0("WITH RECURSIVE cte_hier AS (",
                                                 " SELECT irit.rowid AS start_items_table_row_idx, ", # anchor: expand seqs
                                                 "  items.* ", 
@@ -1390,8 +1386,6 @@ query_hierarchyWalk <- function(emuDBhandle,
                                                 "AND lr_exp_res_tmp.r_level = joined.level ",
                                                 "AND lr_exp_res_tmp.r_seq_end_seq_idx = joined.seq_idx ",
                                                 ""))
-  
-  DBI::dbCommit(emuDBhandle$connection)
 }
 
 
