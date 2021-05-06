@@ -12,6 +12,7 @@
 - slight performance increase in EQL by avoiding full table scans due to REGEXP
 - checking for repeating sequences in `normalize_length()` (closes #211)
 - added explicit error message when bad column name is used in DBconfig (closes #212)
+- removing linkDefinition on error if it was added be4 (closes #226)
 
 ## bug fixes
 
