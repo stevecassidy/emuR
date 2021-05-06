@@ -86,6 +86,12 @@ autobuild_linkFromTimes <- function(emuDBhandle,
       levDefSub = get_levelDefinition(emuDBhandle, ld$sublevelName)
       
       if(levDefSuper$type == "ITEM" | levDefSub$type == "ITEM"){
+        if(!is.null(newLinkDefType)){
+          # remove link again if it was added
+          remove_linkDefinition(emuDBhandle, 
+                                superlevelName = superlevelName,
+                                sublevelName = sublevelName)
+        }
         stop(paste0("The super level type and sub level type can not be of type 'ITEM'. ",
                     "The super level type is: '", levDefSuper$type, "' and the sub level",
                     " type is '", levDefSub$type, "'."))
