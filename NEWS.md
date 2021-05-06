@@ -1,4 +1,4 @@
-# emuR 2.2.0.9009
+# emuR 2.2.0.9010
 
 ## new features / performance tweaks / improvements
 
@@ -11,6 +11,7 @@
 - using `cli` package to improve output of `summary(emuDBhandle)`
 - slight performance increase in EQL by avoiding full table scans due to REGEXP
 - checking for repeating sequences in `normalize_length()` (closes #211)
+- added explicit error message when bad column name is used in DBconfig (closes #212)
 
 ## bug fixes
 
