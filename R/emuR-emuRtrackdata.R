@@ -156,6 +156,12 @@ create_emuRtrackdata <- function(sl, td){
     
   }
   
+  # look 4 repeats:
+  if(any(duplicated(rle(x$sl_rowIdx)$values))){
+    stop(paste0("found repeating sl_rowIdx sequences (e.g. c(1,1,1,2,2,2,1,1,1)\n ",
+                "where 1 is repeated). This is not permitted! Please fix this in\n ", 
+                "the passed in trackdata (== parameter 'x')\n"))
+  }
   
   urowIdx = unique(x$sl_rowIdx)
   

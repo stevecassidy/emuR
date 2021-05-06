@@ -1,4 +1,4 @@
-# emuR 2.2.0.9008
+# emuR 2.2.0.9009
 
 ## new features / performance tweaks / improvements
 
@@ -9,7 +9,8 @@
 - added new `sessionPattern` and `bundlePattern` args to `list_bundles()` and `list_sessions()` (closes #201)
 - better output for warning in `get_trackdata()` regarding heterogeneous sampling rates (closes #189) 
 - using `cli` package to improve output of `summary(emuDBhandle)`
-- slight performance increase in EQL
+- slight performance increase in EQL by avoiding full table scans due to REGEXP
+- checking for repeating sequences in `normalize_length()` (closes #211)
 
 ## bug fixes
 
