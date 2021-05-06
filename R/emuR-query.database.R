@@ -1105,6 +1105,7 @@ query_databaseEqlCONJQ <- function(emuDBhandle,
         projection = TRUE
       }
     }
+    DBI::dbBegin(emuDBhandle$connection)
     # execute query on term
     query_databaseEqlSQ(emuDBhandle, 
                         condStr, 
@@ -1162,6 +1163,8 @@ query_databaseEqlCONJQ <- function(emuDBhandle,
   DBI::dbExecute(emuDBhandle$connection, 
                  paste0("UPDATE interm_res_items_tmp_", intermResTableSuffix, " ",
                         "SET attribute ='", resultAttribute, "'"))
+  
+  DBI::dbCommit(emuDBhandle$connection)
 }
 
 
@@ -1277,6 +1280,8 @@ query_hierarchyWalk <- function(emuDBhandle,
     sqlStr_secondItemTableLinkId = "    AND l.from_id = i.item_id "
   }
   
+  DBI::dbBegin(emuDBhandle$connection)
+  
   DBI::dbExecute(emuDBhandle$connection, paste0("WITH RECURSIVE cte_hier AS (",
                                                 " SELECT irit.rowid AS start_items_table_row_idx, ", # anchor: expand seqs
                                                 "  items.* ", 
@@ -1294,20 +1299,20 @@ query_hierarchyWalk <- function(emuDBhandle,
                                                 " ON ch.db_uuid = l.db_uuid ",
                                                 "    AND ch.session = l.session ",
                                                 "    AND ch.bundle = l.bundle ",
+                                                sqlStr_firstItemTableLinkId,
                                                 "    AND l.session REGEXP '", sessionPattern, "' ", # limit to session RegEx
                                                 "    AND l.bundle REGEXP '", bundlePattern, "' ", # limit to bundle RegEx
-                                                sqlStr_firstItemTableLinkId,
                                                 " INNER JOIN items AS i ",
                                                 " ON l.db_uuid = i.db_uuid ",
                                                 "    AND l.session = i.session ",
                                                 "    AND l.bundle = i.bundle ",
-                                                "    AND i.session REGEXP '", sessionPattern, "' ", # limit to session RegEx
-                                                "    AND i.bundle REGEXP '", bundlePattern, "' ", # limit to bundle RegEx
                                                 sqlStr_secondItemTableLinkId,
                                                 sqlStr_checkIfOnPath, # check that on path (if str is set)
+                                                "    AND i.session REGEXP '", sessionPattern, "' ", # limit to session RegEx
+                                                "    AND i.bundle REGEXP '", bundlePattern, "' ", # limit to bundle RegEx
                                                 ") ",
                                                 "INSERT INTO lr_exp_res_tmp ",
-                                                # "SELECT * FROM cte_hier",
+                                                # "SELECT * FROM cte_hier ",
                                                 selectString,
                                                 " irit.db_uuid, ",
                                                 " irit.session, ",
@@ -1333,7 +1338,6 @@ query_hierarchyWalk <- function(emuDBhandle,
                                                 groupByString,
                                                 orderByString,
                                                 ""))
-  
   # View(DBI::dbReadTable(emuDBhandle$connection, paste0("lr_exp_res_tmp")))
   
   # calculate and update missing r_seq_start_id & r_seq_end_id
@@ -1387,7 +1391,7 @@ query_hierarchyWalk <- function(emuDBhandle,
                                                 "AND lr_exp_res_tmp.r_seq_end_seq_idx = joined.seq_idx ",
                                                 ""))
   
-  
+  DBI::dbCommit(emuDBhandle$connection)
 }
 
 
