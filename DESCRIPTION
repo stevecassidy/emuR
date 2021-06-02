@@ -8,7 +8,8 @@ Authors@R: c(
     person("Jonathan", "Harrington", , "jmh@phonetik.uni-muenchen.de", c("aut", "ctb")))
 Description: An R package that provides the EMU Speech 
     Database Management System (EMU-SDMS) with database management, data 
-    extraction, data preparation and data visualization facilities.
+    extraction, data preparation and data visualization facilities. See
+    https://ips-lmu.github.io/The-EMU-SDMS-Manual/ for more details.
 License: GPL (>= 2)
 Depends: 
     R (>= 3.5.0)
