@@ -467,7 +467,6 @@
       
       #############################
       # calculate size of and create new data matrix
-      browser()
       rowSeq <- seq(timeStampSeq[curStartDataIdx], timeStampSeq[curEndDataIdx], fSampleRateInMS) 
       curData <- matrix(ncol = ncol(tmpData), nrow = length(rowSeq))
       

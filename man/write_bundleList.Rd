@@ -4,7 +4,14 @@
 \alias{write_bundleList}
 \title{write bundleList}
 \usage{
-write_bundleList(emuDBhandle, name, bundleList, seglist, updateDBconfig = T)
+write_bundleList(
+  emuDBhandle,
+  name,
+  bundleList,
+  seglist,
+  updateDBconfig = T,
+  verbose = T
+)
 }
 \arguments{
 \item{emuDBhandle}{emuDB handle object (see \link{load_emuDB})}
@@ -19,7 +26,9 @@ write_bundleList(emuDBhandle, name, bundleList, seglist, updateDBconfig = T)
 collapsing the segments as timeAnchors into the \code{_bundleList.json}}
 
 \item{updateDBconfig}{if set to TRUE (the default) DBconfig will be updated 
-with the fields       
+with the fields}
+
+\item{verbose}{be verbose
 \itemize{
  \item \code{"bundleComments": true}
  \item \code{"bundleFinishedEditing": true}
