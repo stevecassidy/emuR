@@ -1,3 +1,9 @@
+## Resubmission
+
+This is a resubmission. In this version I have:
+
+* enclosed URL in angle brackets (<...>) in DESCRIPTION::Description text.
+
 ## Test environments
 
 * local OSX (Platform: aarch64-apple-darwin20 (64-bit)) & Windows 10 x64 installs, R version 4.1.0 (2021-05-18)
