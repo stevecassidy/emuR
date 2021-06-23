@@ -1,0 +1,8 @@
+^CRAN-RELEASE$
+^.*\.Rproj$
+^\.Rproj\.user$
+
+# travis ci #
+#############
+.travis.yml
+^cran-comments\.md$

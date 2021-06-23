@@ -1,0 +1,16 @@
+.Rproj.user
+.Rhistory
+.RData
+
+vignettes/pics/db_structure.aux
+vignettes/pics/db_structure.log
+vignettes/pics/db_structure.pdf
+*.log
+*.gz
+*.fdb_latexmk
+
+*.o
+
+*.so
+
+.DS_Store

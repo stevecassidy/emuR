@@ -1,0 +1,28 @@
+LHD: Partitur 1.2.16
+REP: unknown
+SNB: 2
+SAM: 20000
+SBF: 01
+SSB: 16
+NCH: 1
+SPN: unknown
+LBD:
+KAN: 0 D@
+KAN: 1 tSIl
+KAN: 2 waInd
+KAN: 3 kO:zd
+KAN: 4 Dem
+KAN: 5 t@
+KAN: 6 SIv@
+KAN: 7 vaI@l@ntlI
+ORT: 0 the
+ORT: 1 chill
+ORT: 2 wind
+ORT: 3 caused
+ORT: 4 them
+ORT: 5 to
+ORT: 6 shiver
+ORT: 7 violently
+TRN:	5800	48399	0,1,2,3,4,5,6,7	the chill wind caused them to shiver violently
+MAU:	0	5799	-1	<p:>
+MAU:	5800	599	0,1,2	D

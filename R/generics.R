@@ -1,6 +1,6 @@
 
-`Math.trackdata` <-
-  function (x,...) 
+##' @export
+`Math.trackdata` <- function (x,...) 
 {
   
   ftime <- x$ftime
@@ -10,8 +10,9 @@
   as.trackdata(o, inds, ftime, nm)
 }
 
-`Math2.trackdata` <-
-  function (x) 
+
+##' @export
+`Math2.trackdata` <- function (x) 
 {
   
   ftime <- x$ftime
@@ -21,14 +22,15 @@
   as.trackdata(o, inds, ftime, nm)
 }
 
-`Ops.trackdata` <-
-  function (e1, e2) 
+
+##' @export
+`Ops.trackdata` <- function (e1, e2) 
 {
   x = e1
   y = e2
   arithmetic = c("+", "-", "*", "^", "%%", "%/%", "/")
   compare = c("==", ">", "<", "!=", "<=", ">=")
-
+  
   if (class(x) == "trackdata") {
     ftime <- x$ftime
     inds <- x$index
@@ -53,10 +55,10 @@
 }
 
 
-`Summary.trackdata` <-
-  function (x,..., na.rm=TRUE) 
+
+##' @export
+`Summary.trackdata` <- function (x,..., na.rm=TRUE) 
 {
   get(.Generic)(x$data)   
   
 }
-

@@ -1,0 +1,1275 @@
+{
+    "name": "msajc023",
+    "annotates": "msajc023.wav",
+    "sampleRate": 20000,
+    "levels": [
+        {
+            "name": "Utterance",
+            "type": "ITEM",
+            "items": [
+                {
+                    "id": 8,
+                    "labels": [
+                        {
+                            "name": "Utterance",
+                            "value": ""
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Intonational",
+            "type": "ITEM",
+            "items": [
+                {
+                    "id": 7,
+                    "labels": [
+                        {
+                            "name": "Intonational",
+                            "value": "L%"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Intermediate",
+            "type": "ITEM",
+            "items": [
+                {
+                    "id": 5,
+                    "labels": [
+                        {
+                            "name": "Intermediate",
+                            "value": "L-"
+                        }
+                    ]
+                },
+                {
+                    "id": 26,
+                    "labels": [
+                        {
+                            "name": "Intermediate",
+                            "value": "L-"
+                        }
+                    ]
+                },
+                {
+                    "id": 46,
+                    "labels": [
+                        {
+                            "name": "Intermediate",
+                            "value": "L-"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Word",
+            "type": "ITEM",
+            "items": [
+                {
+                    "id": 2,
+                    "labels": [
+                        {
+                            "name": "Word",
+                            "value": "F"
+                        },
+                        {
+                            "name": "Accent",
+                            "value": "W"
+                        },
+                        {
+                            "name": "Text",
+                            "value": "I'll"
+                        }
+                    ]
+                },
+                {
+                    "id": 13,
+                    "labels": [
+                        {
+                            "name": "Word",
+                            "value": "C"
+                        },
+                        {
+                            "name": "Accent",
+                            "value": "W"
+                        },
+                        {
+                            "name": "Text",
+                            "value": "hedge"
+                        }
+                    ]
+                },
+                {
+                    "id": 23,
+                    "labels": [
+                        {
+                            "name": "Word",
+                            "value": "F"
+                        },
+                        {
+                            "name": "Accent",
+                            "value": "W"
+                        },
+                        {
+                            "name": "Text",
+                            "value": "my"
+                        }
+                    ]
+                },
+                {
+                    "id": 32,
+                    "labels": [
+                        {
+                            "name": "Word",
+                            "value": "C"
+                        },
+                        {
+                            "name": "Accent",
+                            "value": "W"
+                        },
+                        {
+                            "name": "Text",
+                            "value": "bets"
+                        }
+                    ]
+                },
+                {
+                    "id": 43,
+                    "labels": [
+                        {
+                            "name": "Word",
+                            "value": "F"
+                        },
+                        {
+                            "name": "Accent",
+                            "value": "W"
+                        },
+                        {
+                            "name": "Text",
+                            "value": "and"
+                        }
+                    ]
+                },
+                {
+                    "id": 52,
+                    "labels": [
+                        {
+                            "name": "Word",
+                            "value": "C"
+                        },
+                        {
+                            "name": "Accent",
+                            "value": "W"
+                        },
+                        {
+                            "name": "Text",
+                            "value": "take"
+                        }
+                    ]
+                },
+                {
+                    "id": 62,
+                    "labels": [
+                        {
+                            "name": "Word",
+                            "value": "C"
+                        },
+                        {
+                            "name": "Accent",
+                            "value": "S"
+                        },
+                        {
+                            "name": "Text",
+                            "value": "no"
+                        }
+                    ]
+                },
+                {
+                    "id": 69,
+                    "labels": [
+                        {
+                            "name": "Word",
+                            "value": "C"
+                        },
+                        {
+                            "name": "Accent",
+                            "value": "S"
+                        },
+                        {
+                            "name": "Text",
+                            "value": "risks"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Syllable",
+            "type": "ITEM",
+            "items": [
+                {
+                    "id": 83,
+                    "labels": [
+                        {
+                            "name": "Syllable",
+                            "value": "W"
+                        }
+                    ]
+                },
+                {
+                    "id": 84,
+                    "labels": [
+                        {
+                            "name": "Syllable",
+                            "value": "S"
+                        }
+                    ]
+                },
+                {
+                    "id": 85,
+                    "labels": [
+                        {
+                            "name": "Syllable",
+                            "value": "W"
+                        }
+                    ]
+                },
+                {
+                    "id": 86,
+                    "labels": [
+                        {
+                            "name": "Syllable",
+                            "value": "S"
+                        }
+                    ]
+                },
+                {
+                    "id": 87,
+                    "labels": [
+                        {
+                            "name": "Syllable",
+                            "value": "W"
+                        }
+                    ]
+                },
+                {
+                    "id": 88,
+                    "labels": [
+                        {
+                            "name": "Syllable",
+                            "value": "S"
+                        }
+                    ]
+                },
+                {
+                    "id": 89,
+                    "labels": [
+                        {
+                            "name": "Syllable",
+                            "value": "S"
+                        }
+                    ]
+                },
+                {
+                    "id": 90,
+                    "labels": [
+                        {
+                            "name": "Syllable",
+                            "value": "S"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Phoneme",
+            "type": "ITEM",
+            "items": [
+                {
+                    "id": 91,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "ai"
+                        }
+                    ]
+                },
+                {
+                    "id": 92,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "l"
+                        }
+                    ]
+                },
+                {
+                    "id": 93,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "h"
+                        }
+                    ]
+                },
+                {
+                    "id": 94,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "E"
+                        }
+                    ]
+                },
+                {
+                    "id": 95,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "dZ"
+                        }
+                    ]
+                },
+                {
+                    "id": 96,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "m"
+                        }
+                    ]
+                },
+                {
+                    "id": 97,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "ai"
+                        }
+                    ]
+                },
+                {
+                    "id": 98,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "b"
+                        }
+                    ]
+                },
+                {
+                    "id": 99,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "E"
+                        }
+                    ]
+                },
+                {
+                    "id": 100,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "t"
+                        }
+                    ]
+                },
+                {
+                    "id": 101,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "s"
+                        }
+                    ]
+                },
+                {
+                    "id": 102,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "@"
+                        }
+                    ]
+                },
+                {
+                    "id": 103,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "n"
+                        }
+                    ]
+                },
+                {
+                    "id": 104,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "t"
+                        }
+                    ]
+                },
+                {
+                    "id": 105,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "ei"
+                        }
+                    ]
+                },
+                {
+                    "id": 106,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "k"
+                        }
+                    ]
+                },
+                {
+                    "id": 107,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "n"
+                        }
+                    ]
+                },
+                {
+                    "id": 108,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "@u"
+                        }
+                    ]
+                },
+                {
+                    "id": 109,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "r"
+                        }
+                    ]
+                },
+                {
+                    "id": 110,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "I"
+                        }
+                    ]
+                },
+                {
+                    "id": 111,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "s"
+                        }
+                    ]
+                },
+                {
+                    "id": 112,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "k"
+                        }
+                    ]
+                },
+                {
+                    "id": 113,
+                    "labels": [
+                        {
+                            "name": "Phoneme",
+                            "value": "s"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Phonetic",
+            "type": "SEGMENT",
+            "items": [
+                {
+                    "id": 114,
+                    "sampleStart": 6000,
+                    "sampleDur": 2689,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "ai"
+                        }
+                    ]
+                },
+                {
+                    "id": 115,
+                    "sampleStart": 8690,
+                    "sampleDur": 1588,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "l"
+                        }
+                    ]
+                },
+                {
+                    "id": 116,
+                    "sampleStart": 10279,
+                    "sampleDur": 1631,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "h"
+                        }
+                    ]
+                },
+                {
+                    "id": 117,
+                    "sampleStart": 11911,
+                    "sampleDur": 2267,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "E"
+                        }
+                    ]
+                },
+                {
+                    "id": 118,
+                    "sampleStart": 14179,
+                    "sampleDur": 979,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "d"
+                        }
+                    ]
+                },
+                {
+                    "id": 119,
+                    "sampleStart": 15159,
+                    "sampleDur": 1221,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "Z"
+                        }
+                    ]
+                },
+                {
+                    "id": 120,
+                    "sampleStart": 16381,
+                    "sampleDur": 1677,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "m"
+                        }
+                    ]
+                },
+                {
+                    "id": 121,
+                    "sampleStart": 18059,
+                    "sampleDur": 2716,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "ai"
+                        }
+                    ]
+                },
+                {
+                    "id": 122,
+                    "sampleStart": 20776,
+                    "sampleDur": 1874,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "b"
+                        }
+                    ]
+                },
+                {
+                    "id": 123,
+                    "sampleStart": 22651,
+                    "sampleDur": 1967,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "E"
+                        }
+                    ]
+                },
+                {
+                    "id": 124,
+                    "sampleStart": 24619,
+                    "sampleDur": 1339,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "t"
+                        }
+                    ]
+                },
+                {
+                    "id": 125,
+                    "sampleStart": 25959,
+                    "sampleDur": 2479,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "s"
+                        }
+                    ]
+                },
+                {
+                    "id": 126,
+                    "sampleStart": 28439,
+                    "sampleDur": 256,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "@"
+                        }
+                    ]
+                },
+                {
+                    "id": 127,
+                    "sampleStart": 28696,
+                    "sampleDur": 1209,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "n"
+                        }
+                    ]
+                },
+                {
+                    "id": 128,
+                    "sampleStart": 29906,
+                    "sampleDur": 552,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "t"
+                        }
+                    ]
+                },
+                {
+                    "id": 129,
+                    "sampleStart": 30459,
+                    "sampleDur": 1239,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "H"
+                        }
+                    ]
+                },
+                {
+                    "id": 130,
+                    "sampleStart": 31699,
+                    "sampleDur": 2399,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "ei"
+                        }
+                    ]
+                },
+                {
+                    "id": 131,
+                    "sampleStart": 34099,
+                    "sampleDur": 1399,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "k"
+                        }
+                    ]
+                },
+                {
+                    "id": 132,
+                    "sampleStart": 35499,
+                    "sampleDur": 1179,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "n"
+                        }
+                    ]
+                },
+                {
+                    "id": 133,
+                    "sampleStart": 36679,
+                    "sampleDur": 2609,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "@u"
+                        }
+                    ]
+                },
+                {
+                    "id": 134,
+                    "sampleStart": 39289,
+                    "sampleDur": 1989,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "r"
+                        }
+                    ]
+                },
+                {
+                    "id": 135,
+                    "sampleStart": 41279,
+                    "sampleDur": 1619,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "I"
+                        }
+                    ]
+                },
+                {
+                    "id": 136,
+                    "sampleStart": 42899,
+                    "sampleDur": 2684,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "s"
+                        }
+                    ]
+                },
+                {
+                    "id": 137,
+                    "sampleStart": 45584,
+                    "sampleDur": 1459,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "k"
+                        }
+                    ]
+                },
+                {
+                    "id": 138,
+                    "sampleStart": 47044,
+                    "sampleDur": 280,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "H"
+                        }
+                    ]
+                },
+                {
+                    "id": 139,
+                    "sampleStart": 47325,
+                    "sampleDur": 3758,
+                    "labels": [
+                        {
+                            "name": "Phonetic",
+                            "value": "s"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Tone",
+            "type": "EVENT",
+            "items": [
+                {
+                    "id": 140,
+                    "samplePoint": 13258,
+                    "labels": [
+                        {
+                            "name": "Tone",
+                            "value": "H*"
+                        }
+                    ]
+                },
+                {
+                    "id": 141,
+                    "samplePoint": 15890,
+                    "labels": [
+                        {
+                            "name": "Tone",
+                            "value": "L-"
+                        }
+                    ]
+                },
+                {
+                    "id": 142,
+                    "samplePoint": 24163,
+                    "labels": [
+                        {
+                            "name": "Tone",
+                            "value": "H*"
+                        }
+                    ]
+                },
+                {
+                    "id": 143,
+                    "samplePoint": 25056,
+                    "labels": [
+                        {
+                            "name": "Tone",
+                            "value": "L-"
+                        }
+                    ]
+                },
+                {
+                    "id": 144,
+                    "samplePoint": 37794,
+                    "labels": [
+                        {
+                            "name": "Tone",
+                            "value": "H*"
+                        }
+                    ]
+                },
+                {
+                    "id": 145,
+                    "samplePoint": 41037,
+                    "labels": [
+                        {
+                            "name": "Tone",
+                            "value": "!H*"
+                        }
+                    ]
+                },
+                {
+                    "id": 146,
+                    "samplePoint": 42071,
+                    "labels": [
+                        {
+                            "name": "Tone",
+                            "value": "L-"
+                        }
+                    ]
+                },
+                {
+                    "id": 147,
+                    "samplePoint": 42776,
+                    "labels": [
+                        {
+                            "name": "Tone",
+                            "value": "L%"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Foot",
+            "type": "ITEM",
+            "items": [
+                {
+                    "id": 53,
+                    "labels": [
+                        {
+                            "name": "Foot",
+                            "value": "F"
+                        }
+                    ]
+                },
+                {
+                    "id": 63,
+                    "labels": [
+                        {
+                            "name": "Foot",
+                            "value": "F"
+                        }
+                    ]
+                },
+                {
+                    "id": 70,
+                    "labels": [
+                        {
+                            "name": "Foot",
+                            "value": "F"
+                        }
+                    ]
+                },
+                {
+                    "id": 72,
+                    "labels": [
+                        {
+                            "name": "Foot",
+                            "value": "F"
+                        }
+                    ]
+                },
+                {
+                    "id": 82,
+                    "labels": [
+                        {
+                            "name": "Foot",
+                            "value": "F"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "links": [
+        {
+            "fromID": 8,
+            "toID": 7
+        },
+        {
+            "fromID": 7,
+            "toID": 53
+        },
+        {
+            "fromID": 7,
+            "toID": 63
+        },
+        {
+            "fromID": 7,
+            "toID": 70
+        },
+        {
+            "fromID": 7,
+            "toID": 72
+        },
+        {
+            "fromID": 7,
+            "toID": 82
+        },
+        {
+            "fromID": 7,
+            "toID": 5
+        },
+        {
+            "fromID": 7,
+            "toID": 26
+        },
+        {
+            "fromID": 7,
+            "toID": 46
+        },
+        {
+            "fromID": 5,
+            "toID": 2
+        },
+        {
+            "fromID": 5,
+            "toID": 13
+        },
+        {
+            "fromID": 26,
+            "toID": 23
+        },
+        {
+            "fromID": 26,
+            "toID": 32
+        },
+        {
+            "fromID": 46,
+            "toID": 43
+        },
+        {
+            "fromID": 46,
+            "toID": 52
+        },
+        {
+            "fromID": 46,
+            "toID": 62
+        },
+        {
+            "fromID": 46,
+            "toID": 69
+        },
+        {
+            "fromID": 2,
+            "toID": 83
+        },
+        {
+            "fromID": 13,
+            "toID": 84
+        },
+        {
+            "fromID": 23,
+            "toID": 85
+        },
+        {
+            "fromID": 32,
+            "toID": 86
+        },
+        {
+            "fromID": 43,
+            "toID": 87
+        },
+        {
+            "fromID": 52,
+            "toID": 88
+        },
+        {
+            "fromID": 62,
+            "toID": 89
+        },
+        {
+            "fromID": 69,
+            "toID": 90
+        },
+        {
+            "fromID": 83,
+            "toID": 91
+        },
+        {
+            "fromID": 83,
+            "toID": 92
+        },
+        {
+            "fromID": 84,
+            "toID": 93
+        },
+        {
+            "fromID": 84,
+            "toID": 94
+        },
+        {
+            "fromID": 84,
+            "toID": 95
+        },
+        {
+            "fromID": 84,
+            "toID": 140
+        },
+        {
+            "fromID": 85,
+            "toID": 96
+        },
+        {
+            "fromID": 85,
+            "toID": 97
+        },
+        {
+            "fromID": 86,
+            "toID": 98
+        },
+        {
+            "fromID": 86,
+            "toID": 99
+        },
+        {
+            "fromID": 86,
+            "toID": 100
+        },
+        {
+            "fromID": 86,
+            "toID": 101
+        },
+        {
+            "fromID": 86,
+            "toID": 142
+        },
+        {
+            "fromID": 87,
+            "toID": 102
+        },
+        {
+            "fromID": 87,
+            "toID": 103
+        },
+        {
+            "fromID": 88,
+            "toID": 104
+        },
+        {
+            "fromID": 88,
+            "toID": 105
+        },
+        {
+            "fromID": 88,
+            "toID": 106
+        },
+        {
+            "fromID": 89,
+            "toID": 107
+        },
+        {
+            "fromID": 89,
+            "toID": 108
+        },
+        {
+            "fromID": 89,
+            "toID": 144
+        },
+        {
+            "fromID": 90,
+            "toID": 109
+        },
+        {
+            "fromID": 90,
+            "toID": 110
+        },
+        {
+            "fromID": 90,
+            "toID": 111
+        },
+        {
+            "fromID": 90,
+            "toID": 112
+        },
+        {
+            "fromID": 90,
+            "toID": 113
+        },
+        {
+            "fromID": 90,
+            "toID": 145
+        },
+        {
+            "fromID": 91,
+            "toID": 114
+        },
+        {
+            "fromID": 92,
+            "toID": 115
+        },
+        {
+            "fromID": 93,
+            "toID": 116
+        },
+        {
+            "fromID": 94,
+            "toID": 117
+        },
+        {
+            "fromID": 95,
+            "toID": 118
+        },
+        {
+            "fromID": 95,
+            "toID": 119
+        },
+        {
+            "fromID": 96,
+            "toID": 120
+        },
+        {
+            "fromID": 97,
+            "toID": 121
+        },
+        {
+            "fromID": 98,
+            "toID": 122
+        },
+        {
+            "fromID": 99,
+            "toID": 123
+        },
+        {
+            "fromID": 100,
+            "toID": 124
+        },
+        {
+            "fromID": 101,
+            "toID": 125
+        },
+        {
+            "fromID": 102,
+            "toID": 126
+        },
+        {
+            "fromID": 103,
+            "toID": 127
+        },
+        {
+            "fromID": 104,
+            "toID": 128
+        },
+        {
+            "fromID": 104,
+            "toID": 129
+        },
+        {
+            "fromID": 105,
+            "toID": 130
+        },
+        {
+            "fromID": 106,
+            "toID": 131
+        },
+        {
+            "fromID": 107,
+            "toID": 132
+        },
+        {
+            "fromID": 108,
+            "toID": 133
+        },
+        {
+            "fromID": 109,
+            "toID": 134
+        },
+        {
+            "fromID": 110,
+            "toID": 135
+        },
+        {
+            "fromID": 111,
+            "toID": 136
+        },
+        {
+            "fromID": 112,
+            "toID": 137
+        },
+        {
+            "fromID": 112,
+            "toID": 138
+        },
+        {
+            "fromID": 113,
+            "toID": 139
+        },
+        {
+            "fromID": 53,
+            "toID": 84
+        },
+        {
+            "fromID": 53,
+            "toID": 85
+        },
+        {
+            "fromID": 63,
+            "toID": 86
+        },
+        {
+            "fromID": 63,
+            "toID": 87
+        },
+        {
+            "fromID": 70,
+            "toID": 88
+        },
+        {
+            "fromID": 72,
+            "toID": 89
+        },
+        {
+            "fromID": 82,
+            "toID": 90
+        }
+    ]
+}
+

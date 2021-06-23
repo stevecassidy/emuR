@@ -1,19 +1,21 @@
-#############################################################################
-#                                                                           #
-#   copyright            : (C) 2000 SHLRC, Macquarie University             #
-#   email                : Steve.Cassidy@mq.edu.au			    #
-#   url			 : http://www.shlrc.mq.edu.au/emu		    #
-#									    #
-#   This program is free software; you can redistribute it and/or modify    #
-#   it under the terms of the GNU General Public License as published by    #
-#   the Free Software Foundation; either version 2 of the License, or       #
-#   (at your option) any later version.                                     #
-#									    #
-#############################################################################
-
-
-library(stats)
-
+##' Find the inter-euclidean distance for a data matrix
+##' 
+##' Finds the inter-euclidean distance for a data matrix
+##' 
+##' 
+##' @aliases euclidean euclidean.metric
+##' @param data A vector or matrix of numerical data.
+##' @param m The first column of data to be used in the distance calculation.
+##' @param n The last column of data to be used in the distance calculation.
+##' @return Calculates the euclidean distance between successive rows of the
+##' matrix based on columns m:n.
+##' @seealso steady
+##' @keywords misc
+##' @examples
+##' 
+##'   euclidean(cbind(c(1,2,3,4), c(2,3,2,2)))
+##' @import stats
+##' @export euclidean
 "euclidean"<- function(data, m = 1, n = ncol(data))
 {
   ## returns  a vector of Euclidean distances between adjacent
@@ -23,15 +25,12 @@ library(stats)
   ## It  makes use of the Splus program dist
   ## m and n are the columns of data over which the euclidean
   ## distances are to be calculated (defaults to all the columns)
+  if (!requireNamespace("stats", quietly = TRUE)){
+    stop("'stats' package required to run 'stats::dist()'")
+  }
   data <- data[, m:n]
   lengths <- nrow(data)
   downstep <- seq((lengths - 1), 2, -1)
   values <- c(1, 1 + cumsum(downstep))
-  dist(data)[values]
+  stats::dist(data)[values]
 }
-
-
-# Local Variables:
-# mode:S
-# S-temp-buffer-p:t
-# End:

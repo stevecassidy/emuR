@@ -1,17 +1,17 @@
-#############################################################################
-#                                                                           #
-#   copyright            : (C) 2000 SHLRC, Macquarie University             #
-#   email                : Steve.Cassidy@mq.edu.au			    #
-#   url			 : http://www.shlrc.mq.edu.au/emu		    #
-#									    #
-#   This program is free software; you can redistribute it and/or modify    #
-#   it under the terms of the GNU General Public License as published by    #
-#   the Free Software Foundation; either version 2 of the License, or       #
-#   (at your option) any later version.                                     #
-#									    #
-#############################################################################
-
-
+##' Smooth the data in a trackdata object.
+##' 
+##' Smooths each dataset in a trackdata object using a running mean smoother.
+##' 
+##' This function uses the \code{dapply} function to apply \code{smooth} to the
+##' data for each segment.
+##' 
+##' @aliases dsmooth dsmooth.sub
+##' @param dataset A trackdata object as returned from \code{track}.
+##' @return The result of applying the \code{smooth} function to each column of
+##' the data for each segment in the trackdata object.
+##' @seealso smooth, dapply
+##' @keywords misc
+##' @export dsmooth
 "dsmooth"<- function(dataset)
 {
   ## dataset: a list, as returned by track
@@ -20,6 +20,8 @@
 }
 
 
+
+##' @export
 "dsmooth.sub" <- function(data, ftime)
 {
   if(is.matrix(data)){
@@ -31,9 +33,3 @@
   }
   return( list(data=data, ftime=ftime) )
 }
-
-
-# Local Variables:
-# mode:S
-# S-temp-buffer-p:t
-# End:

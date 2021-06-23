@@ -1,17 +1,16 @@
-#############################################################################
-#                                                                           #
-#   copyright            : (C) 2000 SHLRC, Macquarie University             #
-#   email                : Steve.Cassidy@mq.edu.au			    #
-#   url			 : http://www.shlrc.mq.edu.au/emu		    #
-#									    #
-#   This program is free software; you can redistribute it and/or modify    #
-#   it under the terms of the GNU General Public License as published by    #
-#   the Free Software Foundation; either version 2 of the License, or       #
-#   (at your option) any later version.                                     #
-#									    #
-#############################################################################
-
-
+##' Perform linear time normalisation on trackdata.
+##' 
+##' Performs linear time normalisation on trackdata.
+##' 
+##' The data for each segment is normaised using the \code{approx} function.
+##' 
+##' @param dataset A trackdata object as returned by \code{track}.
+##' @param n The number of points (samples) required for each segment.
+##' @return A new trackdata object where the data for each segment has the same
+##' number (\code{n}) of samples.
+##' @seealso approx
+##' @keywords misc
+##' @export linear
 "linear"<- function(dataset, n = 20)
 {
   ## perform linear time normalisation of a data set as returned
@@ -41,6 +40,21 @@
 }
 
 
+
+
+
+
+
+
+
+
+##' linear av
+##' 
+##' see function
+##' 
+##' 
+##' @keywords internal
+##' @export linear.av
 "linear.av"<- function(dataset, labs)
 {
   finmat <- NULL
@@ -68,8 +82,3 @@
   finmat$lab <- unique(labs)
   finmat
 }
-
-# Local Variables:
-# mode:S
-# S-temp-buffer-p:t
-# End:

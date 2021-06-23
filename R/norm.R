@@ -1,17 +1,32 @@
-#############################################################################
-#                                                                           #
-#   copyright            : (C) 2000 SHLRC, Macquarie University             #
-#   email                : Steve.Cassidy@mq.edu.au			    #
-#   url			 : http://www.shlrc.mq.edu.au/emu		    #
-#									    #
-#   This program is free software; you can redistribute it and/or modify    #
-#   it under the terms of the GNU General Public License as published by    #
-#   the Free Software Foundation; either version 2 of the License, or       #
-#   (at your option) any later version.                                     #
-#									    #
-#############################################################################
-
-
+##' Normalise speech data
+##' 
+##' Normalises speech data
+##' 
+##' Types of normalisation: \code{"nearey"}, Nearey : Find the log of each data
+##' element and subtract from each the mean of the logarithmic data.
+##' \code{"cen"}, centroid: Find the mean of the data column and subtract it
+##' from each data element in that column.  \code{"lob"}, Lobanov: Find the
+##' mean and standard deviation of the data. Subtract the mean from each data
+##' element and devide each result by the standard deviation.  "gerst",
+##' Gerstman: Subtract from the data the minimum formant value then devide by
+##' the formant range.
+##' 
+##' @param data A matrix of data. Can be either an n-columned matrix or a
+##' trackdata object as returned by \code{track}.
+##' @param speakerlabs A parallel vector of speaker labels.
+##' @param type The type of extrinsic normalisation to be performed on data.
+##' type can be \code{"nearey"}, \code{"cen"}, \code{"lob"}, \code{"gerst"}
+##' (default), for normalisation according to Nearey, centroid method, Lobanov,
+##' or Gerstman.
+##' @param rescale Currently only works for Lobanov normalisation. The
+##' normalised values are multiplied by the standard deviation and then the
+##' mean is added, where the standard deviation and mean are across all
+##' original speakers' unnormalised data.
+##' @return Normalised values of data are retuned, having the same structure as
+##' data.
+##' @seealso track
+##' @keywords misc
+##' @export norm
 "norm"<- function(data, speakerlabs, type = "gerst", rescale = FALSE)
 {
   ## data: a matrix of data. Can be
@@ -63,12 +78,12 @@
     vals <- data[temp,  ]
     if(type == "gerst")
       nvals <- gerst.sub(vals)
-      else if(type == "lob")
-	nvals <- lob.sub(vals)
-	else if(type == "nearey")
-	  nvals <- nearey.sub(vals)
-	  else if(type == "cen")
-	    nvals <- cen.sub(vals)
+    else if(type == "lob")
+      nvals <- lob.sub(vals)
+    else if(type == "nearey")
+      nvals <- nearey.sub(vals)
+    else if(type == "cen")
+      nvals <- cen.sub(vals)
     data[temp,  ] <- nvals
   }
   if(rescale) {
@@ -91,6 +106,21 @@
   data
 }
 
+
+
+
+
+
+
+
+
+##' gerst sub
+##' 
+##' see function
+##' 
+##' 
+##' @keywords internal
+##' @export gerst.sub
 "gerst.sub"<- function(data)
 {
   minvals <- apply(data, 2, min)
@@ -103,6 +133,21 @@
   (data - vecmat)/rvecmat
 }
 
+
+
+
+
+
+
+
+
+##' lob sub
+##' 
+##' see function
+##' 
+##' 
+##' @keywords internal
+##' @export lob.sub
 "lob.sub"<- function(data)
 {
   if(!is.matrix(data))
@@ -117,6 +162,21 @@
 }
 
 
+
+
+
+
+
+
+
+
+##' nearey sub
+##' 
+##' see function
+##' 
+##' 
+##' @keywords internal
+##' @export nearey.sub
 "nearey.sub"<- function(data)
 {
   if(!is.matrix(data))
@@ -127,6 +187,21 @@
   ldata - tmean
 }
 
+
+
+
+
+
+
+
+
+##' Subfunction of cen
+##' 
+##' see function
+##' 
+##' 
+##' @keywords internal
+##' @export cen.sub
 "cen.sub"<- function(data)
 {
   if(!is.matrix(data))
@@ -140,6 +215,27 @@
   mat
 }
 
+
+
+
+
+
+
+
+
+##' Label each data sample
+##' 
+##' Labels each data sample
+##' 
+##' 
+##' @param indvals Index component of a trackdata object as returned by
+##' \code{frames}, or \code{track}.
+##' @param labs A label vector parallel to \code{indvals}.
+##' @return Returns a vector of labels, one for each row in the data matrix
+##' that corresponds to \code{indvals}.
+##' @seealso frames, track
+##' @keywords misc
+##' @export expand_labels
 "expand_labels"<- function(indvals, labs)
 {
   ## indvals is the index component returned by frames/track
@@ -158,50 +254,89 @@
 }
 
 
+
+
+
+
+
+
+
+
+##' rescale lob
+##' 
+##' see function
+##' 
+##' 
+##' @keywords internal
+##' @export rescale.lob
 "rescale.lob"<- function(data, mvals, sdvals)
 {
-# rescales the Lobanov normalised data. mvals is the
-# mean of the raw data, sdvals the standard dev. of
-# the raw data
-	if(!is.matrix(data)) data <- mvals + (data * sdvals) else mat <- NULL
-	{
-		for(j in 1:ncol(data)) {
-			vec <- data[, j] * sdvals[j]
-			mvec <- vec + mvals[j]
-			mat <- cbind(mat, mvec)
-		}
-	}
-	mat
+  # rescales the Lobanov normalised data. mvals is the
+  # mean of the raw data, sdvals the standard dev. of
+  # the raw data
+  if(!is.matrix(data)) data <- mvals + (data * sdvals) else mat <- NULL
+{
+  for(j in 1:ncol(data)) {
+    vec <- data[, j] * sdvals[j]
+    mvec <- vec + mvals[j]
+    mat <- cbind(mat, mvec)
+  }
+}
+mat
 }
 
 
+
+
+
+
+
+
+
+
+##' rescale gerst
+##' 
+##' see function
+##' 
+##' 
+##' @keywords internal
+##' @export rescale.gerst
 "rescale.gerst"<- function(data, mind, ranged)
 {
-	for(j in 1:ncol(data)) {
-		data[, j] <- data[, j] * ranged[j] + mind[j]
-	}
-	data
+  for(j in 1:ncol(data)) {
+    data[, j] <- data[, j] * ranged[j] + mind[j]
+  }
+  data
 }
 
 
 
+
+
+
+
+
+
+
+
+##' rescale nearey
+##' 
+##' see function
+##' 
+##' 
+##' @keywords internal
+##' @export rescale.nearey
 "rescale.nearey"<- function(data, neardata)
 {
-	if(!is.matrix(data))
-		data <- rbind(data)
-	for(j in 1:ncol(data)) {
-		rval <- max(neardata[, j]) - min(neardata[, j])
-		mindata <- min(data[, j])
-		maxdata <- max(data[, j])
-		rangedata <- maxdata - mindata
-		data[, j] <- min(neardata[, j]) + 
-		  (((data[, j] - mindata)/rangedata) * rval)
-	}
-	data
+  if(!is.matrix(data))
+    data <- rbind(data)
+  for(j in 1:ncol(data)) {
+    rval <- max(neardata[, j]) - min(neardata[, j])
+    mindata <- min(data[, j])
+    maxdata <- max(data[, j])
+    rangedata <- maxdata - mindata
+    data[, j] <- min(neardata[, j]) + 
+      (((data[, j] - mindata)/rangedata) * rval)
+  }
+  data
 }
-
-
-# Local Variables:
-# mode:S
-# S-temp-buffer-p:t
-# End:

@@ -1,6 +1,4 @@
-"end.emusegs" <-
-function(x, ...)
-{
-as.numeric(x$end)
-}
-
+# "end.emusegs" <- function(x, ...)
+# {
+#   as.numeric(x$end)
+# }

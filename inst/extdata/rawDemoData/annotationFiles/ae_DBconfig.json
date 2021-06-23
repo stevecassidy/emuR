@@ -1,0 +1,411 @@
+{
+    "name": "ae",
+    "UUID": "0fc618dc-8980-414d-8c7a-144a649ce199",
+    "mediafileExtension": "wav",
+    "ssffTrackDefinitions": [
+        {
+            "name": "dft",
+            "columnName": "dft",
+            "fileExtension": "dft"
+        },
+        {
+            "name": "fm",
+            "columnName": "fm",
+            "fileExtension": "fms"
+        }
+    ],
+    "levelDefinitions": [
+        {
+            "name": "Utterance",
+            "type": "ITEM",
+            "attributeDefinitions": [
+                {
+                    "name": "Utterance",
+                    "type": "STRING"
+                }
+            ]
+        },
+        {
+            "name": "Intonational",
+            "type": "ITEM",
+            "attributeDefinitions": [
+                {
+                    "name": "Intonational",
+                    "type": "STRING"
+                }
+            ]
+        },
+        {
+            "name": "Intermediate",
+            "type": "ITEM",
+            "attributeDefinitions": [
+                {
+                    "name": "Intermediate",
+                    "type": "STRING"
+                }
+            ]
+        },
+        {
+            "name": "Word",
+            "type": "ITEM",
+            "attributeDefinitions": [
+                {
+                    "name": "Word",
+                    "type": "STRING"
+                },
+                {
+                    "name": "Accent",
+                    "type": "STRING"
+                },
+                {
+                    "name": "Text",
+                    "type": "STRING"
+                }
+            ]
+        },
+        {
+            "name": "Syllable",
+            "type": "ITEM",
+            "attributeDefinitions": [
+                {
+                    "name": "Syllable",
+                    "type": "STRING"
+                }
+            ]
+        },
+        {
+            "name": "Phoneme",
+            "type": "ITEM",
+            "attributeDefinitions": [
+                {
+                    "name": "Phoneme",
+                    "type": "STRING",
+                    "labelGroups": [
+                        {
+                            "name": "vowel",
+                            "values": [
+                                "A",
+                                "E",
+                                "I",
+                                "O",
+                                "V",
+                                "U",
+                                "ai",
+                                "ei",
+                                "oi",
+                                "i@",
+                                "u@",
+                                "au",
+                                "@u",
+                                "@:",
+                                "@",
+                                "a:",
+                                "e:",
+                                "i:",
+                                "o:",
+                                "u:"
+                            ]
+                        },
+                        {
+                            "name": "stop",
+                            "values": [
+                                "p",
+                                "tS",
+                                "dZ",
+                                "t",
+                                "k",
+                                "b",
+                                "d",
+                                "g"
+                            ]
+                        },
+                        {
+                            "name": "nasal",
+                            "values": [
+                                "m",
+                                "n",
+                                "N"
+                            ]
+                        },
+                        {
+                            "name": "fricative",
+                            "values": [
+                                "f",
+                                "v",
+                                "s",
+                                "z",
+                                "S",
+                                "Z",
+                                "h",
+                                "D",
+                                "T"
+                            ]
+                        },
+                        {
+                            "name": "approximant",
+                            "values": [
+                                "w",
+                                "j",
+                                "l",
+                                "r"
+                            ]
+                        },
+                        {
+                            "name": "other",
+                            "values": [
+                                "H"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Phonetic",
+            "type": "SEGMENT",
+            "attributeDefinitions": [
+                {
+                    "name": "Phonetic",
+                    "type": "STRING",
+                    "labelGroups": [
+                        {
+                            "name": "vowel",
+                            "values": [
+                                "A",
+                                "E",
+                                "EC",
+                                "I",
+                                "O",
+                                "V",
+                                "U",
+                                "ai",
+                                "ei",
+                                "oi",
+                                "i@",
+                                "u@",
+                                "au",
+                                "@u",
+                                "@:",
+                                "@",
+                                "=",
+                                "a:",
+                                "e:",
+                                "i:",
+                                "o:",
+                                "u:"
+                            ]
+                        },
+                        {
+                            "name": "stop",
+                            "values": [
+                                "p",
+                                "tS",
+                                "dZ",
+                                "t",
+                                "k",
+                                "b",
+                                "d",
+                                "g"
+                            ]
+                        },
+                        {
+                            "name": "nasal",
+                            "values": [
+                                "m",
+                                "n"
+                            ]
+                        },
+                        {
+                            "name": "fricative",
+                            "values": [
+                                "f",
+                                "v",
+                                "s",
+                                "z",
+                                "S",
+                                "Z",
+                                "h",
+                                "D",
+                                "D-",
+                                "T"
+                            ]
+                        },
+                        {
+                            "name": "approximant",
+                            "values": [
+                                "w",
+                                "j",
+                                "l",
+                                "r",
+                                "rr",
+                                "Or"
+                            ]
+                        },
+                        {
+                            "name": "other",
+                            "values": [
+                                "H"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Tone",
+            "type": "EVENT",
+            "attributeDefinitions": [
+                {
+                    "name": "Tone",
+                    "type": "STRING"
+                }
+            ]
+        },
+        {
+            "name": "Foot",
+            "type": "ITEM",
+            "attributeDefinitions": [
+                {
+                    "name": "Foot",
+                    "type": "STRING"
+                }
+            ]
+        }
+    ],
+    "linkDefinitions": [
+        {
+            "type": "ONE_TO_MANY",
+            "superlevelName": "Utterance",
+            "sublevelName": "Intonational"
+        },
+        {
+            "type": "ONE_TO_MANY",
+            "superlevelName": "Intonational",
+            "sublevelName": "Intermediate"
+        },
+        {
+            "type": "ONE_TO_MANY",
+            "superlevelName": "Intermediate",
+            "sublevelName": "Word"
+        },
+        {
+            "type": "ONE_TO_MANY",
+            "superlevelName": "Word",
+            "sublevelName": "Syllable"
+        },
+        {
+            "type": "ONE_TO_MANY",
+            "superlevelName": "Syllable",
+            "sublevelName": "Phoneme"
+        },
+        {
+            "type": "MANY_TO_MANY",
+            "superlevelName": "Phoneme",
+            "sublevelName": "Phonetic"
+        },
+        {
+            "type": "ONE_TO_MANY",
+            "superlevelName": "Syllable",
+            "sublevelName": "Tone"
+        },
+        {
+            "type": "ONE_TO_MANY",
+            "superlevelName": "Intonational",
+            "sublevelName": "Foot"
+        },
+        {
+            "type": "ONE_TO_MANY",
+            "superlevelName": "Foot",
+            "sublevelName": "Syllable"
+        }
+    ],
+    "EMUwebAppConfig": {
+        "perspectives": [
+            {
+                "name": "default",
+                "signalCanvases": {
+                    "order": [
+                        "OSCI",
+                        "SPEC"
+                    ],
+                    "assign": [
+
+                    ],
+                    "contourLims": [
+
+                    ]
+                },
+                "levelCanvases": {
+                    "order": [
+                        "Phonetic",
+                        "Tone"
+                    ]
+                },
+                "twoDimCanvases": {
+                    "order": [
+
+                    ]
+                }
+            },
+            {
+                "name": "Phonetic-only",
+                "signalCanvases": {
+                    "order": [
+                        "OSCI",
+                        "SPEC"
+                    ],
+                    "assign": [
+
+                    ],
+                    "contourLims": [
+
+                    ]
+                },
+                "levelCanvases": {
+                    "order": [
+                        "Phonetic"
+                    ]
+                },
+                "twoDimCanvases": {
+                    "order": [
+
+                    ]
+                }
+            },
+            {
+                "name": "Tone-only",
+                "signalCanvases": {
+                    "order": [
+                        "OSCI",
+                        "SPEC"
+                    ],
+                    "assign": [
+
+                    ],
+                    "contourLims": [
+
+                    ]
+                },
+                "levelCanvases": {
+                    "order": [
+                        "Tone"
+                    ]
+                },
+                "twoDimCanvases": {
+                    "order": [
+
+                    ]
+                }
+            }
+
+        ],
+        "restrictions": {
+            "showPerspectivesSidebar": true
+        },
+        "activeButtons": {
+            "saveBundle": true,
+            "showHierarchy": true
+        }
+    }
+}
+

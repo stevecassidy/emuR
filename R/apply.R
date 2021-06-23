@@ -1,63 +1,54 @@
-#############################################################################
-#                                                                           #
-#   copyright            : (C) 2000 SHLRC, Macquarie University             #
-#   email                : Steve.Cassidy@mq.edu.au			    #
-#   url			 : http://www.shlrc.mq.edu.au/emu		    #
-#									    #
-#   This program is free software; you can redistribute it and/or modify    #
-#   it under the terms of the GNU General Public License as published by    #
-#   the Free Software Foundation; either version 2 of the License, or       #
-#   (at your option) any later version.                                     #
-#									    #
-#############################################################################
-
-
-"dapply" <-
-function (trackdata, fun, ...) 
+##' Function that applies a function to an EMU spectral object
+##' 
+##' Applies a function to an EMU spectral object.
+##' 
+##' fapply performs a similar operation to apply except that it is specifically
+##' designed for handling EMU spectral objects.
+##' 
+##' @param specdata A matrix or trackdata object of class spectral
+##' @param fun A function to be applied.
+##' @param \dots Optional arguments to fun
+##' @param power A single element logical vector. If T, convert specdata to
+##' power values i.e. apply the function to a * specdata
+##' \eqn{\mbox{\textasciicircum}}{^}b or a * specdata\$data
+##' \eqn{\mbox{\textasciicircum}}{^}b where a and b powcoeffs defined below.
+##' @param powcoeffs A 2 element numeric vector for converting dB values to
+##' power values. Defaults to a = 10 and b = 10. See \code{power}.
+##' @return If the output has the same dimensions has the input, then an object
+##' of the same dimensionality and class is returned. Otherwise it may be a
+##' vector or matrix depending on the function that is applied.  ...
+##' @section Warning : The function can be very slow if applied to a large
+##' trackdata object. In this case, it may be faster to use a for-loop with the
+##' desired function around \$data
+##' @author Jonathan Harrington
+##' @seealso \code{\link{apply}} \code{\link{by.trackdata}}
+##' @keywords utilities
+##' @examples
+##' 
+##' # mean value per spectrum, input is a spectral matrix
+##' m <- fapply(vowlax.dft.5, sapply, FUN=mean)
+##' # as above but after converting dB to powers before
+##' # applying the function
+##' m <- fapply(vowlax.dft.5, sapply, FUN=mean, power=TRUE)
+##' # spectral range
+##' r <- fapply(vowlax.dft.5, range)
+##' # spectral moments applied to a trackdata object
+##' # m is a four-dimensional trackdata object
+##' m <- fapply(fric.dft, moments)
+##' # 1st 3 DCT coefficients calculated in a spectral matrix
+##' # d is a 3-columned matrix
+##' d <- fapply(vowlax.dft.5, dct, 3)
+##' # dct-smooth with 10 coefficients. d2 is spectral matrix
+##' d2 <- fapply(vowlax.dft.5, dct, 10, TRUE)
+##' # dct-smooth a trackdata object with 10 coefficients
+##' d3 <- fapply(fric.dft[1:4,], dct, 10, TRUE)
+##' 
+##' 
+##' @export fapply
+'fapply' <- function (specdata, fun, ..., power = FALSE, 
+                      powcoeffs = c(10, 10)) 
 {
-    if (version$major >= 5 && oldClass(trackdata) != "trackdata") {
-        stop("argument to dapply is not of class trackdata.")
-    }
-    else if (!is.trackdata(trackdata)) 
-        stop("argument to dapply is not of class trackdata.")
-    if (!is.matrix(trackdata$index)) {
-        trackdata$ftime <- rbind(trackdata$ftime)
-        trackdata$index <- rbind(trackdata$index)
-    }
-    thisrow <- 1
-    newindex <- trackdata$index
-    newdata <- NULL
-    newftime <- trackdata$ftime
-    for (j in 1:nrow(trackdata$index)) {
-        newindex[j, 1] <- thisrow
-        tmp <- fun(trackdata[j]$data, trackdata[j]$ftime, ...)
-        if (is.matrix(tmp$data)) {
-            newdata <- rbind(newdata, tmp$data)
-        }
-        else {
-            newdata <- c(newdata, tmp$data)
-        }
-        newftime[j, ] <- tmp$ftime
-        if (is.matrix(tmp$data)) 
-            thisrow <- thisrow + nrow(tmp$data)
-        else thisrow <- thisrow + length(tmp$data)
-        newindex[j, 2] <- thisrow - 1
-    }
-    x <- list(data = as.matrix(newdata), index = newindex, ftime = newftime)
-    if (version$major >= 5) {
-        oldClass(x) <- "trackdata"
-    }
-    else {
-        class(x) <- "trackdata"
-    }
-    return(x)
-}
-
-
-`fapply` <-
-  function (specdata, fun, ..., power = FALSE, powcoeffs = c(10, 
-                                                 10)) 
-{
+  
   if (!is.spectral(specdata)) 
     stop("object must be of class spectral")
   if (power) 
@@ -68,7 +59,10 @@ function (trackdata, fun, ...)
     class(specdata$data) <- "spectral"
     for (j in 1:nrow(specdata$data)) {
       vals <- fun(specdata$data[j, ], ...)
-      omat <- rbind(omat, vals)
+      if(j == 1){ # preallocate matrix
+        omat = matrix(nrow = nrow(specdata$data), ncol = length(vals))
+      }
+      omat[j, ] <- vals
     }
     if (ncol(omat) == ncol(specdata)) {
       dimnames(omat) <- dnames
@@ -84,14 +78,17 @@ function (trackdata, fun, ...)
   }
   else {
     if(!is.matrix(specdata))
-      {
-        samfreq = max(trackfreq(specdata))*2
-        specdata = as.spectral(rbind(specdata), samfreq)
-      }
-
+    {
+      samfreq = max(trackfreq(specdata))*2
+      specdata = as.spectral(rbind(specdata), samfreq)
+    }
+    
     for (j in 1:nrow(specdata)) {
       vals <- fun(specdata[j, ], ...)
-      omat <- rbind(omat, vals)
+      if(j == 1){ # preallocate matrix
+        omat = matrix(nrow = nrow(specdata), ncol = length(vals))
+      }
+      omat[j, ] <- vals
     }
     if (ncol(omat) == ncol(specdata)) {
       dimnames(omat) <- dnames
@@ -107,8 +104,3 @@ function (trackdata, fun, ...)
     return(omat)
   }
 }
-
-# Local Variables:
-# mode:S
-# S-temp-buffer-p:t
-# End:
