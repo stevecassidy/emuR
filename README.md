@@ -4,6 +4,16 @@
 [![Coverage Status](https://coveralls.io/repos/IPS-LMU/emuR/badge.svg)](https://coveralls.io/github/IPS-LMU/emuR)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/emuR)](https://cran.r-project.org/package=emuR)
 
+## Out of funding
+
+Unfortunately, the EMU-SDMS is currently out of funding.
+
+We at the IPS will do what we can to fix bugs, security issues or necessary adjustments to new versions of R; but we cannot currently work on new features or performance improvements.
+
+We would be very glad if funding in academia allowed for more technical staff to maintain software used by the research community.
+
+## Introduction
+
 The emuR package provides the next iteration of the EMU Speech 
 Database Management System (EMU-SDMS) with database management, data 
 extraction, data preparation and data visualization facilities. 
