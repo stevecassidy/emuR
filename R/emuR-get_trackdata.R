@@ -215,6 +215,7 @@
     trackDef[[1]]$name = "CUSTOM_FUNCTION"
     trackDef[[1]]$columnName = "CUSTOM_FUNCTION"
     trackDef[[1]]$fileExtension = "CUSTOM_FUNCTION"
+    trackCache = list()
   }else{
     if(is.null(onTheFlyFunctionName)){
       trackDefFound = sapply(DBconfig$ssffTrackDefinitions, 
@@ -510,10 +511,20 @@
       prevUtt = curUtt
     } else {
       # use custom function
-      customFunctionRes = onTheFlyFunction(file.path(emuDBhandle$basePath, 
-                                                     paste0(splUtt[1], session.suffix), 
-                                                     paste0(splUtt[2], bundle.dir.suffix), 
-                                                     paste0(splUtt[2], ".", DBconfig$mediafileExtension)))
+      mediaPath <- file.path(emuDBhandle$basePath, 
+                             paste0(splUtt[1], session.suffix), 
+                             paste0(splUtt[2], bundle.dir.suffix), 
+                             paste0(splUtt[2], ".", DBconfig$mediafileExtension))
+      
+      if(is.null(trackCache[[mediaPath]])){
+        customFunctionRes = onTheFlyFunction(mediaPath)
+        trackCache[[mediaPath]] <- customFunctionRes
+      }
+      else
+      {
+        warning("Cached results were used")
+        customFunctionRes = trackCache[[mediaPath]]
+      }
       
       if(!"frame_time" %in% colnames(customFunctionRes)){
         stop("The function passed in to onTheFlyFunction didn't return a data.frame with a column called 'frame_time'!")  
