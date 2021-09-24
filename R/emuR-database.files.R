@@ -244,7 +244,7 @@ add_files <- function(emuDBhandle,
   }
   
   sourcePaths = list.files(dir, 
-                           pattern = paste0(fileExtension, '$'), 
+                           pattern = paste0("\\.",fileExtension, '$'), 
                            full.names = T)
   
   destDirs = file.path(emuDBhandle$basePath, 
@@ -269,7 +269,11 @@ add_files <- function(emuDBhandle,
     cbndl = bndls[bndls$name == cbn, ]
     # check that only one bundle folder
     if(nrow(cbndl) != 1){
-      stop(paste0("more or less than one bundle found that matches the base name of the file '", sourcePaths[i], "'"))
+      if(nrow(cbndl) == 0){
+        stop(paste0("no bundle found that matches the base name (",cbn,") of the file '", sourcePaths[i], "'"))
+      } else {
+        stop(paste0("more than one bundle found (found = ",nrow(cbndl),") that matches the base name (",cbn,") of the file '", sourcePaths[i], "'"))
+      }
     }
     
     destDir = file.path(emuDBhandle$basePath, paste0(cbndl$session, '_ses'), paste0(cbndl$name, '_bndl'))
