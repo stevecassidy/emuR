@@ -362,7 +362,14 @@
         }
         
       } else { # if precalculated track read in file
-        curDObj <- wrassp::read.AsspDataObj(fpath)
+        if(file.exists(fpath)){
+          # if file doesn't exist this causes the R session to crash
+          # this didn't used to be the case? Further wrassp debugging 
+          # needed...
+          curDObj <- wrassp::read.AsspDataObj(fpath)
+        } else {
+          stop("trying wrassp::read.AsspDataObj() on a file path that doesn't exist: ", fpath)
+        }
       }
       
       # set origFreq 
