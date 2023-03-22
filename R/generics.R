@@ -12,13 +12,13 @@
 
 
 ##' @export
-`Math2.trackdata` <- function (x) 
+`Math2.trackdata` <- function (x, digits)
 {
   
   ftime <- x$ftime
   inds <- x$index
   nm <- x$name
-  o <- get(.Generic)(x$data)
+  o <- get(.Generic)(x$data, digits)
   as.trackdata(o, inds, ftime, nm)
 }
 
