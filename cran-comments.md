@@ -1,19 +1,8 @@
-## Resubmission
+## Change of maintainership
 
-This is a resubmission. In this version I have:
+Maintainership of this package is being handed over from Raphael Winkelmann to
+Markus Jochim. Raphael is still reachable at the below email address and he will
+confirm the mutual intention.
 
-* enclosed URL in angle brackets (<...>) in DESCRIPTION::Description text.
-
-## Test environments
-
-* local OSX (Platform: aarch64-apple-darwin20 (64-bit)) & Windows 10 x64 installs, R version 4.1.0 (2021-05-18)
-* Ubuntu 16.04.6 LTS (on travis-ci), R version 4.0.2 (2020-06-22)
-* devtools::check_rhub(); devtools::check_win_devel();
-
-## R CMD check results
-
-There were no ERRORs, WARNINGs or NOTEs.
-
-## Downstream dependencies
-
-There are currently no downstream dependencies for this package.
+* Raphael Winkelmann <raphael@phonetik.uni-muenchen.de>
+* Markus Jochim <markusjochim@phonetik.uni-muenchen.de>
