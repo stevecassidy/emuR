@@ -1,3 +1,11 @@
+# emuR 2.3.1
+
+## new features / performance tweaks / improvements
+
+## bug fixes
+
+* generic functions Math2/round and Math2/signif did not accept digits parameter for legacy trackdata objects
+
 # emuR 2.3.0
 
 ## new features / performance tweaks / improvements
