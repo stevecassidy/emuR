@@ -46,7 +46,7 @@ convert_txtCollection <- function(dbName,
   if(!dir.exists(targetDir))
   {
     res = try(suppressWarnings(dir.create(targetDir)))
-    if (class(res) == "try-error")
+    if (res == FALSE || inherits(res, "try-error"))
     {
       stop("Could not create target directory ", targetDir)
     }
@@ -244,7 +244,7 @@ convert_txtCollection <- function(dbName,
   )
   
   res = try(dir.create(basePath))
-  if (class(res) == "try-error")
+  if (res == FALSE || inherits(res, "try-error"))
   {
     stop("Could not create emuDB base directory ", basePath)
   }
