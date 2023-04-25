@@ -386,7 +386,7 @@ copy_bpfMediaFiles <- function(basePath,
     # -------------------------------------------------------------------------
     
     res = try(file.copy(mediaFiles[[idx]], targetDir))
-    if(class(res) == "try-error")
+    if (res == FALSE || inherits(res, "try-error"))
     {
       stop("Could not copy media file from ", mediaFiles[[idx]], " to ", targetDir)
     }
