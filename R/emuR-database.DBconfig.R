@@ -826,7 +826,7 @@ set_legalLabels <- function(emuDBhandle,
   check_emuDBhandle(emuDBhandle)
   
   if(!is.null(legalLabels) & (!inherits(legalLabels, "character"))){
-    stop("legalLables must be of class 'character'")
+    stop("legalLabels must be of class 'character'")
   }
   
   dbConfig = load_DBconfig(emuDBhandle)

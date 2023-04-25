@@ -546,7 +546,7 @@ delete_itemsInLevel = function (emuDBhandle,
                                 rewriteAllAnnots = TRUE,
                                 verbose = TRUE) {
   
-  input_key <- readline(prompt = "Currently no checks are performed so use at own risk! Do you wish to continue anyway (y/N)?")
+  input_key <- readline(prompt = "Currently no checks are performed so use at own risk! Do you wish to continue anyway (y/N)? ")
   if(input_key != "y") return()
   
   if(any((itemsToDelete$end_item_id - itemsToDelete$end_item_id) != 0)){
@@ -681,7 +681,7 @@ create_links = function(emuDBhandle,
                         rewriteAllAnnots = TRUE,
                         verbose = TRUE) {
   
-  input_key <- readline(prompt = "Currently no checks are performed so use at own risk! Do you wish to continue anyway (y/N)?")
+  input_key <- readline(prompt = "Currently no checks are performed so use at own risk! Do you wish to continue anyway (y/N)? ")
   if(input_key != "y") return()
   
   # todo check if items are all present in database

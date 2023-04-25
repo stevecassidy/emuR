@@ -21,12 +21,14 @@ create_filePairList <- function(ext1Path2rootDir, ext2Path2rootDir, ext1, ext2){
   
   # ext1Path2rootDir is valid path
   if(!dir.exists(ext1Path2rootDir)){
-    stop('ext1Path2rootDir does not exist!')
+    stop(paste0('ext1Path2rootDir does not exist: ',
+                ext1Path2rootDir))
   }
   
   # ext2Path2rootDir is valid path
   if(!dir.exists(ext2Path2rootDir)){
-    stop('ext2Path2rootDir does not exist!')
+    stop(paste0('ext2Path2rootDir does not exist: ',
+                ext2Path2rootDir))
   }
   
   

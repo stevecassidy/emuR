@@ -503,7 +503,7 @@ check_bpfArgumentWithoutLevelClasses <- function(sourceDir,
   
   if(is.null(refLevel) && verbose)
   {
-    ans = readline("WARNING: No reference level has been declared. EMU database will be built without any symbolic links. Do you wish to continue? (y/n)")
+    ans = readline("WARNING: No reference level has been declared. EMU database will be built without any symbolic links. Do you wish to continue? (y/n) ")
     if(!ans == "y")
     {
       stop("BPF converter interrupted.")
