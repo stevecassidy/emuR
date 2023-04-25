@@ -72,10 +72,12 @@ convert_BPFCollection <- function(sourceDir,
   targetDir = suppressWarnings(normalizePath(targetDir))
   basePath = file.path(targetDir, paste0(dbName, emuDB.suffix))
   
-  res = try(suppressWarnings(dir.create(targetDir)))
-  if (res == FALSE || inherits(res, "try-error"))
-  {
-    stop("Could not create target directory ", targetDir)
+  if (!dir.exists(targetDir)) {
+    res = try(suppressWarnings(dir.create(targetDir)))
+    if (res == FALSE || inherits(res, "try-error"))
+    {
+      stop("Could not create target directory ", targetDir)
+    }
   }
   
   # ---------------------------------------------------------------------------
