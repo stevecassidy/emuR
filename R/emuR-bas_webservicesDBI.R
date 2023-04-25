@@ -1946,7 +1946,7 @@ bas_download <- function(result,
   
   lines = try(readr::read_lines(target))
   
-  if (class(lines) == "try-error")
+  if (inherits(lines, "try-error"))
   {
     stop("Bundle ",
          bundle,

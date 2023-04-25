@@ -26,7 +26,7 @@ parse_hlbFile <- function(hlbFilePath = NULL,
     lines = try(readr::read_lines(hlbFilePath, 
                                   readr::locale(encoding = encoding)))
   }
-  if(class(lines) == "try-error") {
+  if(inherits(lines, "try-error")) {
     stop("Cannot read from file ", hlbFilePath)
   }
   lineCount = length(lines)

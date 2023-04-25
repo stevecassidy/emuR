@@ -19,7 +19,7 @@ emuDBhandle = function(dbName,
   
   class(handle) = "emuDBhandle"
   
-  if(class(handle$connection) == "SQLiteConnection"){
+  if(inherits(handle$connection, "SQLiteConnection")){
     setSQLitePragmas(handle$connection)
     # init regex
     RSQLite::initRegExp(handle$connection)

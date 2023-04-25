@@ -39,7 +39,7 @@ parse_BPF <- function(emuDBhandle,
   # ---------------------------------------------------------------------------
   
   bpfLines = try(readr::read_lines(bpfPath))
-  if(class(bpfLines) == "try-error") 
+  if(inherits(bpfLines, "try-error"))
   {
     stop("Cannot read from file ", bpfPath)
   }

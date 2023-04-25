@@ -31,7 +31,7 @@
   arithmetic = c("+", "-", "*", "^", "%%", "%/%", "/")
   compare = c("==", ">", "<", "!=", "<=", ">=")
   
-  if (class(x) == "trackdata") {
+  if (inherits(x, "trackdata")) {
     ftime <- x$ftime
     inds <- x$index
     nm <- x$name
@@ -41,11 +41,11 @@
     inds <- y$index
     nm <- y$name
   }
-  if (class(x) == "trackdata" & class(y) == "trackdata") 
+  if (inherits(x, "trackdata") & inherits(y, "trackdata"))
     o <- get(.Generic)(x$data, y$data)
-  else if (class(x) == "trackdata" & class(y) != "trackdata") 
+  else if (inherits(x, "trackdata") & (!inherits(y, "trackdata")))
     o <- get(.Generic)(x$data, y)
-  else if (class(x) != "trackdata" & class(y) == "trackdata") 
+  else if ((!inherits(x, "trackdata")) & inherits(y, "trackdata"))
     o <- get(.Generic)(x, y$data)
   if (.Generic  %in% arithmetic)
     result <-    as.trackdata(o, inds, ftime, nm)

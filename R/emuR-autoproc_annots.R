@@ -51,7 +51,7 @@ replace_itemLabels <- function(emuDBhandle,
                 paste0(get_allAttributeNames(emuDBhandle), collapse = "; ")))
   }
   
-  if(class(origLabels) != "character" | class(newLabels) != "character" | length(origLabels) != length(newLabels)){
+  if((!inherits(origLabels, "character")) | (!inherits(newLabels, "character")) | length(origLabels) != length(newLabels)){
     stop("origLabels and newLabels have to be a character vector of the same length!")  
   }
   

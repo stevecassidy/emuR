@@ -68,7 +68,7 @@
   
   if( version$major >= 5  && oldClass(trackdata)!="trackdata") {
     stop("argument to dapply is not of class trackdata.")
-  } else if(class(trackdata)!="trackdata")
+  } else if(!inherits(trackdata, "trackdata"))
     stop("argument to dapply is not of class trackdata.")
   
   

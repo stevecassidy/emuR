@@ -210,7 +210,7 @@ create_emuRtrackdata <- function(sl, td){
     for (name in additional_cols){
       # y = dplyr::pull(eRtd, name)
       y = eRtd[[name]]
-      if(class(y) != "character"){
+      if(!inherits(y, "character")){
         eRtd.normtemp[,name] = approx(eRtd$times_norm, y, n = N)$y
       }else{
         eRtd.normtemp[,name]  = y[1] # use first element to fill up vector (R's recycling)

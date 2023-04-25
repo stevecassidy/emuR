@@ -557,7 +557,7 @@ rename_attributeDefinition <- function(emuDBhandle,
   #############################
   # check input parameters
   check_emuDBhandle(emuDBhandle)
-  if(class(origAttrDef) != "character" | class(newAttrDef) != "character" | length(origAttrDef) != 1 | length(newAttrDef) != 1){
+  if((!inherits(origAttrDef, "character")) | (!inherits(newAttrDef, "character")) | length(origAttrDef) != 1 | length(newAttrDef) != 1){
     stop("origAttrDef and newAttrDef have to be character vectors with only one item!")  
   }
   
@@ -825,7 +825,7 @@ set_legalLabels <- function(emuDBhandle,
   
   check_emuDBhandle(emuDBhandle)
   
-  if(!is.null(legalLabels) & class(legalLabels) != "character"){
+  if(!is.null(legalLabels) & (!inherits(legalLabels, "character"))){
     stop("legalLables must be of class 'character'")
   }
   

@@ -68,7 +68,7 @@ parse_TextGridDBI <- function(emuDBhandle,
   
   # read TextGrid
   tg = try(readr::read_lines(TextGridPath))
-  if(class(tg) == "try-error") {
+  if(inherits(tg, "try-error")) {
     stop("read.TextGrid: cannot read from file ", TextGridPath)
   }
   

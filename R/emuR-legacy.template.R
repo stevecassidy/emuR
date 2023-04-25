@@ -32,12 +32,12 @@ load_dbConfigFromEmuTemplate = function(tplPath,
     tpl = try(readr::read_lines(tplPath, 
                                 readr::locale(encoding = encoding)))
   }
-  if(class(tpl) == "try-error") {
+  if(inherits(tpl, "try-error")) {
     stop("read tpl: cannot read from file ", tplPath)
   }
   # check if file (not directory)
   tplFInfo = try(file.info(tplPath))
-  if(class(tplFInfo) == "try-error" | is.null(tplFInfo)) {
+  if(inherits(tplFInfo, "try-error") | is.null(tplFInfo)) {
     stop("check template file: cannot get file info: ", tplPath)
   }
   if(tplFInfo[['isdir']]){

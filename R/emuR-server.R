@@ -323,7 +323,7 @@ serve <- function(emuDBhandle,
           for( jrNm in jrNms){
             value = jr[[jrNm]]
             cat("param: ", jrNm)
-            if(class(value) == 'character'){
+            if(inherits(value, 'character')){
               cat(": ", jr[[jrNm]])
             }
             cat("\n")
