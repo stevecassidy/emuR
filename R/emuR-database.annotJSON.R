@@ -163,7 +163,7 @@ bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
   
   attrDefs = list_attributeDefinitions(emuDBhandle, levelDefs$name)
   
-  levelsdf = dplyr::full_join(annotDFs$items, attrDefs, by=c("level")) %>%
+  levelsdf = dplyr::full_join(annotDFs$items, attrDefs, by=c("level"), multiple="all") %>%
     dplyr::left_join(annotDFs$labels, by=c("item_id", "name")) 
   
   levelsdf$label[is.na(levelsdf$label)] = "" # set missing labels top ""
