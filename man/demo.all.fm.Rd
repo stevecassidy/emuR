@@ -5,7 +5,7 @@
 \alias{demo.all.fm}
 \title{Formant track data for segment list demo.vowels}
 \format{
-index: a two columned matrix with the range of the \$data rows that
+index: a two columned matrix with the range of the $data rows that
 belong to the segment ftime: a two columned matrix with the times marks of
 the segment data: a three columned matrix with the formant values of the
 first three formants for each segment

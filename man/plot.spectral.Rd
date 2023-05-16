@@ -49,7 +49,7 @@ plotted. If not supplied, defaults to trackfreq(specdata)}
 
 \item{type}{A single element character vector for the linetype}
 
-\item{power}{Logical. If T, then specdata (or specdata\$data if specdata is
+\item{power}{Logical. If T, then specdata (or specdata$data if specdata is
 a trackdata object, is converted to a *
 specdata\eqn{\mbox{\textasciicircum}}{^}b, where a and b have the values
 given in powcoeffs. This operation is applied before b}

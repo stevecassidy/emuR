@@ -15,7 +15,7 @@ fapply(specdata, fun, ..., power = FALSE, powcoeffs = c(10, 10))
 
 \item{power}{A single element logical vector. If T, convert specdata to
 power values i.e. apply the function to a * specdata
-\eqn{\mbox{\textasciicircum}}{^}b or a * specdata\$data
+\eqn{\mbox{\textasciicircum}}{^}b or a * specdata$data
 \eqn{\mbox{\textasciicircum}}{^}b where a and b powcoeffs defined below.}
 
 \item{powcoeffs}{A 2 element numeric vector for converting dB values to
@@ -36,7 +36,7 @@ designed for handling EMU spectral objects.
 \section{Warning }{
  The function can be very slow if applied to a large
 trackdata object. In this case, it may be faster to use a for-loop with the
-desired function around \$data
+desired function around $data
 }
 
 \examples{

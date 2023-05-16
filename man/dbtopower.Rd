@@ -26,7 +26,7 @@ The function converts from decibels to a linear scale
 The function returns base\eqn{\mbox{\textasciicircum}}{^}(specdata/const)
 if inv=F, otherwise, const * log(dat, base=base). If the object to which
 this function is applied is of class 'trackdata' then this function is
-applied to \$data.
+applied to $data.
 }
 \examples{
 

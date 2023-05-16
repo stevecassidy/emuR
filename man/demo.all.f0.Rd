@@ -5,9 +5,9 @@
 \alias{demo.all.f0}
 \title{F0 track data for segment list demo.vowels}
 \format{
-An object with \$index, \$ftime and \$data
+An object with $index, $ftime and $data
 
-index: a two columned matrix with the range of the \$data rows that belong
+index: a two columned matrix with the range of the $data rows that belong
 to the segment ftime: a two columned matrix with the times marks of the
 segment data: a one columned matrix with the F0 values
 }

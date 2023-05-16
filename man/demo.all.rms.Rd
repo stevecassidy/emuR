@@ -5,9 +5,9 @@
 \alias{demo.all.rms}
 \title{Emu track data for a rms track for segment list demo.all}
 \format{
-A object with \$index, \$ftime and \$data
+A object with $index, $ftime and $data
 
-index: a two columned matrix with the range of the \$data rows that belong
+index: a two columned matrix with the range of the $data rows that belong
 to the segment ftime: a two columned matrix with the times marks of the
 segment data: a vector with the rms data
 }

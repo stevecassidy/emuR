@@ -44,7 +44,7 @@ function to obtain the dB values at those frequencies.
         mel(vec)
         
 
-        # convert the \$data values in a trackdata object to mel
+        # convert the $data values in a trackdata object to mel
         # create a new track data object
 
         t1 <- dip.fdat
@@ -73,8 +73,8 @@ plot(e.dft, freq=mel(trackfreq(e.dft)))
 
 }
 \references{
-Traunmueller, H. (1990) \"Analytical expressions for the
-tonotopic sensory scale\" J. Acoust. Soc. Am. 88: 97-100.
+Traunmueller, H. (1990) "Analytical expressions for the
+tonotopic sensory scale" J. Acoust. Soc. Am. 88: 97-100.
 }
 \seealso{
 \code{\link{bark}}, \code{\link{plot.spectral}}

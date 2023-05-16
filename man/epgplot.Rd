@@ -24,7 +24,7 @@ array that is the output of palate()}
 only. Note: this argument should only be used if epgdata is temporally
 contiguous, i.e. the entire trackdata object contains palatograms at
 successive multiple times of the EPG sampling frequency. (as in
-coutts.epg\$ftime). Defaults to NULL, in which case palatograms are plotted
+coutts.epg$ftime). Defaults to NULL, in which case palatograms are plotted
 for all times available in epgdata.}
 
 \item{numbering}{Either "times" (default), or logical T, or a character
@@ -53,7 +53,7 @@ default in the R plot() function is c(5, 4, 4, 2) + 0.1.}
 should be plotted.  Note: this argument should only be used if epgdata is
 temporally contiguous, i.e. the entire trackdata object contains
 palatograms at successive multiple times of the EPG sampling frequency. (as
-in coutts.epg\$ftime). Defaults to NULL (plot all time values).}
+in coutts.epg$ftime). Defaults to NULL (plot all time values).}
 }
 \description{
 Function to plot palatograms from EPG compressed objects or from a

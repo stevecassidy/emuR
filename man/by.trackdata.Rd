@@ -3,7 +3,7 @@
 \name{by.trackdata}
 \alias{by.trackdata}
 \alias{by}
-\title{A method of the generic function by for objects of class \'trackdata\'}
+\title{A method of the generic function by for objects of class 'trackdata'}
 \usage{
 \method{by}{trackdata}(data, INDICES = NULL, FUN, ..., simplify = FALSE)
 }

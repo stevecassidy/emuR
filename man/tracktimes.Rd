@@ -14,7 +14,7 @@ obtained at a single time point using dcut()}
 The function obtains the times at which track values occur.
 }
 \details{
-Every \$data value in a trackdata object is associated with a time at which
+Every $data value in a trackdata object is associated with a time at which
 it occurs in the utterance. This function returns those times.
 }
 \examples{

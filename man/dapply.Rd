@@ -10,7 +10,7 @@ dapply(trackdata, fun, ...)
 \item{trackdata}{An Emu trackdata object}
 
 \item{fun}{A function taking a matrix of data and a vector of times and
-returning a list with components \code{\$data} and \code{\$ftime}.}
+returning a list with components \code{$data} and \code{$ftime}.}
 
 \item{\dots}{Additional arguments to be passed to \code{fun}}
 }
@@ -31,9 +31,9 @@ extracted from an Emu database. It can be used for example to smooth the
 data (see \code{\link{dsmooth}}) or differentiate it (see
 \code{\link{ddiff}}).
 
-Trackdata is made up of three components: a matrix of data \code{\$data}, a
-matrix of indexes (\code{\$index}) and a matrix of segment times
-(\code{\$ftime}).  The indexes contain the start and end rows for each
+Trackdata is made up of three components: a matrix of data \code{$data}, a
+matrix of indexes (\code{$index}) and a matrix of segment times
+(\code{$ftime}).  The indexes contain the start and end rows for each
 segment in the trackdata, the time matrix contains the start and end times
 of each data segment.
 
