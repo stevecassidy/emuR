@@ -545,7 +545,7 @@
       ftime[i,] <- c(min(customFunctionRes_filtered$frame_time), max(customFunctionRes_filtered$frame_time))
       
       # set data_list entry and timeStamp
-      data_list[[i]] = as.matrix(dplyr::select(customFunctionRes_filtered, -.data$frame_time))
+      data_list[[i]] = as.matrix(dplyr::select(customFunctionRes_filtered, -"frame_time"))
       timeStampRowNames_list[[i]] = customFunctionRes_filtered %>% dplyr::pull(.data$frame_time)
       
       # reset start index

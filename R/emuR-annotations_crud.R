@@ -259,7 +259,7 @@
     
     # test if no duplicate sample_start values exists
     itemsToCreate %>% 
-      dplyr::select(.data$session, .data$bundle, .data$level, .data$sample_start) %>%
+      dplyr::select("session", "bundle", "level", "sample_start") %>%
       dplyr::distinct() -> distinct_sample_start_rows
     
     if(nrow(distinct_sample_start_rows) != nrow(itemsToCreate)){

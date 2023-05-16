@@ -81,8 +81,8 @@ write_bundleList <- function(emuDBhandle,
   if(missing(seglist)){
     
     bundleList %>% 
-      dplyr::select(.data$session, 
-                    .data$name, 
+      dplyr::select("session",
+                    "name",
                     dplyr::contains("comment"), 
                     dplyr::contains("finishedEditing")) -> bundleList
     
