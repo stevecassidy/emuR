@@ -11,7 +11,7 @@ read_and_join_long_flatData <- function(emuDBhandle,
     if(all(names(key_value_data) == c("key", "value"))){
       key_value_data_pivoted = tidyr::pivot_wider(key_value_data, names_from = "key", values_from = "value")
       if(missing(bundleName) && missing(sessionName)){
-        res = dplyr::full_join(x, key_value_data_pivoted, by = character())
+        res = dplyr::cross_join(x, key_value_data_pivoted)
       } else if(missing(bundleName) && !missing(sessionName)) {
         # join by session
         key_value_data_pivoted$session = sessionName
