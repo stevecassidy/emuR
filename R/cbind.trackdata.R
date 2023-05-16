@@ -1,18 +1,18 @@
-##' A method of the generic function cbind for objects of class \'trackdata\'
+##' A method of the generic function cbind for objects of class 'trackdata'
 ##' 
 ##' Different track data objects from one segment list are bound by combining
-##' the \$data columns of the track data object by columns.
+##' the $data columns of the track data object by columns.
 ##' 
 ##' All track data objects have to be track data of the same segment list.
-##' Thus \$index and \$ftime values have to be identically for all track data
+##' Thus $index and $ftime values have to be identically for all track data
 ##' objects.  Track data objects are created by get_trackdata().  The number of
 ##' rows of the track data objects must match.
 ##' 
 ##' @aliases cbind.trackdata cbind
 ##' @param \dots track data objects
-##' @return A track data object with the same \$index and \$ftime values of the
-##' source track data objects and with \$data that includes all columns of
-##' \$data of the source track data objects.
+##' @return A track data object with the same $index and ftime values of the
+##' source track data objects and with $data that includes all columns of
+##' $data of the source track data objects.
 ##' @author Jonathan Harrington
 ##' @seealso \code{\link{cbind}}, \code{\link{rbind.trackdata}}
 ##' \code{\link{trackdata}} \code{\link{get_trackdata}}

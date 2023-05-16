@@ -410,7 +410,7 @@
 ##' only. Note: this argument should only be used if epgdata is temporally
 ##' contiguous, i.e. the entire trackdata object contains palatograms at
 ##' successive multiple times of the EPG sampling frequency. (as in
-##' coutts.epg\$ftime). Defaults to NULL, in which case palatograms are plotted
+##' coutts.epg$ftime). Defaults to NULL, in which case palatograms are plotted
 ##' for all times available in epgdata.
 ##' @param numbering Either "times" (default), or logical T, or a character
 ##' vector of the same length as the number of segments in epgdata.  In the
@@ -428,7 +428,7 @@
 ##' should be plotted.  Note: this argument should only be used if epgdata is
 ##' temporally contiguous, i.e. the entire trackdata object contains
 ##' palatograms at successive multiple times of the EPG sampling frequency. (as
-##' in coutts.epg\$ftime). Defaults to NULL (plot all time values).
+##' in coutts.epg$ftime). Defaults to NULL (plot all time values).
 ##' @param col specify a colour for plotting the filled EPG cells.
 ##' @param mar A numerical vector of the form 'c(bottom, left, top, right)'
 ##' which gives the number of lines of margin to be specified on the four sides

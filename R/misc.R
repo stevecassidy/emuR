@@ -457,7 +457,7 @@
 ##' The function returns base\eqn{\mbox{\textasciicircum}}{^}(specdata/const)
 ##' if inv=F, otherwise, const * log(dat, base=base). If the object to which
 ##' this function is applied is of class 'trackdata' then this function is
-##' applied to \$data.
+##' applied to $data.
 ##' 
 ##' @param specdata A numeric object or an object of class trackdata
 ##' @param const A single element numeric vector. Defaults to 10

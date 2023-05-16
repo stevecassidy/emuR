@@ -173,7 +173,7 @@
 ##' specdata specifying the frequencies at which the spectral data is to be
 ##' plotted. If not supplied, defaults to trackfreq(specdata)
 ##' @param type A single element character vector for the linetype
-##' @param power Logical. If T, then specdata (or specdata\$data if specdata is
+##' @param power Logical. If T, then specdata (or specdata$data if specdata is
 ##' a trackdata object, is converted to a *
 ##' specdata\eqn{\mbox{\textasciicircum}}{^}b, where a and b have the values
 ##' given in powcoeffs. This operation is applied before b

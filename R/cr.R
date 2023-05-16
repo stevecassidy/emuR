@@ -211,10 +211,10 @@
 ##' @param arrow Logical. If T, plot an arrow on incircle showing the direction
 ##' of movement.
 ##' @param linetype Specify a linetype. Same function as lty in plot
-##' @param textplot A list containing \$radius, \$textin, \$pivals for plotting
-##' text at specified angles and radii on the circle. \$radius: a vector of
-##' amplitudes of the radii at which the text is to be plotted; \$textin: a
-##' vector of character labels to be plotted; \$pivals: the angle, in radians
+##' @param textplot A list containing $radius, $textin, $pivals for plotting
+##' text at specified angles and radii on the circle. $radius: a vector of
+##' amplitudes of the radii at which the text is to be plotted; $textin: a
+##' vector of character labels to be plotted; $pivals: the angle, in radians
 ##' relative to zero radians (top of the circle) at which the text is to be
 ##' plotted. Defaults to NULL
 ##' @param lineplot Plot lines from the centre of the circle to the
@@ -222,7 +222,7 @@
 ##' corresponds to the top of the circle)
 ##' @param ylab Specify a y-axis label.
 ##' @param super Superimpose a part solid circle and corresponding sinusoid.
-##' This needs to be a list containing \$first and \$last, which are values
+##' This needs to be a list containing $first and $last, which are values
 ##' between 0 and 2*pi defining the beginning and ending of the part circle
 ##' which is to be superimposed
 ##' @param xaxlab Now redundant

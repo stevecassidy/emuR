@@ -134,10 +134,10 @@ NULL
 ##' 
 ##' @aliases trackdata Math.trackdata Math2.trackdata Ops.trackdata
 ##' Summary.trackdata
-##' @format \describe{ \item{\$index}{a two columned matrix, each row keeps the
-##' first and last index of the \$data rows that belong to one segment}
-##' \item{\$ftime}{a two columned matrix, each row keeps the times marks of one
-##' segment} \item{\$data}{a multi-columned matrix with the real track values
+##' @format \describe{ \item{$index}{a two columned matrix, each row keeps the
+##' first and last index of the $data rows that belong to one segment}
+##' \item{$ftime}{a two columned matrix, each row keeps the times marks of one
+##' segment} \item{$data}{a multi-columned matrix with the real track values
 ##' for each segment} }
 ##' @note The entire data track is retrieved for each segment in the segment
 ##' list. The amount of data returned will depend on the sample rate and number

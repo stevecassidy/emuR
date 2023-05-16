@@ -50,8 +50,8 @@
 ##' Functions in the same way as lwd above
 ##' @return If it is a LISTRUE, use \item{colour}{A code for the color'}
 ##' \item{linetype}{A code for the linetype} \item{lwd}{A code for the line
-##' width} \item{legend}{A list consisting of \$legend\$lab, \$legend\$lty and
-##' \$legend\$lwd that specify the parameters for the 'legend' function.
+##' width} \item{legend}{A list consisting of $legend$lab, $legend$lty and
+##' $legend$lwd that specify the parameters for the 'legend' function.
 ##' 
 ##' ...  }
 ##' @author Steve Cassidy, modified by Jonathan Harrington

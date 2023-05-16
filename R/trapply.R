@@ -1,4 +1,4 @@
-##' A method of the generic function by for objects of class \'trackdata\'
+##' A method of the generic function by for objects of class 'trackdata'
 ##' 
 ##' A given function 'FUN' is applied to the data corresponding to each segment
 ##' of data.
@@ -6,7 +6,7 @@
 ##' trapply() applies a function iteratively to each segment of a trackdata
 ##' object without the need for using a for-loop. It can be used to calculate,
 ##' for example, the mean value of the data values of each segment separately.
-##' Any function that can be applied sensibly to trackdata[j]\$data where j is
+##' Any function that can be applied sensibly to trackdata[j]$data where j is
 ##' a segment number can be used as the fun argument to trapply(). It is also
 ##' possible to write your own function and use trapply() to apply it
 ##' separately to each segment. Care needs to be taken in using trapply() in

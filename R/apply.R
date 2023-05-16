@@ -10,7 +10,7 @@
 ##' @param \dots Optional arguments to fun
 ##' @param power A single element logical vector. If T, convert specdata to
 ##' power values i.e. apply the function to a * specdata
-##' \eqn{\mbox{\textasciicircum}}{^}b or a * specdata\$data
+##' \eqn{\mbox{\textasciicircum}}{^}b or a * specdata$data
 ##' \eqn{\mbox{\textasciicircum}}{^}b where a and b powcoeffs defined below.
 ##' @param powcoeffs A 2 element numeric vector for converting dB values to
 ##' power values. Defaults to a = 10 and b = 10. See \code{power}.
@@ -19,7 +19,7 @@
 ##' vector or matrix depending on the function that is applied.  ...
 ##' @section Warning : The function can be very slow if applied to a large
 ##' trackdata object. In this case, it may be faster to use a for-loop with the
-##' desired function around \$data
+##' desired function around $data
 ##' @author Jonathan Harrington
 ##' @seealso \code{\link{apply}} \code{\link{by.trackdata}}
 ##' @keywords utilities

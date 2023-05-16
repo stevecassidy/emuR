@@ -2,7 +2,7 @@
 ##' 
 ##' The function obtains the times at which track values occur.
 ##' 
-##' Every \$data value in a trackdata object is associated with a time at which
+##' Every $data value in a trackdata object is associated with a time at which
 ##' it occurs in the utterance. This function returns those times.
 ##' 
 ##' @param trackdata An EMU trackdata object, or a matrix of track values

@@ -1,4 +1,4 @@
-##' A method of the generic function by for objects of class \'trackdata\'
+##' A method of the generic function by for objects of class 'trackdata'
 ##' 
 ##' A given function 'FUN' is applied to the data corresponding to each segment
 ##' of data.
