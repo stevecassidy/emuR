@@ -1,10 +1,17 @@
-# emuR 2.3.1
+# emuR 2.4.0
 
 ## new features / performance tweaks / improvements
 
+* cache for onTheFly computations in `get_trackData()` (thanks to @samgregory via #254)
+* improved a small number of error messages
+
 ## bug fixes
 
+* `add_files` not correctly matching file extension (thanks to @samgregory via #254)
+* fixed level attribute mixup in generation of seglist (closes #263)
+* workaround for `wrassp::readDataObj()` crashing R session. Temporary fix for issue #261.
 * generic functions Math2/round and Math2/signif did not accept digits parameter for legacy trackdata objects
+* adaptations to Tidyverse 2.0.0 and other adapations to make unit tests and cran checks smooth again
 
 # emuR 2.3.0
 
