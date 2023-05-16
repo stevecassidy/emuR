@@ -301,7 +301,7 @@ convert_wideToLong <- function(td, calcFreqs = F){
                                each = dplyr::n() / length(tracks_colIdx)))
   } else{
     tracks_long = tracks_long %>%
-      dplyr::select(-.data$freq) 
+      dplyr::select(-"freq")
   } 
   
   return(dplyr::ungroup(tracks_long))

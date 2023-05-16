@@ -275,8 +275,8 @@
                    "audio files! Here is a list of all refered to bundles incl. their sampling rate: \n"), 
             paste(utils::capture.output(print(sesBndls %>% 
                                                 dplyr::rename(
-                                                  bundle = .data$name,
-                                                  media_file = .data$annotates
+                                                  bundle = "name",
+                                                  media_file = "annotates"
                                                 ))), 
                   collapse = "\n"))
   }

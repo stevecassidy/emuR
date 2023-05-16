@@ -320,7 +320,7 @@ list_files <- function(emuDBhandle,
                         recursive = T,
                         pattern = paste0(".*[.]", fileExtension, "$")) %>%
     tibble::enframe(name = NULL) %>%
-    tidyr::separate(col = .data$value,
+    tidyr::separate(col = "value",
                     into = c("session", "bundle", "file"),
                     sep = .Platform$file.sep,
                     extra = "drop",

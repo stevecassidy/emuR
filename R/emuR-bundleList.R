@@ -102,7 +102,7 @@ write_bundleList <- function(emuDBhandle,
     
     dataWithTimeAnchors = list()
     distinctBundles = seglist %>% 
-      dplyr::select(.data$session, .data$bundle) %>% 
+      dplyr::select("session", "bundle") %>%
       dplyr::distinct()
     
     for(i in 1:nrow(distinctBundles)){
