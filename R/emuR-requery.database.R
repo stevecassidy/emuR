@@ -36,7 +36,7 @@ check_emuRsegsForRequery <- function(sl){
   
   sl_df = as.data.frame(sl)
   
-  sl_df_sorted = dplyr::arrange_(sl_df, "session", "bundle", "sample_start")
+  sl_df_sorted = dplyr::arrange(sl_df, .data$session, .data$bundle, .data$sample_start)
   comp_res = compare::compare(sl_df, sl_df_sorted, allowAll = F, ignoreAttrs = T)
   if(!comp_res$result){
     warning("emuRsegs is not ordered correctly (by session; bundle; seq_idx)! ",
