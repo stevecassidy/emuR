@@ -189,7 +189,8 @@
                                              itemsToCreate,
                                              by = c("session", 
                                                     "bundle", 
-                                                    "level"))
+                                                    "level"),
+                                             relationship = "many-to-many")
     
     items_exist_in_levels = items_exist_in_levels[!is.na(items_exist_in_levels$db_uuid.y),]
     
