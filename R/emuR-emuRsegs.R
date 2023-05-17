@@ -68,7 +68,7 @@ make.emuRsegs <- function(dbName, seglist, query, type)
 }
 
 ##' Sort emuRsegs segment list by session, bundle and sample_start 
-##' @param x object to print
+##' @param x object to sort
 ##' @param decreasing NOT IMPLEMENTED!
 ##' @param ... additional params
 ##' @export
