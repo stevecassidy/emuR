@@ -98,9 +98,9 @@ add_ssffTrackDefinition(emuDBhandle = ae,
 list_ssffTrackDefinitions(emuDBhandle = ae)
 
 # remove newly added ssff track definition (does not delete 
-# the actual .zrc files)
-remove_ssffTrackDefinition <- function(emuDBhandle = ae, 
-                                       name = "ZCRtrack")
+# the actual .zcr files)
+remove_ssffTrackDefinition(emuDBhandle = ae,
+                           name = "ZCRtrack")
 
 }
 
