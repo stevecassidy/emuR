@@ -56,15 +56,15 @@ around the circle}
 
 \item{splot}{Now redundant}
 
-\item{numplot}{Logical. If T (defaults), the digital points around the
+\item{numplot}{Logical. If TRUE (defaults), the digital points around the
 circle are numbered}
 
-\item{axes}{Logical. If T, plot axes.}
+\item{axes}{Logical. If TRUE, plot axes.}
 
-\item{incircle}{Logical. If T, plot an the angle between digital points in
+\item{incircle}{Logical. If TRUE, plot an the angle between digital points in
 the circle.}
 
-\item{arrow}{Logical. If T, plot an arrow on incircle showing the direction
+\item{arrow}{Logical. If TRUE, plot an arrow on incircle showing the direction
 of movement.}
 
 \item{linetype}{Specify a linetype. Same function as lty in plot}

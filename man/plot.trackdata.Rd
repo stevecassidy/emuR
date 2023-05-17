@@ -38,10 +38,10 @@ in the trackdata object. Each label is plotted at side = 3 on the plotted
 at the temporal midpoint of each segment in the trackdata object. Defaults
 to NULL (plot no labels). Labels will only be plotted if xlim=NULL.}
 
-\item{col}{A single element logical vector. Defaults to T to plot each
+\item{col}{A single element logical vector. Defaults to TRUE to plot each
 label type in a different colour}
 
-\item{lty}{A single element logical vector. Defaults to F.  If TRUE, plot
+\item{lty}{A single element logical vector. Defaults to FALSE.  If TRUE, plot
 each label type in a different linetype}
 
 \item{type}{Specify the type of plot. See \link{plot} for the various
@@ -50,7 +50,7 @@ possibilities}
 \item{pch}{The symbol types to be used for plotting. Should be specified as
 a numeric vector of the same length as there are unique label classes}
 
-\item{contig}{A single valued logical vector T or F. If T, then all the
+\item{contig}{A single valued logical vector TRUE or FALSE. If TRUE, then all the
 segments of the trackdata object are assumed to be temporally contiguous,
 i.e. the boundaries of the segments are abutting in time and the start time
 of segment[j,] is the end time of segment[j-1,]. In this case, all the
@@ -58,7 +58,7 @@ segments of the trackdata object are plotted on the same plot as a function
 of time. An example of a contiguous trackdata object is coutts.sam. contig
 = FALSE is when a trackdata object is non-contiguous e.g. all "i:" vowels
 in a database. An example of a non-contiguous trackdata object is
-vowlax.fdat. If contig=F then each segment of the trackdata object is
+vowlax.fdat. If contig=FALSE then each segment of the trackdata object is
 plotted separately.}
 
 \item{...}{the same graphical parameters can be supplied to this function
@@ -72,7 +72,7 @@ multiple plots as a function of time for several segments.
 The function plots a single segment of trackdata as a function of time. If
 the segment contains multiple tracks, then these will be overlaid. If there
 are several temporally non-contiguous segments in the trackdata object,
-each segment is plotted in a different panel by specifying contig=F. This
+each segment is plotted in a different panel by specifying contig=FALSE. This
 function is not suitable for overlaying trackdata from more than one
 segments on the same plot as a function of time: for this use dplot().
 }

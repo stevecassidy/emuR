@@ -24,7 +24,7 @@ the summation in the rows. c(2,3) and c(2) sum the contacts by column, but
 the latter outputs the summation in the columns. (see also rows and columns
 arguments and the examples below for further details).}
 
-\item{inactive}{a single element logical vector. If F (the default), then
+\item{inactive}{a single element logical vector. If FALSE (the default), then
 the active electrodes (i.e, 1s) are summed, otherwise the inactive
 electrodes (i.e., 0s) are summed.}
 

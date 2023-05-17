@@ -10,7 +10,7 @@ plafit(wav, fit = FALSE, n = 101)
 \item{wav}{a vector or single column matrix of numeric values to which the
 2nd order polynomial is to be fitted.}
 
-\item{fit}{if F, return the coefficients of the polynomial; if T, the
+\item{fit}{if FALSE, return the coefficients of the polynomial; if TRUE, the
 values of the polynomial are returned to the same length as the vector wav.}
 
 \item{n}{in fitting the polynomial, linear time normalisation is first

@@ -16,7 +16,7 @@ create_spectrogram_image_as_raster(
   dynRangeInDB = 70,
   audioChannel = 1,
   preEmphasisFilterFactor = 0.97,
-  invert = F
+  invert = FALSE
 )
 }
 \arguments{

@@ -9,9 +9,9 @@ randomise.segs(segs, rand = TRUE, bwd = FALSE)
 \arguments{
 \item{segs}{An Emu segment list.}
 
-\item{rand}{If T, randomise the order of the segment lists (default).}
+\item{rand}{If TRUE, randomise the order of the segment lists (default).}
 
-\item{bwd}{If T, reverse the order of the segment list.}
+\item{bwd}{If TRUE, reverse the order of the segment list.}
 }
 \value{
 A segment list containing the original elements in random or

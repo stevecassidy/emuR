@@ -24,7 +24,7 @@ array that is the output of palate()}
 \item{gscale}{a single valued numeric vector that defines the granularity
 of the greyscale. Defaults to 100.}
 
-\item{gridlines}{if T (default) grid lines over the palatographic image are
+\item{gridlines}{if TRUE (default) grid lines over the palatographic image are
 drawn are drawn.}
 
 \item{gridcol}{color of grid}
@@ -32,7 +32,7 @@ drawn are drawn.}
 \item{gridlty}{A single-valued numeric vector that defines the linetype for
 plotting the grid.}
 
-\item{axes}{T for show axes, F for no axes}
+\item{axes}{TRUE for show axes, FALSE for no axes}
 
 \item{xlab}{A character vector for the x-axis label.}
 

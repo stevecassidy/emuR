@@ -52,7 +52,7 @@ plotted for each data point}
 
 \item{doellipse}{If TRUE, ellipses are drawn on the plot. If FALSE, no
 ellipses are drawn and, if 'dopoints' is also FALSE, 'centroids' is set to
-T}
+TRUE}
 
 \item{centroid}{One label for each ellipse is drawn}
 

@@ -9,8 +9,8 @@ write_bundleList(
   name,
   bundleList,
   seglist,
-  updateDBconfig = T,
-  verbose = T
+  updateDBconfig = TRUE,
+  verbose = TRUE
 )
 }
 \arguments{

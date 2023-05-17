@@ -17,7 +17,7 @@ wav. If fit = TRUE and k = NULL, then the the sum of all the cosine waves
 whose amplitudes are the DCT coefficients are returned - which is equal to
 the original signal. k must be between 2 and the length of the signal.}
 
-\item{fit}{if F, return the DCT coefficients; if T, the values of the
+\item{fit}{if FALSE, return the DCT coefficients; if TRUE, the values of the
 smoothed trajectory are returned based on summing the cosine waves of the k
 lowest ordered DCT coefficients, where k is the argument given below.}
 }
@@ -41,10 +41,10 @@ summed, the original (reflected) signal is reconstructed. What is returned
 by dct() are the amplitudes of the cosine waves (DCT coefficients) up to a
 frequency of N radians/sample, i.e. a vector of cosine wave amplitudes that
 has the same length as the original signal and of frequencies k = 0, 1, 2,
-... (N-1).  Alternatively, if fit=T, a smoothed signal of the same length
+... (N-1).  Alternatively, if fit=TRUE, a smoothed signal of the same length
 as the original signal is obtained based on a summation of the lowest
 ordered DCT coefficients. This dct() algorithm returns very similar values
-to DCT() with inv=F written by Catherine Watson and used in Watson &
+to DCT() with inv=FALSE written by Catherine Watson and used in Watson &
 Harrington (1999).
 }
 \examples{

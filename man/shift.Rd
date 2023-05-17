@@ -12,7 +12,7 @@ shift(x, delta = 1, circular = TRUE)
 \item{delta}{A single element numeric vector. Defines the number of points
 by which the signal should be shifted.}
 
-\item{circular}{Logical. If T, the signal is wrapped around itself so that
+\item{circular}{Logical. If TRUE, the signal is wrapped around itself so that
 if delta = 1, x[n] becomes x[1]. Otherwise, if delta is positive, the same
 number of zeros are prepended to the signal}
 }

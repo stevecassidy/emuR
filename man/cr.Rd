@@ -56,15 +56,15 @@ expon[j]\eqn{\mbox{\textasciicircum}}{^}(c(0:(N - 1) * A cos (2 * pi * k/N
 * (0:(N-1))). For example, a decaying sinusoid is produced with
 cr(expon=-0.9). Defaults to NULL (i.e. to expon = 1).}
 
-\item{plotf}{A single-valued logical vector. If T (default), the sinusoid
+\item{plotf}{A single-valued logical vector. If TRUE (default), the sinusoid
 is plotted.}
 
 \item{ylim}{A two-valued numeric vector for specifying the y-axis range.}
 
 \item{xlim}{A two-valued numeric vector for specifying the y-axis range.}
 
-\item{values}{If T, then the values of the sinusoid are listed. Defaults to
-F.}
+\item{values}{If TRUE, then the values of the sinusoid are listed. Defaults to
+FALSE.}
 
 \item{xlab}{A character vector for plotting the x-axis title.}
 

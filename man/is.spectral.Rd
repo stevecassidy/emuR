@@ -10,10 +10,10 @@ is.spectral(dat)
 \item{dat}{An R object}
 }
 \value{
-A single element logical vector: T or F
+A single element logical vector: TRUE or FALSE
 }
 \description{
-Returns T or F depending on whether the object is of class "spectral"
+Returns TRUE or FALSE depending on whether the object is of class "spectral"
 }
 \examples{
 

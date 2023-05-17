@@ -39,7 +39,7 @@ specifying the desired colours that is the same length as there are
 classes.}
 
 \item{legend}{A single element logical vector specifying whether a legend
-should be drawn. Defaults to T}
+should be drawn. Defaults to TRUE}
 
 \item{position}{A single element vector specifying the position in the
 figure where the legend should be drawn. Defaults to "topright"}

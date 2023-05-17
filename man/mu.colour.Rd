@@ -14,7 +14,7 @@ mu.colour(labs, col = TRUE, linetype = FALSE, lwd = NULL, pch = NULL)
 are four possibilities. Either logical, a character vector, or a numeric
 vector.  In the first case, if TRUE, then a different numeric code is given
 for each unique label type. For example, if labs is c("a", "b", "a", "c"),
-then the output is c(1, 2, 1, 3). If F, then for this example, the output
+then the output is c(1, 2, 1, 3). If FALSE, then for this example, the output
 is c(1, 1, 1, 1). In the second case, the character vector can be either a
 single element specifying a character, or there can be as many elements as
 there are unique colors. Thus if col = "red", then for the example c("a",
@@ -34,7 +34,7 @@ color in which each line should be drawn.  The default is col = TRUE.}
 in plotting functions.There are 2 possibilities.  Either logical, a
 character vector, or a numeric vector.  In the first case, if TRUE, then a
 different numeric code is given for each unique label type. For example, if
-labs is c("a", "b", "a", "c"), then the output is c(1, 2, 1, 3). If F, then
+labs is c("a", "b", "a", "c"), then the output is c(1, 2, 1, 3). If FALSE, then
 for this example, the output is c(1, 1, 1, 1).  In the second case,
 'linetype' can be either a single element numeric vector, or its length
 must be equal to the number of unique types in labs.  For example, if
@@ -42,7 +42,7 @@ linetype=3 and if labs = c("a", "b", "a", "c"), then the output is c(3, 3,
 3, 3). Alternatively, if linetype = c(2,3,1), then the output is c(2, 3, 2,
 1) for the same example. Finally, linetype can be specified as a numeric
 vector that is the same length as labs, allowing the user to choose the
-linetype in which each line should be drawn.  The default is linetype=F}
+linetype in which each line should be drawn.  The default is linetype=FALSE}
 
 \item{lwd}{A code passed to the lwd argument in plotting functions.  'lwd'
 can be either a single element numeric vector, or its length must be equal

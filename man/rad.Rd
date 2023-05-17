@@ -12,7 +12,7 @@ rad(vec, samfreq = 20000, hz = TRUE)
 \item{samfreq}{A single element numerical vector of the sampling frequency.
 Defaults to 20000 Hz}
 
-\item{hz}{Logical. If T, convert from Hz to radians otherwise from radians
+\item{hz}{Logical. If TRUE, convert from Hz to radians otherwise from radians
 to hz}
 }
 \description{

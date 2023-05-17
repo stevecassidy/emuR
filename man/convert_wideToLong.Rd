@@ -4,7 +4,7 @@
 \alias{convert_wideToLong}
 \title{convert tracks of a tibble trackdata object to the long form}
 \usage{
-convert_wideToLong(td, calcFreqs = F)
+convert_wideToLong(td, calcFreqs = FALSE)
 }
 \arguments{
 \item{td}{wide form trackdata tibble object}

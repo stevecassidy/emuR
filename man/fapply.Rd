@@ -13,7 +13,7 @@ fapply(specdata, fun, ..., power = FALSE, powcoeffs = c(10, 10))
 
 \item{\dots}{Optional arguments to fun}
 
-\item{power}{A single element logical vector. If T, convert specdata to
+\item{power}{A single element logical vector. If TRUE, convert specdata to
 power values i.e. apply the function to a * specdata
 \eqn{\mbox{\textasciicircum}}{^}b or a * specdata$data
 \eqn{\mbox{\textasciicircum}}{^}b where a and b powcoeffs defined below.}

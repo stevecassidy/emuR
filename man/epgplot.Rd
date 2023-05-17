@@ -27,15 +27,15 @@ successive multiple times of the EPG sampling frequency. (as in
 coutts.epg$ftime). Defaults to NULL, in which case palatograms are plotted
 for all times available in epgdata.}
 
-\item{numbering}{Either "times" (default), or logical T, or a character
+\item{numbering}{Either "times" (default), or logical TRUE, or a character
 vector of the same length as the number of segments in epgdata.  In the
 default case, the times at which the palatograms occur are printed above
-the palatograms. If logical T, then the palatograms are numbered 1, 2, ...
+the palatograms. If logical TRUE, then the palatograms are numbered 1, 2, ...
 number of segments and this value is printed above the palatograms. If a
 character vector, then this must be the same length as the number of
 segments in epgdata.}
 
-\item{gridlines}{if T (default) grid lines over the palatogram are drawn.}
+\item{gridlines}{if TRUE (default) grid lines over the palatogram are drawn.}
 
 \item{mfrow}{By default, the function tries to work out a sensible number
 of rows and columns for plotting the palatograms. Otherwise, this can be

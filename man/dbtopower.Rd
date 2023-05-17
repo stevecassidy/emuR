@@ -13,7 +13,7 @@ dbtopower(specdata, const = 10, base = 10, inv = FALSE)
 
 \item{base}{A single element numeric vector. Defaults to 10}
 
-\item{inv}{Logical. If T, then the conversion is from a logarithmic to an
+\item{inv}{Logical. If TRUE, then the conversion is from a logarithmic to an
 anti-logarithmic form, otherwise the other way round}
 }
 \value{
@@ -24,7 +24,7 @@ The function converts from decibels to a linear scale
 }
 \details{
 The function returns base\eqn{\mbox{\textasciicircum}}{^}(specdata/const)
-if inv=F, otherwise, const * log(dat, base=base). If the object to which
+if inv=FALSE, otherwise, const * log(dat, base=base). If the object to which
 this function is applied is of class 'trackdata' then this function is
 applied to $data.
 }

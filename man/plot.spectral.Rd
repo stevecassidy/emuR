@@ -49,20 +49,20 @@ plotted. If not supplied, defaults to trackfreq(specdata)}
 
 \item{type}{A single element character vector for the linetype}
 
-\item{power}{Logical. If T, then specdata (or specdata$data if specdata is
+\item{power}{Logical. If TRUE, then specdata (or specdata$data if specdata is
 a trackdata object, is converted to a *
 specdata\eqn{\mbox{\textasciicircum}}{^}b, where a and b have the values
 given in powcoeffs. This operation is applied before b}
 
 \item{powcoeffs}{A two-element numeric vector. Defaults to c(10, 10)}
 
-\item{dbnorm}{Logical. If T, apply dB-level normalization per spectrum as
-defined by dbcoeffs below. Defaults to F.}
+\item{dbnorm}{Logical. If TRUE, apply dB-level normalization per spectrum as
+defined by dbcoeffs below. Defaults to FALSE.}
 
 \item{dbcoeffs}{A two element numeric vector (x, y). The spectra are
 normalised in such a way that the values of each spectrum at a frequency of
 y are set to a dB level of x. For example, to normalise the spectrum to 10
-dB at 2000 Hz, set dbnorm to T and dbcoeffs to c(2000, 10)}
+dB at 2000 Hz, set dbnorm to TRUE and dbcoeffs to c(2000, 10)}
 
 \item{legend}{Parameters for defining the legend. See 'mu.legend' for
 further details}

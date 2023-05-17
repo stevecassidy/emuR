@@ -12,7 +12,7 @@ muclass(labels, class)
 \item{class}{A label or vector of labels.}
 }
 \value{
-A logical vector which is T for each element in \code{labels} which
+A logical vector which is TRUE for each element in \code{labels} which
 matches \code{class} or an element of \code{class}.
 }
 \description{
@@ -21,7 +21,7 @@ Finds common elements in vectors
 \examples{
 
 muclass(c("a", "b", "c"), c("a", "c"))
-#[1] T F T
+#[1] TRUE FALSE TRUE
 
 }
 \seealso{
