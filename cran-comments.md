@@ -1,3 +1,9 @@
+## Resurrecting from archive
+
+This package was archived on 2023-04-10 because we weren’t able to fix the
+issues in time. We believe that all issues are now addressed and would like to
+get the package back to CRAN.
+
 ## Change of maintainership
 
 Maintainership of this package is being handed over from Raphael Winkelmann to
@@ -9,9 +15,7 @@ confirm the mutual intention.
 
 ## Test environments
 
-* local Arch Linux install, gcc, R 4.2.2
-* local Windows 10 install, version 10.0.19045 Build 19045
-* local Docker container rocker/r-devel, R Under development (unstable) (2023-03-19 r84006) -- "Unsuffered Consequences"
+* local Arch Linux install, gcc, R 4.3.0
 * R-hub builder:
   * Windows Server 2022, R-devel, 64 bit
   * Ubuntu Linux 20.04.1 LTS, R-release, GCC
@@ -21,9 +25,18 @@ confirm the mutual intention.
 
 There were no WARNINGs and no ERRORs.
 
-There were minor NOTEs about the change of maintainership and about LaTeX.
+There were minor NOTEs:
 
-There was a NOTE about comparing class() to string. The comparison works in all mentioned cases.
+- about archival on CRAN and the change of maintainership
+- about a possibly misspelled word “SDMS” in DESCRIPTION, but that word is
+  correct (and short for Speech Database Management System)
+
+On the R-hub builder platform, there were additional NOTEs about:
+
+- non-standard things in the check directory: `NULL`
+- detritus in the temp directory: `lastMiKTeXException`
+
+Both are probably due to bugs in the builder platform.
 
 ## Downstream dependencies
 
