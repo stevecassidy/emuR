@@ -310,12 +310,12 @@
 ##' array that is the output of palate()
 ##' @param gscale a single valued numeric vector that defines the granularity
 ##' of the greyscale. Defaults to 100.
-##' @param gridlines if T (default) grid lines over the palatographic image are
+##' @param gridlines if TRUE (default) grid lines over the palatographic image are
 ##' drawn are drawn.
 ##' @param gridlty A single-valued numeric vector that defines the linetype for
 ##' plotting the grid.
 ##' @param gridcol color of grid
-##' @param axes T for show axes, F for no axes
+##' @param axes TRUE for show axes, FALSE for no axes
 ##' @param xlab A character vector for the x-axis label.
 ##' @param ylab A character vector for the y-axis label.
 ##' @param ...  graphical parameters can be given as arguments to 'epggs'.
@@ -412,14 +412,14 @@
 ##' successive multiple times of the EPG sampling frequency. (as in
 ##' coutts.epg$ftime). Defaults to NULL, in which case palatograms are plotted
 ##' for all times available in epgdata.
-##' @param numbering Either "times" (default), or logical T, or a character
+##' @param numbering Either "times" (default), or logical TRUE, or a character
 ##' vector of the same length as the number of segments in epgdata.  In the
 ##' default case, the times at which the palatograms occur are printed above
-##' the palatograms. If logical T, then the palatograms are numbered 1, 2, ...
+##' the palatograms. If logical TRUE, then the palatograms are numbered 1, 2, ...
 ##' number of segments and this value is printed above the palatograms. If a
 ##' character vector, then this must be the same length as the number of
 ##' segments in epgdata.
-##' @param gridlines if T (default) grid lines over the palatogram are drawn.
+##' @param gridlines if TRUE (default) grid lines over the palatogram are drawn.
 ##' @param mfrow By default, the function tries to work out a sensible number
 ##' of rows and columns for plotting the palatograms. Otherwise, this can be
 ##' user-specified, in which case mfrow is a vector of two integer numeric
@@ -474,7 +474,7 @@
 {
   # epgdata: a list as returned by emu.track()
   # or else an array of palates. 
-  # numbering can be T or F or else a numeric or character vector
+  # numbering can be TRUE or FALSE or else a numeric or character vector
   # which is equal in length to the number of palates)
   # xlim: can only be used if epgdata are contiguous!
   
@@ -599,7 +599,7 @@
 ##' the summation in the rows. c(2,3) and c(2) sum the contacts by column, but
 ##' the latter outputs the summation in the columns. (see also rows and columns
 ##' arguments and the examples below for further details).
-##' @param inactive a single element logical vector. If F (the default), then
+##' @param inactive a single element logical vector. If FALSE (the default), then
 ##' the active electrodes (i.e, 1s) are summed, otherwise the inactive
 ##' electrodes (i.e., 0s) are summed.
 ##' @param rows vector of rows to sum
@@ -658,10 +658,10 @@
   # either the active or inactive electrodes of EPG-data.
   # returns trackdata of the summed result.
   # epgdata: epg data as returned by emu.track()
-  # allcontacts: if T, then all the contacts per palate are summed
-  # column: if T, then the summation is applied to
+  # allcontacts: if TRUE, then all the contacts per palate are summed
+  # column: if TRUE, then the summation is applied to
   # columns, rather than to rows
-  # inactive: if T, then the summation is applied
+  # inactive: if TRUE, then the summation is applied
   # to the inactive (zero) electrodes, rather than to
   # the active ones.
   # 

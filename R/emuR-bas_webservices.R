@@ -154,7 +154,7 @@ runBASwebservice_all <- function(handle,
     params = list(USETRN = usetrn),
     oldBasePath = oldBasePath,
     perspective = "default",
-    turnChunkLevelIntoItemLevel = T,
+    turnChunkLevelIntoItemLevel = TRUE,
     func = func,
     patience = patience
   )
@@ -208,8 +208,8 @@ runBASwebservice_all <- function(handle,
   remove_linkDefinition(handle,
                         orthoLevel,
                         mausLevel,
-                        force = T,
-                        verbose = F)
+                        force = TRUE,
+                        verbose = FALSE)
   
   if (running_chunker)
   {
@@ -221,8 +221,8 @@ runBASwebservice_all <- function(handle,
     remove_linkDefinition(handle,
                           transcriptionLevel,
                           orthoAttributeDefinitionName,
-                          force = T,
-                          verbose = F)
+                          force = TRUE,
+                          verbose = FALSE)
   }
   
   handle = bas_clear(handle, oldBasePath, func)

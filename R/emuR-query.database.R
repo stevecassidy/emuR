@@ -224,7 +224,7 @@ create_conditionTextAlternatives <- function(opr,
 
 emuR_regexprl<-function(pattern, 
                         x){
-  m = regexpr(pattern, x, perl = T)
+  m = regexpr(pattern, x, perl = TRUE)
   return((m == 1) & (attr(m, 'match.length') == nchar(x)))
 }
 
@@ -1219,7 +1219,7 @@ query_hierarchyWalk <- function(emuDBhandle,
     }
     idx <- readline(prompt="Choose a path by selecting its number (note that comma seperated numbers (e.g., 1, 2, 3) works to select multiple paths): ")
     
-    idx = as.integer(stringr::str_split(idx, ",\\s*", simplify = T))
+    idx = as.integer(stringr::str_split(idx, ",\\s*", simplify = TRUE))
     # check if on path in CTE (see below)
     sqlStr_checkIfOnPath = paste0("    AND i.level IN ('", paste0(connectHierPaths[idx], collapse = "', '"), "')")
   } else {
@@ -1511,9 +1511,9 @@ query_databaseEqlInBracket<-function(emuDBhandle,
                                                 lResLvl,
                                                 rResLvl)
       if(which(hierPaths[[1]] == lResLvl) < which(hierPaths[[1]] == rResLvl)) {
-        leftIsParent = T
+        leftIsParent = TRUE
       } else {
-        leftIsParent = F
+        leftIsParent = FALSE
       }
       
       if(leftIsParent){
@@ -1613,7 +1613,7 @@ query_databaseEqlInBracket<-function(emuDBhandle,
       DBI::dbWriteTable(emuDBhandle$connection, 
                         name = "lr_exp_res_tmp",
                         value = lrertTmp, 
-                        append = T)
+                        append = TRUE)
       
       nLrExpRes = DBI::dbGetQuery(emuDBhandle$connection, 
                                   "SELECT COUNT(*) AS n FROM lr_exp_res_tmp")$n
@@ -1647,8 +1647,8 @@ query_databaseEqlInBracket<-function(emuDBhandle,
           DBI::dbWriteTable(emuDBhandle$connection, 
                             paste0("interm_res_proj_items_tmp_", intermResTableSuffix), 
                             reducedPI, 
-                            append = T, 
-                            row.names = F)
+                            append = TRUE,
+                            row.names = FALSE)
           
         }
         
@@ -1680,8 +1680,8 @@ query_databaseEqlInBracket<-function(emuDBhandle,
           DBI::dbWriteTable(emuDBhandle$connection, 
                             paste0("interm_res_proj_items_tmp_", intermResTableSuffix), 
                             reducedPI, 
-                            append = T, 
-                            row.names = F)
+                            append = TRUE,
+                            row.names = FALSE)
           
         }
       }
@@ -1706,8 +1706,8 @@ query_databaseEqlInBracket<-function(emuDBhandle,
       DBI::dbWriteTable(emuDBhandle$connection, 
                         paste0("interm_res_items_tmp_", intermResTableSuffix), 
                         resItems, 
-                        append = T, 
-                        row.names = F)
+                        append = TRUE,
+                        row.names = FALSE)
       
     }
     if(seqPos != -1){
@@ -1798,8 +1798,8 @@ query_databaseEqlInBracket<-function(emuDBhandle,
         DBI::dbWriteTable(emuDBhandle$connection, 
                           paste0("interm_res_proj_items_tmp_", intermResTableSuffix), 
                           reducedPI, 
-                          append = T, 
-                          row.names = F)
+                          append = TRUE,
+                          row.names = FALSE)
       }
       
       if(nRightProjItems != 0){
@@ -1831,8 +1831,8 @@ query_databaseEqlInBracket<-function(emuDBhandle,
         DBI::dbWriteTable(emuDBhandle$connection, 
                           paste0("interm_res_proj_items_tmp_", intermResTableSuffix), 
                           reducedPI, 
-                          append = T, 
-                          row.names = F)
+                          append = TRUE,
+                          row.names = FALSE)
       }
       
       # place result in correct table
@@ -1854,8 +1854,8 @@ query_databaseEqlInBracket<-function(emuDBhandle,
       DBI::dbWriteTable(emuDBhandle$connection, 
                         paste0("interm_res_items_tmp_", intermResTableSuffix), 
                         resItems, 
-                        append = T, 
-                        row.names = F)
+                        append = TRUE,
+                        row.names = FALSE)
     }
     return()
   }else{

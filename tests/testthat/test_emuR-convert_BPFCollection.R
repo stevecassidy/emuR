@@ -8,7 +8,7 @@ testDir = file.path(tempdir(), "emuR_testthat")
 dbName = "bpf_converter_test"
 
 # Cleaning up (just in case)
-unlink(file.path(testDir, dbName), recursive = T)
+unlink(file.path(testDir, dbName), recursive = TRUE)
 
 # ---------------------------------------------------------------------------
 # Testing with original BPFs
@@ -27,31 +27,31 @@ test_that("Code throws error when new levels are declared incorrectly",
             expect_error(convert_BPFCollection(sourceDir = sourceDir, 
                                                targetDir = testDir, 
                                                dbName = dbName, 
-                                               verbose = F, 
+                                               verbose = FALSE, 
                                                newLevels = c("ABC"), 
                                                newLevelClasses = c(1,2)),
                          regexp = "newLevels", 
-                         ignore.case = T)
+                         ignore.case = TRUE)
             
             # new level classes outside of range 1-5
             expect_error(convert_BPFCollection(sourceDir = sourceDir, 
                                                targetDir = testDir,  
                                                dbName = dbName, 
-                                               verbose = F, 
+                                               verbose = FALSE, 
                                                newLevels = c("ABC"), 
                                                newLevelClasses = c(6)),
                          regexp = "1.*5", 
-                         ignore.case = T)
+                         ignore.case = TRUE)
             
             # trying to change the class of an already existing BPF standard level
             expect_error(convert_BPFCollection(sourceDir = sourceDir, 
                                                targetDir = testDir, 
                                                dbName = dbName, 
-                                               verbose = F, 
+                                               verbose = FALSE, 
                                                newLevels = c("ORT"), 
                                                newLevelClasses = c(2)),
                          regexp = "standard", 
-                         ignore.case = T)
+                         ignore.case = TRUE)
           }
 )
 # ---------------------------------------------------------------------------
@@ -63,11 +63,11 @@ test_that("Code throws error for failed directory checks",
             expect_error(convert_BPFCollection(sourceDir = sourceDir, 
                                                targetDir = testDir, 
                                                dbName = "something_silly", 
-                                               verbose = F),
+                                               verbose = FALSE),
                          regexp = "directory.*already exists", 
-                         ignore.case = T)
+                         ignore.case = TRUE)
             unlink(file.path(testDir, "something_silly_emuDB"), 
-                   recursive = T)
+                   recursive = TRUE)
           }
 )
 # ---------------------------------------------------------------------------
@@ -78,30 +78,30 @@ test_that("Error when using unifyLevels incorrectly.",
             expect_error(convert_BPFCollection(sourceDir = sourceDir, 
                                                targetDir = testDir, 
                                                dbName = dbName, 
-                                               verbose = F, 
+                                               verbose = FALSE, 
                                                unifyLevels = c("KAN")),
                          regexp = "unify.*reference", 
-                         ignore.case = T)
+                         ignore.case = TRUE)
             
             # refLevel in unifyLevels
             expect_error(convert_BPFCollection(sourceDir = sourceDir, 
                                                targetDir = testDir, 
                                                dbName = dbName, 
-                                               verbose = F,  
+                                               verbose = FALSE,  
                                                refLevel = "ORT", 
                                                unifyLevels = c("ORT", "KAN")),
                          regexp = "reference level", 
-                         ignore.case = T)
+                         ignore.case = TRUE)
             
             # class 2-5 level in unifyLevels
             expect_error(convert_BPFCollection(sourceDir = sourceDir, 
                                                targetDir = testDir, 
                                                dbName = dbName, 
-                                               verbose = F, 
+                                               verbose = FALSE, 
                                                refLevel = "ORT",
                                                unifyLevels = c("GES")),
                          regexp = "unif", 
-                         ignore.case = T)
+                         ignore.case = TRUE)
           }
 )
 # ---------------------------------------------------------------------------
@@ -112,20 +112,20 @@ test_that("Error when using refLevel incorrectly.",
             expect_error(convert_BPFCollection(sourceDir = sourceDir, 
                                                targetDir = testDir, 
                                                dbName = dbName, 
-                                               verbose = F, 
+                                               verbose = FALSE, 
                                                refLevel = "GES"),
                          regexp = "link-less.*reference level", 
-                         ignore.case = T)
+                         ignore.case = TRUE)
             
             # extractLevels on, but refLevel not in extractLevels
             expect_error(convert_BPFCollection(sourceDir = sourceDir, 
                                                targetDir = testDir, 
                                                dbName = dbName, 
-                                               verbose = F, 
+                                               verbose = FALSE, 
                                                extractLevels = c("MAU", "TRN"), 
                                                refLevel = "ORT"),
                          regexp = "reference level", 
-                         ignore.case = T)
+                         ignore.case = TRUE)
           }
 )
 # ---------------------------------------------------------------------------
@@ -135,27 +135,27 @@ test_that("Error when trying declare an unknown level in refLevel, extractLevels
             expect_error(convert_BPFCollection(sourceDir = sourceDir, 
                                                targetDir = testDir, 
                                                dbName = dbName, 
-                                               verbose = F, 
+                                               verbose = FALSE, 
                                                extractLevels = c("ABC")),
                          regexp = "unknown level.*ABC", 
-                         ignore.case = T)
+                         ignore.case = TRUE)
             
             expect_error(convert_BPFCollection(sourceDir = sourceDir, 
                                                targetDir = testDir, 
                                                dbName = dbName, 
-                                               verbose = F, 
+                                               verbose = FALSE, 
                                                refLevel = "ABC"),
                          regexp = "unknown level.*ABC", 
-                         ignore.case = T)
+                         ignore.case = TRUE)
             
             expect_error(convert_BPFCollection(sourceDir = sourceDir, 
                                                targetDir = testDir, 
                                                dbName = dbName, 
-                                               verbose = F, 
+                                               verbose = FALSE, 
                                                refLevel = "ORT", 
                                                unifyLevels = c("ABC")),
                          regexp = "unknown level.*ABC", 
-                         ignore.case = T)
+                         ignore.case = TRUE)
           }
 )
 # ---------------------------------------------------------------------------
@@ -165,15 +165,15 @@ test_that("Error when segmentToEventLevels is used with a non-segment level",
             expect_error(convert_BPFCollection(sourceDir = sourceDir, 
                                                targetDir = testDir, 
                                                dbName = dbName, 
-                                               verbose = F, 
+                                               verbose = FALSE, 
                                                segmentToEventLevels = c("PRB")),
                          regexp = "segment", 
-                         ignore.case = T)
+                         ignore.case = TRUE)
           }
 )
 
 # Cleaning up (just in case)
-unlink(newDbPath, recursive = T)
+unlink(newDbPath, recursive = TRUE)
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -182,20 +182,20 @@ test_that("Conversion without reference level.",
             convert_BPFCollection(sourceDir = sourceDir, 
                                   targetDir = testDir, 
                                   dbName = dbName, 
-                                  verbose = F)
+                                  verbose = FALSE)
             
             # Format of data base.
             expect_true(newDbFolderName %in% list.dirs(testDir, 
-                                                       full.names = F, 
-                                                       recursive = F))
-            expect_equal(length(list.files(newDbPath, recursive = F)), 2)
-            expect_equal(length(list.files(file.path(newDbPath, "0000_ses"), recursive = F)), 7)
-            expect_equal(length(list.files(file.path(newDbPath, "0000_ses", "msajc003_bndl"), recursive = F)), 2)
+                                                       full.names = FALSE, 
+                                                       recursive = FALSE))
+            expect_equal(length(list.files(newDbPath, recursive = FALSE)), 2)
+            expect_equal(length(list.files(file.path(newDbPath, "0000_ses"), recursive = FALSE)), 7)
+            expect_equal(length(list.files(file.path(newDbPath, "0000_ses", "msajc003_bndl"), recursive = FALSE)), 2)
             
             # Correctness of config file.
-            dbConfigLines = readLines(configPath, warn=F)
+            dbConfigLines = readLines(configPath, warn=FALSE)
             dbConfig = jsonlite::fromJSON(paste(dbConfigLines, collapse=''), 
-                                          simplifyVector=F)
+                                          simplifyVector=FALSE)
             
             # General & webAppConfig
             expect_equal(dbConfig$name, dbName)
@@ -256,9 +256,9 @@ test_that("Conversion without reference level.",
                                   "0000_ses", 
                                   "msajc003_bndl", 
                                   "msajc003_annot.json")
-            dbAnnotLines = readLines(annotPath, warn=F)
+            dbAnnotLines = readLines(annotPath, warn=FALSE)
             dbAnnot = jsonlite::fromJSON(paste(dbAnnotLines, collapse = ''), 
-                                         simplifyVector = F)
+                                         simplifyVector = FALSE)
             
             # Check that all levels have the appropriate number of items
             expect_equal(length(dbAnnot$levels[[1]]$items), 1)
@@ -305,7 +305,7 @@ test_that("Conversion without reference level.",
 )
 
 # Cleaning up.
-unlink(newDbPath, recursive = T)
+unlink(newDbPath, recursive = TRUE)
 
 
 # ---------------------------------------------------------------------------
@@ -315,13 +315,13 @@ test_that("Conversion with reference level.",
             convert_BPFCollection(sourceDir = sourceDir, 
                                   targetDir = testDir, 
                                   dbName = dbName, 
-                                  verbose = F, 
+                                  verbose = FALSE, 
                                   refLevel = "ORT")
             
             # Correctness of config file  
-            dbConfigLines = readLines(configPath, warn = F)
+            dbConfigLines = readLines(configPath, warn = FALSE)
             dbConfig = jsonlite::fromJSON(paste(dbConfigLines, collapse=''), 
-                                          simplifyVector = F)
+                                          simplifyVector = FALSE)
             
             # Check that all link definitions are correct
             expect_equal(length(dbConfig$linkDefinitions), 5)
@@ -352,9 +352,9 @@ test_that("Conversion with reference level.",
                                   "0000_ses", 
                                   "msajc003_bndl", 
                                   "msajc003_annot.json")
-            dbAnnotLines = readLines(annotPath, warn = F)
+            dbAnnotLines = readLines(annotPath, warn = FALSE)
             dbAnnot = jsonlite::fromJSON(paste(dbAnnotLines, collapse=''), 
-                                         simplifyVector = F)
+                                         simplifyVector = FALSE)
             
             # Check that bundle item (ID 1) links to TRN item (ID 16) and ORT items (ID 9-15)
             expect_equal(unlist(sapply(dbAnnot$links, 
@@ -387,7 +387,7 @@ test_that("Conversion with reference level.",
 )
 
 # Cleaning up
-unlink(newDbPath, recursive = T)
+unlink(newDbPath, recursive = TRUE)
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -396,14 +396,14 @@ test_that("Conversion with unifyLevels",
             convert_BPFCollection(sourceDir = sourceDir, 
                                   targetDir = testDir, 
                                   dbName = dbName, 
-                                  verbose = F, 
+                                  verbose = FALSE, 
                                   refLevel = "ORT", 
                                   unifyLevels = c("KAN"))
             
             # Correctness of config file
-            dbConfigLines = readLines(configPath, warn = F)
+            dbConfigLines = readLines(configPath, warn = FALSE)
             dbConfig = jsonlite::fromJSON(paste(dbConfigLines, collapse=''), 
-                                          simplifyVector=F)
+                                          simplifyVector=FALSE)
             
             # Check that there are only four levels (since KAN has become a label on ORT level)
             expect_equal(length(dbConfig$levelDefinitions), 4)
@@ -435,9 +435,9 @@ test_that("Conversion with unifyLevels",
             
             # Correctness of one annot file (msajc003_bndl)
             annotPath = file.path(newDbPath, "0000_ses", "msajc003_bndl", "msajc003_annot.json")
-            dbAnnotLines = readLines(annotPath, warn = F)
+            dbAnnotLines = readLines(annotPath, warn = FALSE)
             dbAnnot = jsonlite::fromJSON(paste(dbAnnotLines, collapse=''), 
-                                         simplifyVector = F)
+                                         simplifyVector = FALSE)
             
             # Check levels
             expect_equal(sapply(dbAnnot$levels, 
@@ -468,7 +468,7 @@ test_that("Conversion with unifyLevels",
           }
 )
 # Cleaning up
-unlink(newDbPath, recursive = T)
+unlink(newDbPath, recursive = TRUE)
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -477,12 +477,12 @@ test_that("Conversion with extractLevels.",
             convert_BPFCollection(sourceDir = sourceDir, 
                                   targetDir = testDir, 
                                   dbName = dbName, 
-                                  verbose = F, 
+                                  verbose = FALSE, 
                                   extractLevels = c("MAU"))
             
             # Correctness of config file    
-            dbConfigLines = readLines(configPath, warn=F)
-            dbConfig = jsonlite::fromJSON(paste(dbConfigLines, collapse=''), simplifyVector=F)
+            dbConfigLines = readLines(configPath, warn=FALSE)
+            dbConfig = jsonlite::fromJSON(paste(dbConfigLines, collapse=''), simplifyVector=FALSE)
             
             # Check that level definitions include only extractedLevels and bundle
             expect_equal(length(dbConfig$levelDefinitions), 2)
@@ -496,9 +496,9 @@ test_that("Conversion with extractLevels.",
             
             # Correctness of one annot file (msajc003_bndl)
             annotPath = file.path(newDbPath, "0000_ses", "msajc003_bndl", "msajc003_annot.json")
-            dbAnnotLines = readLines(annotPath, warn=F)
+            dbAnnotLines = readLines(annotPath, warn=FALSE)
             dbAnnot = jsonlite::fromJSON(paste(dbAnnotLines, collapse=''), 
-                                         simplifyVector = F)
+                                         simplifyVector = FALSE)
             
             # Check that there are only two levels.
             expect_equal(sapply(dbAnnot$levels, 
@@ -511,25 +511,25 @@ test_that("Conversion with extractLevels.",
           }
 )
 # Cleaning up
-unlink(newDbPath, recursive = T)
+unlink(newDbPath, recursive = TRUE)
 
 test_that("Loading emuDB",
           {
             convert_BPFCollection(sourceDir = sourceDir, 
                                   targetDir = testDir, 
                                   dbName = dbName, 
-                                  verbose = F, 
+                                  verbose = FALSE, 
                                   refLevel = "ORT", 
                                   unifyLevels = c("KAN"))
             handle = load_emuDB(file.path(testDir, paste0(dbName, emuDB.suffix)), 
-                                verbose = F)
+                                verbose = FALSE)
             DBI::dbDisconnect(handle$connection)
             handle = NULL
           }
 )
 
 # Cleaning up
-unlink(newDbPath, recursive = T)
+unlink(newDbPath, recursive = TRUE)
 
 
 # ---------------------------------------------------------------------------
@@ -558,7 +558,7 @@ test_that("Correct call with necessary arguments",
             convert_BPFCollection(sourceDir = sourceDir, 
                                   targetDir = testDir, 
                                   dbName = dbName, 
-                                  verbose = F, 
+                                  verbose = FALSE, 
                                   newLevels = c("XYZ"), 
                                   newLevelClasses = c(1), 
                                   refLevel = "ORT", 
@@ -566,9 +566,9 @@ test_that("Correct call with necessary arguments",
                                   bpfExt = "parmanipulated")
             
             # Correctness of config file
-            dbConfigLines = readLines(configPath, warn = F)
+            dbConfigLines = readLines(configPath, warn = FALSE)
             dbConfig = jsonlite::fromJSON(paste(dbConfigLines, collapse=''), 
-                                          simplifyVector = F)
+                                          simplifyVector = FALSE)
             
             # Check that there are 6 levels defined (bundle, KAN, ORT, TRN, MAU, XYZ)
             expect_equal(length(dbConfig$levelDefinitions), 6)
@@ -595,9 +595,9 @@ test_that("Correct call with necessary arguments",
             
             # Correctness of annot file msajc003_bndl
             annotPath = file.path(newDbPath, "0000_ses", "msajc003_bndl", "msajc003_annot.json")
-            dbAnnotLines = readLines(annotPath, warn=F)
+            dbAnnotLines = readLines(annotPath, warn=FALSE)
             dbAnnot = jsonlite::fromJSON(paste(dbAnnotLines, collapse=''), 
-                                         simplifyVector = F)
+                                         simplifyVector = FALSE)
             
             # Check that all labels on level 'MAU' have _start/_end suffix
             expect_true(all(unlist(sapply(dbAnnot$levels[[5]]$items, 
@@ -632,14 +632,14 @@ test_that("Correct call with necessary arguments",
             
             # Correctness of annot file msajc010_bndl
             annotPath = file.path(newDbPath, "0000_ses", "msajc010_bndl", "msajc010_annot.json")
-            dbAnnotLines = readLines(annotPath, warn = F)
+            dbAnnotLines = readLines(annotPath, warn = FALSE)
             dbAnnot = jsonlite::fromJSON(paste(dbAnnotLines, collapse=''), 
-                                         simplifyVector = F)
+                                         simplifyVector = FALSE)
             
             # Check that there is only one item (the bundle).
             expect_equal(sapply(dbAnnot$levels, 
                                 function(x) length(x$items) > 0), 
-                         c(T, F, F, F, F, F))
+                         c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE))
             
             # Check that the bundle item has only nine labels (the bundle name + all the empty labels for the others).
             expect_equal(length(dbAnnot$levels[[1]]$items[[1]]$labels), 9)
@@ -651,9 +651,9 @@ test_that("Correct call with necessary arguments",
             
             # Correctness of annot file msajc012_bndl
             annotPath = file.path(newDbPath, "0000_ses", "msajc012_bndl", "msajc012_annot.json")
-            dbAnnotLines = readLines(annotPath, warn = F)
+            dbAnnotLines = readLines(annotPath, warn = FALSE)
             dbAnnot = jsonlite::fromJSON(paste(dbAnnotLines, collapse = ''), 
-                                         simplifyVector = F)
+                                         simplifyVector = FALSE)
             
             # Check that links between ORT and MAU have been turned around (should have been MAU->ORT after parsing but ORT->MAU after link disambiguation)
             expect_equal(unlist(sapply(dbAnnot$links, 
@@ -663,23 +663,23 @@ test_that("Correct call with necessary arguments",
             # Check that this annot file does not contain any items on the XYZ level
             expect_equal(sapply(dbAnnot$levels, 
                                 function(x) length(x$items) > 0), 
-                         c(T, T, T, T, T, F))
+                         c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE))
           }
 )
 # Cleaning up
-unlink(newDbPath, recursive = T)
+unlink(newDbPath, recursive = TRUE)
 
 # # ---------------------------------------------------------------------------
 # # ---------------------------------------------------------------------------
 # test_that("Warnings (semicolon) are displayed if verbose.",
 #           {
-#             expect_warning(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = T, refLevel = "ORT", 
+#             expect_warning(convert_BPFCollection(sourceDir = sourceDir, targetDir = testDir, dbName = dbName, verbose = TRUE, refLevel = "ORT", 
 #                                                          newLevels = c("XYZ"), newLevelClasses = c(1), segmentToEventLevels = c("MAU"), bpfExt = "parmanipulated"),
-#                            regexp = "between.*';'", ignore.case = T)
+#                            regexp = "between.*';'", ignore.case = TRUE)
 #             }
 #           )
 # # Cleaning up
-# unlink(newDbPath, recursive = T)
+# unlink(newDbPath, recursive = TRUE)
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -688,12 +688,12 @@ test_that("Conversion without overlap resolution on BPF with overlap causes erro
             expect_error(convert_BPFCollection(sourceDir = sourceDir, 
                                                targetDir = testDir, 
                                                dbName = dbName, 
-                                               verbose = F,  
+                                               verbose = FALSE,  
                                                newLevels = c("XYZ"), 
                                                newLevelClasses = c(1), 
                                                bpfExt = "parmanipulated"),
                          regexp = "overlap", 
-                         ignore.case = T)
+                         ignore.case = TRUE)
           }
 )
 # ---------------------------------------------------------------------------
@@ -703,10 +703,10 @@ test_that("Conversion with unknown level name in a BPF causes error.",
             expect_error(convert_BPFCollection(sourceDir = sourceDir, 
                                                targetDir = testDir, 
                                                dbName = dbName, 
-                                               verbose = F, 
+                                               verbose = FALSE, 
                                                bpfExt = "parmanipulated"),
                          regexp = "unknown level", 
-                         ignore.case = T)
+                         ignore.case = TRUE)
           }
 )
 # ---------------------------------------------------------------------------
@@ -716,20 +716,20 @@ test_that("Conversion with a mismatch between level class and BPF line causes er
             expect_error(convert_BPFCollection(sourceDir = sourceDir,  
                                                targetDir = testDir, 
                                                dbName = dbName, 
-                                               verbose = F, 
+                                               verbose = FALSE, 
                                                refLevel = "ORT", 
                                                newLevels = c("XYZ"), 
                                                newLevelClasses = c(5), 
                                                segmentToEventLevels = c("MAU"), 
                                                bpfExt = "parmanipulated"),
                          regexp = "class", 
-                         ignore.case = T)
+                         ignore.case = TRUE)
           }
 )
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 # Final clean-up (just in case)
-unlink(newDbPath, recursive = T)
+unlink(newDbPath, recursive = TRUE)
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------

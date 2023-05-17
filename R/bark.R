@@ -30,8 +30,8 @@
 ##' 
 ##' @aliases bark bark.trackdata bark.spectral bark.default
 ##' @param f A vector or matrix of data or a spectral object.
-##' @param inv A single element logical vector. If F, data are converted from
-##' Hertz to Bark, if T, data are converted from Bark to Hertz. (Does not apply
+##' @param inv A single element logical vector. If FALSE, data are converted from
+##' Hertz to Bark, if TRUE, data are converted from Bark to Hertz. (Does not apply
 ##' if 'data' is an oject of class 'spectral'.
 ##' @param \dots for generic only
 ##' @return

@@ -117,9 +117,9 @@ convert_TextGridCollection <- function(dir, dbName,
                              '',
                              dirname(normalizePath(fpl[i,1], 
                                                    winslash = .Platform$file.sep)), 
-                             fixed = T),
-                        fixed = T),
-                   fixed = T)
+                             fixed = TRUE),
+                        fixed = TRUE),
+                   fixed = TRUE)
     
     # session file path
     if(sesName == ""){
@@ -149,7 +149,7 @@ convert_TextGridCollection <- function(dir, dbName,
     mfBn = basename(mfPath)
     
     # get sampleRate of audio file
-    asspObj = wrassp::read.AsspDataObj(mfPath, begin = 0, end = 1, samples = T)
+    asspObj = wrassp::read.AsspDataObj(mfPath, begin = 0, end = 1, samples = TRUE)
     sampleRate = attributes(asspObj)$sampleRate
     # create bundle name
     bndlName = sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(fpl[i,1]))

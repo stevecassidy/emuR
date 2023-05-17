@@ -10,14 +10,14 @@
 ##' a segment number can be used as the fun argument to trapply(). It is also
 ##' possible to write your own function and use trapply() to apply it
 ##' separately to each segment. Care needs to be taken in using trapply() in
-##' the following two ways. Firstly, the argument simplify=T should only be set
+##' the following two ways. Firstly, the argument simplify=TRUE should only be set
 ##' if it can be guaranteed that a vector of the same length or matrix of the
 ##' same number of rows as the number of segments in the trackdata object is
-##' returned. For example, simplify=T can be used in calculating the mean per
+##' returned. For example, simplify=TRUE can be used in calculating the mean per
 ##' segment of a trackdata object, because there will only be one value (the
-##' mean) per segment. However, simplify should be set to F in calculating the
+##' mean) per segment. However, simplify should be set to FALSE in calculating the
 ##' range because here two values are returned per segment. Similarly use
-##' simplify=F n smoothing the data in which the number of values returned per
+##' simplify=FALSE n smoothing the data in which the number of values returned per
 ##' segment is different.  Secondly, trapply() only applies a function to a
 ##' single parameter; the function can be used to apply to a function to
 ##' multi-parameter trackdata such as F1-F4, but then the function needs to be
@@ -63,7 +63,7 @@
 {
   if(returntrack)
     simplify <- FALSE
-  # if simplify is F or if returntrack is T, store as a list
+  # if simplify is FALSE or if returntrack is TRUE, store as a list
   if (!simplify) 
     result <- list(NULL)
   else result <- NULL

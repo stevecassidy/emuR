@@ -183,12 +183,12 @@
   
   # 
   if(!resultType %in% c("trackdata")){
-    if(consistentOutputType == F){
+    if(consistentOutputType == FALSE){
       if(verbose){
         cat(paste0("INFO: resetting 'consistentOutputType' back to TRUE as setting ",
                    "it to FALSE is only allowed when resultType is set to 'trackdata'\n"))
       }
-      consistentOutputType = T
+      consistentOutputType = TRUE
     }
   }
   
@@ -248,12 +248,12 @@
                                          sep = ":", 
                                          col.names = c("session", "bundle"), 
                                          colClasses = c("character", "character"), 
-                                         stringsAsFactors = F)
+                                         stringsAsFactors = FALSE)
   }else{
     uniqSessionBndls = dplyr::distinct(as.data.frame(seglist), .data$bundle, .data$session)
   }
   DBI::dbExecute(emuDBhandle$connection,"CREATE TEMP TABLE uniq_session_bndls_tmp (session TEXT,bundle TEXT)")
-  DBI::dbWriteTable(emuDBhandle$connection, "uniq_session_bndls_tmp", uniqSessionBndls, append = T)
+  DBI::dbWriteTable(emuDBhandle$connection, "uniq_session_bndls_tmp", uniqSessionBndls, append = TRUE)
   sesBndls = DBI::dbGetQuery(emuDBhandle$connection, paste0("SELECT ",
                                                             " bundle.db_uuid, ",
                                                             " bundle.session, ",

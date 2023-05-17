@@ -349,7 +349,7 @@ duplicate_level <- function(emuDBhandle,
                                        type = attrDefs[i,]$type, 
                                        rewriteAllAnnots = FALSE, 
                                        verbose = verbose, 
-                                       insertLabels = F)
+                                       insertLabels = FALSE)
     }
     # copy legalLabels
     ll = get_legalLabels(emuDBhandle, levelName, attrDefs[i,]$name)
@@ -498,7 +498,7 @@ append_itemsToLevel = function(emuDBhandle,
                                labels,
                                sessionPattern = ".*",
                                bundlePattern = ".*",
-                               verbose = T) {
+                               verbose = TRUE) {
   ##
   ## Check pre-conditions
   ##

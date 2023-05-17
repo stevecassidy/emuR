@@ -35,14 +35,14 @@ create_filePairList <- function(ext1Path2rootDir, ext2Path2rootDir, ext1, ext2){
   # get all ext1 file paths
   allExt1FilePaths = list.files(ext1Path2rootDir, 
                                 pattern = paste(ext1, "$", sep = ""), 
-                                recursive = T, 
-                                full.names = T)
+                                recursive = TRUE,
+                                full.names = TRUE)
   
   # get all ext2 file paths
   allExt2FilePaths = list.files(ext2Path2rootDir, 
                                 pattern = paste(ext2, "$", sep = ""), 
-                                recursive = T, 
-                                full.names = T)
+                                recursive = TRUE,
+                                full.names = TRUE)
   
   # check more ext1 found than ext2
   if(length(allExt1FilePaths) > length(allExt2FilePaths)){

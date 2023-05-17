@@ -8,7 +8,7 @@
 ##' @param specdata A matrix or trackdata object of class spectral
 ##' @param fun A function to be applied.
 ##' @param \dots Optional arguments to fun
-##' @param power A single element logical vector. If T, convert specdata to
+##' @param power A single element logical vector. If TRUE, convert specdata to
 ##' power values i.e. apply the function to a * specdata
 ##' \eqn{\mbox{\textasciicircum}}{^}b or a * specdata$data
 ##' \eqn{\mbox{\textasciicircum}}{^}b where a and b powcoeffs defined below.

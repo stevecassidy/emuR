@@ -18,15 +18,15 @@
 ##' by dct() are the amplitudes of the cosine waves (DCT coefficients) up to a
 ##' frequency of N radians/sample, i.e. a vector of cosine wave amplitudes that
 ##' has the same length as the original signal and of frequencies k = 0, 1, 2,
-##' ... (N-1).  Alternatively, if fit=T, a smoothed signal of the same length
+##' ... (N-1).  Alternatively, if fit=TRUE, a smoothed signal of the same length
 ##' as the original signal is obtained based on a summation of the lowest
 ##' ordered DCT coefficients. This dct() algorithm returns very similar values
-##' to DCT() with inv=F written by Catherine Watson and used in Watson &
+##' to DCT() with inv=FALSE written by Catherine Watson and used in Watson &
 ##' Harrington (1999).
 ##' 
 ##' @param data a vector or single column matrix of numeric values to which the
 ##' 2nd order polynomial is to be fitted.
-##' @param fit if F, return the DCT coefficients; if T, the values of the
+##' @param fit if FALSE, return the DCT coefficients; if TRUE, the values of the
 ##' smoothed trajectory are returned based on summing the cosine waves of the k
 ##' lowest ordered DCT coefficients, where k is the argument given below.
 ##' @param m The number of DCT coefficients that are returned or on which the

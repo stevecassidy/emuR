@@ -155,14 +155,14 @@
 ##' 
 ##' @param labels A vector of labels.
 ##' @param class A label or vector of labels.
-##' @return A logical vector which is T for each element in \code{labels} which
+##' @return A logical vector which is TRUE for each element in \code{labels} which
 ##' matches \code{class} or an element of \code{class}.
 ##' @seealso match
 ##' @keywords misc
 ##' @examples
 ##' 
 ##' muclass(c("a", "b", "c"), c("a", "c"))
-##' #[1] T F T
+##' #[1] TRUE FALSE TRUE
 ##' 
 ##' @export muclass
 "muclass"<- function(labels, class)
@@ -184,8 +184,8 @@
 ##' 
 ##' 
 ##' @param segs An Emu segment list.
-##' @param bwd If T, reverse the order of the segment list.
-##' @param rand If T, randomise the order of the segment lists (default).
+##' @param bwd If TRUE, reverse the order of the segment list.
+##' @param rand If TRUE, randomise the order of the segment lists (default).
 ##' @return A segment list containing the original elements in random or
 ##' reversed order. This is useful if the segment list is to be used as the
 ##' source for a set of stimuli in a perception experiment.
@@ -295,7 +295,7 @@
 ##' @param vec A numerical vector of frequencies in Hz or radians
 ##' @param samfreq A single element numerical vector of the sampling frequency.
 ##' Defaults to 20000 Hz
-##' @param hz Logical. If T, convert from Hz to radians otherwise from radians
+##' @param hz Logical. If TRUE, convert from Hz to radians otherwise from radians
 ##' to hz
 ##' @author Jonathan Harrington
 ##' @seealso \code{\link{help}}
@@ -311,7 +311,7 @@
 ##' @export rad
 "rad" <- function(vec, samfreq = 20000, hz = TRUE)
 {
-  # hz: if T, vec is a vector in Hertz, otherwise it's radians
+  # hz: if TRUE, vec is a vector in Hertz, otherwise it's radians
   # convert from radians to Hz, or Hz to radians
   if(hz) vals <- (vec * 2 * pi)/samfreq else vals <- (vec * samfreq)/(2 * 
                                                                         pi)
@@ -455,14 +455,14 @@
 ##' The function converts from decibels to a linear scale
 ##' 
 ##' The function returns base\eqn{\mbox{\textasciicircum}}{^}(specdata/const)
-##' if inv=F, otherwise, const * log(dat, base=base). If the object to which
+##' if inv=FALSE, otherwise, const * log(dat, base=base). If the object to which
 ##' this function is applied is of class 'trackdata' then this function is
 ##' applied to $data.
 ##' 
 ##' @param specdata A numeric object or an object of class trackdata
 ##' @param const A single element numeric vector. Defaults to 10
 ##' @param base A single element numeric vector. Defaults to 10
-##' @param inv Logical. If T, then the conversion is from a logarithmic to an
+##' @param inv Logical. If TRUE, then the conversion is from a logarithmic to an
 ##' anti-logarithmic form, otherwise the other way round
 ##' @return An object of the same class.
 ##' @author Jonathan Harrington
@@ -516,7 +516,7 @@
 ##' @param x A numeric vector
 ##' @param delta A single element numeric vector. Defines the number of points
 ##' by which the signal should be shifted.
-##' @param circular Logical. If T, the signal is wrapped around itself so that
+##' @param circular Logical. If TRUE, the signal is wrapped around itself so that
 ##' if delta = 1, x[n] becomes x[1]. Otherwise, if delta is positive, the same
 ##' number of zeros are prepended to the signal
 ##' @return The signal shifted by a certain number of points.  ...

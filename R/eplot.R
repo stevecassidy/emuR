@@ -25,7 +25,7 @@
 ##' plotted for each data point
 ##' @param doellipse If TRUE, ellipses are drawn on the plot. If FALSE, no
 ##' ellipses are drawn and, if 'dopoints' is also FALSE, 'centroids' is set to
-##' T
+##' TRUE
 ##' @param centroid One label for each ellipse is drawn
 ##' @param axes If TRUE axes are drawn on the plot.
 ##' @param xlim A vector of two numeric values giving the range of the x-axis.

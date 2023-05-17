@@ -140,7 +140,7 @@ import_mediaFiles<-function(emuDBhandle,
     }
     
     # write to file
-    annotJSONchar = jsonlite::toJSON(b, auto_unbox = T, pretty = T)
+    annotJSONchar = jsonlite::toJSON(b, auto_unbox = TRUE, pretty = TRUE)
     newAnnotFileFullPath = file.path(bundleDir, 
                                      paste0(bundleName, bundle.annotation.suffix, ".json"))
     writeLines(annotJSONchar, newAnnotFileFullPath, useBytes = TRUE)
@@ -245,7 +245,7 @@ add_files <- function(emuDBhandle,
   
   sourcePaths = list.files(dir, 
                            pattern = paste0("\\.",fileExtension, '$'), 
-                           full.names = T)
+                           full.names = TRUE)
   
   destDirs = file.path(emuDBhandle$basePath, 
                        paste0(bndls$session, '_ses'), 
@@ -317,7 +317,7 @@ list_files <- function(emuDBhandle,
   check_emuDBhandle(emuDBhandle)
   
   fileList = list.files(path = file.path(emuDBhandle$basePath),
-                        recursive = T,
+                        recursive = TRUE,
                         pattern = paste0(".*[.]", fileExtension, "$")) %>%
     tibble::enframe(name = NULL) %>%
     tidyr::separate(col = "value",

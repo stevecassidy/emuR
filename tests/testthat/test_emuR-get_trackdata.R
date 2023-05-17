@@ -14,7 +14,7 @@ internalVars = get("internalVars",
   
 ae = load_emuDB(path2orig, 
                 inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                verbose = F)
+                verbose = FALSE)
 
 # get segmentlist of type segment
 path2segl <- list.files(system.file("extdata", package = "emuR"), 
@@ -36,9 +36,9 @@ test_that("correct classes are returned", {
   td = get_trackdata(ae, 
                      n, 
                      'fm', 
-                     consistentOutputType = F, 
+                     consistentOutputType = FALSE, 
                      resultType = "trackdata",
-                     verbose = F)
+                     verbose = FALSE)
   expect_that(class(td), equals('trackdata'))
   
   td = get_trackdata(ae, 
@@ -46,8 +46,8 @@ test_that("correct classes are returned", {
                      'fm', 
                      cut = .5, 
                      resultType = "trackdata",
-                     consistentOutputType = F, 
-                     verbose = F)
+                     consistentOutputType = FALSE, 
+                     verbose = FALSE)
   expect_that(class(td), equals('data.frame'))
   
   td = get_trackdata(ae, 
@@ -56,8 +56,8 @@ test_that("correct classes are returned", {
                      cut = .5, 
                      npoints = 3, 
                      resultType = "trackdata",
-                     consistentOutputType = F, 
-                     verbose = F)
+                     consistentOutputType = FALSE, 
+                     verbose = FALSE)
   expect_that(class(td), 
               equals('trackdata'))
   
@@ -67,16 +67,16 @@ test_that("correct classes are returned", {
                      cut = .5, 
                      npoints = 1, 
                      resultType = "trackdata",
-                     consistentOutputType = F, 
-                     verbose = F)
+                     consistentOutputType = FALSE, 
+                     verbose = FALSE)
   expect_that(class(td), equals('data.frame'))
   
   td = get_trackdata(ae, 
                      hStar, 
                      'fm',
                      resultType = "trackdata",
-                     consistentOutputType = F, 
-                     verbose = F)
+                     consistentOutputType = FALSE, 
+                     verbose = FALSE)
   expect_that(class(td), equals('data.frame'))
   
   td = get_trackdata(ae, 
@@ -84,8 +84,8 @@ test_that("correct classes are returned", {
                      'fm', 
                      npoints = 3, 
                      resultType = "trackdata",
-                     consistentOutputType = F, 
-                     verbose = F)
+                     consistentOutputType = FALSE, 
+                     verbose = FALSE)
   expect_that(class(td), equals('trackdata'))
   
   sl = query(ae, "Phonetic == @ | i:")
@@ -93,47 +93,47 @@ test_that("correct classes are returned", {
                      sl, 
                      "fm", 
                      resultType = "emuRtrackdata", 
-                     consistentOutputType = F, 
-                     verbose = F)
+                     consistentOutputType = FALSE, 
+                     verbose = FALSE)
   expect_true(inherits(td, 'emuRtrackdata'))
 })
 
 #############################
 test_that("bad calls", {
   expect_error(get_trackdata(ae, 
-                             verbose = F)) # seglist missing error
+                             verbose = FALSE)) # seglist missing error
   expect_error(get_trackdata(seglist = n, 
-                             verbose = F)) # S3 error
+                             verbose = FALSE)) # S3 error
   expect_error(get_trackdata(ae, 
                              n, 
-                             verbose = F)) # ssffTrackName missing error
+                             verbose = FALSE)) # ssffTrackName missing error
   expect_error(get_trackdata(ae, 
                              n, 
                              cut = 2, 
-                             verbose = F)) # cut > 1 error
+                             verbose = FALSE)) # cut > 1 error
   expect_error(get_trackdata(ae, 
                              n, 
                              cut = -1, 
-                             verbose = F)) # cut < 0 error
+                             verbose = FALSE)) # cut < 0 error
   expect_error(get_trackdata(ae, 
                              n, 
                              'fm', 
                              npoints = 3, 
-                             verbose = F)) # npoint with no cut argument error
+                             verbose = FALSE)) # npoint with no cut argument error
   expect_error(get_trackdata(ae, 
                              n, 
                              'fm', 
                              onTheFlyParams = formals(open), 
-                             verbose = F)) # no onTheFlyFunctionName error
+                             verbose = FALSE)) # no onTheFlyFunctionName error
   expect_error(get_trackdata(aeDB, 
                              n, 
                              'fm', 
                              onTheFlyOptLogFilePath = '/path/to/bla/', 
-                             verbose = F)) # onTheFlyOptLogFilePath error
+                             verbose = FALSE)) # onTheFlyOptLogFilePath error
   expect_error(get_trackdata(ae, 
                              n, 
                              resultType = "emuRtrackdata", 
-                             verbose = F)) # bad resultType for seglist of type 'emusegs'
+                             verbose = FALSE)) # bad resultType for seglist of type 'emusegs'
 })
 
 ##############################
@@ -144,7 +144,7 @@ test_that("returned trackdata$data field has correct length", {
                      cut = .5, 
                      npoints = 3, 
                      resultType = "trackdata",
-                     verbose = F)
+                     verbose = FALSE)
   expect_that(dim(td$data)[1], equals(length(n$utts)*3))
   
   td = get_trackdata(ae, 
@@ -153,7 +153,7 @@ test_that("returned trackdata$data field has correct length", {
                      cut = .5, 
                      npoints = 5, 
                      resultType = "trackdata",
-                     verbose = F)
+                     verbose = FALSE)
   expect_that(dim(td$data)[1], equals(length(n$utts)*5))
   
 })
@@ -166,9 +166,9 @@ test_that("all sorts of cut values work", {
                        n, 
                        'fm',
                        cut = cutV, 
-                       consistentOutputType = F, 
+                       consistentOutputType = FALSE, 
                        resultType = "trackdata",
-                       verbose = F)
+                       verbose = FALSE)
     expect_that(class(td), equals('data.frame'))
   }
 })
@@ -182,7 +182,7 @@ test_that("n points greater than boundaries word", {
                      cut = 0.5, 
                      npoints = 20, 
                      resultType = "trackdata",
-                     verbose = F)
+                     verbose = FALSE)
   expect_that(class(td), equals('trackdata'))
 })
 
@@ -197,7 +197,7 @@ test_that("on-the-fly calculations work", {
                          wrasspOutputInfos[[wrasspFun]]$tracks[1], 
                          onTheFlyFunctionName = wrasspFun, 
                          resultType = "trackdata",
-                         verbose = F)
+                         verbose = FALSE)
     }
     expect_that(class(td), equals('trackdata'))
   }
@@ -209,7 +209,7 @@ test_that("on-the-fly calculations work if ssffTrackName is not set", {
                      n, 
                      onTheFlyFunctionName = "ksvF0", 
                      resultType = "trackdata",
-                     verbose = F)
+                     verbose = FALSE)
   expect_equal(dim(td$index)[1], 12)
 })
 
@@ -220,7 +220,7 @@ test_that("data fields are the same as hardcoded values (taken from original emu
                      n, 
                      'fm',
                      resultType = "trackdata",
-                     verbose = F)
+                     verbose = FALSE)
   expect_that(td$data[10,1], equals(256))
   expect_that(td$data[10,2], equals(1521))
   expect_that(td$data[10,3], equals(2382))
@@ -230,7 +230,7 @@ test_that("data fields are the same as hardcoded values (taken from original emu
                      n, 
                      onTheFlyFunctionName = "forest", 
                      resultType = "trackdata",
-                     verbose = F)
+                     verbose = FALSE)
   expect_that(td$data[10,1], equals(256))
   expect_that(td$data[10,2], equals(1521))
   expect_that(td$data[10,3], equals(2382))
@@ -248,7 +248,7 @@ test_that("resultType tibble is accepted", {
                      sl, 
                      onTheFlyFunctionName = "ksvF0", 
                      resultType = "trackdata",
-                     verbose = F)
+                     verbose = FALSE)
   expect_equal(dim(td$index)[1], 12)
 })
 
@@ -280,7 +280,7 @@ test_that("non wrassp functions work", {
   td = get_trackdata(ae, 
                      sl, 
                      onTheFlyFunction = myFun, 
-                     verbose = F)
+                     verbose = FALSE)
   expect_equal(nrow(td), 163)
   expect_equal(ncol(td), 28)
 })

@@ -1,5 +1,5 @@
 # currently not used
-# update_emuDBgit <- function(emuDBhandle, verbose = T){
+# update_emuDBgit <- function(emuDBhandle, verbose = TRUE){
 #   
 #   
 #   ######################

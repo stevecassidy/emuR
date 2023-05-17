@@ -12,7 +12,7 @@
 ##' missing, and if count is of class spectral, then x is equal to
 ##' trackfreq(count). If x is missing and is not of class spectral, then x
 ##' default to 0:(length(count)-1)
-##' @param minval If T, subtract min(count) from count so that the minimum
+##' @param minval If TRUE, subtract min(count) from count so that the minimum
 ##' value of count is zero. This is principally used in calculating spectral
 ##' moments where count is in decibels, and more generally if count contains
 ##' negative values.
@@ -46,7 +46,7 @@
   # p. 87, Snedecor & Cochran, 'Statistical Methods'
   # 6th Edition, 1975. Let the arguments count and x
   # equal f and U respectively in their example
-  # the centre of gravity with minval = F.
+  # the centre of gravity with minval = FALSE.
   # the first two moments in this function
   # also give the same results as in Harrington & Cassidy.
   if(minval)

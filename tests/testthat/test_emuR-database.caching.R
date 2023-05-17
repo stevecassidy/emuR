@@ -23,13 +23,13 @@ test_that("update_cache works", {
   
   # delete, copy and load
   unlink(path2db, 
-         recursive = T)
+         recursive = TRUE)
   file.copy(path2orig, 
             path2testData, 
-            recursive = T)
+            recursive = TRUE)
   ae = load_emuDB(path2db, 
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                  verbose = F)
+                  verbose = FALSE)
 
   ################################
   # 
@@ -37,9 +37,9 @@ test_that("update_cache works", {
     dir.create(file.path(path2db, 'new_ses'))
     file.copy(from = file.path(path2db, '0000_ses', 'msajc010_bndl'), 
               to = file.path(path2db, 'new_ses'),
-              recursive = T)
+              recursive = TRUE)
     
-    update_cache(ae, verbose=F)
+    update_cache(ae, verbose=FALSE)
     
     l = list_sessionsDBI(ae)
     expect_true("new" %in% l$name)
@@ -58,7 +58,7 @@ test_that("update_cache works", {
                                                        "new_ses", 
                                                        "msajc010_bndl", 
                                                        "msajc010_annot.json")), 
-                                   simplifyVector = T)
+                                   simplifyVector = TRUE)
     
     annotJson$levels$items[[1]]$id = 666666
     
@@ -72,7 +72,7 @@ test_that("update_cache works", {
                                  "msajc010_annot.json"), 
                useBytes = TRUE)
     
-    update_cache(ae, verbose = F)
+    update_cache(ae, verbose = FALSE)
     
     res = DBI::dbGetQuery(ae$connection, paste0("SELECT * ",
                                                 "FROM items ",
@@ -94,7 +94,7 @@ test_that("update_cache works", {
                      'msajc010_bndl'), 
            recursive = TRUE)
     
-    update_cache(ae, verbose = F)
+    update_cache(ae, verbose = FALSE)
     
     res = DBI::dbGetQuery(ae$connection, paste0("SELECT * ",
                                                 "FROM items ",
@@ -117,7 +117,7 @@ test_that("update_cache works", {
     ses = list_sessionsDBI(ae)
     expect_true(any(ses$name == "new"))
     
-    update_cache(ae, verbose = F)
+    update_cache(ae, verbose = FALSE)
     ses = list_sessionsDBI(ae)
 
     expect_false(any(ses$name == "new"))
@@ -127,7 +127,7 @@ test_that("update_cache works", {
   # clean up
   DBI::dbDisconnect(ae$connection)
   ae = NULL
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
 
 })
 

@@ -17,13 +17,13 @@ internalVars = get("internalVars", envir = .emuR_pkgEnv)
 
 test_that("emuRtrackdata functions work", {
   # delete, copy and load
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
   file.copy(path2orig, 
             path2testData, 
-            recursive = T)
+            recursive = TRUE)
   ae = load_emuDB(path2db, 
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                  verbose = F)
+                  verbose = FALSE)
   
   ################
   test_that("export_seglistToTxtCollection works", {
@@ -35,11 +35,11 @@ test_that("emuRtrackdata functions work", {
     fps_wav = list.files(file.path(tempdir(), 
                                    "ae_txt_col_from_seglist"), 
                          pattern = "wav$", 
-                         full.names = T)
+                         full.names = TRUE)
     fps_txt = list.files(file.path(tempdir(), 
                                    "ae_txt_col_from_seglist"), 
                          pattern = "txt$",
-                         full.names = T)
+                         full.names = TRUE)
     file_content = readr::read_file(fps_txt[1])
     
     expect_equal(length(fps_wav), 2)
@@ -48,7 +48,7 @@ test_that("emuRtrackdata functions work", {
     
     unlink(file.path(tempdir(), 
                      "ae_txt_col_from_seglist"), 
-           recursive = T)
+           recursive = TRUE)
     
   })
   
@@ -56,6 +56,6 @@ test_that("emuRtrackdata functions work", {
   # clean up
   DBI::dbDisconnect(ae$connection)
   ae = NULL
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
   
 })

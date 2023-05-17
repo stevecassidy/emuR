@@ -13,29 +13,29 @@ internalVars = get("internalVars", envir = .emuR_pkgEnv)
 test_that("replace_itemLabels works correctly", {
 
   # delete, copy and load
-  unlink(path2db, recursive = T)
-  file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
+  unlink(path2db, recursive = TRUE)
+  file.copy(path2orig, path2testData, recursive = TRUE)
+  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = FALSE)
 
   test_that("replace_itemLabels throws correct errors", {
 
-    expect_error(replace_itemLabels(ae, attributeDefinitionName = "badName", origLabels = "a", newLabels = "a"), regexp = "No attributeDefinitionName: badName", ignore.case = T)
-    expect_error(replace_itemLabels(ae, attributeDefinitionName = "Phonetic", origLabels = "a", newLabels = c("a","b")), regexp = "origLabels and newLabels have to be", ignore.case = T)
-    expect_error(replace_itemLabels(ae, attributeDefinitionName = "Phonetic", origLabels = 1, newLabels = "a"), regexp = "origLabels and newLabels have to be", ignore.case = T)
-    expect_error(replace_itemLabels(ae, attributeDefinitionName = "Phonetic", origLabels = "a", newLabels = 1), regexp = "origLabels and newLabels have to be", ignore.case = T)
+    expect_error(replace_itemLabels(ae, attributeDefinitionName = "badName", origLabels = "a", newLabels = "a"), regexp = "No attributeDefinitionName: badName", ignore.case = TRUE)
+    expect_error(replace_itemLabels(ae, attributeDefinitionName = "Phonetic", origLabels = "a", newLabels = c("a","b")), regexp = "origLabels and newLabels have to be", ignore.case = TRUE)
+    expect_error(replace_itemLabels(ae, attributeDefinitionName = "Phonetic", origLabels = 1, newLabels = "a"), regexp = "origLabels and newLabels have to be", ignore.case = TRUE)
+    expect_error(replace_itemLabels(ae, attributeDefinitionName = "Phonetic", origLabels = "a", newLabels = 1), regexp = "origLabels and newLabels have to be", ignore.case = TRUE)
   })
 
 
   test_that("replace_itemLabels replaces correct labels", {
 
-    replace_itemLabels(ae, attributeDefinitionName = "Phonetic", origLabels = "n", newLabels = "n_rep", verbose = F)
+    replace_itemLabels(ae, attributeDefinitionName = "Phonetic", origLabels = "n", newLabels = "n_rep", verbose = FALSE)
 
     sl = query(ae, "Phonetic == n")
     expect_equal(nrow(sl), 0)
     sl = query(ae, "Phonetic == n_rep")
     expect_equal(nrow(sl), 12)
 
-    replace_itemLabels(ae, attributeDefinitionName = "Phonetic", origLabels = c("I", "p"), newLabels = c("I_rep", "p_rep"), verbose = F)
+    replace_itemLabels(ae, attributeDefinitionName = "Phonetic", origLabels = c("I", "p"), newLabels = c("I_rep", "p_rep"), verbose = FALSE)
 
     sl = query(ae, "Phonetic == I_rep")
     expect_equal(nrow(sl), 14)
@@ -53,9 +53,9 @@ test_that("replace_itemLabels works correctly", {
 test_that("duplicate_level works correctly", {
 
   # delete, copy and load
-  unlink(path2db, recursive = T)
-  file.copy(path2orig, path2testData, recursive = T)
-  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
+  unlink(path2db, recursive = TRUE)
+  file.copy(path2orig, path2testData, recursive = TRUE)
+  ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = FALSE)
 
   test_that("duplicate_level throws correct errors", {
 
@@ -63,20 +63,20 @@ test_that("duplicate_level works correctly", {
                                  levelName = "badName", 
                                  duplicateLevelName = "bla"), 
                  regexp = "not a valid level name", 
-                 ignore.case = T)
+                 ignore.case = TRUE)
     expect_error(duplicate_level(ae, 
                                  levelName = "Phonetic", 
                                  duplicateLevelName = "bla", 
-                                 duplicateLinks = T, 
-                                 linkDuplicates = T), 
+                                 duplicateLinks = TRUE, 
+                                 linkDuplicates = TRUE), 
                  regexp = "duplicateLinks & linkDuplicates", 
-                 ignore.case = T)
+                 ignore.case = TRUE)
     
     # unique  multiple attribute definitions
     # expect_error(duplicate_level(ae, 
     #                 levelName = "Word", 
     #                 duplicateLevelName = "Word2", 
-    #                 verbose = F), 
+    #                 verbose = FALSE), 
     #              regexp = "attributeDefinition with name")
 
   })
@@ -85,7 +85,7 @@ test_that("duplicate_level works correctly", {
     duplicate_level(ae, 
                     levelName = "Phonetic", 
                     duplicateLevelName = "Phonetic2", 
-                    verbose = F)
+                    verbose = FALSE)
     dbConfig = load_DBconfig(ae)
     expect_true(length(dbConfig$levelDefinitions) == 10)
     expect_equal(dbConfig$levelDefinitions[[10]]$name, "Phonetic2")
@@ -104,8 +104,8 @@ test_that("duplicate_level works correctly", {
 
   })
 
-  test_that("duplicateLinks = F works correctly", {
-    duplicate_level(ae, levelName = "Phonetic", duplicateLevelName = "Phonetic3", duplicateLinks = F, verbose = F)
+  test_that("duplicateLinks = FALSE works correctly", {
+    duplicate_level(ae, levelName = "Phonetic", duplicateLevelName = "Phonetic3", duplicateLinks = FALSE, verbose = FALSE)
     linkDefs = list_linkDefinitions(ae)
     # no linkdefs are added
     expect_false("Phonetic3" %in% linkDefs$superlevelName)
@@ -114,7 +114,7 @@ test_that("duplicate_level works correctly", {
 
 
   test_that("linkDuplicates works correctly", {
-    duplicate_level(ae, levelName = "Phonetic", duplicateLevelName = "Phonetic4", duplicateLinks = F, linkDuplicates = T, verbose = F)
+    duplicate_level(ae, levelName = "Phonetic", duplicateLevelName = "Phonetic4", duplicateLinks = FALSE, linkDuplicates = TRUE, verbose = FALSE)
     linkDefs = list_linkDefinitions(ae)
     # linkdefs are added
     expect_true("Phonetic4" %in% linkDefs$sublevelName)
@@ -128,20 +128,20 @@ test_that("duplicate_level works correctly", {
   # clean up
   DBI::dbDisconnect(ae$connection)
   ae = NULL
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
 })
 
 # test_that("resample annots works correctly", {
 #   
 #   # delete, copy and load
-#   unlink(path2db, recursive = T)
-#   file.copy(path2orig, path2testData, recursive = T)
-#   ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
+#   unlink(path2db, recursive = TRUE)
+#   file.copy(path2orig, path2testData, recursive = TRUE)
+#   ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = FALSE)
 #   
 #   # test_that("duplicate_level throws correct errors", {
 #   #   
-#   #   expect_error(duplicate_level(ae, levelName = "badName", duplicateLevelName = "bla"), regexp = "not a valid level name", ignore.case = T)
-#   #   expect_error(duplicate_level(ae, levelName = "Phonetic", duplicateLevelName = "bla", duplicateLinks = T, linkDuplicates = T), regexp = "duplicateLinks & linkDuplicates", ignore.case = T)
+#   #   expect_error(duplicate_level(ae, levelName = "badName", duplicateLevelName = "bla"), regexp = "not a valid level name", ignore.case = TRUE)
+#   #   expect_error(duplicate_level(ae, levelName = "Phonetic", duplicateLevelName = "bla", duplicateLinks = TRUE, linkDuplicates = TRUE), regexp = "duplicateLinks & linkDuplicates", ignore.case = TRUE)
 #   #   
 #   # })
 # 
@@ -159,28 +159,28 @@ test_that("duplicate_level works correctly", {
 #   # clean up
 #   DBI::dbDisconnect(ae$connection)
 #   ae = NULL
-#   unlink(path2db, recursive = T)
+#   unlink(path2db, recursive = TRUE)
 # })
 
 # test_that("add_itemsToEmptyLevel works correctly", {
 #   
 #   # delete, copy and load
-#   unlink(path2db, recursive = T)
-#   file.copy(path2orig, path2testData, recursive = T)
-#   ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = F)
+#   unlink(path2db, recursive = TRUE)
+#   file.copy(path2orig, path2testData, recursive = TRUE)
+#   ae = load_emuDB(path2db, inMemoryCache = internalVars$testingVars$inMemoryCache, verbose = FALSE)
 #   
 #   test_that("add_itemsToEmptyLevel throws correct errors", {
 #     sl = query(ae, "Phonetic == n")
-#     #expect_error(add_itemsToEmptyLevel(ae, levelName = "badName", sl), regexp = "Specified level does not exist", ignore.case = T)
-#     #expect_error(add_itemsToEmptyLevel(ae, levelName = "Tone", sl), regexp = "Specified level is of type EVENT", ignore.case = T)
-#     #expect_error(add_itemsToEmptyLevel(ae, levelName = "Phonetic", labels = sl$labels), regexp = "Specified level is of type SEGMENT", ignore.case = T)
-#     #expect_error(add_itemsToEmptyLevel(ae, levelName = "Phonetic", labels = sl$labels, sampleStart = sl$sample_start, sampleEnd = sl$sample_end), regexp = "Specified level is not empty", ignore.case = T)
+#     #expect_error(add_itemsToEmptyLevel(ae, levelName = "badName", sl), regexp = "Specified level does not exist", ignore.case = TRUE)
+#     #expect_error(add_itemsToEmptyLevel(ae, levelName = "Tone", sl), regexp = "Specified level is of type EVENT", ignore.case = TRUE)
+#     #expect_error(add_itemsToEmptyLevel(ae, levelName = "Phonetic", labels = sl$labels), regexp = "Specified level is of type SEGMENT", ignore.case = TRUE)
+#     #expect_error(add_itemsToEmptyLevel(ae, levelName = "Phonetic", labels = sl$labels, sampleStart = sl$sample_start, sampleEnd = sl$sample_end), regexp = "Specified level is not empty", ignore.case = TRUE)
 # 
 #   })
 #   
 #   test_that("correct segment level is created", {
 #     sl = query(ae, "Phonetic == n")
-#     # add_levelDefinition(ae, name = "Phonetic_n", type = "SEGMENT", verbose = F)
+#     # add_levelDefinition(ae, name = "Phonetic_n", type = "SEGMENT", verbose = FALSE)
 #     # add_itemsToEmptyLevel(ae, levelName = "Phonetic_n", sl)
 #     # resample_annots(ae, oldSampleRate = 20000, newSampleRate = 44100, verbose = TRUE)
 #     
@@ -194,5 +194,5 @@ test_that("duplicate_level works correctly", {
 #   # clean up
 #   DBI::dbDisconnect(ae$connection)
 #   ae = NULL
-#   unlink(path2db, recursive = T)
+#   unlink(path2db, recursive = TRUE)
 # })

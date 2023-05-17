@@ -21,13 +21,13 @@ test_that("autobuild_linkFromTimes works correctly", {
   test_that("bad calls to autobuild_linkFromTimes", {
 
     # delete, copy and load
-    unlink(path2db, recursive = T)
+    unlink(path2db, recursive = TRUE)
     file.copy(path2orig, 
               path2testData, 
-              recursive = T)
+              recursive = TRUE)
     ae = load_emuDB(path2db, 
                     inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                    verbose = F)
+                    verbose = FALSE)
 
 
     expect_error(autobuild_linkFromTimes(ae, 'Phoneti', 'Tone'))
@@ -48,13 +48,13 @@ test_that("autobuild_linkFromTimes works correctly", {
   test_that("correct links are present after autobuild_linkFromTimes with EVENTS", {
 
     # delete, copy and load
-    unlink(path2db, recursive = T)
+    unlink(path2db, recursive = TRUE)
     file.copy(path2orig, 
               path2testData, 
-              recursive = T)
+              recursive = TRUE)
     ae = load_emuDB(path2db, 
                     inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                    verbose = F)
+                    verbose = FALSE)
 
     # add linkDef.
     add_linkDefinition(ae, 
@@ -66,7 +66,7 @@ test_that("autobuild_linkFromTimes works correctly", {
                             'Phonetic', 
                             'Tone', 
                             FALSE, 
-                            verbose = F)
+                            verbose = FALSE)
 
     qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * ",
                                                "FROM links ",
@@ -101,13 +101,13 @@ test_that("autobuild_linkFromTimes works correctly", {
   test_that("no duplicates are present after autobuild_linkFromTimes with EVENTs", {
 
     # delete, copy and load
-    unlink(path2db, recursive = T)
+    unlink(path2db, recursive = TRUE)
     file.copy(path2orig, 
               path2testData, 
-              recursive = T)
+              recursive = TRUE)
     ae = load_emuDB(path2db, 
                     inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                    verbose = F)
+                    verbose = FALSE)
 
     # add linkDef.
     add_linkDefinition(ae, 
@@ -119,7 +119,7 @@ test_that("autobuild_linkFromTimes works correctly", {
     DBI::dbExecute(ae$connection, paste0("INSERT INTO links ",
                                          "VALUES ('", ae$UUID, "', '0000', 'msajc003', 140, 181, NULL)"))
 
-    autobuild_linkFromTimes(ae, 'Phonetic', 'Tone', FALSE, verbose = F)
+    autobuild_linkFromTimes(ae, 'Phonetic', 'Tone', FALSE, verbose = FALSE)
 
     # extract only one link to be present
     qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * ",
@@ -136,7 +136,7 @@ test_that("autobuild_linkFromTimes works correctly", {
                             'Phonetic', 
                             'Tone', 
                             FALSE, 
-                            verbose = F)
+                            verbose = FALSE)
     qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * ",
                                                "FROM links ",
                                                "WHERE db_uuid = '", ae$UUID,"' "))
@@ -154,19 +154,19 @@ test_that("autobuild_linkFromTimes works correctly", {
   test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS linkDef type ONE_TO_MANY", {
 
     # delete, copy and load
-    unlink(path2db, recursive = T)
+    unlink(path2db, recursive = TRUE)
     file.copy(path2orig, 
               path2testData, 
-              recursive = T)
+              recursive = TRUE)
     ae = load_emuDB(path2db, 
                     inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                    verbose = F)
+                    verbose = FALSE)
 
     # add levelDef.
     add_levelDefinition(ae, 
                         "Phonetic2", 
                         "SEGMENT", 
-                        verbose = F)
+                        verbose = FALSE)
     # add linkDef.
     add_linkDefinition(ae, 
                        "ONE_TO_MANY", 
@@ -313,19 +313,19 @@ test_that("autobuild_linkFromTimes works correctly", {
   test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS linkDef type MANY_TO_MANY", {
 
     #delete, copy and load
-    unlink(path2db, recursive = T)
+    unlink(path2db, recursive = TRUE)
     file.copy(path2orig, 
               path2testData, 
-              recursive = T)
+              recursive = TRUE)
     ae = load_emuDB(path2db, 
                     inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                    verbose = F)
+                    verbose = FALSE)
 
     # add levelDef.
     add_levelDefinition(ae, 
                         "Phonetic2", 
                         "SEGMENT", 
-                        verbose = F)
+                        verbose = FALSE)
     # add linkDef.
     add_linkDefinition(ae, 
                        "MANY_TO_MANY", 
@@ -351,7 +351,7 @@ test_that("autobuild_linkFromTimes works correctly", {
                             'Phonetic', 
                             'Phonetic2', 
                             FALSE, 
-                            verbose = F)
+                            verbose = FALSE)
     qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * ",
                                                "FROM links ",
                                                "WHERE db_uuid = '", ae$UUID,"'",
@@ -379,7 +379,7 @@ test_that("autobuild_linkFromTimes works correctly", {
                             'Phonetic', 
                             'Phonetic2', 
                             FALSE, 
-                            verbose = F)
+                            verbose = FALSE)
     qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * ",
                                                "FROM links ",
                                                "WHERE db_uuid = '", ae$UUID,"'",
@@ -406,7 +406,7 @@ test_that("autobuild_linkFromTimes works correctly", {
                             'Phonetic', 
                             'Phonetic2', 
                             FALSE, 
-                            verbose = F)
+                            verbose = FALSE)
     qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * ",
                                                "FROM links ",
                                                "WHERE db_uuid = '", ae$UUID,"' ",
@@ -435,7 +435,7 @@ test_that("autobuild_linkFromTimes works correctly", {
                             'Phonetic', 
                             'Phonetic2', 
                             FALSE, 
-                            verbose = F)
+                            verbose = FALSE)
     qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * ",
                                                "FROM links ",
                                                "WHERE db_uuid = '", ae$UUID,"' ",
@@ -464,7 +464,7 @@ test_that("autobuild_linkFromTimes works correctly", {
                             'Phonetic', 
                             'Phonetic2', 
                             FALSE, 
-                            verbose = F)
+                            verbose = FALSE)
     qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * ",
                                                "FROM links ",
                                                "WHERE db_uuid = '", ae$UUID,"' ",
@@ -481,19 +481,19 @@ test_that("autobuild_linkFromTimes works correctly", {
   test_that("correct links are present after autobuild_linkFromTimes with SEGMENTS linkDef type ONE_TO_ONE", {
 
     # delete, copy and load
-    unlink(path2db, recursive = T)
+    unlink(path2db, recursive = TRUE)
     file.copy(path2orig, 
               path2testData, 
-              recursive = T)
+              recursive = TRUE)
     ae = load_emuDB(path2db, 
                     inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                    verbose = F)
+                    verbose = FALSE)
 
     # add levelDef.
     add_levelDefinition(ae, 
                         "Phonetic2", 
                         "SEGMENT", 
-                        verbose = F)
+                        verbose = FALSE)
     # add linkDef.
     add_linkDefinition(ae, 
                        "ONE_TO_ONE", 
@@ -519,7 +519,7 @@ test_that("autobuild_linkFromTimes works correctly", {
                             'Phonetic', 
                             'Phonetic2', 
                             FALSE, 
-                            verbose = F)
+                            verbose = FALSE)
     qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * ",
                                                "FROM links ",
                                                "WHERE db_uuid = '", ae$UUID,"'",
@@ -546,7 +546,7 @@ test_that("autobuild_linkFromTimes works correctly", {
                             'Phonetic', 
                             'Phonetic2', 
                             FALSE, 
-                            verbose = F)
+                            verbose = FALSE)
     qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * ",
                                                "FROM links ",
                                                "WHERE db_uuid = '", ae$UUID,"'",
@@ -571,7 +571,7 @@ test_that("autobuild_linkFromTimes works correctly", {
                             'Phonetic', 
                             'Phonetic2', 
                             FALSE, 
-                            verbose = F)
+                            verbose = FALSE)
     qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * ",
                                                "FROM links ",
                                                "WHERE db_uuid = '", ae$UUID,"'",
@@ -598,7 +598,7 @@ test_that("autobuild_linkFromTimes works correctly", {
                             'Phonetic', 
                             'Phonetic2', 
                             FALSE, 
-                            verbose = F)
+                            verbose = FALSE)
     qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * ",
                                                "FROM links ",
                                                "WHERE db_uuid = '", ae$UUID,"' ",
@@ -625,7 +625,7 @@ test_that("autobuild_linkFromTimes works correctly", {
                             'Phonetic', 
                             'Phonetic2', 
                             FALSE, 
-                            verbose = F)
+                            verbose = FALSE)
     qr = DBI::dbGetQuery(ae$connection, paste0("SELECT * ",
                                                "FROM links ",
                                                "WHERE db_uuid = '", ae$UUID,"' ",
@@ -642,19 +642,19 @@ test_that("autobuild_linkFromTimes works correctly", {
   test_that("backup works correctly", {
 
     # delete, copy and load
-    unlink(path2db, recursive = T)
+    unlink(path2db, recursive = TRUE)
     file.copy(path2orig, 
               path2testData, 
-              recursive = T)
+              recursive = TRUE)
     ae = load_emuDB(path2db, 
                     inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                    verbose = F)
+                    verbose = FALSE)
 
     # add levelDef.
     add_levelDefinition(ae, 
                         "Phonetic2", 
                         "SEGMENT", 
-                        verbose = F)
+                        verbose = FALSE)
     # add linkDef.
     add_linkDefinition(ae, 
                        "ONE_TO_ONE", 
@@ -681,7 +681,7 @@ test_that("autobuild_linkFromTimes works correctly", {
                             'Phonetic2', 
                             TRUE, 
                             TRUE, 
-                            verbose = F)
+                            verbose = FALSE)
 
 
 
@@ -742,19 +742,19 @@ test_that("autobuild_linkFromTimes works correctly", {
   test_that("rewrite works correctly", {
 
     # delete, copy and load
-    unlink(path2db, recursive = T)
+    unlink(path2db, recursive = TRUE)
     file.copy(path2orig, 
               path2testData, 
-              recursive = T)
+              recursive = TRUE)
     ae = load_emuDB(path2db, 
                     inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                    verbose = F)
+                    verbose = FALSE)
 
     # add levelDef.
     add_levelDefinition(ae, 
                         "Phonetic2", 
                         "SEGMENT", 
-                        verbose = F)
+                        verbose = FALSE)
     # add linkDef.
     add_linkDefinition(ae, 
                        "ONE_TO_ONE", 
@@ -796,7 +796,7 @@ test_that("autobuild_linkFromTimes works correctly", {
                             'Phonetic2', 
                             TRUE, 
                             TRUE, 
-                            verbose = F)
+                            verbose = FALSE)
 
     # check if levelCanvasOrder entry was removed
     expect_false("Phonetic" %in% get_levelCanvasesOrder(ae, "default"))
@@ -819,7 +819,7 @@ test_that("autobuild_linkFromTimes works correctly", {
                                  "msajc003_bndl", 
                                  "msajc003_annot.json")
     annotJson = fromJSON(testAnnoFilePath, 
-                         simplifyVector = F)
+                         simplifyVector = FALSE)
     lastLvlName=annotJson$levels[[11]]$name
     expect_equal(lastLvlName, "Phonetic-autobuildBackup")
 
@@ -840,11 +840,11 @@ test_that("autobuild_linkFromTimes works correctly", {
     convert_TextGridCollection(path2tgCol, 
                                dbName = "tgCol",
                                targetDir = path2testData, 
-                               verbose = F)
+                               verbose = FALSE)
 
     tgCol = load_emuDB(file.path(path2testData, 
                                  paste0("tgCol", emuDB.suffix)), 
-                       verbose = F)
+                       verbose = FALSE)
 
     add_linkDefinition(tgCol, 
                        "ONE_TO_MANY", 
@@ -854,9 +854,9 @@ test_that("autobuild_linkFromTimes works correctly", {
     autobuild_linkFromTimes(tgCol, 
                             "Utterance", 
                             "Intonational", 
-                            verbose = F)
+                            verbose = FALSE)
     
-    expect_true(T) # to avoid skip message
+    expect_true(TRUE) # to avoid skip message
     
     test_that("MD5 sums are updated",{
       annotJSONpath = file.path(path2testData, 

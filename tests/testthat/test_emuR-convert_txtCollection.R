@@ -8,7 +8,7 @@ testDir = file.path(tempdir(), "emuR_testthat")
 dbName = "txt_converter_test"
 
 # Cleaning up (just in case)
-unlink(file.path(testDir, dbName), recursive = T)
+unlink(file.path(testDir, dbName), recursive = TRUE)
 
 # ---------------------------------------------------------------------------
 # Testing with original BPFs
@@ -26,26 +26,26 @@ test_that("testing txt collection conversion",
             convert_txtCollection(sourceDir = sourceDir, 
                                   targetDir = testDir, 
                                   dbName = dbName, 
-                                  verbose = F)
+                                  verbose = FALSE)
             
             # Format of data base.
             expect_true(newDbFolderName %in% list.dirs(testDir, 
-                                                       full.names = F, 
-                                                       recursive = F))
+                                                       full.names = FALSE, 
+                                                       recursive = FALSE))
             expect_equal(length(list.files(newDbPath, 
-                                           recursive = F)), 2)
+                                           recursive = FALSE)), 2)
             expect_equal(length(list.files(file.path(newDbPath, 
                                                      "0000_ses"), 
-                                           recursive = F)), 7)
+                                           recursive = FALSE)), 7)
             expect_equal(length(list.files(file.path(newDbPath, 
                                                      "0000_ses", 
                                                      "msajc003_bndl"), 
-                                           recursive = F)), 2)
+                                           recursive = FALSE)), 2)
             
             # Correctness of config file.
-            dbConfigLines = readLines(configPath, warn = F)
+            dbConfigLines = readLines(configPath, warn = FALSE)
             dbConfig = jsonlite::fromJSON(paste(dbConfigLines, 
-                                                collapse = ''), simplifyVector = F)
+                                                collapse = ''), simplifyVector = FALSE)
             
             # General & webAppConfig
             expect_equal(dbConfig$name, dbName)
@@ -76,10 +76,10 @@ test_that("testing txt collection conversion",
                                   "0000_ses", 
                                   "msajc003_bndl", 
                                   "msajc003_annot.json")
-            dbAnnotLines = readLines(annotPath, warn = F)
+            dbAnnotLines = readLines(annotPath, warn = FALSE)
             dbAnnot = jsonlite::fromJSON(paste(dbAnnotLines, 
                                                collapse = ''), 
-                                         simplifyVector = F)
+                                         simplifyVector = FALSE)
                                     
             # Check that all levels have the appropriate number of items
             expect_equal(length(dbAnnot$levels[[1]]$items), 1)
@@ -94,7 +94,7 @@ test_that("testing txt collection conversion",
           )
 
 # Cleaning up.
-unlink(newDbPath, recursive = T)
+unlink(newDbPath, recursive = TRUE)
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------

@@ -13,10 +13,10 @@ ext2 = 'TextGrid'
 
 wavPaths = list.files(path2tgCol, 
                       pattern = paste(ext1, "$", sep = ""), 
-                      recursive = T, full.names = T)
+                      recursive = TRUE, full.names = TRUE)
 tgPaths = list.files(path2tgCol, 
                      pattern = paste(ext2, "$", sep = ""), 
-                     recursive = T, full.names = T)
+                     recursive = TRUE, full.names = TRUE)
 
 testDirName = 'test_createFilePairList'
 
@@ -48,7 +48,7 @@ test_that("error is generated when nr of ext1 files > ext2 files", {
                                    'TextGrid'))
   
   # clean up
-  unlink(path2testDir, recursive = T)
+  unlink(path2testDir, recursive = TRUE)
   
 })
 
@@ -71,7 +71,7 @@ test_that("correct filePairList is generated when nr of ext1 files < ext2 files"
   expect_equal(dim(fpl)[2], 2)
   
   # clean up
-  unlink(path2testDir, recursive = T)
+  unlink(path2testDir, recursive = TRUE)
   
 })
 
@@ -87,7 +87,7 @@ test_that("error is thrown if dirs are empty", {
                                    'TextGrid'))
     
   # clean up
-  unlink(path2testDir, recursive = T)
+  unlink(path2testDir, recursive = TRUE)
   
 })
 
@@ -112,7 +112,7 @@ test_that("error is thrown if one ext2 does not have same base name", {
                                    'TextGrid'))
   
   # clean up
-  unlink(path2testDir, recursive = T)
+  unlink(path2testDir, recursive = TRUE)
   
 })
 

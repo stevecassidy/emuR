@@ -41,7 +41,7 @@ create_spectrogram_image_as_raster <- function(audioFilePath,
                                                dynRangeInDB = 70,
                                                audioChannel = 1,
                                                preEmphasisFilterFactor = 0.97,
-                                               invert = F){
+                                               invert = FALSE){
   
   path2jsFile = file.path(system.file('inst', package='emuR'), 
                           "js", 
@@ -99,7 +99,7 @@ create_spectrogram_image_as_raster <- function(audioFilePath,
     transparency = 255,
     audioBuffer = c(rep(0, fftN/2 + 1), as.numeric(ado$audio[,audioChannel]), rep(0, fftN/2 + 1)), # zero pad for first and last spectral slice
     audioBufferChannels = ncol(ado$audio), # this doesn't seem to be used 
-    drawHeatMapColors = F,
+    drawHeatMapColors = FALSE,
     preEmphasisFilterFactor = preEmphasisFilterFactor,
     heatMapColorAnchors = list(c(255, 0, 0), c(0, 255, 0), c(0, 0, 0)), # does this map to a matrix?,
     invert = invert
@@ -112,7 +112,7 @@ create_spectrogram_image_as_raster <- function(audioFilePath,
   res_mat = matrix(as.integer(res[seq(1, length(res), 4)])/255, 
                    nrow = imgHeight,
                    ncol = imgWidth, 
-                   byrow = T)
+                   byrow = TRUE)
   
   
   return(grDevices::as.raster(res_mat))
@@ -130,11 +130,11 @@ create_spectrogram_image_as_raster <- function(audioFilePath,
 # spect_raster = create_spectrogram_image_as_raster("~/Desktop/emuR_demoData/ae_emuDB/0000_ses/msajc003_bndl/msajc003.wav",
 #                                                   begin = 0,
 #                                                   end = 2,
-#                                                   invert = F)
+#                                                   invert = FALSE)
 # rasterImage(spect_raster,
 #             0,
 #             0,
 #             1,
 #             1,
-#             interpolate = F)  # interpolate
+#             interpolate = FALSE)  # interpolate
 # par(op)

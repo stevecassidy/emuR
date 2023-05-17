@@ -20,15 +20,15 @@ internalVars = get("internalVars",
 test_that("database functions work", {
   
   # delete, copy and load
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
   unlink(file.path(path2testData, "fromLegacy"), 
-         recursive = T)
+         recursive = TRUE)
   file.copy(path2orig, 
             path2testData, 
-            recursive = T)
+            recursive = TRUE)
   ae = load_emuDB(path2db, 
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                  verbose = F)
+                  verbose = FALSE)
   
   # convert and load legacy database
   convert_legacyEmuDB(emuTplPath = file.path(path2demoData, "legacy_ae", "ae.tpl"),
@@ -37,7 +37,7 @@ test_that("database functions work", {
                       verbose = FALSE)
   aeFromLegacy = load_emuDB(file.path(path2testData, "fromLegacy", 
                                       paste0(dbName, emuDB.suffix)), 
-                            verbose = F)
+                            verbose = FALSE)
   
   test_that("function get_legacyFilePath()",{
     primaryTrackFilePath = get_legacyFilePath("/path/to/db",
@@ -101,7 +101,7 @@ test_that("database functions work", {
     t1 = load_emuDB(t1BasePath)
     expect_that(t1$dbName, is_equivalent_to('create_emuDB_test1'))
     t1 = NULL
-    unlink(t1BasePath, recursive = T)
+    unlink(t1BasePath, recursive = TRUE)
   })
   
   test_that("Data types are correct",{
@@ -128,7 +128,7 @@ test_that("database functions work", {
     
     bundleAnnotDFs = load_bundleAnnotDFsDBI(ae, "0000", "msajc003")
     aeB1char = bundleAnnotDFsToAnnotJSONchar(ae, bundleAnnotDFs)
-    aeB1 = jsonlite::fromJSON(aeB1char, simplifyVector = F)
+    aeB1 = jsonlite::fromJSON(aeB1char, simplifyVector = FALSE)
     
     expect_equivalent(aeB1[['sampleRate']], aeSampleRate)
     
@@ -236,7 +236,7 @@ test_that("database functions work", {
                                             "msajc015")
     b015char = bundleAnnotDFsToAnnotJSONchar(ae, bundleAnnotDFs)
     b015 = jsonlite::fromJSON(b015char, 
-                              simplifyVector = F, 
+                              simplifyVector = FALSE, 
                               na = 'null')
     
     # select arbitrary item
@@ -247,8 +247,8 @@ test_that("database functions work", {
     
     # convert to bundleAnnotDFs
     b015mChar = jsonlite::toJSON(b015m, 
-                                 auto_unbox = T, 
-                                 pretty = T)
+                                 auto_unbox = TRUE, 
+                                 pretty = TRUE)
     bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(b015mChar[1])
     remove_bundleAnnotDBI(ae, 
                           "0000", 
@@ -290,8 +290,8 @@ test_that("database functions work", {
     # store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015m)
     # convert to bundleAnnotDFs
     b015mChar = jsonlite::toJSON(b015m, 
-                                 auto_unbox = T, 
-                                 pretty = T)
+                                 auto_unbox = TRUE, 
+                                 pretty = TRUE)
     bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(b015mChar[1])
     remove_bundleAnnotDBI(ae, 
                           "0000", 
@@ -344,8 +344,8 @@ test_that("database functions work", {
     # store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015m2)
     # convert to bundleAnnotDFs and store
     b015m2Char = jsonlite::toJSON(b015m2, 
-                                  auto_unbox = T, 
-                                  pretty = T)
+                                  auto_unbox = TRUE, 
+                                  pretty = TRUE)
     bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(b015m2Char[1])
     remove_bundleAnnotDBI(ae, 
                           "0000", 
@@ -391,7 +391,7 @@ test_that("database functions work", {
                                             "msajc015")
     b015m3char = bundleAnnotDFsToAnnotJSONchar(ae, bundleAnnotDFs)
     b015m3 = jsonlite::fromJSON(b015m3char, 
-                                simplifyVector = F, 
+                                simplifyVector = FALSE, 
                                 na = 'null')
     
     b015m3Lks = b015m3[['links']]
@@ -402,8 +402,8 @@ test_that("database functions work", {
     # store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015m3)
     # convert to bundleAnnotDFs and store
     b015m3Char = jsonlite::toJSON(b015m3, 
-                                  auto_unbox = T, 
-                                  pretty = T)
+                                  auto_unbox = TRUE, 
+                                  pretty = TRUE)
     bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(b015m3Char[1])
     remove_bundleAnnotDBI(ae, 
                           "0000", 
@@ -432,8 +432,8 @@ test_that("database functions work", {
     # store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015)
     # convert to bundleAnnotDFs and store
     b015Char = jsonlite::toJSON(b015, 
-                                auto_unbox = T, 
-                                pretty = T)
+                                auto_unbox = TRUE, 
+                                pretty = TRUE)
     bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(b015Char[1])
     remove_bundleAnnotDBI(ae, 
                           "0000", 
@@ -529,8 +529,8 @@ test_that("database functions work", {
     # store.bundle.annotation(dbUUID=.test_emu_ae_db_uuid,bundle=b015ModInsrt)
     # convert to bundleAnnotDFs and store
     b015ModInsrtChar = jsonlite::toJSON(b015ModInsrt, 
-                                        auto_unbox = T, 
-                                        pretty = T)
+                                        auto_unbox = TRUE, 
+                                        pretty = TRUE)
     bundleAnnotDFs = annotJSONcharToBundleAnnotDFs(b015ModInsrtChar[1])
     remove_bundleAnnotDBI(ae, 
                           "0000", 
@@ -547,7 +547,7 @@ test_that("database functions work", {
                                             "msajc015")
     b015ReadChar = bundleAnnotDFsToAnnotJSONchar(ae, bundleAnnotDFs)
     b015Read = jsonlite::fromJSON(b015ReadChar, 
-                                  simplifyVector = F, 
+                                  simplifyVector = FALSE, 
                                   na = 'null')
     rItCnt = length(b015Read[['levels']][[7]][['items']])
     # check insert sequence
@@ -573,30 +573,30 @@ test_that("database functions work", {
   ae = NULL
   aeFromLegacy = NULL
   
-  unlink(file.path(path2testData, "fromLegacy"), recursive = T)
-  unlink(unlink(path2db, recursive = T), recursive = T)
+  unlink(file.path(path2testData, "fromLegacy"), recursive = TRUE)
+  unlink(unlink(path2db, recursive = TRUE), recursive = TRUE)
 })
 
 test_that("store works correctly",{
   
   # delete, copy and load
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
   unlink(file.path(path2testData, "fromStore"), 
-         recursive = T)
+         recursive = TRUE)
   file.copy(path2orig, 
             path2testData, 
-            recursive = T)
+            recursive = TRUE)
   ae = load_emuDB(path2db, 
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                  verbose = F)
+                  verbose = FALSE)
   
   newFolderPath = file.path(path2testData, "fromStore")
-  unlink(newFolderPath, recursive = T)
+  unlink(newFolderPath, recursive = TRUE)
   store(ae, 
         targetDir = newFolderPath, 
-        verbose = F)
+        verbose = FALSE)
   aeStored = load_emuDB(file.path(newFolderPath, "ae_emuDB"), 
-                        verbose = F)
+                        verbose = FALSE)
   
   aeItems=DBI::dbGetQuery(ae$connection,paste0("SELECT * ",
                                                "FROM items ",
@@ -622,7 +622,7 @@ test_that("store works correctly",{
   # expect_equal(aeItems, aeStoredItems) # new index on items table results in different seq. of items hence:
   cres = compare::compare(aeItems, 
                           aeStoredItems, 
-                          allowAll = T)
+                          allowAll = TRUE)
   expect_true(cres$result)
   expect_equal(aeLabels, aeStoredLabels)
   expect_equal(aeLinks, aeStoredLinks)
@@ -635,8 +635,8 @@ test_that("store works correctly",{
   DBI::dbDisconnect(ae$connection)
   aeStored = NULL
   ae = NULL
-  unlink(file.path(path2testData, "fromStore"), recursive = T)
-  unlink(path2db, recursive = T)
+  unlink(file.path(path2testData, "fromStore"), recursive = TRUE)
+  unlink(path2db, recursive = TRUE)
 })
 
 test_that("rename emuDB works correctly",{
@@ -644,12 +644,12 @@ test_that("rename emuDB works correctly",{
   skip_on_os("windows")
   
   # delete, copy and load
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
   unlink(file.path(path2testData, "fromStore"), 
-         recursive = T)
+         recursive = TRUE)
   file.copy(path2orig, 
             path2testData, 
-            recursive = T)
+            recursive = TRUE)
   
   rename_emuDB(path2db, "aeRename")
   newPath = file.path(path2testData, 
@@ -663,20 +663,20 @@ test_that("rename emuDB works correctly",{
   expect_true("aeRename_emuDBcache.sqlite" %in% list.files(newPath))
   
   # cleanup
-  unlink(newPath, recursive = T)
+  unlink(newPath, recursive = TRUE)
 })
 
 test_that("rename bundles works correctly",{
   
   # delete, copy and load
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
   unlink(file.path(path2testData, "fromStore"), 
-         recursive = T)
+         recursive = TRUE)
   file.copy(path2orig, 
             path2testData, 
-            recursive = T)
+            recursive = TRUE)
   
-  db = load_emuDB(path2db, verbose = F)
+  db = load_emuDB(path2db, verbose = FALSE)
   bundles = list_bundles(db)
   # missing col
   expect_error(rename_bundles(db, bundles))
@@ -709,7 +709,7 @@ test_that("rename bundles works correctly",{
   # cleanup
   DBI::dbDisconnect(db$connection)
   db = NULL
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
 })
 
 
@@ -718,18 +718,18 @@ test_that("load of read only emuDB works",{
   skip_on_os("windows")
   
   # delete, copy and load
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
   unlink(file.path(path2testData, "fromStore"), 
-         recursive = T)
+         recursive = TRUE)
   file.copy(path2orig, 
             path2testData, 
-            recursive = T)
+            recursive = TRUE)
   
   # change emuDB folder to r-x only for everyone
   Sys.chmod(path2db, mode = "555")
   ae = load_emuDB(path2db, 
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                  verbose = F)
+                  verbose = FALSE)
   sl = query(ae, "Phonetic == n")
   expect_true("tbl_df" %in% class(sl))
   Sys.chmod(path2db, mode = "755") # change back
@@ -738,7 +738,7 @@ test_that("load of read only emuDB works",{
   Sys.chmod(file.path(path2db, "ae_emuDBcache.sqlite"), mode = "555")
   ae = load_emuDB(path2db, 
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                  verbose = F)
+                  verbose = FALSE)
   sl = query(ae, "Phonetic == n")
   expect_true("tbl_df" %in% class(sl))
   Sys.chmod(path2db, mode = "755") # change back
@@ -746,6 +746,6 @@ test_that("load of read only emuDB works",{
   # cleanup
   DBI::dbDisconnect(ae$connection)
   ae = NULL
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
 })
 

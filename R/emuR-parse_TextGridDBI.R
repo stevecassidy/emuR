@@ -396,18 +396,18 @@ TextGridToBundleAnnotDFs <- function(tgPath,
                      sample_point = integer(nrOfItems),
                      sample_start = integer(nrOfItems),
                      sample_dur = integer(nrOfItems),
-                     stringsAsFactors = F)
+                     stringsAsFactors = FALSE)
   
   labels = data.frame(item_id = integer(nrOfItems),
                       label_idx = integer(nrOfItems),
                       name = character(nrOfItems),
                       label = character(nrOfItems),
-                      stringsAsFactors = F)
+                      stringsAsFactors = FALSE)
   
   
   
   # split at "...items [1]..." type lines
-  tiers = unlist(strsplit(tgChar, ".*item\\s\\[[0-9]+\\].*\n", perl = T))
+  tiers = unlist(strsplit(tgChar, ".*item\\s\\[[0-9]+\\].*\n", perl = TRUE))
   header = tiers[1] # extract header
   tiers = tiers[-1]
   
@@ -417,7 +417,7 @@ TextGridToBundleAnnotDFs <- function(tgPath,
     curTier = tiers[i]
     tierLines = unlist(strsplit(curTier, "\n"))
     
-    tierHeaderEndIdx = grep("[intervals|points]:\\s*size", tierLines, perl = T)
+    tierHeaderEndIdx = grep("[intervals|points]:\\s*size", tierLines, perl = TRUE)
     if(length(tierHeaderEndIdx) == 0){
       stop("Couldn't find a match for [intervals|points]:\\s*size in ", 
            tgPath, 
@@ -432,22 +432,22 @@ TextGridToBundleAnnotDFs <- function(tgPath,
                       sub('^\\s*name\\s*=\\s*\\"', 
                           "", 
                           tierHeader[grepl("^\\s*name\\s*=", tierHeader)], 
-                          perl = T), 
-                      perl = T)
+                          perl = TRUE), 
+                      perl = TRUE)
       xminTimes = as.numeric(sub("^\\s*xmin\\s*=\\s*", 
                                  "", 
                                  tierLines[grepl("^\\s*xmin\\s*=", tierLines)], 
-                                 perl = T)) # as.numeric seems to be able to deal with trailing blanks
+                                 perl = TRUE)) # as.numeric seems to be able to deal with trailing blanks
       xmaxTimes = as.numeric(sub("^\\s*xmax\\s*=\\s*", 
                                  "", 
                                  tierLines[grepl("^\\s*xmax\\s*=", tierLines)], 
-                                 perl = T)) # as.numeric seems to be able to deal with trailing blanks
+                                 perl = TRUE)) # as.numeric seems to be able to deal with trailing blanks
       texts = sub('\\"\\s*$', 
                   "", 
                   sub('^\\s*text\\s*=\\s*\\"', 
                       "", 
                       tierLines[grepl("^\\s*text\\s*=", tierLines)]), 
-                  perl = T)
+                  perl = TRUE)
       # check if any items where found
       if(length(xminTimes) != 0){
         # calculate times 
@@ -464,13 +464,13 @@ TextGridToBundleAnnotDFs <- function(tgPath,
                                                                              sample_point = NA,
                                                                              sample_start = startSamples,
                                                                              sample_dur = sampleDurs,
-                                                                             stringsAsFactors = F)
+                                                                             stringsAsFactors = FALSE)
         
         labels[maxItemID:(maxItemID + length(xminTimes) - 1), ] = data.frame(item_id = maxItemID:(maxItemID + length(xminTimes) - 1),
                                                                              label_idx = rep(1, length(xminTimes)),
                                                                              name = rep(levelName, length(xminTimes)),
                                                                              label = texts,
-                                                                             stringsAsFactors = F)
+                                                                             stringsAsFactors = FALSE)
         
         maxItemID = max(items$item_id) + 1
       }
@@ -480,18 +480,18 @@ TextGridToBundleAnnotDFs <- function(tgPath,
                       sub('^\\s*name\\s*=\\s*\\"', 
                           "", 
                           tierHeader[grepl("^\\s*name\\s*=", tierHeader)], 
-                          perl = T), 
-                      perl = T)
+                          perl = TRUE), 
+                      perl = TRUE)
       pointsTimes = as.numeric(sub("^\\s*\\w+\\s*=\\s*", 
                                    "", 
                                    tierLines[grepl("^\\s*number|time\\s*=", tierLines)], 
-                                   perl = T)) # as.numeric seems to be able to deal with trailing blanks
+                                   perl = TRUE)) # as.numeric seems to be able to deal with trailing blanks
       marks = sub('\\"\\s*$', 
                   "", 
                   sub('^\\s*mark\\s*=\\s*\\"', 
                       "", 
                       tierLines[grepl("^\\s*mark\\s*=", tierLines)]), 
-                  perl = T)
+                  perl = TRUE)
       # check if any items where found
       if(length(pointsTimes) != 0){
         # calculate times 
@@ -506,13 +506,13 @@ TextGridToBundleAnnotDFs <- function(tgPath,
                                                                                sample_point = samplePoints,
                                                                                sample_start = NA,
                                                                                sample_dur = NA,
-                                                                               stringsAsFactors = F)
+                                                                               stringsAsFactors = FALSE)
         
         labels[maxItemID:(maxItemID + length(samplePoints) - 1), ] = data.frame(items_id = maxItemID:(maxItemID + length(pointsTimes) - 1),
                                                                                 label_idx = rep(1, length(pointsTimes)),
                                                                                 name = rep(levelName, length(pointsTimes)),
                                                                                 label = marks,
-                                                                                stringsAsFactors = F)
+                                                                                stringsAsFactors = FALSE)
         
         maxItemID = max(items$item_id) + 1
       }
@@ -526,7 +526,7 @@ TextGridToBundleAnnotDFs <- function(tgPath,
                      from_id = integer(), 
                      to_id = integer(), 
                      label = character(), 
-                     stringsAsFactors = F)
+                     stringsAsFactors = FALSE)
   
   return(list(name = name, 
               annotates = annotates, 

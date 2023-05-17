@@ -8,7 +8,7 @@ emuDB.apiLevel = 3L
 
 # internalVars currently containing only server handle (should merge testingVars back into it as well)
 .emuR_pkgEnv <- new.env()
-assign("internalVars", list(testingVars = list(inMemoryCache = F)), envir = .emuR_pkgEnv)
+assign("internalVars", list(testingVars = list(inMemoryCache = FALSE)), envir = .emuR_pkgEnv)
 
 #############################################
 # file/folder suffixes of emuDB format
@@ -328,13 +328,13 @@ store_bundleAnnotDFsDBI <- function(emuDBhandle,
                                       session = sessionName,
                                       bundle = bundleName,
                                       bundleAnnotDFs$items, 
-                                      stringsAsFactors = F)
+                                      stringsAsFactors = FALSE)
     # 
     # DBI::dbWriteTable(emuDBhandle$connection,
     #                   "items",
     #                   bundleAnnotDFs$items,
-    #                   append = T,
-    #                   row.names = F)
+    #                   append = TRUE,
+    #                   row.names = FALSE)
     
     # DBI::dbAppendTable(emuDBhandle$connection,
     #                    "items",
@@ -384,13 +384,13 @@ store_bundleAnnotDFsDBI <- function(emuDBhandle,
                                         session = sessionName,
                                         bundle = bundleName,
                                         bundleAnnotDFs$labels,
-                                        stringsAsFactors = F)
+                                        stringsAsFactors = FALSE)
     
     # DBI::dbWriteTable(emuDBhandle$connection,
     #                   "labels",
     #                   bundleAnnotDFs$labels,
-    #                   append = T,
-    #                   row.names = F)
+    #                   append = TRUE,
+    #                   row.names = FALSE)
     
     # DBI::dbAppendTable(emuDBhandle$connection,
     #                    "labels",
@@ -431,13 +431,13 @@ store_bundleAnnotDFsDBI <- function(emuDBhandle,
                                        bundle = bundleName,
                                        bundleAnnotDFs$links,
                                        label = NA,
-                                       stringsAsFactors = F)
+                                       stringsAsFactors = FALSE)
     
     # DBI::dbWriteTable(emuDBhandle$connection,
     #                   "links",
     #                   bundleAnnotDFs$links,
-    #                   append = T,
-    #                   row.names = F)
+    #                   append = TRUE,
+    #                   row.names = FALSE)
     
     # DBI::dbAppendTable(emuDBhandle$connection,
     #                    "links",
@@ -681,11 +681,11 @@ rename_emuDB <- function(databaseDir, newName){
 ##' 
 list_sessions <- function(emuDBhandle, 
                           sessionPattern = ".*"){
-  check_emuDBhandle(emuDBhandle, checkCache = F)
+  check_emuDBhandle(emuDBhandle, checkCache = FALSE)
   sesPattern = paste0(sessionPattern, session.suffix ,"$")
   sesDirs = dir(emuDBhandle$basePath, pattern = sesPattern)
   sesDirs = gsub(paste0(session.suffix, "$"), "", sesDirs)
-  return(data.frame(name = sesDirs, stringsAsFactors = F))
+  return(data.frame(name = sesDirs, stringsAsFactors = FALSE))
 }
 
 ##' List bundles of emuDB
@@ -717,7 +717,7 @@ list_bundles <- function(emuDBhandle,
                          sessionPattern = ".*",
                          bundlePattern = ".*"){
   
-  check_emuDBhandle(emuDBhandle, checkCache = F)
+  check_emuDBhandle(emuDBhandle, checkCache = FALSE)
   sesDf = list_sessions(emuDBhandle, sessionPattern)
   if(!is.null(session)){
     warning("the session parameter is depricated! Please use sessionPattern insead.")
@@ -726,7 +726,7 @@ list_bundles <- function(emuDBhandle,
   bndlPattern = paste0(bundlePattern, bundle.dir.suffix ,"$")
   res = data.frame(session = character(), 
                    name = character(), 
-                   stringsAsFactors = F)
+                   stringsAsFactors = FALSE)
   
   
   for(ses in sesDf$name){
@@ -738,7 +738,7 @@ list_bundles <- function(emuDBhandle,
       res = rbind(res, 
                   data.frame(session = ses, 
                              name = bndlNames, 
-                             stringsAsFactors = F))
+                             stringsAsFactors = FALSE))
     }
   }
   return(tibble::as_tibble(res))
@@ -798,8 +798,8 @@ rename_bundles <- function(emuDBhandle, bundles){
   # DBI::dbWriteTable(emuDBhandle$connection, 
   #                   "bundles_tmp", 
   #                   bundles, 
-  #                   append = T, 
-  #                   row.names = F) # append to avoid rewirte of col names
+  #                   append = TRUE,
+  #                   row.names = FALSE) # append to avoid rewirte of col names
   
   
   foreign_key_list = DBI::dbGetQuery(emuDBhandle$connection, "PRAGMA foreign_key_list(bundle);")
@@ -1203,7 +1203,7 @@ load_emuDB <- function(databaseDir,
   if("update_cache" %in% names(dots)){
     updateCache = dots$update_cache
   }else{
-    updateCache = T
+    updateCache = TRUE
   }
   # load DBconfig
   DBconfig = jsonlite::fromJSON(dbCfgPath, simplifyVector=FALSE)
@@ -1235,7 +1235,7 @@ load_emuDB <- function(databaseDir,
             stop("Couldn't create", tmpDirSubDir)
           }
         }
-        file.copy(cachePath, tmpDirSubDir, overwrite = T)
+        file.copy(cachePath, tmpDirSubDir, overwrite = TRUE)
         cacheCopyPath = file.path(normalizePath(tmpDirSubDir), paste0(dbName, database.cache.suffix))
         Sys.chmod(cacheCopyPath, mode = "755")
         connection = DBI::dbConnect(RSQLite::SQLite(), cacheCopyPath)
@@ -1273,7 +1273,7 @@ load_emuDB <- function(databaseDir,
   bundles = list_bundles(dbHandle)
   # add column to sessions to track if already stored
   if(nrow(sessions) != 0){
-    sessions$stored = F
+    sessions$stored = FALSE
     
     # calculate bundle count
     bundleCount = nrow(bundles)

@@ -4,7 +4,7 @@ build_legacyBundleList <- function(parsedEmuPath,
                                    bundleList = list()){
   if(length(parsedEmuPath) == 0){
     fileRegexPattern=paste0('^.*', fileSuffixPattern)
-    fileList = list.files(currentPath, pattern = fileRegexPattern, recursive = F, full.names = F)
+    fileList = list.files(currentPath, pattern = fileRegexPattern, recursive = FALSE, full.names = FALSE)
     if(length(fileList) == 0){
       return(NULL)
     }else{

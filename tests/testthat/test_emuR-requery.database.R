@@ -15,11 +15,11 @@ internalVars = get("internalVars", envir = .emuR_pkgEnv)
 
 legacyDbEmuAeTpl <- file.path(path2demoData, "legacy_ae", "ae.tpl")
 test_emu_ae_db_dir <- file.path(path2testhatFolder, 'test_emu_ae')
-unlink(test_emu_ae_db_dir, recursive = T)
+unlink(test_emu_ae_db_dir, recursive = TRUE)
 
 # copy 4 faster tests
 dir.create(test_emu_ae_db_dir)
-file.copy(file.path(path2demoData, paste0('ae', emuDB.suffix)), test_emu_ae_db_dir, recursive = T)
+file.copy(file.path(path2demoData, paste0('ae', emuDB.suffix)), test_emu_ae_db_dir, recursive = TRUE)
 
 ae = load_emuDB(file.path(test_emu_ae_db_dir, 
                           paste0('ae', emuDB.suffix)), 
@@ -50,7 +50,7 @@ test_that("Requery sequential",{
   
   # Bug ID 42
   sl1 = query(ae, "[[Phonetic == k -> Phonetic =~ .*] -> Phonetic =~ .*]")
-  sl1w = suppressWarnings(requery_hier(ae, sl1, level = 'Word', verbose = F)) # this will insert an NA row because sl1 has 8 rows and sl1w has 7 msajc023 k->H->s not dominated by single C
+  sl1w = suppressWarnings(requery_hier(ae, sl1, level = 'Word', verbose = FALSE)) # this will insert an NA row because sl1 has 8 rows and sl1w has 7 msajc023 k->H->s not dominated by single C
   # sl1w has sequence length 1
   sl1w2 = requery_seq(ae, sl1w[1,])
   # Bug startItemID != endItemID, and label is not a sequence !!
@@ -74,23 +74,23 @@ test_that("Requery sequential produces correct NA rows",{
   
   # first -> move one left
   sl = query(ae, "Phonetic == V")
-  expect_warning(requery_seq(ae, sl, offset = -1, ignoreOutOfBounds = T))
-  sl_rq = suppressWarnings(requery_seq(ae, sl, offset = -1, ignoreOutOfBounds = T))
+  expect_warning(requery_seq(ae, sl, offset = -1, ignoreOutOfBounds = TRUE))
+  sl_rq = suppressWarnings(requery_seq(ae, sl, offset = -1, ignoreOutOfBounds = TRUE))
   expect_true(is.na(sl_rq[1,1]))
   
   # last -> move one right
   sl = query(ae, "Phonetic == l", resultType = "tibble")
-  expect_warning(requery_seq(ae, sl, offset = 1, ignoreOutOfBounds = T))
-  sl_rq = suppressWarnings(requery_seq(ae, sl, offset = 1, ignoreOutOfBounds = T))
+  expect_warning(requery_seq(ae, sl, offset = 1, ignoreOutOfBounds = TRUE))
+  sl_rq = suppressWarnings(requery_seq(ae, sl, offset = 1, ignoreOutOfBounds = TRUE))
   expect_true(is.na(sl_rq[1,1]))
   
   # last -> move one right + end as ref
-  expect_warning(requery_seq(ae, sl, offset = 1, ignoreOutOfBounds = T, offsetRef = "END"))
-  sl_rq = suppressWarnings(requery_seq(ae, sl, offset = 1, ignoreOutOfBounds = T, offsetRef = "END"))
+  expect_warning(requery_seq(ae, sl, offset = 1, ignoreOutOfBounds = TRUE, offsetRef = "END"))
+  sl_rq = suppressWarnings(requery_seq(ae, sl, offset = 1, ignoreOutOfBounds = TRUE, offsetRef = "END"))
   expect_true(is.na(sl_rq[1,1]))
   
   # last -> move one left + length way too long
-  sl_rq = suppressWarnings(requery_seq(ae, sl, offset = -1, length = 15, ignoreOutOfBounds = T))
+  sl_rq = suppressWarnings(requery_seq(ae, sl, offset = -1, length = 15, ignoreOutOfBounds = TRUE))
   expect_true(is.na(sl_rq[1,1]))
 })
 
@@ -128,7 +128,7 @@ test_that("Requery hierarchical with collapse works",{
   # Text beginning with 'a'
   sl1 = suppressWarnings(query(ae, "Text =~ '^a[mn].*'"))
   # requery to level Phoneme
-  rsl1 = suppressWarnings(requery_hier(ae, sl1, level = 'Phonetic', collapse = F, verbose = F))
+  rsl1 = suppressWarnings(requery_hier(ae, sl1, level = 'Phonetic', collapse = FALSE, verbose = FALSE))
   expect_equal(nrow(rsl1), 12) # should have 12 elements
   allLabels = paste0(rsl1$labels, collapse = "->")
   expect_equal(allLabels, "V->m->V->N->s->t->H->E->n->i:->@->n")
@@ -136,8 +136,8 @@ test_that("Requery hierarchical with collapse works",{
 
 test_that("hierarchical requery on same attrDef without times calculates missing times",{
   
-  slTimes = query(ae, "Word=~.*", calcTimes = T)
-  slNoTime = query(ae, "Word=~.*", calcTimes = F)
+  slTimes = query(ae, "Word=~.*", calcTimes = TRUE)
+  slNoTime = query(ae, "Word=~.*", calcTimes = FALSE)
   
   # requery to same attrDef
   slRq = requery_hier(ae, slNoTime, level='Word')
@@ -146,7 +146,7 @@ test_that("hierarchical requery on same attrDef without times calculates missing
   attr(slTimes, "query") = ""
   attr(slRq, "query") = ""
   
-  cres = compare::compare(slTimes, slRq, allowAll = T)
+  cres = compare::compare(slTimes, slRq, allowAll = TRUE)
   expect_true(cres$result)
 })
 
@@ -225,7 +225,7 @@ test_that("requery_hier inserts NAs",{
   DBI::dbExecute(ae$connection, "DELETE FROM links WHERE bundle = 'msajc003' AND from_id = 115 AND to_id = 148")
   DBI::dbExecute(ae$connection, "DELETE FROM links WHERE bundle = 'msajc012' AND from_id = 134 AND to_id = 169")
   DBI::dbExecute(ae$connection, "DELETE FROM links WHERE bundle = 'msajc023' AND from_id = 96 AND to_id = 120")
-  rewrite_annots(ae, verbose = F)
+  rewrite_annots(ae, verbose = FALSE)
   
   ########################
   # parent requery
@@ -242,11 +242,11 @@ test_that("requery_hier inserts NAs",{
   expect_true(all(is.na(sl_req[1,])))
   expect_true(all(is.na(sl_req[2,])))
   expect_true(all(is.na(sl_req[5,])))
-  # calcTimes = F
+  # calcTimes = FALSE
   sl_req = suppressWarnings(requery_hier(ae, 
                                          sl, 
                                          level = "Phoneme", 
-                                         calcTimes = F,
+                                         calcTimes = FALSE,
                                          resultType = "tibble"))
   
   expect_equal(nrow(sl), nrow(sl_req))
@@ -266,7 +266,7 @@ test_that("requery_hier inserts NAs",{
   sl_req = suppressWarnings(requery_hier(ae, 
                                          sl, 
                                          level = "Phoneme", 
-                                         collapse = F,
+                                         collapse = FALSE,
                                          resultType = "tibble"))
   
   expect_equal(sl_req$labels[1], "d")
@@ -278,7 +278,7 @@ test_that("requery_hier inserts NAs",{
   sl = query(ae, 
              "Phoneme == m", 
              resultType = "tibble", 
-             calcTimes = F)
+             calcTimes = FALSE)
   
   sl_req = suppressWarnings(requery_hier(ae, 
                                          sl, 
@@ -289,11 +289,11 @@ test_that("requery_hier inserts NAs",{
   expect_true(all(is.na(sl_req[1,])))
   expect_true(all(is.na(sl_req[2,])))
   
-  # calcTimes = F
+  # calcTimes = FALSE
   sl_req = suppressWarnings(requery_hier(ae, 
                                          sl, 
                                          level = "Phonetic", 
-                                         calcTimes = F, 
+                                         calcTimes = FALSE, 
                                          resultType = "tibble"))
   
   expect_equal(sl_req$labels[6], 'Om->m') # callapsing works
@@ -318,7 +318,7 @@ test_that("requery_hier inserts NAs",{
   sl = query(ae, 
              "[[Phonetic == D -> Phonetic == @] -> Phonetic == m]", 
              resultType = "tibble", 
-             calcTimes = F)
+             calcTimes = FALSE)
   
   # if only NAs in resulting seglist an empty object is returned
   sl_req = suppressWarnings(requery_hier(ae, 
@@ -332,7 +332,7 @@ test_that("requery_hier inserts NAs",{
   sl = query(ae, 
              "Text == them", 
              resultType = "tibble", 
-             calcTimes = F)
+             calcTimes = FALSE)
   
   sl_req = requery_hier(ae, 
                         sl, 
@@ -347,4 +347,4 @@ test_that("requery_hier inserts NAs",{
 # clean up (also disconnects)
 DBI::dbDisconnect(ae$connection)
 ae = NULL
-unlink(test_emu_ae_db_dir, recursive = T)
+unlink(test_emu_ae_db_dir, recursive = TRUE)

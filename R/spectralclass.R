@@ -1,10 +1,10 @@
 ##' Function to test whether the object is of class "spectral"
 ##' 
-##' Returns T or F depending on whether the object is of class "spectral"
+##' Returns TRUE or FALSE depending on whether the object is of class "spectral"
 ##' 
 ##' 
 ##' @param dat An R object
-##' @return A single element logical vector: T or F
+##' @return A single element logical vector: TRUE or FALSE
 ##' @author Jonathan Harrington
 ##' @seealso \code{\link{as.spectral}}
 ##' @keywords attribute
@@ -173,17 +173,17 @@
 ##' specdata specifying the frequencies at which the spectral data is to be
 ##' plotted. If not supplied, defaults to trackfreq(specdata)
 ##' @param type A single element character vector for the linetype
-##' @param power Logical. If T, then specdata (or specdata$data if specdata is
+##' @param power Logical. If TRUE, then specdata (or specdata$data if specdata is
 ##' a trackdata object, is converted to a *
 ##' specdata\eqn{\mbox{\textasciicircum}}{^}b, where a and b have the values
 ##' given in powcoeffs. This operation is applied before b
 ##' @param powcoeffs A two-element numeric vector. Defaults to c(10, 10)
-##' @param dbnorm Logical. If T, apply dB-level normalization per spectrum as
-##' defined by dbcoeffs below. Defaults to F.
+##' @param dbnorm Logical. If TRUE, apply dB-level normalization per spectrum as
+##' defined by dbcoeffs below. Defaults to FALSE.
 ##' @param dbcoeffs A two element numeric vector (x, y). The spectra are
 ##' normalised in such a way that the values of each spectrum at a frequency of
 ##' y are set to a dB level of x. For example, to normalise the spectrum to 10
-##' dB at 2000 Hz, set dbnorm to T and dbcoeffs to c(2000, 10)
+##' dB at 2000 Hz, set dbnorm to TRUE and dbcoeffs to c(2000, 10)
 ##' @param legend Parameters for defining the legend. See 'mu.legend' for
 ##' further details
 ##' @param axes A logical vector indicating whether the axes should be plotted

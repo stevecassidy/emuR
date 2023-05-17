@@ -219,7 +219,7 @@
     
     items_sorted = items_to_sort %>% 
       dplyr::group_by(.data$session, .data$bundle, .data$level) %>% 
-      dplyr::arrange(.data$sample_point, .by_group = T) %>%
+      dplyr::arrange(.data$sample_point, .by_group = TRUE) %>%
       dplyr::mutate(start_item_seq_idx = dplyr::row_number())
     
     itemsToCreate = items_sorted %>% 
@@ -254,7 +254,7 @@
     
     itemsToCreate %>% 
       dplyr::group_by(.data$session, .data$bundle, .data$level) %>% 
-      dplyr::arrange(.data$session, .data$bundle, .data$level, .data$sample_start, .group_by = T) %>% 
+      dplyr::arrange(.data$session, .data$bundle, .data$level, .data$sample_start, .group_by = TRUE) %>% 
       dplyr::mutate(sample_end = dplyr::lead(.data$sample_start) - 1) -> itemsToCreate
     
     # test if no duplicate sample_start values exists

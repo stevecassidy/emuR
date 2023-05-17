@@ -151,7 +151,7 @@ get_labelIndex = function(emuDBhandle,
                           levelName,
                           attributeName) {
   ## @todo Should we export this function? I do not think so.
-  # check_emuDBhandle(emuDBhandle, checkCache = T)
+  # check_emuDBhandle(emuDBhandle, checkCache = TRUE)
   
   allAttributes = data.frame (
     levelName = character(0),

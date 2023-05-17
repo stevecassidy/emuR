@@ -11,7 +11,7 @@ play_segs <- function(emuDBhandle, seglist){
   #                                              paste0(cur_row$bundle, ".wav")), 
   #                                    begin = as.numeric(cur_row$sample_start),
   #                                    end = as.numeric(cur_row$sample_end),
-  #                                    samples = T)
+  #                                    samples = TRUE)
   #   
   #   wrassp::write.AsspDataObj(audio, file.path(tempdir(), "cur_play_segs.wav"))
   #   
@@ -28,7 +28,7 @@ play_segs <- function(emuDBhandle, seglist){
   #                            cur_row,
   #                            onTheFlyFunctionName = "dftSpectrum",
   #                            onTheFlyParams = params,
-  #                            verbose = F,
+  #                            verbose = FALSE,
   #                            resultType = "tibble")
   #   
   #   
@@ -57,7 +57,7 @@ play_segs <- function(emuDBhandle, seglist){
   #   
   #   viewer <- getOption("viewer")
   #   # if (!is.null(viewer)){x
-  #   file.copy("~/Developer/emuR/R/play_segs.html", file.path(tempdir(), "play_segs.html"), overwrite = T)
+  #   file.copy("~/Developer/emuR/R/play_segs.html", file.path(tempdir(), "play_segs.html"), overwrite = TRUE)
   #   # viewer(file.path(tempdir(), "play_segs.html"), height = 500)
   #   # }else{
   #   utils::browseURL(file.path(tempdir(), "play_segs.html"))

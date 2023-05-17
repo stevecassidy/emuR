@@ -286,7 +286,7 @@ add_levelDefinition<-function(emuDBhandle, name,
 ##' @rdname AddListRemoveLevelDefinitions
 ##' @export
 list_levelDefinitions <- function(emuDBhandle){
-  check_emuDBhandle(emuDBhandle, checkCache=F)
+  check_emuDBhandle(emuDBhandle, checkCache=FALSE)
   dbConfig = load_DBconfig(emuDBhandle)
   df <- data.frame(name = character(),
                    type = character(), 
@@ -520,14 +520,14 @@ internal_add_attributeDefinition <- function(emuDBhandle, levelName,
 ##' @rdname AddListRenameRemoveAttributeDefinitions
 ##' @export
 list_attributeDefinitions <- function(emuDBhandle, levelName){
-  check_emuDBhandle(emuDBhandle, checkCache = F)
+  check_emuDBhandle(emuDBhandle, checkCache = FALSE)
   # init empty result df
   df = data.frame(name = character(), 
                   level = character(), 
                   type = character(), 
                   hasLabelGroups = logical(), 
                   hasLegalLabels = logical(), 
-                  stringsAsFactors = F)
+                  stringsAsFactors = FALSE)
   
   for(lev in levelName){
     ld = get_levelDefinition(emuDBhandle, lev)
@@ -538,7 +538,7 @@ list_attributeDefinitions <- function(emuDBhandle, levelName){
                                      type = ad$type, 
                                      hasLabelGroups = !is.null(ad$labelGroups),
                                      hasLegalLabels = !is.null(ad$legalLabels),
-                                     stringsAsFactors = F))
+                                     stringsAsFactors = FALSE))
     }
   }
   
@@ -990,14 +990,14 @@ list_attrDefLabelGroups <- function(emuDBhandle,
   
   df = data.frame(name = character(), 
                   values = character(),
-                  stringsAsFactors = F)
+                  stringsAsFactors = FALSE)
   for(ad in ld$attributeDefinitions){
     if(ad$name == attributeDefinitionName){
       if(!is.null(ad$labelGroups)){
         for(lg in ad$labelGroups){
           df = rbind(df, data.frame(name = lg$name,
                                     values = paste0(lg$values, collapse = "; "), 
-                                    stringsAsFactors = F ))
+                                    stringsAsFactors = FALSE ))
         }
       }
     }
@@ -1151,13 +1151,13 @@ list_linkDefinitions <- function(emuDBhandle){
   df = data.frame(type = character(),
                   superlevelName = character(),
                   sublevelName = character(),
-                  stringsAsFactors = F)
+                  stringsAsFactors = FALSE)
   
   for(ld in dbConfig$linkDefinitions){
     df = rbind(df, data.frame(type = ld$type,
                               superlevelName = ld$superlevelName,
                               sublevelName = ld$sublevelName,
-                              stringsAsFactors = F))
+                              stringsAsFactors = FALSE))
   }
   # NULL out df
   if(nrow(df) == 0){
@@ -1416,7 +1416,7 @@ add_ssffTrackDefinition <- function(emuDBhandle, name,
 ##' @rdname AddListRemoveSsffTrackDefinition
 ##' @export
 list_ssffTrackDefinitions <- function(emuDBhandle){
-  check_emuDBhandle(emuDBhandle, checkCache = F)
+  check_emuDBhandle(emuDBhandle, checkCache = FALSE)
   dbConfig = load_DBconfig(emuDBhandle)
   df <- do.call(rbind, lapply(dbConfig$ssffTrackDefinitions, data.frame, stringsAsFactors=FALSE))
   return(df)
@@ -1549,12 +1549,12 @@ list_labelGroups <- function(emuDBhandle){
   dbConfig = load_DBconfig(emuDBhandle)
   df = data.frame(name = character(),
                   values = character(),
-                  stringsAsFactors = F)
+                  stringsAsFactors = FALSE)
   
   for(lg in dbConfig$labelGroups){
     df = rbind(df, data.frame(name = lg$name,
                               values = paste0(lg$values, collapse = "; "),
-                              stringsAsFactors = F))
+                              stringsAsFactors = FALSE))
   }
   
   return(df)

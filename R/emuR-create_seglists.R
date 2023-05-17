@@ -43,7 +43,7 @@ convert_queryResultToEmusegs<-function(emuDBhandle,
                                        sessionPattern,
                                        bundlePattern,
                                        query = "",
-                                       calcTimes = T, 
+                                       calcTimes = TRUE,
                                        verbose){
   
   emuRsegs = convert_queryResultToEmuRsegs(emuDBhandle, 
@@ -65,7 +65,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
                                           bundlePattern = ".*",
                                           queryStr = "", 
                                           calcTimes = TRUE, 
-                                          preserveParentLength = FALSE, # only set T by requery_hier
+                                          preserveParentLength = FALSE, # only set TRUE by requery_hier
                                           verbose){
   itemsTableName = "items"
   labelsTableName ="labels"
@@ -284,7 +284,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
         }else if(segLvlsCnt == 0){
           stop("Could not find a time bearing sub-level connected to '", 
                resultAttrDef, 
-               "'. Consider either using 'calcTimes=F' or adding potentially missing link definitions in your emuDB.")
+               "'. Consider either using 'calcTimes=FALSE' or adding potentially missing link definitions in your emuDB.")
         }
         lnwt = segLvlNms[1] # level name with time
       }
@@ -438,7 +438,7 @@ convert_queryResultToEmuRsegs <- function(emuDBhandle,
                          db_uuid = character(), session = character(), bundle = character(),
                          start_item_id = numeric(), end_item_id = numeric(), level = character(),
                          type = character(), sample_start = numeric(), sample_end = numeric(), sample_rate = numeric(),
-                         stringsAsFactors = F)
+                         stringsAsFactors = FALSE)
   }
   # set emusegs type attribute, default 'segment'
   slType='segment'

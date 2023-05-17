@@ -33,7 +33,7 @@ ddiff.sub <- function(data, ftime, n)
   ## data: a data matrix
   ## ftime: a start-end pair
   ## n: number of times to differentiate
-  ## smoothing: if T, apply smooth to data too
+  ## smoothing: if TRUE, apply smooth to data too
   ## returns: a list of $data values differentiated 
   ## and $ftime values adjusted accordingly
   ## values in $data that are returned are per millisecond

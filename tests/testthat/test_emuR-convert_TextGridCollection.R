@@ -14,7 +14,7 @@ path2newDb = file.path(path2testData,
 
 
 # clean up
-unlink(path2newDb, recursive = T)
+unlink(path2newDb, recursive = TRUE)
 
 ##############################
 test_that("bad calls cause errors", {
@@ -26,11 +26,11 @@ test_that("bad calls cause errors", {
   expect_error(convert_TextGridCollection(dir = path2tgCol, 
                                           dbName = emuDBname,
                                           targetDir = path2testData, 
-                                          verbose=F), 
+                                          verbose=FALSE), 
                regexp = "already exists!", 
-               ignore.case = T)
+               ignore.case = TRUE)
   # clean up
-  unlink(path2newDb, recursive = T)
+  unlink(path2newDb, recursive = TRUE)
   
 })
 
@@ -40,7 +40,7 @@ test_that("correct emuDB is created", {
   convert_TextGridCollection(dir = path2tgCol, 
                              dbName = emuDBname,
                              path2testData, 
-                             verbose = F)
+                             verbose = FALSE)
   
   test_that("emuDB has correct file format on disc", {
     # 2 files in top level
@@ -49,7 +49,7 @@ test_that("correct emuDB is created", {
     
     # 14 files in 0000_ses
     tmp = list.files(file.path(path2newDb,'0000_ses'), 
-                     recursive = T)
+                     recursive = TRUE)
     expect_equal(length(tmp), 14)
   })
   
@@ -116,7 +116,7 @@ test_that("correct emuDB is created", {
   })
   
   # clean up
-  unlink(path2newDb, recursive = T)
+  unlink(path2newDb, recursive = TRUE)
   
 })
 
@@ -127,7 +127,7 @@ test_that("only specified tiers are converted when tierNames is set", {
                              dbName = emuDBname,
                              path2testData, 
                              tierNames = c("Phonetic", "Tone"), 
-                             verbose = F)
+                             verbose = FALSE)
   
   test_that("emuDB has correct file format on disc", {
     # 2 files in top level
@@ -136,7 +136,7 @@ test_that("only specified tiers are converted when tierNames is set", {
     
     # 14 files in 0000_ses
     tmp = list.files(file.path(path2newDb,'0000_ses'), 
-                     recursive = T)
+                     recursive = TRUE)
     expect_equal(length(tmp), 14)
   })
   
@@ -208,6 +208,6 @@ test_that("only specified tiers are converted when tierNames is set", {
   
   
   # clean up
-  unlink(path2newDb, recursive = T)
+  unlink(path2newDb, recursive = TRUE)
   
 })

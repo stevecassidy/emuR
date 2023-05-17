@@ -86,7 +86,7 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
                                   name = bundles$name, 
                                   md5_annot_json = file_md5sums, 
                                   row.names = NULL, 
-                                  stringsAsFactors = F)
+                                  stringsAsFactors = FALSE)
   cache_sesBndlMd5DF = DBI::dbGetQuery(emuDBhandle$connection, 
                                        paste0("SELECT session, name, md5_annot_json FROM bundle"))
   

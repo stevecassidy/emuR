@@ -10,7 +10,7 @@
 ##' 
 ##' @param wav a vector or single column matrix of numeric values to which the
 ##' 2nd order polynomial is to be fitted.
-##' @param fit if F, return the coefficients of the polynomial; if T, the
+##' @param fit if FALSE, return the coefficients of the polynomial; if TRUE, the
 ##' values of the polynomial are returned to the same length as the vector wav.
 ##' @param n in fitting the polynomial, linear time normalisation is first
 ##' applied to the input vector wav to 101 points. The polynomial is fitted

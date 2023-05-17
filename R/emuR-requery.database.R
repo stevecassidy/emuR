@@ -37,7 +37,7 @@ check_emuRsegsForRequery <- function(sl){
   sl_df = as.data.frame(sl)
   
   sl_df_sorted = dplyr::arrange(sl_df, .data$session, .data$bundle, .data$sample_start)
-  comp_res = compare::compare(sl_df, sl_df_sorted, allowAll = F, ignoreAttrs = T)
+  comp_res = compare::compare(sl_df, sl_df_sorted, allowAll = FALSE, ignoreAttrs = TRUE)
   if(!comp_res$result){
     warning("emuRsegs is not ordered correctly (by session; bundle; seq_idx)! ",
             "Hence, the ordering of the resulting emuRsegs object of the requery will ",
@@ -191,8 +191,8 @@ requery_seq <- function(emuDBhandle,
     DBI::dbWriteTable(emuDBhandle$connection, 
                       "emursegs_tmp", 
                       as.data.frame(seglist), 
-                      append = T, 
-                      row.names = F) # append to make sure field names don't get overwritten
+                      append = TRUE,
+                      row.names = FALSE) # append to make sure field names don't get overwritten
     
     # load config
     dbConfig = load_DBconfig(emuDBhandle)
@@ -286,7 +286,7 @@ requery_seq <- function(emuDBhandle,
     DBI::dbWriteTable(emuDBhandle$connection, 
                       "interm_res_items_tmp_root", 
                       he, 
-                      overwrite = T)
+                      overwrite = TRUE)
     
     trSl = convert_queryResultToEmuRsegs(emuDBhandle, 
                                          timeRefSegmentLevel = timeRefSegmentLevel, 
@@ -467,8 +467,8 @@ requery_hier <- function(emuDBhandle,
     DBI::dbWriteTable(emuDBhandle$connection, 
                       "emursegs_tmp", 
                       as.data.frame(seglist), 
-                      append = T, 
-                      row.names = F) # append to avoid rewirte of col names
+                      append = TRUE,
+                      row.names = FALSE) # append to avoid rewirte of col names
     
     # get level for attribute definition specified in seglist
     segListLevel = DBI::dbGetQuery(emuDBhandle$connection, 
@@ -692,7 +692,7 @@ requery_hier <- function(emuDBhandle,
                                          bundlePattern = ".*",
                                          queryStr = "FROM REQUERY", 
                                          calcTimes = calcTimes, 
-                                         preserveParentLength = T,
+                                         preserveParentLength = TRUE,
                                          verbose = verbose)
     
     inSlLen = nrow(seglist)

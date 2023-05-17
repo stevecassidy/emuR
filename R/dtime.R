@@ -85,11 +85,11 @@ dtime <- function(dataset, times, single = TRUE, average = TRUE) {
 ##' @param left.time Either: a numeric vector of the same length as there are
 ##' observations in trackdata. Or: a single value between 0 and 1. In the first
 ##' case, the left time boundary of trackdata[n,] is cut at left.time[n], in
-##' the second case, and if prop=T, it is cut at that proportional time.
+##' the second case, and if prop=TRUE, it is cut at that proportional time.
 ##' @param right.time Either: a numeric vector of the same length as there are
 ##' observations in trackdata. Or: a single value between 0 and 1. In the first
 ##' case, the right time boundary of trackdata[n,] is cut at right.time[n], in
-##' the second case, and if prop=T, it is cut at that proportional time.
+##' the second case, and if prop=TRUE, it is cut at that proportional time.
 ##' @param single If TRUE, one value is returned per segment. This applies when
 ##' the requested time falls between two track frames. When single=TRUE, the
 ##' preceding value is returned, unless average=TRUE (see below), in which case

@@ -79,12 +79,12 @@ bas_run_maus_dbi <- function(handle,
     }
     
     queryTxt = paste0("[", canoAttributeDefinitionName, "=~.*\\S.*]")
-    cano_items = suppressWarnings(query(handle, queryTxt, calcTimes = F))
+    cano_items = suppressWarnings(query(handle, queryTxt, calcTimes = FALSE))
     
     if (!is.null(chunkLevel))
     {
       queryTxt = paste0("[", list_attributeDefinitions(handle, chunkLevel)[1, "name"], "=~ .*]")
-      trn_items_tmp = query(handle, queryTxt, calcTimes = F)
+      trn_items_tmp = query(handle, queryTxt, calcTimes = FALSE)
       
       if (nrow(trn_items_tmp) > 0)
       {
@@ -130,7 +130,7 @@ bas_run_maus_dbi <- function(handle,
         
         kancon <- file(kanfile)
         open(kancon, "w")
-        writeLines(paste0("SAM: ", samplerate, "\nLBD:"), kancon, useBytes = T)
+        writeLines(paste0("SAM: ", samplerate, "\nLBD:"), kancon, useBytes = TRUE)
         
         bas_id = 0
         item_id_to_bas_id = new.env(hash = TRUE)
@@ -142,7 +142,7 @@ bas_run_maus_dbi <- function(handle,
           cano_item_id = cano_items_bundle[label_idx, "start_item_id"]
           
           kanline = paste0("KAN: ", bas_id, " ", cano_label)
-          writeLines(kanline, kancon, useBytes = T)
+          writeLines(kanline, kancon, useBytes = TRUE)
           
           item_id_to_bas_id[[toString(cano_item_id)]] = bas_id
           bas_id_to_item_id[[toString(bas_id)]] = cano_item_id
@@ -167,16 +167,16 @@ bas_run_maus_dbi <- function(handle,
               handle,
               trn_items_bundle,
               canoAttributeDefinitionName,
-              calcTimes = F,
-              collapse = T
+              calcTimes = FALSE,
+              collapse = TRUE
             ))
             # suppress differing length warning
             linked_trn_items = suppressWarnings(requery_hier(
               handle,
               linked_kan_items %>% tidyr::drop_na(labels),
               chunkLevel,
-              calcTimes = T,
-              collapse = T
+              calcTimes = TRUE,
+              collapse = TRUE
             ))
             
             if(nrow(linked_kan_items) != nrow(linked_trn_items))
@@ -201,7 +201,7 @@ bas_run_maus_dbi <- function(handle,
                 "_"
               )
               
-              writeLines(trnline, kancon, useBytes = T)
+              writeLines(trnline, kancon, useBytes = TRUE)
             }
           }
         }
@@ -537,7 +537,7 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
     }
     
     queryTxt = paste0("[", transcriptionAttributeDefinitionName, "=~.*\\S.*]")
-    transcription_items = suppressWarnings(query(handle, queryTxt, calcTimes = F))
+    transcription_items = suppressWarnings(query(handle, queryTxt, calcTimes = FALSE))
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
@@ -584,7 +584,7 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
                                 ".g2p.par"
                               ))
           
-          writeLines(transcription_label, con = textfile, useBytes = T)
+          writeLines(transcription_label, con = textfile, useBytes = TRUE)
           
           curlParams = list(
             lng = language,
@@ -719,7 +719,7 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
     }
     
     queryTxt = paste0("[", orthoAttributeDefinitionName, "=~.*\\S.*]")
-    ortho_items = suppressWarnings(query(handle, queryTxt, calcTimes = F))
+    ortho_items = suppressWarnings(query(handle, queryTxt, calcTimes = FALSE))
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
@@ -752,7 +752,7 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
         
         orthoCon <- file(orthofile)
         open(orthoCon, "w")
-        writeLines(paste0("SAM: ", samplerate, "\nLBD:"), orthoCon, useBytes = T)
+        writeLines(paste0("SAM: ", samplerate, "\nLBD:"), orthoCon, useBytes = TRUE)
         
         bas_id = 0
         
@@ -763,7 +763,7 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
           ortho_label = stringr::str_trim(ortho_items_bundle[label_idx, "labels"])
           ortho_item_id = ortho_items_bundle[label_idx, "start_item_id"]
           
-          writeLines(paste("ORT:", bas_id, ortho_label), orthoCon, useBytes = T)
+          writeLines(paste("ORT:", bas_id, ortho_label), orthoCon, useBytes = TRUE)
           bas_id_to_item_id[[toString(bas_id)]] = ortho_item_id
           bas_id = bas_id + 1
         }
@@ -898,7 +898,7 @@ bas_run_chunker_dbi <- function(handle,
     }
     
     queryTxt = paste0("[", canoAttributeDefinitionName, "=~.*\\S.*]")
-    cano_items = suppressWarnings(query(handle, queryTxt, calcTimes = F))
+    cano_items = suppressWarnings(query(handle, queryTxt, calcTimes = FALSE))
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
@@ -934,7 +934,7 @@ bas_run_chunker_dbi <- function(handle,
         
         kancon <- file(kanfile)
         open(kancon, "w")
-        writeLines(paste0("SAM: ", samplerate, "\nLBD:"), kancon, useBytes = T)
+        writeLines(paste0("SAM: ", samplerate, "\nLBD:"), kancon, useBytes = TRUE)
         
         bas_id = 0
         item_id_to_bas_id = new.env(hash = TRUE)
@@ -952,18 +952,18 @@ bas_run_chunker_dbi <- function(handle,
               handle,
               seglist = cano_items_bundle[label_idx,],
               level = orthoAttributeDefinitionName,
-              calcTimes = F
+              calcTimes = FALSE
             ))
             
             if (length(ortho_labels) > 0)
             {
               writeLines(paste0("ORT: ", bas_id, " ", ortho_labels[1, "labels"]),
-                    kancon, useBytes = T)
+                    kancon, useBytes = TRUE)
             }
           }
           
           writeLines(paste0("KAN: ", bas_id, " ", cano_label),
-                kancon, useBytes = T)
+                kancon, useBytes = TRUE)
           item_id_to_bas_id[[toString(cano_item_id)]] = bas_id
           bas_id_to_item_id[[toString(bas_id)]] = cano_item_id
           bas_id = bas_id + 1
@@ -1133,7 +1133,7 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
     }
     
     queryTxt = paste0("[", canoAttributeDefinitionName, "=~.*\\S.*]")
-    cano_items = suppressWarnings(query(handle, queryTxt, calcTimes = F))
+    cano_items = suppressWarnings(query(handle, queryTxt, calcTimes = FALSE))
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
@@ -1167,7 +1167,7 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
         
         kancon <- file(kanfile)
         open(kancon, "w")
-        writeLines(paste0("SAM: ", samplerate, "\nLBD:"), kancon, useBytes = T)
+        writeLines(paste0("SAM: ", samplerate, "\nLBD:"), kancon, useBytes = TRUE)
         
         bas_id = 0
         bas_id_to_item_id = new.env(hash = TRUE)
@@ -1178,7 +1178,7 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
           cano_item_id = cano_items_bundle[label_idx, "start_item_id"]
           
           kanline = paste0("KAN: ", bas_id, " ", cano_label)
-          writeLines(kanline, kancon, useBytes = T)
+          writeLines(kanline, kancon, useBytes = TRUE)
           
           bas_id_to_item_id[[toString(bas_id)]] = cano_item_id
           bas_id = bas_id + 1
@@ -1292,10 +1292,10 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
     }
   }
   
-  multilink = F
+  multilink = FALSE
   if ("wsync" %in% names(params) && params$wsync == "no")
   {
-    multilink = T
+    multilink = TRUE
   }
   
   languages = bas_evaluate_language_option(handle = handle, language = language)
@@ -1379,8 +1379,8 @@ bas_run_pho2syl_segmental_dbi <- function(handle,
       sylLevel,
       formals(autobuild_linkFromTimes)$backupLevelAppendStr
     ),
-    force = T,
-    verbose = F
+    force = TRUE,
+    verbose = FALSE
   )
 }
 
@@ -1425,13 +1425,13 @@ bas_run_pho2syl_segmental_dbi_anchored <- function(handle,
     queryTxt = paste0("[", list_attributeDefinitions(handle, superLevel)[1, "name"], "=~ .*]")
     word_items = query(handle,
                        queryTxt,
-                       calcTimes = T,
+                       calcTimes = TRUE,
                        timeRefSegmentLevel = segmentLevel)
     
     queryTxt = paste0("[", segmentAttributeDefinitionName, "=~.*\\S.*]")
     maus_items = suppressWarnings(query(handle,
                        queryTxt,
-                       calcTimes = T,
+                       calcTimes = TRUE,
                        timeRefSegmentLevel = segmentLevel))
     
     for (bundle_idx in 1:nrow(bundles_list))
@@ -1469,7 +1469,7 @@ bas_run_pho2syl_segmental_dbi_anchored <- function(handle,
         
         maucon <- file(maufile)
         open(maucon, "w")
-        writeLines(paste0("SAM: ", samplerate, "\nLBD:"), maucon, useBytes = T)
+        writeLines(paste0("SAM: ", samplerate, "\nLBD:"), maucon, useBytes = TRUE)
         
         bas_id = 0
         bas_id_to_word_item_id = new.env(hash = TRUE)
@@ -1509,7 +1509,7 @@ bas_run_pho2syl_segmental_dbi_anchored <- function(handle,
                   mau_label
                 ),
                 maucon,
-                useBytes = T
+                useBytes = TRUE
               )
               
               written_mau = TRUE
@@ -1672,7 +1672,7 @@ bas_run_pho2syl_segmental_dbi_unanchored <- function(handle,
     queryTxt = paste0("[", segmentAttributeDefinitionName, "=~.*\\S\\.*]")
     maus_items = suppressWarnings(query(handle,
                        queryTxt,
-                       calcTimes = T,
+                       calcTimes = TRUE,
                        timeRefSegmentLevel = segmentLevel))
     
     for (bundle_idx in 1:nrow(bundles_list))
@@ -1706,7 +1706,7 @@ bas_run_pho2syl_segmental_dbi_unanchored <- function(handle,
         
         maucon <- file(maufile)
         open(maucon, "w")
-        writeLines(paste0("SAM: ", samplerate, "\nLBD:"), maucon, useBytes = T)
+        writeLines(paste0("SAM: ", samplerate, "\nLBD:"), maucon, useBytes = TRUE)
         
         
         for (mau_idx in 1:nrow(maus_items_bundle))
@@ -1727,7 +1727,7 @@ bas_run_pho2syl_segmental_dbi_unanchored <- function(handle,
               mau_label
             ),
             maucon,
-            useBytes = T)
+            useBytes = TRUE)
             
           }
         }
@@ -1867,7 +1867,7 @@ bas_prepare <- function(handle, resume, verbose, func)
     }
     
     
-    if (!file.copy(oldCache, tmpCache, overwrite = T))
+    if (!file.copy(oldCache, tmpCache, overwrite = TRUE))
     {
       stop("Could not create temporary DB cache")
     }
@@ -1939,7 +1939,7 @@ bas_download <- function(result,
     downloadLink,
     target,
     method = "auto",
-    quiet = T,
+    quiet = TRUE,
     mode = "w",
     cacheOK = TRUE
   )
@@ -2452,13 +2452,13 @@ bas_curl_inner <- function(service, params, file, session, bundle)
       )
     
     lines = bas_download(httr::content(res, "text"), file, session, bundle)
-    return(T)
+    return(TRUE)
   },
   error = function (cond)
   {
     message("Error calling ", service)
     message(cond)
-    return(F)
+    return(FALSE)
   })
 }
 
@@ -2470,7 +2470,7 @@ bas_curl <- function(service, params, file, session, bundle, patience)
   }
   
   attempts = 0
-  success = F
+  success = FALSE
   
   while(attempts <= patience && (!success))
   {

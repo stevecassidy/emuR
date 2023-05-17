@@ -16,13 +16,13 @@ internalVars = get("internalVars", envir = .emuR_pkgEnv)
 
 test_that("emuRtrackdata functions work", {
   # delete, copy and load
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
   file.copy(path2orig, 
             path2testData, 
-            recursive = T)
+            recursive = TRUE)
   ae = load_emuDB(path2db, 
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                  verbose = F)
+                  verbose = FALSE)
   
   
   ##############################
@@ -34,7 +34,7 @@ test_that("emuRtrackdata functions work", {
                        seglist = sl, 
                        ssffTrackName = 'fm',
                        resultType = "trackdata",
-                       verbose = F)
+                       verbose = FALSE)
     
     newTd = create_emuRtrackdata(sl, td)
     
@@ -52,7 +52,7 @@ test_that("emuRtrackdata functions work", {
   #   
   #   newTd = create_emuRtrackdata(sl, td)
   #   
-  #   propRes = cut_td(newTd, 0.5, prop=T)
+  #   propRes = cut_td(newTd, 0.5, prop=TRUE)
   #   print(propRes)
   #   })
   
@@ -90,7 +90,7 @@ test_that("emuRtrackdata functions work", {
   # clean up
   DBI::dbDisconnect(ae$connection)
   ae = NULL
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
   
 })
 

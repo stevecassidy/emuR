@@ -5,7 +5,7 @@ sourceDir = file.path(sourceDirMain, "txt_collection")
 testDir = file.path(tempdir(), "emuR_testthat")
 dbName = "bas_test"
 
-unlink(file.path(testDir, paste0(dbName, emuDB.suffix)), recursive = T)
+unlink(file.path(testDir, paste0(dbName, emuDB.suffix)), recursive = TRUE)
 
 test_that("testing whether runBASwebservice_all runs without error",
           {
@@ -15,14 +15,14 @@ test_that("testing whether runBASwebservice_all runs without error",
               sourceDir = sourceDir,
               targetDir = testDir,
               dbName = dbName,
-              verbose = F
+              verbose = FALSE
             )
-            handle = load_emuDB(file.path(testDir, paste0(dbName, emuDB.suffix)), verbose = F)
+            handle = load_emuDB(file.path(testDir, paste0(dbName, emuDB.suffix)), verbose = FALSE)
             
-            runBASwebservice_all(handle, "transcription", "eng-AU", verbose = F)
+            runBASwebservice_all(handle, "transcription", "eng-AU", verbose = FALSE)
           })
 
-unlink(file.path(testDir, paste0(dbName, emuDB.suffix)), recursive = T)
+unlink(file.path(testDir, paste0(dbName, emuDB.suffix)), recursive = TRUE)
 
 test_that(
   "testing whether all the other runBASwebservice_* functions run without error when chained together",
@@ -33,30 +33,30 @@ test_that(
       sourceDir = sourceDir,
       targetDir = testDir,
       dbName = dbName,
-      verbose = F
+      verbose = FALSE
     )
-    handle = load_emuDB(file.path(testDir, paste0(dbName, emuDB.suffix)), verbose = F)
+    handle = load_emuDB(file.path(testDir, paste0(dbName, emuDB.suffix)), verbose = FALSE)
     
-    runBASwebservice_g2pForTokenization(handle, "transcription", "eng-GB", verbose = F)
-    runBASwebservice_g2pForPronunciation(handle, "ORT", "eng-GB", verbose = F)
+    runBASwebservice_g2pForTokenization(handle, "transcription", "eng-GB", verbose = FALSE)
+    runBASwebservice_g2pForPronunciation(handle, "ORT", "eng-GB", verbose = FALSE)
     runBASwebservice_chunker(handle,
                              "KAN",
                              "eng-GB",
                              rootLevel = "bundle",
-                             verbose = F)
+                             verbose = FALSE)
     runBASwebservice_maus(handle,
                           "KAN",
                           "eng-GB",
                           chunkLevel = "TRN",
-                          verbose = F)
-    runBASwebservice_minni(handle, "eng-GB", rootLevel = "bundle", verbose = F)
-    runBASwebservice_pho2sylCanonical(handle, "KAN", "eng-GB", verbose = F)
+                          verbose = FALSE)
+    runBASwebservice_minni(handle, "eng-GB", rootLevel = "bundle", verbose = FALSE)
+    runBASwebservice_pho2sylCanonical(handle, "KAN", "eng-GB", verbose = FALSE)
     runBASwebservice_pho2sylSegmental(handle,
                                       "MAU",
                                       "eng-GB",
                                       superLevel = "ORT",
-                                      verbose = F)
+                                      verbose = FALSE)
   }
 )
 
-unlink(file.path(testDir, paste0(dbName, emuDB.suffix)), recursive = T)
+unlink(file.path(testDir, paste0(dbName, emuDB.suffix)), recursive = TRUE)

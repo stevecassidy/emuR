@@ -43,16 +43,16 @@ create_emuRdemoData <- function(dir = tempdir(), precache = FALSE){
   # create ae
   configPath = list.files(path2data, 
                           pattern = "DBconfig.json$", 
-                          recursive = T, 
-                          full.names = T)
+                          recursive = TRUE,
+                          full.names = TRUE)
   wavPaths = list.files(path2data, 
                         pattern = ".wav$", 
-                        recursive = T, 
-                        full.names = T)
+                        recursive = TRUE,
+                        full.names = TRUE)
   annotPaths = list.files(path2data, 
                           pattern = "_annot.json$", 
-                          recursive = T, 
-                          full.names = T)
+                          recursive = TRUE,
+                          full.names = TRUE)
   aePath = file.path(ddPath, 
                      paste0("ae", emuDB.suffix))
   
@@ -82,15 +82,15 @@ create_emuRdemoData <- function(dir = tempdir(), precache = FALSE){
   # calc dft and fms files
   wps = list.files(sesPath, 
                    pattern = ".wav$", 
-                   recursive = T, 
-                   full.names = T)
-  wrassp::dftSpectrum(wps, verbose = F)
-  wrassp::forest(wps, verbose = F)
+                   recursive = TRUE,
+                   full.names = TRUE)
+  wrassp::dftSpectrum(wps, verbose = FALSE)
+  wrassp::forest(wps, verbose = FALSE)
   
   
   # generate cache of ae emuDB
   if(precache){
-    dbHandle = load_emuDB(aePath, inMemoryCache = F, verbose = F)
+    dbHandle = load_emuDB(aePath, inMemoryCache = FALSE, verbose = FALSE)
     DBI::dbDisconnect(dbHandle$connection)
   }
   
@@ -146,24 +146,24 @@ create_emuRdemoData <- function(dir = tempdir(), precache = FALSE){
   # create legacyEmuDB
   tplPath = list.files(path2data, 
                        pattern = ".tpl$", 
-                       recursive = T, 
-                       full.names = T)
+                       recursive = TRUE,
+                       full.names = TRUE)
   wavPaths = list.files(path2data, 
                         pattern = ".wav$", 
-                        recursive = T, 
-                        full.names = T)
+                        recursive = TRUE,
+                        full.names = TRUE)
   hlbPaths = list.files(path2data, 
                         pattern = "hlb$", 
-                        recursive = T, 
-                        full.names = T)
+                        recursive = TRUE,
+                        full.names = TRUE)
   labPaths = list.files(path2data, 
                         pattern = "lab$", 
-                        recursive = T, 
-                        full.names = T)
+                        recursive = TRUE,
+                        full.names = TRUE)
   tonePaths = list.files(path2data, 
                          pattern = "tone$", 
-                         recursive = T, 
-                         full.names = T)
+                         recursive = TRUE,
+                         full.names = TRUE)
   
   legacyAePath = file.path(ddPath, "legacy_ae")
   created = dir.create(legacyAePath)
@@ -191,9 +191,9 @@ create_emuRdemoData <- function(dir = tempdir(), precache = FALSE){
   file.copy(tonePaths, labelsPath)
   
   # calc dft and fms files
-  wps = list.files(signalsPath, pattern = ".wav$", recursive = T, full.names = T)
-  wrassp::dftSpectrum(wps, verbose = F)
-  wrassp::forest(wps, verbose = F)
+  wps = list.files(signalsPath, pattern = ".wav$", recursive = TRUE, full.names = TRUE)
+  wrassp::dftSpectrum(wps, verbose = FALSE)
+  wrassp::forest(wps, verbose = FALSE)
   
   return(invisible())
 }
@@ -235,5 +235,5 @@ create_BPFcollectionManipulated = function(dir){
 
 ########################
 # FOR DEVELOPMENT 
-# unlink(file.path(tempdir(),"emuR_demoData"), recursive = T)
-# create_emuRdemoData(precache = T)
+# unlink(file.path(tempdir(),"emuR_demoData"), recursive = TRUE)
+# create_emuRdemoData(precache = TRUE)

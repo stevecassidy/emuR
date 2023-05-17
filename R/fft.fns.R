@@ -1,7 +1,7 @@
 # 
 # 
 # 
-# "fcalc"<- function(fftdata, byrow = T, samfreq = 20000, nyq = samfreq/2,
+# "fcalc"<- function(fftdata, byrow = TRUE, samfreq = 20000, nyq = samfreq/2,
 #                    low = 0, high = nyq, fun = sum, ...)
 # {
 #   ## fftdata: a matrix of fft values as returned by muspec() and muslice()
@@ -40,7 +40,7 @@
 # }
 # 
 # 
-# "fft.complex"<- function(data, normlen = T)
+# "fft.complex"<- function(data, normlen = TRUE)
 # {
 #   ## data: usally a  matrix of sampled data values with successive columns
 #   ## corresponding to successive segments
@@ -48,7 +48,7 @@
 #   ## calculates the real and imaginary parts of the fft for each column 
 #   ## if normlen is True, the fft is normalised by dividing each
 #   ## value by the square root of its length
-#   if(is.matrix(data) == F) {
+#   if(is.matrix(data) == FALSE) {
 #     n <- length(data)
 #     fftres <- fft(data)
 #   }
@@ -86,7 +86,7 @@
 # }
 # 
 # 
-# "fft.mod"<- function(fftvals, unreflected = F, transpose = T)
+# "fft.mod"<- function(fftvals, unreflected = FALSE, transpose = TRUE)
 # {
 #   ## calculate the Mod values from fftvals. fftvals consists
 #   ## of real and imag. parts and is usually the output of
@@ -98,7 +98,7 @@
 #   ## the resulting matrix is transposed such that the nth row
 #   ## that is derived corresponds to the nth row of the segment
 #   ## list that was used to produce fftvals
-#   if(is.matrix(fftvals) == F) fftvals <- cbind(fftvals)
+#   if(is.matrix(fftvals) == FALSE) fftvals <- cbind(fftvals)
 #   n <- nrow(fftvals)
 #   fft.mod <- apply(fftvals, 2, Mod)
 # 
@@ -137,41 +137,41 @@
 #   resdata.a/resdata.b
 # }
 # 
-# "fplot"<- function(fftdata, labs = NULL, which = NULL, colour = T,
-#                    linetype = F, samfreq = 20000, nyq = samfreq/2,
+# "fplot"<- function(fftdata, labs = NULL, which = NULL, colour = TRUE,
+#                    linetype = FALSE, samfreq = 20000, nyq = samfreq/2,
 #                    xlab = "Frequency (Hz)", ylab = "Intensity (dB)",
-#                    low = 0, high = nyq, dbrange = NULL, axes = T,
-#                    main = "", average = F, smoothing = F, points = 20,
-#                    coeff = F, type = "l", super = F, legn="tl", cex=1)
+#                    low = 0, high = nyq, dbrange = NULL, axes = TRUE,
+#                    main = "", average = FALSE, smoothing = FALSE, points = 20,
+#                    coeff = FALSE, type = "l", super = FALSE, legn="tl", cex=1)
 # {
 #   ## a matrix of fft values, as returned from muspec() or muslice()
 #   ## low: plot from this frequency in Hz
 #   ## high: plot up to this frequency in Hz (default range is 0-10000)
 #   ## dbrange: specify a range for the y-axis in db
-#   ## axes: if F, no axes will be plotted
+#   ## axes: if FALSE, no axes will be plotted
 #   ## main: provide a main axis title
 #   ## super: superimpose FFTs that occur in successive rows of fftdata
 #   ## on the same plot
 #   ## labs: provide a label file which is parallel to fftdata;
-#   ## the resulting plot will be color-coded (use super=T to superimpose the ffts
+#   ## the resulting plot will be color-coded (use super=TRUE to superimpose the ffts
 #   ## colmain: specify a color for the axes
 #   ## returns: spectral plots, db against Hz
 #   ## examples: mu.sub37
 #   ## written by Jonathan Harrington, 1992
 #   ## assume a sampling frequency of n, i.e. 20 kHz
-#   flag <- F
+#   flag <- FALSE
 #   colour.flag <- colour
 #   linetype.flag <- linetype
 # 
-#   if(!is.logical(colour))   stop("colour must be T or F")
-#   if(!is.logical(linetype)) stop("linetype must be T or F")
+#   if(!is.logical(colour))   stop("colour must be TRUE or FALSE")
+#   if(!is.logical(linetype)) stop("linetype must be TRUE or FALSE")
 # 
 #   mat <- NULL
 #   if(!is.matrix(fftdata))
 #     fftdata <- rbind(fftdata)
 #   if(is.null(labs))
-#     {legn <- F
-#      flag <- T
+#     {legn <- FALSE
+#      flag <- TRUE
 #      labs <- rep(".", nrow(fftdata))}
 # 
 #   if(!is.null(which)) {
@@ -190,7 +190,7 @@
 #       dbrange <- range(fftdata)
 #       zdat <- fftdata
 #     }
-#     cdat <- cepstrum(fftdata, points = points, spectrum = T)
+#     cdat <- cepstrum(fftdata, points = points, spectrum = TRUE)
 #     fftdata <- -cdat$cep
 #     if(!is.matrix(fftdata))
 #       fftdata <- rbind(fftdata)
@@ -218,27 +218,27 @@
 #     plot(nums, fftdata[i, left:right], type = type, xlab = "",
 # 	 ylab = "", col = colour[i], ylim = dbrange, 
 # 	 , lty = lty[i])
-#     par(new = T)
+#     par(new = TRUE)
 #   }
 # 
 #   if(axes) 
 #     title(main = main, xlab = xlab, ylab = ylab, col = 1, cex=cex)
 # 
-#   if(legn != F){
+#   if(legn != FALSE){
 #     legn <- mu.legend(legn, c(low, high), dbrange)
 #     legend(legn$x, legn$y, col.lty$legend$lab, col = col.lty$legend$col, 
 # 	   lty = col.lty$legend$lty, cex = cex)
 #   }
 #   if(smoothing) {
 #     if(super) {
-#       par(new = T)
+#       par(new = TRUE)
 #       if(flag) labs <- NULL
 #       
 #       fplot(zdat, labs = labs, samfreq = samfreq, nyq = nyq, 
 # 	    xlab = "", ylab = "", low = low, high = high, 
 # 	    dbrange = dbrange, main = "", cex=cex, 
 # 	    colour=colour.flag, linetype=linetype.flag)
-#       par(new = F)
+#       par(new = FALSE)
 #     }
 #     if(coeff)
 #       mat$coeff <- cdat$coeff
@@ -269,7 +269,7 @@
 # }
 # 
 # 
-# "moment"<- function(specvals, least = T, nyq = 10000, low = 0, high = nyq)
+# "moment"<- function(specvals, least = TRUE, nyq = 10000, low = 0, high = nyq)
 # {
 #   ## specvals: the output of muspec; dB-FFT values
 #   ## least: this normalises each spectrum so that its minimum
@@ -287,12 +287,12 @@
 #   if(least) {
 #     minv <- apply(specvals, 1, min)
 #     minv <- rep(minv, times = rep(fftlen, length(minv)))
-#     minv <- matrix(t(minv), ncol = fftlen, byrow = T)
+#     minv <- matrix(t(minv), ncol = fftlen, byrow = TRUE)
 #     specvals <- specvals - minv
 #   }
 #   x <- seq(0, nyq, length = fftlen)
 #   x <- rep(x, nrow(specvals))
-#   x <- matrix(t(x), ncol = fftlen, byrow = T)
+#   x <- matrix(t(x), ncol = fftlen, byrow = TRUE)
 #   if((low != 0) | (high != nyq)) {
 #     x <- fft.extract(x, low = low, high = high)
 #     specvals <- fft.extract(specvals, low = low, high = high)
@@ -310,7 +310,7 @@
 # 
 # 
 # "moments" <-
-# function(count, x, minval=F)
+# function(count, x, minval=FALSE)
 # 
 # {
 # # compute moments. x is a numeric class
@@ -322,7 +322,7 @@
 # # p. 87, Snedecor & Cochran, 'Statistical Methods'
 # # 6th Edition, 1975. Let the arguments count and x
 # # equal f and U respectively in their example
-# # the centre of gravity with minval = F.
+# # the centre of gravity with minval = FALSE.
 # # the first two moments in this function
 # # also give the same results as in Harrington & Cassidy.
 # if(minval)

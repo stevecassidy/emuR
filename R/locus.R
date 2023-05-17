@@ -63,7 +63,7 @@
   # labels.vow: optional vowel labels for plotting
   # xlim, ylim: optional range for x and y-axes
   # xlab, ylab: optional label for axes
-  # plot: if T, produces a plot of  target x  onset
+  # plot: if TRUE, produces a plot of  target x  onset
   # with a superimposed regression line through
   # the scatter with superimposed line target = onset
   # returns: statistical results of the fitting

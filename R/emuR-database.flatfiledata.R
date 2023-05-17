@@ -110,8 +110,8 @@ join_flatFileData <- function(emuDBhandle,
   all_bundles = all_bundles[all_bundles$session %in% x$session & all_bundles$name %in% x$bundle,]
   # filter by sessionPattern & bundlePattern
   all_bundles = all_bundles[
-    grepl(pattern = sessionPattern, x = all_bundles, perl = T) 
-    & grepl(pattern = bundlePattern, x = all_bundles, perl = T)
+    grepl(pattern = sessionPattern, x = all_bundles, perl = TRUE)
+    & grepl(pattern = bundlePattern, x = all_bundles, perl = TRUE)
   ]
   
   ##############################

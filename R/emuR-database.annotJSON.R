@@ -5,7 +5,7 @@
 # meta information (name, annotates, samplerate)
 annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
   
-  jsonObj = jsonlite::fromJSON(annotJSONchar, simplifyVector=F) # SIC pass in path 2 json instead -> a bit faster
+  jsonObj = jsonlite::fromJSON(annotJSONchar, simplifyVector=FALSE) # SIC pass in path 2 json instead -> a bit faster
   
   ##############################
   # extract items
@@ -83,7 +83,7 @@ annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
   items = data.frame(item_id = allIds, level = allLevels, type = allTypes, 
                      seq_idx = allSeqIdx, sample_rate = rep(jsonObj$sampleRate, length(allIds)),
                      sample_point = allSamplePoints, sample_start = allSampleStarts,
-                     sample_dur = allSampleDurs, stringsAsFactors = F)
+                     sample_dur = allSampleDurs, stringsAsFactors = FALSE)
   
   ##############################
   # extract links
@@ -97,7 +97,7 @@ annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
   
   links = data.frame(from_id = allFromIds, 
                      to_id = allToIds, 
-                     stringsAsFactors = F)
+                     stringsAsFactors = FALSE)
   
   
   ##############################
@@ -143,7 +143,7 @@ annotJSONcharToBundleAnnotDFs <- function(annotJSONchar){
                       label_idx = allLabelLabelIdx, 
                       name = allLabelNames, 
                       label = allLabelValues, 
-                      stringsAsFactors = F)
+                      stringsAsFactors = FALSE)
   
   return(list(name = jsonObj$name, 
               annotates = jsonObj$annotates, 
@@ -183,16 +183,16 @@ bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
     purrr::modify_depth(2, function(df){
       if(unique(df$type.x) == "ITEM"){
         list(id = as.integer(as.character(unique(df$item_id))), 
-             labels = data.frame(name = df$name, value = df$label, stringsAsFactors = F))
+             labels = data.frame(name = df$name, value = df$label, stringsAsFactors = FALSE))
       }else if(unique(df$type.x) == "SEGMENT"){
         list(id=as.integer(as.character(unique(df$item_id))), 
              sampleStart = unique(df$sample_start), 
              sampleDur = unique(df$sample_dur), 
-             labels = data.frame(name = df$name, value = df$label, stringsAsFactors = F))
+             labels = data.frame(name = df$name, value = df$label, stringsAsFactors = FALSE))
       }else if(unique(df$type.x) == "EVENT"){
         list(id=as.integer(as.character(unique(df$item_id))), 
              samplePoint = unique(df$sample_point), 
-             labels = data.frame(name = df$name, value = df$label, stringsAsFactors = F))
+             labels = data.frame(name = df$name, value = df$label, stringsAsFactors = FALSE))
       }
     })
   
@@ -207,7 +207,7 @@ bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
   if(nrow(annotDFs$links) > 0){
     links = data.frame(fromID = annotDFs$links$from_id,
                        toID = annotDFs$links$to_id,
-                       stringsAsFactors = F)
+                       stringsAsFactors = FALSE)
   }else{
     links = list()
   }
@@ -217,7 +217,7 @@ bundleAnnotDFsToAnnotJSONchar <- function(emuDBhandle, annotDFs){
                    sampleRate = annotDFs$sampleRate,
                    levels = levels, links = links)
   
-  return(jsonlite::toJSON(annotJSON, auto_unbox = T, force = T, pretty = T))
+  return(jsonlite::toJSON(annotJSON, auto_unbox = TRUE, force = TRUE, pretty = TRUE))
   
 }
 

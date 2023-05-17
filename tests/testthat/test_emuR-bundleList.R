@@ -17,13 +17,13 @@ internalVars = get("internalVars", envir = .emuR_pkgEnv)
 
 test_that("write_bundleList with list of bundles works", {
   # delete, copy and load
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
   file.copy(path2orig, 
             path2testData, 
-            recursive = T)
+            recursive = TRUE)
   ae = load_emuDB(path2db, 
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                  verbose = F)
+                  verbose = FALSE)
   
   bund <- list_bundles(ae)
   write_bundleList(ae,
@@ -38,7 +38,7 @@ test_that("write_bundleList with list of bundles works", {
   bl_tmp = jsonlite::read_json(file.path(path2db, 
                                          "bundleLists", 
                                          "RW_bundleList.json"), 
-                               simplifyVector = T)
+                               simplifyVector = TRUE)
   
   expect_true(all(dim(bl_tmp) == c(7,4)))
   

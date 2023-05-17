@@ -17,7 +17,7 @@ internalVars = get("internalVars", envir = .emuR_pkgEnv)
 test_that("Convert example database ae", {
   legacyDbEmuAeTpl <- file.path(path2demoData, "legacy_ae", "ae.tpl")
   .test_emu_ae_db_dir <<- file.path(path2testhatFolder, 'test_emu_ae')
-  unlink(.test_emu_ae_db_dir, recursive = T)
+  unlink(.test_emu_ae_db_dir, recursive = TRUE)
   convert_legacyEmuDB(emuTplPath = legacyDbEmuAeTpl,
                       targetDir = .test_emu_ae_db_dir, 
                       dbUUID = .test_emu_ae_db_uuid, 
@@ -561,7 +561,7 @@ test_that("Load example database ae", {
                  "[[[Phonetic = n -> Phonetic = z] -> Phonetic = S ] ^ [Text = friends -> Text = she]]")
     expect_equal(sl$labels, "n->z->S")
     sl = query(ae, "[Utterance =~ .* ^ Phonetic == @]", 
-               verbose = F)
+               verbose = FALSE)
     expect_equal(nrow(sl), 7)
     expect_equal(sl$labels[1], "")
     
@@ -601,7 +601,7 @@ test_that("Load example database ae", {
     duplicate_level(ae, 
                     "Phonetic", 
                     "Phonetic2", 
-                    verbose = F)
+                    verbose = FALSE)
     expect_error(query(ae, "[Syllable == W]"), 
                  regexp = "The level is linked")
     expect_error(query(ae, 
@@ -616,14 +616,14 @@ test_that("Load example database ae", {
     remove_linkDefinition(ae, 
                           superlevelName = "Phoneme",
                           sublevelName = "Phonetic2",
-                          force = T,
-                          verbose = F)
+                          force = TRUE,
+                          verbose = FALSE)
     
         
     remove_levelDefinition(ae, 
                            name = "Phonetic2",
-                           force = T, 
-                           verbose = F)
+                           force = TRUE, 
+                           verbose = FALSE)
   })
   
   # 
@@ -631,7 +631,7 @@ test_that("Load example database ae", {
     skip_on_cran()
     sl = query(ae, 
                "[Syllable == W]", 
-               calcTimes = F)
+               calcTimes = FALSE)
   
     expect_true(all(is.na(sl$start)))
     expect_true(all(is.na(sl$end)))
@@ -641,7 +641,7 @@ test_that("Load example database ae", {
   
   test_that("correct times are calculated for Intonational",{
     skip_on_cran()
-    sl = query(ae, "Intonational == L%", timeRefSegmentLevel = "Phonetic", verbose = F)
+    sl = query(ae, "Intonational == L%", timeRefSegmentLevel = "Phonetic", verbose = FALSE)
     all(round(sl$start, 3) == round(c(256.925, 571.925, 379.525, 425.375, 299.975, 513.925, 475.775), 3))
     all(round(sl$end, 3) == round(c(2604.425, 2753.975, 2692.325, 3456.825, 2469.525, 2554.175, 2794.925), 3))
   })
@@ -650,19 +650,19 @@ test_that("Load example database ae", {
     skip_on_cran()
     sl = query(ae, 
                "[[Phonetic == N -> Phonetic == s] -> Phonetic == t]", 
-               verbose = F)
+               verbose = FALSE)
     expect_equal(sl$sample_start, 8534)
     expect_equal(sl$sample_end, 11933)
     # move up one level
     sl = query(ae, 
                "[[Phoneme == N -> Phoneme == s] -> Phoneme == t]",
-               verbose = F)
+               verbose = FALSE)
     expect_equal(sl$sample_start, 8534)
     expect_equal(sl$sample_end, 13483)
     # even further up the hierarchy
     sl = query(ae,
                "[Text == more -> Text == customers]",
-               verbose = F)
+               verbose = FALSE)
     expect_equal(sl$sample_start, 31574)
     expect_equal(sl$sample_end, 47355)
     
@@ -671,7 +671,7 @@ test_that("Load example database ae", {
   # clean up (also disconnect)
   DBI::dbDisconnect(ae$connection)
   ae = NULL
-  unlink(.test_emu_ae_db_dir, recursive = T)
+  unlink(.test_emu_ae_db_dir, recursive = TRUE)
 })
 
 

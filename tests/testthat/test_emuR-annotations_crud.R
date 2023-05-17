@@ -18,16 +18,16 @@ internalVars = get("internalVars",
 test_that("errors are thrown on bad inputs", {
   
   # delete, copy and load
-  unlink(path2db, recursive = T)
-  file.copy(path2orig, path2testData, recursive = T)
+  unlink(path2db, recursive = TRUE)
+  file.copy(path2orig, path2testData, recursive = TRUE)
   
   ae = load_emuDB(path2db, 
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                  verbose = F)
+                  verbose = FALSE)
   
   # missing cols
   expect_error(create_itemsInLevel(ae, 
-                                   itemsToCreate = data.frame(session = "", stringsAsFactors = F)))
+                                   itemsToCreate = data.frame(session = "", stringsAsFactors = FALSE)))
   # bad sequenceIndex type
   expect_error(create_itemsInLevel(ae, itemsToCreate = data.frame(session = "",
                                                                   bundle = "",
@@ -35,7 +35,7 @@ test_that("errors are thrown on bad inputs", {
                                                                   sequenceIndex = "",
                                                                   attribute = "",
                                                                   labels = "",
-                                                                  stringsAsFactors = F)))
+                                                                  stringsAsFactors = FALSE)))
   
   # bad session / bundle
   expect_error(create_itemsInLevel(ae,
@@ -45,7 +45,7 @@ test_that("errors are thrown on bad inputs", {
                                                               sequenceIndex = 1.5,
                                                               attribute = "",
                                                               labels = "",
-                                                              stringsAsFactors = F)))
+                                                              stringsAsFactors = FALSE)))
   
   # existing sequence index
   expect_error(create_itemsInLevel(ae,
@@ -55,8 +55,8 @@ test_that("errors are thrown on bad inputs", {
                                                               sequenceIndex = 1,
                                                               attribute = "Utterance",
                                                               labels = "newLabel",
-                                                              stringsAsFactors = F),
-                                   verbose = F))
+                                                              stringsAsFactors = FALSE),
+                                   verbose = FALSE))
   
   # clean up
   DBI::dbDisconnect(ae$connection)
@@ -68,14 +68,14 @@ test_that("errors are thrown on bad inputs", {
 test_that("create_itemsInLevel in ITEM levels works as expected", {
   
   # delete, copy and load
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
   file.copy(path2orig, 
             path2testData, 
-            recursive = T)
+            recursive = TRUE)
   
   ae = load_emuDB(path2db, 
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                  verbose = F)
+                  verbose = FALSE)
   
   # insert new root node after existing item
   create_itemsInLevel(ae, 
@@ -85,13 +85,13 @@ test_that("create_itemsInLevel in ITEM levels works as expected", {
                                                  start_item_seq_idx = 1.5,
                                                  attribute = "Utterance",
                                                  labels = "newLabel_post",
-                                                 stringsAsFactors = F),
-                      verbose = F)
+                                                 stringsAsFactors = FALSE),
+                      verbose = FALSE)
   
   
   sl = query(ae, 
              "Utterance == newLabel_post", 
-             calcTimes = F)
+             calcTimes = FALSE)
   
   expect_equal(nrow(sl), 1)
   expect_equal(sl$start_item_seq_idx, 2)
@@ -104,13 +104,13 @@ test_that("create_itemsInLevel in ITEM levels works as expected", {
                                                  start_item_seq_idx = 0.5,
                                                  attribute = "Utterance",
                                                  labels = "newLabel_pre",
-                                                 stringsAsFactors = F),
-                      verbose = F)
+                                                 stringsAsFactors = FALSE),
+                      verbose = FALSE)
   
   
   sl = query(ae, 
              "Utterance == newLabel_pre", 
-             calcTimes = F)
+             calcTimes = FALSE)
   
   expect_equal(nrow(sl), 1)
   expect_equal(sl$start_item_seq_idx, 1)
@@ -124,13 +124,13 @@ test_that("create_itemsInLevel in ITEM levels works as expected", {
 test_that("create_itemsInLevel in EVENT levels works as expected", {
   
   # delete, copy and load
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
   file.copy(path2orig, 
             path2testData, 
-            recursive = T)
+            recursive = TRUE)
   ae = load_emuDB(path2db, 
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                  verbose = F)
+                  verbose = FALSE)
   
   sl = query(ae,
              "Tone =~ .*",
@@ -141,13 +141,13 @@ test_that("create_itemsInLevel in EVENT levels works as expected", {
   # insert new root node after existing item (should cause error as the times exist)
   expect_error(create_itemsInLevel(ae, 
                                    itemsToCreate = sl, 
-                                   verbose = F))
+                                   verbose = FALSE))
   
   sl$start = sl$start + 10 
   
   create_itemsInLevel(ae, 
                       itemsToCreate = sl, 
-                      verbose = F)
+                      verbose = FALSE)
   
   
   sl_new = query(ae,
@@ -166,13 +166,13 @@ test_that("create_itemsInLevel in EVENT levels works as expected", {
 test_that("create_itemsInLevel in SEGMENT levels works as expected", {
   
   # delete, copy and load
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
   file.copy(path2orig, 
             path2testData, 
-            recursive = T)
+            recursive = TRUE)
   ae = load_emuDB(path2db, 
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                  verbose = F)
+                  verbose = FALSE)
   
   sl = query(ae,
              "Phonetic =~ .*",
@@ -183,20 +183,20 @@ test_that("create_itemsInLevel in SEGMENT levels works as expected", {
   
   expect_error(create_itemsInLevel(ae, 
                                    itemsToCreate = sl, 
-                                   verbose = F))
+                                   verbose = FALSE))
   
   # add new level
   add_levelDefinition(ae, 
                       name = "new_level", 
                       type = "SEGMENT", 
-                      verbose = F)
+                      verbose = FALSE)
   
   sl$level = "new_level"
   sl$attribute = "new_level"
   
   create_itemsInLevel(ae, 
                       itemsToCreate = sl, 
-                      verbose = F)
+                      verbose = FALSE)
   
   
   sl_new = query(ae,
@@ -221,14 +221,14 @@ test_that("create_itemsInLevel in SEGMENT levels works as expected", {
 test_that("update_itemsInLevel updates labels correctly", {
   
   # delete, copy and load
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
   file.copy(path2orig, 
             path2testData, 
-            recursive = T)
+            recursive = TRUE)
   
   ae = load_emuDB(path2db, 
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                  verbose = F)
+                  verbose = FALSE)
   
   sl = query(ae, 
              "[Phonetic == I ^ Syllable == S]", 
@@ -238,7 +238,7 @@ test_that("update_itemsInLevel updates labels correctly", {
   
   update_itemsInLevel(ae, 
                       itemsToUpdate = sl, 
-                      verbose = F)
+                      verbose = FALSE)
   
   sl_new = query(ae, 
                  "Phonetic == I_in_strong_syl", 

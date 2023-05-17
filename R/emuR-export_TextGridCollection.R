@@ -175,7 +175,7 @@ export_TextGridCollection <- function(emuDBhandle,
                             sample_start = "", 
                             sample_end = "", 
                             sample_rate = "", 
-                            stringsAsFactors = F)
+                            stringsAsFactors = FALSE)
       # tier header
       if(levelDef$type == "EVENT"){
         tierType = "TextTier"
@@ -222,7 +222,7 @@ export_TextGridCollection <- function(emuDBhandle,
                                    sampleStart = integer(slTierTmpNrow), 
                                    sample_end = integer(slTierTmpNrow), 
                                    sample_rate = integer(slTierTmpNrow), 
-                                   stringsAsFactors = F)
+                                   stringsAsFactors = FALSE)
             
             slTierTmp[1,] = slTier[1,]
             curRowIdx = 2

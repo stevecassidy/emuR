@@ -12,16 +12,16 @@ path2db = file.path(path2testData,
                     paste0(dbName, emuDB.suffix))
 
 # delete, copy and load
-unlink(path2db, recursive = T)
+unlink(path2db, recursive = TRUE)
 file.copy(path2orig, 
           path2testData, 
-          recursive = T)
+          recursive = TRUE)
 
 # create a second session
 dir.create(file.path(path2db, "0001_ses"))
-file.copy(from = list.files(file.path(path2db, "0000_ses"), full.names = T),
+file.copy(from = list.files(file.path(path2db, "0000_ses"), full.names = TRUE),
           to = file.path(path2db, "0001_ses"),
-          recursive = T)
+          recursive = TRUE)
 
 # extract internalVars from environment .emuR_pkgEnv
 internalVars = get("internalVars", 
@@ -29,7 +29,7 @@ internalVars = get("internalVars",
 
 db = load_emuDB(path2db, 
                 inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                verbose = F)
+                verbose = FALSE)
 
 test_that("join_flatFileData works on emuDB level", {
   

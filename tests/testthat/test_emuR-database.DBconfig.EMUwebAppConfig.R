@@ -19,11 +19,11 @@ internalVars = get("internalVars", envir = .emuR_pkgEnv)
 test_that("CRUD operations work for perspectives", {
   
   # delete, copy and load
-  unlink(path2db, recursive = T)
-  file.copy(path2orig, path2testData, recursive = T)
+  unlink(path2db, recursive = TRUE)
+  file.copy(path2orig, path2testData, recursive = TRUE)
   ae = load_emuDB(path2db, 
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                  verbose = F)
+                  verbose = FALSE)
   
   test_that("add = (C)RUD", {
     # bad call persp. already exists
@@ -69,11 +69,11 @@ test_that("CRUD operations work for perspectives", {
 test_that("CRUD operations work for signalCanvasesOrder", {
   
   # delete, copy and load
-  unlink(path2db, recursive = T)
-  file.copy(path2orig, path2testData, recursive = T)
+  unlink(path2db, recursive = TRUE)
+  file.copy(path2orig, path2testData, recursive = TRUE)
   ae = load_emuDB(path2db, 
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                  verbose = F)
+                  verbose = FALSE)
   
   
   test_that("set = (C)RUD", {
@@ -112,11 +112,11 @@ test_that("CRUD operations work for signalCanvasesOrder", {
 ##############################
 test_that("CRUD operations work for levelCanvasesOrder", {
   # delete, copy and load
-  unlink(path2db, recursive = T)
-  file.copy(path2orig, path2testData, recursive = T)
+  unlink(path2db, recursive = TRUE)
+  file.copy(path2orig, path2testData, recursive = TRUE)
   ae = load_emuDB(path2db, 
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                  verbose = F)
+                  verbose = FALSE)
   
   
   test_that("set = (C)RUD", {

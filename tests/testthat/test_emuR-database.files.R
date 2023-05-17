@@ -19,14 +19,14 @@ test_that("file operations work", {
                       paste0(dbName, emuDB.suffix))
   
   # delete, copy and load
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
   file.copy(path2orig, 
             path2testData, 
-            recursive = T)
+            recursive = TRUE)
   
   ae = load_emuDB(path2db, 
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                  verbose = F)
+                  verbose = FALSE)
   
   # extract internalVars from environment .emuR_pkgEnv
   internalVars = get("internalVars", 
@@ -38,16 +38,16 @@ test_that("file operations work", {
     import_mediaFiles(ae, 
                       dir = wavPath, 
                       targetSessionName = 'newSes', 
-                      verbose = F)
+                      verbose = FALSE)
     expect_true(file.exists(file.path(path2db, 'newSes_ses')))
     paths = list.files(file.path(path2db, 'newSes_ses'), 
-                       recursive = T, 
-                       full.names = T, 
+                       recursive = TRUE, 
+                       full.names = TRUE, 
                        pattern = 'wav$')
     expect_equal(length(paths), 9)
     paths = list.files(file.path(path2db, 'newSes_ses'), 
-                       recursive = T, 
-                       full.names = T, 
+                       recursive = TRUE, 
+                       full.names = TRUE, 
                        pattern = '_annot.json$')
     expect_equal(length(paths), 9)
   })
@@ -59,14 +59,14 @@ test_that("file operations work", {
                                       package = 'wrassp')
       wavFilePaths = list.files(wrasspExtdataPath, 
                                 pattern = "wav$", 
-                                full.names = T, 
-                                recursive = T)
+                                full.names = TRUE, 
+                                recursive = TRUE)
       
       outDirPath = file.path(path2testData, 'zcranaVals')
       dir.create(outDirPath)
       wrassp::zcrana(wavFilePaths, 
                      outputDirectory = outDirPath, 
-                     verbose = F)
+                     verbose = FALSE)
       
       add_files(ae, 
                 dir = outDirPath, 
@@ -74,11 +74,11 @@ test_that("file operations work", {
                 targetSessionName = 'newSes')
       zcrPaths = list.files(path2db, 
                             pattern = 'zcr$', 
-                            recursive = T)
+                            recursive = TRUE)
       expect_equal(length(zcrPaths), 9)
       
       # cleanup
-      unlink(outDirPath, recursive = T)
+      unlink(outDirPath, recursive = TRUE)
       
       
     })

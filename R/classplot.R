@@ -20,7 +20,7 @@
 ##' specifying the desired colours that is the same length as there are
 ##' classes.
 ##' @param legend A single element logical vector specifying whether a legend
-##' should be drawn. Defaults to T
+##' should be drawn. Defaults to TRUE
 ##' @param position A single element vector specifying the position in the
 ##' figure where the legend should be drawn. Defaults to "topright"
 ##' @param bg A single element vector specifying the background colour on which

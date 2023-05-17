@@ -17,33 +17,33 @@ internalVars = get("internalVars",
 test_that("export_TextGridCollection works correctly", {
   
   # delete, copy and load
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
   file.copy(path2orig, 
             path2testData, 
-            recursive = T)
+            recursive = TRUE)
   ae = load_emuDB(path2db, 
                   inMemoryCache = internalVars$testingVars$inMemoryCache, 
-                  verbose = F)
+                  verbose = FALSE)
   
   test_that("errors are thrown correctly", {
     # preclean just in case
     unlink(file.path(path2testData, "tgCol"), 
-           recursive = T)
+           recursive = TRUE)
     # bad attr. name
     expect_error(export_TextGridCollection(ae, 
                                            targetDir = file.path(path2testData, "tgCol"), 
                                            attributeDefinitionNames = "badName"), 
-                 verbose = F)
+                 verbose = FALSE)
   })
   
   test_that("exporting every level works", {
     # preclean just in case
     unlink(file.path(path2testData, "tgCol"), 
-           recursive = T)
+           recursive = TRUE)
     
     export_TextGridCollection(ae, 
                               targetDir = file.path(path2testData, "tgCol"), 
-                              verbose = F)
+                              verbose = FALSE)
     
     tgLines = readLines(file.path(path2testData, 
                                   "tgCol", 
@@ -76,18 +76,18 @@ test_that("export_TextGridCollection works correctly", {
     
     # clean up
     unlink(file.path(path2testData, "tgCol"), 
-           recursive = T)
+           recursive = TRUE)
   })
   
   test_that("exporting only msajc003 works", {
     # preclean just in case
     unlink(file.path(path2testData, "tgCol"), 
-           recursive = T)
+           recursive = TRUE)
     
     export_TextGridCollection(ae, 
                               targetDir = file.path(path2testData, "tgCol"), 
                               bundlePattern = "msajc003", 
-                              verbose = F)
+                              verbose = FALSE)
     list.files(file.path(path2testData, "tgCol", "0000"))
     
     expect_equal(length(list.files(file.path(path2testData, 
@@ -98,18 +98,18 @@ test_that("export_TextGridCollection works correctly", {
     
     # clean up
     unlink(file.path(path2testData, "tgCol"), 
-           recursive = T)
+           recursive = TRUE)
   })
   
   test_that("empty time segments are treated correctly", {
     # preclean just in case
     unlink(file.path(path2testData, "tgCol"), 
-           recursive = T)
+           recursive = TRUE)
     
     export_TextGridCollection(ae, 
                               targetDir = file.path(path2testData, "tgCol"), 
                               bundlePattern = "msajc010", 
-                              verbose = F)
+                              verbose = FALSE)
     
     tgLines = readLines(file.path(path2testData, 
                                   "tgCol", 
@@ -133,19 +133,19 @@ test_that("export_TextGridCollection works correctly", {
     
     # clean up
     unlink(file.path(path2testData, "tgCol"), 
-           recursive = T)
+           recursive = TRUE)
   })
   
   test_that("only exporting Phonetic works", {
     # preclean just in case
     unlink(file.path(path2testData, "tgCol"), 
-           recursive = T)
+           recursive = TRUE)
     
     export_TextGridCollection(ae, 
                               targetDir = file.path(path2testData, "tgCol"), 
                               bundlePattern = "msajc010", 
                               attributeDefinitionNames = "Phonetic", 
-                              verbose = F)
+                              verbose = FALSE)
     
     tgLines = readLines(file.path(path2testData, 
                                   "tgCol", 
@@ -158,7 +158,7 @@ test_that("export_TextGridCollection works correctly", {
   # clean up
   DBI::dbDisconnect(ae$connection)
   ae = NULL
-  unlink(path2db, recursive = T)
+  unlink(path2db, recursive = TRUE)
   
   
 })
