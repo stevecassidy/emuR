@@ -1,15 +1,2 @@
-citHeader("To cite the 'emuR' package in publications use:")
-year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date, perl = TRUE)
-vers <- paste("R package version", meta$Version)
-citEntry(entry="Manual",
-         title = "emuR: Main Package of the EMU Speech Database Management System",
-         author = personList(as.person("Raphael Winkelmann"),
-         as.person("Klaus Jaensch"),
-         as.person("Steve Cassidy"),
-         as.person("Jonathan Harrington")),
-         year = year,
-         note = vers,
-         textVersion =
-         paste("Raphael Winkelmann, Klaus Jaensch, Steve Cassidy and Jonathan Harrington (",
-               year,"). emuR: Main Package of the EMU Speech Database Management System",
-               vers, ".", sep=""))
+## R package reference generated from DESCRIPTION metadata
+citation(auto = meta)
