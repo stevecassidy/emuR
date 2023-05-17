@@ -20,7 +20,7 @@ only the data for those labels in \code{labtype}.  The result has the same
 components as the input \code{trackdata}:
 
 \item{data}{ A vector or matrix of numerical data. } \item{index}{ A two
-column matrix giving the start and end indeces into the data vector for
+column matrix giving the start and end indices into the data vector for
 each segment. } \item{ftime}{ A two column matrix giving the start and end
 times for each segment. }
 }

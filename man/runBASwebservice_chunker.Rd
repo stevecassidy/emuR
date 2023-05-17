@@ -57,7 +57,7 @@ will only work if your R temporary directory has not been deleted or emptied in 
 \description{
 When audio input files are longer than approximately 10 minutes, alignment-based segmentation
 tools such as MAUS will take a long time to run. In these cases, the Chunker pre-segments
-the input into more digestable "chunks". As input, it requires a word tier with canonical
+the input into more digestible "chunks". As input, it requires a word tier with canonical
 pronunciation attributes (which can be derived by \link{runBASwebservice_g2pForPronunciation}).
 The resulting chunk level can be passed as input to \link{runBASwebservice_maus}.
 \strong{This function requires an internet connection.}

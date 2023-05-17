@@ -52,7 +52,7 @@ are:
 \item{dynRangeInDB}{dynamic range in DB of spectrogram}
 
 \item{audioChannel}{channel of audio file to draw spectrogram of (only
-applicable when using multi-chnanel audio files)}
+applicable when using multi-channel audio files)}
 
 \item{preEmphasisFilterFactor}{used in time domain for amplifying high-freqs}
 

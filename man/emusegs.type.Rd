@@ -7,6 +7,6 @@
 emusegs.type(sl)
 }
 \description{
-Gives SEGEMENT or EVENT
+Gives SEGMENT or EVENT
 }
 \keyword{internal}

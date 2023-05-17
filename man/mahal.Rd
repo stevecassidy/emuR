@@ -26,7 +26,7 @@ assigns the label of the closest mean to that row.  The result is a vector
 of labels corresponding to the rows of \code{data}.
 
 The Mahalanobis distance between a data point and a class is the Euclidean
-distance between the point and the class mean devided by the covariance
+distance between the point and the class mean divided by the covariance
 matrix for the class.  This means that classes with large covariances will
 attract data points from a larger area than those with small covariances.
 }

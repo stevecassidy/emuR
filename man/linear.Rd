@@ -19,7 +19,7 @@ number (\code{n}) of samples.
 Performs linear time normalisation on trackdata.
 }
 \details{
-The data for each segment is normaised using the \code{approx} function.
+The data for each segment is normalised using the \code{approx} function.
 }
 \seealso{
 approx

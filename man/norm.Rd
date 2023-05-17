@@ -23,7 +23,7 @@ mean is added, where the standard deviation and mean are across all
 original speakers' unnormalised data.}
 }
 \value{
-Normalised values of data are retuned, having the same structure as
+Normalised values of data are returned, having the same structure as
 data.
 }
 \description{
@@ -35,8 +35,8 @@ element and subtract from each the mean of the logarithmic data.
 \code{"cen"}, centroid: Find the mean of the data column and subtract it
 from each data element in that column.  \code{"lob"}, Lobanov: Find the
 mean and standard deviation of the data. Subtract the mean from each data
-element and devide each result by the standard deviation.  "gerst",
-Gerstman: Subtract from the data the minimum formant value then devide by
+element and divide each result by the standard deviation.  "gerst",
+Gerstman: Subtract from the data the minimum formant value then divide by
 the formant range.
 }
 \seealso{
