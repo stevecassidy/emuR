@@ -1,6 +1,5 @@
 # emuR - Main package of the EMU Speech Database Management System
 
-[![Build Status](https://travis-ci.org/IPS-LMU/emuR.png)](https://travis-ci.org/IPS-LMU/emuR)
 [![Coverage Status](https://coveralls.io/repos/IPS-LMU/emuR/badge.svg)](https://coveralls.io/github/IPS-LMU/emuR)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/emuR)](https://cran.r-project.org/package=emuR)
 
