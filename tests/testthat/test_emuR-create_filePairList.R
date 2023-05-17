@@ -27,9 +27,9 @@ path2testDir = file.path(path2testData,
 test_that("bad calls cause errors", {
   
   expect_error(create_filePairList('asdf', '', '', ''), 
-               'ext1Path2rootDir does not exist: asdf')
+               'ext1Path2rootDir does not exist: .*asdf')
   expect_error(create_filePairList(path2tgCol, 'asdf', '', ''), 
-               'ext2Path2rootDir does not exist: asdf')
+               'ext2Path2rootDir does not exist: .*asdf')
   
 })
 
