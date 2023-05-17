@@ -1312,9 +1312,9 @@ remove_linkDefinition <- function(emuDBhandle,
 ##' list_ssffTrackDefinitions(emuDBhandle = ae)
 ##' 
 ##' # remove newly added ssff track definition (does not delete 
-##' # the actual .zrc files)
-##' remove_ssffTrackDefinition <- function(emuDBhandle = ae, 
-##'                                        name = "ZCRtrack")
+##' # the actual .zcr files)
+##' remove_ssffTrackDefinition(emuDBhandle = ae,
+##'                            name = "ZCRtrack")
 ##' 
 ##' }
 ##' 

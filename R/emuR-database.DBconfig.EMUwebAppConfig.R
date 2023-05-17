@@ -238,7 +238,7 @@ get_signalCanvasesOrder <- function(emuDBhandle,
 ##'                                perspectiveName = "default")
 ##' 
 ##' # reverse the level canvases order of ae emuDB
-##' set_levelCanvasesOrder(emuDBhandle = ae
+##' set_levelCanvasesOrder(emuDBhandle = ae,
 ##'                        perspectiveName = "default",
 ##'                        order = rev(order))
 ##'                        
