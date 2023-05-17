@@ -4,7 +4,7 @@
 ##' of attribute definitions belonging to annotation items, in an emuDB that 
 ##' match the provided \code{origLabels} character vector which the 
 ##' corresponding labels provided by the \code{newLabels} character vector. 
-##' The indicies of the label vectors provided are used to match the labels 
+##' The indices of the label vectors provided are used to match the labels
 ##' (i.e. \code{origLabels[i]} will be replaced by \code{newLabels[i]}).
 ##' 
 ##' 

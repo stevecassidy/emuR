@@ -7,8 +7,8 @@
 ##' \code{"cen"}, centroid: Find the mean of the data column and subtract it
 ##' from each data element in that column.  \code{"lob"}, Lobanov: Find the
 ##' mean and standard deviation of the data. Subtract the mean from each data
-##' element and devide each result by the standard deviation.  "gerst",
-##' Gerstman: Subtract from the data the minimum formant value then devide by
+##' element and divide each result by the standard deviation.  "gerst",
+##' Gerstman: Subtract from the data the minimum formant value then divide by
 ##' the formant range.
 ##' 
 ##' @param data A matrix of data. Can be either an n-columned matrix or a
@@ -22,7 +22,7 @@
 ##' normalised values are multiplied by the standard deviation and then the
 ##' mean is added, where the standard deviation and mean are across all
 ##' original speakers' unnormalised data.
-##' @return Normalised values of data are retuned, having the same structure as
+##' @return Normalised values of data are returned, having the same structure as
 ##' data.
 ##' @seealso track
 ##' @keywords misc

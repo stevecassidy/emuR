@@ -285,7 +285,7 @@ is.seglist <- function(object) {
 
 ##' segment list type
 ##' 
-##' Gives SEGEMENT or EVENT
+##' Gives SEGMENT or EVENT
 ##' 
 ##' 
 ##' @keywords internal

@@ -2,7 +2,7 @@
 ##' 
 ##' Performs linear time normalisation on trackdata.
 ##' 
-##' The data for each segment is normaised using the \code{approx} function.
+##' The data for each segment is normalised using the \code{approx} function.
 ##' 
 ##' @param dataset A trackdata object as returned by \code{track}.
 ##' @param n The number of points (samples) required for each segment.

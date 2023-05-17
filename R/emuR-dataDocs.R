@@ -332,7 +332,7 @@ NULL
 
 
 
-##' Segment list of dipththongs, two speakers one male, one female , Standard
+##' Segment list of diphthongs, two speakers one male, one female , Standard
 ##' North German, read speech from database kielread
 ##' 
 ##' An EMU dataset
@@ -710,7 +710,7 @@ NULL
 ##' 
 ##' @docType data
 ##' @keywords datasets
-##' @format vector of phoenme labels
+##' @format vector of phoneme labels
 ##' @name vowlax.left
 NULL
 
@@ -741,7 +741,7 @@ NULL
 ##' 
 ##' @docType data
 ##' @keywords datasets
-##' @format vector of phoenme labels
+##' @format vector of phoneme labels
 ##' @name vowlax.right
 NULL
 

@@ -24,7 +24,7 @@
 ##' }
 ##' @param dynRangeInDB dynamic range in DB of spectrogram 
 ##' @param audioChannel channel of audio file to draw spectrogram of (only
-##' applicable when using multi-chnanel audio files)
+##' applicable when using multi-channel audio files)
 ##' @param preEmphasisFilterFactor used in time domain for amplifying high-freqs
 ##' @param invert invert the colors of the spectrogram
 ##' @return a image raster object

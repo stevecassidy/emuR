@@ -13,7 +13,7 @@
 ##' components as the input \code{trackdata}:
 ##' 
 ##' \item{data}{ A vector or matrix of numerical data. } \item{index}{ A two
-##' column matrix giving the start and end indeces into the data vector for
+##' column matrix giving the start and end indices into the data vector for
 ##' each segment. } \item{ftime}{ A two column matrix giving the start and end
 ##' times for each segment. }
 ##' @seealso track, dextract, get.time.element, frames.time
@@ -41,7 +41,7 @@
     ftimes <- dataset$ftime[temp.lab,  ]
   
   finds <- dataset$index[temp.lab,  ]	
-  ## readjust the indeces
+  ## readjust the indices
   diffinds <- finds[, 2] - finds[, 1] + 1
   right <- cumsum(diffinds)
   first.left <- diffinds - 1
