@@ -25,7 +25,7 @@
 "mahal" <- function(data, train)
 {
   #   if (emu.options("deprecated.warnings")) # commented out because glabal vars don't exist any more
-  cat("mahal is deprecated, use classify with metric=\"mahal\"\n")
+  warning("mahal is deprecated, use classify with metric=\"mahal\"\n")
   classify( data, train, metric="mahal" )
 }
 
@@ -47,7 +47,7 @@
 "bayes.lab" <- function(data, train)
 {
   #if (emu.options("deprecated.warnings")) # commented out because glabal vars don't exist any more
-  cat("bayes.lab is deprecated, use classify with metric=\"bayes\"\n")
+  warning("bayes.lab is deprecated, use classify with metric=\"bayes\"\n")
   classify( data, train, metric="bayes" )
 }
 
@@ -69,7 +69,7 @@
 "bayes.dist" <- function(data, train, labels=NULL)
 {
   #if (emu.options("deprecated.warnings")) # commented out because glabal vars don't exist any more
-  cat("bayes.dist is deprecated, use distance with metric=\"bayes\"\n")
+  warning("bayes.dist is deprecated, use distance with metric=\"bayes\"\n")
   distance( data, train, labels, metric="bayes")
 }
 
