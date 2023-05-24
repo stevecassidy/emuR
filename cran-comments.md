@@ -62,6 +62,11 @@ and FALSE, respectively.
 >      AddListRemovePerspective.Rd: \value
 >     ...
 
+Is this really necessary? I agree that it would be desirable, but all of these
+functions have been used by many CRAN users, for years, and without a problem.
+The documentation is in a pretty good shape as it stands. Adding \value or
+@returns tags to more than a hundred functions would be extremely expensive.
+
 
 ### Unexecutable code in man/
 
@@ -112,6 +117,8 @@ I have replaced some instances with warning() or stop(). All remaining instances
 
 > Please ensure that your functions do not write by default or in your examples/vignettes/tests in the user's home filespace (including the package directory and getwd()). This is not allowed by CRAN policies.
 > Please omit any default path in writing functions. In your examples/vignettes/tests you can write to tempdir().
+
+We already do that, see for example `convert_TextGridCollection()`.
 
 
 ### User’s options, par or working directory
