@@ -421,7 +421,7 @@ load_annotationForLegacyBundle = function(schema,
       
     }else{
       if(!is.null(lvlSr) && lvlSr != bundleSampleRate){
-        cat("WARNING: Levels have different sample rates!\n")
+        warning("WARNING: Levels have different sample rates!\n")
       }
     }
   }
@@ -727,7 +727,7 @@ convert_legacyEmuDB <- function(emuTplPath,
   bundlesCount = length(legacyBundleIDsList)
   if(bundlesCount == 0){
     # This is likely an error in the template file or folder structure, inform the user
-    cat("WARNING: No bundles found!\n(Search pattern for primary files was: ",
+    warning("WARNING: No bundles found!\n(Search pattern for primary files was: ",
         primaryBasePath,
         .Platform$file.sep,primaryFileSuffixPattern,
         ")",

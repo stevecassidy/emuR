@@ -118,7 +118,7 @@ initialize_emuDbDBI <- function(emuDBhandle,
                                 createIndices = TRUE){
   # check of old tables are present and rename them
   if(DBI::dbExistsTable(emuDBhandle$connection, "emuDB")){
-    cat(paste0("INFO: Deprecated cache tables found. Deleting these and recreating ",
+    warning(paste0("INFO: Deprecated cache tables found. Deleting these and recreating ",
                "SQL cache that adheres to new DB schema definition.\n"))
     allTableNames = DBI::dbListTables(emuDBhandle$connection)
     DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "items"))
@@ -132,7 +132,7 @@ initialize_emuDbDBI <- function(emuDBhandle,
     DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "session"))
     DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "emuDB"))
   }else if(DBI::dbExistsTable(emuDBhandle$connection, "links_ext")){
-    cat(paste0("INFO: Found deprecated links_ext table. Deleting this table as it ",
+    warning(paste0("INFO: Found deprecated links_ext table. Deleting this table as it ",
                "is not needed any longer.\n"))
     DBI::dbExecute(emuDBhandle$connection, paste0("DROP TABLE IF EXISTS ", "links_ext"))
   }

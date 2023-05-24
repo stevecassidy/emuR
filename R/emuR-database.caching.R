@@ -62,7 +62,7 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
   numberOfRowsAffected = DBI::dbExecute(emuDBhandle$connection, 
                                         paste0("DELETE FROM emu_db WHERE uuid != '", emuDBhandle$UUID, "'"))
   if(numberOfRowsAffected != 0){
-    cat(paste0("INFO: Found and deleted ",
+    warning(paste0("INFO: Found and deleted ",
                numberOfRowsAffected, 
                " elements in emuDBcache of emuDB with other UUID \n"))
   }

@@ -278,11 +278,11 @@ load_dbConfigFromEmuTemplate = function(tplPath,
     }
     if(n == 'samples'){
       if(e != 'wav'){
-        cat("WARNING: Media file type with extension ", e, " are not supported by the EMU-webApp.\n")
+        warning("WARNING: Media file type with extension ", e, " are not supported by the EMU-webApp.\n")
       }
       if(e == 'ssd'){
-        cat("INFO: Converting 'ssd' media files to wav! Note that all attr(ssd,'startTime') values that vary from 0 will be normalized to 0.\n")
-        cat("INFO: 'ssd' files will still be copied into each bundle but not added as an ssffTrackDefinition.\n")
+        warning("WARNING: Converting 'ssd' media files to wav! Note that all attr(ssd,'startTime') values that vary from 0 will be normalized to 0.\n")
+        warning("WARNING: 'ssd' files will still be copied into each bundle but not added as an ssffTrackDefinition.\n")
       }
       mediafileExtension = e
       mediafileBasePathPattern = tr[['basePath']]
