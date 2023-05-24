@@ -318,7 +318,8 @@ bayesplot <- function(data, train, N = 10, ellipse = FALSE,
     k <- k + 1
   }
   if(ellipse && !is.null(labs) ) {
-    graphics::par(new = TRUE)
+    oldpar = graphics::par(new = TRUE)
+    on.exit(graphics::par(oldpar))
     eplot(data, labs, xlim = rx, ylim = ry, colour=colour, ...)
   }
 }

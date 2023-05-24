@@ -321,6 +321,9 @@
                               lty = FALSE, type="p", pch=NULL, 
                               contig = TRUE, ...) 
 {
+  oldpar = graphics::par(no.readonly=TRUE)
+  on.exit(graphics::par(oldpar))
+
   trackdata <- x
   N <- nrow(trackdata$data)
   if(is.logical(col))

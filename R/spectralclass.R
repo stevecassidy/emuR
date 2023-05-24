@@ -217,6 +217,9 @@
                              dbnorm = FALSE, dbcoeffs = c(0, 0), 
                              legend = TRUE, axes=TRUE,  ...) 
 {
+  oldpar = graphics::par(no.readonly=TRUE)
+  on.exit(graphics::par(oldpar))
+
   specdata = x
   if (is.trackdata(specdata)) 
     specdata <- specdata$data

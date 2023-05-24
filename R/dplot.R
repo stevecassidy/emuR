@@ -113,7 +113,8 @@
                      lwd = NULL, pch=NULL, legend = "topright", 
                      axes = TRUE, type="l", n = 20, ...) 
 {
-  
+  oldpar = graphics::par(no.readonly=TRUE)
+  on.exit(graphics::par(oldpar))
   
   if(prop)
   {
@@ -187,6 +188,9 @@
                           lty = FALSE, colour = TRUE, lwd = NULL, 
                           pch=NULL, legend = "topright",  type="l", ...) 
 {
+  oldpar = graphics::par(no.readonly=TRUE)
+  on.exit(graphics::par(oldpar))
+
   ovec <- as.list(NULL)
   samrate <- 1000/((x$ftime[1, 2] - x$ftime[1, 
                                             1])/(x$index[1, 2] - x$index[1, 1]))
@@ -323,6 +327,9 @@
                           ylim = NULL,  lty = FALSE, type = "l", colour = TRUE, 
                           lwd = NULL, pch = NULL, legend = "topright",  n = 20) 
 {
+  oldpar = graphics::par(no.readonly=TRUE)
+  on.exit(graphics::par(oldpar))
+
   ovec <- NULL
   if (is.null(ylim)) 
     ylim <- range(x$data)

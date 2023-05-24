@@ -250,6 +250,8 @@
                      ylab = "Amplitude", super = NULL, xaxlab = NULL, type = "b", 
                      xlab = "Time (number of points)", fconst = 3.5/3.1, pointconst = 1.2)
 {
+  oldpar = graphics::par(no.readonly=TRUE)
+  on.exit(graphics::par(oldpar))
   
   if(A < -2 | A > 2)
     stop("choose A to be between plus or minus 2")
@@ -293,7 +295,8 @@
     sinpoints <- Ax *  - sin(theta) - plotshift
     cospoints <- Ay * cos(theta)
     xvals <- seq(0, figsize/2, length = N)
-    graphics::par(new = TRUE)
+    oldpar = graphics::par(new = TRUE)
+    on.exit(graphics::par(oldpar))
     graphics::plot(xvals[first:last], cospoints[first:last], type = "l", xlim = c( - 
                                                                            pin[1]/2, pin[1]/2), ylim = c( - pin[2]/2, pin[2]/2), axes = FALSE, 
          ylab = "", xlab = "", col = col, lwd = lwd)

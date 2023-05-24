@@ -88,6 +88,9 @@
                      doellipse = TRUE, centroid = FALSE,  axes = TRUE, 
                      xlim, ylim, col = TRUE, lty = FALSE,  lwd = NULL, ...) 
 {
+  oldpar = graphics::par(no.readonly=TRUE)
+  on.exit(graphics::par(oldpar))
+
   ocall <- match.call()
   if (is.null(nsdev)) 
     nsdev <- sqrt(qchisq(prob, 2))
@@ -308,7 +311,9 @@
   graphics::plot( points, type="b", pch=" ", axes=FALSE, xlab="", ylab="" )
   graphics::text( points, order, axes=FALSE, , xlab="", ylab="" )
   
-  graphics::par(col = 1)
+  oldpar = graphics::par(col = 1)
+  on.exit(graphics::par(oldpar))
+
   graphics::box()
   if(axes) {
     if(formant) {
