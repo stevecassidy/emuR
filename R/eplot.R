@@ -131,7 +131,7 @@
                                                         c(2, 1)))
     }
     else {
-      cat("Too few x points for label ", j, " will plot a point or a line\n")
+      warning("Too few x points for label ", j, " will plot a point or a line\n")
       m1 <- mean(mat[, 1])
       m2 <- mean(mat[, 2])
       e <- mat
