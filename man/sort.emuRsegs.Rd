@@ -7,7 +7,7 @@
 \method{sort}{emuRsegs}(x, decreasing, ...)
 }
 \arguments{
-\item{x}{object to print}
+\item{x}{object to sort}
 
 \item{decreasing}{NOT IMPLEMENTED!}
 

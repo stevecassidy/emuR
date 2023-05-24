@@ -103,7 +103,7 @@ are removed in the case of spectral objects.
 
 w = bark(e.dft)
 
-par(mfrow=c(1,2))
+oldpar = par(mfrow=c(1,2))
 
 plot(w, type="l")
 
@@ -119,7 +119,7 @@ plot(e.dft, freq=bark(trackfreq(e.dft)))
 
 # in a higher frequency range.
 
-
+par(oldpar)
 
 
 }

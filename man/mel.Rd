@@ -59,7 +59,7 @@ function to obtain the dB values at those frequencies.
 # that it is proportional to the mel scale.
 
 w = mel(e.dft)
-par(mfrow=c(1,2))
+oldpar = par(mfrow=c(1,2))
 plot(w, type="l")
 
 
@@ -70,6 +70,8 @@ plot(e.dft, freq=mel(trackfreq(e.dft)))
 
 # the latter has a greater concentration of values
 # in a higher frequency range.
+
+par(oldpar)
 
 }
 \references{
