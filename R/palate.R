@@ -38,8 +38,7 @@
   times <- dimnames(epgdata)[[1]]
   if(!is.matrix(epgdata)) epgdata <- rbind(epgdata)
   if(ncol(epgdata) != 8) {
-    print("input must have 8 columns or be a vector of length 8")
-    stop()
+    stop("input must have 8 columns or be a vector of length 8")
   }
   bingen <- function(n = 8)
   {

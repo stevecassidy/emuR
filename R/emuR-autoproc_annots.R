@@ -505,12 +505,11 @@ append_itemsToLevel = function(emuDBhandle,
   levelDefinition = get_levelDefinition(emuDBhandle, levelName)
   
   if (is.null(levelDefinition)) {
-    print("Error: The given level does not exist ")
-    return(invisible(NULL))
+    stop("Error: The given level does not exist ")
   }
   
   if (length(labels) != length(levelDefinition$attributeDefinitions)) {
-    print (
+    stop (
       paste0(
         "Error: The number of labels (",
         length(labels),
@@ -521,8 +520,6 @@ append_itemsToLevel = function(emuDBhandle,
         ")"
       )
     )
-    
-    return(invisible(NULL))
   }
   
   

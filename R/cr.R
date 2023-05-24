@@ -118,29 +118,23 @@
   if(dopoints) type <- "l"
   if(!is.null(duration)) {
     if(is.null(samfreq)) {
-      print("must supply a sampling frequency if duration supplied"
-      )
-      stop()
+      stop("must supply a sampling frequency if duration supplied")
     }
     N <- round((samfreq * duration)/1000)
   }
   if(!is.null(bw)) {
     if(is.null(samfreq)) {
-      print("must supply a sampling frequency if bandwidth supplied"
-      )
-      stop()
+      stop("must supply a sampling frequency if bandwidth supplied")
     }
     expon <- exp( - rad(bw/2, samfreq = samfreq))
   }
   if(!is.null(samfreq) & is.numeric(samfreq))
     k <- (k * N)/samfreq
   if(max(k) > N) {
-    print("number of k must be less than N")
-    stop()
+    stop("number of k must be less than N")
   }
   if(any((p > pi) | (p <  - pi))) {
-    print("p must be within plus or minus pi")
-    stop()
+    stop("p must be within plus or minus pi")
   }
   
   mat <- rep(0, N)
@@ -356,12 +350,10 @@
   ## postscript using setps(h=4, w=4)
   ## pointconst: the radius of numbers around the circle
   if(k > N) {
-    print("number of k must be less than N")
-    stop()
+    stop("number of k must be less than N")
   }
   if(p > pi | p <  - pi) {
-    print("p must be within plus or minus pi")
-    stop()
+    stop("p must be within plus or minus pi")
   }
   ## different scale factors for x and y to frob aspect ratio
   Ay <- (A * figsize)/8
