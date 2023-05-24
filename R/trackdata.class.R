@@ -282,7 +282,7 @@
 ##' 
 ##' 
 ##' # F1 and F2 of six vowels with labels, separate windows
-##' par(mfrow=c(2,3))
+##' oldpar = par(mfrow=c(2,3))
 ##' plot(vowlax.fdat[1:6,1:2], contig=FALSE, labels=vowlax.l[1:6], ylab="F1 and F2", 
 ##' xlab="Time (ms)", type="b", ylim=c(300, 2400))
 ##' 
@@ -313,7 +313,7 @@
 ##'  plot(coutts.rms, labels=labels, type="b", lwd=2, col="green", 
 ##'       timestart=0, bty="n", contig=FALSE, pch=20)
 ##'  
-##' 
+##' par(oldpar)
 ##' 
 ##' @export
 `plot.trackdata` <- function (x, timestart = NULL, xlim = NULL, 

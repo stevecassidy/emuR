@@ -98,7 +98,7 @@
 ##' 
 ##' w = bark(e.dft)
 ##' 
-##' par(mfrow=c(1,2))
+##' oldpar = par(mfrow=c(1,2))
 ##' 
 ##' plot(w, type="l")
 ##' 
@@ -114,7 +114,7 @@
 ##' 
 ##' # in a higher frequency range.
 ##' 
-##' 
+##' par(oldpar)
 ##' 
 ##' 
 ##' @export bark

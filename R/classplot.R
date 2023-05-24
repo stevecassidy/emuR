@@ -43,9 +43,11 @@
 ##' xlim=c(0,1000)
 ##' ylim=c(0,3000)
 ##' 
-##' par(mfrow=c(1,2))
+##' oldpar = par(mfrow=c(1,2))
 ##' classplot(fm.qda, xlim=xlim, ylim=ylim, main="QDA")
 ##' classplot(fm.lda, xlim=xlim, ylim=ylim, main="LDA")
+##' 
+##' par(oldpar)
 ##' 
 ##' 
 ##' # install.packages("e1071")

@@ -406,9 +406,10 @@
 ##' # compare the two
 ##' ylim = range(c(res, e.dft))
 ##' plot(e.dft, ylim=ylim, type="l")
-##' par(new=TRUE)
+##' oldpar = par(new=TRUE)
 ##' plot(res, ylim=ylim, type="l", col=2)
 ##' 
+##' par(oldpar)
 ##' 
 ##' @export dbnorm
 "dbnorm" <- function(specdata, f=0, db=0)
