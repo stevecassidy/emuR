@@ -574,6 +574,7 @@ serve <- function(emuDBhandle,
         # warnings as errors
         warnOptionSave = getOption('warn')
         options('warn' = 2)
+        on.exit(options(warn = warnOptionSave))
         responseBundle = NULL
         
         # check if cached version of bundle is available
@@ -698,8 +699,6 @@ serve <- function(emuDBhandle,
                                               pretty = TRUE)
         # send response
         result = ws$send(responseBundleJSON)
-        # restore warn level
-        options(warn = warnOptionSave)
         
         # reset error
         err = NULL
