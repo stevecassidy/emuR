@@ -25,7 +25,6 @@ update_cache <- function(emuDBhandle, verbose = TRUE){
   notUpdatedSessionDBI = list_sessionsDBI(emuDBhandle)
   notUpdatedBundlesDBI = list_bundlesDBI(emuDBhandle)
   
-  # add column to sessions to track if already stored
   if(nrow(sessions) ==0 || nrow(bundles) == 0){
     return()
   }
