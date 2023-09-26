@@ -1,3 +1,12 @@
+# emuR 2.4.1
+
+## new features / performance tweaks / improvements
+
+## bug fixes
+
+* worked around a problem in vroom_write_lines that could materialize on Windows in rare cases
+* fix loading databases with empty sessions (thanks to @FredrikKarlssonSpeech via #268, #271)
+
 # emuR 2.4.0
 
 ## new features / performance tweaks / improvements
