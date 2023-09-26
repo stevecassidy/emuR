@@ -28,7 +28,7 @@
 #   
 #   if(!file.exists(gitignorePath)){
 #     # only ignore cache 4 now
-#     readr::write_lines(c("*_emuDBcache.sqlite"), gitignorePath)
+#     readr::write_lines(c("*_emuDBcache.sqlite"), gitignorePath, num_threads = 1)
 #   }
 #   
 #   ######################

@@ -152,7 +152,7 @@ export_TextGridCollection <- function(emuDBhandle,
                  paste0("size = ", length(allAttrNames), " "),
                  "item []: ")
     
-    readr::write_lines(tgHeader, tgPath)
+    readr::write_lines(tgHeader, tgPath, num_threads = 1)
     
     for(attrNameIdx in 1:length(allAttrNames)){
       
@@ -272,7 +272,7 @@ export_TextGridCollection <- function(emuDBhandle,
                      "        xmin = 0 ",
                      paste0("        xmax = ", wavDur, " "))
       
-      readr::write_lines(tierHeader, tgPath, append=TRUE)
+      readr::write_lines(tierHeader, tgPath, append=TRUE, num_threads=1)
       
       # tier items
       if(tierType == "IntervalTier"){
@@ -303,7 +303,8 @@ export_TextGridCollection <- function(emuDBhandle,
       
       readr::write_lines(tierItems, 
                          tgPath, 
-                         append = TRUE)
+                         append = TRUE,
+                         num_threads = 1)
     }
     # increase pb
     if(verbose){
