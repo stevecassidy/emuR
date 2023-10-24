@@ -12,6 +12,7 @@ add_ssffTrackDefinition(
   name,
   columnName = NULL,
   fileExtension = NULL,
+  fileFormat = NULL,
   onTheFlyFunctionName = NULL,
   onTheFlyParams = NULL,
   onTheFlyOptLogFilePath = NULL,
@@ -35,6 +36,9 @@ If the \code{onTheFlyFunctionName} parameter is set and columnName isn't, the
 \item{fileExtension}{fileExtension of ssffTrackDefinitions.
 If the \code{onTheFlyFunctionName} parameter is set and fileExtension isn't, the
 \code{fileExtension} will default to the first entry in \code{wrasspOutputInfos[[onTheFlyFunctionName]]$ext}.}
+
+\item{fileFormat}{(optional) file format of ssffTrackDefinition. This is currently in test phase. Can be ssff,
+Rda or NULL. Defaults to ssff.}
 
 \item{onTheFlyFunctionName}{name of wrassp function to do on-the-fly calculation. If set to the name of a wrassp 
 signal processing function, not only the emuDB schema is extended by the ssffTrackDefintion but also 

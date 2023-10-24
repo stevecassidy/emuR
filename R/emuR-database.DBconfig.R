@@ -1269,6 +1269,8 @@ remove_linkDefinition <- function(emuDBhandle,
 ##' @param fileExtension fileExtension of ssffTrackDefinitions.
 ##' If the \code{onTheFlyFunctionName} parameter is set and fileExtension isn't, the
 ##' \code{fileExtension} will default to the first entry in \code{wrasspOutputInfos[[onTheFlyFunctionName]]$ext}.
+##' @param fileFormat (optional) file format of ssffTrackDefinition. This is currently in test phase. Can be ssff,
+##' Rda or NULL. Defaults to ssff.
 ##' @param onTheFlyFunctionName name of wrassp function to do on-the-fly calculation. If set to the name of a wrassp 
 ##' signal processing function, not only the emuDB schema is extended by the ssffTrackDefintion but also 
 ##' the track itself is calculated from the signal file and stored in the emuDB. See \code{names(wrasspOutputInfos)}
@@ -1323,7 +1325,8 @@ NULL
 ##' @rdname AddListRemoveSsffTrackDefinition
 ##' @export
 add_ssffTrackDefinition <- function(emuDBhandle, name,
-                                    columnName = NULL, fileExtension = NULL, 
+                                    columnName = NULL, fileExtension = NULL,
+                                    fileFormat = NULL,
                                     onTheFlyFunctionName = NULL, onTheFlyParams = NULL, 
                                     onTheFlyOptLogFilePath = NULL,
                                     verbose = TRUE, interactive = TRUE){
@@ -1349,6 +1352,11 @@ add_ssffTrackDefinition <- function(emuDBhandle, name,
   # check if three main parameters are not null
   if(is.null(name) || is.null(columnName) || is.null(fileExtension)){
     stop('name, columnName, fileExtension have to be set!')
+  }
+  
+  # check if fileFormat has a valid value
+  if (!fileFormat %in% c("ssff", "Rda") && !is.null(fileFormat)) {
+    stop("fileFormat must be either ssff, Rda or NULL")
   }
   
   # check if onTheFlyFunctionName is set if onTheFlyParams is
@@ -1405,9 +1413,18 @@ add_ssffTrackDefinition <- function(emuDBhandle, name,
   
   if(ans == 'y'){
     # add new ssffTrackDefinition
-    dbConfig$ssffTrackDefinitions[[length(dbConfig$ssffTrackDefinitions) + 1]] = list(name = name, 
-                                                                                      columnName = columnName,
-                                                                                      fileExtension = fileExtension)
+    if (is.null(fileFormat)) {
+      # If fileFormat is NULL, we leave it out completely so the resulting JSON
+      # does not contain "fileFormat": {}
+      dbConfig$ssffTrackDefinitions[[length(dbConfig$ssffTrackDefinitions) + 1]] = list(name = name, 
+                                                                                        columnName = columnName,
+                                                                                        fileExtension = fileExtension)
+    } else {
+      dbConfig$ssffTrackDefinitions[[length(dbConfig$ssffTrackDefinitions) + 1]] = list(name = name, 
+                                                                                        columnName = columnName,
+                                                                                        fileExtension = fileExtension,
+                                                                                        fileFormat = fileFormat)
+    }
     # store changes
     store_DBconfig(emuDBhandle, dbConfig)
   }
@@ -1418,8 +1435,18 @@ add_ssffTrackDefinition <- function(emuDBhandle, name,
 list_ssffTrackDefinitions <- function(emuDBhandle){
   check_emuDBhandle(emuDBhandle, checkCache = FALSE)
   dbConfig = load_DBconfig(emuDBhandle)
-  df <- do.call(rbind, lapply(dbConfig$ssffTrackDefinitions, data.frame, stringsAsFactors=FALSE))
-  return(df)
+  
+  result_df = dbConfig$ssffTrackDefinitions %>% 
+    lapply(function(element) {
+      # Make sure the optional property fileFormat gets its default value here
+      if (is.null(element$fileFormat)) {
+        element$fileFormat = "ssff"
+      }
+      return(element)
+    }) %>% 
+    lapply(data.frame, stringsAsFactors=FALSE) %>% 
+    do.call(rbind, .)
+  return(result_df)
 }
 
 
