@@ -363,12 +363,23 @@
         
       } else { # if precalculated track read in file
         if(file.exists(fpath)){
-          # if file doesn't exist this causes the R session to crash
-          # this didn't used to be the case? Further wrassp debugging 
-          # needed...
-          curDObj <- wrassp::read.AsspDataObj(fpath)
+          if (!is.null(trackDef[[1]]$fileFormat) && trackDef[[1]]$fileFormat == "Rda") {
+            rda_file_environment = rlang::new_environment()
+            load(fpath, envir = rda_file_environment)
+            
+            curDObj = list()
+            curDObj$data = rda_file_environment$data
+            attr(curDObj, "sampleRate") = rda_file_environment$sampleRate
+            attr(curDObj, "startTime") = rda_file_environment$startTime
+            attr(curDObj, "origFreq") = rda_file_environment$originalFrequency
+          } else {
+            # if file doesn't exist this causes the R session to crash
+            # this didn't used to be the case? Further wrassp debugging 
+            # needed...
+            curDObj <- wrassp::read.AsspDataObj(fpath)
+          }
         } else {
-          stop("trying wrassp::read.AsspDataObj() on a file path that doesn't exist: ", fpath)
+          stop("trying to read a stored track from a file that doesn't exist: ", fpath)
         }
       }
       
@@ -435,6 +446,12 @@
              "of the file ", fpath, " this could be due to a bad ",
              "column name in the DBconfig."
              )
+      }
+      
+      if(!is.null(trackDef[[1]]$fileFormat) && trackDef[[1]]$fileFormat == "Rda") {
+        if (!is.matrix(tmpData)) {
+          tmpData = as.matrix(tmpData)
+        }
       }
       
       #############################################################
