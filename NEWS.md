@@ -1,3 +1,14 @@
+# emuR 2.4.2
+
+## new features / performance tweaks / improvements
+
+* experimental: signal tracks can be stored in Rda format as well as SSFF
+
+## bug fixes
+
+* passing a data frame or tibble as language option to BAS Web Services calls was broken (closes #272, thanks to @johannacronenberg)
+* fix error in create_itemsInLevel where end of last segment in a level could be miscalculated
+
 # emuR 2.4.1
 
 ## new features / performance tweaks / improvements
