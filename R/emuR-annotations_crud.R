@@ -275,7 +275,7 @@
                           paste0(last_items$bundle, bundle.dir.suffix),
                           paste0(last_items$bundle, ".wav"))
     
-    itemsToCreate[is.na(itemsToCreate$sample_end),]$sample_end = sapply(wav_paths, FUN = function(wav_path){attr(wrassp::read.AsspDataObj(wav_paths), "endRecord")})
+    itemsToCreate[is.na(itemsToCreate$sample_end),]$sample_end = sapply(wav_paths, FUN = function(wav_path){attr(wrassp::read.AsspDataObj(wav_path), "endRecord")})
     
     # check if there are already any segments in bundles
     
