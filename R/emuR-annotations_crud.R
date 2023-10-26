@@ -70,8 +70,8 @@
                                verbose = TRUE) {
   # check that only one level is provided
   levelName = unique(itemsToCreate$level)
-  if(length(levelName) > 1){
-    stop("'itemsToCreate' contains multiple levels! The created ITEMs have to be on the same level!")
+  if(length(levelName) > 1 || length(levelName) < 1) {
+    stop("'itemsToCreate' contains multiple levels or none at all! The created ITEMs have to be on the same level!")
   }
   
   # check that only one attribute is provided (currenlty only single attributes allowed)
