@@ -2322,8 +2322,9 @@ bas_check_this_is_a_new_label <- function(handle, label)
 
 bas_evaluate_language_option <- function(handle, language)
 {
-  bundles = list_bundlesDBI(handle)
-  names(bundles)[names(bundles) == "name"] <- "bundle"
+  bundles = list_bundlesDBI(handle) %>% 
+    dplyr::rename(bundle = name) %>% 
+    dplyr::arrange(session, bundle)
   
   if (is.data.frame(language))
   {
@@ -2338,7 +2339,10 @@ bas_evaluate_language_option <- function(handle, language)
         " bundles."
       )
     }
-    if (unique(language$bundle) != unique(bundles$bundle))
+    language = language %>% 
+      dplyr::arrange(session, bundle)
+    if ( any(language$session != bundles$session) ||
+         any(language$bundle != bundles$bundle) )
     {
       stop("Your language dataframe must contain the same bundles as your emuDB.")
     }
