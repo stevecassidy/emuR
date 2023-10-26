@@ -100,9 +100,9 @@ bas_run_maus_dbi <- function(handle,
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
-      bundle = bundles_list[bundle_idx, "bundle"]
-      session = bundles_list[bundle_idx, "session"]
-      language = bundles_list[bundle_idx, "language"]
+      bundle = bundles_list[bundle_idx, "bundle", drop = TRUE]
+      session = bundles_list[bundle_idx, "session", drop = TRUE]
+      language = bundles_list[bundle_idx, "language", drop = TRUE]
       
       samplerate = bas_get_samplerate(handle, session, bundle)
       
@@ -364,9 +364,9 @@ bas_run_minni_dbi <- function(handle,
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
-      bundle = bundles_list[bundle_idx, "bundle"]
-      session = bundles_list[bundle_idx, "session"]
-      language = bundles_list[bundle_idx, "language"]
+      bundle = bundles_list[bundle_idx, "bundle", drop = TRUE]
+      session = bundles_list[bundle_idx, "session", drop = TRUE]
+      language = bundles_list[bundle_idx, "language", drop = TRUE]
       
       samplerate = bas_get_samplerate(handle, session, bundle)
       signalfile = bas_get_signal_path(handle, session, bundle, oldBasePath)
@@ -541,9 +541,9 @@ bas_run_g2p_for_tokenization_dbi <- function(handle,
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
-      bundle = bundles_list[bundle_idx, "bundle"]
-      session = bundles_list[bundle_idx, "session"]
-      language = bundles_list[bundle_idx, "language"]
+      bundle = bundles_list[bundle_idx, "bundle", drop = TRUE]
+      session = bundles_list[bundle_idx, "session", drop = TRUE]
+      language = bundles_list[bundle_idx, "language", drop = TRUE]
       
       samplerate = bas_get_samplerate(handle, session, bundle)
       
@@ -723,9 +723,9 @@ bas_run_g2p_for_pronunciation_dbi <- function(handle,
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
-      bundle = bundles_list[bundle_idx, "bundle"]
-      session = bundles_list[bundle_idx, "session"]
-      language = bundles_list[bundle_idx, "language"]
+      bundle = bundles_list[bundle_idx, "bundle", drop = TRUE]
+      session = bundles_list[bundle_idx, "session", drop = TRUE]
+      language = bundles_list[bundle_idx, "language", drop = TRUE]
       
       samplerate = bas_get_samplerate(handle, session, bundle)
       
@@ -902,9 +902,9 @@ bas_run_chunker_dbi <- function(handle,
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
-      bundle = bundles_list[bundle_idx, "bundle"]
-      session = bundles_list[bundle_idx, "session"]
-      language = bundles_list[bundle_idx, "language"]
+      bundle = bundles_list[bundle_idx, "bundle", drop = TRUE]
+      session = bundles_list[bundle_idx, "session", drop = TRUE]
+      language = bundles_list[bundle_idx, "language", drop = TRUE]
       
       samplerate = bas_get_samplerate(handle, session, bundle)
       
@@ -1137,9 +1137,9 @@ bas_run_pho2syl_canonical_dbi <- function(handle,
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
-      bundle = bundles_list[bundle_idx, "bundle"]
-      session = bundles_list[bundle_idx, "session"]
-      language = bundles_list[bundle_idx, "language"]
+      bundle = bundles_list[bundle_idx, "bundle", drop = TRUE]
+      session = bundles_list[bundle_idx, "session", drop = TRUE]
+      language = bundles_list[bundle_idx, "language", drop = TRUE]
       
       samplerate = bas_get_samplerate(handle, session, bundle)
       
@@ -1436,9 +1436,9 @@ bas_run_pho2syl_segmental_dbi_anchored <- function(handle,
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
-      bundle = bundles_list[bundle_idx, "bundle"]
-      session = bundles_list[bundle_idx, "session"]
-      language = bundles_list[bundle_idx, "language"]
+      bundle = bundles_list[bundle_idx, "bundle", drop = TRUE]
+      session = bundles_list[bundle_idx, "session", drop = TRUE]
+      language = bundles_list[bundle_idx, "language", drop = TRUE]
       
       samplerate = bas_get_samplerate(handle, session, bundle)
       
@@ -1677,9 +1677,9 @@ bas_run_pho2syl_segmental_dbi_unanchored <- function(handle,
     
     for (bundle_idx in 1:nrow(bundles_list))
     {
-      bundle = bundles_list[bundle_idx, "bundle"]
-      session = bundles_list[bundle_idx, "session"]
-      language = bundles_list[bundle_idx, "language"]
+      bundle = bundles_list[bundle_idx, "bundle", drop = TRUE]
+      session = bundles_list[bundle_idx, "session", drop = TRUE]
+      language = bundles_list[bundle_idx, "language", drop = TRUE]
       
       samplerate = bas_get_samplerate(handle, session, bundle)
       
@@ -2252,8 +2252,8 @@ bas_long_enough_for_chunker <- function(handle, basePath)
     for (bundle_idx in nrow(bundles))
     {
       annotates = bas_get_signal_path(handle,
-                                      session = bundles[bundle_idx, "session"],
-                                      bundles[bundle_idx, "name"],
+                                      session = bundles[bundle_idx, "session", drop = TRUE],
+                                      bundles[bundle_idx, "name", drop = TRUE],
                                       basePath = basePath)
       obj = wrassp::read.AsspDataObj(annotates)
       if ((attr(obj, "endRecord") / attr(obj, "sampleRate")) > 60)
