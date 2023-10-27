@@ -2323,8 +2323,8 @@ bas_check_this_is_a_new_label <- function(handle, label)
 bas_evaluate_language_option <- function(handle, language)
 {
   bundles = list_bundlesDBI(handle) %>% 
-    dplyr::rename(bundle = name) %>% 
-    dplyr::arrange(session, bundle)
+    dplyr::rename(bundle = "name") %>% 
+    dplyr::arrange(.data$session, .data$bundle)
   
   if (is.data.frame(language))
   {
@@ -2340,7 +2340,7 @@ bas_evaluate_language_option <- function(handle, language)
       )
     }
     language = language %>% 
-      dplyr::arrange(session, bundle)
+      dplyr::arrange(.data$session, .data$bundle)
     if ( any(language$session != bundles$session) ||
          any(language$bundle != bundles$bundle) )
     {

@@ -1436,7 +1436,7 @@ list_ssffTrackDefinitions <- function(emuDBhandle){
   check_emuDBhandle(emuDBhandle, checkCache = FALSE)
   dbConfig = load_DBconfig(emuDBhandle)
   
-  result_df = dbConfig$ssffTrackDefinitions %>% 
+  listOfLists = dbConfig$ssffTrackDefinitions %>% 
     lapply(function(element) {
       # Make sure the optional property fileFormat gets its default value here
       if (is.null(element$fileFormat)) {
@@ -1444,8 +1444,12 @@ list_ssffTrackDefinitions <- function(emuDBhandle){
       }
       return(element)
     }) %>% 
-    lapply(data.frame, stringsAsFactors=FALSE) %>% 
-    do.call(rbind, .)
+    lapply(data.frame, stringsAsFactors=FALSE)
+  
+  # This should have been part of the pipe as %>% do.call(rbind, .); but then
+  # R CMD CHECK complains about the global variable "."
+  result_df = do.call(rbind, listOfLists)
+  
   return(result_df)
 }
 
