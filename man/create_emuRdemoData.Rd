@@ -17,14 +17,14 @@ Create a folder within the folder specified
 by the dir argument called emuR_demoData.
 This folder contains the folders:
 \itemize{
-\item{ae_emuDB: }{Containing an emuDB that adheres to the new format specification 
+\item{ae_emuDB: Containing an emuDB that adheres to the new format specification 
 (as expected by the \code{\link{load_emuDB}} function). See \code{vignette(emuDB)} 
 for more information on this database format.}
-\item{BPF_collection: }{Containing a BAS Partitur Format (BPF) file collection (as
+\item{BPF_collection: Containing a BAS Partitur Format (BPF) file collection (as
 expected by the \code{\link{convert_BPFCollection}} function)}
-\item{legacy_ae: }{Containing a legacyEmuDB (as expected by the 
+\item{legacy_ae: Containing a legacyEmuDB (as expected by the 
 \code{\link{convert_legacyEmuDB}} function)}
-\item{TextGrid_collection: }{Containing a TextGrid file collection 
+\item{TextGrid_collection: Containing a TextGrid file collection 
 (as expected from the \code{\link{convert_TextGridCollection}} function)}
 }
 }

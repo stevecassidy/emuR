@@ -34,7 +34,7 @@
 ##' for every emuDB. The constant track names are:
 ##' 
 ##' \itemize{
-##' \item{"MEDIAFILE_SAMPLES": }{refers to the audio sample values specified 
+##' \item{"MEDIAFILE_SAMPLES": refers to the audio sample values specified 
 ##' by the "mediafileExtension" entry of the DBconfig.json}
 ##' }
 ##' 

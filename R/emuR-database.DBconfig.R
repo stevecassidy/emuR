@@ -1051,9 +1051,9 @@ remove_attrDefLabelGroup <- function(emuDBhandle,
 ##' 
 ##' Link type descriptions:
 ##' \itemize{
-##' \item{\code{"ONE_TO_MANY"}}{A single ITEM of the super-level can be linked to multiple ITEMs of the sub-level}
-##' \item{\code{"MANY_TO_MANY"}}{Multiple ITEMs of the super-level can be linked to multiple ITEMs of the sub-level}
-##' \item{\code{"ONE_TO_ONE"}}{A single ITEM of the super-level can be linked to a single ITEM of the sub-level}
+##' \item{\code{"ONE_TO_MANY"}: A single ITEM of the super-level can be linked to multiple ITEMs of the sub-level}
+##' \item{\code{"MANY_TO_MANY"}: Multiple ITEMs of the super-level can be linked to multiple ITEMs of the sub-level}
+##' \item{\code{"ONE_TO_ONE"}: A single ITEM of the super-level can be linked to a single ITEM of the sub-level}
 ##' }
 ##' 
 ##' For all link types the rule applies that no links are allowed to cross any other links.
