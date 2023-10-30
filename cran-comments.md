@@ -1,3 +1,11 @@
+## Bug in R-devel
+
+See https://stat.ethz.ch/pipermail/r-package-devel/2023q4/009790.html
+
+There was a bug in some of the recent versions of R-devel that caused a NOTE in
+the HTML validation of this package’s manual. This bug has been (temporarily)
+fixed in commit r85440. It would be great if you could process this package.
+
 ## Test environments
 
 * local Arch Linux install, gcc, R 4.3.1
