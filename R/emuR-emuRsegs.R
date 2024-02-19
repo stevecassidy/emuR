@@ -90,6 +90,8 @@ as.emusegs <- function(x, ...){
   UseMethod("as.emusegs", x)
 }
 
+
+##' @export
 as.emusegs.emuRsegs <- function(x, ...){
   emusegs = make.seglist(x$labels, 
                          x$start, 
