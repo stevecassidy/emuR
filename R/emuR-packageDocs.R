@@ -53,7 +53,6 @@
 ##' 
 ##' @keywords package
 ##' @import methods
-##' @docType package
 ##' @examples
 ##' \dontrun{
 ##' # create demo data including an emuDB called "ae" 
@@ -96,7 +95,7 @@
 ##' 
 ##' }
 ##' 
-NULL
+"_PACKAGE"
 
 
 

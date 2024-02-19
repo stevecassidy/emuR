@@ -99,4 +99,25 @@ plot(hs.dftCut, hs.labs, main = "Spectral data of aspiration")
 Harrington, J. (2010). The Phonetic Analysis of Speech Corpora.
 Blackwell.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/IPS-LMU/emuR}
+  \item \url{https://ips-lmu.github.io/The-EMU-SDMS-Manual/}
+  \item Report bugs at \url{https://github.com/IPS-LMU/emuR/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Markus Jochim \email{markusjochim@phonetik.uni-muenchen.de} (\href{https://orcid.org/0000-0002-5638-4870}{ORCID})
+
+Authors:
+\itemize{
+  \item Raphael Winkelmann \email{raphael@phonetik.uni-muenchen.de}
+  \item Klaus Jaensch \email{klausj@phonetik.uni-muenchen.de} [contributor]
+  \item Steve Cassidy \email{steve.cassidy@mq.edu.au} [contributor]
+  \item Jonathan Harrington \email{jmh@phonetik.uni-muenchen.de} [contributor]
+}
+
+}
 \keyword{package}
