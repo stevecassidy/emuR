@@ -1,87 +1,143 @@
 ##' Create new items programmatically
 ##' 
-##' @description Allows creating annotation items programmatically on a single level. 
-##' You have to pass in a data frame describing the new items. Each new item is identified by
-##' its \code{session}, \code{bundle}, \code{level}, and depending on the 
-##' level type either:
+##' @description Create annotation items programmatically on a single level.
+##' You have to pass in a data frame, called `itemsToCreate`, describing
+##' the new items. The required columns depend on the type of the level (ITEM,
+##' EVENT, or SEGMENT).
 ##' 
-##' \itemize{
-##' \item \code{sequence index (start_item_seq_idx)}: when level type = \code{ITEM}
-##' \item \code{start}: start time in ms * 1000 (see output of \link{query}) when level type = \code{EVENT}
-##' \item \code{start}: start time in ms * 1000 () when level type = \code{SEGMENT} 
-##' (creates gapless segment groups where the last segment ends at the end of the audio file)
-##' } 
-##' .
-##' The \code{level} with its associated \code{attributes} determines how many
-##' labels must be provided. You must provide a label for every existing attribute.
+##' This function belongs to emuR’s CRUD family of functions, which let the user
+##' manipulate items programmatically:
 ##' 
-##' Sessions, bundles, levels and attributes must exist beforehand. The sequence
-##' index is explained below.
+##' * Create items ([create_itemsInLevel])
+##' * Read items ([query])
+##' * Update items ([update_itemsInLevel])
+##' * Delete items ([delete_itemsInLevel]))
 ##' 
-##' Within each bundle, there can be multiple annotation items on every level.
+##' @details
+##' This function creates new annotation items on an existing level, in existing
+##' bundles.
+##' 
+##' Regardless of the type of level you are creating items on, your input data
+##' frame `itemsToCreate` must describe your new items by specifying the columns
+##' `session`, `bundle`, `level`, `attribute` and `labels`. `level` must have the
+##' same value for all rows, as we can only create items on one level at a time.
+##' 
+##' `attribute` must also have the same value for all rows, and it must be an
+##' existing attribute that belongs to the `level`.
+##' 
+##' A major use case for this function is to obtain a segment list using [query],
+##' modify the segment list and feed it to this function. That is why the column
+##' `labels` has a plural name: segment lists also have a column `labels` and
+##' not `label`. The same is true for the sequence index columns introduced below.
+##' 
+##' Creating new items works differently depending on the level type. The three
+##' types are explained in the following sections.
+##' 
+##' ## Levels of type ITEM
+##' 
+##' In addition to the columns that are always required, ITEM-typed levels require
+##' a column with a sequence index to be present in the `itemsToCreate` data
+##' frame. Its name must be `start_item_seq_idx`. This name was chosen instead
+##' of `sequence_index` because it is present as a column name in segment lists
+##' obtained with [query]. That makes it easer to use a segment list as input to
+##' [create_itemsInLevel()].
+##' 
+##' Along the time axis, there can be multiple annotation items on every level.
 ##' Their order within the level is given by their sequence index. All *existing*
 ##' items have a natural-valued sequence index and there are no gaps in the
 ##' sequences (i.e. if a level contains N annotation items, they are indexed 1..N).
 ##' 
 ##' Any newly created item must be given a sequence index. The sequence index may
 ##' be real-valued (it will automatically be replaced with a natural value). To
-##' prepend the new item to the existing one, pass a value lower than one. To
-##' append it to the existing items, you can either pass \code{NA} or any value
-##' that you know is greater than n (the number of existing items in that level).
-##' It does not need to be exactly n+1. To place the new item between two
-##' existing ones, use any real value between the sequence indexes of the existing
-##' neighbors.
+##' prepend the new item to the existing ones, pass a value lower than one. To
+##' append it to the existing items, you can either pass `NA` or any value that
+##' you know is greater than N (the number of existing items in that level). It
+##' does not need to be exactly N+1. To place the new item between two existing
+##' ones, use any real value between the sequence indexes of the existing neighbors.
 ##' 
 ##' If you are appending multiple items at the same time, every sequence index
-##' (including NA) can only be used once per session/bundle/level combination
-##' (because session/bundle/level/sequence index are a unique identifier of an item's ).
+##' (including `NA`) can only be used once per session/bundle/level combination
+##' (because session/bundle/level/sequence index are the unique identifier of an
+##' item).
 ##' 
 ##' After creating the items, all sequence indexes (which may now be real-valued,
 ##' natural-valued or NA) are sorted in ascending order and then replaced with
-##' the values 1..n, where n is the number of items on that level. While sorting,
-##' NA values are placed at the end.
+##' the values 1..N, where N is the number of items on that level. While sorting,
+##' `NA` values are placed at the end.
+##' 
+##' ## Levels of type EVENT
+##' 
+##' In addition to the columns that are always required, EVENT-typed levels require
+##' a column with the time of the event to be present in the `itemsToCreate` data
+##' frame. Its name must be `start`. This name was chosen because it is present
+##' as a column name in segment lists obtained with [query]. That makes it easer
+##' to use a segment list as input to [create_itemsInLevel()]. The `end` column
+##' in segment lists is 0 for EVENT-typed levels.
+##' 
+##' The `start` column must be given in milliseconds.
+##' 
+##' You cannot create an EVENT item at a point on the time axis where another
+##' item already exists on the same level. If you specify such an event, the
+##' entire function will fail.
+##' 
+##' ## Levels of type SEGMENT
+##' 
+##' You can only create SEGMENT-typed items in bundles where the respective level
+##' is empty.
+##' 
+##' In addition to the columns that are always required, SEGMENT-typed levels
+##' require the column `start` to be present in the `itemsToCreate` data frame,
+##' representing the start time of the segment. It must be given in milliseconds.
+##' 
+##' Segments also need to have an end, and there are two strategies to determine
+##' the end. Either, you explicitly provide an `end` column in the `itemsToCreate`
+##' data frame. It must be given in milliseconds. If you do that, you have to
+##' specify the `calculateEndTimeForSegments` parameter as `FALSE`.
+##' 
+##' Alternatively, you can leave `calculateEndTimeForSegments` at `TRUE` (which
+##' is the default) and provide your `itemsToCreate` data frame without an `end`
+##' column. In that case, the end time will be aligned to the next neighbor’s
+##' start time. The end time of the last segment will be aligned with the end of
+##' the annotated media file.
 ##' 
 ##'
-##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
-##' @param itemsToCreate A data frame with the columns
-##' \itemize{
-##' \item\code{session},
-##' \item\code{bundle},
-##' \item\code{level},
-##' \item\code{start_item_seq_idx}(\code{start_item_seq_idx} is used instead of 
-##' \code{seq_idx} so that the result of a \code{\link{query}} call can be used directly. 
-##' \code{\link{query}} can return a sequence of items defined by \code{start_item_seq_idx} 
-##' and \code{end_item_seq_idx} which have the same value if single items are returned),
-##' \item\code{attribute}, and
-##' \item \code{labels}.
-##' }
-##' *None* of the columns should be factors.
-##' \code{sequenceIndex} must be numeric (can be real-valued or natural-valued),
-##' all other columns must be of type character.
+##' @param emuDBhandle emuDB handle as returned by [load_emuDB]
+##' @param itemsToCreate A data frame with the columns:
+##' * `session` (character)
+##' * `bundle` (character)
+##' * `level` (character)
+##' * `attribute` (character)
+##' * `labels` (character)
+##' * `start_item_seq_idx` (numeric; only when `level` refers to a ITEM-typed
+##'    level)
+##' * `start` (numeric, milliseconds; only when `level` refers to an EVENT-typed
+##'    or SEGMENT-typed level)
+##' * `end` (numeric, milliseconds; only when `level` refers to a SEGMENT-typed
+##'    level and `calculateEndTimeForSegments` is `FALSE`)
 ##' @param calculateEndTimeForSegments *Only applicable if the level type is SEGMENT.*
-##' If set to \code{TRUE}, then each segment’s end time is automatically aligned
+##' If set to `TRUE`, then each segment’s end time is automatically aligned
 ##' with the start time of the following segment. In that case, user-provided
 ##' end times are ignored. The last segment’s end time is the end time of the
-##' annotated media file. If set to \code{FALSE}, then the user has to provide
-##' an end time for each segment. If the user-provided end times lead to gaps or
-##' overlap between segments, a warning is issued.
+##' annotated media file. If set to `FALSE`, then the user has to provide
+##' an end time for each segment.
 ##' @param allowGapsAndOverlaps *Only applicable if the level type is SEGMENT
-##' and \code{calculateEndTimeForSegments} is \code{FALSE}.*
-##' If set to \code{FALSE}, this function fails when \code{itemsToCreate} contains
+##' and `calculateEndTimeForSegments` is `FALSE`.*
+##' If set to `FALSE`, this function fails when `itemsToCreate` contains
 ##' gaps or overlaps between segments. The offending segments are returned invisibly.
 ##' You can inspect them by assigning the return value to a variable. The return
 ##' value will include a new column \code{gap_samples} that indicates the size
 ##' of the gap (positive values) or overlap (negative values) with the previous
 ##' segment, respectively. It is measured in audio samples, not in milliseconds.
 ##' Setting this to \code{TRUE} allows the function to complete even with gaps
-##' and/or overlaps, but this is is *not recommended* as it can cause bugs in
-##' the EMU-webApp.
+##' and/or overlaps, but this is is **not recommended as it can cause bugs in
+##' the EMU-webApp**.
 ##' @param rewriteAllAnnots should changes be written to file system (_annot.json
-##'                         files) (intended for expert use only)
+##' files) (intended for expert use only)
 ##' @param verbose if set to \code{TRUE}, more status messages are printed
 ##' 
 ##' @export
 ##' @importFrom rlang .data
+##' @md
   create_itemsInLevel = function(emuDBhandle,
                                itemsToCreate,
                                calculateEndTimeForSegments = TRUE,
@@ -99,6 +155,7 @@
   if(length(levelName) > 1){
     stop("'itemsToCreate' contains multiple attributes! The created ITEMs have to be on the same attribute!")
   }
+  # @FIXME make sure the provided attribute belongs to the provided level
   
   ## check the level exists and has a known type (other types can only exist when the Emu system is changed fundamentally)
   levelDefinition = get_levelDefinition(emuDBhandle, levelName)
