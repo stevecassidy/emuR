@@ -348,7 +348,7 @@
 
       itemsToCreate %>%
         dplyr::group_by(.data$session, .data$bundle, .data$level) %>%
-        dplyr::arrange(.data$session, .data$bundle, .data$level, .data$sample_start, .group_by = TRUE) %>%
+        dplyr::arrange(.data$sample_start, .by_group = TRUE) %>%
         dplyr::mutate(sample_end = dplyr::lead(.data$sample_start) - 1) -> itemsToCreate
       
       # test if no duplicate sample_start values exists
