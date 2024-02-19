@@ -58,6 +58,24 @@
 ##' *None* of the columns should be factors.
 ##' \code{sequenceIndex} must be numeric (can be real-valued or natural-valued),
 ##' all other columns must be of type character.
+##' @param calculateEndTimeForSegments *Only applicable if the level type is SEGMENT.*
+##' If set to \code{TRUE}, then each segment’s end time is automatically aligned
+##' with the start time of the following segment. In that case, user-provided
+##' end times are ignored. The last segment’s end time is the end time of the
+##' annotated media file. If set to \code{FALSE}, then the user has to provide
+##' an end time for each segment. If the user-provided end times lead to gaps or
+##' overlap between segments, a warning is issued.
+##' @param allowGapsAndOverlaps *Only applicable if the level type is SEGMENT
+##' and \code{calculateEndTimeForSegments} is \code{FALSE}.*
+##' If set to \code{FALSE}, this function fails when \code{itemsToCreate} contains
+##' gaps or overlaps between segments. The offending segments are returned invisibly.
+##' You can inspect them by assigning the return value to a variable. The return
+##' value will include a new column \code{gap_samples} that indicates the size
+##' of the gap (positive values) or overlap (negative values) with the previous
+##' segment, respectively. It is measured in audio samples, not in milliseconds.
+##' Setting this to \code{TRUE} allows the function to complete even with gaps
+##' and/or overlaps, but this is is *not recommended* as it can cause bugs in
+##' the EMU-webApp.
 ##' @param rewriteAllAnnots should changes be written to file system (_annot.json
 ##'                         files) (intended for expert use only)
 ##' @param verbose if set to \code{TRUE}, more status messages are printed
@@ -66,6 +84,8 @@
 ##' @importFrom rlang .data
   create_itemsInLevel = function(emuDBhandle,
                                itemsToCreate,
+                               calculateEndTimeForSegments = TRUE,
+                               allowGapsAndOverlaps = FALSE,
                                rewriteAllAnnots = TRUE,
                                verbose = TRUE) {
   # check that only one level is provided
@@ -80,7 +100,7 @@
     stop("'itemsToCreate' contains multiple attributes! The created ITEMs have to be on the same attribute!")
   }
   
-  ## check the level is of type ITEM or EVENT (SEGMENT to follow)
+  ## check the level exists and has a known type (other types can only exist when the Emu system is changed fundamentally)
   levelDefinition = get_levelDefinition(emuDBhandle, levelName)
   if(is.null(levelDefinition)) stop("level '", levelName, "' doesn't exist!")
   if (!(levelDefinition$type %in% c("ITEM", "EVENT", "SEGMENT"))) {
@@ -93,6 +113,15 @@
     required_colnames = c(required_colnames, "start_item_seq_idx")
   }else if(levelDefinition$type == "EVENT"){
     required_colnames = c(required_colnames, "start")
+  }else if(levelDefinition$type == "SEGMENT"){
+    if (calculateEndTimeForSegments) {
+      required_colnames = c(required_colnames, "start")
+      if ("end" %in% names(itemsToCreate)) {
+        stop("itemsToCreate contains an 'end' column, but calculateEndTimeForSegments is TRUE; please decide how end times should be determined.")
+      }
+    } else {
+      required_colnames = c(required_colnames, "start", "end")
+    }
   }
   
   if(!all(required_colnames %in% names(itemsToCreate))){
@@ -113,6 +142,11 @@
     if(!is.numeric(itemsToCreate$start_item_seq_idx)) stop(paste0("Not all columns match the required type!"))
   }else if(levelDefinition$type == "EVENT"){
     if(!is.numeric(itemsToCreate$start)) stop(paste0("Not all columns match the required type!"))
+  }else if(levelDefinition$type == "SEGMENT"){
+    if(!is.numeric(itemsToCreate$start)) stop(paste0("Not all columns match the required type!"))
+    if(!calculateEndTimeForSegments) {
+      if(!is.numeric(itemsToCreate$end)) stop(paste0("Not all columns match the required type!"))
+    }
   }
   # rename labels column to label to match labels SQL table column name
   colnames(itemsToCreate)[colnames(itemsToCreate)=="labels"] <- "label"
@@ -247,35 +281,60 @@
     sample_rate = dplyr::pull(sample_rate[,ncol(sample_rate)]) # relevant when multiple sample_rate.x sample_rate.y cols are present
     
     
-    # calc. sample_start & sample_dur
+    # calculate sample_start based on user input
     itemsToCreate$sample_start = round((itemsToCreate$start / 1000 + 0.5 / sample_rate) * sample_rate)
-    # itemsToCreate$sample_dur = round(((itemsToCreate$end - itemsToCreate$start) / 1000) * sample_rate)
     
-    
-    itemsToCreate %>% 
-      dplyr::group_by(.data$session, .data$bundle, .data$level) %>% 
-      dplyr::arrange(.data$session, .data$bundle, .data$level, .data$sample_start, .group_by = TRUE) %>% 
-      dplyr::mutate(sample_end = dplyr::lead(.data$sample_start) - 1) -> itemsToCreate
-    
-    # test if no duplicate sample_start values exists
-    itemsToCreate %>% 
-      dplyr::select("session", "bundle", "level", "sample_start") %>%
-      dplyr::distinct() -> distinct_sample_start_rows
-    
-    if(nrow(distinct_sample_start_rows) != nrow(itemsToCreate)){
-      stop("Found duplicate sample_start values on same level")
+    if (calculateEndTimeForSegments == TRUE) {
+      # Ignore user values and calculate each segment’s sample end based on the
+      # following segment’s sample start. For the last segment, use the annotated
+      # media file’s duration as sample_end.
+
+      itemsToCreate %>%
+        dplyr::group_by(.data$session, .data$bundle, .data$level) %>%
+        dplyr::arrange(.data$session, .data$bundle, .data$level, .data$sample_start, .group_by = TRUE) %>%
+        dplyr::mutate(sample_end = dplyr::lead(.data$sample_start) - 1) -> itemsToCreate
+      
+      # test if no duplicate sample_start values exists
+      itemsToCreate %>%
+        dplyr::select("session", "bundle", "level", "sample_start") %>%
+        dplyr::distinct() -> distinct_sample_start_rows
+      
+      if(nrow(distinct_sample_start_rows) != nrow(itemsToCreate)){
+        stop("Found duplicate sample_start values on same level")
+      }
+      
+      # fix end times of last segments (set to length of wavs)
+      # -> currently NA due to dplyr::lead not having a next value 4 them
+      last_items = itemsToCreate[is.na(itemsToCreate$sample_end),]
+      
+      wav_paths = file.path(emuDBhandle$basePath,
+                            paste0(last_items$session, session.suffix),
+                            paste0(last_items$bundle, bundle.dir.suffix),
+                            paste0(last_items$bundle, ".wav"))
+      
+      itemsToCreate[is.na(itemsToCreate$sample_end),]$sample_end = sapply(wav_paths, FUN = function(wav_path){attr(wrassp::read.AsspDataObj(wav_path), "endRecord")})
+    } else {
+      # Use user-provided itemsToCreate$end to determine each segment’s sample_end
+      itemsToCreate$sample_end = round((itemsToCreate$end / 1000 - 0.5 / sample_rate) * sample_rate)
+      
+      if (!allowGapsAndOverlaps) {
+        segments_with_gaps_or_overlap = itemsToCreate %>%
+          dplyr::group_by(.data$session, .data$bundle) %>%
+          dplyr::arrange(.data$sample_start, .by_group = TRUE) %>%
+          dplyr::mutate(gap_samples = .data$sample_start - dplyr::lag(.data$sample_end) - 1) %>%
+          dplyr::filter(!is.na(.data$gap_samples) & .data$gap_samples != 0)
+        
+        if (nrow(segments_with_gaps_or_overlap) != 0) {
+          warning(paste("itemsToCreate contains",
+                        nrow(segments_with_gaps_or_overlap),
+                        "segments with gaps between them or an overlap with their predecessor.",
+                        "Inspect this function’s return value to see them, and check",
+                        "the documentation of the parameter 'allowGapsAndOverlaps'",
+                        "for details. Exiting."))
+          return(invisible(segments_with_gaps_or_overlap))
+        }
+      }
     }
-    
-    # fix end times of last segments (set to length of wavs) 
-    # -> currently NA due to dplyr::lead not having a next value 4 them
-    last_items = itemsToCreate[is.na(itemsToCreate$sample_end),]
-    
-    wav_paths = file.path(emuDBhandle$basePath, 
-                          paste0(last_items$session, session.suffix),
-                          paste0(last_items$bundle, bundle.dir.suffix),
-                          paste0(last_items$bundle, ".wav"))
-    
-    itemsToCreate[is.na(itemsToCreate$sample_end),]$sample_end = sapply(wav_paths, FUN = function(wav_path){attr(wrassp::read.AsspDataObj(wav_path), "endRecord")})
     
     # check if there are already any segments in bundles
     
@@ -288,6 +347,10 @@
       stop("SEGMENT items already exist on the specified bundles & level. This is not permitted!")
     }
     
+    itemsToCreate %>%
+      dplyr::group_by(.data$session, .data$bundle, .data$level) %>%
+      dplyr::arrange(.data$sample_start, .by_group = TRUE) %>%
+      dplyr::mutate(start_item_seq_idx = 1:n()) -> itemsToCreate
   }
   
   ##
