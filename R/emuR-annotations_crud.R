@@ -373,6 +373,51 @@
     } else {
       # Use user-provided itemsToCreate$end to determine each segment’s sample_end
       itemsToCreate$sample_end = round((itemsToCreate$end / 1000 - 0.5 / sample_rate) * sample_rate)
+
+      
+      # Make sure no negative-duration items and no zero-length items and no
+      # items shorter than one sample exist.
+      #
+      # The straightforward way would be to filter for:
+      #    end <= start
+      # But rounding and float precision make it more intricate.
+      segments_with_duration_below_one_sample = itemsToCreate %>% 
+        dplyr::filter(  (end - start)/1000 < 1/sample_rate  # This rule focuses on user input (measured in milliseconds).
+                        |  sample_end < sample_start)       # This rule focuses on the derived values that will actually be used (measured in samples).
+      #
+      # Generally, the second rule should follow from the first (but not the first from the second).
+      #
+      # But I recently learned that R’s round() does round-half-to-even and not
+      # round-half-up, and I have been trying to grok the consequences w.r.t.
+      # to the +/- 0.5 terms in emuR’s conversion rules between seconds and samples.
+      # 
+      # And I can no longer wrap my head around whether there are consequences
+      # for the relationship between these two filter rules. So I’ll just leave
+      # them both, since that won’t hurt.
+                        
+      # Note: sample_end LESS THAN sample_start is not allowed, but
+      # sample_end EQUALS sample_start would be allowed. On the other hand,
+      # end EQUALS start (measured in seconds or milliseconds) would *not* be
+      # allowed. That’s due to a subtlety of the _annot.json format, which
+      # specifies sampleStart and sampleDur(ation), but not sampleEnd.
+      #
+      # Per definition:
+      #    sample_start == sample_end   <=>  sampleDur == 0
+      #
+      # Also per definition: sampleDur==0 means that the segment only spans its
+      # starting sample. Converted to seconds, this is 1/sampleRate and NOT 0.
+      # Therefore, sampleDur==0 is not actually zero-length, and is therefore
+      # allowed. And so is sample_start == sample_end. But not start==end.
+      # 
+      # Reference: EMU-SDMS Manual, Chapter File Formats, description of sampleDur.
+      
+      if (nrow(segments_with_duration_below_one_sample) != 0) {
+        warning(paste("itemsToCreate contains",
+                      nrow(segments_with_duration_below_one_sample),
+                      "segments with duration below one sample or even negative. This is never allowed.",
+                      "Inspect this function’s return value to see them. Exiting."))
+        return(invisible(segments_with_duration_below_one_sample))
+      }
       
       if (!allowGapsAndOverlaps) {
         segments_with_gaps_or_overlap = itemsToCreate %>%
