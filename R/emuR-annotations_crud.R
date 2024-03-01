@@ -538,28 +538,33 @@
 
 
 ##' Update items programmatically
-##' @export
 ##' 
-##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
-##' @param itemsToUpdate A data frame with the columns
-##' \itemize{
-##' \item \code{session},
-##' \item \code{bundle},
-##' \item \code{level},
-##' \item \code{start_item_seq_idx} (\code{start_item_seq_idx} is used instead of e.g.
-##' \code{seq_idx} so that the result of a \code{\link{query}} call can be used directly. 
-##' \code{\link{query}} can return a sequence of items defined by \code{start_item_seq_idx} 
-##' and \code{end_item_seq_idx} which have the same value if single items are returned), 
-##' \item \code{attribute}, and
-##' \item \code{labels}.
-##' }
-##' *None* of the columns should be factors.
-##' \code{sequenceIndex} must be numeric (natural-valued), all other columns
-##' must be of type character.
+##' @description Update annotation items programmatically. You have to pass in a
+##' data frame, called `itemsToUpdate`, describing the new state of the items.
+##' The required columns are described below.
+##' 
+##' This function belongs to emuR’s CRUD family of functions, which let the user
+##' manipulate items programmatically:
+##' 
+##' * Create items ([create_itemsInLevel])
+##' * Read items ([query])
+##' * Update items ([update_itemsInLevel])
+##' * Delete items ([delete_itemsInLevel]))
+##' 
+##' @param emuDBhandle emuDB handle as returned by [load_emuDB]
+##' @param itemsToUpdate A data frame with the columns:
+##' * `session` (character)
+##' * `bundle` (character)
+##' * `level` (character)
+##' * `start_item_seq_idx` (character)
+##' * `attribute` (character)
+##' * `labels` (character)
 ##' @param rewriteAllAnnots should changes be written to file system (_annot.json
-##'                         files) (intended for expert use only)
-##' @param verbose if set to \code{TRUE}, more status messages are printed
+##' files) (intended for expert use only)
+##' @param verbose if set to `TRUE`, more status messages are printed
 ##' 
+##' @export
+##' @md
 update_itemsInLevel = function (emuDBhandle,
                                 itemsToUpdate,
                                 rewriteAllAnnots = TRUE,

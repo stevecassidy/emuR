@@ -12,23 +12,17 @@ update_itemsInLevel(
 )
 }
 \arguments{
-\item{emuDBhandle}{emuDB handle as returned by \code{\link{load_emuDB}}}
+\item{emuDBhandle}{emuDB handle as returned by \link{load_emuDB}}
 
-\item{itemsToUpdate}{A data frame with the columns
+\item{itemsToUpdate}{A data frame with the columns:
 \itemize{
-\item \code{session},
-\item \code{bundle},
-\item \code{level},
-\item \code{start_item_seq_idx} (\code{start_item_seq_idx} is used instead of e.g.
-\code{seq_idx} so that the result of a \code{\link{query}} call can be used directly. 
-\code{\link{query}} can return a sequence of items defined by \code{start_item_seq_idx} 
-and \code{end_item_seq_idx} which have the same value if single items are returned), 
-\item \code{attribute}, and
-\item \code{labels}.
-}
-*None* of the columns should be factors.
-\code{sequenceIndex} must be numeric (natural-valued), all other columns
-must be of type character.}
+\item \code{session} (character)
+\item \code{bundle} (character)
+\item \code{level} (character)
+\item \code{start_item_seq_idx} (character)
+\item \code{attribute} (character)
+\item \code{labels} (character)
+}}
 
 \item{rewriteAllAnnots}{should changes be written to file system (_annot.json
 files) (intended for expert use only)}
@@ -36,5 +30,16 @@ files) (intended for expert use only)}
 \item{verbose}{if set to \code{TRUE}, more status messages are printed}
 }
 \description{
-Update items programmatically
+Update annotation items programmatically. You have to pass in a
+data frame, called \code{itemsToUpdate}, describing the new state of the items.
+The required columns are described below.
+
+This function belongs to emuR’s CRUD family of functions, which let the user
+manipulate items programmatically:
+\itemize{
+\item Create items (\link{create_itemsInLevel})
+\item Read items (\link{query})
+\item Update items (\link{update_itemsInLevel})
+\item Delete items (\link{delete_itemsInLevel}))
+}
 }
