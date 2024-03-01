@@ -125,15 +125,15 @@
 ##' If set to `FALSE`, this function fails when `itemsToCreate` contains
 ##' gaps or overlaps between segments. The offending segments are returned invisibly.
 ##' You can inspect them by assigning the return value to a variable. The return
-##' value will include a new column \code{gap_samples} that indicates the size
+##' value will include a new column `gap_samples` that indicates the size
 ##' of the gap (positive values) or overlap (negative values) with the previous
 ##' segment, respectively. It is measured in audio samples, not in milliseconds.
-##' Setting this to \code{TRUE} allows the function to complete even with gaps
-##' and/or overlaps, but this is is **not recommended as it can cause bugs in
+##' Setting this to `TRUE` allows the function to complete even with gaps
+##' and/or overlaps, but this is **not recommended as it can cause bugs in
 ##' the EMU-webApp**.
 ##' @param rewriteAllAnnots should changes be written to file system (_annot.json
 ##' files) (intended for expert use only)
-##' @param verbose if set to \code{TRUE}, more status messages are printed
+##' @param verbose if set to `TRUE`, more status messages are printed
 ##' 
 ##' @export
 ##' @importFrom rlang .data

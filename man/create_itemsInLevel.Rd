@@ -47,7 +47,7 @@ value will include a new column \code{gap_samples} that indicates the size
 of the gap (positive values) or overlap (negative values) with the previous
 segment, respectively. It is measured in audio samples, not in milliseconds.
 Setting this to \code{TRUE} allows the function to complete even with gaps
-and/or overlaps, but this is is \strong{not recommended as it can cause bugs in
+and/or overlaps, but this is \strong{not recommended as it can cause bugs in
 the EMU-webApp}.}
 
 \item{rewriteAllAnnots}{should changes be written to file system (_annot.json
