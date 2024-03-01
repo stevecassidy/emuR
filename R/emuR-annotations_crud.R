@@ -689,42 +689,103 @@ update_itemsInLevel = function (emuDBhandle,
 
 ##' Delete items programmatically
 ##' 
-##' @description Allows to delete annotation items programmatically.
+##' @description Delete annotation items programmatically. You have to pass in a
+##' data frame, called `itemsToDelete`, describing these items. The required
+##' columns are described below.
 ##' 
-##' @param emuDBhandle emuDB handle as returned by \code{\link{load_emuDB}}
-##' @param itemsToDelete A data frame with the columns
-##' \itemize{
-##' \item \code{session},
-##' \item \code{bundle},
-##' \item \code{level},
-##' \item \code{start_item_seq_idx} (\code{start_item_seq_idx} is used instead of e.g.
-##' \code{seq_idx} so that the result of a \code{\link{query}} call can be used directly.
-##' }
-##' *None* of the columns should be factors.
-##' \code{sequenceIndex} must be numeric (natural-valued), all other columns must
-##' be of type character.
+##' This function belongs to emuR’s CRUD family of functions, which let the user
+##' manipulate items programmatically:
+##' 
+##' * Create items ([create_itemsInLevel])
+##' * Read items ([query])
+##' * Update items ([update_itemsInLevel])
+##' * Delete items ([delete_itemsInLevel]))
+##' 
+##' @details
+##' This function deletes annotation items from existing levels. Your input data
+##' frame `itemsToDelete` must describe the items by specifying the columns
+##' `session`, `bundle`, and `start_item_id`.
+##' 
+##' A major use case for this function is to obtain a segment list using [query],
+##' possibly modify the segment list and feed it to this function. That is why
+##' the column `start_item_id` is not called `item_id`: segment lists include
+##' the former column name, not the latter.
+##' 
+##' @param emuDBhandle emuDB handle as returned by [load_emuDB]
+##' @param itemsToDelete A data frame with the columns:
+##' * `session` (character)
+##' * `bundle` (character)
+##' * `start_item_id` (numeric)
 ##' @param rewriteAllAnnots should changes be written to file system (_annot.json
-##'                         files) (intended for expert use only)
-##' @param verbose if set to \code{TRUE}, more status messages are printed
+##' files) (intended for expert use only)
+##' @param verbose if set to `TRUE`, more status messages are printed
+##' 
 ##' @export
+##' @md
 delete_itemsInLevel = function (emuDBhandle,
                                 itemsToDelete,
                                 rewriteAllAnnots = TRUE,
                                 verbose = TRUE) {
   
-  input_key <- readline(prompt = "Currently no checks are performed so use at own risk! Do you wish to continue anyway (y/N)? ")
+  input_key <- readline(prompt = paste(
+    "Currently no checks are performed so use at own risk!",
+    "This could, for example, create gaps in the annotation.",
+    "Do you wish to continue anyway (y/N)? ",
+    sep = "\n")
+  )
   if(input_key != "y") return()
   
-  if(any((itemsToDelete$end_item_id - itemsToDelete$end_item_id) != 0)){
-    stop("itemsToDelete contains sequences (itemsToDelete$end_item_id - itemsToDelete$end_item_id != 0)")
+  
+  # check that all required columns are present
+  required_colnames = c("session", "bundle", "start_item_id")
+  
+  if(!all(required_colnames %in% names(itemsToDelete))){
+    stop(paste0("Not all required columns are available in itemsToDelete data.frame! ",
+                "The required columns are: ", paste(required_colnames, collapse = "; ")))
   }
+  
+  
+  # check types of columns
+  if(!is.character(itemsToDelete$session) | 
+     !is.character(itemsToDelete$bundle) | 
+     !is.numeric(itemsToDelete$start_item_id)
+  ){
+    stop(paste0("Not all columns match the required type!"))
+  }
+  
+  
+  # check that no sequences are present (i.e. rows spanning more than one item).
+  # sequences can come from querying thing like [Phonetic == a -> Phonetic == b].
+  if ("end_item_id" %in% names(itemsToDelete)) {
+    items_that_are_really_sequences = itemsToDelete %>% 
+      dplyr::filter(.data$start_item_id != .data$end_item_id)
+    
+    if (nrow(items_that_are_really_sequences) != 0) {
+      warning(paste("itemsToDelete contains",
+                    nrow(items_that_are_really_sequences),
+                    "rows that span more than one item (start_item_id !=",
+                    "end_item_id). This is not allowed. Inspect this function’s",
+                    "return value to see them. Exiting."))
+      return(invisible(items_that_are_really_sequences))
+    }
+  }
+  
+  
+  # remove old tmp tables if they exist
+  remove_annotCrudTmpTables(emuDBhandle)
+  
+  ##
+  ## Copy items data into temporary table
+  ##
+  create_annotCrudTmpTables(emuDBhandle)
+  
   
   #########################
   # items
   
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
-    paste0("DELETE FROM items ",
+    paste0("DELETE FROM items_annot_crud_tmp ",
            "WHERE db_uuid = ? ",
            " AND session = ? ",
            " AND bundle = ? ",
@@ -736,12 +797,12 @@ delete_itemsInLevel = function (emuDBhandle,
       rep(emuDBhandle$UUID, nrow(itemsToDelete)),
       itemsToDelete$session,
       itemsToDelete$bundle,
-      itemsToDelete$start_item_seq_idx
+      itemsToDelete$start_item_id
     )
   )
   
   
-  rowsAffected = DBI::dbGetRowsAffected(statement)
+  numberOfDeletedItems = DBI::dbGetRowsAffected(statement)
   DBI::dbClearResult(statement)
   
   #########################
@@ -749,7 +810,7 @@ delete_itemsInLevel = function (emuDBhandle,
   
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
-    paste0("DELETE FROM labels ",
+    paste0("DELETE FROM labels_annot_crud_tmp ",
            "WHERE db_uuid = ? ",
            " AND session = ? ",
            " AND bundle = ? ",
@@ -761,12 +822,12 @@ delete_itemsInLevel = function (emuDBhandle,
       rep(emuDBhandle$UUID, nrow(itemsToDelete)),
       itemsToDelete$session,
       itemsToDelete$bundle,
-      itemsToDelete$start_item_seq_idx
+      itemsToDelete$start_item_id
     )
   )
   
   
-  rowsAffected = DBI::dbGetRowsAffected(statement)
+  numberOfDeletedLabels = DBI::dbGetRowsAffected(statement)
   DBI::dbClearResult(statement)
   
   #########################
@@ -774,7 +835,7 @@ delete_itemsInLevel = function (emuDBhandle,
   
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
-    paste0("DELETE FROM links ",
+    paste0("DELETE FROM links_annot_crud_tmp ",
            "WHERE db_uuid = ? ",
            " AND session = ? ",
            " AND bundle = ? ",
@@ -786,12 +847,12 @@ delete_itemsInLevel = function (emuDBhandle,
       rep(emuDBhandle$UUID, nrow(itemsToDelete)),
       itemsToDelete$session,
       itemsToDelete$bundle,
-      itemsToDelete$start_item_seq_idx
+      itemsToDelete$start_item_id
     )
   )
   
-  
-  rowsAffected = DBI::dbGetRowsAffected(statement)
+
+  numberOfDeletedLinks = DBI::dbGetRowsAffected(statement)
   DBI::dbClearResult(statement)
   
   #########################
@@ -799,7 +860,7 @@ delete_itemsInLevel = function (emuDBhandle,
   
   statement = DBI::dbSendStatement(
     emuDBhandle$connection,
-    paste0("DELETE FROM links ",
+    paste0("DELETE FROM links_annot_crud_tmp ",
            "WHERE db_uuid = ? ",
            " AND session = ? ",
            " AND bundle = ? ",
@@ -811,13 +872,32 @@ delete_itemsInLevel = function (emuDBhandle,
       rep(emuDBhandle$UUID, nrow(itemsToDelete)),
       itemsToDelete$session,
       itemsToDelete$bundle,
-      itemsToDelete$start_item_seq_idx
+      itemsToDelete$start_item_id
     )
   )
   
   
-  rowsAffected = DBI::dbGetRowsAffected(statement)
+  numberOfDeletedLinks = numberOfDeletedLinks + DBI::dbGetRowsAffected(statement)
   DBI::dbClearResult(statement)
+  
+
+  ## Rewrite sequence indexes
+  ##
+  rewrite_allSequenceIndexes(emuDBhandle)
+  
+  ##
+  ## Move data from temporary items table back to normal table
+  ##
+  moveback_annotCrudTmpTables(emuDBhandle)
+  
+  
+  print(paste0("Deleted ",
+               numberOfDeletedItems,
+               " item(s), ",
+               numberOfDeletedLabels,
+               " label(s) and ",
+               numberOfDeletedLinks,
+               " link(s)."))
   
   if (rewriteAllAnnots) {
     rewrite_annots(emuDBhandle, 

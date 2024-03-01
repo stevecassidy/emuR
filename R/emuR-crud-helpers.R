@@ -200,7 +200,8 @@ get_labelIndex = function(emuDBhandle,
   ##                c("Canonical", "transcription", "Word", "foo", "transcription")) == c(2,2,1, NA, 2)
 }
 
-## Rewrite all sequence indexes across all sessions and bundles.
+## Rewrite all sequence indexes across all sessions and bundles. Operate on the
+## temporary table for annotation CRUD.
 ## 
 ## Reads the existing sequences of all items, assuming they are a mixture of
 ## natural values, real values and NULL, sorts them in ascending order, and
@@ -297,6 +298,7 @@ database.DDL.emuDB_items_annot_crud_tmp = paste0("CREATE TEMP TABLE items_annot_
                                                  #"FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE
                                                  ");")
 
+
 database.DDL.emuDB_labels_annot_crud_tmp = paste0("CREATE TEMP TABLE labels_annot_crud_tmp ( ",
                                                   " db_uuid VARCHAR(36), ",
                                                   " session TEXT, ",
@@ -310,6 +312,18 @@ database.DDL.emuDB_labels_annot_crud_tmp = paste0("CREATE TEMP TABLE labels_anno
                                                   #"FOREIGN KEY (db_uuid, session, bundle, item_id) REFERENCES items(db_uuid, session, bundle, item_id) ON DELETE CASCADE",
                                                   ");")
 
+database.DDL.emuDB_links_annot_crud_tmp = paste0("CREATE TEMP TABLE links_annot_crud_tmp ( ",
+                                                 " db_uuid VARCHAR(36) NOT NULL, ",
+                                                 " session TEXT, ",
+                                                 " bundle TEXT, ",
+                                                 " from_id INTEGER, ",
+                                                 " to_id INTEGER, ",
+                                                 " label TEXT ",
+                                                 #"FOREIGN KEY (db_uuid, session, bundle) REFERENCES bundle(db_uuid, session, name) ON DELETE CASCADE ON UPDATE CASCADE",
+                                                 ");")
+
+
+
 create_annotCrudTmpTables = function(emuDBhandle) {
   DBI::dbExecute(emuDBhandle$connection, 
                  database.DDL.emuDB_items_annot_crud_tmp)
@@ -319,6 +333,10 @@ create_annotCrudTmpTables = function(emuDBhandle) {
                  database.DDL.emuDB_labels_annot_crud_tmp)
   DBI::dbExecute(emuDBhandle$connection, 
                  "INSERT INTO labels_annot_crud_tmp SELECT * FROM labels")
+  DBI::dbExecute(emuDBhandle$connection, 
+                 database.DDL.emuDB_links_annot_crud_tmp)
+  DBI::dbExecute(emuDBhandle$connection, 
+                 "INSERT INTO links_annot_crud_tmp SELECT * FROM links")
 }
 
 remove_annotCrudTmpTables = function(emuDBhandle) {
@@ -326,13 +344,24 @@ remove_annotCrudTmpTables = function(emuDBhandle) {
                  "DROP TABLE IF EXISTS items_annot_crud_tmp")
   DBI::dbExecute(emuDBhandle$connection, 
                  "DROP TABLE IF EXISTS labels_annot_crud_tmp")
+  DBI::dbExecute(emuDBhandle$connection, 
+                 "DROP TABLE IF EXISTS links_annot_crud_tmp")
 }
 
 
 moveback_annotCrudTmpTables = function(emuDBhandle) {
   DBI::dbExecute(emuDBhandle$connection, 
-                 "INSERT OR REPLACE INTO items SELECT * FROM items_annot_crud_tmp")
+                 "DELETE FROM links")
   DBI::dbExecute(emuDBhandle$connection, 
-                 "INSERT OR REPLACE INTO labels SELECT * FROM labels_annot_crud_tmp")
+                 "DELETE FROM labels")
+  DBI::dbExecute(emuDBhandle$connection, 
+                 "DELETE FROM items")
+  
+  DBI::dbExecute(emuDBhandle$connection, 
+                 "INSERT INTO items SELECT * FROM items_annot_crud_tmp")
+  DBI::dbExecute(emuDBhandle$connection, 
+                 "INSERT INTO labels SELECT * FROM labels_annot_crud_tmp")
+  DBI::dbExecute(emuDBhandle$connection, 
+                 "INSERT INTO links SELECT * FROM links_annot_crud_tmp")
   remove_annotCrudTmpTables(emuDBhandle)
 }
