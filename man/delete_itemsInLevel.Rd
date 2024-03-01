@@ -7,6 +7,7 @@
 delete_itemsInLevel(
   emuDBhandle,
   itemsToDelete,
+  sayYes = FALSE,
   rewriteAllAnnots = TRUE,
   verbose = TRUE
 )
@@ -20,6 +21,10 @@ delete_itemsInLevel(
 \item \code{bundle} (character)
 \item \code{start_item_id} (numeric)
 }}
+
+\item{sayYes}{When you call this function, it warns you about problems it
+may create. You can skip that question if you set the \code{sayYes} parameter to
+TRUE. This is useful when you want to use the function non-interactively.}
 
 \item{rewriteAllAnnots}{should changes be written to file system (_annot.json
 files) (intended for expert use only)}
@@ -44,6 +49,12 @@ manipulate items programmatically:
 This function deletes annotation items from existing levels. Your input data
 frame \code{itemsToDelete} must describe the items by specifying the columns
 \code{session}, \code{bundle}, and \code{start_item_id}.
+
+Be careful with this function: You can use it to create problematic situations,
+for example gaps in the annotation levels, and the function currently has
+no checks to prevent this. Instead, you need to explicitly confirm that you
+are aware of this, either by setting \code{sayYes} to \code{TRUE} or by interactively
+responding yes to the prompt this function presents.
 
 A major use case for this function is to obtain a segment list using \link{query},
 possibly modify the segment list and feed it to this function. That is why

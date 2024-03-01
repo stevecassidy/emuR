@@ -706,6 +706,12 @@ update_itemsInLevel = function (emuDBhandle,
 ##' frame `itemsToDelete` must describe the items by specifying the columns
 ##' `session`, `bundle`, and `start_item_id`.
 ##' 
+##' Be careful with this function: You can use it to create problematic situations,
+##' for example gaps in the annotation levels, and the function currently has
+##' no checks to prevent this. Instead, you need to explicitly confirm that you
+##' are aware of this, either by setting `sayYes` to `TRUE` or by interactively
+##' responding yes to the prompt this function presents.
+##' 
 ##' A major use case for this function is to obtain a segment list using [query],
 ##' possibly modify the segment list and feed it to this function. That is why
 ##' the column `start_item_id` is not called `item_id`: segment lists include
@@ -716,6 +722,9 @@ update_itemsInLevel = function (emuDBhandle,
 ##' * `session` (character)
 ##' * `bundle` (character)
 ##' * `start_item_id` (numeric)
+##' @param sayYes When you call this function, it warns you about problems it
+##' may create. You can skip that question if you set the `sayYes` parameter to
+##' TRUE. This is useful when you want to use the function non-interactively.
 ##' @param rewriteAllAnnots should changes be written to file system (_annot.json
 ##' files) (intended for expert use only)
 ##' @param verbose if set to `TRUE`, more status messages are printed
@@ -724,16 +733,19 @@ update_itemsInLevel = function (emuDBhandle,
 ##' @md
 delete_itemsInLevel = function (emuDBhandle,
                                 itemsToDelete,
+                                sayYes = FALSE,
                                 rewriteAllAnnots = TRUE,
                                 verbose = TRUE) {
   
-  input_key <- readline(prompt = paste(
-    "Currently no checks are performed so use at own risk!",
-    "This could, for example, create gaps in the annotation.",
-    "Do you wish to continue anyway (y/N)? ",
-    sep = "\n")
-  )
-  if(input_key != "y") return()
+  if (!sayYes) {
+    input_key <- readline(prompt = paste(
+      "Currently no checks are performed so use at own risk!",
+      "This could, for example, create gaps in the annotation.",
+      "Do you wish to continue anyway (y/N)? ",
+      sep = "\n")
+    )
+    if(input_key != "y") return()
+  }
   
   
   # check that all required columns are present
