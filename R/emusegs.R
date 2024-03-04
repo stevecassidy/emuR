@@ -38,13 +38,7 @@ read.emusegs <- function(file)
 {
   ## scan the lines of the file into a vector
   
-  ## R 1.4 introduced comment.char="#" arg to scan, grrr
-  if( is.R() && as.numeric(version$minor) > 3.0 ) {
-    ## in R, we need to avoid skipping the # as a comment line
-    lines <- scan(file, what = "", sep="\n", comment.char="")
-  } else {
-    lines <- scan(file, what = "", sep="\n")
-  }
+  lines <- scan(file, what = "", sep="\n", comment.char="")
   
   ## first three lines are header followed by a hash line
   inheader <- 1
