@@ -382,8 +382,8 @@
       #    end <= start
       # But rounding and float precision make it more intricate.
       segments_with_duration_below_one_sample = itemsToCreate %>% 
-        dplyr::filter(  (end - start)/1000 < 1/sample_rate  # This rule focuses on user input (measured in milliseconds).
-                        |  sample_end < sample_start)       # This rule focuses on the derived values that will actually be used (measured in samples).
+        dplyr::filter(  (.data$end - .data$start)/1000 < 1/sample_rate  # This rule focuses on user input (measured in milliseconds).
+                        |  .data$sample_end < .data$sample_start)       # This rule focuses on the derived values that will actually be used (measured in samples).
       #
       # Generally, the second rule should follow from the first (but not the first from the second).
       #
@@ -452,7 +452,7 @@
     itemsToCreate %>%
       dplyr::group_by(.data$session, .data$bundle, .data$level) %>%
       dplyr::arrange(.data$sample_start, .by_group = TRUE) %>%
-      dplyr::mutate(start_item_seq_idx = 1:n()) -> itemsToCreate
+      dplyr::mutate(start_item_seq_idx = 1:(dplyr::n())) -> itemsToCreate
   }
   
   ##
