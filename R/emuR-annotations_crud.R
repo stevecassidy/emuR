@@ -415,7 +415,7 @@
         warning(paste("itemsToCreate contains",
                       nrow(segments_with_duration_below_one_sample),
                       "segments with duration below one sample or even negative. This is never allowed.",
-                      "Inspect this function’s return value to see them. Exiting."))
+                      "Inspect this function's return value to see them. Exiting."))
         return(invisible(segments_with_duration_below_one_sample))
       }
       
@@ -430,7 +430,7 @@
           warning(paste("itemsToCreate contains",
                         nrow(segments_with_gaps_or_overlap),
                         "segments with gaps between them or an overlap with their predecessor.",
-                        "Inspect this function’s return value to see them, and check",
+                        "Inspect this function's return value to see them, and check",
                         "the documentation of the parameter 'allowGapsAndOverlaps'",
                         "for details. Exiting."))
           return(invisible(segments_with_gaps_or_overlap))
@@ -781,7 +781,7 @@ delete_itemsInLevel = function (emuDBhandle,
       warning(paste("itemsToDelete contains",
                     nrow(items_that_are_really_sequences),
                     "rows that span more than one item (start_item_id !=",
-                    "end_item_id). This is not allowed. Inspect this function’s",
+                    "end_item_id). This is not allowed. Inspect this function's",
                     "return value to see them. Exiting."))
       return(invisible(items_that_are_really_sequences))
     }
