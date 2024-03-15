@@ -1,3 +1,15 @@
+# emuR 2.5.0
+
+## new features / performance tweaks / improvements
+
+* CRUD operations: `create_itemsInLevel()` can now be used in more ways than before
+* CRUD operations: Improved documentation for `create/update/delete_itemsInLevel()`; this is ongoing work
+
+## bug fixes
+
+* remove one instance of is.R() because it is no longer allowed on CRAN
+* CRUD operations: `delete_itemsInLevel()` was heavily flawed and is now usable
+
 # emuR 2.4.2
 
 ## new features / performance tweaks / improvements
