@@ -196,7 +196,8 @@ test_that("create_itemsInLevel in SEGMENT levels works as expected", {
   
   create_itemsInLevel(ae, 
                       itemsToCreate = sl, 
-                      verbose = FALSE)
+                      verbose = FALSE,
+                      calculateEndTimeForSegments = FALSE)
   
   
   sl_new = query(ae,
