@@ -1,15 +1,8 @@
-## Bug in R-devel
-
-See https://stat.ethz.ch/pipermail/r-package-devel/2023q4/009790.html
-
-There was a bug in some of the recent versions of R-devel that caused a NOTE in
-the HTML validation of this package’s manual. This bug has been (temporarily)
-fixed in commit r85440. It would be great if you could process this package.
-
 ## Test environments
 
-* local Arch Linux install, gcc, R 4.3.1
-* CRAN win-builder, R-release
+* local Arch Linux install, gcc, R 4.3.3
+* local Arch Linux install, gcc, R-devel r86036
+* CRAN win-builder, R-devel
 * R-hub builder:
   * Windows Server 2022, R-devel, 64 bit
   * Ubuntu Linux 20.04.1 LTS, R-release, GCC
@@ -19,15 +12,17 @@ fixed in commit r85440. It would be great if you could process this package.
 
 There were no WARNINGs and no ERRORs.
 
-On CRAN win-builder and locally, there were no NOTEs.
-
-On the R-hub builder platform, there were NOTEs about:
+On some platforms, there were minor NOTEs about:
 
 - non-standard things in the check directory: `NULL`
 - detritus in the temp directory: `lastMiKTeXException`
 
-Both are probably due to bugs in the builder platform.
+Both are probably due to bugs in the respective builder platform.
 
-## Downstream dependencies
+## revdepcheck results
 
-There are currently no downstream dependencies for this package.
+We checked 1 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
+
+ * We saw 0 new problems
+ * We failed to check 0 packages
+
